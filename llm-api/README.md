@@ -93,9 +93,9 @@ In the following you will see the instruction to run the [lit-llama](https://git
     python3 generate.py --quantize llm.int8 --prompt "Hello, my name is"
     ```
 19. In case you want to install Visual Studio Code by using the snap package manager, which is available by default in recent Ubuntu distributions:
-```
-sudo snap install --classic code
-```
+   ```
+      sudo snap install --classic code
+   ```
 
 
 These instructions should help you replicate the lit-llama project successfully.
