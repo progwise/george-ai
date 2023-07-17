@@ -1,4 +1,4 @@
-I. How to start and fine tune a onPremise LLM 
+I. How to start and fine-tune a onPremise LLM 
 
 In the following you will see the instruction to run the [lit-llama](https://github.com/Lightning-AI/lit-llama) project on a system equipped with an NVIDIA RTX GPU:
 
