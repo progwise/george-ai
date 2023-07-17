@@ -1,4 +1,4 @@
-I. How to start and fine tune a onPremise LLM
+I. How to start and fine tune a onPremise LLM [lit-llama](https://github.com/Lightning-AI/lit-llama)
 
 1. Update the system's package index to retrieve the latest information about available packages.
    ```shell
