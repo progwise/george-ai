@@ -1,7 +1,5 @@
 1. How to start and fine tune a onPremise LLM
 
-Sure! Here are the descriptions for each step along with the instructions to replicate the lit-llama project:
-
 1. Update the system's package index to retrieve the latest information about available packages.
    ```shell
    sudo apt update
