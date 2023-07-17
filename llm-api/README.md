@@ -1,4 +1,4 @@
-1. How to start and fine tune a onPremise LLM
+I. How to start and fine tune a onPremise LLM
 
 1. Update the system's package index to retrieve the latest information about available packages.
    ```shell
@@ -92,6 +92,6 @@
     ```
 
 These instructions should help you replicate the lit-llama project successfully.
-2. How to use OpenAI API instead
+II. How to use OpenAI API instead
 
 How to decide which to use
