@@ -55,8 +55,8 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
     urlsDone.push(urlsTodo[0])
     console.log(`scraping ${urlsTodo[0]}`)
     const result = await scrapePage(urlsTodo[0], context)
-    urlsTodo = Array.from(new Set([...urlsTodo, ...result.links].filter(url => !urlsDone.includes(url))))
     console.log(`-- scraped ${urlsTodo[0]}`)
+    urlsTodo = Array.from(new Set([...urlsTodo, ...result.links].filter(url => !urlsDone.includes(url))))
     results.push(result)
   }
 
