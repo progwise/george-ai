@@ -27,7 +27,7 @@ const acceptCookies = async (page: playwright.Page) => {
 const scrapePage = async (url: string, context: playwright.BrowserContext): Promise<ScrapeResult> => {
 
   const page = await context.newPage()
-  await new Promise(x => setTimeout(x, 1000));
+  await new Promise(x => setTimeout(x, 100));
   await page.goto(url)
   await acceptCookies(page)
   const pageTitle = await page.title()
@@ -45,7 +45,7 @@ const scrapePage = async (url: string, context: playwright.BrowserContext): Prom
 }
 
 const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
-  const browser = await playwright['chromium'].launch({headless: false})
+  const browser = await playwright['chromium'].launch({headless: true})
   const context = await browser.newContext()
   const urls = [url]
   const urlsDone: Array<string> =[]
@@ -54,10 +54,16 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
   while (urlsTodo.length > 0) {
     urlsDone.push(urlsTodo[0])
     console.log(`scraping ${urlsTodo[0]}`)
-    const result = await scrapePage(urlsTodo[0], context)
-    console.log(`-- scraped ${urlsTodo[0]}`)
-    urlsTodo = Array.from(new Set([...urlsTodo, ...result.links].filter(url => !urlsDone.includes(url))))
-    results.push(result)
+    try {
+      const result = await scrapePage(urlsTodo[0], context)
+      console.log(`-- scraped ${urlsTodo[0]}`)
+      results.push(result)
+      urlsTodo = Array.from(new Set([...urlsTodo, ...result.links].filter(url => !urlsDone.includes(url))))
+    }
+    catch(e) {
+      console.error(`error scraping ${urlsTodo[0]}`)
+      urlsTodo = Array.from(new Set([...urlsTodo].filter(url => !urlsDone.includes(url))))
+    }
   }
 
   await browser.close()
