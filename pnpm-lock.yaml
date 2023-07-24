@@ -14,7 +14,7 @@ importers:
       openai:
         specifier: ^3.3.0
         version: 3.3.0
-      playwright:
+      playwright-chromium:
         specifier: ^1.36.1
         version: 1.36.1
       ts-node:
@@ -169,19 +169,19 @@ packages:
       - debug
     dev: false
 
-  /playwright-core@1.36.1:
-    resolution: {integrity: sha512-7+tmPuMcEW4xeCL9cp9KxmYpQYHKkyjwoXRnoeTowaeNat8PoBMk/HwCYhqkH2fRkshfKEOiVus/IhID2Pg8kg==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dev: false
-
-  /playwright@1.36.1:
-    resolution: {integrity: sha512-2ZqHpD0U0COKR8bqR3W5IkyIAAM0mT9FgGJB9xWCI1qAUkqLxJskA1ueeQOTH2Qfz3+oxdwwf2EzdOX+RkZmmQ==}
+  /playwright-chromium@1.36.1:
+    resolution: {integrity: sha512-V2jBtS5zNUyMajzh6SRiCzafsz/Mg35IroR+SwWhAa1Dqa4juGXDp26AdK7Nj/fAOvwnG+dFDVOVx/ewt9dSxQ==}
     engines: {node: '>=16'}
     hasBin: true
     requiresBuild: true
     dependencies:
       playwright-core: 1.36.1
+    dev: false
+
+  /playwright-core@1.36.1:
+    resolution: {integrity: sha512-7+tmPuMcEW4xeCL9cp9KxmYpQYHKkyjwoXRnoeTowaeNat8PoBMk/HwCYhqkH2fRkshfKEOiVus/IhID2Pg8kg==}
+    engines: {node: '>=16'}
+    hasBin: true
     dev: false
 
   /ts-node@10.9.1(@types/node@20.4.4)(typescript@5.1.6):

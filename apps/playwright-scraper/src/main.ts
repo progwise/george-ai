@@ -1,4 +1,4 @@
-import playwright, { Page } from 'playwright'
+import playwright, { Page } from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chatGPT.js';
 
 export interface ScrapeResult {
