@@ -27,7 +27,7 @@ const acceptCookies = async (page: playwright.Page) => {
 const scrapePage = async (url: string, context: playwright.BrowserContext): Promise<ScrapeResult> => {
 
   const page = await context.newPage()
-  await new Promise(x => setTimeout(x, 1000));
+  await new Promise(x => setTimeout(x, 100));
   await page.goto(url)
   await acceptCookies(page)
   const pageTitle = await page.title()
@@ -38,10 +38,10 @@ const scrapePage = async (url: string, context: playwright.BrowserContext): Prom
   await page.close()
   return {
     url,
-    summary: `summary for ${pageTitle}`, // await getServiceSummary(texts),
-    keywords: ['k1', 'k2', 'k3'], //(await getKeywords(texts))?.filter(keyword => keyword.length),
-    // summary: await getServiceSummary(texts),
-    // keywords: (await getKeywords(texts))?.filter(keyword => keyword.length),
+    // summary: `summary for ${pageTitle}`, // await getServiceSummary(texts),
+    // keywords: ['k1', 'k2', 'k3'], //(await getKeywords(texts))?.filter(keyword => keyword.length),
+        summary: await getServiceSummary(texts),
+    keywords: (await getKeywords(texts))?.filter(keyword => keyword.length),
     links: Array.from(new Set(links.filter(link => link && link.length > 0 && !link.startsWith('#')))) as string[]
   }
 }
@@ -58,12 +58,13 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
     console.log(`scraping ${urlsTodo[0]}`)
     try {
       const result = await scrapePage(urlsTodo[0], context)
-      console.log(`-- scraped ${urlsTodo[0]}`, result)
+      console.log(`-- scraped ${urlsTodo[0]}`)
+      console.log(result)
       results.push(result)
       urlsTodo = Array.from(new Set([...urlsTodo, ...result.links].filter(url => !urlsDone.includes(url))))
     }
     catch(e) {
-      console.error(`error scraping ${urlsTodo[0]}`, e)
+      console.error(`error scraping ${urlsTodo[0]}`)
       urlsTodo = Array.from(new Set([...urlsTodo].filter(url => !urlsDone.includes(url))))
     }
   }
@@ -73,4 +74,3 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
 }
 
 const results = await doScrape('https://www.medizin.uni-greifswald.de/')
-console.log(results)
