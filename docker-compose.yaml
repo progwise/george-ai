@@ -1,0 +1,54 @@
+version: '3'
+services:
+  gai-typesense:
+    image: typesense/typesense:0.24.1
+    container_name: gai-typesense
+    restart: always
+    env_file: .env
+    ports:
+      - "8108:8108"
+    volumes:
+      - ./gaidata:/typesensedata
+    command: '--data-dir /typesensedata --api-key=xyz --enable-cors'
+    networks:
+        - gai-network
+
+  gai-strapi:
+    image: strapi/strapi
+    container_name: gai-strapi
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DATABASE_CLIENT=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=strapi
+      - DATABASE_USERNAME=strapi
+      - DATABASE_PASSWORD=strapi
+    networks:
+      - gai-network
+    volumes:
+      - ./gaidata:/srv/app
+    ports:
+      - "1337:1337"
+    depends_on:
+      - gai-strapi-db
+
+  gai-strapi-db:
+    container_name: gai-postgres
+    image: postgres
+    restart: always
+    volumes:
+      - ./gaidata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+      POSTGRES_DB: strapi
+    networks:
+      - gai-network
+networks:
+  gai-network:
+    driver: bridge
+
+volumes:
+  gaidata:

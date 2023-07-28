@@ -1,1 +1,0 @@
-# Scrape tool using playwright
