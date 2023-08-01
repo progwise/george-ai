@@ -3,8 +3,9 @@ import { getKeywords, getServiceSummary } from './chatGPT.js';
 
 export interface ScrapeResult {
   url: string
-  summary?: string
-  keywords?: string[]
+  content: string
+  summary?: string // remove
+  keywords?: string[] //remove
   links: string[]
 }
 
@@ -40,7 +41,8 @@ const scrapePage = async (url: string, context: playwright.BrowserContext): Prom
     url,
     // summary: `summary for ${pageTitle}`, // await getServiceSummary(texts),
     // keywords: ['k1', 'k2', 'k3'], //(await getKeywords(texts))?.filter(keyword => keyword.length),
-        summary: await getServiceSummary(texts),
+    content: texts,
+    summary: await getServiceSummary(texts),
     keywords: (await getKeywords(texts))?.filter(keyword => keyword.length),
     links: Array.from(new Set(links.filter(link => link && link.length > 0 && !link.startsWith('#')))) as string[]
   }
@@ -57,11 +59,15 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
     urlsDone.push(urlsTodo[0])
     console.log(`scraping ${urlsTodo[0]}`)
     try {
-      const result = await scrapePage(urlsTodo[0], context)
+      const scrapeResult = await scrapePage(urlsTodo[0], context) // todo: only scrape, no chatGPT call
+      // chatGPT call for summary here
+      // chatGPT call for keywords here
+      // save to strapi (new)
+
       console.log(`-- scraped ${urlsTodo[0]}`)
-      console.log(result)
-      results.push(result)
-      urlsTodo = Array.from(new Set([...urlsTodo, ...result.links].filter(url => !urlsDone.includes(url))))
+      console.log(scrapeResult)
+      results.push(scrapeResult)
+      urlsTodo = Array.from(new Set([...urlsTodo, ...scrapeResult.links].filter(url => !urlsDone.includes(url))))
     }
     catch(e) {
       console.error(`error scraping ${urlsTodo[0]}`)
