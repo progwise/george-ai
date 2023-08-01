@@ -75,7 +75,7 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
   const results: Array<ResultForStrapi> = [];
   let urlsTodo = urls.filter((url) => !urlsDone.includes(url));
   let runCounter = 0; // Counter
-  const maxRuns = 1; // Maximale Anzahl von Läufen
+  const maxRuns = 1; // Maximum number of runs
   while (urlsTodo.length > 0 && runCounter < maxRuns) {
     const currentUrl = urlsTodo[0];
     urlsDone.push(currentUrl);
@@ -96,7 +96,7 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
       };
 
       console.log(`-- scraped ${currentUrl}`);
-      console.log(resultForStrapi);
+      // console.log(resultForStrapi);
       results.push(resultForStrapi);
 
       urlsTodo = Array.from(
@@ -112,7 +112,7 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
         new Set([...urlsTodo].filter((url) => !urlsDone.includes(url)))
       );
     }
-    runCounter++; // Erhöht den Counter nach jedem Lauf
+    runCounter++; // Increases the counter after each run
   }
 
   await browser.close();
