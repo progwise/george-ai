@@ -2,8 +2,6 @@ import { Configuration, OpenAIApi } from "openai";
 import dotenv from 'dotenv'
 
 dotenv.config()
-console.log(process.env['OPENAI_API_KEY'])
-console.log(process.env['OPENAI_API_ORG'])
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
   organization: process.env.OPENAI_API_ORG,
@@ -39,11 +37,9 @@ export const getServiceSummary = async (content: string) => {
     console.error('error using chatGPT')
     console.log(JSON.stringify(e, undefined, 2))
   }
-  
 }
 
 export const getKeywords = async (content: string) => {
-
   const response =   await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
