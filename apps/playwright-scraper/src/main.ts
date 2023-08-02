@@ -1,15 +1,17 @@
 import playwright, { Page } from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
 
+const MAX_RUNS = 1; // Maximum number of runs
+
 export interface ScrapeResult {
   url: string;
   content: string;
   links: string[];
 }
 
-export interface ResultForStrapi extends ScrapeResult {
-  summary?: string;
-  keywords?: string[];
+export interface WebPageSummary extends ScrapeResult {
+  summary: string;
+  keywords: string[];
 }
 
 const acceptCookies = async (page: playwright.Page) => {
@@ -63,7 +65,7 @@ const scrapePage = async (
       new Set(
         links.filter((link) => link && link.length > 0 && !link.startsWith("#"))
       )
-    ) as string[],
+    ),
   };
 };
 
@@ -72,32 +74,30 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
   const context = await browser.newContext();
   const urls = [url];
   const urlsDone: Array<string> = [];
-  const results: Array<ResultForStrapi> = [];
+  const results: Array<WebPageSummary> = [];
   let urlsTodo = urls.filter((url) => !urlsDone.includes(url));
   let runCounter = 0; // Counter
-  const maxRuns = 1; // Maximum number of runs
-  while (urlsTodo.length > 0 && runCounter < maxRuns) {
+  while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
     const currentUrl = urlsTodo[0];
     urlsDone.push(currentUrl);
     console.log(`scraping ${currentUrl}`);
     try {
       const scrapeResult = await scrapePage(currentUrl, context);
-      // const resultSummary = `summary for ${pageTitle}`;
-      // const resultKeywords = ['k1', 'k2', 'k3'];
-      const summary = await getServiceSummary(scrapeResult.content);
-      const keywords = (await getKeywords(scrapeResult.content))?.filter(
-        (keyword) => keyword.length
-      );
+      const summary = (await getServiceSummary(scrapeResult.content)) ?? "";
+      const keywords =
+        (await getKeywords(scrapeResult.content))?.filter(
+          (keyword) => keyword.length
+        ) ?? [];
 
-      const resultForStrapi: ResultForStrapi = {
+      const webPageSummary: WebPageSummary = {
         ...scrapeResult,
         summary,
-        keywords: keywords,
+        keywords,
       };
 
       console.log(`-- scraped ${currentUrl}`);
-      // console.log(resultForStrapi);
-      results.push(resultForStrapi);
+      console.log(webPageSummary);
+      results.push(webPageSummary);
 
       urlsTodo = Array.from(
         new Set(
