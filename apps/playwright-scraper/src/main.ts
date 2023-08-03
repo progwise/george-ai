@@ -1,9 +1,11 @@
 import playwright, { Page } from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
+import { upsertWebPageSummaries } from "./strapi.js";
 
 const MAX_RUNS = 1; // Maximum number of runs
 
 export interface ScrapeResult {
+  title: string;
   url: string;
   content: string;
   links: string[];
@@ -59,6 +61,7 @@ const scrapePage = async (
   const links = await extractLinks(page);
   await page.close();
   return {
+    title: pageTitle,
     url,
     content: texts,
     links: Array.from(
@@ -69,7 +72,7 @@ const scrapePage = async (
   };
 };
 
-const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
+const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
   const browser = await playwright["chromium"].launch({ headless: false });
   const context = await browser.newContext();
   const urls = [url];
@@ -119,4 +122,7 @@ const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
   return results;
 };
 
-const results = await doScrape("https://www.medizin.uni-greifswald.de/");
+(async () => {
+  const results = await doScrape("https://www.medizin.uni-greifswald.de/");
+  await upsertWebPageSummaries(results);
+})();
