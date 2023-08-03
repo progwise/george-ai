@@ -1,6 +1,7 @@
 import { GraphQLClient } from "graphql-request";
 import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
+import { WebPageSummaryEntityResponse } from "./gql/graphql.js";
 
 dotenv.config();
 
@@ -30,51 +31,30 @@ mutation CreateWebPageSummary($data: WebPageSummaryInput!) {
 }
 `;
 
-interface WebPageSummaryAttributes {
-  Title: string;
-  Url: string;
-  LargeLanguageModel: string;
-  OriginalContent: string;
-  GeneratedSummary: string;
-  GeneratedKeywords: string;
-}
-
-interface WebPageSummaryData {
-  id: string;
-  attributes: WebPageSummaryAttributes;
-}
-
-interface WebPageSummaryResponse {
-  createWebPageSummary: {
-    data: WebPageSummaryData;
-  };
-}
-
-export const upsertWebPageSummary = async (results: WebPageSummary[]) => {
+export const upsertWebPageSummaries = async (summaries: WebPageSummary[]) => {
   try {
     await Promise.all(
-      results.map(async (result) => {
+      summaries.map(async (summary) => {
         const data = {
-          Title: result.title,
-          Url: result.url,
+          Title: summary.title,
+          Url: summary.url,
           LargeLanguageModel: "gpt-3.5-turbo",
-          OriginalContent: result.content,
-          GeneratedSummary: result.summary,
-          GeneratedKeywords: JSON.stringify(result.keywords),
+          OriginalContent: summary.content,
+          GeneratedSummary: summary.summary,
+          GeneratedKeywords: JSON.stringify(summary.keywords),
         };
-        const response = await client.request<WebPageSummaryResponse>(
-          CREATE_WEBPAGE_SUMMARY_MUTATION,
-          {
-            data,
-          }
-        );
+        const response = await client.request<{
+          createWebPageSummary: WebPageSummaryEntityResponse;
+        }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
+          data,
+        });
         console.log(
-          "Successfully created ScrapTest with ID:",
-          response.createWebPageSummary.data.id
+          "Successfully created WebPageSummary with ID:",
+          response.createWebPageSummary.data?.id
         );
       })
     );
   } catch (error) {
-    console.error("Failed to create ScrapTest", error);
+    console.error("Failed to create WebPageSummary", error);
   }
 };

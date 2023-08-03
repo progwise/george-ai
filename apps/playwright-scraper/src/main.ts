@@ -1,8 +1,8 @@
 import playwright, { Page } from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
-import { upsertWebPageSummary } from "./strapi.js";
+import { upsertWebPageSummaries } from "./strapi.js";
 
-const MAX_RUNS = 2; // Maximum number of runs
+const MAX_RUNS = 1; // Maximum number of runs
 
 export interface ScrapeResult {
   title: string;
@@ -122,5 +122,7 @@ const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
   return results;
 };
 
-const results = await doScrape("https://www.medizin.uni-greifswald.de/");
-upsertWebPageSummary(results);
+(async () => {
+  const results = await doScrape("https://www.medizin.uni-greifswald.de/");
+  await upsertWebPageSummaries(results);
+})();
