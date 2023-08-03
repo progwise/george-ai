@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "scrape": "ts-node --esm src/main.ts",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "codegen": "codegen"
   },
   "keywords": [],
   "author": "",

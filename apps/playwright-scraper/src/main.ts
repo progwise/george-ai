@@ -2,7 +2,7 @@ import playwright, { Page } from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
 import { upsertWebPageSummaries } from "./strapi.js";
 
-const MAX_RUNS = 1; // Maximum number of runs
+const MAX_RUNS = 2; // Maximum number of runs
 
 export interface ScrapeResult {
   title: string;
