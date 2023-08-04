@@ -5,13 +5,14 @@
   "scripts": {
     "scrape": "ts-node --esm src/main.ts",
     "tsc": "tsc",
-    "codegen": "codegen"
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@urql/core": "^4.1.0",
     "dotenv": "^16.3.1",
     "graphql": "^16.7.1",
@@ -19,6 +20,9 @@
     "openai": "^3.3.0",
     "playwright-chromium": "^1.36.1",
     "ts-node": "^10.9.1"
+  },
+  "resolutions": {
+    "graphql": "^16.7.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
