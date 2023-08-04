@@ -76,7 +76,7 @@ const scrapePage = async (
 };
 
 const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
-  const browser = await playwright["chromium"].launch({ headless: false });
+  const browser = await playwright["chromium"].launch({ headless: true });
   const context = await browser.newContext();
   const urls = [url];
   const urlsDone: Array<string> = [];
@@ -126,8 +126,6 @@ const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
 };
 
 (async () => {
-  const results = await doScrape(
-    "https://www.medizin.uni-greifswald.de/en/home/"
-  );
+  const results = await doScrape("https://www.github.com/");
   await upsertWebPageSummaries(results);
 })();
