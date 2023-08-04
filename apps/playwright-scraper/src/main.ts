@@ -1,6 +1,7 @@
 import playwright, { Page } from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
 import { upsertWebPageSummaries } from "./strapi.js";
+import { franc } from "franc-min";
 
 const MAX_RUNS = 2; // Maximum number of runs
 
@@ -58,6 +59,8 @@ const scrapePage = async (
     (await body.allTextContents())
       .map((text) => text.replace(/\s\s+/g, " "))
       .join("\n");
+  const language = franc(texts);
+  console.log("language: ", language);
   const links = await extractLinks(page);
   await page.close();
   return {
@@ -98,8 +101,8 @@ const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
         keywords,
       };
 
-      console.log(`-- scraped ${currentUrl}`);
-      console.log(webPageSummary);
+      // console.log(`-- scraped ${currentUrl}`);
+      // console.log(webPageSummary);
       results.push(webPageSummary);
 
       urlsTodo = Array.from(
@@ -123,6 +126,8 @@ const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
 };
 
 (async () => {
-  const results = await doScrape("https://www.medizin.uni-greifswald.de/");
+  const results = await doScrape(
+    "https://www.medizin.uni-greifswald.de/en/home/"
+  );
   await upsertWebPageSummaries(results);
 })();
