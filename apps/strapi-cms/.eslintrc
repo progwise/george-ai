@@ -1,27 +1,45 @@
 {
-  "parser": "babel-eslint",
-  "extends": "eslint:recommended",
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": false
+    },
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint", "unicorn", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:unicorn/recommended",
+    "prettier"
+  ],
   "env": {
     "commonjs": true,
     "es6": true,
     "node": true,
     "browser": false
   },
-  "parserOptions": {
-    "ecmaFeatures": {
-      "experimentalObjectRestSpread": true,
-      "jsx": false
-    },
-    "sourceType": "module"
-  },
-  "globals": {
-    "strapi": true
-  },
   "rules": {
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
     "no-console": 0,
     "quotes": ["error", "single"],
-    "semi": ["error", "always"]
+    "semi": ["error", "never"],
+    "unicorn/no-null": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto",
+        "semi": false,
+        "singleQuote": true,
+        "printWidth": 80,
+        "tabWidth": 2
+      }
+    ]
+  },
+  "globals": {
+    "strapi": true
   }
 }

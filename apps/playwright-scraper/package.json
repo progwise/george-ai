@@ -5,7 +5,10 @@
   "scripts": {
     "scrape": "ts-node --esm src/main.ts",
     "tsc": "tsc",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +33,10 @@
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-urql": "^3.7.3",
     "@types/node": "^20.4.4",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.10.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.1",
     "typescript": "^5.1.6"
   }
 }
