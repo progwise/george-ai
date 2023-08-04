@@ -72,13 +72,13 @@ const scrapePage = async (
   };
 };
 
-const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
+const doScrape = async (url: string): Promise<Array<WebPageSummary>> => { //should return Promise<void> & rename method to processPage
   const browser = await playwright["chromium"].launch({ headless: false });
   const context = await browser.newContext();
-  const urls = [url];
+  const urls = [url]; // ?? urls not needed I guess.
   const urlsDone: Array<string> = [];
-  const results: Array<WebPageSummary> = [];
-  let urlsTodo = urls.filter((url) => !urlsDone.includes(url));
+  const results: Array<WebPageSummary> = []; //not needed any more.
+  let urlsTodo = urls.filter((url) => !urlsDone.includes(url)); // better?
   let runCounter = 0; // Counter
   while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
     const currentUrl = urlsTodo[0];
@@ -123,6 +123,6 @@ const doScrape = async (url: string): Promise<Array<WebPageSummary>> => {
 };
 
 (async () => {
-  const results = await doScrape("https://www.medizin.uni-greifswald.de/");
+  const results = await doScrape("https://www.medizin.uni-greifswald.de/"); // processPage, scrape is called from there, scrape is moved to scrape.ts
   await upsertWebPageSummaries(results);
 })();
