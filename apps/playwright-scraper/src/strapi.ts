@@ -3,6 +3,7 @@ import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
 import {
   Query,
+  WebPageSummaryEntity,
   WebPageSummaryEntityResponse,
   WebPageSummaryEntityResponseCollection,
 } from "./gql/graphql.js";
@@ -103,23 +104,11 @@ export const upsertWebPageSummaries = async (summaries: WebPageSummary[]) => {
         });
 
         console.log("existingSummaryResponse: ", existingSummaryResponse);
-        // console.log(
-        //   "existingSummaryResponse: ",
-        //   JSON.stringify(existingSummaryResponse, null, 2)
-        // );
-        const existingSummaryId =
-          existingSummaryResponse.webPageSummaries.data[0].id;
-        console.log("existingSummaryId: ", existingSummaryId);
 
         if (
           existingSummaryResponse.webPageSummaries.data &&
           existingSummaryResponse.webPageSummaries.data.length > 0
         ) {
-          // console.log(
-          //   "existingSummaryResponse.data.length: ",
-          //   existingSummaryResponse.data.length
-          // );
-
           const existingSummaryId =
             existingSummaryResponse.webPageSummaries.data[0].id;
           console.log("existingSummaryId: ", existingSummaryId);
@@ -130,7 +119,7 @@ export const upsertWebPageSummaries = async (summaries: WebPageSummary[]) => {
               updateWebPageSummary: WebPageSummaryEntityResponse;
             }>(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
               id: existingSummaryId,
-              updateData,
+              data: updateData,
             });
             console.log(
               "Successfully updated WebPageSummary with ID:",
