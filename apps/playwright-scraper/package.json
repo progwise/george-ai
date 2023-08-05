@@ -4,13 +4,15 @@
   "description": "",
   "scripts": {
     "scrape": "ts-node --esm src/main.ts",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@urql/core": "^4.1.0",
     "dotenv": "^16.3.1",
     "graphql": "^16.7.1",

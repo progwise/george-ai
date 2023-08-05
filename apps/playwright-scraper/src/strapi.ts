@@ -1,7 +1,12 @@
 import { GraphQLClient } from "graphql-request";
 import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
-import { WebPageSummaryEntityResponse } from "./gql/graphql.js";
+import {
+  Query,
+  WebPageSummaryEntity,
+  WebPageSummaryEntityResponse,
+  WebPageSummaryEntityResponseCollection,
+} from "./gql/graphql.js";
 
 dotenv.config();
 
@@ -31,6 +36,46 @@ mutation CreateWebPageSummary($data: WebPageSummaryInput!) {
 }
 `;
 
+const UPDATE_WEBPAGE_SUMMARY_MUTATION = `
+mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
+  updateWebPageSummary(id: $id, data: $data) {
+    data {
+      id
+      attributes {
+        Title
+        Url
+        LargeLanguageModel
+        OriginalContent
+        GeneratedSummary
+        GeneratedKeywords
+      }
+    }
+  }
+}
+`;
+
+const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
+  query GetWebPageSummary($url: String!, $model: String!) {
+    webPageSummaries(
+      publicationState: PREVIEW
+      filters: { Url: { eq: $url }, LargeLanguageModel: { eq: $model } }
+    ) {
+      data {
+        id
+        attributes {
+          Title
+          Url
+          LargeLanguageModel
+          OriginalContent
+          GeneratedSummary
+          GeneratedKeywords
+          updatedAt
+        }
+      }
+    }
+  }
+`;
+
 export const upsertWebPageSummaries = async (summaries: WebPageSummary[]) => {
   try {
     await Promise.all(
@@ -43,18 +88,59 @@ export const upsertWebPageSummaries = async (summaries: WebPageSummary[]) => {
           GeneratedSummary: summary.summary,
           GeneratedKeywords: JSON.stringify(summary.keywords),
         };
-        const response = await client.request<{
-          createWebPageSummary: WebPageSummaryEntityResponse;
-        }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
-          data,
+        const updateData = {
+          Title: summary.title,
+          OriginalContent: summary.content,
+          GeneratedSummary: summary.summary,
+          GeneratedKeywords: JSON.stringify(summary.keywords),
+        };
+
+        // Check if the WebPageSummary already exists
+        const existingSummaryResponse = await client.request<{
+          webPageSummaries: WebPageSummaryEntityResponseCollection;
+        }>(GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY, {
+          url: summary.url,
+          model: "gpt-3.5-turbo",
         });
-        console.log(
-          "Successfully created WebPageSummary with ID:",
-          response.createWebPageSummary.data?.id
-        );
+
+        console.log("existingSummaryResponse: ", existingSummaryResponse);
+
+        if (
+          existingSummaryResponse.webPageSummaries.data &&
+          existingSummaryResponse.webPageSummaries.data.length > 0
+        ) {
+          const existingSummaryId =
+            existingSummaryResponse.webPageSummaries.data[0].id;
+          console.log("existingSummaryId: ", existingSummaryId);
+
+          // If it exists, update it
+          if (existingSummaryId) {
+            await client.request<{
+              updateWebPageSummary: WebPageSummaryEntityResponse;
+            }>(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
+              id: existingSummaryId,
+              data: updateData,
+            });
+            console.log(
+              "Successfully updated WebPageSummary with ID:",
+              existingSummaryId
+            );
+          }
+        } else {
+          // If it doesn't exist, create it
+          const response = await client.request<{
+            createWebPageSummary: WebPageSummaryEntityResponse;
+          }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
+            data,
+          });
+          console.log(
+            "Successfully created WebPageSummary with ID:",
+            response.createWebPageSummary.data?.id
+          );
+        }
       })
     );
   } catch (error) {
-    console.error("Failed to create WebPageSummary", error);
+    console.error("Failed to upsert WebPageSummary", error);
   }
 };
