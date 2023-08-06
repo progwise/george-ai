@@ -22,9 +22,6 @@
     "playwright-chromium": "^1.36.1",
     "ts-node": "^10.9.1"
   },
-  "resolutions": {
-    "graphql": "^16.7.1"
-  },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/typescript": "^4.0.1",
