@@ -19,8 +19,8 @@ const client = new GraphQLClient(endpoint, {
 });
 
 const CREATE_WEBPAGE_SUMMARY_MUTATION = `
-mutation CreateWebPageSummary($data: WebPageSummaryInput!) {
-  createWebPageSummary(data: $data) {
+mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
+  createWebPageSummary(data: $data, locale: $locale) {
     data {
       id
       attributes {
@@ -43,8 +43,6 @@ mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
       id
       attributes {
         Title
-        Url
-        LargeLanguageModel
         OriginalContent
         GeneratedSummary
         GeneratedKeywords
@@ -130,6 +128,7 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
         createWebPageSummary: WebPageSummaryEntityResponse;
       }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
         data,
+        locale: summary.language,
       });
       console.log(
         "Successfully created WebPageSummary with ID:",

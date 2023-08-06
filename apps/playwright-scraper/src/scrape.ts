@@ -38,6 +38,15 @@ const extractLinks = async (page: Page): Promise<string[]> => {
   return Array.from(new Set(links.filter(isValidLink)));
 };
 
+const convertFrancCodeToLocale = (francCode: string) => {
+  const mapping: { [key: string]: string } = {
+    eng: "en",
+    deu: "de",
+  };
+
+  return mapping[francCode] || francCode;
+};
+
 export const scrapePage = async (
   url: string,
   context: playwright.BrowserContext
@@ -53,8 +62,9 @@ export const scrapePage = async (
     (await body.allTextContents())
       .map((text) => text.replace(/\s\s+/g, " "))
       .join("\n");
-  const language = franc(texts);
-  console.log("language: ", language);
+  const languageCode = franc(texts);
+  const convertedLanguage = convertFrancCodeToLocale(languageCode);
+  console.log("convertedLanguage: ", convertedLanguage);
   const links = await extractLinks(page);
   await page.close();
   return {
@@ -62,6 +72,6 @@ export const scrapePage = async (
     url,
     content: texts,
     links,
-    language,
+    language: convertedLanguage,
   };
 };
