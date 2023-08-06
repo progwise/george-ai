@@ -57,6 +57,6 @@ export const scrapePage = async (
     title: pageTitle,
     url,
     content: texts,
-    links: Array.from(new Set(links.filter(isValidLink))),
+    links,
   };
 };
