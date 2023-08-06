@@ -43,8 +43,6 @@ mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
       id
       attributes {
         Title
-        Url
-        LargeLanguageModel
         OriginalContent
         GeneratedSummary
         GeneratedKeywords
