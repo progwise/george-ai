@@ -1,6 +1,12 @@
 {
-  "parser": "babel-eslint",
-  "extends": "eslint:recommended",
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "custom",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:unicorn/recommended"
+  ],
+  "plugins": ["unicorn"],
   "env": {
     "commonjs": true,
     "es6": true,
@@ -18,10 +24,10 @@
     "strapi": true
   },
   "rules": {
-    "indent": ["error", 2, { "SwitchCase": 1 }],
     "linebreak-style": ["error", "unix"],
     "no-console": 0,
-    "quotes": ["error", "single"],
-    "semi": ["error", "always"]
+    "indent": "off",
+    "quotes": "off",
+    "semi": "off"
   }
 }

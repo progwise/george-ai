@@ -1,10 +1,17 @@
 {
   "name": "george-ai",
   "version": "1.0.0",
-  "license":"ISC",
+  "license": "ISC",
   "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1",
+    "eslint": "^8.46.0",
+    "eslint-plugin-unicorn": "^48.0.1",
+    "prettier": "^3.0.1"
+  }
 }
