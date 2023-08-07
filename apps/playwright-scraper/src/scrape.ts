@@ -5,6 +5,7 @@ export interface ScrapeResult {
   url: string;
   content: string;
   links: string[];
+  language: string;
 }
 
 const acceptCookies = async (page: playwright.Page) => {
@@ -53,6 +54,8 @@ export const scrapePage = async (
     (await body.allTextContents())
       .map((text) => text.replace(/\s\s+/g, " "))
       .join("\n");
+  const language = (await page.locator("html").getAttribute("lang")) || "";
+  console.log("language: ", language);
   const links = await extractLinks(page);
   await page.close();
   return {
@@ -60,5 +63,6 @@ export const scrapePage = async (
     url,
     content: texts,
     links,
+    language,
   };
 };
