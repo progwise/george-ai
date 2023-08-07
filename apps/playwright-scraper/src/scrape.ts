@@ -41,7 +41,7 @@ export const scrapePage = async (
   context: playwright.BrowserContext
 ): Promise<ScrapeResult> => {
   const page = await context.newPage();
-  await page.goto(url, { timeout: 60_000 });
+  await page.goto(url);
   await acceptCookies(page);
   const pageTitle = await page.title();
   const body = await page.locator("main");
