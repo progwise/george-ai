@@ -989,7 +989,32 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>;
 };
 
+export type CreateWebPageSummaryMutationVariables = Exact<{
+  data: WebPageSummaryInput;
+  locale: Scalars['I18NLocaleCode']['input'];
+}>;
 
+
+export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', Title: string, Url?: string | null, LargeLanguageModel?: string | null, OriginalContent?: string | null, GeneratedSummary?: string | null, GeneratedKeywords?: string | null } | null } | null } | null };
+
+
+export const CreateWebPageSummaryDocument = gql`
+    mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
+  createWebPageSummary(data: $data, locale: $locale) {
+    data {
+      id
+      attributes {
+        Title
+        Url
+        LargeLanguageModel
+        OriginalContent
+        GeneratedSummary
+        GeneratedKeywords
+      }
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -998,7 +1023,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-
+    CreateWebPageSummary(variables: CreateWebPageSummaryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateWebPageSummaryMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateWebPageSummaryMutation>(CreateWebPageSummaryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateWebPageSummary', 'mutation');
+    }
   };
 }
 export type Sdk = ReturnType<typeof getSdk>;

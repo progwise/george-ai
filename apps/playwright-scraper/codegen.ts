@@ -10,6 +10,7 @@ const config: CodegenConfig = {
       },
     },
   },
+  documents: "./src/gql/mutations/*.graphql",
   generates: {
     "./src/gql/graphql.ts": {
       plugins: [

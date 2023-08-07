@@ -1,0 +1,18 @@
+mutation CreateWebPageSummary(
+  $data: WebPageSummaryInput!
+  $locale: I18NLocaleCode!
+) {
+  createWebPageSummary(data: $data, locale: $locale) {
+    data {
+      id
+      attributes {
+        Title
+        Url
+        LargeLanguageModel
+        OriginalContent
+        GeneratedSummary
+        GeneratedKeywords
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { GraphQLClient } from "graphql-request";
 import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
 import {
+  CreateWebPageSummaryDocument,
   WebPageSummaryEntityResponse,
   WebPageSummaryEntityResponseCollection,
 } from "./gql/graphql.js";
@@ -16,23 +17,23 @@ const client = new GraphQLClient(endpoint, {
   },
 });
 
-const CREATE_WEBPAGE_SUMMARY_MUTATION = `
-mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
-  createWebPageSummary(data: $data, locale: $locale) {
-    data {
-      id
-      attributes {
-        Title
-        Url
-        LargeLanguageModel
-        OriginalContent
-        GeneratedSummary
-        GeneratedKeywords
-      }
-    }
-  }
-}
-`;
+// const CREATE_WEBPAGE_SUMMARY_MUTATION = `
+// mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
+//   createWebPageSummary(data: $data, locale: $locale) {
+//     data {
+//       id
+//       attributes {
+//         Title
+//         Url
+//         LargeLanguageModel
+//         OriginalContent
+//         GeneratedSummary
+//         GeneratedKeywords
+//       }
+//     }
+//   }
+// }
+// `;
 
 const UPDATE_WEBPAGE_SUMMARY_MUTATION = `
 mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
@@ -122,9 +123,15 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
       }
     } else {
       // If it doesn't exist, create it
+      // const response = await client.request<{
+      //   createWebPageSummary: WebPageSummaryEntityResponse;
+      // }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
+      //   data,
+      //   locale: summary.language,
+      // });
       const response = await client.request<{
         createWebPageSummary: WebPageSummaryEntityResponse;
-      }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
+      }>(CreateWebPageSummaryDocument, {
         data,
         locale: summary.language,
       });
