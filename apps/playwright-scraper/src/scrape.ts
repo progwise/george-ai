@@ -1,5 +1,4 @@
 import playwright, { Page } from "playwright-chromium";
-import { franc } from "franc-min";
 
 export interface ScrapeResult {
   title: string;
@@ -38,21 +37,12 @@ const extractLinks = async (page: Page): Promise<string[]> => {
   return Array.from(new Set(links.filter(isValidLink)));
 };
 
-const convertFrancCodeToLocale = (francCode: string) => {
-  const mapping: { [key: string]: string } = {
-    eng: "en",
-    deu: "de",
-  };
-
-  return mapping[francCode] || francCode;
-};
-
 export const scrapePage = async (
   url: string,
   context: playwright.BrowserContext
 ): Promise<ScrapeResult> => {
   const page = await context.newPage();
-  await page.goto(url, { timeout: 60_000 });
+  await page.goto(url);
   await acceptCookies(page);
   const pageTitle = await page.title();
   const body = await page.locator("main");
@@ -62,9 +52,8 @@ export const scrapePage = async (
     (await body.allTextContents())
       .map((text) => text.replace(/\s\s+/g, " "))
       .join("\n");
-  const languageCode = franc(texts);
-  const convertedLanguage = convertFrancCodeToLocale(languageCode);
-  console.log("convertedLanguage: ", convertedLanguage);
+  const language = (await page.locator("html").getAttribute("lang")) || "";
+  console.log("language: ", language);
   const links = await extractLinks(page);
   await page.close();
   return {
@@ -72,6 +61,6 @@ export const scrapePage = async (
     url,
     content: texts,
     links,
-    language: convertedLanguage,
+    language,
   };
 };

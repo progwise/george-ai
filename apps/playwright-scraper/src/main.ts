@@ -36,8 +36,6 @@ const processPage = async (url: string): Promise<void> => {
         keywords,
       };
 
-      // console.log(`-- scraped ${currentUrl}`);
-      // console.log(webPageSummary);
       await upsertWebPageSummaries(webPageSummary);
 
       urlsTodo = Array.from(

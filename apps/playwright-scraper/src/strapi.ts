@@ -2,8 +2,6 @@ import { GraphQLClient } from "graphql-request";
 import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
 import {
-  Query,
-  WebPageSummaryEntity,
   WebPageSummaryEntityResponse,
   WebPageSummaryEntityResponseCollection,
 } from "./gql/graphql.js";

@@ -15,7 +15,6 @@
     "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@urql/core": "^4.1.0",
     "dotenv": "^16.3.1",
-    "franc-min": "^6.1.0",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "openai": "^3.3.0",
