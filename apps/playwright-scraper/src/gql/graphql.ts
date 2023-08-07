@@ -1,6 +1,5 @@
-import { GraphQLClient } from 'graphql-request';
-import { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types';
-import gql from 'graphql-tag';
+/* eslint-disable */
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -15,9 +14,13 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any; }
+  /** A string used to identify an i18n locale */
   I18NLocaleCode: { input: any; output: any; }
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: any; output: any; }
+  /** The `Upload` scalar type represents a file upload. */
   Upload: { input: any; output: any; }
 };
 
@@ -989,16 +992,31 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>;
 };
 
+export type CreateWebPageSummaryMutationVariables = Exact<{
+  data: WebPageSummaryInput;
+  locale: Scalars['I18NLocaleCode']['input'];
+}>;
 
 
-export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
+export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', Title: string, Url?: string | null, LargeLanguageModel?: string | null, OriginalContent?: string | null, GeneratedSummary?: string | null, GeneratedKeywords?: string | null } | null } | null } | null };
+
+export type UpdateWebPageSummaryMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: WebPageSummaryInput;
+}>;
 
 
-const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType) => action();
+export type UpdateWebPageSummaryMutation = { __typename?: 'Mutation', updateWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', Title: string, OriginalContent?: string | null, GeneratedSummary?: string | null, GeneratedKeywords?: string | null } | null } | null } | null };
 
-export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
-  return {
+export type GetWebPageSummaryQueryVariables = Exact<{
+  url: Scalars['String']['input'];
+  model: Scalars['String']['input'];
+}>;
 
-  };
-}
-export type Sdk = ReturnType<typeof getSdk>;
+
+export type GetWebPageSummaryQuery = { __typename?: 'Query', webPageSummaries?: { __typename?: 'WebPageSummaryEntityResponseCollection', data: Array<{ __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', Title: string, Url?: string | null, LargeLanguageModel?: string | null, OriginalContent?: string | null, GeneratedSummary?: string | null, GeneratedKeywords?: string | null, updatedAt?: any | null } | null }> } | null };
+
+
+export const CreateWebPageSummaryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWebPageSummary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WebPageSummaryInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"I18NLocaleCode"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWebPageSummary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Title"}},{"kind":"Field","name":{"kind":"Name","value":"Url"}},{"kind":"Field","name":{"kind":"Name","value":"LargeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"OriginalContent"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedSummary"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedKeywords"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateWebPageSummaryMutation, CreateWebPageSummaryMutationVariables>;
+export const UpdateWebPageSummaryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWebPageSummary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WebPageSummaryInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWebPageSummary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Title"}},{"kind":"Field","name":{"kind":"Name","value":"OriginalContent"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedSummary"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedKeywords"}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateWebPageSummaryMutation, UpdateWebPageSummaryMutationVariables>;
+export const GetWebPageSummaryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWebPageSummary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"model"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"webPageSummaries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"Url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"LargeLanguageModel"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"model"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Title"}},{"kind":"Field","name":{"kind":"Name","value":"Url"}},{"kind":"Field","name":{"kind":"Name","value":"LargeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"OriginalContent"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedSummary"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedKeywords"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWebPageSummaryQuery, GetWebPageSummaryQueryVariables>;

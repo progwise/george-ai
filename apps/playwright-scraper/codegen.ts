@@ -10,13 +10,11 @@ const config: CodegenConfig = {
       },
     },
   },
+  documents: "src/**/*.ts",
+
   generates: {
-    "./src/gql/graphql.ts": {
-      plugins: [
-        "typescript",
-        "typescript-operations",
-        "typescript-graphql-request",
-      ],
+    "./src/gql/": {
+      preset: "client",
     },
   },
 };

@@ -1,10 +1,7 @@
 import { GraphQLClient } from "graphql-request";
 import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
-import {
-  WebPageSummaryEntityResponse,
-  WebPageSummaryEntityResponseCollection,
-} from "./gql/graphql.js";
+import { graphql } from "./gql";
 
 dotenv.config();
 
@@ -16,41 +13,44 @@ const client = new GraphQLClient(endpoint, {
   },
 });
 
-const CREATE_WEBPAGE_SUMMARY_MUTATION = `
-mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
-  createWebPageSummary(data: $data, locale: $locale) {
-    data {
-      id
-      attributes {
-        Title
-        Url
-        LargeLanguageModel
-        OriginalContent
-        GeneratedSummary
-        GeneratedKeywords
+const CREATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
+  mutation CreateWebPageSummary(
+    $data: WebPageSummaryInput!
+    $locale: I18NLocaleCode!
+  ) {
+    createWebPageSummary(data: $data, locale: $locale) {
+      data {
+        id
+        attributes {
+          Title
+          Url
+          LargeLanguageModel
+          OriginalContent
+          GeneratedSummary
+          GeneratedKeywords
+        }
       }
     }
   }
-}
-`;
+`);
 
-const UPDATE_WEBPAGE_SUMMARY_MUTATION = `
-mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
-  updateWebPageSummary(id: $id, data: $data) {
-    data {
-      id
-      attributes {
-        Title
-        OriginalContent
-        GeneratedSummary
-        GeneratedKeywords
+const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
+  mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
+    updateWebPageSummary(id: $id, data: $data) {
+      data {
+        id
+        attributes {
+          Title
+          OriginalContent
+          GeneratedSummary
+          GeneratedKeywords
+        }
       }
     }
   }
-}
-`;
+`);
 
-const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
+const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = graphql(`
   query GetWebPageSummary($url: String!, $model: String!) {
     webPageSummaries(
       publicationState: PREVIEW
@@ -70,7 +70,7 @@ const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
       }
     }
   }
-`;
+`);
 
 export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
   try {
@@ -89,18 +89,17 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
 
     const updateData = { ...commonData };
 
-    // Check if the WebPageSummary already exists
-    const existingSummaryResponse = await client.request<{
-      webPageSummaries: WebPageSummaryEntityResponseCollection;
-    }>(GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY, {
-      url: summary.url,
-      model: "gpt-3.5-turbo",
-    });
-
+    const existingSummaryResponse = await client.request(
+      GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY,
+      {
+        url: summary.url,
+        model: "gpt-3.5-turbo",
+      }
+    );
     console.log("existingSummaryResponse: ", existingSummaryResponse);
 
     if (
-      existingSummaryResponse.webPageSummaries.data &&
+      existingSummaryResponse.webPageSummaries?.data &&
       existingSummaryResponse.webPageSummaries.data.length > 0
     ) {
       const existingSummaryId =
@@ -109,9 +108,7 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
 
       // If it exists, update it
       if (existingSummaryId) {
-        await client.request<{
-          updateWebPageSummary: WebPageSummaryEntityResponse;
-        }>(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
+        const response = await client.request(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
           id: existingSummaryId,
           data: updateData,
         });
@@ -121,16 +118,14 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
         );
       }
     } else {
-      // If it doesn't exist, create it
-      const response = await client.request<{
-        createWebPageSummary: WebPageSummaryEntityResponse;
-      }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
+      const response = await client.request(CREATE_WEBPAGE_SUMMARY_MUTATION, {
         data,
         locale: summary.language,
       });
+
       console.log(
         "Successfully created WebPageSummary with ID:",
-        response.createWebPageSummary.data?.id
+        response.createWebPageSummary?.data?.id
       );
     }
   } catch (error) {
