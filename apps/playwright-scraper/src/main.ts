@@ -1,84 +1,22 @@
-import playwright, { Page } from "playwright-chromium";
+import playwright from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
 import { upsertWebPageSummaries } from "./strapi.js";
+import { ScrapeResult, scrapePage } from "./scrape.js";
 
 const MAX_RUNS = 2; // Maximum number of runs
-
-export interface ScrapeResult {
-  title: string;
-  url: string;
-  content: string;
-  links: string[];
-}
 
 export interface WebPageSummary extends ScrapeResult {
   summary: string;
   keywords: string[];
 }
 
-const acceptCookies = async (page: playwright.Page) => {
-  try {
-    const acceptCookies = await page
-      .getByText(/alle akzeptieren/i)
-      .getByRole("button");
-    const buttons = await acceptCookies.all();
-    if (buttons.length > 0) {
-      const isVisible = await buttons[0].isVisible();
-      if (isVisible) {
-        await buttons[0].click();
-      }
-    }
-  } catch (e) {
-    console.error("Error accepting cookies", e);
-  }
-};
-
-const extractLinks = async (page: Page): Promise<string[]> => {
-  const linkLocators = await page.locator("a").all();
-  const links = (
-    await Promise.all(linkLocators.map((ll) => ll.getAttribute("href")))
-  ).filter((link): link is string => link !== null);
-  return Array.from(
-    new Set(links.filter((link) => link.length > 0 && !link.startsWith("#")))
-  );
-};
-
-const scrapePage = async (
-  url: string,
-  context: playwright.BrowserContext
-): Promise<ScrapeResult> => {
-  const page = await context.newPage();
-  await page.goto(url);
-  await acceptCookies(page);
-  const pageTitle = await page.title();
-  const body = await page.locator("main");
-  const texts =
-    pageTitle +
-    "\n\n" +
-    (await body.allTextContents())
-      .map((text) => text.replace(/\s\s+/g, " "))
-      .join("\n");
-  const links = await extractLinks(page);
-  await page.close();
-  return {
-    title: pageTitle,
-    url,
-    content: texts,
-    links: Array.from(
-      new Set(
-        links.filter((link) => link && link.length > 0 && !link.startsWith("#"))
-      )
-    ),
-  };
-};
-
-const doScrape = async (url: string): Promise<Array<WebPageSummary>> => { //should return Promise<void> & rename method to processPage
-  const browser = await playwright["chromium"].launch({ headless: false });
+const processPage = async (url: string): Promise<void> => {
+  const browser = await playwright["chromium"].launch({ headless: true });
   const context = await browser.newContext();
-  const urls = [url]; // ?? urls not needed I guess.
+
   const urlsDone: Array<string> = [];
-  const results: Array<WebPageSummary> = []; //not needed any more.
-  let urlsTodo = urls.filter((url) => !urlsDone.includes(url)); // better?
+  let urlsTodo = [url];
+
   let runCounter = 0; // Counter
   while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
     const currentUrl = urlsTodo[0];
@@ -98,31 +36,25 @@ const doScrape = async (url: string): Promise<Array<WebPageSummary>> => { //shou
         keywords,
       };
 
-      console.log(`-- scraped ${currentUrl}`);
-      console.log(webPageSummary);
-      results.push(webPageSummary);
+      // console.log(`-- scraped ${currentUrl}`);
+      // console.log(webPageSummary);
+      await upsertWebPageSummaries(webPageSummary);
 
       urlsTodo = Array.from(
         new Set(
-          [...urlsTodo, ...scrapeResult.links].filter(
+          [...urlsTodo.slice(1), ...scrapeResult.links].filter(
             (url) => !urlsDone.includes(url)
           )
         )
       );
     } catch (e) {
       console.error(`error scraping ${currentUrl}`);
-      urlsTodo = Array.from(
-        new Set([...urlsTodo].filter((url) => !urlsDone.includes(url)))
-      );
+      urlsTodo = urlsTodo.slice(1);
     }
     runCounter++; // Increases the counter after each run
   }
 
   await browser.close();
-  return results;
 };
 
-(async () => {
-  const results = await doScrape("https://www.medizin.uni-greifswald.de/"); // processPage, scrape is called from there, scrape is moved to scrape.ts
-  await upsertWebPageSummaries(results);
-})();
+await processPage("https://www.medizin.uni-greifswald.de/");
