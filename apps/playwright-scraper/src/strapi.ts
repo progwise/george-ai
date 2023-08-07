@@ -24,10 +24,12 @@ const CREATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
         attributes {
           Title
           Url
-          LargeLanguageModel
           OriginalContent
-          GeneratedSummary
-          GeneratedKeywords
+          WebPageSummary {
+            LargeLanguageModel
+            GeneratedKeywords
+            GeneratedSummary
+          }
         }
       }
     }
@@ -40,10 +42,10 @@ const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
       data {
         id
         attributes {
-          Title
-          OriginalContent
-          GeneratedSummary
-          GeneratedKeywords
+          WebPageSummary {
+            GeneratedKeywords
+            GeneratedSummary
+          }
         }
       }
     }
@@ -54,18 +56,20 @@ const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = graphql(`
   query GetWebPageSummary($url: String!, $model: String!) {
     webPageSummaries(
       publicationState: PREVIEW
-      filters: { Url: { eq: $url }, LargeLanguageModel: { eq: $model } }
+      filters: {
+        Url: { eq: $url }
+        WebPageSummary: { LargeLanguageModel: { eq: "Your Model Value Here" } }
+      }
     ) {
       data {
         id
         attributes {
-          Title
           Url
-          LargeLanguageModel
-          OriginalContent
-          GeneratedSummary
-          GeneratedKeywords
-          updatedAt
+          WebPageSummary {
+            LargeLanguageModel
+            GeneratedSummary
+            GeneratedKeywords
+          }
         }
       }
     }
@@ -77,17 +81,25 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
     const commonData = {
       Title: summary.title,
       OriginalContent: summary.content,
+      Url: summary.url,
+    };
+
+    const updateData = {
       GeneratedSummary: summary.summary,
       GeneratedKeywords: JSON.stringify(summary.keywords),
     };
 
+    const summaryData = [
+      {
+        ...updateData,
+        LargeLanguageModel: "gpt-3.5-turbo",
+      },
+    ];
+
     const data = {
       ...commonData,
-      Url: summary.url,
-      LargeLanguageModel: "gpt-3.5-turbo",
+      WebPageSummary: summaryData,
     };
-
-    const updateData = { ...commonData };
 
     const existingSummaryResponse = await client.request(
       GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY,

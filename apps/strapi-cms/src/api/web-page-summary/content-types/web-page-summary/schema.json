@@ -4,7 +4,8 @@
   "info": {
     "singularName": "web-page-summary",
     "pluralName": "web-page-summaries",
-    "displayName": "WebPageSummary"
+    "displayName": "ScrapedWebPage",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -63,6 +64,16 @@
         }
       },
       "type": "string"
+    },
+    "WebPageSummary": {
+      "type": "component",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "web-page-summary.web-page-summary"
     }
   }
 }
