@@ -74,20 +74,20 @@ const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
 
 export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
   try {
-    const data = {
+    const commonData = {
       Title: summary.title,
+      OriginalContent: summary.content,
+      GeneratedSummary: summary.summary,
+      GeneratedKeywords: JSON.stringify(summary.keywords),
+    };
+
+    const data = {
+      ...commonData,
       Url: summary.url,
       LargeLanguageModel: "gpt-3.5-turbo",
-      OriginalContent: summary.content,
-      GeneratedSummary: summary.summary,
-      GeneratedKeywords: JSON.stringify(summary.keywords),
     };
-    const updateData = {
-      Title: summary.title,
-      OriginalContent: summary.content,
-      GeneratedSummary: summary.summary,
-      GeneratedKeywords: JSON.stringify(summary.keywords),
-    };
+
+    const updateData = { ...commonData };
 
     // Check if the WebPageSummary already exists
     const existingSummaryResponse = await client.request<{
