@@ -24,16 +24,18 @@ const acceptCookies = async (page: playwright.Page) => {
   }
 };
 
-const isValidLink = (link: string | null): link is string => {
-  return link !== null && link.length > 0 && !link.startsWith("#");
-};
-
 const extractLinks = async (page: Page): Promise<string[]> => {
   const linkLocators = await page.locator("a").all();
   const links = await Promise.all(
     linkLocators.map((ll) => ll.getAttribute("href"))
   );
-  return Array.from(new Set(links.filter(isValidLink)));
+  return Array.from(
+    new Set(
+      links.filter(
+        (link) => link !== null && link.length > 0 && !link.startsWith("#")
+      ) as string[]
+    )
+  );
 };
 
 export const scrapePage = async (
