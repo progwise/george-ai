@@ -6,6 +6,7 @@ import {
   WebPageSummaryEntityResponse,
   WebPageSummaryEntityResponseCollection,
 } from "./gql/graphql.js";
+import { graphql } from "./gql2";
 
 dotenv.config();
 
@@ -17,39 +18,42 @@ const client = new GraphQLClient(endpoint, {
   },
 });
 
-// const CREATE_WEBPAGE_SUMMARY_MUTATION = `
-// mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
-//   createWebPageSummary(data: $data, locale: $locale) {
-//     data {
-//       id
-//       attributes {
-//         Title
-//         Url
-//         LargeLanguageModel
-//         OriginalContent
-//         GeneratedSummary
-//         GeneratedKeywords
-//       }
-//     }
-//   }
-// }
-// `;
-
-const UPDATE_WEBPAGE_SUMMARY_MUTATION = `
-mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
-  updateWebPageSummary(id: $id, data: $data) {
-    data {
-      id
-      attributes {
-        Title
-        OriginalContent
-        GeneratedSummary
-        GeneratedKeywords
+const CREATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
+  mutation CreateWebPageSummary(
+    $data: WebPageSummaryInput!
+    $locale: I18NLocaleCode!
+  ) {
+    createWebPageSummary(data: $data, locale: $locale) {
+      data {
+        id
+        attributes {
+          Title
+          Url
+          LargeLanguageModel
+          OriginalContent
+          GeneratedSummary
+          GeneratedKeywords
+        }
       }
     }
   }
-}
-`;
+`);
+
+const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
+  mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
+    updateWebPageSummary(id: $id, data: $data) {
+      data {
+        id
+        attributes {
+          Title
+          OriginalContent
+          GeneratedSummary
+          GeneratedKeywords
+        }
+      }
+    }
+  }
+`);
 
 const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
   query GetWebPageSummary($url: String!, $model: String!) {
@@ -110,9 +114,7 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
 
       // If it exists, update it
       if (existingSummaryId) {
-        await client.request<{
-          updateWebPageSummary: WebPageSummaryEntityResponse;
-        }>(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
+        const response = await client.request(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
           id: existingSummaryId,
           data: updateData,
         });
@@ -129,15 +131,14 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
       //   data,
       //   locale: summary.language,
       // });
-      const response = await client.request<{
-        createWebPageSummary: WebPageSummaryEntityResponse;
-      }>(CreateWebPageSummaryDocument, {
+      const response = await client.request(CREATE_WEBPAGE_SUMMARY_MUTATION, {
         data,
         locale: summary.language,
       });
+
       console.log(
         "Successfully created WebPageSummary with ID:",
-        response.createWebPageSummary.data?.id
+        response.createWebPageSummary?.data?.id
       );
     }
   } catch (error) {

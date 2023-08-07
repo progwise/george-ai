@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "scrape": "ts-node --esm src/main.ts",
+    "scrape": "ts-node --esm --experimentalSpecifierResolution node src/main.ts",
     "tsc": "tsc",
     "codegen": "graphql-codegen --config codegen.ts"
   },
@@ -24,9 +24,11 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-urql": "^3.7.3",
+    "@parcel/watcher": "^2.2.0",
     "@types/node": "^20.4.4",
     "typescript": "^5.1.6"
   }
