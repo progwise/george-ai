@@ -12,7 +12,6 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@urql/core": "^4.1.0",
     "dotenv": "^16.3.1",
     "graphql": "^16.7.1",
@@ -25,9 +24,6 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
-    "@graphql-codegen/typescript": "^4.0.1",
-    "@graphql-codegen/typescript-operations": "^4.0.1",
-    "@graphql-codegen/typescript-urql": "^3.7.3",
     "@parcel/watcher": "^2.2.0",
     "@types/node": "^20.4.4",
     "typescript": "^5.1.6"
