@@ -11,13 +11,10 @@ const config: CodegenConfig = {
     },
   },
   hooks: { afterOneFileWrite: ['prettier --write'] },
+  documents: 'src/**/*.ts',
   generates: {
-    './src/gql/graphql.ts': {
-      plugins: [
-        'typescript',
-        'typescript-operations',
-        'typescript-graphql-request',
-      ],
+    './src/gql/': {
+      preset: 'client',
     },
   },
 }
