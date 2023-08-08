@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "scraped_web_pages",
+  "info": {
+    "singularName": "scraped-web-page",
+    "pluralName": "scraped-web-pages",
+    "displayName": "ScrapedWebPage"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Url": {
+      "type": "string"
+    },
+    "OriginalContent": {
+      "type": "text"
+    },
+    "WebPageSummary": {
+      "type": "component",
+      "repeatable": true,
+      "component": "web-page-summary.web-page-summary"
+    }
+  }
+}

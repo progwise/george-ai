@@ -1,10 +1,9 @@
 import playwright from "playwright-chromium";
 import { getKeywords, getServiceSummary } from "./chatGPT.js";
-import { upsertWebPageSummaries } from "./strapi.js";
+import { upsertScrapedWebPage } from "./strapi.js";
 import { ScrapeResult, scrapePage } from "./scrape.js";
 
 const MAX_RUNS = 2; // Maximum number of runs
-
 export interface WebPageSummary extends ScrapeResult {
   summary: string;
   keywords: string[];
@@ -36,7 +35,7 @@ const processPage = async (url: string): Promise<void> => {
         keywords,
       };
 
-      await upsertWebPageSummaries(webPageSummary);
+      await upsertScrapedWebPage(webPageSummary);
 
       urlsTodo = Array.from(
         new Set(
