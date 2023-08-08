@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["STRAPI_API_KEY"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],

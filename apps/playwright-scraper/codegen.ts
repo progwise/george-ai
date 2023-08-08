@@ -10,6 +10,7 @@ const config: CodegenConfig = {
       },
     },
   },
+  hooks: { afterOneFileWrite: ['prettier --write'] },
   generates: {
     './src/gql/graphql.ts': {
       plugins: [
