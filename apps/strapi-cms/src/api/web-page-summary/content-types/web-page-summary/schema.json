@@ -41,30 +41,6 @@
       },
       "type": "text"
     },
-    "LargeLanguageModel": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "type": "string"
-    },
-    "GeneratedSummary": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "type": "text"
-    },
-    "GeneratedKeywords": {
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "type": "string"
-    },
     "WebPageSummary": {
       "type": "component",
       "repeatable": true,

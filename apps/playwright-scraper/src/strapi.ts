@@ -3,6 +3,8 @@ import { WebPageSummary } from "./main.js";
 import dotenv from "dotenv";
 import { graphql } from "./gql";
 
+const AI_MODEL = "gpt-3.5-turbo";
+
 dotenv.config();
 
 const endpoint = "http://localhost:1337/graphql";
@@ -56,9 +58,10 @@ const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = graphql(`
   query GetWebPageSummary($url: String!, $model: String!) {
     webPageSummaries(
       publicationState: PREVIEW
+      locale: "all"
       filters: {
         Url: { eq: $url }
-        WebPageSummary: { LargeLanguageModel: { eq: "Your Model Value Here" } }
+        WebPageSummary: { LargeLanguageModel: { eq: $model } }
       }
     ) {
       data {
@@ -85,22 +88,23 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
     };
 
     const updateData = {
-      GeneratedSummary: summary.summary,
-      GeneratedKeywords: JSON.stringify(summary.keywords),
+      WebPageSummary: [
+        {
+          GeneratedSummary: summary.summary,
+          GeneratedKeywords: JSON.stringify(summary.keywords),
+        },
+      ],
     };
-
-    const summaryData = [
-      {
-        ...updateData,
-        LargeLanguageModel: "gpt-3.5-turbo",
-      },
-    ];
 
     const data = {
       ...commonData,
-      WebPageSummary: summaryData,
+      WebPageSummary: [
+        {
+          ...updateData.WebPageSummary[0], // it's now an array
+          LargeLanguageModel: "gpt-3.5-turbo",
+        },
+      ],
     };
-
     const existingSummaryResponse = await client.request(
       GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY,
       {
