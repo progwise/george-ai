@@ -10,8 +10,6 @@
     "eslint-config-turbo": "latest"
   },
   "scripts": {
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "lint": "eslint ."
   }
 }

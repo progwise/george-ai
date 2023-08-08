@@ -1,20 +1,20 @@
-import { GraphQLClient } from "graphql-request";
-import { WebPageSummary } from "./main.js";
-import dotenv from "dotenv";
+import { GraphQLClient } from 'graphql-request'
+import { WebPageSummary } from './main.js'
+import dotenv from 'dotenv'
 import {
   WebPageSummaryEntityResponse,
   WebPageSummaryEntityResponseCollection,
-} from "./gql/graphql.js";
+} from './gql/graphql.js'
 
-dotenv.config();
+dotenv.config()
 
-const endpoint = "http://localhost:1337/graphql";
+const endpoint = 'http://localhost:1337/graphql'
 
 const client = new GraphQLClient(endpoint, {
   headers: {
     authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
   },
-});
+})
 
 const CREATE_WEBPAGE_SUMMARY_MUTATION = `
 mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCode!) {
@@ -32,7 +32,7 @@ mutation CreateWebPageSummary($data: WebPageSummaryInput!, $locale: I18NLocaleCo
     }
   }
 }
-`;
+`
 
 const UPDATE_WEBPAGE_SUMMARY_MUTATION = `
 mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
@@ -48,7 +48,7 @@ mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
     }
   }
 }
-`;
+`
 
 const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
   query GetWebPageSummary($url: String!, $model: String!) {
@@ -70,7 +70,7 @@ const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = `
       }
     }
   }
-`;
+`
 
 export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
   try {
@@ -79,61 +79,61 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
       OriginalContent: summary.content,
       GeneratedSummary: summary.summary,
       GeneratedKeywords: JSON.stringify(summary.keywords),
-    };
+    }
 
     const data = {
       ...commonData,
       Url: summary.url,
-      LargeLanguageModel: "gpt-3.5-turbo",
-    };
+      LargeLanguageModel: 'gpt-3.5-turbo',
+    }
 
-    const updateData = { ...commonData };
+    const updateData = { ...commonData }
 
     // Check if the WebPageSummary already exists
     const existingSummaryResponse = await client.request<{
-      webPageSummaries: WebPageSummaryEntityResponseCollection;
+      webPageSummaries: WebPageSummaryEntityResponseCollection
     }>(GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY, {
       url: summary.url,
-      model: "gpt-3.5-turbo",
-    });
+      model: 'gpt-3.5-turbo',
+    })
 
-    console.log("existingSummaryResponse: ", existingSummaryResponse);
+    console.log('existingSummaryResponse: ', existingSummaryResponse)
 
     if (
       existingSummaryResponse.webPageSummaries.data &&
       existingSummaryResponse.webPageSummaries.data.length > 0
     ) {
       const existingSummaryId =
-        existingSummaryResponse.webPageSummaries.data[0].id;
-      console.log("existingSummaryId: ", existingSummaryId);
+        existingSummaryResponse.webPageSummaries.data[0].id
+      console.log('existingSummaryId: ', existingSummaryId)
 
       // If it exists, update it
       if (existingSummaryId) {
         await client.request<{
-          updateWebPageSummary: WebPageSummaryEntityResponse;
+          updateWebPageSummary: WebPageSummaryEntityResponse
         }>(UPDATE_WEBPAGE_SUMMARY_MUTATION, {
           id: existingSummaryId,
           data: updateData,
-        });
+        })
         console.log(
-          "Successfully updated WebPageSummary with ID:",
-          existingSummaryId
-        );
+          'Successfully updated WebPageSummary with ID:',
+          existingSummaryId,
+        )
       }
     } else {
       // If it doesn't exist, create it
       const response = await client.request<{
-        createWebPageSummary: WebPageSummaryEntityResponse;
+        createWebPageSummary: WebPageSummaryEntityResponse
       }>(CREATE_WEBPAGE_SUMMARY_MUTATION, {
         data,
         locale: summary.language,
-      });
+      })
       console.log(
-        "Successfully created WebPageSummary with ID:",
-        response.createWebPageSummary.data?.id
-      );
+        'Successfully created WebPageSummary with ID:',
+        response.createWebPageSummary.data?.id,
+      )
     }
   } catch (error) {
-    console.error("Failed to upsert WebPageSummary", error);
+    console.error('Failed to upsert WebPageSummary', error)
   }
-};
+}

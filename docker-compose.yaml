@@ -6,12 +6,12 @@ services:
     restart: always
     env_file: .env
     ports:
-      - "8108:8108"
+      - '8108:8108'
     volumes:
       - ./gaidata:/typesensedata
     command: '--data-dir /typesensedata --api-key=xyz --enable-cors'
     networks:
-        - gai-network
+      - gai-network
 
   gai-strapi:
     image: strapi/strapi
@@ -32,7 +32,7 @@ services:
     volumes:
       - ./gaidata:/srv/app
     ports:
-      - "1337:1337"
+      - '1337:1337'
 
   gai-db:
     container_name: gai-postgres

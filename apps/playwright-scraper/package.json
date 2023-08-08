@@ -20,8 +20,7 @@
     "graphql-request": "^6.1.0",
     "openai": "^3.3.0",
     "playwright-chromium": "^1.36.1",
-    "ts-node": "^10.9.1",
-    "eslint-config-custom": "*"
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
@@ -29,6 +28,7 @@
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-urql": "^3.7.3",
     "@types/node": "^20.4.4",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "eslint-config-custom": "*"
   }
 }
