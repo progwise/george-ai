@@ -9,6 +9,7 @@ const endpoint = 'http://localhost:1337/graphql'
 
 const client = new GraphQLClient(endpoint, {
   headers: {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
     authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
   },
 })
@@ -96,15 +97,15 @@ export const upsertWebPageSummaries = async (summary: WebPageSummary) => {
         model: 'gpt-3.5-turbo',
       },
     )
-    console.log('existingSummaryResponse: ', existingSummaryResponse)
+    console.log('existingSummaryResponse:', existingSummaryResponse)
 
     if (
-      existingSummaryResponse.webPageSummaries?.data &&
+      existingSummaryResponse?.webPageSummaries?.data &&
       existingSummaryResponse.webPageSummaries.data.length > 0
     ) {
       const existingSummaryId =
         existingSummaryResponse.webPageSummaries.data[0].id
-      console.log('existingSummaryId: ', existingSummaryId)
+      console.log('existingSummaryId:', existingSummaryId)
 
       // If it exists, update it
       if (existingSummaryId) {

@@ -1,5 +1,5 @@
 import playwright from 'playwright-chromium'
-import { getKeywords, getServiceSummary } from './chatGPT.js'
+import { getKeywords, getServiceSummary } from './chat-gpt.js'
 import { upsertWebPageSummaries } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 
@@ -25,10 +25,9 @@ const processPage = async (url: string): Promise<void> => {
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
       const summary = (await getServiceSummary(scrapeResult.content)) ?? ''
+      const possibleKeywords = await getKeywords(scrapeResult.content)
       const keywords =
-        (await getKeywords(scrapeResult.content))?.filter(
-          (keyword) => keyword.length,
-        ) ?? []
+        possibleKeywords?.filter((keyword) => keyword.length) ?? []
 
       const webPageSummary: WebPageSummary = {
         ...scrapeResult,
@@ -38,15 +37,15 @@ const processPage = async (url: string): Promise<void> => {
 
       await upsertWebPageSummaries(webPageSummary)
 
-      urlsTodo = Array.from(
-        new Set(
+      urlsTodo = [
+        ...new Set(
           [...urlsTodo.slice(1), ...scrapeResult.links].filter(
             (url) => !urlsDone.includes(url),
           ),
         ),
-      )
-    } catch (e) {
-      console.error(`error scraping ${currentUrl}`)
+      ]
+    } catch (error) {
+      console.error(`error scraping ${currentUrl}:`, error)
       urlsTodo = urlsTodo.slice(1)
     }
     runCounter++ // Increases the counter after each run

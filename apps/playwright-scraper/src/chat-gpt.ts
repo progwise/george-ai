@@ -3,7 +3,9 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 const configuration = new Configuration({
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
   apiKey: process.env.OPENAI_API_KEY,
+  // eslint-disable-next-line turbo/no-undeclared-env-vars
   organization: process.env.OPENAI_API_ORG,
 })
 const openai = new OpenAIApi(configuration)
@@ -29,10 +31,10 @@ export const getServiceSummary = async (content: string) => {
     const responseAsString = response.data.choices.at(0)?.message?.content
 
     return responseAsString
-  } catch (e) {
+  } catch (error) {
     // @ts-ignore
     console.error('error using chatGPT')
-    console.log(JSON.stringify(e, undefined, 2))
+    console.log(JSON.stringify(error, undefined, 2))
   }
 }
 

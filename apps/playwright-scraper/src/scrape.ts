@@ -20,8 +20,8 @@ const acceptCookies = async (page: playwright.Page) => {
         await buttons[0].click()
       }
     }
-  } catch (e) {
-    console.error('Error accepting cookies', e)
+  } catch (error) {
+    console.error('Error accepting cookies', error)
   }
 }
 
@@ -30,13 +30,14 @@ const extractLinks = async (page: Page): Promise<string[]> => {
   const links = await Promise.all(
     linkLocators.map((ll) => ll.getAttribute('href')),
   )
-  return Array.from(
-    new Set(
+  return [
+    ...new Set(
       links.filter(
-        (link) => link !== null && link.length > 0 && !link.startsWith('#'),
-      ) as string[],
+        (link): link is string =>
+          link !== null && link.length > 0 && !link.startsWith('#'),
+      ),
     ),
-  )
+  ]
 }
 
 export const scrapePage = async (
@@ -48,14 +49,15 @@ export const scrapePage = async (
   await acceptCookies(page)
   const pageTitle = await page.title()
   const body = await page.locator('main')
+  const allTexts = await body.allTextContents()
   const texts =
     pageTitle +
     '\n\n' +
-    (await body.allTextContents())
-      .map((text) => text.replace(/\s\s+/g, ' '))
-      .join('\n')
+    // eslint-disable-next-line unicorn/prefer-string-replace-all
+    allTexts.map((text) => text.replace(/\s\s+/g, ' ')).join('\n')
+
   const language = (await page.locator('html').getAttribute('lang')) || ''
-  console.log('language: ', language)
+  console.log('language:', language)
   const links = await extractLinks(page)
   await page.close()
   return {
