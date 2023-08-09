@@ -1,9 +1,9 @@
-'use strict';
+'use strict'
 
 /**
  * web-page-summary service
  */
 
-const { createCoreService } = require('@strapi/strapi').factories;
+const { createCoreService } = require('@strapi/strapi').factories
 
-module.exports = createCoreService('api::web-page-summary.web-page-summary');
+module.exports = createCoreService('api::web-page-summary.web-page-summary')

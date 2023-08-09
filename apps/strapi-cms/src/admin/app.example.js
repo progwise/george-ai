@@ -27,13 +27,13 @@ const config = {
     // 'zh-Hans',
     // 'zh',
   ],
-};
+}
 
 const bootstrap = (app) => {
-  console.log(app);
-};
+  console.log(app)
+}
 
 export default {
   config,
   bootstrap,
-};
+}
