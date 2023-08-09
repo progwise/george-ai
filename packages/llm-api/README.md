@@ -1,5 +1,7 @@
 1. How to start and fine tune a onPremise LLM
+
 # my-lit-llama
+
 How to run lit-llama
 
 ## Commands:
@@ -10,6 +12,7 @@ How to run lit-llama
 git clone https://github.com/Lightning-AI/lit-llama
 cd lit-llama
 ```
+
 ### Install the requirements:
 
 ```
@@ -56,13 +59,12 @@ python quantize/gptq.py \
 
 To avoid this, you can use symbolic links to create shortcuts and avoid passing different paths.
 
-
 ### Install SciPy
-```
- pip install scipy 
 
 ```
+ pip install scipy
 
+```
 
 2. How to use OpenAI API instead
 

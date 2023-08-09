@@ -1,10 +1,19 @@
 {
   "name": "george-ai",
   "version": "1.0.0",
-  "license":"ISC",
+  "license": "ISC",
   "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "check-format": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.0.1",
+    "turbo": "latest"
+  }
 }
