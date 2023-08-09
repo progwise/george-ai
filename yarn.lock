@@ -1545,6 +1545,7 @@ __metadata:
     "@types/node": ^20.4.4
     "@urql/core": ^4.1.0
     dotenv: ^16.3.1
+    eslint: 8.46.0
     eslint-config-custom: "*"
     graphql: ^16.7.1
     graphql-request: ^6.1.0
