@@ -8,14 +8,16 @@
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi",
-    "lint": "eslint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@strapi/plugin-graphql": "^4.12.0",
     "@strapi/plugin-i18n": "4.12.0",
     "@strapi/plugin-users-permissions": "4.12.0",
     "@strapi/strapi": "4.12.0",
-    "better-sqlite3": "8.0.1",
+    "better-sqlite3": "8.0.1"
+  },
+  "devDependencies": {
     "eslint-config-custom": "*"
   },
   "author": {

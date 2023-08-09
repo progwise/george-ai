@@ -6,7 +6,7 @@
     "scrape": "ts-node --esm --experimentalSpecifierResolution node src/main.ts",
     "tsc": "tsc",
     "codegen": "graphql-codegen --config codegen.ts",
-    "lint": "eslint"
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",

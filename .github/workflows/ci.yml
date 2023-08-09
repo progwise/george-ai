@@ -36,4 +36,4 @@ jobs:
         run: yarn install
 
       - name: Check format
-        run: yarn format:check
+        run: yarn check-format
