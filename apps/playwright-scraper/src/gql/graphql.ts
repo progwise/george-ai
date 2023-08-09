@@ -16,6 +16,8 @@ export type Scalars = {
   Float: { input: number; output: number; }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any; }
+  /** A string used to identify an i18n locale */
+  I18NLocaleCode: { input: any; output: any; }
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
   JSON: { input: any; output: any; }
   /** The `Upload` scalar type represents a file upload. */
@@ -239,6 +241,7 @@ export type Mutation = {
   /** Change user password. Confirm with the current password. */
   changePassword?: Maybe<UsersPermissionsLoginPayload>;
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
+  createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>;
   createUploadFile?: Maybe<UploadFileEntityResponse>;
   createUploadFolder?: Maybe<UploadFolderEntityResponse>;
   /** Create a new role */
@@ -284,6 +287,14 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCreateScrapedWebPageArgs = {
   data: ScrapedWebPageInput;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationCreateScrapedWebPageLocalizationArgs = {
+  data?: InputMaybe<ScrapedWebPageInput>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 
@@ -309,6 +320,7 @@ export type MutationCreateUsersPermissionsUserArgs = {
 
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input'];
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 
@@ -381,6 +393,7 @@ export type MutationUpdateFileInfoArgs = {
 export type MutationUpdateScrapedWebPageArgs = {
   data: ScrapedWebPageInput;
   id: Scalars['ID']['input'];
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 
@@ -468,11 +481,13 @@ export type QueryI18NLocalesArgs = {
 
 export type QueryScrapedWebPageArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 
 export type QueryScrapedWebPagesArgs = {
   filters?: InputMaybe<ScrapedWebPageFiltersInput>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   publicationState?: InputMaybe<PublicationState>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
@@ -538,6 +553,8 @@ export type ScrapedWebPage = {
   Url?: Maybe<Scalars['String']['output']>;
   WebPageSummary?: Maybe<Array<Maybe<ComponentWebPageSummaryWebPageSummary>>>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
+  localizations?: Maybe<ScrapedWebPageRelationResponseCollection>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
@@ -546,6 +563,14 @@ export type ScrapedWebPage = {
 export type ScrapedWebPageWebPageSummaryArgs = {
   filters?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>;
   pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type ScrapedWebPageLocalizationsArgs = {
+  filters?: InputMaybe<ScrapedWebPageFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
@@ -574,6 +599,8 @@ export type ScrapedWebPageFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>;
   createdAt?: InputMaybe<DateTimeFilterInput>;
   id?: InputMaybe<IdFilterInput>;
+  locale?: InputMaybe<StringFilterInput>;
+  localizations?: InputMaybe<ScrapedWebPageFiltersInput>;
   not?: InputMaybe<ScrapedWebPageFiltersInput>;
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>;
   publishedAt?: InputMaybe<DateTimeFilterInput>;
@@ -586,6 +613,11 @@ export type ScrapedWebPageInput = {
   Url?: InputMaybe<Scalars['String']['input']>;
   WebPageSummary?: InputMaybe<Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryInput>>>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+export type ScrapedWebPageRelationResponseCollection = {
+  __typename?: 'ScrapedWebPageRelationResponseCollection';
+  data: Array<ScrapedWebPageEntity>;
 };
 
 export type StringFilterInput = {

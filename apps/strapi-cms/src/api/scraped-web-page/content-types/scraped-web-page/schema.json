@@ -4,26 +4,51 @@
   "info": {
     "singularName": "scraped-web-page",
     "pluralName": "scraped-web-pages",
-    "displayName": "ScrapedWebPage"
+    "displayName": "ScrapedWebPage",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "Title": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "Url": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "OriginalContent": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "WebPageSummary": {
       "type": "component",
       "repeatable": true,
-      "component": "web-page-summary.web-page-summary"
+      "component": "web-page-summary.web-page-summary",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }
