@@ -13,32 +13,12 @@ const client = new GraphQLClient(endpoint, {
   },
 });
 
-// const CREATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
-//   mutation CreateScrapedWebPage(
-//     $data: ScrapedWebPageInput!
-//     $locale: I18NLocaleCode!
-//   ) {
-//     createScrapedWebPage(data: $data, locale: $locale) {
-//       data {
-//         id
-//         attributes {
-//           Title
-//           Url
-//           OriginalContent
-//           WebPageSummary {
-//             LargeLanguageModel
-//             GeneratedKeywords
-//             GeneratedSummary
-//           }
-//         }
-//       }
-//     }
-//   }
-// `);
-
 const CREATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
-  mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {
-    createScrapedWebPage(data: $data) {
+  mutation CreateScrapedWebPage(
+    $data: ScrapedWebPageInput!
+    $locale: I18NLocaleCode!
+  ) {
+    createScrapedWebPage(data: $data, locale: $locale) {
       data {
         id
         attributes {
@@ -75,34 +55,13 @@ const UPDATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
   }
 `);
 
-// const GET_WEBPAGE_SUMMARY_BY_URL_AND_MODEL_QUERY = graphql(`
-//   query GetScrapedWebPage($url: String!, $model: String!) {
-//     scrapedWebPages(
-//       publicationState: PREVIEW
-//       locale: "all"
-//       filters: {
-//         Url: { eq: $url }
-//         WebPageSummary: { LargeLanguageModel: { eq: $model } }
-//       }
-//     ) {
-//       data {
-//         id
-//         attributes {
-//           Url
-//           WebPageSummary {
-//             LargeLanguageModel
-//             GeneratedSummary
-//             GeneratedKeywords
-//           }
-//         }
-//       }
-//     }
-//   }
-// `);
-
 const GET_SCRAPE_WEBPAGE_BY_URL_QUERY = graphql(`
   query GetScrapedWebPageByUrl($url: String!) {
-    scrapedWebPages(publicationState: PREVIEW, filters: { Url: { eq: $url } }) {
+    scrapedWebPages(
+      publicationState: PREVIEW
+      locale: "all"
+      filters: { Url: { eq: $url } }
+    ) {
       data {
         id
         attributes {
@@ -145,6 +104,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
       // If no entry exists for the provided URL, create a new one
       const response = await client.request(CREATE_SCRAPE_WEBPAGE_MUTATION, {
         data,
+        locale: summary.language,
       });
       console.log(
         "Successfully created ScrapedWebPage with ID:",
