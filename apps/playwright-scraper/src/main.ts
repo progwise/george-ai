@@ -40,8 +40,8 @@ const processPage = async (url: string): Promise<void> => {
       urlsTodo = [
         ...new Set(
           [...urlsTodo.slice(1), ...scrapeResult.links].filter(
-            (url) => !urlsDone.includes(url)
-          )
+            (url) => !urlsDone.includes(url),
+          ),
         ),
       ]
     } catch (error) {

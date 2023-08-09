@@ -96,7 +96,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
     // Fetch existing WebPageSummary by URL
     const { scrapedWebPages } = await client.request(
       GET_SCRAPE_WEBPAGE_BY_URL_QUERY,
-      { url: summary.url }
+      { url: summary.url },
     )
     const existingSummary = scrapedWebPages?.data.at(0)
 
@@ -108,7 +108,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
       })
       console.log(
         'Successfully created ScrapedWebPage with ID:',
-        response.createScrapedWebPage?.data?.id
+        response.createScrapedWebPage?.data?.id,
       )
       return
     }
@@ -127,7 +127,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
 
     if (
       updatedWebPageSummaries?.some(
-        (entry) => entry?.LargeLanguageModel === AI_MODEL
+        (entry) => entry?.LargeLanguageModel === AI_MODEL,
       )
     ) {
       await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
@@ -136,7 +136,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
       })
       console.log(
         'Successfully updated ScrapedWebPage with ID:',
-        existingSummary.id
+        existingSummary.id,
       )
       return
     }
@@ -154,7 +154,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
     })
     console.log(
       'Added new WebPageSummary entry to existing WebPage with ID:',
-      existingSummary.id
+      existingSummary.id,
     )
   } catch (error) {
     console.error('Failed to upsert ScrapedWebPage', error)
