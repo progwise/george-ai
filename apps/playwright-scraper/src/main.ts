@@ -1,5 +1,5 @@
 import playwright from 'playwright-chromium'
-import { getKeywords, getServiceSummary } from './chatGPT'
+import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPage } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 
