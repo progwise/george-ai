@@ -1,6 +1,6 @@
-import SchemaBuilder from '@pothos/core';
+import SchemaBuilder from '@pothos/core'
 
-const builder = new SchemaBuilder({});
+const builder = new SchemaBuilder({})
 
 builder.queryType({
   fields: (t) => ({
@@ -11,6 +11,6 @@ builder.queryType({
       resolve: (parent, { name }) => `hello, ${name || 'World'}`,
     }),
   }),
-});
+})
 
-export const schema = builder.toSchema();
+export const schema = builder.toSchema()
