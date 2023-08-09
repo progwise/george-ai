@@ -79,84 +79,61 @@ const GET_SCRAPE_WEBPAGE_BY_URL_QUERY = graphql(`
 `)
 
 export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
+  const data = {
+    Title: summary.title,
+    OriginalContent: summary.content,
+    Url: summary.url,
+    WebPageSummary: [
+      {
+        GeneratedSummary: summary.summary,
+        GeneratedKeywords: JSON.stringify(summary.keywords),
+        LargeLanguageModel: AI_MODEL,
+      },
+    ],
+  }
+
   try {
-    const webPageSummary = {
-      GeneratedSummary: summary.summary,
-      GeneratedKeywords: JSON.stringify(summary.keywords),
-      LargeLanguageModel: AI_MODEL,
-    }
-
-    const data = {
-      Title: summary.title,
-      OriginalContent: summary.content,
-      Url: summary.url,
-      WebPageSummary: [webPageSummary],
-    }
-
-    // Fetch existing WebPageSummary by URL
     const { scrapedWebPages } = await client.request(
       GET_SCRAPE_WEBPAGE_BY_URL_QUERY,
-      { url: summary.url },
+      {
+        url: summary.url,
+      },
     )
-    const existingSummary = scrapedWebPages?.data.at(0)
+    const existing = scrapedWebPages?.data?.[0]
 
-    if (!existingSummary?.id) {
-      // If no entry exists for the provided URL, create a new one
+    if (!existing?.id) {
       const response = await client.request(CREATE_SCRAPE_WEBPAGE_MUTATION, {
         data,
         locale: summary.language,
       })
       console.log(
-        'Successfully created ScrapedWebPage with ID:',
+        'Created ScrapedWebPage ID:',
         response.createScrapedWebPage?.data?.id,
       )
       return
     }
 
-    // Loop through WebPageSummary entries to find and update the matching AI model
-    const updatedWebPageSummaries =
-      existingSummary.attributes?.WebPageSummary?.map((entry) => {
+    let modelExistsInExisting = false
+    const updatedData = (existing.attributes?.WebPageSummary || []).map(
+      (entry) => {
         if (entry?.LargeLanguageModel === AI_MODEL) {
-          return {
-            ...entry,
-            ...webPageSummary,
-          }
+          modelExistsInExisting = true
+          return { ...entry, ...data.WebPageSummary[0] }
         }
         return entry
-      })
-
-    if (
-      updatedWebPageSummaries?.some(
-        (entry) => entry?.LargeLanguageModel === AI_MODEL,
-      )
-    ) {
-      await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
-        id: existingSummary.id,
-        data: { WebPageSummary: updatedWebPageSummaries },
-      })
-      console.log(
-        'Successfully updated ScrapedWebPage with ID:',
-        existingSummary.id,
-      )
-      return
-    }
-
-    // Update the existing entry with a new WebPageSummary, as the AI model did not match any existing summaries
-    await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
-      id: existingSummary.id,
-      data: {
-        ...data,
-        WebPageSummary: [
-          ...(existingSummary.attributes?.WebPageSummary ?? []),
-          webPageSummary,
-        ],
       },
-    })
-    console.log(
-      'Added new WebPageSummary entry to existing WebPage with ID:',
-      existingSummary.id,
     )
+
+    const newSummaryData = modelExistsInExisting
+      ? { WebPageSummary: updatedData }
+      : { ...data, WebPageSummary: [...updatedData, ...data.WebPageSummary] }
+
+    await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
+      id: existing.id,
+      data: newSummaryData,
+    })
+    console.log('Updated ScrapedWebPage ID:', existing.id)
   } catch (error) {
-    console.error('Failed to upsert ScrapedWebPage', error)
+    console.error('Error:', error)
   }
 }
