@@ -1,7 +1,7 @@
-import Image from "next/image";
-import { Header } from "./components/header";
-import { SearchBox } from "./components/searchBox";
-import { InfoCard } from "./components/infoCard";
+import Image from 'next/image'
+import { Header } from './components/header'
+import { SearchBox } from './components/search-box'
+import { InfoCard } from './components/info-card'
 
 export default function Home() {
   return (
@@ -12,5 +12,5 @@ export default function Home() {
         <InfoCard />
       </div>
     </main>
-  );
+  )
 }

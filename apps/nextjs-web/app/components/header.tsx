@@ -1,5 +1,4 @@
-// components/Header.tsx
-import Image from "next/image";
+import Image from 'next/image'
 
 export const Header = () => {
   return (
@@ -17,5 +16,5 @@ export const Header = () => {
         <span>Liest und analysiert das Intranet - zu Ihren Diensten...</span>
       </div>
     </div>
-  );
-};
+  )
+}
