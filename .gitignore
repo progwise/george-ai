@@ -1,7 +1,7 @@
-+ .turbo
-+ build/**
-+ dist/**
-+ .next/**
+.turbo
+build/**
+dist/**
+.next/**
 node_modules
 .env
 gaidata
