@@ -9,7 +9,6 @@ const endpoint = 'http://localhost:1337/graphql'
 
 const client = new GraphQLClient(endpoint, {
   headers: {
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
     authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
   },
 })

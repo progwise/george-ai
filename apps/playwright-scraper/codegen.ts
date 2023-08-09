@@ -6,7 +6,6 @@ const config: CodegenConfig = {
   schema: {
     'http://localhost:1337/graphql': {
       headers: {
-        // eslint-disable-next-line turbo/no-undeclared-env-vars
         Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
       },
     },

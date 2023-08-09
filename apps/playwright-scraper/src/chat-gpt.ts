@@ -3,9 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 const configuration = new Configuration({
-  // eslint-disable-next-line turbo/no-undeclared-env-vars
   apiKey: process.env.OPENAI_API_KEY,
-  // eslint-disable-next-line turbo/no-undeclared-env-vars
   organization: process.env.OPENAI_API_ORG,
 })
 const openai = new OpenAIApi(configuration)
