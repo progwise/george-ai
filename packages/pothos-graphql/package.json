@@ -1,0 +1,16 @@
+{
+  "name": "@george-ai/pothos-graphql",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pothos/core": "^3.32.1",
+    "graphql": "^16.7.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}

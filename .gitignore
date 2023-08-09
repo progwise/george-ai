@@ -1,8 +1,15 @@
-+ .turbo
-+ build/**
-+ dist/**
-+ .next/**
+.turbo
+build
+dist
+.next
 node_modules
 .env
 gaidata
 build
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

@@ -1,10 +1,11 @@
 {
   "name": "george-ai",
   "version": "1.0.0",
-  "license":"ISC",
+  "license": "ISC",
   "private": true,
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "packageManager": "yarn@3.6.1"
 }
