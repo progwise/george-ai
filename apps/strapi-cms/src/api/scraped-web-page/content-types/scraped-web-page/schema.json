@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "scraped_web_pages",
+  "info": {
+    "singularName": "scraped-web-page",
+    "pluralName": "scraped-web-pages",
+    "displayName": "ScrapedWebPages",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "Url": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "OriginalContent": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "WebPageSummaries": {
+      "type": "component",
+      "repeatable": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "web-page-summary.web-page-summary"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_web_page_summary_web_page_summaries",
+  "info": {
+    "displayName": "WebPageSummaries",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "LargeLanguageModel": {
+      "type": "string"
+    },
+    "GeneratedKeywords": {
+      "type": "text"
+    },
+    "GeneratedSummary": {
+      "type": "text"
+    }
+  }
+}
