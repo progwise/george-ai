@@ -3,7 +3,6 @@ import { WebPageSummary } from './main.js'
 import dotenv from 'dotenv'
 import { graphql } from './gql'
 
-const AI_MODEL = 'gpt-3.5-turbo'
 dotenv.config()
 
 const endpoint = 'http://localhost:1337/graphql'
@@ -81,10 +80,10 @@ const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
 `)
 
 export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
-  const inputData = {
+  const newSummary = {
     GeneratedSummary: webPageSummary.summary,
     GeneratedKeywords: JSON.stringify(webPageSummary.keywords),
-    LargeLanguageModel: AI_MODEL,
+    LargeLanguageModel: webPageSummary.largeLanguageModel,
   }
 
   try {
@@ -100,7 +99,7 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
           Title: webPageSummary.title,
           OriginalContent: webPageSummary.content,
           Url: webPageSummary.url,
-          WebPageSummaries: [inputData],
+          WebPageSummaries: [newSummary],
         },
         locale: webPageSummary.language,
       })
@@ -108,15 +107,11 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
       return
     }
 
-    const summaries = existingScrapedWebPage?.attributes?.WebPageSummaries
-    const hasSummaryForLargeLanguageModel = summaries?.some(
-      (summary) => summary?.LargeLanguageModel === AI_MODEL,
-    )
-    const updatedSummaries = hasSummaryForLargeLanguageModel
-      ? summaries?.map((summary) =>
-          summary?.LargeLanguageModel === AI_MODEL ? inputData : summary,
-        )
-      : [...(summaries || []), inputData]
+    const filteredSummaries =
+      existingScrapedWebPage?.attributes?.WebPageSummaries?.filter(
+        (summary) =>
+          summary?.LargeLanguageModel !== webPageSummary.largeLanguageModel,
+      ) ?? []
 
     await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
       id: existingScrapedWebPage?.id,
@@ -124,7 +119,7 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
         Title: existingScrapedWebPage?.attributes?.Title,
         OriginalContent: existingScrapedWebPage?.attributes?.OriginalContent,
         Url: existingScrapedWebPage?.attributes?.Url,
-        WebPageSummaries: updatedSummaries,
+        WebPageSummaries: [...filteredSummaries, newSummary],
       },
     })
     console.log('Updated existing ScrapedWebPage Url:', webPageSummary.url)

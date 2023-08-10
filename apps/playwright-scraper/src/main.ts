@@ -8,6 +8,7 @@ const MAX_RUNS = 2 // Maximum number of runs
 export interface WebPageSummary extends ScrapeResult {
   summary: string
   keywords: string[]
+  largeLanguageModel: string
 }
 
 const processPage = async (url: string): Promise<void> => {
@@ -24,15 +25,15 @@ const processPage = async (url: string): Promise<void> => {
     console.log(`scraping ${currentUrl}`)
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
+
       const summary = (await getServiceSummary(scrapeResult.content)) ?? ''
-      const possibleKeywords = await getKeywords(scrapeResult.content)
-      const keywords =
-        possibleKeywords?.filter((keyword) => keyword.length) ?? []
+      const keywords = (await getKeywords(scrapeResult.content)) ?? []
 
       const webPageSummary: WebPageSummary = {
         ...scrapeResult,
         summary,
         keywords,
+        largeLanguageModel: 'gpt-3.5-turbo',
       }
 
       await upsertScrapedWebPage(webPageSummary)
