@@ -5,13 +5,17 @@
   "types": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@pothos/core": "^3.32.1",
-    "graphql": "^16.7.1"
+    "graphql": "^16.7.1",
+    "graphql-request": "^6.1.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.1.0",
     "eslint": "^8.46.0",
     "eslint-config-custom": "*",
     "typescript": "^5.1.6"

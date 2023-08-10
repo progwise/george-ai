@@ -1561,10 +1561,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@george-ai/pothos-graphql@workspace:packages/pothos-graphql"
   dependencies:
+    "@graphql-codegen/cli": ^5.0.0
+    "@graphql-codegen/client-preset": ^4.1.0
     "@pothos/core": ^3.32.1
     eslint: ^8.46.0
     eslint-config-custom: "*"
     graphql: ^16.7.1
+    graphql-request: ^6.1.0
     typescript: ^5.1.6
   languageName: unknown
   linkType: soft
