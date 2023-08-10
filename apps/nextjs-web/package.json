@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@george-ai/pothos-graphql": "1.0.0",
+    "@george-ai/pothos-graphql": "*",
     "graphql-yoga": "^4.0.3",
     "next": "13.4.12",
     "react": "18.2.0",

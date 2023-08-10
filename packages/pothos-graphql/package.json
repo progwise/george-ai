@@ -4,13 +4,16 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@pothos/core": "^3.32.1",
     "graphql": "^16.7.1"
   },
   "devDependencies": {
+    "eslint": "^8.46.0",
+    "eslint-config-custom": "*",
     "typescript": "^5.1.6"
   }
 }

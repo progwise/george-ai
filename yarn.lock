@@ -1517,7 +1517,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@george-ai/nextjs-web@workspace:apps/nextjs-web"
   dependencies:
-    "@george-ai/pothos-graphql": 1.0.0
+    "@george-ai/pothos-graphql": "*"
     "@types/node": 20.4.7
     "@types/react": 18.2.18
     "@types/react-dom": 18.2.7
@@ -1557,11 +1557,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@george-ai/pothos-graphql@1.0.0, @george-ai/pothos-graphql@workspace:packages/pothos-graphql":
+"@george-ai/pothos-graphql@*, @george-ai/pothos-graphql@workspace:packages/pothos-graphql":
   version: 0.0.0-use.local
   resolution: "@george-ai/pothos-graphql@workspace:packages/pothos-graphql"
   dependencies:
     "@pothos/core": ^3.32.1
+    eslint: ^8.46.0
+    eslint-config-custom: "*"
     graphql: ^16.7.1
     typescript: ^5.1.6
   languageName: unknown
@@ -8734,7 +8736,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:8.46.0, eslint@npm:latest":
+"eslint@npm:8.46.0, eslint@npm:^8.46.0, eslint@npm:latest":
   version: 8.46.0
   resolution: "eslint@npm:8.46.0"
   dependencies:
