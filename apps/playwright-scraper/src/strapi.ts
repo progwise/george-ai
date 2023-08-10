@@ -104,7 +104,7 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
         },
         locale: summary.language,
       })
-      console.log('Created new ScrapedWebPage for URL:', summary.url)
+      console.log('Created new ScrapedWebPage for Url:', summary.url)
       return
     }
 
@@ -126,14 +126,8 @@ export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
         WebPageSummary: updatedSummaries,
       },
     })
-    console.log(
-      'Updated existing ScrapedWebPage ID:',
-      existing.id,
-      'for URL:',
-      summary.url,
-    )
+    console.log('Updated existing ScrapedWebPage Url:', summary.url)
   } catch (error) {
-    console.error('Error processing web page:', summary.url)
     console.error(error)
   }
 }
