@@ -1,7 +1,8 @@
 {
   "collectionName": "components_web_page_summary_web_page_summaries",
   "info": {
-    "displayName": "WebPageSummary"
+    "displayName": "WebPageSummaries",
+    "description": ""
   },
   "options": {},
   "attributes": {

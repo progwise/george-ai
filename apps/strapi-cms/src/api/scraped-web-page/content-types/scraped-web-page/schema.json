@@ -4,7 +4,7 @@
   "info": {
     "singularName": "scraped-web-page",
     "pluralName": "scraped-web-pages",
-    "displayName": "ScrapedWebPage",
+    "displayName": "ScrapedWebPages",
     "description": ""
   },
   "options": {
@@ -40,15 +40,15 @@
         }
       }
     },
-    "WebPageSummary": {
+    "WebPageSummaries": {
       "type": "component",
       "repeatable": true,
-      "component": "web-page-summary.web-page-summary",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "component": "web-page-summary.web-page-summary"
     }
   }
 }

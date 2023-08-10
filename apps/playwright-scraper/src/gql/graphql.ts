@@ -538,7 +538,7 @@ export type ScrapedWebPage = {
   OriginalContent?: Maybe<Scalars['String']['output']>
   Title?: Maybe<Scalars['String']['output']>
   Url?: Maybe<Scalars['String']['output']>
-  WebPageSummary?: Maybe<Array<Maybe<ComponentWebPageSummaryWebPageSummary>>>
+  WebPageSummaries?: Maybe<Array<Maybe<ComponentWebPageSummaryWebPageSummary>>>
   createdAt?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<ScrapedWebPageRelationResponseCollection>
@@ -546,7 +546,7 @@ export type ScrapedWebPage = {
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
-export type ScrapedWebPageWebPageSummaryArgs = {
+export type ScrapedWebPageWebPageSummariesArgs = {
   filters?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
   pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
@@ -580,7 +580,7 @@ export type ScrapedWebPageFiltersInput = {
   OriginalContent?: InputMaybe<StringFilterInput>
   Title?: InputMaybe<StringFilterInput>
   Url?: InputMaybe<StringFilterInput>
-  WebPageSummary?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
+  WebPageSummaries?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
@@ -596,7 +596,7 @@ export type ScrapedWebPageInput = {
   OriginalContent?: InputMaybe<Scalars['String']['input']>
   Title?: InputMaybe<Scalars['String']['input']>
   Url?: InputMaybe<Scalars['String']['input']>
-  WebPageSummary?: InputMaybe<
+  WebPageSummaries?: InputMaybe<
     Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryInput>>
   >
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
@@ -1017,7 +1017,7 @@ export type CreateScrapedWebPageMutation = {
         Title?: string | null
         Url?: string | null
         OriginalContent?: string | null
-        WebPageSummary?: Array<{
+        WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
           LargeLanguageModel?: string | null
@@ -1043,7 +1043,7 @@ export type UpdateScrapedWebPageMutation = {
       id?: string | null
       attributes?: {
         __typename?: 'ScrapedWebPage'
-        WebPageSummary?: Array<{
+        WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
           LargeLanguageModel?: string | null
@@ -1055,11 +1055,11 @@ export type UpdateScrapedWebPageMutation = {
   } | null
 }
 
-export type GetScrapedWebPageByUrlQueryVariables = Exact<{
+export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
   url: Scalars['String']['input']
 }>
 
-export type GetScrapedWebPageByUrlQuery = {
+export type GetScrapedWebPagesByUrlQuery = {
   __typename?: 'Query'
   scrapedWebPages?: {
     __typename?: 'ScrapedWebPageEntityResponseCollection'
@@ -1071,7 +1071,7 @@ export type GetScrapedWebPageByUrlQuery = {
         Url?: string | null
         Title?: string | null
         OriginalContent?: string | null
-        WebPageSummary?: Array<{
+        WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
           LargeLanguageModel?: string | null
@@ -1171,7 +1171,7 @@ export const CreateScrapedWebPageDocument = {
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'WebPageSummary' },
+                              name: { kind: 'Name', value: 'WebPageSummaries' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
@@ -1290,7 +1290,7 @@ export const UpdateScrapedWebPageDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'WebPageSummary' },
+                              name: { kind: 'Name', value: 'WebPageSummaries' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
@@ -1339,13 +1339,13 @@ export const UpdateScrapedWebPageDocument = {
   UpdateScrapedWebPageMutation,
   UpdateScrapedWebPageMutationVariables
 >
-export const GetScrapedWebPageByUrlDocument = {
+export const GetScrapedWebPagesByUrlDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetScrapedWebPageByUrl' },
+      name: { kind: 'Name', value: 'GetScrapedWebPagesByUrl' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -1433,7 +1433,7 @@ export const GetScrapedWebPageByUrlDocument = {
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'WebPageSummary' },
+                              name: { kind: 'Name', value: 'WebPageSummaries' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
@@ -1479,6 +1479,6 @@ export const GetScrapedWebPageByUrlDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetScrapedWebPageByUrlQuery,
-  GetScrapedWebPageByUrlQueryVariables
+  GetScrapedWebPagesByUrlQuery,
+  GetScrapedWebPagesByUrlQueryVariables
 >

@@ -25,7 +25,7 @@ const CREATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
           Title
           Url
           OriginalContent
-          WebPageSummary {
+          WebPageSummaries {
             id
             LargeLanguageModel
             GeneratedKeywords
@@ -43,7 +43,7 @@ const UPDATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
       data {
         id
         attributes {
-          WebPageSummary {
+          WebPageSummaries {
             id
             LargeLanguageModel
             GeneratedKeywords
@@ -55,8 +55,8 @@ const UPDATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
   }
 `)
 
-const GET_SCRAPE_WEBPAGE_BY_URL_QUERY = graphql(`
-  query GetScrapedWebPageByUrl($url: String!) {
+const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
+  query GetScrapedWebPagesByUrl($url: String!) {
     scrapedWebPages(
       publicationState: PREVIEW
       locale: "all"
@@ -68,7 +68,7 @@ const GET_SCRAPE_WEBPAGE_BY_URL_QUERY = graphql(`
           Url
           Title
           OriginalContent
-          WebPageSummary {
+          WebPageSummaries {
             id
             LargeLanguageModel
             GeneratedSummary
@@ -80,53 +80,54 @@ const GET_SCRAPE_WEBPAGE_BY_URL_QUERY = graphql(`
   }
 `)
 
-export const upsertScrapedWebPage = async (summary: WebPageSummary) => {
+export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
   const inputData = {
-    GeneratedSummary: summary.summary,
-    GeneratedKeywords: JSON.stringify(summary.keywords),
+    GeneratedSummary: webPageSummary.summary,
+    GeneratedKeywords: JSON.stringify(webPageSummary.keywords),
     LargeLanguageModel: AI_MODEL,
   }
 
   try {
     const { scrapedWebPages } = await client.request(
-      GET_SCRAPE_WEBPAGE_BY_URL_QUERY,
-      { url: summary.url },
+      GET_SCRAPE_WEBPAGES_BY_URL_QUERY,
+      { url: webPageSummary.url },
     )
-    const existing = scrapedWebPages?.data?.[0]
+    const existingScrapedWebPage = scrapedWebPages?.data?.[0]
 
-    if (!existing?.id) {
+    if (!existingScrapedWebPage?.id) {
       await client.request(CREATE_SCRAPE_WEBPAGE_MUTATION, {
         data: {
-          Title: summary.title,
-          OriginalContent: summary.content,
-          Url: summary.url,
-          WebPageSummary: [inputData],
+          Title: webPageSummary.title,
+          OriginalContent: webPageSummary.content,
+          Url: webPageSummary.url,
+          WebPageSummaries: [inputData],
         },
-        locale: summary.language,
+        locale: webPageSummary.language,
       })
-      console.log('Created new ScrapedWebPage for Url:', summary.url)
+      console.log('Created new ScrapedWebPage for Url:', webPageSummary.url)
       return
     }
 
-    const summaries = existing?.attributes?.WebPageSummary
-    const updatedSummaries = summaries?.some(
+    const summaries = existingScrapedWebPage?.attributes?.WebPageSummaries
+    const hasSummaryForLargeLanguageModel = summaries?.some(
       (summary) => summary?.LargeLanguageModel === AI_MODEL,
     )
-      ? summaries.map((s) =>
-          s?.LargeLanguageModel === AI_MODEL ? inputData : s,
+    const updatedSummaries = hasSummaryForLargeLanguageModel
+      ? summaries?.map((summary) =>
+          summary?.LargeLanguageModel === AI_MODEL ? inputData : summary,
         )
       : [...(summaries || []), inputData]
 
     await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
-      id: existing?.id,
+      id: existingScrapedWebPage?.id,
       data: {
-        Title: existing?.attributes?.Title,
-        OriginalContent: existing?.attributes?.OriginalContent,
-        Url: existing?.attributes?.Url,
-        WebPageSummary: updatedSummaries,
+        Title: existingScrapedWebPage?.attributes?.Title,
+        OriginalContent: existingScrapedWebPage?.attributes?.OriginalContent,
+        Url: existingScrapedWebPage?.attributes?.Url,
+        WebPageSummaries: updatedSummaries,
       },
     })
-    console.log('Updated existing ScrapedWebPage Url:', summary.url)
+    console.log('Updated existing ScrapedWebPage Url:', webPageSummary.url)
   } catch (error) {
     console.error(error)
   }
