@@ -5,8 +5,8 @@
   "dependencies": {
     "eslint": "latest",
     "eslint-config-next": "latest",
-    "eslint-plugin-react": "latest",
     "eslint-config-turbo": "latest",
+    "eslint-plugin-react": "latest",
     "eslint-plugin-unicorn": "^48.0.1"
   }
 }
