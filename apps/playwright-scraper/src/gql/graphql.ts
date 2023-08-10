@@ -1069,6 +1069,8 @@ export type GetScrapedWebPageByUrlQuery = {
       attributes?: {
         __typename?: 'ScrapedWebPage'
         Url?: string | null
+        Title?: string | null
+        OriginalContent?: string | null
         WebPageSummary?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
@@ -1420,6 +1422,14 @@ export const GetScrapedWebPageByUrlDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'Url' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Title' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'OriginalContent' },
                             },
                             {
                               kind: 'Field',
