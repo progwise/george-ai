@@ -90,7 +90,7 @@ Before you begin, make sure you have the following installed on your system:
 2. Create the Python API for Lightning Llama:
    ```
    pip install Flask
-   curl -o API.py https://raw.githubusercontent.com/splendidcomputer/my-lit-llama/main/API.py?token=GHSAT0AAAAAACFILF32TRSFX2ASF4KXBAFSZGWKFGA
+   curl -o API.py https://raw.githubusercontent.com/progwise/george-ai/dc286c9c69fb01b611b23a4cc3319a8d43a0c1de/packages/api/API.py
    ```
 
 3. Run the Python API:
