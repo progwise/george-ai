@@ -1564,7 +1564,6 @@ __metadata:
     "@graphql-codegen/cli": ^5.0.0
     "@graphql-codegen/client-preset": ^4.1.0
     "@pothos/core": ^3.32.1
-    codegen: ^0.1.0
     eslint: ^8.46.0
     eslint-config-custom: "*"
     graphql: ^16.7.1
@@ -5693,16 +5692,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"argparse@npm:~ 0.1.11":
-  version: 0.1.16
-  resolution: "argparse@npm:0.1.16"
-  dependencies:
-    underscore: ~1.7.0
-    underscore.string: ~2.4.0
-  checksum: 0bcb0509074a6f65b5df37f9064421aa942855dff78b0176010c4ab5fd8a9a4951f244088aa1718e33c3efaed57cf885bc5ba6bf182a358eab7baac555c161f1
-  languageName: node
-  linkType: hard
-
 "argparse@npm:~1.0.9":
   version: 1.0.10
   resolution: "argparse@npm:1.0.10"
@@ -6967,19 +6956,6 @@ __metadata:
   version: 4.6.0
   resolution: "co@npm:4.6.0"
   checksum: 5210d9223010eb95b29df06a91116f2cf7c8e0748a9013ed853b53f362ea0e822f1e5bb054fb3cefc645239a4cf966af1f6133a3b43f40d591f3b68ed6cf0510
-  languageName: node
-  linkType: hard
-
-"codegen@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "codegen@npm:0.1.0"
-  dependencies:
-    js-yaml: 3.1.0
-    sugar: 1.4.1
-    underscore: 1.6.0
-  bin:
-    codegen: ./lib/codegen-cli.js
-  checksum: abfe82ed0745ae5cedbcb6e1ba72665132c2e1bd217d09661dc033891c95623baeb023465f6246044aed674697fe894e7e17e14957a7f490dc9993fea9c9a8f6
   languageName: node
   linkType: hard
 
@@ -8826,16 +8802,6 @@ __metadata:
     acorn-jsx: ^5.3.2
     eslint-visitor-keys: ^3.4.1
   checksum: eb8c149c7a2a77b3f33a5af80c10875c3abd65450f60b8af6db1bfcfa8f101e21c1e56a561c6dc13b848e18148d43469e7cd208506238554fb5395a9ea5a1ab9
-  languageName: node
-  linkType: hard
-
-"esprima@npm:~ 1.0.2":
-  version: 1.0.4
-  resolution: "esprima@npm:1.0.4"
-  bin:
-    esparse: ./bin/esparse.js
-    esvalidate: ./bin/esvalidate.js
-  checksum: 6dcc6aa86ae37d1bb1f0f4d374fa9f0ca34d4293e80398cf4cd6fa4471a2be770cbf9ee9b2158b529888b5a9f0db7a4d7e78d4e88f8c90649b963d294c8a44ad
   languageName: node
   linkType: hard
 
@@ -11628,18 +11594,6 @@ __metadata:
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
   checksum: 8a95213a5a77deb6cbe94d86340e8d9ace2b93bc367790b260101d2f36a2eaf4e4e22d9fa9cf459b38af3a32fb4190e638024cf82ec95ef708680e405ea7cc78
-  languageName: node
-  linkType: hard
-
-"js-yaml@npm:3.1.0":
-  version: 3.1.0
-  resolution: "js-yaml@npm:3.1.0"
-  dependencies:
-    argparse: ~ 0.1.11
-    esprima: ~ 1.0.2
-  bin:
-    js-yaml: bin/js-yaml.js
-  checksum: 4e81cc3a561eb2822518b40bdac0eea6efcf1f0ca57639a89631143ed8849d2eb8523aa2314e5696c4b7722ff051c74c87c103565923db9b4759be7969c032fe
   languageName: node
   linkType: hard
 
@@ -16764,13 +16718,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sugar@npm:1.4.1":
-  version: 1.4.1
-  resolution: "sugar@npm:1.4.1"
-  checksum: f83b5d7bef64d202b9eda406dfc5b754e0c287a57b7580b82ad05eb9bf3ed89dfa3d4c340da97e8de67c68708e90656d6f1a16f24f5582fa58e5a78cfe9824e3
-  languageName: node
-  linkType: hard
-
 "supports-color@npm:^2.0.0":
   version: 2.0.0
   resolution: "supports-color@npm:2.0.0"
@@ -17542,27 +17489,6 @@ __metadata:
   version: 0.1.2
   resolution: "unc-path-regex@npm:0.1.2"
   checksum: a05fa2006bf4606051c10fc7968f08ce7b28fa646befafa282813aeb1ac1a56f65cb1b577ca7851af2726198d59475bb49b11776036257b843eaacee2860a4ec
-  languageName: node
-  linkType: hard
-
-"underscore.string@npm:~2.4.0":
-  version: 2.4.0
-  resolution: "underscore.string@npm:2.4.0"
-  checksum: fe112a26b51b0721912cd33226f041a76073d8e4fd7fe9a89115e12f676d265805fc5cb35df560e935a80e981802208b17c8cccda3351f5635ff3b155cc765fc
-  languageName: node
-  linkType: hard
-
-"underscore@npm:1.6.0":
-  version: 1.6.0
-  resolution: "underscore@npm:1.6.0"
-  checksum: bfb837d95164077bd2751247dd9797546287c060d86c3a730f590948dbc132b426238e37df7bea28f39d3e3abf571de5b974809ee3c32d309280fed851588ef9
-  languageName: node
-  linkType: hard
-
-"underscore@npm:~1.7.0":
-  version: 1.7.0
-  resolution: "underscore@npm:1.7.0"
-  checksum: 20be2ca8b0c3f7bd6c271c752f7d930011e20d1abb5ff953950bd37a523515b4edf2c34077c93bece21b2c3eafa0c25ab6052eaa7aea7c26809f5b869143cdfd
   languageName: node
   linkType: hard
 

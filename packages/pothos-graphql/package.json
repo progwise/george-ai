@@ -16,7 +16,6 @@
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
-    "codegen": "^0.1.0",
     "eslint": "^8.46.0",
     "eslint-config-custom": "*",
     "prettier": "^3.0.1",
