@@ -2,6 +2,7 @@ import { CodegenConfig } from '@graphql-codegen/cli'
 import dotenv from 'dotenv'
 
 dotenv.config()
+// console.log(process.env.STRAPI_API_KEY)
 const config: CodegenConfig = {
   schema: {
     'http://localhost:1337/graphql': {
@@ -11,7 +12,7 @@ const config: CodegenConfig = {
     },
   },
   hooks: { afterOneFileWrite: ['prettier --write'] },
-  documents: 'src/**/*.ts',
+  documents: './src/**/*.ts',
   generates: {
     './src/gql/': {
       preset: 'client',
