@@ -1,5 +1,7 @@
 import playwright, { Page } from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chatGPT.js';
+import { getServiceSummary as getServiceSummaryRepl } from './replicate.js';
+
 
 export interface ScrapeResult {
   url: string
@@ -38,7 +40,7 @@ const scrapePage = async (url: string, context: playwright.BrowserContext): Prom
   await page.close()
   return {
     url,
-    summary: `summary for ${pageTitle}`, // await getServiceSummary(texts),
+    summary: await getServiceSummaryRepl(texts), // `summary for ${pageTitle}`, // await getServiceSummary(texts),
     keywords: ['k1', 'k2', 'k3'], //(await getKeywords(texts))?.filter(keyword => keyword.length),
     // summary: await getServiceSummary(texts),
     // keywords: (await getKeywords(texts))?.filter(keyword => keyword.length),
@@ -47,7 +49,7 @@ const scrapePage = async (url: string, context: playwright.BrowserContext): Prom
 }
 
 const doScrape = async (url: string): Promise<Array<ScrapeResult>> => {
-  const browser = await playwright['chromium'].launch({headless: false})
+  const browser = await playwright['chromium'].launch({headless: true})
   const context = await browser.newContext()
   const urls = [url]
   const urlsDone: Array<string> =[]
