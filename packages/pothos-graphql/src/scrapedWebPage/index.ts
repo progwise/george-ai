@@ -26,6 +26,8 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
           Title
           Url
           OriginalContent
+          locale
+          publishedAt
           WebPageSummaries {
             id
             LargeLanguageModel
@@ -67,6 +69,8 @@ builder.objectType(ScrapedWebPageReference, {
   fields: (t) => ({
     url: t.string({ resolve: (parent) => parent?.Url ?? '' }),
     title: t.string({ resolve: (parent) => parent?.Title ?? '' }),
+    locale: t.string({ resolve: (parent) => parent?.locale ?? '' }),
+    publishedAt: t.string({ resolve: (parent) => parent?.publishedAt ?? '' }),
     originalContent: t.string({
       resolve: (parent) => parent?.OriginalContent ?? '',
     }),
@@ -90,6 +94,8 @@ builder.queryType({
           Url: attribute?.Url,
           Title: attribute?.Title,
           OriginalContent: attribute?.OriginalContent,
+          locale: attribute?.locale,
+          publishedAt: attribute?.publishedAt,
           WebPageSummaries: attribute?.WebPageSummaries?.map((ent) => ({
             id: ent?.id ?? '',
             LargeLanguageModel: ent?.LargeLanguageModel,

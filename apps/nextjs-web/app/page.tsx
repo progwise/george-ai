@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { Header } from './components/header'
 import { SearchBox } from './components/search-box'
 import { InfoCard } from './components/info-card'
@@ -13,6 +12,8 @@ interface WebPageSummary {
 export interface Page {
   title: string
   url: string
+  locale: string
+  publishedAt: string | null
   webPageSummaries: WebPageSummary[]
 }
 
@@ -32,6 +33,8 @@ export default async function Home() {
         allPages {
           title
           url
+          locale
+          publishedAt
           webPageSummaries {
             id
             generatedKeywords
