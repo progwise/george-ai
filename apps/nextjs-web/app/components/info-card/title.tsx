@@ -1,6 +1,6 @@
 import { VoteButtons } from './vote-buttons'
 
-type TitleProperties = {
+interface TitleProperties {
   title: string
   publishedAt: string | null
 }
