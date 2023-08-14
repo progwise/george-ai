@@ -30,7 +30,7 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
           publishedAt
           WebPageSummaries {
             id
-            VoteResult
+            Feedback
             LargeLanguageModel
             GeneratedKeywords
             GeneratedSummary
@@ -53,7 +53,7 @@ builder.objectType(WebPageSummaryReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
-    voteResult: t.string({ resolve: (parent) => parent?.VoteResult ?? '' }),
+    feedback: t.string({ resolve: (parent) => parent?.Feedback ?? '' }),
     largeLanguageModel: t.string({
       resolve: (parent) => parent?.LargeLanguageModel ?? '',
     }),
@@ -100,7 +100,7 @@ builder.queryType({
           publishedAt: attribute?.publishedAt,
           WebPageSummaries: attribute?.WebPageSummaries?.map((summary) => ({
             id: summary?.id ?? '',
-            VoteResult: summary?.VoteResult,
+            Feedback: summary?.Feedback,
             LargeLanguageModel: summary?.LargeLanguageModel,
             GeneratedKeywords: summary?.GeneratedKeywords,
             GeneratedSummary: summary?.GeneratedSummary,

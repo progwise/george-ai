@@ -64,18 +64,18 @@ export type BooleanFilterInput = {
 
 export type ComponentWebPageSummaryWebPageSummary = {
   __typename?: 'ComponentWebPageSummaryWebPageSummary'
+  Feedback?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
   GeneratedKeywords?: Maybe<Scalars['String']['output']>
   GeneratedSummary?: Maybe<Scalars['String']['output']>
   LargeLanguageModel?: Maybe<Scalars['String']['output']>
-  VoteResult?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Voteresult>
   id: Scalars['ID']['output']
 }
 
 export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
+  Feedback?: InputMaybe<StringFilterInput>
   GeneratedKeywords?: InputMaybe<StringFilterInput>
   GeneratedSummary?: InputMaybe<StringFilterInput>
   LargeLanguageModel?: InputMaybe<StringFilterInput>
-  VoteResult?: InputMaybe<StringFilterInput>
   and?: InputMaybe<
     Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>
   >
@@ -86,10 +86,10 @@ export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
 }
 
 export type ComponentWebPageSummaryWebPageSummaryInput = {
+  Feedback?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
   GeneratedKeywords?: InputMaybe<Scalars['String']['input']>
   GeneratedSummary?: InputMaybe<Scalars['String']['input']>
   LargeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  VoteResult?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Voteresult>
   id?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -118,7 +118,7 @@ export type DateTimeFilterInput = {
   startsWith?: InputMaybe<Scalars['DateTime']['input']>
 }
 
-export enum Enum_Componentwebpagesummarywebpagesummary_Voteresult {
+export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
   Down = 'down',
   Up = 'up',
 }
@@ -1034,7 +1034,7 @@ export type GetScrapedWebPagesQuery = {
         WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
-          VoteResult?: Enum_Componentwebpagesummarywebpagesummary_Voteresult | null
+          Feedback?: Enum_Componentwebpagesummarywebpagesummary_Feedback | null
           LargeLanguageModel?: string | null
           GeneratedKeywords?: string | null
           GeneratedSummary?: string | null
@@ -1117,7 +1117,7 @@ export const GetScrapedWebPagesDocument = {
                                   },
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'VoteResult' },
+                                    name: { kind: 'Name', value: 'Feedback' },
                                   },
                                   {
                                     kind: 'Field',

@@ -15,13 +15,12 @@
     "GeneratedSummary": {
       "type": "text"
     },
-    "VoteResult": {
+    "Feedback": {
       "type": "enumeration",
       "enum": [
         "up",
         "down"
-      ],
-      "required": false
+      ]
     }
   }
 }

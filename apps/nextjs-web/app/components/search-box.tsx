@@ -21,9 +21,9 @@ export const SearchBox = () => {
         value={inputValue}
         onChange={handleInputChange}
       />
-      <div>
+      <button>
         <Image
-          className="absolute cursor-pointer right-3 top-1/2 transform -translate-y-1/2 w-8 h-8"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8"
           src="/vector.svg"
           alt="Vector"
           width={48}
@@ -31,7 +31,7 @@ export const SearchBox = () => {
           priority
           onClick={handleInputClick}
         />
-      </div>
+      </button>
     </div>
   )
 }

@@ -5,14 +5,18 @@ import { Keywords } from './info-card/keywords'
 import { Link } from './info-card/link'
 
 export const InfoCard = ({ page }: { page: Page }) => {
-  const keywords = JSON.parse(page.webPageSummaries[0].generatedKeywords)
+  const summary = page.webPageSummaries.at(0)
 
   return (
     <div className="flex flex-col gap-5 border-2 p-8 rounded-md">
-      <Title title={page.title} publishedAt={page.publishedAt} />
-      <Summary summary={page.webPageSummaries[0].generatedSummary} />
+      <Title
+        title={page.title}
+        publishedAt={page.publishedAt}
+        feedback={summary?.feedback}
+      />
+      <Summary summary={summary?.generatedSummary ?? ''} />
       <Link url={page.url} />
-      <Keywords keywords={keywords} />
+      <Keywords keywords={JSON.parse(summary?.generatedKeywords ?? '[]')} />
     </div>
   )
 }

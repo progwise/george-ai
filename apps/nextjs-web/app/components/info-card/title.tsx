@@ -1,13 +1,12 @@
-import { VoteButtons } from './vote-buttons'
+import { FeedbackButtons } from './feedback-buttons'
 
 interface TitleProperties {
   title: string
-  locale: string
   publishedAt: string | null
-  voteResult: 'up' | 'down' | undefined
+  feedback: 'up' | 'down' | undefined
 }
 
-export const Title = ({ title, publishedAt, voteResult }: TitleProperties) => {
+export const Title = ({ title, publishedAt, feedback }: TitleProperties) => {
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
@@ -16,7 +15,7 @@ export const Title = ({ title, publishedAt, voteResult }: TitleProperties) => {
           {publishedAt ? 'published' : 'draft'}
         </div>
       </div>
-      <VoteButtons voteResult={voteResult} />
+      <FeedbackButtons feedback={feedback} />
     </div>
   )
 }
