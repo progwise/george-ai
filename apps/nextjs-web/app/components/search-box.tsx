@@ -12,12 +12,6 @@ export const SearchBox = () => {
     setInputValue('')
   }
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleInputClick()
-    }
-  }
-
   return (
     <div className="relative">
       <input
@@ -26,7 +20,6 @@ export const SearchBox = () => {
         placeholder="Stellen Sie Ihre Frage an das Intranet..."
         value={inputValue}
         onChange={handleInputChange}
-        onKeyPress={handleKeyPress}
       />
       <div>
         <Image
