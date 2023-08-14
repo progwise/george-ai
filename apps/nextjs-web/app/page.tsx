@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 ">
-      <div className="max-w-2xl flex flex-col gap-5">
+      <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox />
         <span className="border-b border-black">

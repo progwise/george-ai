@@ -41,24 +41,6 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
   }
 `)
 
-const UPDATE_SCRAPED_WEB_PAGE_MUTATION = graphql(`
-  mutation UpdateScrapedWebPage($id: ID!, $data: ScrapedWebPageInput!) {
-    updateScrapedWebPage(id: $id, data: $data) {
-      data {
-        id
-        attributes {
-          WebPageSummaries {
-            id
-            LargeLanguageModel
-            GeneratedKeywords
-            GeneratedSummary
-          }
-        }
-      }
-    }
-  }
-`)
-
 const ScrapedWebPageReference =
   builder.objectRef<Maybe<ScrapedWebPage | undefined>>('ScrapedWebPage')
 
@@ -116,12 +98,12 @@ builder.queryType({
           OriginalContent: attribute?.OriginalContent,
           locale: attribute?.locale,
           publishedAt: attribute?.publishedAt,
-          WebPageSummaries: attribute?.WebPageSummaries?.map((ent) => ({
-            id: ent?.id ?? '',
-            VoteResult: ent?.VoteResult,
-            LargeLanguageModel: ent?.LargeLanguageModel,
-            GeneratedKeywords: ent?.GeneratedKeywords,
-            GeneratedSummary: ent?.GeneratedSummary,
+          WebPageSummaries: attribute?.WebPageSummaries?.map((summary) => ({
+            id: summary?.id ?? '',
+            VoteResult: summary?.VoteResult,
+            LargeLanguageModel: summary?.LargeLanguageModel,
+            GeneratedKeywords: summary?.GeneratedKeywords,
+            GeneratedSummary: summary?.GeneratedSummary,
           })),
         }))
       },
