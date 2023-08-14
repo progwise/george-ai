@@ -30,6 +30,25 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
           publishedAt
           WebPageSummaries {
             id
+            VoteResult
+            LargeLanguageModel
+            GeneratedKeywords
+            GeneratedSummary
+          }
+        }
+      }
+    }
+  }
+`)
+
+const UPDATE_SCRAPED_WEB_PAGE_MUTATION = graphql(`
+  mutation UpdateScrapedWebPage($id: ID!, $data: ScrapedWebPageInput!) {
+    updateScrapedWebPage(id: $id, data: $data) {
+      data {
+        id
+        attributes {
+          WebPageSummaries {
+            id
             LargeLanguageModel
             GeneratedKeywords
             GeneratedSummary
@@ -52,6 +71,7 @@ builder.objectType(WebPageSummaryReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
+    voteResult: t.string({ resolve: (parent) => parent?.VoteResult ?? '' }),
     largeLanguageModel: t.string({
       resolve: (parent) => parent?.LargeLanguageModel ?? '',
     }),

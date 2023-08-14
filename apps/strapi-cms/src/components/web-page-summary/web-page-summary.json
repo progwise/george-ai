@@ -14,6 +14,14 @@
     },
     "GeneratedSummary": {
       "type": "text"
+    },
+    "VoteResult": {
+      "type": "enumeration",
+      "enum": [
+        "up",
+        "down"
+      ],
+      "required": false
     }
   }
 }

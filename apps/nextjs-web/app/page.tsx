@@ -1,6 +1,11 @@
+'use client'
+
 import { Header } from './components/header'
 import { SearchBox } from './components/search-box'
 import { InfoCard } from './components/info-card'
+import React, { useState, useEffect } from 'react'
+import fetchData from './fetch-data'
+import { Spinner } from './components/spinner'
 
 interface WebPageSummary {
   id: string
@@ -17,55 +22,40 @@ export interface Page {
   webPageSummaries: WebPageSummary[]
 }
 
-export default async function Home() {
-  let pages: Page[] = []
+export default function Home() {
+  const [pages, setPages] = useState<Page[]>([])
 
-  try {
-    const resonse = await fetch('http://localhost:3000/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        query: `
-      query GetScrapedWebPages {
-        allPages {
-          title
-          url
-          locale
-          publishedAt
-          webPageSummaries {
-            id
-            generatedKeywords
-            generatedSummary
-            largeLanguageModel
-          }
-        }
+  useEffect(() => {
+    async function loadAndSetData() {
+      try {
+        const pagesData = await fetchData()
+        setPages(pagesData)
+      } catch (error) {
+        console.error(error)
       }
-      `,
-      }),
-    })
-    const respon = await resonse.json()
-    pages = respon.data.allPages
-    console.log('pages:', pages)
-  } catch (error) {
-    console.error(error)
-  }
+    }
+    loadAndSetData()
+  }, [])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 ">
-      <div className="max-w-3xl flex flex-col gap-5">
+      <div className="max-w-2xl flex flex-col gap-5">
         <Header />
         <SearchBox />
         <span className="border-b border-black">
           ich habe folgende Informationen für Sie gefunden:
         </span>
-        {pages.map((page, index) => (
-          <div key={index}>
-            <InfoCard page={page} />
+        {pages && pages.length > 0 ? (
+          pages.map((page) => (
+            <div key={page.url}>
+              <InfoCard page={page} />
+            </div>
+          ))
+        ) : (
+          <div className="flex justify-center">
+            <Spinner size={'medium'} />
           </div>
-        ))}
+        )}
       </div>
     </main>
   )

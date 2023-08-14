@@ -67,6 +67,7 @@ export type ComponentWebPageSummaryWebPageSummary = {
   GeneratedKeywords?: Maybe<Scalars['String']['output']>
   GeneratedSummary?: Maybe<Scalars['String']['output']>
   LargeLanguageModel?: Maybe<Scalars['String']['output']>
+  VoteResult?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Voteresult>
   id: Scalars['ID']['output']
 }
 
@@ -74,6 +75,7 @@ export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
   GeneratedKeywords?: InputMaybe<StringFilterInput>
   GeneratedSummary?: InputMaybe<StringFilterInput>
   LargeLanguageModel?: InputMaybe<StringFilterInput>
+  VoteResult?: InputMaybe<StringFilterInput>
   and?: InputMaybe<
     Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>
   >
@@ -87,6 +89,7 @@ export type ComponentWebPageSummaryWebPageSummaryInput = {
   GeneratedKeywords?: InputMaybe<Scalars['String']['input']>
   GeneratedSummary?: InputMaybe<Scalars['String']['input']>
   LargeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  VoteResult?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Voteresult>
   id?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -113,6 +116,11 @@ export type DateTimeFilterInput = {
   null?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
   startsWith?: InputMaybe<Scalars['DateTime']['input']>
+}
+
+export enum Enum_Componentwebpagesummarywebpagesummary_Voteresult {
+  Down = 'down',
+  Up = 'up',
 }
 
 export type FileInfoInput = {
@@ -1026,6 +1034,7 @@ export type GetScrapedWebPagesQuery = {
         WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
+          VoteResult?: Enum_Componentwebpagesummarywebpagesummary_Voteresult | null
           LargeLanguageModel?: string | null
           GeneratedKeywords?: string | null
           GeneratedSummary?: string | null
@@ -1105,6 +1114,10 @@ export const GetScrapedWebPagesDocument = {
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'VoteResult' },
                                   },
                                   {
                                     kind: 'Field',

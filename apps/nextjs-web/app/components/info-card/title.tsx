@@ -3,9 +3,10 @@ import { VoteButtons } from './vote-buttons'
 interface TitleProperties {
   title: string
   publishedAt: string | null
+  voteResult: 'up' | 'down' | undefined
 }
 
-export const Title = ({ title, publishedAt }: TitleProperties) => {
+export const Title = ({ title, publishedAt, voteResult }: TitleProperties) => {
   return (
     <div className="flex justify-between">
       <div className="flex gap-2 items-center">
@@ -14,7 +15,7 @@ export const Title = ({ title, publishedAt }: TitleProperties) => {
           {publishedAt ? 'published' : 'draft'}
         </div>
       </div>
-      <VoteButtons />
+      <VoteButtons voteResult={voteResult} />
     </div>
   )
 }
