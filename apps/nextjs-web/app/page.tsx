@@ -9,7 +9,7 @@ import { Spinner } from './components/spinner'
 
 interface WebPageSummary {
   id: string
-  voteResult?: 'up' | 'down'
+  feedback?: 'up' | 'down'
   generatedKeywords: string
   generatedSummary: string
   largeLanguageModel: string

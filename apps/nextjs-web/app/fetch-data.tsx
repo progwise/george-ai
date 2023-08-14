@@ -18,7 +18,7 @@ const fetchData = async (): Promise<Page[]> => {
                 publishedAt
                 webPageSummaries {
                   id
-                  voteResult
+                  feedback
                   generatedKeywords
                   generatedSummary
                   largeLanguageModel
