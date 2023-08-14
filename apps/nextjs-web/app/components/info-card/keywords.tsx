@@ -4,13 +4,13 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => (
       {keywords.map((keyword, index) => (
         <div
           key={index}
-          className="border border-black rounded-md px-6 bg-slate-100"
+          className="border border-black rounded-md text-xs px-4 cursor-pointer bg-slate-100 hover:bg-slate-300"
         >
           {keyword}
         </div>
       ))}
     </div>
-    <button className="border border-black rounded-md px-6 text-xl bg-slate-100 hover:bg-slate-300">
+    <button className="border border-black rounded-md px-4 text-xl bg-slate-100 hover:bg-slate-300">
       Details...
     </button>
   </div>
