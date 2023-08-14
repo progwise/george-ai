@@ -3,7 +3,7 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPage } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 
-const MAX_RUNS = 2 // Maximum number of runs
+const MAX_RUNS = 5 // Maximum number of runs
 
 export interface WebPageSummary extends ScrapeResult {
   summary: string
@@ -26,8 +26,13 @@ const processPage = async (url: string): Promise<void> => {
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
 
-      const summary = (await getServiceSummary(scrapeResult.content)) ?? ''
-      const keywords = (await getKeywords(scrapeResult.content)) ?? []
+      const summary =
+        (await getServiceSummary(
+          scrapeResult.content,
+          scrapeResult.language,
+        )) ?? ''
+      const keywords =
+        (await getKeywords(scrapeResult.content, scrapeResult.language)) ?? []
 
       const webPageSummary: WebPageSummary = {
         ...scrapeResult,

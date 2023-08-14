@@ -12,6 +12,7 @@ export const InfoCard = ({ page }: { page: Page }) => {
       <Title
         title={page.title}
         publishedAt={page.publishedAt}
+        locale={page.locale}
         feedback={summary?.feedback}
       />
       <Summary summary={summary?.generatedSummary ?? ''} />

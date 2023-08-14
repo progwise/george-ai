@@ -39,7 +39,7 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 ">
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 select-none">
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox />
