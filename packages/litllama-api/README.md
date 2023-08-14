@@ -105,7 +105,7 @@ Before you begin, ensure that your system meets the following requirements:
 
 4. Interact with the API using curl (replace the prompt as needed):
    ```
-   curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Hello, my name is"}' http://127.0.0.1:5000/chat
+   curl -o API.py https://raw.githubusercontent.com/progwise/george-ai/dc286c9c69fb01b611b23a4cc3319a8d43a0c1de/packages/api/API.py
    ```
 
 That's it! You've successfully set up and used Lightning Llama on your system. Enjoy exploring and interacting with the language model!
