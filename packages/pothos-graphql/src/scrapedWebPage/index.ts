@@ -118,6 +118,7 @@ builder.queryType({
           publishedAt: attribute?.publishedAt,
           WebPageSummaries: attribute?.WebPageSummaries?.map((ent) => ({
             id: ent?.id ?? '',
+            VoteResult: ent?.VoteResult,
             LargeLanguageModel: ent?.LargeLanguageModel,
             GeneratedKeywords: ent?.GeneratedKeywords,
             GeneratedSummary: ent?.GeneratedSummary,
