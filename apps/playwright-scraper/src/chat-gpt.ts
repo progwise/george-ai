@@ -16,7 +16,7 @@ export const getServiceSummary = async (content: string) => {
         {
           role: 'system',
           content:
-            'Gib mir eine Zusammenfassung der Angebite in maximal 300 worten für folgenden Textinhalt einer Website mit Nennung von Ansprechpartnern und Kontaktinformationenen.',
+            'Gib mir eine Zusammenfassung der Angebote in maximal 300 Worten für folgenden Textinhalt einer Website mit Nennung von Ansprechpartnern und Kontaktinformationenen.',
         },
         {
           role: 'system',

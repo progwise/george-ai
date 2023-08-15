@@ -1,8 +1,8 @@
-import { Page } from '../page'
-import { Title } from './info-card/title'
-import { Summary } from './info-card/summary'
-import { Keywords } from './info-card/keywords'
-import { Link } from './info-card/link'
+import { Page } from '../../page'
+import { Title } from './title'
+import { Summary } from './summary'
+import { Keywords } from './keywords'
+import { Link } from './link'
 
 export const InfoCard = ({ page }: { page: Page }) => {
   const summary = page.webPageSummaries.at(0)

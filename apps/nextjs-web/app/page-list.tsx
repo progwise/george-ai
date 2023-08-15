@@ -1,4 +1,4 @@
-import { InfoCard } from './components/info-card'
+import { InfoCard } from './components/info-card/info-card'
 import fetchData from './fetch-data'
 
 export const PageList = async () => {
