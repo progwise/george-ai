@@ -1,18 +1,13 @@
 import { FeedbackButtons } from './feedback-buttons'
 
-interface TitleProperties {
+interface TitleProps {
   title: string
   publishedAt: string | null
   locale: string
   feedback: 'up' | 'down' | undefined
 }
 
-export const Title = ({
-  title,
-  publishedAt,
-  feedback,
-  locale,
-}: TitleProperties) => {
+export const Title = ({ title, publishedAt, feedback, locale }: TitleProps) => {
   return (
     <div className="flex gap-2 justify-between">
       <div className="flex gap-2 items-center">

@@ -6,11 +6,11 @@ export enum Size {
   large = 90,
 }
 
-interface SpinnerProperties {
+interface SpinnerProps {
   size?: keyof typeof Size
 }
 
-export const Spinner = ({ size }: SpinnerProperties): JSX.Element => {
+export const Spinner = ({ size }: SpinnerProps): JSX.Element => {
   return (
     <CgSpinner
       size={size ? Size[size] : Size.small}

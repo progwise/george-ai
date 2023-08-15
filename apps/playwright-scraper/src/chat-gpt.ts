@@ -13,7 +13,7 @@ export const getServiceSummary = async (content: string, language: string) => {
     let instruction = ''
     if (language === 'de') {
       instruction =
-        'Gib mir eine Zusammenfassung der Angebite in maximal 300 worten für folgenden Textinhalt einer Website mit Nennung von Ansprechpartnern und Kontaktinformationenen, in Deutsch.'
+        'Gib mir eine Zusammenfassung der Angebote in maximal 300 Worten für folgenden Textinhalt einer Website mit Nennung von Ansprechpartnern und Kontaktinformationenen, in Deutsch.'
     } else if (language === 'en') {
       instruction =
         'Provide a summary of the offerings in a maximum of 300 words for the following website content, mentioning the contact persons and contact information, in english.'
