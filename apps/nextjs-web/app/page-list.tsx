@@ -1,9 +1,9 @@
-import { InfoCard } from './components/info-card'
+import { InfoCard } from './components/info-card/info-card'
 import fetchData from './fetch-data'
 
 export const PageList = async () => {
-  const fetchPages = await fetchData()
-  const pages = fetchPages.allPages
+  const fetchedPages = await fetchData()
+  const pages = fetchedPages.allPages
   return (
     <>
       {pages.map((page) => (

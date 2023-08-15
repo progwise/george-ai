@@ -8,10 +8,7 @@ export const SearchBox = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value)
-  }
-
-  const handleInputClick = () => {
-    setInputValue('')
+    console.log('inputValue:', inputValue)
   }
 
   return (
@@ -23,17 +20,15 @@ export const SearchBox = () => {
         value={inputValue}
         onChange={handleInputChange}
       />
-      <button>
-        <Image
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8"
-          src="/vector.svg"
-          alt="Vector"
-          width={48}
-          height={48}
-          priority
-          onClick={handleInputClick}
-        />
-      </button>
+
+      <Image
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8"
+        src="/vector.svg"
+        alt="Vector"
+        width={48}
+        height={48}
+        priority
+      />
     </div>
   )
 }

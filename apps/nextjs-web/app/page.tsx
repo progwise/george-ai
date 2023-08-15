@@ -1,9 +1,6 @@
 import { Header } from './components/header'
 import { SearchBox } from './components/search-box'
-import { InfoCard } from './components/info-card'
 import React, { useState, useEffect, Suspense } from 'react'
-import fetchData from './fetch-data'
-import { Spinner } from './components/spinner'
 import { PageList } from './page-list'
 import Loading from './loading'
 
