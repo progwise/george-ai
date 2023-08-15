@@ -1,12 +1,13 @@
 import { builder } from '../builder'
-import { graphql } from '../../../../src/gql/gql'
+import { graphql } from '../gql'
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import {
   Maybe,
   ScrapedWebPage,
   ComponentWebPageSummaryWebPageSummary,
-} from '../../../../src/gql/graphql'
+  Enum_Componentwebpagesummarywebpagesummary_Feedback,
+} from '../gql/graphql'
 
 dotenv.config()
 
@@ -41,6 +42,13 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
   }
 `)
 
+const FeedbackEnumReference = builder.enumType(
+  Enum_Componentwebpagesummarywebpagesummary_Feedback,
+  {
+    name: 'Enum_Feedback',
+  },
+)
+
 const ScrapedWebPageReference =
   builder.objectRef<Maybe<ScrapedWebPage | undefined>>('ScrapedWebPage')
 
@@ -53,7 +61,11 @@ builder.objectType(WebPageSummaryReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
-    feedback: t.string({ resolve: (parent) => parent?.Feedback ?? '' }),
+    feedback: t.field({
+      type: FeedbackEnumReference,
+      resolve: (parent) => parent?.Feedback,
+      nullable: true,
+    }),
     largeLanguageModel: t.string({
       resolve: (parent) => parent?.LargeLanguageModel ?? '',
     }),

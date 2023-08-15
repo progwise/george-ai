@@ -1,9 +1,10 @@
+import { Enum_Feedback } from '@/src/gql/graphql'
 import { FeedbackButtons } from './feedback-buttons'
 
 interface TitleProps {
   title: string
   publishedAt: string | null
-  feedback: 'up' | 'down' | undefined
+  feedback?: Enum_Feedback | null
 }
 
 export const Title = ({ title, publishedAt, feedback }: TitleProps) => {
@@ -15,7 +16,7 @@ export const Title = ({ title, publishedAt, feedback }: TitleProps) => {
           {publishedAt ? 'published' : 'draft'}
         </div>
       </div>
-      <FeedbackButtons feedback={feedback} />
+      <FeedbackButtons feedback={feedback ?? undefined} />
     </div>
   )
 }

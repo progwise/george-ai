@@ -1,26 +1,10 @@
-import { CodegenConfig } from '@graphql-codegen/cli'
-import dotenv from 'dotenv'
+const { execSync } = require('child_process')
 
-dotenv.config()
-const config: CodegenConfig = {
-  schema: {
-    'http://localhost:1337/graphql': {
-      headers: {
-        Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-      },
-    },
-  },
-  hooks: { afterOneFileWrite: ['prettier --write'] },
-  // documents: 'src/**/*.ts',
-  generates: {
-    'src/gql/': {
-      documents: [
-        'apps/playwright-scraper/src/**/*.ts',
-        'packages/pothos-graphql/src/**/*.ts',
-      ],
-      preset: 'client',
-    },
-  },
-}
+const projects = ['playwrightScraper', 'pothosGraphql', 'nextjsWeb']
 
-export default config
+projects.forEach((project) => {
+  console.log(`Generating code for ${project}...`)
+  execSync(`graphql-codegen --config graphql.config.ts --project ${project}`, {
+    stdio: 'inherit',
+  })
+})
