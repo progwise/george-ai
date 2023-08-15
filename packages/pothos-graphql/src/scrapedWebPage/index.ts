@@ -1,12 +1,12 @@
 import { builder } from '../builder'
-import { graphql } from '../gql'
+import { graphql } from '../../../../src/gql/gql'
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import {
   Maybe,
   ScrapedWebPage,
   ComponentWebPageSummaryWebPageSummary,
-} from '../gql/graphql'
+} from '../../../../src/gql/graphql'
 
 dotenv.config()
 

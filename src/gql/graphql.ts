@@ -1015,6 +1015,89 @@ export type UsersPermissionsUserRelationResponseCollection = {
   data: Array<UsersPermissionsUserEntity>
 }
 
+export type CreateScrapedWebPageMutationVariables = Exact<{
+  data: ScrapedWebPageInput
+  locale: Scalars['I18NLocaleCode']['input']
+}>
+
+export type CreateScrapedWebPageMutation = {
+  __typename?: 'Mutation'
+  createScrapedWebPage?: {
+    __typename?: 'ScrapedWebPageEntityResponse'
+    data?: {
+      __typename?: 'ScrapedWebPageEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ScrapedWebPage'
+        Title?: string | null
+        Url?: string | null
+        OriginalContent?: string | null
+        WebPageSummaries?: Array<{
+          __typename?: 'ComponentWebPageSummaryWebPageSummary'
+          id: string
+          LargeLanguageModel?: string | null
+          GeneratedKeywords?: string | null
+          GeneratedSummary?: string | null
+        } | null> | null
+      } | null
+    } | null
+  } | null
+}
+
+export type UpdateScrapedWebPageMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: ScrapedWebPageInput
+}>
+
+export type UpdateScrapedWebPageMutation = {
+  __typename?: 'Mutation'
+  updateScrapedWebPage?: {
+    __typename?: 'ScrapedWebPageEntityResponse'
+    data?: {
+      __typename?: 'ScrapedWebPageEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ScrapedWebPage'
+        WebPageSummaries?: Array<{
+          __typename?: 'ComponentWebPageSummaryWebPageSummary'
+          id: string
+          LargeLanguageModel?: string | null
+          GeneratedKeywords?: string | null
+          GeneratedSummary?: string | null
+        } | null> | null
+      } | null
+    } | null
+  } | null
+}
+
+export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
+  url: Scalars['String']['input']
+}>
+
+export type GetScrapedWebPagesByUrlQuery = {
+  __typename?: 'Query'
+  scrapedWebPages?: {
+    __typename?: 'ScrapedWebPageEntityResponseCollection'
+    data: Array<{
+      __typename?: 'ScrapedWebPageEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ScrapedWebPage'
+        Url?: string | null
+        Title?: string | null
+        OriginalContent?: string | null
+        WebPageSummaries?: Array<{
+          __typename?: 'ComponentWebPageSummaryWebPageSummary'
+          id: string
+          LargeLanguageModel?: string | null
+          GeneratedSummary?: string | null
+          GeneratedKeywords?: string | null
+        } | null> | null
+      } | null
+    }>
+  } | null
+}
+
 export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetScrapedWebPagesQuery = {
@@ -1044,6 +1127,405 @@ export type GetScrapedWebPagesQuery = {
   } | null
 }
 
+export const CreateScrapedWebPageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateScrapedWebPage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'ScrapedWebPageInput' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'I18NLocaleCode' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createScrapedWebPage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Title' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Url' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'OriginalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'WebPageSummaries' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'LargeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'GeneratedKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'GeneratedSummary',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateScrapedWebPageMutation,
+  CreateScrapedWebPageMutationVariables
+>
+export const UpdateScrapedWebPageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateScrapedWebPage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'ScrapedWebPageInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateScrapedWebPage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'WebPageSummaries' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'LargeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'GeneratedKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'GeneratedSummary',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateScrapedWebPageMutation,
+  UpdateScrapedWebPageMutationVariables
+>
+export const GetScrapedWebPagesByUrlDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetScrapedWebPagesByUrl' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'scrapedWebPages' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: { kind: 'EnumValue', value: 'PREVIEW' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'all', block: false },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'Url' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'eq' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'url' },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Url' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'Title' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'OriginalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'WebPageSummaries' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'LargeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'GeneratedSummary',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'GeneratedKeywords',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetScrapedWebPagesByUrlQuery,
+  GetScrapedWebPagesByUrlQueryVariables
+>
 export const GetScrapedWebPagesDocument = {
   kind: 'Document',
   definitions: [

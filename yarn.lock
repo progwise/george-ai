@@ -9636,6 +9636,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "george-ai@workspace:."
   dependencies:
+    "@graphql-codegen/cli": ^5.0.0
+    "@graphql-codegen/client-preset": ^4.1.0
     prettier: ^3.0.1
     turbo: latest
   languageName: unknown
