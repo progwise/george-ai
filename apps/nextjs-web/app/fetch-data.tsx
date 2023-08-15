@@ -1,5 +1,5 @@
 import { graphql } from '@/src/gql'
-import { GetScrapedWebPagesQuery } from '@/src/gql/graphql'
+import { ScrapedWebPage } from '@/src/gql/graphql'
 
 const GET_SCRAPED_WEB_PAGES_QUERY = graphql(`
   query GetScrapedWebPages {
@@ -20,7 +20,7 @@ const GET_SCRAPED_WEB_PAGES_QUERY = graphql(`
   }
 `)
 
-const fetchData = async (): Promise<GetScrapedWebPagesQuery> => {
+const fetchData = async (): Promise<ScrapedWebPage[]> => {
   try {
     const response = await fetch('http://localhost:3000/graphql', {
       method: 'POST',
@@ -34,7 +34,9 @@ const fetchData = async (): Promise<GetScrapedWebPagesQuery> => {
     })
 
     const result = await response.json()
-    return result.data
+    console.log('result:', result)
+
+    return result.allPages
   } catch (error) {
     throw error
   }
