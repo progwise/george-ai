@@ -21,9 +21,9 @@ const GET_SCRAPED_WEB_PAGES_QUERY = `
   }
 `
 
-const FetchData = () => {
+const useFetchData = () => {
   const [result] = useQuery({ query: GET_SCRAPED_WEB_PAGES_QUERY })
   return result
 }
 
-export default FetchData
+export default useFetchData
