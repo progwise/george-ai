@@ -32,7 +32,7 @@ export const getServiceSummary = async (content: string, language: string) => {
 
     return responseAsString
   } catch (error) {
-    console.error('error using chatGPT')
+    console.error('Error using chatGPT while fetching summary')
     console.log(JSON.stringify(error, undefined, 2))
   }
 }
