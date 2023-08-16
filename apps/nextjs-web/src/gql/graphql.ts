@@ -58,28 +58,127 @@ export type WebPageSummary = {
   largeLanguageModel: Scalars['String']['output']
 }
 
+export type WebPageSummaryFragmentFragment = {
+  __typename?: 'WebPageSummary'
+  id: string
+  feedback?: Enum_Feedback | null
+  generatedKeywords: string
+  generatedSummary: string
+  largeLanguageModel: string
+} & { ' $fragmentName'?: 'WebPageSummaryFragmentFragment' }
+
+export type ScrapedWebPageFragmentFragment = {
+  __typename?: 'ScrapedWebPage'
+  title: string
+  url: string
+  originalContent: string
+  locale: string
+  publishedAt: string
+  webPageSummaries?: Array<
+    { __typename?: 'WebPageSummary' } & {
+      ' $fragmentRefs'?: {
+        WebPageSummaryFragmentFragment: WebPageSummaryFragmentFragment
+      }
+    }
+  > | null
+} & { ' $fragmentName'?: 'ScrapedWebPageFragmentFragment' }
+
 export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetScrapedWebPagesQuery = {
   __typename?: 'Query'
-  allPages: Array<{
-    __typename?: 'ScrapedWebPage'
-    title: string
-    url: string
-    originalContent: string
-    locale: string
-    publishedAt: string
-    webPageSummaries?: Array<{
-      __typename?: 'WebPageSummary'
-      id: string
-      feedback?: Enum_Feedback | null
-      generatedKeywords: string
-      generatedSummary: string
-      largeLanguageModel: string
-    }> | null
-  }>
+  allPages: Array<
+    { __typename?: 'ScrapedWebPage' } & {
+      ' $fragmentRefs'?: {
+        ScrapedWebPageFragmentFragment: ScrapedWebPageFragmentFragment
+      }
+    }
+  >
 }
 
+export const WebPageSummaryFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummaryFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummary' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'generatedKeywords' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'generatedSummary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WebPageSummaryFragmentFragment, unknown>
+export const ScrapedWebPageFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ScrapedWebPageFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'ScrapedWebPage' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originalContent' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'webPageSummaries' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'WebPageSummaryFragment' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummaryFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummary' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'generatedKeywords' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'generatedSummary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ScrapedWebPageFragmentFragment, unknown>
 export const GetScrapedWebPagesDocument = {
   kind: 'Document',
   definitions: [
@@ -96,39 +195,61 @@ export const GetScrapedWebPagesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
                 {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'originalContent' },
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'ScrapedWebPageFragment' },
                 },
-                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummaryFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummary' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'generatedKeywords' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'generatedSummary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ScrapedWebPageFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'ScrapedWebPage' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originalContent' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'webPageSummaries' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
                 {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'webPageSummaries' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'feedback' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'generatedKeywords' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'generatedSummary' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'largeLanguageModel' },
-                      },
-                    ],
-                  },
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'WebPageSummaryFragment' },
                 },
               ],
             },

@@ -4,8 +4,6 @@ import { Enum_Feedback } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
 
-// type Feedback = Enum_Feedback
-
 export const FeedbackButtons = ({
   feedback,
 }: {

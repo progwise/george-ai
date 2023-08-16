@@ -1,13 +1,24 @@
+'use client'
+
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import {
+  UrqlProvider,
+  createClient,
+  ssrExchange,
+  cacheExchange,
+  fetchExchange,
+} from '@urql/next'
+import { metadata } from './metadata'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'George-AI',
-  description: 'The intelligent index for your website',
-}
+const ssr = ssrExchange()
+const client = createClient({
+  url: 'http://localhost:3000/graphql',
+  exchanges: [cacheExchange, ssr, fetchExchange],
+})
 
 export default function RootLayout({
   children,
@@ -15,8 +26,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <UrqlProvider client={client} ssr={ssr}>
+      <html lang="en">
+        <head>
+          <title>{metadata.title}</title>
+          <meta name="description" content={metadata.description} />
+        </head>
+        <body className={inter.className}>{children}</body>
+      </html>
+    </UrqlProvider>
   )
 }

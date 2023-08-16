@@ -13,7 +13,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  '\n  query GetScrapedWebPages {\n    allPages {\n      title\n      url\n      originalContent\n      locale\n      publishedAt\n      webPageSummaries {\n        id\n        feedback\n        generatedKeywords\n        generatedSummary\n        largeLanguageModel\n      }\n    }\n  }\n':
+  '\n  fragment WebPageSummaryFragment on WebPageSummary {\n    id\n    feedback\n    generatedKeywords\n    generatedSummary\n    largeLanguageModel\n  }\n':
+    types.WebPageSummaryFragmentFragmentDoc,
+  '\n  fragment ScrapedWebPageFragment on ScrapedWebPage {\n    title\n    url\n    originalContent\n    locale\n    publishedAt\n    webPageSummaries {\n      ...WebPageSummaryFragment\n    }\n  }\n':
+    types.ScrapedWebPageFragmentFragmentDoc,
+  '\n  \n  \n\n  query GetScrapedWebPages {\n    allPages {\n      ...ScrapedWebPageFragment\n    }\n  }\n':
     types.GetScrapedWebPagesDocument,
 }
 
@@ -35,8 +39,20 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetScrapedWebPages {\n    allPages {\n      title\n      url\n      originalContent\n      locale\n      publishedAt\n      webPageSummaries {\n        id\n        feedback\n        generatedKeywords\n        generatedSummary\n        largeLanguageModel\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query GetScrapedWebPages {\n    allPages {\n      title\n      url\n      originalContent\n      locale\n      publishedAt\n      webPageSummaries {\n        id\n        feedback\n        generatedKeywords\n        generatedSummary\n        largeLanguageModel\n      }\n    }\n  }\n']
+  source: '\n  fragment WebPageSummaryFragment on WebPageSummary {\n    id\n    feedback\n    generatedKeywords\n    generatedSummary\n    largeLanguageModel\n  }\n',
+): (typeof documents)['\n  fragment WebPageSummaryFragment on WebPageSummary {\n    id\n    feedback\n    generatedKeywords\n    generatedSummary\n    largeLanguageModel\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ScrapedWebPageFragment on ScrapedWebPage {\n    title\n    url\n    originalContent\n    locale\n    publishedAt\n    webPageSummaries {\n      ...WebPageSummaryFragment\n    }\n  }\n',
+): (typeof documents)['\n  fragment ScrapedWebPageFragment on ScrapedWebPage {\n    title\n    url\n    originalContent\n    locale\n    publishedAt\n    webPageSummaries {\n      ...WebPageSummaryFragment\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  \n  \n\n  query GetScrapedWebPages {\n    allPages {\n      ...ScrapedWebPageFragment\n    }\n  }\n',
+): (typeof documents)['\n  \n  \n\n  query GetScrapedWebPages {\n    allPages {\n      ...ScrapedWebPageFragment\n    }\n  }\n']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

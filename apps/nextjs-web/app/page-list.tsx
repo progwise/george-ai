@@ -1,12 +1,20 @@
-import { InfoCard } from './components/info-card/info-card'
-import fetchData from './fetch-data'
+'use client'
 
-export const PageList = async () => {
-  const pages = await fetchData()
+import { ScrapedWebPageFragmentFragment } from '@/src/gql/graphql'
+import { InfoCard } from './components/info-card/info-card'
+import useFetchData from './fetch-data'
+import Loading from './loading'
+
+export const PageList = () => {
+  const result = useFetchData()
+
+  if (result.fetching) return <Loading />
+
+  const pages = result.data?.allPages
 
   return (
     <>
-      {pages?.map((page) => (
+      {pages?.map((page: ScrapedWebPageFragmentFragment) => (
         <div key={page.url}>
           <InfoCard page={page} />
         </div>
