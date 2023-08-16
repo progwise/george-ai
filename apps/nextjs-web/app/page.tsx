@@ -29,7 +29,9 @@ export default function Home() {
         <span className="border-b border-black">
           ich habe folgende Informationen für Sie gefunden:
         </span>
-        <PageList />
+        <Suspense fallback={<Loading />}>
+          <PageList />
+        </Suspense>
       </div>
     </main>
   )
