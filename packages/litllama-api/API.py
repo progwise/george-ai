@@ -9,7 +9,7 @@ def chat():
 
     if 'prompt' in data:
         prompt = data['prompt']
-        # Modify the command to call your generate.py script with the prompt
+        # Modify the command to call the generate.py script with the prompt
         cmd = ['python3', 'generate.py', '--quantize', 'llm.int8', '--prompt', prompt]
         
         # Execute the command and capture the output
