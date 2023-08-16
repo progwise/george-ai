@@ -13,14 +13,9 @@ const configuration = new Configuration({
 })
 const openai = new OpenAIApi(configuration)
 
-export enum Language {
-  DE = 'de',
-  EN = 'en',
-}
-
 export const getServiceSummary = async (
   content: string,
-  language: Language,
+  language: 'de' | 'en',
 ) => {
   try {
     const response = await openai.createChatCompletion({
@@ -42,7 +37,7 @@ export const getServiceSummary = async (
   }
 }
 
-export const getKeywords = async (content: string, language: Language) => {
+export const getKeywords = async (content: string, language: 'de' | 'en') => {
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',

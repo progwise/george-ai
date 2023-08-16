@@ -1,12 +1,11 @@
 import playwright, { Page } from 'playwright-chromium'
-import { Language } from './chat-gpt'
 
 export interface ScrapeResult {
   title: string
   url: string
   content: string
   links: string[]
-  language: Language
+  language: 'de' | 'en'
 }
 
 const acceptCookies = async (page: playwright.Page) => {
@@ -56,11 +55,13 @@ export const scrapePage = async (
     '\n\n' +
     // eslint-disable-next-line unicorn/prefer-string-replace-all
     allTexts.map((text) => text.replace(/\s\s+/g, ' ')).join('\n')
-
-  const rawLanguage = await page.locator('html').getAttribute('lang')
-  const language =
-    Language[rawLanguage?.toUpperCase() as keyof typeof Language] || Language.EN
+  const detectedLanguage =
+    (await page.locator('html').getAttribute('lang')) || 'en'
+  const language = ['de', 'en'].includes(detectedLanguage)
+    ? (detectedLanguage as 'de' | 'en')
+    : 'en'
   console.log('language:', language)
+
   const links = await extractLinks(page)
   await page.close()
   return {
