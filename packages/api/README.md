@@ -4,13 +4,16 @@ Lightning Llama is a powerful language model that you can interact with via a Py
 
 ## Prerequisites
 
-Before you begin, make sure you have the following installed on your system:
+Before you begin, ensure that your system meets the following requirements:
 
-- Debian-based Linux
-- Nvidia GPU
+- Debian-based Linux distribution
+- Nvidia GPU*
 - Git
 - Python 3 and pip
 - Anaconda (installed from [https://www.anaconda.com/download](https://www.anaconda.com/download))
+
+\* **Nvidia Graphics Card Requirement:** This project requires an Nvidia graphics card with Turing architecture or above. Earlier architectures might lack the necessary features. The project is optimized for cards with a minimum of 8GB of memory.
+
 
 ## Installation
 
@@ -26,13 +29,14 @@ Before you begin, make sure you have the following installed on your system:
    sudo apt install python3-pip
    ```
 
-3. Download and install Anaconda:
+3. Download and install Anaconda (replace `2023.07-1` with the latest installer version):
    ```
    # Download Anaconda installer
    wget https://repo.anaconda.com/archive/Anaconda3-2023.07-1-Linux-x86_64.sh
 
    # Run the installer
    bash Anaconda3-2023.07-1-Linux-x86_64.sh
+
    ```
 
 4. Create and activate a Conda environment:
@@ -52,9 +56,10 @@ Before you begin, make sure you have the following installed on your system:
    cd lit-llama
    ```
 
-7. Add a directory to your PATH (replace `/home/mostafa` with your actual directory):
+7. Add a directory to your PATH (replace `/home/YOUR_USERNAME` with your actual directory):
+
    ```
-   export PATH="/home/mostafa:$PATH"
+   export PATH="/home/YOUR_USERNAME:$PATH"
    ```
 
 8.  Set up a virtual environment and install Python dependencies:
@@ -70,7 +75,7 @@ Before you begin, make sure you have the following installed on your system:
     python3 scripts/download.py --repo_id openlm-research/open_llama_7b --local_dir checkpoints/open-llama/7B
     ```
 
-10. Convert weights
+10. Convert weights:
     ```
     python3 scripts/convert_hf_checkpoint.py --checkpoint_dir checkpoints/open-llama/7B --model_size 7B
     ```
@@ -90,7 +95,7 @@ Before you begin, make sure you have the following installed on your system:
 2. Create the Python API for Lightning Llama:
    ```
    pip install Flask
-   curl -o API.py https://raw.githubusercontent.com/progwise/george-ai/dc286c9c69fb01b611b23a4cc3319a8d43a0c1de/packages/api/API.py
+   curl -o API.py https://raw.githubusercontent.com/splendidcomputer/my-lit-llama/main/API.py?token=GHSAT0AAAAAACFILF32TRSFX2ASF4KXBAFSZGWKFGA
    ```
 
 3. Run the Python API:
@@ -100,7 +105,7 @@ Before you begin, make sure you have the following installed on your system:
 
 4. Interact with the API using curl (replace the prompt as needed):
    ```
-   curl -X POST -H "Content-Type: application/json" -d '{"prompt": "Hello, my name is"}' http://127.0.0.1:5000/chat
+   curl -o API.py https://raw.githubusercontent.com/progwise/george-ai/dc286c9c69fb01b611b23a4cc3319a8d43a0c1de/packages/api/API.py
    ```
 
 That's it! You've successfully set up and used Lightning Llama on your system. Enjoy exploring and interacting with the language model!
