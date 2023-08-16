@@ -10,21 +10,15 @@ const openai = new OpenAIApi(configuration)
 
 export const getServiceSummary = async (content: string, language: string) => {
   try {
-    let instruction = ''
-    if (language === 'de') {
-      instruction =
-        'Gib mir eine Zusammenfassung der Angebote in maximal 300 Worten für folgenden Textinhalt einer Website mit Nennung von Ansprechpartnern und Kontaktinformationenen, in Deutsch.'
-    } else if (language === 'en') {
-      instruction =
-        'Provide a summary of the offerings in a maximum of 300 words for the following website content, mentioning the contact persons and contact information, in english.'
-    }
-
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
-          content: instruction,
+          content:
+            language === 'de'
+              ? 'Gib mir eine Zusammenfassung der Angebote in maximal 300 Worten für folgenden Textinhalt einer Website mit Nennung von Ansprechpartnern und Kontaktinformationenen, in Deutsch.'
+              : 'Provide a summary of the offerings in a maximum of 300 words for the following website content, mentioning the contact persons and contact information, in english.',
         },
         {
           role: 'system',
@@ -45,21 +39,15 @@ export const getServiceSummary = async (content: string, language: string) => {
 
 export const getKeywords = async (content: string, language: string) => {
   try {
-    let instruction = ''
-    if (language === 'de') {
-      instruction =
-        'Erzeuge eine List, die die wichtigsten META Keywords für SEO für den Text, die der User sendet, enthält, in Deutsch.'
-    } else if (language === 'en') {
-      instruction =
-        'Generate a list containing the most important META keywords for SEO from the text the user provides, in english.'
-    }
-
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
-          content: instruction,
+          content:
+            language === 'de'
+              ? 'Erzeuge eine List, die die wichtigsten META Keywords für SEO für den Text, die der User sendet, enthält, in Deutsch.'
+              : 'Generate a list containing the most important META keywords for SEO from the text the user provides, in english.',
         },
         {
           role: 'system',
