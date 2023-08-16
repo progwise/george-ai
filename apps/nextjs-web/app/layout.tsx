@@ -9,7 +9,6 @@ import {
   cacheExchange,
   fetchExchange,
 } from '@urql/next'
-import { metadata } from './metadata'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,10 +26,6 @@ export default function RootLayout({
   return (
     <UrqlProvider client={client} ssr={ssr}>
       <html lang="en">
-        <head>
-          <title>{metadata.title}</title>
-          <meta name="description" content={metadata.description} />
-        </head>
         <body className={inter.className}>{children}</body>
       </html>
     </UrqlProvider>

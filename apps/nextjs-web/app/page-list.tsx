@@ -1,17 +1,9 @@
-'use client'
-
 import { registerUrql } from '@urql/next/rsc'
 import { InfoCard } from './components/info-card/info-card'
 import { Page } from './page'
-import {
-  cacheExchange,
-  createClient,
-  fetchExchange,
-  gql,
-  useQuery,
-} from '@urql/next'
+import { cacheExchange, createClient, fetchExchange, gql } from '@urql/core'
 
-const GET_SCRAPED_WEB_PAGES_QUERY = gql`
+const GET_SCRAPED_WEB_PAGES_QUERY = `
   query GetScrapedWebPages {
     allPages {
       title
