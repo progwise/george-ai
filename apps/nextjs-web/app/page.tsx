@@ -3,6 +3,7 @@ import { SearchBox } from './components/search-box'
 import React, { useState, useEffect, Suspense } from 'react'
 import { PageList } from './page-list'
 import Loading from './loading'
+import { Metadata } from 'next'
 
 interface WebPageSummary {
   id: string
@@ -20,9 +21,14 @@ export interface Page {
   webPageSummaries: WebPageSummary[]
 }
 
+export const metadata: Metadata = {
+  title: 'George-AI',
+  description: 'The intelligent index for your website',
+}
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 select-none">
+    <main className="flex min-h-screen flex-col items-center  p-24 ">
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox />
