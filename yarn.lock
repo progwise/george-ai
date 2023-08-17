@@ -1521,6 +1521,7 @@ __metadata:
     "@types/node": 20.4.7
     "@types/react": 18.2.18
     "@types/react-dom": 18.2.7
+    "@urql/next": ^1.0.0
     autoprefixer: 10.4.14
     eslint: 8.46.0
     eslint-config-custom: "*"
@@ -1530,8 +1531,10 @@ __metadata:
     postcss: 8.4.27
     react: 18.2.0
     react-dom: 18.2.0
+    react-icons: ^4.10.1
     tailwindcss: 3.3.3
     typescript: 5.1.6
+    urql: ^4.0.5
   languageName: unknown
   linkType: soft
 
@@ -5006,6 +5009,17 @@ __metadata:
     "@0no-co/graphql.web": ^1.0.1
     wonka: ^6.3.2
   checksum: 1dcca5c12efcb8066f14d9edc4ce9c76df07426864a678a7a8df040b1e01a91a880943f218c6f04c4e6dcbcf58929e578947ea459681e5b0d49497c8b0bebbcb
+  languageName: node
+  linkType: hard
+
+"@urql/next@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@urql/next@npm:1.0.0"
+  peerDependencies:
+    next: ">=13.0.0"
+    react: ">=18.0.0"
+    urql: ^4.0.0
+  checksum: c01b553c06d5ddea91cd83f6995a0643b6617249ca081b9b5dcecc02fdd90bbb470a1cb722e650a965ba0a55e18e5f849308040a9fdbe62e7a7099c85364f13a
   languageName: node
   linkType: hard
 
@@ -14801,6 +14815,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-icons@npm:^4.10.1":
+  version: 4.10.1
+  resolution: "react-icons@npm:4.10.1"
+  peerDependencies:
+    react: "*"
+  checksum: b6c8d4fe482b112e1041515d93ef7670a0af128855c926052a076b64d0b991cdd4391394b26467100f8da3859db1ebd8f9c6b7614fa5969fde83de45c71031a3
+  languageName: node
+  linkType: hard
+
 "react-intl@npm:6.4.1":
   version: 6.4.1
   resolution: "react-intl@npm:6.4.1"
@@ -17663,6 +17686,18 @@ __metadata:
   version: 9.0.0
   resolution: "urlpattern-polyfill@npm:9.0.0"
   checksum: d3658b78a10eaee514c464f5a4336c408c70cf01e9b915cb1df5892b3c49003d1ed4042dc72d1b18493b8b847883e84fbf2bf358abb5dff84b2725d5e8463bcb
+  languageName: node
+  linkType: hard
+
+"urql@npm:^4.0.5":
+  version: 4.0.5
+  resolution: "urql@npm:4.0.5"
+  dependencies:
+    "@urql/core": ^4.1.0
+    wonka: ^6.3.2
+  peerDependencies:
+    react: ">= 16.8.0"
+  checksum: e8fe5ee624970d289f5832d3f62bab980e26d2e1b141cc6f82d4c1d009f6481bf58ff5f27971fac55bc8f953dbed6d7aaf62f005782bfd9d130c5c3e4033188b
   languageName: node
   linkType: hard
 

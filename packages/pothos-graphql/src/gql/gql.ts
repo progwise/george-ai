@@ -13,7 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  '\n  query GetScrapedWebPages {\n    scrapedWebPages(publicationState: PREVIEW, locale: "all") {\n      data {\n        id\n        attributes {\n          Title\n          Url\n          OriginalContent\n          WebPageSummaries {\n            id\n            LargeLanguageModel\n            GeneratedKeywords\n            GeneratedSummary\n          }\n        }\n      }\n    }\n  }\n':
+  '\n  query GetScrapedWebPages {\n    scrapedWebPages(publicationState: PREVIEW, locale: "all") {\n      data {\n        id\n        attributes {\n          Title\n          Url\n          OriginalContent\n          locale\n          publishedAt\n          WebPageSummaries {\n            id\n            Feedback\n            LargeLanguageModel\n            GeneratedKeywords\n            GeneratedSummary\n          }\n        }\n      }\n    }\n  }\n':
     types.GetScrapedWebPagesDocument,
 }
 
@@ -35,8 +35,8 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetScrapedWebPages {\n    scrapedWebPages(publicationState: PREVIEW, locale: "all") {\n      data {\n        id\n        attributes {\n          Title\n          Url\n          OriginalContent\n          WebPageSummaries {\n            id\n            LargeLanguageModel\n            GeneratedKeywords\n            GeneratedSummary\n          }\n        }\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query GetScrapedWebPages {\n    scrapedWebPages(publicationState: PREVIEW, locale: "all") {\n      data {\n        id\n        attributes {\n          Title\n          Url\n          OriginalContent\n          WebPageSummaries {\n            id\n            LargeLanguageModel\n            GeneratedKeywords\n            GeneratedSummary\n          }\n        }\n      }\n    }\n  }\n']
+  source: '\n  query GetScrapedWebPages {\n    scrapedWebPages(publicationState: PREVIEW, locale: "all") {\n      data {\n        id\n        attributes {\n          Title\n          Url\n          OriginalContent\n          locale\n          publishedAt\n          WebPageSummaries {\n            id\n            Feedback\n            LargeLanguageModel\n            GeneratedKeywords\n            GeneratedSummary\n          }\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query GetScrapedWebPages {\n    scrapedWebPages(publicationState: PREVIEW, locale: "all") {\n      data {\n        id\n        attributes {\n          Title\n          Url\n          OriginalContent\n          locale\n          publishedAt\n          WebPageSummaries {\n            id\n            Feedback\n            LargeLanguageModel\n            GeneratedKeywords\n            GeneratedSummary\n          }\n        }\n      }\n    }\n  }\n']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

@@ -64,6 +64,7 @@ export type BooleanFilterInput = {
 
 export type ComponentWebPageSummaryWebPageSummary = {
   __typename?: 'ComponentWebPageSummaryWebPageSummary'
+  Feedback?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
   GeneratedKeywords?: Maybe<Scalars['String']['output']>
   GeneratedSummary?: Maybe<Scalars['String']['output']>
   LargeLanguageModel?: Maybe<Scalars['String']['output']>
@@ -71,6 +72,7 @@ export type ComponentWebPageSummaryWebPageSummary = {
 }
 
 export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
+  Feedback?: InputMaybe<StringFilterInput>
   GeneratedKeywords?: InputMaybe<StringFilterInput>
   GeneratedSummary?: InputMaybe<StringFilterInput>
   LargeLanguageModel?: InputMaybe<StringFilterInput>
@@ -84,6 +86,7 @@ export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
 }
 
 export type ComponentWebPageSummaryWebPageSummaryInput = {
+  Feedback?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
   GeneratedKeywords?: InputMaybe<Scalars['String']['input']>
   GeneratedSummary?: InputMaybe<Scalars['String']['input']>
   LargeLanguageModel?: InputMaybe<Scalars['String']['input']>
@@ -113,6 +116,11 @@ export type DateTimeFilterInput = {
   null?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
   startsWith?: InputMaybe<Scalars['DateTime']['input']>
+}
+
+export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
+  Down = 'down',
+  Up = 'up',
 }
 
 export type FileInfoInput = {
@@ -1021,9 +1029,12 @@ export type GetScrapedWebPagesQuery = {
         Title?: string | null
         Url?: string | null
         OriginalContent?: string | null
+        locale?: string | null
+        publishedAt?: any | null
         WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
+          Feedback?: Enum_Componentwebpagesummarywebpagesummary_Feedback | null
           LargeLanguageModel?: string | null
           GeneratedKeywords?: string | null
           GeneratedSummary?: string | null
@@ -1088,6 +1099,14 @@ export const GetScrapedWebPagesDocument = {
                             },
                             {
                               kind: 'Field',
+                              name: { kind: 'Name', value: 'locale' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'publishedAt' },
+                            },
+                            {
+                              kind: 'Field',
                               name: { kind: 'Name', value: 'WebPageSummaries' },
                               selectionSet: {
                                 kind: 'SelectionSet',
@@ -1095,6 +1114,10 @@ export const GetScrapedWebPagesDocument = {
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'Feedback' },
                                   },
                                   {
                                     kind: 'Field',

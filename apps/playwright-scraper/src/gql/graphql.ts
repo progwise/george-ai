@@ -51,6 +51,7 @@ export type BooleanFilterInput = {
 
 export type ComponentWebPageSummaryWebPageSummary = {
   __typename?: 'ComponentWebPageSummaryWebPageSummary';
+  Feedback?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>;
   GeneratedKeywords?: Maybe<Scalars['String']['output']>;
   GeneratedSummary?: Maybe<Scalars['String']['output']>;
   LargeLanguageModel?: Maybe<Scalars['String']['output']>;
@@ -58,6 +59,7 @@ export type ComponentWebPageSummaryWebPageSummary = {
 };
 
 export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
+  Feedback?: InputMaybe<StringFilterInput>;
   GeneratedKeywords?: InputMaybe<StringFilterInput>;
   GeneratedSummary?: InputMaybe<StringFilterInput>;
   LargeLanguageModel?: InputMaybe<StringFilterInput>;
@@ -67,6 +69,7 @@ export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
 };
 
 export type ComponentWebPageSummaryWebPageSummaryInput = {
+  Feedback?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>;
   GeneratedKeywords?: InputMaybe<Scalars['String']['input']>;
   GeneratedSummary?: InputMaybe<Scalars['String']['input']>;
   LargeLanguageModel?: InputMaybe<Scalars['String']['input']>;
@@ -97,6 +100,11 @@ export type DateTimeFilterInput = {
   or?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
   startsWith?: InputMaybe<Scalars['DateTime']['input']>;
 };
+
+export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
+  Down = 'down',
+  Up = 'up'
+}
 
 export type FileInfoInput = {
   alternativeText?: InputMaybe<Scalars['String']['input']>;

@@ -14,6 +14,13 @@
     },
     "GeneratedSummary": {
       "type": "text"
+    },
+    "Feedback": {
+      "type": "enumeration",
+      "enum": [
+        "up",
+        "down"
+      ]
     }
   }
 }

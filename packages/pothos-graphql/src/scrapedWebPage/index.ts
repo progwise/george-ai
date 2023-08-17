@@ -26,8 +26,11 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
           Title
           Url
           OriginalContent
+          locale
+          publishedAt
           WebPageSummaries {
             id
+            Feedback
             LargeLanguageModel
             GeneratedKeywords
             GeneratedSummary
@@ -50,6 +53,7 @@ builder.objectType(WebPageSummaryReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
+    feedback: t.string({ resolve: (parent) => parent?.Feedback ?? '' }),
     largeLanguageModel: t.string({
       resolve: (parent) => parent?.LargeLanguageModel ?? '',
     }),
@@ -67,6 +71,8 @@ builder.objectType(ScrapedWebPageReference, {
   fields: (t) => ({
     url: t.string({ resolve: (parent) => parent?.Url ?? '' }),
     title: t.string({ resolve: (parent) => parent?.Title ?? '' }),
+    locale: t.string({ resolve: (parent) => parent?.locale ?? '' }),
+    publishedAt: t.string({ resolve: (parent) => parent?.publishedAt ?? '' }),
     originalContent: t.string({
       resolve: (parent) => parent?.OriginalContent ?? '',
     }),
@@ -90,11 +96,14 @@ builder.queryType({
           Url: attribute?.Url,
           Title: attribute?.Title,
           OriginalContent: attribute?.OriginalContent,
-          WebPageSummaries: attribute?.WebPageSummaries?.map((ent) => ({
-            id: ent?.id ?? '',
-            LargeLanguageModel: ent?.LargeLanguageModel,
-            GeneratedKeywords: ent?.GeneratedKeywords,
-            GeneratedSummary: ent?.GeneratedSummary,
+          locale: attribute?.locale,
+          publishedAt: attribute?.publishedAt,
+          WebPageSummaries: attribute?.WebPageSummaries?.map((summary) => ({
+            id: summary?.id ?? '',
+            Feedback: summary?.Feedback,
+            LargeLanguageModel: summary?.LargeLanguageModel,
+            GeneratedKeywords: summary?.GeneratedKeywords,
+            GeneratedSummary: summary?.GeneratedSummary,
           })),
         }))
       },
