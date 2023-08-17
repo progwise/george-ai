@@ -1,10 +1,11 @@
+import { Feedback } from '@/src/gql/graphql'
 import { FeedbackButtons } from './feedback-buttons'
 
 interface TitleProps {
   title: string
   publishedAt: string | null
   locale: string
-  feedback: 'up' | 'down' | undefined
+  feedback?: Feedback | null
 }
 
 export const Title = ({ title, publishedAt, feedback, locale }: TitleProps) => {
@@ -21,7 +22,7 @@ export const Title = ({ title, publishedAt, feedback, locale }: TitleProps) => {
           {publishedAt ? 'published' : 'draft'}
         </div>
       </div>
-      <FeedbackButtons feedback={feedback} />
+      <FeedbackButtons feedback={feedback ?? undefined} />
     </div>
   )
 }
