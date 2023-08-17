@@ -45,7 +45,7 @@ const ALL_SCRAPED_PAGES_QUERY = graphql(`
 const FeedbackEnumReference = builder.enumType(
   Enum_Componentwebpagesummarywebpagesummary_Feedback,
   {
-    name: 'Enum_Feedback',
+    name: 'Feedback',
   },
 )
 

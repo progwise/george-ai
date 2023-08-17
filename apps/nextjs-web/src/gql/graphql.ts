@@ -29,7 +29,7 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export enum Enum_Feedback {
+export enum Feedback {
   Down = 'Down',
   Up = 'Up',
 }
@@ -51,7 +51,7 @@ export type ScrapedWebPage = {
 
 export type WebPageSummary = {
   __typename?: 'WebPageSummary'
-  feedback?: Maybe<Enum_Feedback>
+  feedback?: Maybe<Feedback>
   generatedKeywords: Scalars['String']['output']
   generatedSummary: Scalars['String']['output']
   id: Scalars['String']['output']
@@ -68,7 +68,7 @@ export type InfoCardFragment = {
     __typename?: 'WebPageSummary'
     generatedKeywords: string
     generatedSummary: string
-    feedback?: Enum_Feedback | null
+    feedback?: Feedback | null
   }> | null
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 

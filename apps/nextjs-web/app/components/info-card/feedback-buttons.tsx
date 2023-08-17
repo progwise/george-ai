@@ -1,24 +1,20 @@
 'use client'
 
-import { Enum_Feedback } from '@/src/gql/graphql'
+import { Feedback } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
 
-export const FeedbackButtons = ({
-  feedback,
-}: {
-  feedback?: Enum_Feedback | null
-}) => {
-  const [feedbackChoice, setFeedbackChoice] = useState<
-    Enum_Feedback | undefined | null
-  >(feedback)
+export const FeedbackButtons = ({ feedback }: { feedback?: Feedback }) => {
+  const [feedbackChoice, setFeedbackChoice] = useState<Feedback | undefined>(
+    feedback,
+  )
 
   return (
     <div className="flex gap-4">
       <button
         onClick={() =>
           setFeedbackChoice((previousChoice) =>
-            previousChoice === Enum_Feedback.Up ? undefined : Enum_Feedback.Up,
+            previousChoice === Feedback.Up ? undefined : Feedback.Up,
           )
         }
       >
@@ -26,7 +22,7 @@ export const FeedbackButtons = ({
           src="/thumbs-up.svg"
           alt="Thumbs Up"
           className={
-            feedbackChoice === Enum_Feedback.Up ? 'opacity-100' : 'opacity-25'
+            feedbackChoice === Feedback.Up ? 'opacity-100' : 'opacity-25'
           }
           width={24}
           height={24}
@@ -35,9 +31,7 @@ export const FeedbackButtons = ({
       <button
         onClick={() =>
           setFeedbackChoice((previousChoice) =>
-            previousChoice === Enum_Feedback.Down
-              ? undefined
-              : Enum_Feedback.Down,
+            previousChoice === Feedback.Down ? undefined : Feedback.Down,
           )
         }
       >
@@ -45,7 +39,7 @@ export const FeedbackButtons = ({
           src="/thumbs-down-outline.svg"
           alt="Thumbs Down outline"
           className={
-            feedbackChoice === Enum_Feedback.Down ? 'opacity-100' : 'opacity-25'
+            feedbackChoice === Feedback.Down ? 'opacity-100' : 'opacity-25'
           }
           width={24}
           height={24}

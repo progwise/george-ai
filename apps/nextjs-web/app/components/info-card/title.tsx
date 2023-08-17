@@ -1,10 +1,10 @@
-import { Enum_Feedback } from '@/src/gql/graphql'
+import { Feedback } from '@/src/gql/graphql'
 import { FeedbackButtons } from './feedback-buttons'
 
 interface TitleProps {
   title: string
   publishedAt: string | null
-  feedback?: Enum_Feedback | null
+  feedback?: Feedback | null
 }
 
 export const Title = ({ title, publishedAt, feedback }: TitleProps) => {
