@@ -3,6 +3,28 @@ import { SearchBox } from './components/search-box'
 import React, { useState, useEffect, Suspense } from 'react'
 import { PageList } from './page-list'
 import Loading from './loading'
+import { Metadata } from 'next'
+
+interface WebPageSummary {
+  id: string
+  feedback?: 'up' | 'down'
+  generatedKeywords: string
+  generatedSummary: string
+  largeLanguageModel: string
+}
+
+export interface Page {
+  title: string
+  url: string
+  locale: string
+  publishedAt: string | null
+  webPageSummaries: WebPageSummary[]
+}
+
+export const metadata: Metadata = {
+  title: 'George-AI',
+  description: 'The intelligent index for your website',
+}
 
 export default function Home() {
   return (
