@@ -58,76 +58,37 @@ export type WebPageSummary = {
   largeLanguageModel: Scalars['String']['output']
 }
 
-export type WebPageSummaryFragmentFragment = {
-  __typename?: 'WebPageSummary'
-  id: string
-  feedback?: Enum_Feedback | null
-  generatedKeywords: string
-  generatedSummary: string
-  largeLanguageModel: string
-} & { ' $fragmentName'?: 'WebPageSummaryFragmentFragment' }
-
-export type ScrapedWebPageFragmentFragment = {
+export type InfoCardFragment = {
   __typename?: 'ScrapedWebPage'
   title: string
   url: string
-  originalContent: string
   locale: string
   publishedAt: string
-  webPageSummaries?: Array<
-    { __typename?: 'WebPageSummary' } & {
-      ' $fragmentRefs'?: {
-        WebPageSummaryFragmentFragment: WebPageSummaryFragmentFragment
-      }
-    }
-  > | null
-} & { ' $fragmentName'?: 'ScrapedWebPageFragmentFragment' }
+  webPageSummaries?: Array<{
+    __typename?: 'WebPageSummary'
+    generatedKeywords: string
+    generatedSummary: string
+    feedback?: Enum_Feedback | null
+  }> | null
+} & { ' $fragmentName'?: 'InfoCardFragment' }
 
 export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetScrapedWebPagesQuery = {
   __typename?: 'Query'
   allPages: Array<
-    { __typename?: 'ScrapedWebPage' } & {
-      ' $fragmentRefs'?: {
-        ScrapedWebPageFragmentFragment: ScrapedWebPageFragmentFragment
-      }
+    { __typename?: 'ScrapedWebPage'; url: string } & {
+      ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
   >
 }
 
-export const WebPageSummaryFragmentFragmentDoc = {
+export const InfoCardFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'WebPageSummaryFragment' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'WebPageSummary' },
-      },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'generatedKeywords' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'generatedSummary' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'largeLanguageModel' },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<WebPageSummaryFragmentFragment, unknown>
-export const ScrapedWebPageFragmentFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ScrapedWebPageFragment' },
+      name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
         name: { kind: 'Name', value: 'ScrapedWebPage' },
@@ -137,7 +98,6 @@ export const ScrapedWebPageFragmentFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originalContent' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
           { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
           {
@@ -147,38 +107,22 @@ export const ScrapedWebPageFragmentFragmentDoc = {
               kind: 'SelectionSet',
               selections: [
                 {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'WebPageSummaryFragment' },
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'generatedKeywords' },
                 },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'generatedSummary' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
               ],
             },
           },
         ],
       },
     },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'WebPageSummaryFragment' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'WebPageSummary' },
-      },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'generatedKeywords' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'generatedSummary' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'largeLanguageModel' },
-          },
-        ],
-      },
-    },
   ],
-} as unknown as DocumentNode<ScrapedWebPageFragmentFragment, unknown>
+} as unknown as DocumentNode<InfoCardFragment, unknown>
 export const GetScrapedWebPagesDocument = {
   kind: 'Document',
   definitions: [
@@ -195,9 +139,10 @@ export const GetScrapedWebPagesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
                 {
                   kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'ScrapedWebPageFragment' },
+                  name: { kind: 'Name', value: 'InfoCard' },
                 },
               ],
             },
@@ -207,28 +152,7 @@ export const GetScrapedWebPagesDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'WebPageSummaryFragment' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'WebPageSummary' },
-      },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'generatedKeywords' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'generatedSummary' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'largeLanguageModel' },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ScrapedWebPageFragment' },
+      name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
         name: { kind: 'Name', value: 'ScrapedWebPage' },
@@ -238,7 +162,6 @@ export const GetScrapedWebPagesDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originalContent' } },
           { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
           { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
           {
@@ -248,9 +171,14 @@ export const GetScrapedWebPagesDocument = {
               kind: 'SelectionSet',
               selections: [
                 {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'WebPageSummaryFragment' },
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'generatedKeywords' },
                 },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'generatedSummary' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
               ],
             },
           },
