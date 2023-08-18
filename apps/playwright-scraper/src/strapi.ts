@@ -1,7 +1,7 @@
 import { GraphQLClient } from 'graphql-request'
 import { WebPageSummary } from './main.js'
 import dotenv from 'dotenv'
-import { graphql } from './gql'
+import { graphql } from './gql/gql'
 
 dotenv.config()
 
