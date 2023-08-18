@@ -26,7 +26,7 @@ const processPage = async (url: string): Promise<void> => {
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
       const language = ['de', 'en'].includes(scrapeResult.language)
-        ? scrapeResult.language
+        ? (scrapeResult.language as 'de' | 'en')
         : 'en'
 
       const summary =
