@@ -1,6 +1,6 @@
 # Setting Up a REST API using Lightning Llama (Lit-LLaMA)
 
-[Lit-LLaMA ](https://github.com/Lightning-AI/lit-llama) is a powerful language model that you can interact with via a Python API. This guide will walk you through the steps to set up and use Lit-LLaMA on your Debian-based system.
+[Lit-LLaMA](https://github.com/Lightning-AI/lit-llama) serves as a comprehensive platform for executing the [OpenLLaMA](https://github.com/openlm-research/open_llama) Large Language Model (LLM). This guide is dedicated to facilitating the setup and utilization of Lit-LLaMA on your Debian-based system. Notably, Lit-LLaMA stands as a rendition of LLaMA's pretraining, fine-tuning, and inference code, all made accessible as open-source content governed by the [**Apache 2.0 license**](https://www.apache.org/licenses/LICENSE-2.0).
 
 ## Prerequisites
 
@@ -57,7 +57,6 @@ Before you begin, ensure that your system meets the following requirements:
 
    **"Anaconda vs. Conda: Package Management Simplified"**
 
-   **Explanation:**
    "Anaconda" is an all-in-one Python distribution bundled with the "Conda" package manager. "Conda" is a standalone tool that streamlines package installation and environment setup. While "Anaconda" offers a curated package collection, "Conda" empowers efficient package management and isolated environments for Python development.
 
 5. Install CUDA Toolkit:
@@ -68,7 +67,7 @@ Before you begin, ensure that your system meets the following requirements:
 
    **Explanation**: This installs the [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit), which is essential for utilizing GPU acceleration in deep learning tasks.
 
-   **CUDA** is a parallel computing platform and application programming interface (API) developed by NVIDIA for utilizing the power of graphics processing units (GPUs) to accelerate computation tasks.
+   **CUDA** (or Compute Unified Device Architecture) is a parallel computing platform and Application Programming Interface (API) developed by NVIDIA for utilizing the power of Graphics Processing Units (GPUs) to accelerate computation tasks.
 
    **CUDA Toolkit** is a comprehensive set of libraries, tools, and APIs provided by NVIDIA to develop GPU-accelerated applications. It includes libraries for linear algebra, image processing, machine learning, and more, enabling programmers to harness the computational capabilities of GPUs for various tasks.
 
@@ -87,7 +86,7 @@ Before you begin, ensure that your system meets the following requirements:
    export PATH="/home/YOUR_USERNAME:$PATH"
    ```
 
-   **Explanation**: This command adds a directory to the system's PATH, making it easier to run scripts and programs from that directory.
+   **Explanation**: This command adds a directory to the system's [ PATH](https://wiki.debian.org/EnvironmentVariables), making it easier to run scripts and programs from that directory.
 
 8. Set up a virtual environment and install Python dependencies:
 
@@ -98,7 +97,7 @@ Before you begin, ensure that your system meets the following requirements:
    pip install -r requirements.txt
    ```
 
-   **Explanation**: These commands set up a virtual environment for Python, activate it, and install necessary Python libraries listed in the [requirements.txt](link_to_requirements_txt) file.
+   **Explanation**: These commands set up a virtual environment for Python, activate it, and install necessary Python libraries listed in the `requirements.txt` file.
 
 9. Download model weights:
 
@@ -106,7 +105,7 @@ Before you begin, ensure that your system meets the following requirements:
    python3 scripts/download.py --repo_id openlm-research/open_llama_7b --local_dir checkpoints/open-llama/7B
    ```
 
-   **Explanation**: This Python script downloads pre-trained model weights from a specific repository and saves them in the project directory.
+   **Explanation**: This Python script downloads pretrained model weights from a specific repository and saves them in the project directory.
 
 10. Convert weights:
 
@@ -134,18 +133,18 @@ Before you begin, ensure that your system meets the following requirements:
 
    **Explanation**: This command generates text using the Lit-LLaMA model based on a provided prompt.
 
-## Creating and Using the Python API for Lit-LLaMA
+## Creating and Using the REST API for Lit-LLaMA
 
-1. Create the Python API for Lit-LLaMA:
+1. Create the REST API for Lit-LLaMA:
 
    ```
    pip install Flask
    curl -o API.py https://raw.githubusercontent.com/progwise/george-ai/dc286c9c69fb01b611b23a4cc3319a8d43a0c1de/packages/api/API.py
    ```
 
-   **Explanation**: These commands install the [Flask](https://flask.palletsprojects.com/) library, a lightweight and versatile Python web framework that simplifies building web applications and APIs. Additionally, [cURL](https://curl.se/) is a command-line tool and library designed for data transfers via URLs. cURL enables tasks such as sending HTTP requests, downloading files, and interacting with web APIs directly from the command line. Lastly, the commands also include the download of an API file facilitating interaction with the Lit-LLaMA model.
+   **Explanation**: These commands install the [Flask](https://flask.palletsprojects.com/) library, a lightweight and versatile Python web framework that simplifies building web applications and APIs. Additionally, [cURL](https://curl.se/) is a command-line tool and library designed for data transfers via URLs. cURL enables tasks such as sending HTTP requests, downloading files, and interacting with web APIs directly from the command line.
 
-2. Run the Python API:
+2. Run the API:
 
    ```
    python3 API.py
@@ -161,6 +160,4 @@ Before you begin, ensure that your system meets the following requirements:
 
    **Explanation**: This `curl` command sends a POST request to the API, interacting with the Lit-LLaMA model and receiving responses.
 
-In conclusion, you have adeptly configured and utilized the Lit-LLaMA API on your system. Embark on an enriching journey of exploration and interaction with this sophisticated language model.
-
-Should you require additional assistance or seek further elucidation, please do not hesitate to reach out.
+You should have now adeptly configured and utilized the Lit-LLaMA API on your system. Embark on an enriching journey of exploration and interaction with this sophisticated language model.
