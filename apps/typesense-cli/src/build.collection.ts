@@ -57,15 +57,6 @@ const baseCollectionSchema: {
   ],
 }
 
-const getCollectionName = (
-  modelName: string,
-  locale: string,
-  publishedAt?: string,
-) => {
-  const publishedStatus = publishedAt ? 'published' : 'draft'
-  return `${modelName}_${locale}_${publishedStatus}_scrapedPage`
-}
-
 export const getAllScrapedWebPages = async () => {
   try {
     const { scrapedWebPages } = await strapiClient.request(
@@ -73,53 +64,34 @@ export const getAllScrapedWebPages = async () => {
       {},
     )
 
-    const collectionsData: { [key: string]: any[] } = {}
+    const collectionName = 'scraped_web_pages_summaries'
 
-    // Step 1: Create collections map and their corresponding documents
-    for (const page of scrapedWebPages?.data || []) {
-      for (const summary of page.attributes?.WebPageSummaries || []) {
-        if (summary?.LargeLanguageModel && page.attributes?.locale) {
-          const collectionName = getCollectionName(
-            summary.LargeLanguageModel,
-            page.attributes.locale,
-            page.attributes.publishedAt,
-          )
+    const collectionExists = await client.collections(collectionName).exists()
 
-          if (!collectionsData[collectionName]) {
-            collectionsData[collectionName] = []
-          }
-
-          const document = {
-            Title: page.attributes.Title,
-            Url: page.attributes.Url,
-            locale: page.attributes.locale,
-            publishedAt: page.attributes?.publishedAt,
-            GeneratedKeywords: summary.GeneratedKeywords,
-            GeneratedSummary: summary.GeneratedSummary,
-            LargeLanguageModel: summary.LargeLanguageModel,
-          }
-          collectionsData[collectionName].push(document)
-        }
-      }
+    if (collectionExists) {
+      await client.collections(collectionName).delete()
     }
 
-    // Step 2: For each unique collection name, create a collection and add related documents
-    for (const [collectionName, documents] of Object.entries(collectionsData)) {
-      const collectionExists = await client.collections(collectionName).exists()
+    const collectionSchema = {
+      ...baseCollectionSchema,
+      name: collectionName,
+    }
 
-      if (collectionExists) {
-        await client.collections(collectionName).delete()
-      }
+    await client.collections().create(collectionSchema)
+    console.log(`Collection ${collectionName} created`)
 
-      const collectionSchema = {
-        ...baseCollectionSchema,
-        name: collectionName,
-      }
+    for (const page of scrapedWebPages?.data || []) {
+      for (const summary of page.attributes?.WebPageSummaries || []) {
+        const document = {
+          Title: page.attributes?.Title,
+          Url: page.attributes?.Url,
+          locale: page.attributes?.locale,
+          publishedAt: page.attributes?.publishedAt,
+          GeneratedKeywords: summary?.GeneratedKeywords,
+          GeneratedSummary: summary?.GeneratedKeywords,
+          LargeLanguageModel: summary?.LargeLanguageModel,
+        }
 
-      await client.collections().create(collectionSchema)
-      console.log(`Collection ${collectionName} created`)
-
-      for (const document of documents) {
         await client.collections(collectionName).documents().upsert(document)
         console.log(
           `Data added to typesense in collection ${collectionName}`,
