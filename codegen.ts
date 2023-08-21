@@ -1,6 +1,11 @@
 const { execSync } = require('child_process')
 
-const projects = ['playwrightScraper', 'pothosGraphql', 'nextjsWeb']
+const projects = [
+  'playwrightScraper',
+  'pothosGraphql',
+  'nextjsWeb',
+  'typesense',
+]
 
 projects.forEach((project) => {
   console.log(`Generating code for ${project}...`)
