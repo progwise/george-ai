@@ -47,15 +47,14 @@ const baseCollectionSchema: {
 } = {
   name: 'scraped_web_pages',
   fields: [
-    { name: 'id', type: 'string' },
-    { name: 'Title', type: 'string' },
-    { name: 'Url', type: 'string' },
-    { name: 'locale', type: 'string' },
-    { name: 'OriginalContent', type: 'string' },
+    { name: 'title', type: 'string' },
+    { name: 'url', type: 'string' },
+    { name: 'language', type: 'string' },
+    { name: 'originalContent', type: 'string' },
     { name: 'publicationState', type: 'string' },
-    { name: 'GeneratedKeywords', type: 'string' },
-    { name: 'GeneratedSummary', type: 'string' },
-    { name: 'LargeLanguageModel', type: 'string' },
+    { name: 'keywords', type: 'string' },
+    { name: 'summary', type: 'string' },
+    { name: 'largeLanguageModel', type: 'string' },
   ],
 }
 
@@ -85,16 +84,16 @@ export const getAllScrapedWebPages = async () => {
     for (const page of scrapedWebPages?.data || []) {
       for (const summary of page.attributes?.WebPageSummaries || []) {
         const document = {
-          Title: page.attributes?.Title,
-          Url: page.attributes?.Url,
-          locale: page.attributes?.locale,
-          OriginalContent: page.attributes?.OriginalContent,
+          title: page.attributes?.Title,
+          url: page.attributes?.Url,
+          language: page.attributes?.locale,
+          originalContent: page.attributes?.OriginalContent,
           publicationState: page.attributes?.publishedAt
             ? 'published'
             : 'draft',
-          GeneratedKeywords: summary?.GeneratedKeywords,
-          GeneratedSummary: summary?.GeneratedKeywords,
-          LargeLanguageModel: summary?.LargeLanguageModel,
+          keywords: summary?.GeneratedKeywords,
+          summary: summary?.GeneratedKeywords,
+          largeLanguageModel: summary?.LargeLanguageModel,
         }
 
         await client.collections(collectionName).documents().upsert(document)
