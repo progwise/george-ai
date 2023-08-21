@@ -58,7 +58,7 @@ const baseCollectionSchema: {
   ],
 }
 
-export const getAllScrapedWebPages = async () => {
+export const rebuildTypesenseCollection = async () => {
   try {
     const { scrapedWebPages } = await strapiClient.request(
       GET_ALL_SCRAPE_WEBPAGES_QUERY,
@@ -81,9 +81,9 @@ export const getAllScrapedWebPages = async () => {
     await client.collections().create(collectionSchema)
     console.log(`Collection ${collectionName} created`)
 
-    for (const page of scrapedWebPages?.data || []) {
-      for (const summary of page.attributes?.WebPageSummaries || []) {
-        const document = {
+    const documents =
+      scrapedWebPages?.data.flatMap((page) =>
+        (page.attributes?.WebPageSummaries || []).map((summary) => ({
           title: page.attributes?.Title,
           url: page.attributes?.Url,
           language: page.attributes?.locale,
@@ -94,16 +94,19 @@ export const getAllScrapedWebPages = async () => {
           keywords: summary?.GeneratedKeywords,
           summary: summary?.GeneratedKeywords,
           largeLanguageModel: summary?.LargeLanguageModel,
-        }
+        })),
+      ) || []
 
-        await client.collections(collectionName).documents().upsert(document)
-        console.log(
-          `Data added to typesense in collection ${collectionName}`,
-          document,
-        )
-      }
+    for (const document of documents) {
+      await client.collections(collectionName).documents().upsert(document)
+      console.log(
+        `Data added to typesense in collection ${collectionName}`,
+        document,
+      )
     }
   } catch (error) {
     console.error(error)
   }
 }
+
+rebuildTypesenseCollection()

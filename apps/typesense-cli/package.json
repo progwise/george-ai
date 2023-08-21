@@ -8,7 +8,7 @@
     "typesense": "^1.7.1"
   },
   "scripts": {
-    "buildcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/main.ts",
+    "buildcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/build.collection.ts",
     "tsc": "tsc",
     "lint": "eslint ."
   },

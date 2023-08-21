@@ -14,3 +14,9 @@ yarn workspaces turbo repo
 1. cd apps/playwright-scraper
 2. cp .env.example .env
 3. yarn run scrape
+
+# run typesense-cli
+
+1. cd apps/typesense-cli
+2. cp .env.example .env
+3. yarn run buildcollection
