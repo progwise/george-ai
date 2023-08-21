@@ -1032,6 +1032,7 @@ export type GetAllScrapedWebPagesQuery = {
         Url?: string | null
         locale?: string | null
         publishedAt?: any | null
+        OriginalContent?: string | null
         WebPageSummaries?: Array<{
           __typename?: 'ComponentWebPageSummaryWebPageSummary'
           id: string
@@ -1101,6 +1102,10 @@ export const GetAllScrapedWebPagesDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'publishedAt' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'OriginalContent' },
                             },
                             {
                               kind: 'Field',

@@ -23,6 +23,7 @@ const GET_ALL_SCRAPE_WEBPAGES_QUERY = graphql(`
           Url
           locale
           publishedAt
+          OriginalContent
           WebPageSummaries {
             id
             Feedback
@@ -50,7 +51,8 @@ const baseCollectionSchema: {
     { name: 'Title', type: 'string' },
     { name: 'Url', type: 'string' },
     { name: 'locale', type: 'string' },
-    { name: 'publishedAt', type: 'string', optional: true },
+    { name: 'OriginalContent', type: 'string' },
+    { name: 'publicationState', type: 'string' },
     { name: 'GeneratedKeywords', type: 'string' },
     { name: 'GeneratedSummary', type: 'string' },
     { name: 'LargeLanguageModel', type: 'string' },
@@ -86,7 +88,10 @@ export const getAllScrapedWebPages = async () => {
           Title: page.attributes?.Title,
           Url: page.attributes?.Url,
           locale: page.attributes?.locale,
-          publishedAt: page.attributes?.publishedAt,
+          OriginalContent: page.attributes?.OriginalContent,
+          publicationState: page.attributes?.publishedAt
+            ? 'published'
+            : 'draft',
           GeneratedKeywords: summary?.GeneratedKeywords,
           GeneratedSummary: summary?.GeneratedKeywords,
           LargeLanguageModel: summary?.LargeLanguageModel,
