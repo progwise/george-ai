@@ -73,8 +73,9 @@ export const getAllScrapedWebPages = async () => {
       {},
     )
 
-    // Step 1: Extract all unique collection names
-    const uniqueCollectionNames = new Set<string>()
+    const collectionsData: { [key: string]: any[] } = {}
+
+    // Step 1: Create collections map and their corresponding documents
     for (const page of scrapedWebPages?.data || []) {
       for (const summary of page.attributes?.WebPageSummaries || []) {
         if (summary?.LargeLanguageModel && page.attributes?.locale) {
@@ -83,13 +84,27 @@ export const getAllScrapedWebPages = async () => {
             page.attributes.locale,
             page.attributes.publishedAt,
           )
-          uniqueCollectionNames.add(collectionName)
+
+          if (!collectionsData[collectionName]) {
+            collectionsData[collectionName] = []
+          }
+
+          const document = {
+            Title: page.attributes.Title,
+            Url: page.attributes.Url,
+            locale: page.attributes.locale,
+            publishedAt: page.attributes?.publishedAt,
+            GeneratedKeywords: summary.GeneratedKeywords,
+            GeneratedSummary: summary.GeneratedSummary,
+            LargeLanguageModel: summary.LargeLanguageModel,
+          }
+          collectionsData[collectionName].push(document)
         }
       }
     }
 
     // Step 2: For each unique collection name, create a collection and add related documents
-    for (const collectionName of uniqueCollectionNames) {
+    for (const [collectionName, documents] of Object.entries(collectionsData)) {
       const collectionExists = await client.collections(collectionName).exists()
 
       if (collectionExists) {
@@ -104,36 +119,12 @@ export const getAllScrapedWebPages = async () => {
       await client.collections().create(collectionSchema)
       console.log(`Collection ${collectionName} created`)
 
-      for (const page of scrapedWebPages?.data || []) {
-        for (const summary of page.attributes?.WebPageSummaries || []) {
-          if (summary?.LargeLanguageModel && page.attributes?.locale) {
-            const matchingCollectionName = getCollectionName(
-              summary.LargeLanguageModel,
-              page.attributes?.locale,
-              page.attributes?.publishedAt,
-            )
-
-            if (matchingCollectionName === collectionName) {
-              const document = {
-                Title: page.attributes?.Title,
-                Url: page.attributes?.Url,
-                locale: page.attributes?.locale,
-                publishedAt: page.attributes?.publishedAt,
-                GeneratedKeywords: summary?.GeneratedKeywords,
-                GeneratedSummary: summary?.GeneratedSummary,
-                LargeLanguageModel: summary?.LargeLanguageModel,
-              }
-              await client
-                .collections(collectionName)
-                .documents()
-                .upsert(document)
-              console.log(
-                `Data added to typesense in collection ${collectionName}`,
-                document,
-              )
-            }
-          }
-        }
+      for (const document of documents) {
+        await client.collections(collectionName).documents().upsert(document)
+        console.log(
+          `Data added to typesense in collection ${collectionName}`,
+          document,
+        )
       }
     }
   } catch (error) {
