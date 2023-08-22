@@ -65,5 +65,25 @@ module.exports = {
         },
       },
     },
+    typesenseCli: {
+      schema: {
+        'http://localhost:1337/graphql': {
+          headers: {
+            Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
+          },
+        },
+      },
+      documents: ['apps/typesense-cli/src/**/*.ts'],
+      extensions: {
+        codegen: {
+          hooks: { afterOneFileWrite: ['prettier --write'] },
+          generates: {
+            'apps/typesense-cli/src/gql/': {
+              preset: 'client',
+            },
+          },
+        },
+      },
+    },
   },
 }

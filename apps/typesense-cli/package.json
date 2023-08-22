@@ -1,0 +1,16 @@
+{
+  "name": "typesense-cli",
+  "packageManager": "yarn@3.6.1",
+  "dependencies": {
+    "dotenv-cli": "^7.3.0",
+    "eslint": "^8.47.0",
+    "ts-node": "^10.9.1",
+    "typesense": "^1.7.1"
+  },
+  "scripts": {
+    "rebuildcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/rebuild.collection.ts",
+    "tsc": "tsc",
+    "lint": "eslint ."
+  },
+  "type": "module"
+}

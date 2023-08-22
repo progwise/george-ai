@@ -15,4 +15,10 @@ yarn workspaces turbo repo
 2. cp .env.example .env
 3. yarn run scrape
 
+# run typesense-cli
+
+1. cd apps/typesense-cli
+2. cp .env.example .env
+3. yarn run rebuildcollection
+
 ![image](https://github.com/progwise/george-ai/assets/16672443/892a434c-7c93-44f6-a3f7-b8cb5b28d66f)
