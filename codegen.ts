@@ -4,7 +4,7 @@ const projects = [
   'playwrightScraper',
   'pothosGraphql',
   'nextjsWeb',
-  'typesense',
+  'typesenseCli',
 ]
 
 projects.forEach((project) => {

@@ -15,10 +15,10 @@ This tool is designed to interface with Typesense and help manage its collection
 Ensure you have the following environment variables set:
 
 - `STRAPI_API_KEY`: Your API key to access the Strapi GraphQL endpoint.
-- `FGE_TYPESENSE_API_HOST`: Host of your Typesense server.
-- `FGE_TYPESENSE_API_PORT`: Port of your Typesense server.
-- `FGE_TYPESENSE_API_PROTOCOL`: Protocol (http or https) of your Typesense server.
-- `FGE_TYPESENSE_API_KEY`: Your API key to access the Typesense server.
+- `TYPESENSE_API_HOST`: Host of your Typesense server.
+- `TYPESENSE_API_PORT`: Port of your Typesense server.
+- `TYPESENSE_API_PROTOCOL`: Protocol (http or https) of your Typesense server.
+- `TYPESENSE_API_KEY`: Your API key to access the Typesense server.
 
 You can set these using a `.env` file at the root or manually exporting them in your terminal session.
 
@@ -42,7 +42,7 @@ You can set these using a `.env` file at the root or manually exporting them in 
    To rebuild the `scraped_web_pages_summaries` collection in Typesense with scraped webpage summaries from the Strapi GraphQL endpoint:
 
    ```bash
-   yarn buildcollection
+   yarn rebuildcollection
    ```
 
 3. **TypeScript Compilation**: To compile TypeScript files:

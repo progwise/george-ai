@@ -65,7 +65,7 @@ module.exports = {
         },
       },
     },
-    typesense: {
+    typesenseCli: {
       schema: {
         'http://localhost:1337/graphql': {
           headers: {

@@ -19,4 +19,4 @@ yarn workspaces turbo repo
 
 1. cd apps/typesense-cli
 2. cp .env.example .env
-3. yarn run buildcollection
+3. yarn run rebuildcollection
