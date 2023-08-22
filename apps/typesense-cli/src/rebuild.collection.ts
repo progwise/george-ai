@@ -92,7 +92,7 @@ export const rebuildTypesenseCollection = async () => {
             ? 'published'
             : 'draft',
           keywords: summary?.GeneratedKeywords,
-          summary: summary?.GeneratedKeywords,
+          summary: summary?.GeneratedSummary,
           largeLanguageModel: summary?.LargeLanguageModel,
         })),
       ) || []

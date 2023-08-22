@@ -15,6 +15,7 @@ const client = new Client({
 })
 
 type TypesenseWebPage = {
+  id: string
   title: string
   url: string
   language: string
@@ -32,6 +33,7 @@ export const TypesenseWebPageReference = builder.objectRef<
 builder.objectType(TypesenseWebPageReference, {
   name: 'TypesenseWebPage',
   fields: (t) => ({
+    id: t.string({ resolve: (parent) => parent?.id ?? '' }),
     title: t.string({ resolve: (parent) => parent?.title ?? '' }),
     url: t.string({ resolve: (parent) => parent?.url ?? '' }),
     language: t.string({ resolve: (parent) => parent?.language ?? '' }),
