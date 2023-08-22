@@ -37,6 +37,14 @@ export enum Feedback {
 export type Query = {
   __typename?: 'Query'
   allPages: Array<ScrapedWebPage>
+  searchResult: Array<TypesenseWebPage>
+}
+
+export type QuerySearchResultArgs = {
+  language?: InputMaybe<Scalars['String']['input']>
+  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  publicationState?: InputMaybe<Scalars['String']['input']>
+  query?: InputMaybe<Scalars['String']['input']>
 }
 
 export type ScrapedWebPage = {
@@ -47,6 +55,18 @@ export type ScrapedWebPage = {
   title: Scalars['String']['output']
   url: Scalars['String']['output']
   webPageSummaries?: Maybe<Array<WebPageSummary>>
+}
+
+export type TypesenseWebPage = {
+  __typename?: 'TypesenseWebPage'
+  keywords: Scalars['String']['output']
+  language: Scalars['String']['output']
+  largeLanguageModel: Scalars['String']['output']
+  originalContent: Scalars['String']['output']
+  publicationState: Scalars['String']['output']
+  summary: Scalars['String']['output']
+  title: Scalars['String']['output']
+  url: Scalars['String']['output']
 }
 
 export type WebPageSummary = {

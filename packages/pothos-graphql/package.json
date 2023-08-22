@@ -10,7 +10,8 @@
   "dependencies": {
     "@pothos/core": "^3.32.1",
     "graphql": "^16.7.1",
-    "graphql-request": "^6.1.0"
+    "graphql-request": "^6.1.0",
+    "typesense": "^1.7.1"
   },
   "devDependencies": {
     "eslint": "^8.46.0",
