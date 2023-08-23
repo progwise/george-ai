@@ -72,7 +72,7 @@ export const rebuildTypesenseCollection = async () => {
     const documents =
       scrapedWebPages?.data.flatMap((page) =>
         (page.attributes?.WebPageSummaries || []).map((summary) => ({
-          id: page.id + summary?.id!,
+          id: summary?.id,
           title: page.attributes?.Title,
           url: page.attributes?.Url,
           language: page.attributes?.locale,
