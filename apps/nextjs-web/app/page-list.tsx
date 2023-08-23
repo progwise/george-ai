@@ -23,8 +23,6 @@ const { getClient } = registerUrql(makeClient)
 
 export async function PageList() {
   const result = await getClient().query(GetScrapedWebPagesQuery, {})
-  console.log('result:', result.data?.searchResult)
-
   const pages = result.data?.searchResult
 
   return (
