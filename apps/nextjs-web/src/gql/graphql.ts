@@ -34,6 +34,19 @@ export enum Feedback {
   Up = 'Up',
 }
 
+export type IndexedWebPage = {
+  __typename?: 'IndexedWebPage'
+  id: Scalars['String']['output']
+  keywords: Scalars['String']['output']
+  language: Scalars['String']['output']
+  largeLanguageModel: Scalars['String']['output']
+  originalContent: Scalars['String']['output']
+  publicationState: PublicationState
+  summary: Scalars['String']['output']
+  title: Scalars['String']['output']
+  url: Scalars['String']['output']
+}
+
 export enum PublicationState {
   Draft = 'Draft',
   Published = 'Published',
@@ -42,7 +55,7 @@ export enum PublicationState {
 export type Query = {
   __typename?: 'Query'
   allPages: Array<ScrapedWebPage>
-  searchResult: Array<TypesenseWebPage>
+  searchResult: Array<IndexedWebPage>
 }
 
 export type QuerySearchResultArgs = {
@@ -62,19 +75,6 @@ export type ScrapedWebPage = {
   webPageSummaries?: Maybe<Array<WebPageSummary>>
 }
 
-export type TypesenseWebPage = {
-  __typename?: 'TypesenseWebPage'
-  id: Scalars['String']['output']
-  keywords: Scalars['String']['output']
-  language: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
-  originalContent: Scalars['String']['output']
-  publicationState: PublicationState
-  summary: Scalars['String']['output']
-  title: Scalars['String']['output']
-  url: Scalars['String']['output']
-}
-
 export type WebPageSummary = {
   __typename?: 'WebPageSummary'
   feedback?: Maybe<Feedback>
@@ -85,7 +85,7 @@ export type WebPageSummary = {
 }
 
 export type InfoCardFragment = {
-  __typename?: 'TypesenseWebPage'
+  __typename?: 'IndexedWebPage'
   title: string
   url: string
   language: string
@@ -99,7 +99,7 @@ export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
 export type GetScrapedWebPagesQuery = {
   __typename?: 'Query'
   searchResult: Array<
-    { __typename?: 'TypesenseWebPage'; id: string } & {
+    { __typename?: 'IndexedWebPage'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
   >
@@ -113,7 +113,7 @@ export const InfoCardFragmentDoc = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'TypesenseWebPage' },
+        name: { kind: 'Name', value: 'IndexedWebPage' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -161,7 +161,7 @@ export const GetScrapedWebPagesDocument = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'TypesenseWebPage' },
+        name: { kind: 'Name', value: 'IndexedWebPage' },
       },
       selectionSet: {
         kind: 'SelectionSet',

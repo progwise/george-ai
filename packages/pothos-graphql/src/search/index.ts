@@ -18,7 +18,7 @@ export enum PublicationState {
   Published = 'published',
 }
 
-type TypesenseWebPage = {
+type IndexedWebPage = {
   id: string
   title: string
   url: string
@@ -34,11 +34,11 @@ const PublicationStateEnumReference = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
-export const TypesenseWebPageReference =
-  builder.objectRef<TypesenseWebPage>('TypesenseWebPage')
+export const IndexedWebPageReference =
+  builder.objectRef<IndexedWebPage>('IndexedWebPage')
 
-builder.objectType(TypesenseWebPageReference, {
-  name: 'TypesenseWebPage',
+builder.objectType(IndexedWebPageReference, {
+  name: 'IndexedWebPage',
   fields: (t) => ({
     id: t.exposeString('id'),
     title: t.exposeString('title'),
@@ -73,7 +73,7 @@ export const resolveSearchResult = async (
 
   try {
     const response = await client
-      .collections<TypesenseWebPage>('scraped_web_pages_summaries')
+      .collections<IndexedWebPage>('scraped_web_pages_summaries')
       .documents()
       .search({
         q: query,

@@ -2,7 +2,7 @@ import { builder } from '../builder'
 import { ScrapedWebPageReference, resolveAllPages } from '../scrapedWebPage'
 import {
   PublicationState,
-  TypesenseWebPageReference,
+  IndexedWebPageReference,
   resolveSearchResult,
 } from '../search'
 
@@ -13,7 +13,7 @@ builder.queryType({
       resolve: resolveAllPages,
     }),
     searchResult: t.field({
-      type: [TypesenseWebPageReference],
+      type: [IndexedWebPageReference],
       args: {
         query: t.arg.string(),
         largeLanguageModel: t.arg.string(),

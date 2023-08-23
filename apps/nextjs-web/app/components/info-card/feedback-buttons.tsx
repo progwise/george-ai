@@ -4,7 +4,9 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 export const FeedbackButtons = () => {
-  const [feedbackChoice, setFeedbackChoice] = useState<string>()
+  const [feedbackChoice, setFeedbackChoice] = useState<
+    'up' | 'down' | undefined
+  >()
 
   return (
     <div className="flex gap-4">

@@ -1,11 +1,11 @@
-import { Title } from './title'
+import { InfoCardTitle } from './info-card-title'
 import { Summary } from './summary'
 import { Keywords } from './keywords'
 import { Link } from './link'
 import { FragmentType, graphql, useFragment } from '@/src/gql'
 
 const InfoCardFragment = graphql(`
-  fragment InfoCard on TypesenseWebPage {
+  fragment InfoCard on IndexedWebPage {
     title
     url
     language
@@ -16,13 +16,13 @@ const InfoCardFragment = graphql(`
 `)
 
 export const InfoCard = (props: {
-  page: FragmentType<typeof InfoCardFragment>
+  pageFragment: FragmentType<typeof InfoCardFragment>
 }) => {
-  const page = useFragment(InfoCardFragment, props.page)
+  const page = useFragment(InfoCardFragment, props.pageFragment)
 
   return (
     <div className="flex flex-col gap-5 border-2 p-8 rounded-md">
-      <Title
+      <InfoCardTitle
         title={page.title}
         publicationState={page.publicationState}
         language={page.language}

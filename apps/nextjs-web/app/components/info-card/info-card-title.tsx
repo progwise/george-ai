@@ -7,7 +7,11 @@ interface TitleProps {
   language: string
 }
 
-export const Title = ({ title, publicationState, language }: TitleProps) => {
+export const InfoCardTitle = ({
+  title,
+  publicationState,
+  language,
+}: TitleProps) => {
   return (
     <div className="flex gap-2 justify-between">
       <div className="flex gap-2 items-center">
