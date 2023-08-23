@@ -1,7 +1,10 @@
 import { builder } from '../builder'
-import { PublicationState } from '../gql/graphql'
 import { ScrapedWebPageReference, resolveAllPages } from '../scrapedWebPage'
-import { TypesenseWebPageReference, resolveSearchResult } from '../search'
+import {
+  PublicationState,
+  TypesenseWebPageReference,
+  resolveSearchResult,
+} from '../search'
 
 builder.queryType({
   fields: (t) => ({
@@ -14,7 +17,9 @@ builder.queryType({
       args: {
         query: t.arg.string(),
         largeLanguageModel: t.arg.string(),
-        publicationState: t.arg.string(),
+        publicationState: t.arg({
+          type: PublicationState,
+        }),
         language: t.arg.string(),
       },
       resolve: (parent, arguments_) =>

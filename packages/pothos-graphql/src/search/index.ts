@@ -1,9 +1,5 @@
 import { builder } from '../builder'
 import { Client } from 'typesense'
-import {
-  SearchResponse,
-  SearchResponseHit,
-} from 'typesense/lib/Typesense/Documents'
 
 const client = new Client({
   nodes: [
@@ -17,60 +13,63 @@ const client = new Client({
   apiKey: process.env.TYPESENSE_API_KEY ?? '',
 })
 
+export enum PublicationState {
+  Draft = 'draft',
+  Published = 'published',
+}
+
 type TypesenseWebPage = {
   id: string
   title: string
   url: string
   language: string
   originalContent: string
-  publicationState?: string
+  publicationState: PublicationState
   keywords: string
   summary: string
   largeLanguageModel: string
 }
 
-export const TypesenseWebPageReference = builder.objectRef<
-  TypesenseWebPage | undefined
->('TypesenseWebPage')
+const PublicationStateEnumReference = builder.enumType(PublicationState, {
+  name: 'PublicationState',
+})
+
+export const TypesenseWebPageReference =
+  builder.objectRef<TypesenseWebPage>('TypesenseWebPage')
 
 builder.objectType(TypesenseWebPageReference, {
   name: 'TypesenseWebPage',
   fields: (t) => ({
-    id: t.string({ resolve: (parent) => parent?.id ?? '' }),
-    title: t.string({ resolve: (parent) => parent?.title ?? '' }),
-    url: t.string({ resolve: (parent) => parent?.url ?? '' }),
-    language: t.string({ resolve: (parent) => parent?.language ?? '' }),
-    originalContent: t.string({
-      resolve: (parent) => parent?.originalContent ?? '',
+    id: t.exposeString('id'),
+    title: t.exposeString('title'),
+    url: t.exposeString('url'),
+    language: t.exposeString('language'),
+    originalContent: t.exposeString('originalContent'),
+    publicationState: t.expose('publicationState', {
+      type: PublicationStateEnumReference,
     }),
-    publicationState: t.string({
-      resolve: (parent) => parent?.publicationState ?? '',
-    }),
-    keywords: t.string({ resolve: (parent) => parent?.keywords ?? '' }),
-    summary: t.string({ resolve: (parent) => parent?.summary ?? '' }),
-    largeLanguageModel: t.string({
-      resolve: (parent) => parent?.largeLanguageModel ?? '',
-    }),
+    keywords: t.exposeString('keywords'),
+    summary: t.exposeString('summary'),
+    largeLanguageModel: t.exposeString('largeLanguageModel'),
   }),
 })
 
 export const resolveSearchResult = async (
   query: string,
   largeLanguageModel?: string,
-  publicationState?: string,
+  publicationState?: PublicationState,
   language?: string,
 ) => {
-  let filter = ''
+  const filters: string[] = []
   if (largeLanguageModel) {
-    filter += `largeLanguageModel:${largeLanguageModel} && `
+    filters.push(`largeLanguageModel:${largeLanguageModel}`)
   }
   if (publicationState) {
-    filter += `publicationState:${publicationState} && `
+    filters.push(`publicationState:${publicationState}`)
   }
   if (language) {
-    filter += `language:${language} && `
+    filters.push(`language:${language}`)
   }
-  filter = filter.slice(0, -4)
 
   try {
     const response = await client
@@ -79,7 +78,7 @@ export const resolveSearchResult = async (
       .search({
         q: query,
         query_by: 'keywords',
-        filter_by: filter,
+        filter_by: filters.join(' && '),
       })
 
     return response.hits?.map((hit) => hit.document) || []

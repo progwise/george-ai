@@ -1,9 +1,9 @@
-import { Feedback } from '@/src/gql/graphql'
+import { PublicationState } from '@/src/gql/graphql'
 import { FeedbackButtons } from './feedback-buttons'
 
 interface TitleProps {
   title: string
-  publicationState: string
+  publicationState: PublicationState
   language: string
 }
 

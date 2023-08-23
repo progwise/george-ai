@@ -34,6 +34,11 @@ export enum Feedback {
   Up = 'Up',
 }
 
+export enum PublicationState {
+  Draft = 'Draft',
+  Published = 'Published',
+}
+
 export type Query = {
   __typename?: 'Query'
   allPages: Array<ScrapedWebPage>
@@ -43,7 +48,7 @@ export type Query = {
 export type QuerySearchResultArgs = {
   language?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  publicationState?: InputMaybe<Scalars['String']['input']>
+  publicationState?: InputMaybe<PublicationState>
   query?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -64,7 +69,7 @@ export type TypesenseWebPage = {
   language: Scalars['String']['output']
   largeLanguageModel: Scalars['String']['output']
   originalContent: Scalars['String']['output']
-  publicationState: Scalars['String']['output']
+  publicationState: PublicationState
   summary: Scalars['String']['output']
   title: Scalars['String']['output']
   url: Scalars['String']['output']
@@ -84,7 +89,7 @@ export type InfoCardFragment = {
   title: string
   url: string
   language: string
-  publicationState: string
+  publicationState: PublicationState
   keywords: string
   summary: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }

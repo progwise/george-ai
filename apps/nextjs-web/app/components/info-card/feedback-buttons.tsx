@@ -1,6 +1,5 @@
 'use client'
 
-import { Feedback } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
 
