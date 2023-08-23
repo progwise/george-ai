@@ -54,7 +54,7 @@ builder.objectType(IndexedWebPageReference, {
   }),
 })
 
-export const resolveSearchResult = async (
+const resolveSearchResult = async (
   query: string,
   largeLanguageModel?: string,
   publicationState?: PublicationState,
@@ -87,3 +87,26 @@ export const resolveSearchResult = async (
     return []
   }
 }
+
+builder.queryField('searchResult', (t) =>
+  t.field({
+    type: [IndexedWebPageReference],
+    args: {
+      query: t.arg.string(),
+      largeLanguageModel: t.arg.string(),
+      publicationState: t.arg({
+        type: PublicationState,
+      }),
+      language: t.arg.string(),
+    },
+    resolve: (parent, arguments_) =>
+      resolveSearchResult(
+        arguments_.query ?? '*',
+        arguments_.largeLanguageModel ?? undefined,
+        arguments_.publicationState ?? undefined,
+        arguments_.language ?? undefined,
+      ),
+  }),
+)
+
+builder.queryType()

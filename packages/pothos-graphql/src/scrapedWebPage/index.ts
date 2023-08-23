@@ -96,7 +96,7 @@ builder.objectType(ScrapedWebPageReference, {
   }),
 })
 
-export async function resolveAllPages() {
+async function resolveAllPages() {
   try {
     const result = await client.request(ALL_SCRAPED_PAGES_QUERY, {})
     const data = result.scrapedWebPages?.data ?? []
@@ -120,3 +120,12 @@ export async function resolveAllPages() {
     return []
   }
 }
+
+builder.queryField('allPages', (t) =>
+  t.field({
+    type: [ScrapedWebPageReference],
+    resolve: resolveAllPages,
+  }),
+)
+
+builder.queryType()
