@@ -1,6 +1,9 @@
 import { builder } from '../builder'
 import { Client } from 'typesense'
-import { PublicationState } from '../gql/graphql'
+import {
+  SearchResponse,
+  SearchResponseHit,
+} from 'typesense/lib/Typesense/Documents'
 
 const client = new Client({
   nodes: [
@@ -51,12 +54,12 @@ builder.objectType(TypesenseWebPageReference, {
   }),
 })
 
-export async function resolveSearchResult(
+export const resolveSearchResult = async (
   query: string,
   largeLanguageModel?: string,
   publicationState?: string,
   language?: string,
-): Promise<TypesenseWebPage[]> {
+) => {
   let filter = ''
   if (largeLanguageModel) {
     filter += `largeLanguageModel:${largeLanguageModel} && `
@@ -71,14 +74,15 @@ export async function resolveSearchResult(
 
   try {
     const response = await client
-      .collections('scraped_web_pages_summaries')
+      .collections<TypesenseWebPage>('scraped_web_pages_summaries')
       .documents()
       .search({
         q: query,
         query_by: 'keywords',
         filter_by: filter,
       })
-    return response.hits?.map((hit) => hit.document as TypesenseWebPage) || []
+
+    return response.hits?.map((hit) => hit.document) || []
   } catch (error) {
     console.error('Error fetching data from Typesense:', error)
     return []
