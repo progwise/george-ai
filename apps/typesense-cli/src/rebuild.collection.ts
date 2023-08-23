@@ -47,6 +47,7 @@ const baseCollectionSchema: {
 } = {
   name: 'scraped_web_pages',
   fields: [
+    { name: 'id', type: 'string' },
     { name: 'title', type: 'string' },
     { name: 'url', type: 'string' },
     { name: 'language', type: 'string' },
@@ -69,21 +70,19 @@ export const rebuildTypesenseCollection = async () => {
 
     const collectionExists = await client.collections(collectionName).exists()
 
-    if (collectionExists) {
-      await client.collections(collectionName).delete()
-    }
-
     const collectionSchema = {
       ...baseCollectionSchema,
       name: collectionName,
     }
-
-    await client.collections().create(collectionSchema)
-    console.log(`Collection ${collectionName} created`)
+    if (!collectionExists) {
+      await client.collections().create(collectionSchema)
+      console.log(`Collection ${collectionName} created`)
+    }
 
     const documents =
       scrapedWebPages?.data.flatMap((page) =>
         (page.attributes?.WebPageSummaries || []).map((summary) => ({
+          id: page.id + summary?.id!,
           title: page.attributes?.Title,
           url: page.attributes?.Url,
           language: page.attributes?.locale,
@@ -92,7 +91,7 @@ export const rebuildTypesenseCollection = async () => {
             ? 'published'
             : 'draft',
           keywords: summary?.GeneratedKeywords,
-          summary: summary?.GeneratedKeywords,
+          summary: summary?.GeneratedSummary,
           largeLanguageModel: summary?.LargeLanguageModel,
         })),
       ) || []
