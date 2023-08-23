@@ -127,5 +127,3 @@ builder.queryField('allPages', (t) =>
     resolve: resolveAllPages,
   }),
 )
-
-builder.queryType()

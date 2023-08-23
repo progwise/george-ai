@@ -108,5 +108,3 @@ builder.queryField('searchResult', (t) =>
       ),
   }),
 )
-
-builder.queryType()
