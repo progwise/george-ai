@@ -46,7 +46,17 @@ const baseCollectionSchema: {
   }[]
 } = {
   name: 'scraped_web_pages',
-  fields: [{ name: '.*', type: 'auto' }],
+  fields: [
+    { name: 'id', type: 'string' },
+    { name: 'title', type: 'string' },
+    { name: 'url', type: 'string' },
+    { name: 'language', type: 'string' },
+    { name: 'originalContent', type: 'string' },
+    { name: 'publicationState', type: 'string' },
+    { name: 'keywords', type: 'string' },
+    { name: 'summary', type: 'string' },
+    { name: 'largeLanguageModel', type: 'string' },
+  ],
 }
 
 export const rebuildTypesenseCollection = async () => {
@@ -55,11 +65,8 @@ export const rebuildTypesenseCollection = async () => {
       GET_ALL_SCRAPE_WEBPAGES_QUERY,
       {},
     )
-
     const collectionName = 'scraped_web_pages_summaries'
-
     const collectionExists = await client.collections(collectionName).exists()
-
     const collectionSchema = {
       ...baseCollectionSchema,
       name: collectionName,
