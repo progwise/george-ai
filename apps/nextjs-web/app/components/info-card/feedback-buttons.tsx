@@ -1,29 +1,26 @@
 'use client'
 
-import { Feedback } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
 
-export const FeedbackButtons = ({ feedback }: { feedback?: Feedback }) => {
-  const [feedbackChoice, setFeedbackChoice] = useState<Feedback | undefined>(
-    feedback,
-  )
+export const FeedbackButtons = () => {
+  const [feedbackChoice, setFeedbackChoice] = useState<
+    'up' | 'down' | undefined
+  >()
 
   return (
     <div className="flex gap-4">
       <button
         onClick={() =>
           setFeedbackChoice((previousChoice) =>
-            previousChoice === Feedback.Up ? undefined : Feedback.Up,
+            previousChoice === 'up' ? undefined : 'up',
           )
         }
       >
         <Image
           src="/thumbs-up.svg"
           alt="Thumbs Up"
-          className={
-            feedbackChoice === Feedback.Up ? 'opacity-100' : 'opacity-25'
-          }
+          className={feedbackChoice === 'up' ? 'opacity-100' : 'opacity-25'}
           width={24}
           height={24}
         />
@@ -31,16 +28,14 @@ export const FeedbackButtons = ({ feedback }: { feedback?: Feedback }) => {
       <button
         onClick={() =>
           setFeedbackChoice((previousChoice) =>
-            previousChoice === Feedback.Down ? undefined : Feedback.Down,
+            previousChoice === 'down' ? undefined : 'down',
           )
         }
       >
         <Image
           src="/thumbs-down-outline.svg"
           alt="Thumbs Down outline"
-          className={
-            feedbackChoice === Feedback.Down ? 'opacity-100' : 'opacity-25'
-          }
+          className={feedbackChoice === 'down' ? 'opacity-100' : 'opacity-25'}
           width={24}
           height={24}
         />

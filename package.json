@@ -9,6 +9,7 @@
   ],
   "packageManager": "yarn@3.6.1",
   "scripts": {
+    "codegen:pothosGraphql": "graphql-codegen --config graphql.config.ts --project pothosGraphql",
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "check-format": "prettier --check .",

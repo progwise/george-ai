@@ -96,11 +96,11 @@ builder.objectType(ScrapedWebPageReference, {
   }),
 })
 
-builder.queryType({
-  fields: (t) => ({
-    allPages: t.field({
-      type: [ScrapedWebPageReference],
-      resolve: async () => {
+builder.queryField('allPages', (t) =>
+  t.field({
+    type: [ScrapedWebPageReference],
+    resolve: async () => {
+      try {
         const result = await client.request(ALL_SCRAPED_PAGES_QUERY, {})
         const data = result.scrapedWebPages?.data ?? []
         const attributes = data.map((entity) => entity.attributes) ?? []
@@ -118,7 +118,10 @@ builder.queryType({
             GeneratedSummary: summary?.GeneratedSummary,
           })),
         }))
-      },
-    }),
+      } catch (error) {
+        console.error('Error fetching data from Strapi:', error)
+        return []
+      }
+    },
   }),
-})
+)

@@ -3,10 +3,10 @@ import { InfoCard } from './components/info-card/info-card'
 import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
 
-const GegScrapedWebPagesQuery = graphql(`
+const SearchQuery = graphql(`
   query GetScrapedWebPages {
-    allPages {
-      url
+    searchResult {
+      id
       ...InfoCard
     }
   }
@@ -22,18 +22,10 @@ const makeClient = () => {
 const { getClient } = registerUrql(makeClient)
 
 export async function PageList() {
-  const result = await getClient().query(GegScrapedWebPagesQuery, {})
-  console.log('result:', result.data?.allPages)
-
-  const pages = result.data?.allPages
+  const result = await getClient().query(SearchQuery, {})
+  const pages = result.data?.searchResult
 
   return (
-    <>
-      {pages?.map((page) => (
-        <div key={page.url}>
-          <InfoCard page={page} />
-        </div>
-      ))}
-    </>
+    <>{pages?.map((page) => <InfoCard key={page.id} pageFragment={page} />)}</>
   )
 }

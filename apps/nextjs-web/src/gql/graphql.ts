@@ -34,9 +34,35 @@ export enum Feedback {
   Up = 'Up',
 }
 
+export type IndexedWebPage = {
+  __typename?: 'IndexedWebPage'
+  id: Scalars['String']['output']
+  keywords: Scalars['String']['output']
+  language: Scalars['String']['output']
+  largeLanguageModel: Scalars['String']['output']
+  originalContent: Scalars['String']['output']
+  publicationState: PublicationState
+  summary: Scalars['String']['output']
+  title: Scalars['String']['output']
+  url: Scalars['String']['output']
+}
+
+export enum PublicationState {
+  Draft = 'Draft',
+  Published = 'Published',
+}
+
 export type Query = {
   __typename?: 'Query'
   allPages: Array<ScrapedWebPage>
+  searchResult: Array<IndexedWebPage>
+}
+
+export type QuerySearchResultArgs = {
+  language?: InputMaybe<Scalars['String']['input']>
+  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  publicationState?: InputMaybe<PublicationState>
+  query?: InputMaybe<Scalars['String']['input']>
 }
 
 export type ScrapedWebPage = {
@@ -59,25 +85,21 @@ export type WebPageSummary = {
 }
 
 export type InfoCardFragment = {
-  __typename?: 'ScrapedWebPage'
+  __typename?: 'IndexedWebPage'
   title: string
   url: string
-  locale: string
-  publishedAt: string
-  webPageSummaries?: Array<{
-    __typename?: 'WebPageSummary'
-    generatedKeywords: string
-    generatedSummary: string
-    feedback?: Feedback | null
-  }> | null
+  language: string
+  publicationState: PublicationState
+  keywords: string
+  summary: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
 export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetScrapedWebPagesQuery = {
   __typename?: 'Query'
-  allPages: Array<
-    { __typename?: 'ScrapedWebPage'; url: string } & {
+  searchResult: Array<
+    { __typename?: 'IndexedWebPage'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
   >
@@ -91,33 +113,17 @@ export const InfoCardFragmentDoc = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'ScrapedWebPage' },
+        name: { kind: 'Name', value: 'IndexedWebPage' },
       },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'webPageSummaries' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'generatedKeywords' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'generatedSummary' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
         ],
       },
     },
@@ -135,11 +141,11 @@ export const GetScrapedWebPagesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'allPages' },
+            name: { kind: 'Name', value: 'searchResult' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 {
                   kind: 'FragmentSpread',
                   name: { kind: 'Name', value: 'InfoCard' },
@@ -155,33 +161,17 @@ export const GetScrapedWebPagesDocument = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'ScrapedWebPage' },
+        name: { kind: 'Name', value: 'IndexedWebPage' },
       },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'webPageSummaries' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'generatedKeywords' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'generatedSummary' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'feedback' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
         ],
       },
     },

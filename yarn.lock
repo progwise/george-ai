@@ -1593,6 +1593,7 @@ __metadata:
     graphql-request: ^6.1.0
     prettier: ^3.0.1
     typescript: ^5.1.6
+    typesense: ^1.7.1
   languageName: unknown
   linkType: soft
 
