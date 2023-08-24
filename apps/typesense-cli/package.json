@@ -1,6 +1,6 @@
 {
-  "name": "typesense-cli",
-  "packageManager": "yarn@3.6.1",
+  "name": "@george-ai/typesense-cli",
+  "version": "0.1.0",
   "dependencies": {
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.47.0",
@@ -12,5 +12,7 @@
     "tsc": "tsc",
     "lint": "eslint ."
   },
+  "main": "./src/rebuild.collection.ts",
+  "types": "./src/rebuild.collection.ts",
   "type": "module"
 }

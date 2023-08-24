@@ -1542,6 +1542,7 @@ __metadata:
   resolution: "@george-ai/nextjs-web@workspace:apps/nextjs-web"
   dependencies:
     "@george-ai/pothos-graphql": "*"
+    "@george-ai/typesense-cli": "*"
     "@types/node": 20.4.7
     "@types/react": 18.2.18
     "@types/react-dom": 18.2.7
@@ -1593,6 +1594,17 @@ __metadata:
     graphql-request: ^6.1.0
     prettier: ^3.0.1
     typescript: ^5.1.6
+    typesense: ^1.7.1
+  languageName: unknown
+  linkType: soft
+
+"@george-ai/typesense-cli@*, @george-ai/typesense-cli@workspace:apps/typesense-cli":
+  version: 0.0.0-use.local
+  resolution: "@george-ai/typesense-cli@workspace:apps/typesense-cli"
+  dependencies:
+    dotenv-cli: ^7.3.0
+    eslint: ^8.47.0
+    ts-node: ^10.9.1
     typesense: ^1.7.1
   languageName: unknown
   linkType: soft
@@ -17556,17 +17568,6 @@ __metadata:
   checksum: f53bfe97f7c8b2b6d23cf572750d4e7d1e0c5fff1c36d859d0ec84556a827b8785077bc27676bf7e71fae538e517c3ecc0f37e7f593be913d884805d931bc8be
   languageName: node
   linkType: hard
-
-"typesense-cli@workspace:apps/typesense-cli":
-  version: 0.0.0-use.local
-  resolution: "typesense-cli@workspace:apps/typesense-cli"
-  dependencies:
-    dotenv-cli: ^7.3.0
-    eslint: ^8.47.0
-    ts-node: ^10.9.1
-    typesense: ^1.7.1
-  languageName: unknown
-  linkType: soft
 
 "typesense@npm:^1.7.1":
   version: 1.7.1

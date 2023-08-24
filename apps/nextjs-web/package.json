@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@george-ai/pothos-graphql": "*",
+    "@george-ai/typesense-cli": "*",
     "@urql/next": "^1.0.0",
     "graphql-yoga": "^4.0.3",
     "next": "13.4.12",
