@@ -94,9 +94,11 @@ export type InfoCardFragment = {
   summary: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
-export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
+export type GetIndexedWebPageQueryVariables = Exact<{
+  query?: InputMaybe<Scalars['String']['input']>
+}>
 
-export type GetScrapedWebPagesQuery = {
+export type GetIndexedWebPageQuery = {
   __typename?: 'Query'
   searchResult: Array<
     { __typename?: 'IndexedWebPage'; id: string } & {
@@ -129,19 +131,39 @@ export const InfoCardFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<InfoCardFragment, unknown>
-export const GetScrapedWebPagesDocument = {
+export const GetIndexedWebPageDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetScrapedWebPages' },
+      name: { kind: 'Name', value: 'GetIndexedWebPage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'query' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'searchResult' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'query' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'query' },
+                },
+              },
+            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -177,6 +199,6 @@ export const GetScrapedWebPagesDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetScrapedWebPagesQuery,
-  GetScrapedWebPagesQueryVariables
+  GetIndexedWebPageQuery,
+  GetIndexedWebPageQueryVariables
 >
