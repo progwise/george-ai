@@ -49,7 +49,7 @@ const FeedbackEnumReference = builder.enumType(
   },
 )
 
-export const ScrapedWebPageReference =
+const ScrapedWebPageReference =
   builder.objectRef<Maybe<ScrapedWebPage | undefined>>('ScrapedWebPage')
 
 const WebPageSummaryReference =
@@ -96,34 +96,32 @@ builder.objectType(ScrapedWebPageReference, {
   }),
 })
 
-async function resolveAllPages() {
-  try {
-    const result = await client.request(ALL_SCRAPED_PAGES_QUERY, {})
-    const data = result.scrapedWebPages?.data ?? []
-    const attributes = data.map((entity) => entity.attributes) ?? []
-    return attributes.map((attribute) => ({
-      Url: attribute?.Url,
-      Title: attribute?.Title,
-      OriginalContent: attribute?.OriginalContent,
-      locale: attribute?.locale,
-      publishedAt: attribute?.publishedAt,
-      WebPageSummaries: attribute?.WebPageSummaries?.map((summary) => ({
-        id: summary?.id ?? '',
-        Feedback: summary?.Feedback,
-        LargeLanguageModel: summary?.LargeLanguageModel,
-        GeneratedKeywords: summary?.GeneratedKeywords,
-        GeneratedSummary: summary?.GeneratedSummary,
-      })),
-    }))
-  } catch (error) {
-    console.error('Error fetching data from Strapi:', error)
-    return []
-  }
-}
-
 builder.queryField('allPages', (t) =>
   t.field({
     type: [ScrapedWebPageReference],
-    resolve: resolveAllPages,
+    resolve: async () => {
+      try {
+        const result = await client.request(ALL_SCRAPED_PAGES_QUERY, {})
+        const data = result.scrapedWebPages?.data ?? []
+        const attributes = data.map((entity) => entity.attributes) ?? []
+        return attributes.map((attribute) => ({
+          Url: attribute?.Url,
+          Title: attribute?.Title,
+          OriginalContent: attribute?.OriginalContent,
+          locale: attribute?.locale,
+          publishedAt: attribute?.publishedAt,
+          WebPageSummaries: attribute?.WebPageSummaries?.map((summary) => ({
+            id: summary?.id ?? '',
+            Feedback: summary?.Feedback,
+            LargeLanguageModel: summary?.LargeLanguageModel,
+            GeneratedKeywords: summary?.GeneratedKeywords,
+            GeneratedSummary: summary?.GeneratedSummary,
+          })),
+        }))
+      } catch (error) {
+        console.error('Error fetching data from Strapi:', error)
+        return []
+      }
+    },
   }),
 )

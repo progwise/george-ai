@@ -13,7 +13,7 @@ const client = new Client({
   apiKey: process.env.TYPESENSE_API_KEY ?? '',
 })
 
-export enum PublicationState {
+enum PublicationState {
   Draft = 'draft',
   Published = 'published',
 }
@@ -34,7 +34,7 @@ const PublicationStateEnumReference = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
-export const IndexedWebPageReference =
+const IndexedWebPageReference =
   builder.objectRef<IndexedWebPage>('IndexedWebPage')
 
 builder.objectType(IndexedWebPageReference, {
@@ -54,40 +54,6 @@ builder.objectType(IndexedWebPageReference, {
   }),
 })
 
-const resolveSearchResult = async (
-  query: string,
-  largeLanguageModel?: string,
-  publicationState?: PublicationState,
-  language?: string,
-) => {
-  const filters: string[] = []
-  if (largeLanguageModel) {
-    filters.push(`largeLanguageModel:${largeLanguageModel}`)
-  }
-  if (publicationState) {
-    filters.push(`publicationState:${publicationState}`)
-  }
-  if (language) {
-    filters.push(`language:${language}`)
-  }
-
-  try {
-    const response = await client
-      .collections<IndexedWebPage>('scraped_web_pages_summaries')
-      .documents()
-      .search({
-        q: query,
-        query_by: 'keywords',
-        filter_by: filters.join(' && '),
-      })
-
-    return response.hits?.map((hit) => hit.document) || []
-  } catch (error) {
-    console.error('Error fetching data from Typesense:', error)
-    return []
-  }
-}
-
 builder.queryField('searchResult', (t) =>
   t.field({
     type: [IndexedWebPageReference],
@@ -99,12 +65,33 @@ builder.queryField('searchResult', (t) =>
       }),
       language: t.arg.string(),
     },
-    resolve: (parent, arguments_) =>
-      resolveSearchResult(
-        arguments_.query ?? '*',
-        arguments_.largeLanguageModel ?? undefined,
-        arguments_.publicationState ?? undefined,
-        arguments_.language ?? undefined,
-      ),
+    resolve: async (parent, arguments_) => {
+      const filters: string[] = []
+      if (arguments_.largeLanguageModel) {
+        filters.push(`largeLanguageModel:${arguments_.largeLanguageModel}`)
+      }
+      if (arguments_.publicationState) {
+        filters.push(`publicationState:${arguments_.publicationState}`)
+      }
+      if (arguments_.language) {
+        filters.push(`language:${arguments_.language}`)
+      }
+
+      try {
+        const response = await client
+          .collections<IndexedWebPage>('scraped_web_pages_summaries')
+          .documents()
+          .search({
+            q: arguments_.query ?? '*',
+            query_by: 'keywords',
+            filter_by: filters.join(' && '),
+          })
+
+        return response.hits?.map((hit) => hit.document) || []
+      } catch (error) {
+        console.error('Error fetching data from Typesense:', error)
+        return []
+      }
+    },
   }),
 )
