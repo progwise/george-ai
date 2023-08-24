@@ -1,6 +1,6 @@
 import { Header } from './components/header'
 import { SearchBox } from './components/search-box'
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { PageList } from './page-list'
 import Loading from './loading'
 import { Metadata } from 'next'
@@ -35,7 +35,9 @@ export default function Home() {
         <span className="border-b border-black">
           ich habe folgende Informationen für Sie gefunden:
         </span>
-        <PageList />
+        <Suspense fallback={<Loading />}>
+          <PageList />
+        </Suspense>
       </div>
     </main>
   )
