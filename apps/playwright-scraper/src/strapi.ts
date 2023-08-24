@@ -78,9 +78,17 @@ const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
     }
   }
 `)
+interface NewWebPageSummary {
+  id?: string
+  GeneratedSummary: string
+  GeneratedKeywords: string
+  LargeLanguageModel: string
+}
 
 export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
-  const newSummary = {
+  let removedSummaryId: string | undefined
+
+  const newSummary: NewWebPageSummary = {
     GeneratedSummary: webPageSummary.summary,
     GeneratedKeywords: JSON.stringify(webPageSummary.keywords),
     LargeLanguageModel: webPageSummary.largeLanguageModel,
@@ -109,8 +117,15 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
 
     const filteredSummaries =
       existingScrapedWebPage?.attributes?.WebPageSummaries?.filter(
-        (summary) =>
-          summary?.LargeLanguageModel !== webPageSummary.largeLanguageModel,
+        (summary) => {
+          if (
+            summary?.LargeLanguageModel === webPageSummary.largeLanguageModel
+          ) {
+            newSummary.id = summary.id
+            return false
+          }
+          return true
+        },
       ) ?? []
 
     await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
