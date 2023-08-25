@@ -8,9 +8,7 @@ export const SearchBox = () => {
   const pathname = usePathname()
   const searchParameters = useSearchParams()!
 
-  const handleInputChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value
 
     const updatedParameter = new URLSearchParams(searchParameters.toString())
