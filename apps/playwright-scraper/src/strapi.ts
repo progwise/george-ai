@@ -86,8 +86,6 @@ interface NewWebPageSummary {
 }
 
 export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
-  let removedSummaryId: string | undefined
-
   const newSummary: NewWebPageSummary = {
     GeneratedSummary: webPageSummary.summary,
     GeneratedKeywords: JSON.stringify(webPageSummary.keywords),
