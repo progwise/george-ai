@@ -2,6 +2,10 @@ import { GraphQLClient } from 'graphql-request'
 import { WebPageSummary } from './main.js'
 import dotenv from 'dotenv'
 import { graphql } from './gql/gql'
+import {
+  ComponentWebPageSummaryWebPageSummaryInput,
+  Maybe,
+} from './gql/graphql.js'
 
 dotenv.config()
 
@@ -78,15 +82,9 @@ const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
     }
   }
 `)
-interface NewWebPageSummary {
-  id?: string
-  GeneratedSummary: string
-  GeneratedKeywords: string
-  LargeLanguageModel: string
-}
 
 export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
-  const newSummary: NewWebPageSummary = {
+  const newSummary = {
     GeneratedSummary: webPageSummary.summary,
     GeneratedKeywords: JSON.stringify(webPageSummary.keywords),
     LargeLanguageModel: webPageSummary.largeLanguageModel,
@@ -112,19 +110,19 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
       console.log('Created new ScrapedWebPage for Url:', webPageSummary.url)
       return
     }
+    const summaries: Maybe<ComponentWebPageSummaryWebPageSummaryInput>[] =
+      existingScrapedWebPage?.attributes?.WebPageSummaries || []
+    const oldSummaryIndex = summaries.findIndex(
+      (summary) =>
+        summary?.LargeLanguageModel === webPageSummary.largeLanguageModel,
+    )
 
-    const filteredSummaries =
-      existingScrapedWebPage?.attributes?.WebPageSummaries?.filter(
-        (summary) => {
-          if (
-            summary?.LargeLanguageModel === webPageSummary.largeLanguageModel
-          ) {
-            newSummary.id = summary.id
-            return false
-          }
-          return true
-        },
-      ) ?? []
+    if (summaries[oldSummaryIndex]) {
+      const oldSummary = summaries[oldSummaryIndex]
+      summaries[oldSummaryIndex] = { ...newSummary, id: oldSummary?.id }
+    } else {
+      summaries.push(newSummary)
+    }
 
     await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
       id: existingScrapedWebPage?.id,
@@ -132,7 +130,7 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
         Title: existingScrapedWebPage?.attributes?.Title,
         OriginalContent: existingScrapedWebPage?.attributes?.OriginalContent,
         Url: existingScrapedWebPage?.attributes?.Url,
-        WebPageSummaries: [...filteredSummaries, newSummary],
+        WebPageSummaries: summaries,
       },
     })
     console.log('Updated existing ScrapedWebPage Url:', webPageSummary.url)
