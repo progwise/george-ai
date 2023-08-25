@@ -37,7 +37,7 @@ export enum Feedback {
 export type IndexedWebPage = {
   __typename?: 'IndexedWebPage'
   id: Scalars['String']['output']
-  keywords: Scalars['String']['output']
+  keywords: Array<Scalars['String']['output']>
   language: Scalars['String']['output']
   largeLanguageModel: Scalars['String']['output']
   originalContent: Scalars['String']['output']
@@ -90,7 +90,7 @@ export type InfoCardFragment = {
   url: string
   language: string
   publicationState: PublicationState
-  keywords: string
+  keywords: Array<string>
   summary: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 

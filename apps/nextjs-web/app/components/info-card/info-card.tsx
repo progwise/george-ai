@@ -29,7 +29,7 @@ export const InfoCard = (props: {
       />
       <Summary summary={page.summary} />
       <Link url={page.url} />
-      <Keywords keywords={JSON.parse(page?.keywords)} />
+      <Keywords keywords={page?.keywords} />
     </div>
   )
 }

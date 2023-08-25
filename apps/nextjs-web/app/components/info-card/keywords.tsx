@@ -3,7 +3,7 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => (
     <div className="flex flex-wrap gap-2">
       {keywords.map((keyword, index) => (
         <div
-          key={index}
+          key={keyword + index}
           className="border border-black rounded-md text-xs px-4 cursor-pointer bg-slate-100 hover:bg-slate-300"
         >
           {keyword}
