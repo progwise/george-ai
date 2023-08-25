@@ -39,7 +39,6 @@ export default function Home({
         <span className="border-b border-black">
           ich habe folgende Informationen für Sie gefunden:
         </span>
-        <span>{JSON.stringify(searchParams.search)}</span>
         <Suspense fallback={<Loading />}>
           <PageList query={searchParams.search?.toString()} />
         </Suspense>

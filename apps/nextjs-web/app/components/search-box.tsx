@@ -13,8 +13,8 @@ export const SearchBox = () => {
   ) => {
     const query = event.target.value
 
-    // @ts-expect-error
-    const updatedParameter = new URLSearchParams(searchParameters)
+    const updatedParameter = new URLSearchParams(searchParameters.toString())
+
     if (query) {
       updatedParameter.set('search', query)
     } else {
