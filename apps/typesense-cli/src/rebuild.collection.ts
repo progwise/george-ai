@@ -59,22 +59,37 @@ const baseCollectionSchema: {
   ],
 }
 
+const COLLECTIONNAME = 'scraped_web_pages_summaries'
+
+export const ensureTypesenseCollectionExists = async () => {
+  const collectionExists = await client.collections(COLLECTIONNAME).exists()
+  const collectionSchema = {
+    ...baseCollectionSchema,
+    name: COLLECTIONNAME,
+  }
+  if (!collectionExists) {
+    await client.collections().create(collectionSchema)
+    console.log(`Collection ${COLLECTIONNAME} created`)
+  }
+}
+
 export const rebuildTypesenseCollection = async () => {
   try {
     const { scrapedWebPages } = await strapiClient.request(
       GET_ALL_SCRAPE_WEBPAGES_QUERY,
       {},
     )
-    const collectionName = 'scraped_web_pages_summaries'
-    const collectionExists = await client.collections(collectionName).exists()
-    const collectionSchema = {
-      ...baseCollectionSchema,
-      name: collectionName,
-    }
-    if (!collectionExists) {
-      await client.collections().create(collectionSchema)
-      console.log(`Collection ${collectionName} created`)
-    }
+
+    // const collectionExists = await client.collections(collectionName).exists()
+    // const collectionSchema = {
+    //   ...baseCollectionSchema,
+    //   name: collectionName,
+    // }
+    // if (!collectionExists) {
+    //   await client.collections().create(collectionSchema)
+    //   console.log(`Collection ${collectionName} created`)
+    // }
+    await ensureTypesenseCollectionExists()
 
     const documents =
       scrapedWebPages?.data.flatMap((page) =>
@@ -94,9 +109,9 @@ export const rebuildTypesenseCollection = async () => {
       ) || []
 
     for (const document of documents) {
-      await client.collections(collectionName).documents().upsert(document)
+      await client.collections(COLLECTIONNAME).documents().upsert(document)
       console.log(
-        `Data added to typesense in collection ${collectionName}`,
+        `Data added to typesense in collection ${COLLECTIONNAME}`,
         document,
       )
     }

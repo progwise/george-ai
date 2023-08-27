@@ -9,10 +9,11 @@
   },
   "scripts": {
     "rebuildcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/rebuild.collection.ts",
+    "updatedocumet": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/update.documet.ts",
     "tsc": "tsc",
     "lint": "eslint ."
   },
-  "main": "./src/rebuild.collection.ts",
-  "types": "./src/rebuild.collection.ts",
+  "main": "./src/update.documet.ts",
+  "types": "./src/update.documet.ts",
   "type": "module"
 }

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
-import { rebuildTypesenseCollection } from '@george-ai/typesense-cli'
+import { updateTypesenseDocument } from '@george-ai/typesense-cli'
 
 export const POST = async (request: Request) => {
-  await rebuildTypesenseCollection()
+  const data = await request.json()
+  await updateTypesenseDocument(data.entry)
   return NextResponse.json({ ok: true })
 }
