@@ -4,8 +4,8 @@ import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
 
 const SearchQuery = graphql(`
-  query GetScrapedWebPages {
-    searchResult {
+  query GetIndexedWebPage($query: String) {
+    searchResult(query: $query) {
       id
       ...InfoCard
     }
@@ -21,8 +21,8 @@ const makeClient = () => {
 
 const { getClient } = registerUrql(makeClient)
 
-export async function PageList() {
-  const result = await getClient().query(SearchQuery, {})
+export async function PageList({ query }: { query?: string }) {
+  const result = await getClient().query(SearchQuery, { query })
   const pages = result.data?.searchResult
 
   return (

@@ -1,14 +1,24 @@
 'use client'
 
-import { useState } from 'react'
 import Image from 'next/image'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-export const SearchBox = () => {
-  const [inputValue, setInputValue] = useState('')
+export const SearchBox = ({ query }: { query?: string }) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParameters = useSearchParams()!
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value)
-    console.log('inputValue:', inputValue)
+    const query = event.target.value
+
+    const updatedParameter = new URLSearchParams(searchParameters.toString())
+
+    if (query) {
+      updatedParameter.set('query', query)
+    } else {
+      updatedParameter.delete('query')
+    }
+    router.replace(pathname + '?' + updatedParameter.toString())
   }
 
   return (
@@ -16,8 +26,8 @@ export const SearchBox = () => {
       <input
         className="border border-black rounded-md w-full p-1 px-2"
         type="text"
+        value={query ?? ''}
         placeholder="Stellen Sie Ihre Frage an das Intranet..."
-        value={inputValue}
         onChange={handleInputChange}
       />
 

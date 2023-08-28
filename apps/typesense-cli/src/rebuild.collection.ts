@@ -53,7 +53,7 @@ const baseCollectionSchema: {
     { name: 'language', type: 'string' },
     { name: 'originalContent', type: 'string' },
     { name: 'publicationState', type: 'string' },
-    { name: 'keywords', type: 'string' },
+    { name: 'keywords', type: 'string[]' },
     { name: 'summary', type: 'string' },
     { name: 'largeLanguageModel', type: 'string' },
   ],
@@ -87,7 +87,9 @@ export const rebuildTypesenseCollection = async () => {
           publicationState: page.attributes?.publishedAt
             ? 'published'
             : 'draft',
-          keywords: summary?.GeneratedKeywords,
+          keywords: summary?.GeneratedKeywords
+            ? JSON.parse(summary.GeneratedKeywords)
+            : [],
           summary: summary?.GeneratedSummary,
           largeLanguageModel: summary?.LargeLanguageModel,
         })),

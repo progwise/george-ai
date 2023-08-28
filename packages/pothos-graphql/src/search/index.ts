@@ -25,7 +25,7 @@ type IndexedWebPage = {
   language: string
   originalContent: string
   publicationState: PublicationState
-  keywords: string
+  keywords: string[]
   summary: string
   largeLanguageModel: string
 }
@@ -48,7 +48,7 @@ builder.objectType(IndexedWebPageReference, {
     publicationState: t.expose('publicationState', {
       type: PublicationStateEnumReference,
     }),
-    keywords: t.exposeString('keywords'),
+    keywords: t.exposeStringList('keywords'),
     summary: t.exposeString('summary'),
     largeLanguageModel: t.exposeString('largeLanguageModel'),
   }),
