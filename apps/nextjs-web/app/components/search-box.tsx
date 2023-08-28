@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-export const SearchBox = () => {
+export const SearchBox = ({ query }: { query?: string }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParameters = useSearchParams()!
@@ -14,9 +14,9 @@ export const SearchBox = () => {
     const updatedParameter = new URLSearchParams(searchParameters.toString())
 
     if (query) {
-      updatedParameter.set('search', query)
+      updatedParameter.set('query', query)
     } else {
-      updatedParameter.delete('search')
+      updatedParameter.delete('query')
     }
     router.replace(pathname + '?' + updatedParameter.toString())
   }
@@ -26,6 +26,7 @@ export const SearchBox = () => {
       <input
         className="border border-black rounded-md w-full p-1 px-2"
         type="text"
+        value={query ?? ''}
         placeholder="Stellen Sie Ihre Frage an das Intranet..."
         onChange={handleInputChange}
       />
