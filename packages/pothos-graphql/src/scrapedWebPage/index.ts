@@ -2,7 +2,7 @@ import { builder } from '../builder'
 import { graphql } from '../gql'
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
-import { Maybe, WebPageSummaryEntity } from '../gql/graphql'
+import { Maybe, WebPageSummary, WebPageSummaryEntity } from '../gql/graphql'
 
 dotenv.config()
 
@@ -40,10 +40,13 @@ const GET_WEBPAGE_SUMMARIES_QUERY = graphql(`
   }
 `)
 
-const WebPageSummaryEntityReference =
+const WebPageSummaryReference =
   builder.objectRef<Maybe<WebPageSummaryEntity | undefined>>('WebPageSummary')
 
-builder.objectType(WebPageSummaryEntityReference, {
+const WebPageSummaryAttributesReference =
+  builder.objectRef<Maybe<WebPageSummary | undefined>>('WebPageSummary')
+
+builder.objectType(WebPageSummaryReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
@@ -69,6 +72,7 @@ builder.objectType(WebPageSummaryEntityReference, {
         parent?.attributes?.scraped_web_pages?.data?.attributes
           ?.OriginalContent ?? '',
     }),
+
     largeLanguageModel: t.string({
       resolve: (parent) => parent?.attributes?.LargeLanguageModel ?? '',
     }),
@@ -83,11 +87,11 @@ builder.objectType(WebPageSummaryEntityReference, {
 
 builder.queryField('allSummaries', (t) =>
   t.field({
-    type: [WebPageSummaryEntityReference],
+    type: [WebPageSummaryReference],
     resolve: async () => {
       try {
         const result = await client.request(GET_WEBPAGE_SUMMARIES_QUERY, {})
-        console.log('result:', result.webPageSummaries?.data[0])
+        console.log('result:', result.webPageSummaries?.data.at(0))
         const webPageSummarydatas = result.webPageSummaries?.data ?? []
         return webPageSummarydatas.map((data) => ({
           id: data.id,

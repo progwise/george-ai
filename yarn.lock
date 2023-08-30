@@ -17908,6 +17908,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "typesense-cli@workspace:apps/typesense-cli"
   dependencies:
+    "@george-ai/typesense-client": "*"
     dotenv-cli: ^7.3.0
     eslint: ^8.47.0
     ts-node: ^10.9.1

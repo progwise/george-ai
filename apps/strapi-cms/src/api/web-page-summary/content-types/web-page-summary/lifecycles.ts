@@ -1,17 +1,21 @@
-// import { updateTypesenseDocument } from "@george-ai/typesense-client";
+import { updateTypesenseDocument } from "@george-ai/typesense-client";
 
 
 
-// export default    {
-//   // afterCreate(event) {
+export default    {
+ async afterCreate(event) {
+    const entry = await   strapi.entityService.findOne('api::web-page-summary.web-page-summary', event.result.id, {
+      populate: ["scraped_web_pages"]
+    })
+    // console.log("entry: ", entry);
+      updateTypesenseDocument(entry)
+    },
 
-//   //   updateTypesenseDocument(event)
-//   // },
-//   async afterUpdate(event) {
-//   const entry = await   strapi.entityService.findOne('api::web-page-summary.web-page-summary', event.result.id, {
-//     populate: ["scraped_web_pages"]
-//   })
-//   console.log("entry: ", entry);
-//     // updateTypesenseDocument(event)
-//   },
-// };
+  async afterUpdate(event) {
+  const entry = await   strapi.entityService.findOne('api::web-page-summary.web-page-summary', event.result.id, {
+    populate: ["scraped_web_pages"]
+  })
+  // console.log("entry: ", entry);
+    updateTypesenseDocument(entry)
+  },
+};

@@ -1,8 +1,7 @@
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import { graphql } from './gql'
-import { client } from './typesense'
-import { FieldType } from 'typesense/lib/Typesense/Collection'
+import { rebuildTypesenseCollection } from '@george-ai/typesense-client'
 
 dotenv.config()
 
@@ -13,91 +12,43 @@ const strapiClient = new GraphQLClient(endpoint, {
   },
 })
 
-const GET_ALL_SCRAPE_WEBPAGES_QUERY = graphql(`
-  query GetAllScrapedWebPages {
-    scrapedWebPages(publicationState: PREVIEW, locale: "all") {
+const GET_ALL_WEBPAGES_SUMMARIES_QUERY = graphql(`
+  query GetWebPageSummaries {
+    webPageSummaries(publicationState: PREVIEW, locale: "all") {
       data {
         id
         attributes {
-          Title
-          Url
-          locale
-          publishedAt
-          OriginalContent
+          Keywords
+          Summary
+          LargeLanguageModel
+
+          scraped_web_pages {
+            data {
+              attributes {
+                Title
+                Url
+                OriginalContent
+                locale
+                publishedAt
+              }
+            }
+          }
         }
       }
     }
   }
 `)
 
-const baseCollectionSchema: {
-  name: string
-  fields: {
-    name: string
-    type: FieldType
-    optional?: boolean
-  }[]
-} = {
-  name: 'scraped_web_pages',
-  fields: [
-    { name: 'id', type: 'string' },
-    { name: 'title', type: 'string' },
-    { name: 'url', type: 'string' },
-    { name: 'language', type: 'string' },
-    { name: 'originalContent', type: 'string' },
-    { name: 'publicationState', type: 'string' },
-    { name: 'keywords', type: 'string[]' },
-    { name: 'summary', type: 'string' },
-    { name: 'largeLanguageModel', type: 'string' },
-  ],
-}
-
-export const rebuildTypesenseCollection = async () => {
+export const rebuildCollection = async () => {
   try {
-    const { scrapedWebPages } = await strapiClient.request(
-      GET_ALL_SCRAPE_WEBPAGES_QUERY,
+    const { webPageSummaries } = await strapiClient.request(
+      GET_ALL_WEBPAGES_SUMMARIES_QUERY,
       {},
     )
-    const collectionName = 'scraped_web_pages_summaries'
-    const collectionExists = await client.collections(collectionName).exists()
-    const collectionSchema = {
-      ...baseCollectionSchema,
-      name: collectionName,
-    }
-    if (!collectionExists) {
-      await client.collections().create(collectionSchema)
-      console.log(`Collection ${collectionName} created`)
-    }
-
-    const documents =
-      scrapedWebPages?.data.flatMap((page) =>
-        (page.attributes?.WebPageSummaries || []).map((summary) => ({
-          id: summary?.id,
-          title: page.attributes?.Title,
-          url: page.attributes?.Url,
-          language: page.attributes?.locale,
-          originalContent: page.attributes?.OriginalContent,
-          publicationState: page.attributes?.publishedAt
-            ? 'published'
-            : 'draft',
-          keywords: summary?.GeneratedKeywords
-            ? JSON.parse(summary.GeneratedKeywords)
-            : [],
-          summary: summary?.GeneratedSummary,
-          largeLanguageModel: summary?.LargeLanguageModel,
-        })),
-      ) || []
-
-    for (const document of documents) {
-      await client.collections(collectionName).documents().upsert(document)
-      console.log(
-        `Data added to typesense in collection ${collectionName}`,
-        document,
-      )
-    }
+    rebuildTypesenseCollection(webPageSummaries)
   } catch (error) {
     console.error(error)
   }
 }
 
-rebuildTypesenseCollection()
+rebuildCollection()

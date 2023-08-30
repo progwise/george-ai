@@ -2,6 +2,7 @@
   "name": "typesense-cli",
   "packageManager": "yarn@3.6.1",
   "dependencies": {
+    "@george-ai/typesense-client": "*",
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.47.0",
     "ts-node": "^10.9.1",
