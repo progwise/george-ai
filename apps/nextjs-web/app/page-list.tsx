@@ -2,10 +2,22 @@ import { registerUrql } from '@urql/next/rsc'
 import { InfoCard } from './components/info-card/info-card'
 import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
+import { FilterSelectionProps } from './components/filter-selection'
+import { PublicationState } from '@/src/gql/graphql'
 
 const SearchQuery = graphql(`
-  query GetIndexedWebPage($query: String) {
-    searchResult(query: $query) {
+  query GetIndexedWebPage(
+    $query: String
+    $language: String
+    $publicationState: PublicationState
+    $largeLanguageModel: String
+  ) {
+    searchResult(
+      query: $query
+      language: $language
+      publicationState: $publicationState
+      largeLanguageModel: $largeLanguageModel
+    ) {
       id
       ...InfoCard
     }
@@ -21,9 +33,27 @@ const makeClient = () => {
 
 const { getClient } = registerUrql(makeClient)
 
-export async function PageList({ query }: { query?: string }) {
-  const result = await getClient().query(SearchQuery, { query })
+interface PageListProps extends FilterSelectionProps {
+  query?: string
+}
+
+export async function PageList({
+  query,
+  language,
+  status,
+  largeLanguageModel,
+}: PageListProps) {
+  const result = await getClient().query(SearchQuery, {
+    query,
+    language,
+    publicationState:
+      status === 'published'
+        ? PublicationState.Published
+        : PublicationState.Draft,
+    largeLanguageModel,
+  })
   const pages = result.data?.searchResult
+  console.log('pages:', pages)
 
   return (
     <>{pages?.map((page) => <InfoCard key={page.id} pageFragment={page} />)}</>

@@ -96,6 +96,9 @@ export type InfoCardFragment = {
 
 export type GetIndexedWebPageQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
+  language?: InputMaybe<Scalars['String']['input']>
+  publicationState?: InputMaybe<PublicationState>
+  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
 }>
 
 export type GetIndexedWebPageQuery = {
@@ -147,6 +150,33 @@ export const GetIndexedWebPageDocument = {
           },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'language' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'publicationState' },
+          },
+          type: {
+            kind: 'NamedType',
+            name: { kind: 'Name', value: 'PublicationState' },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -161,6 +191,30 @@ export const GetIndexedWebPageDocument = {
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'query' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'language' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'language' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'publicationState' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'largeLanguageModel' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
                 },
               },
             ],

@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
   '\n  fragment InfoCard on IndexedWebPage {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n':
     types.InfoCardFragmentDoc,
-  '\n  query GetIndexedWebPage($query: String) {\n    searchResult(query: $query) {\n      id\n      ...InfoCard\n    }\n  }\n':
+  '\n  query GetIndexedWebPage(\n    $query: String\n    $language: String\n    $publicationState: PublicationState\n    $largeLanguageModel: String\n  ) {\n    searchResult(\n      query: $query\n      language: $language\n      publicationState: $publicationState\n      largeLanguageModel: $largeLanguageModel\n    ) {\n      id\n      ...InfoCard\n    }\n  }\n':
     types.GetIndexedWebPageDocument,
 }
 
@@ -43,8 +43,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetIndexedWebPage($query: String) {\n    searchResult(query: $query) {\n      id\n      ...InfoCard\n    }\n  }\n',
-): (typeof documents)['\n  query GetIndexedWebPage($query: String) {\n    searchResult(query: $query) {\n      id\n      ...InfoCard\n    }\n  }\n']
+  source: '\n  query GetIndexedWebPage(\n    $query: String\n    $language: String\n    $publicationState: PublicationState\n    $largeLanguageModel: String\n  ) {\n    searchResult(\n      query: $query\n      language: $language\n      publicationState: $publicationState\n      largeLanguageModel: $largeLanguageModel\n    ) {\n      id\n      ...InfoCard\n    }\n  }\n',
+): (typeof documents)['\n  query GetIndexedWebPage(\n    $query: String\n    $language: String\n    $publicationState: PublicationState\n    $largeLanguageModel: String\n  ) {\n    searchResult(\n      query: $query\n      language: $language\n      publicationState: $publicationState\n      largeLanguageModel: $largeLanguageModel\n    ) {\n      id\n      ...InfoCard\n    }\n  }\n']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}
