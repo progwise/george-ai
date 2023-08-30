@@ -71,28 +71,6 @@ export type ComponentWebPageSummaryWebPageSummary = {
   id: Scalars['ID']['output']
 }
 
-export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
-  Feedback?: InputMaybe<StringFilterInput>
-  GeneratedKeywords?: InputMaybe<StringFilterInput>
-  GeneratedSummary?: InputMaybe<StringFilterInput>
-  LargeLanguageModel?: InputMaybe<StringFilterInput>
-  and?: InputMaybe<
-    Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>
-  >
-  not?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
-  or?: InputMaybe<
-    Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>
-  >
-}
-
-export type ComponentWebPageSummaryWebPageSummaryInput = {
-  Feedback?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
-  GeneratedKeywords?: InputMaybe<Scalars['String']['input']>
-  GeneratedSummary?: InputMaybe<Scalars['String']['input']>
-  LargeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  id?: InputMaybe<Scalars['ID']['input']>
-}
-
 export type DateTimeFilterInput = {
   and?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
   between?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
@@ -163,6 +141,7 @@ export type GenericMorph =
   | UsersPermissionsPermission
   | UsersPermissionsRole
   | UsersPermissionsUser
+  | WebPageSummary
 
 export type I18NLocale = {
   __typename?: 'I18NLocale'
@@ -287,6 +266,8 @@ export type Mutation = {
   createUsersPermissionsRole?: Maybe<UsersPermissionsCreateRolePayload>
   /** Create a new user */
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse
+  createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
+  createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   deleteUploadFile?: Maybe<UploadFileEntityResponse>
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -294,6 +275,7 @@ export type Mutation = {
   deleteUsersPermissionsRole?: Maybe<UsersPermissionsDeleteRolePayload>
   /** Delete an existing user */
   deleteUsersPermissionsUser: UsersPermissionsUserEntityResponse
+  deleteWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   /** Confirm an email users email address */
   emailConfirmation?: Maybe<UsersPermissionsLoginPayload>
   /** Request a reset password token */
@@ -313,6 +295,7 @@ export type Mutation = {
   updateUsersPermissionsRole?: Maybe<UsersPermissionsUpdateRolePayload>
   /** Update an existing user */
   updateUsersPermissionsUser: UsersPermissionsUserEntityResponse
+  updateWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   upload: UploadFileEntityResponse
 }
 
@@ -349,6 +332,17 @@ export type MutationCreateUsersPermissionsUserArgs = {
   data: UsersPermissionsUserInput
 }
 
+export type MutationCreateWebPageSummaryArgs = {
+  data: WebPageSummaryInput
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationCreateWebPageSummaryLocalizationArgs = {
+  data?: InputMaybe<WebPageSummaryInput>
+  id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
@@ -368,6 +362,11 @@ export type MutationDeleteUsersPermissionsRoleArgs = {
 
 export type MutationDeleteUsersPermissionsUserArgs = {
   id: Scalars['ID']['input']
+}
+
+export type MutationDeleteWebPageSummaryArgs = {
+  id: Scalars['ID']['input']
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationEmailConfirmationArgs = {
@@ -434,6 +433,12 @@ export type MutationUpdateUsersPermissionsUserArgs = {
   id: Scalars['ID']['input']
 }
 
+export type MutationUpdateWebPageSummaryArgs = {
+  data: WebPageSummaryInput
+  id: Scalars['ID']['input']
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type MutationUploadArgs = {
   field?: InputMaybe<Scalars['String']['input']>
   file: Scalars['Upload']['input']
@@ -477,6 +482,8 @@ export type Query = {
   usersPermissionsRoles?: Maybe<UsersPermissionsRoleEntityResponseCollection>
   usersPermissionsUser?: Maybe<UsersPermissionsUserEntityResponse>
   usersPermissionsUsers?: Maybe<UsersPermissionsUserEntityResponseCollection>
+  webPageSummaries?: Maybe<WebPageSummaryEntityResponseCollection>
+  webPageSummary?: Maybe<WebPageSummaryEntityResponse>
 }
 
 export type QueryI18NLocaleArgs = {
@@ -542,6 +549,19 @@ export type QueryUsersPermissionsUsersArgs = {
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
+export type QueryWebPageSummariesArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+  pagination?: InputMaybe<PaginationArg>
+  publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QueryWebPageSummaryArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type ResponseCollectionMeta = {
   __typename?: 'ResponseCollectionMeta'
   pagination: Pagination
@@ -552,18 +572,11 @@ export type ScrapedWebPage = {
   OriginalContent?: Maybe<Scalars['String']['output']>
   Title?: Maybe<Scalars['String']['output']>
   Url?: Maybe<Scalars['String']['output']>
-  WebPageSummaries?: Maybe<Array<Maybe<ComponentWebPageSummaryWebPageSummary>>>
   createdAt?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<ScrapedWebPageRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type ScrapedWebPageWebPageSummariesArgs = {
-  filters?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type ScrapedWebPageLocalizationsArgs = {
@@ -594,7 +607,6 @@ export type ScrapedWebPageFiltersInput = {
   OriginalContent?: InputMaybe<StringFilterInput>
   Title?: InputMaybe<StringFilterInput>
   Url?: InputMaybe<StringFilterInput>
-  WebPageSummaries?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
@@ -610,9 +622,6 @@ export type ScrapedWebPageInput = {
   OriginalContent?: InputMaybe<Scalars['String']['input']>
   Title?: InputMaybe<Scalars['String']['input']>
   Url?: InputMaybe<Scalars['String']['input']>
-  WebPageSummaries?: InputMaybe<
-    Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryInput>>
-  >
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
 }
 
@@ -1015,6 +1024,72 @@ export type UsersPermissionsUserRelationResponseCollection = {
   data: Array<UsersPermissionsUserEntity>
 }
 
+export type WebPageSummary = {
+  __typename?: 'WebPageSummary'
+  Keywords?: Maybe<Scalars['String']['output']>
+  LargeLanguageModel?: Maybe<Scalars['String']['output']>
+  Summary?: Maybe<Scalars['String']['output']>
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  locale?: Maybe<Scalars['String']['output']>
+  localizations?: Maybe<WebPageSummaryRelationResponseCollection>
+  publishedAt?: Maybe<Scalars['DateTime']['output']>
+  scraped_web_pages?: Maybe<ScrapedWebPageEntityResponse>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type WebPageSummaryLocalizationsArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type WebPageSummaryEntity = {
+  __typename?: 'WebPageSummaryEntity'
+  attributes?: Maybe<WebPageSummary>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type WebPageSummaryEntityResponse = {
+  __typename?: 'WebPageSummaryEntityResponse'
+  data?: Maybe<WebPageSummaryEntity>
+}
+
+export type WebPageSummaryEntityResponseCollection = {
+  __typename?: 'WebPageSummaryEntityResponseCollection'
+  data: Array<WebPageSummaryEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type WebPageSummaryFiltersInput = {
+  Keywords?: InputMaybe<StringFilterInput>
+  LargeLanguageModel?: InputMaybe<StringFilterInput>
+  Summary?: InputMaybe<StringFilterInput>
+  and?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  locale?: InputMaybe<StringFilterInput>
+  localizations?: InputMaybe<WebPageSummaryFiltersInput>
+  not?: InputMaybe<WebPageSummaryFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  publishedAt?: InputMaybe<DateTimeFilterInput>
+  scraped_web_pages?: InputMaybe<ScrapedWebPageFiltersInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+}
+
+export type WebPageSummaryInput = {
+  Keywords?: InputMaybe<Scalars['String']['input']>
+  LargeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  Summary?: InputMaybe<Scalars['String']['input']>
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>
+  scraped_web_pages?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type WebPageSummaryRelationResponseCollection = {
+  __typename?: 'WebPageSummaryRelationResponseCollection'
+  data: Array<WebPageSummaryEntity>
+}
+
 export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetScrapedWebPagesQuery = {
@@ -1031,14 +1106,6 @@ export type GetScrapedWebPagesQuery = {
         OriginalContent?: string | null
         locale?: string | null
         publishedAt?: any | null
-        WebPageSummaries?: Array<{
-          __typename?: 'ComponentWebPageSummaryWebPageSummary'
-          id: string
-          Feedback?: Enum_Componentwebpagesummarywebpagesummary_Feedback | null
-          LargeLanguageModel?: string | null
-          GeneratedKeywords?: string | null
-          GeneratedSummary?: string | null
-        } | null> | null
       } | null
     }>
   } | null
@@ -1104,44 +1171,6 @@ export const GetScrapedWebPagesDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'publishedAt' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'WebPageSummaries' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'id' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'Feedback' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'LargeLanguageModel',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'GeneratedKeywords',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'GeneratedSummary',
-                                    },
-                                  },
-                                ],
-                              },
                             },
                           ],
                         },

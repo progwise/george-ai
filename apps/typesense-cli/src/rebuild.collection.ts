@@ -24,13 +24,6 @@ const GET_ALL_SCRAPE_WEBPAGES_QUERY = graphql(`
           locale
           publishedAt
           OriginalContent
-          WebPageSummaries {
-            id
-            Feedback
-            GeneratedKeywords
-            GeneratedSummary
-            LargeLanguageModel
-          }
         }
       }
     }

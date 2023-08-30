@@ -2,10 +2,6 @@ import { GraphQLClient } from 'graphql-request'
 import { WebPageSummary } from './main.js'
 import dotenv from 'dotenv'
 import { graphql } from './gql/gql'
-import {
-  ComponentWebPageSummaryWebPageSummaryInput,
-  Maybe,
-} from './gql/graphql.js'
 
 dotenv.config()
 
@@ -28,30 +24,6 @@ const CREATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
           Title
           Url
           OriginalContent
-          WebPageSummaries {
-            id
-            LargeLanguageModel
-            GeneratedKeywords
-            GeneratedSummary
-          }
-        }
-      }
-    }
-  }
-`)
-
-const UPDATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
-  mutation UpdateScrapedWebPage($id: ID!, $data: ScrapedWebPageInput!) {
-    updateScrapedWebPage(id: $id, data: $data) {
-      data {
-        id
-        attributes {
-          WebPageSummaries {
-            id
-            LargeLanguageModel
-            GeneratedKeywords
-            GeneratedSummary
-          }
         }
       }
     }
@@ -71,11 +43,77 @@ const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
           Url
           Title
           OriginalContent
-          WebPageSummaries {
-            id
-            LargeLanguageModel
-            GeneratedSummary
-            GeneratedKeywords
+        }
+      }
+    }
+  }
+`)
+
+const GET_WEBPAGE_SUMMARIES_BY_LANGUAGE_MODEL_AND_URL_QUERY = graphql(`
+  query GetWebPageSummariesByLanguageModelAndUrl(
+    $languageModel: String!
+    $url: String!
+  ) {
+    webPageSummaries(
+      publicationState: PREVIEW
+      locale: "all"
+      filters: {
+        LargeLanguageModel: { eq: $languageModel }
+        scraped_web_pages: { Url: { eq: $url } }
+      }
+    ) {
+      data {
+        id
+        attributes {
+          Keywords
+          Summary
+          LargeLanguageModel
+          scraped_web_pages {
+            data {
+              id
+              attributes {
+                Url
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`)
+const CREATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
+  mutation CreateWebPageSummary($data: WebPageSummaryInput!) {
+    createWebPageSummary(data: $data) {
+      data {
+        id
+        attributes {
+          Keywords
+          Summary
+          LargeLanguageModel
+          scraped_web_pages {
+            data {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+`)
+
+const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
+  mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
+    updateWebPageSummary(id: $id, data: $data) {
+      data {
+        id
+        attributes {
+          Keywords
+          Summary
+          LargeLanguageModel
+          scraped_web_pages {
+            data {
+              id
+            }
           }
         }
       }
@@ -85,55 +123,80 @@ const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
 
 export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
   const newSummary = {
-    GeneratedSummary: webPageSummary.summary,
-    GeneratedKeywords: JSON.stringify(webPageSummary.keywords),
+    Summary: webPageSummary.summary,
+    Keywords: JSON.stringify(webPageSummary.keywords),
     LargeLanguageModel: webPageSummary.largeLanguageModel,
   }
 
   try {
-    const { scrapedWebPages } = await client.request(
-      GET_SCRAPE_WEBPAGES_BY_URL_QUERY,
-      { url: webPageSummary.url },
-    )
-    const existingScrapedWebPage = scrapedWebPages?.data?.[0]
+    async function createScrapedWebPage() {
+      const { scrapedWebPages } = await client.request(
+        GET_SCRAPE_WEBPAGES_BY_URL_QUERY,
+        { url: webPageSummary.url },
+      )
+      const existingScrapedWebPage = scrapedWebPages?.data?.[0]
 
-    if (!existingScrapedWebPage?.id) {
-      await client.request(CREATE_SCRAPE_WEBPAGE_MUTATION, {
-        data: {
-          Title: webPageSummary.title,
-          OriginalContent: webPageSummary.content,
-          Url: webPageSummary.url,
-          WebPageSummaries: [newSummary],
+      if (existingScrapedWebPage?.id) {
+        return existingScrapedWebPage?.id
+      }
+
+      const createdScrapedWebPage = await client.request(
+        CREATE_SCRAPE_WEBPAGE_MUTATION,
+        {
+          data: {
+            Title: webPageSummary.title,
+            OriginalContent: webPageSummary.content,
+            Url: webPageSummary.url,
+          },
+          locale: webPageSummary.language,
         },
-        locale: webPageSummary.language,
-      })
-      console.log('Created new ScrapedWebPage for Url:', webPageSummary.url)
-      return
+      )
+
+      const createdScrapedWebPageId =
+        createdScrapedWebPage.createScrapedWebPage?.data?.id
+      console.log('Created ScrapedWebPage with ID:', createdScrapedWebPageId)
+      return createdScrapedWebPageId
     }
-    const summaries: Maybe<ComponentWebPageSummaryWebPageSummaryInput>[] =
-      existingScrapedWebPage?.attributes?.WebPageSummaries || []
-    const oldSummaryIndex = summaries.findIndex(
-      (summary) =>
-        summary?.LargeLanguageModel === webPageSummary.largeLanguageModel,
+
+    const ScrapedWebPageId = await createScrapedWebPage()
+
+    const { webPageSummaries } = await client.request(
+      GET_WEBPAGE_SUMMARIES_BY_LANGUAGE_MODEL_AND_URL_QUERY,
+      {
+        languageModel: webPageSummary.largeLanguageModel,
+        url: webPageSummary.url,
+      },
     )
 
-    if (summaries[oldSummaryIndex]) {
-      const oldSummary = summaries[oldSummaryIndex]
-      summaries[oldSummaryIndex] = { ...newSummary, id: oldSummary?.id }
-    } else {
-      summaries.push(newSummary)
+    const newData = {
+      Keywords: JSON.stringify(webPageSummary.keywords),
+      Summary: webPageSummary.summary,
+      LargeLanguageModel: webPageSummary.largeLanguageModel,
     }
 
-    await client.request(UPDATE_SCRAPE_WEBPAGE_MUTATION, {
-      id: existingScrapedWebPage?.id,
-      data: {
-        Title: existingScrapedWebPage?.attributes?.Title,
-        OriginalContent: existingScrapedWebPage?.attributes?.OriginalContent,
-        Url: existingScrapedWebPage?.attributes?.Url,
-        WebPageSummaries: summaries,
-      },
-    })
-    console.log('Updated existing ScrapedWebPage Url:', webPageSummary.url)
+    if (
+      webPageSummaries?.data &&
+      webPageSummaries?.data.length > 0 &&
+      webPageSummaries?.data[0].id
+    ) {
+      const { updateWebPageSummary } = await client.request(
+        UPDATE_WEBPAGE_SUMMARY_MUTATION,
+        {
+          id: webPageSummaries?.data?.[0].id,
+          data: newData,
+        },
+      )
+      const createdSummaryId = updateWebPageSummary?.data?.id
+      console.log('Update WebPageSummary with ID:', createdSummaryId)
+    } else {
+      const { createWebPageSummary } = await client.request(
+        CREATE_WEBPAGE_SUMMARY_MUTATION,
+        { data: { ...newData, scraped_web_pages: ScrapedWebPageId } },
+      )
+
+      const createdSummaryId = createWebPageSummary?.data?.id
+      console.log('Created WebPageSummary with ID:', createdSummaryId)
+    }
   } catch (error) {
     console.error(error)
   }
