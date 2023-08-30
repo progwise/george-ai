@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request'
-import { WebPageSummary } from './main.js'
+import { ScrapeResultandSummary } from './main.js'
 import dotenv from 'dotenv'
 import { graphql } from './gql/gql'
 
@@ -122,76 +122,104 @@ const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
   }
 `)
 
-export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
+const getOrCreateScrapedWebPage = async (
+  scrapeResultAndSummary: ScrapeResultandSummary,
+) => {
+  try {
+    const { scrapedWebPages } = await client.request(
+      GET_SCRAPE_WEBPAGES_BY_URL_QUERY,
+      { url: scrapeResultAndSummary.url },
+    )
+    const existingScrapedWebPage = scrapedWebPages?.data?.at(0)
+
+    if (existingScrapedWebPage) {
+      return existingScrapedWebPage
+    }
+
+    const createdScrapedWebPage = await client.request(
+      CREATE_SCRAPE_WEBPAGE_MUTATION,
+      {
+        data: {
+          Title: scrapeResultAndSummary.title,
+          OriginalContent: scrapeResultAndSummary.content,
+          Url: scrapeResultAndSummary.url,
+        },
+        locale: scrapeResultAndSummary.language,
+      },
+    )
+    const scrapedWebPage = createdScrapedWebPage.createScrapedWebPage?.data
+
+    console.log('Created ScrapedWebPage with ID:', scrapedWebPage?.id)
+
+    return scrapedWebPage
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const createOrUpdateWebPageSummary = async (
+  scrapeResultAndSummary: ScrapeResultandSummary,
+  ScrapedWebPageId: string,
+) => {
   const newSummary = {
-    Summary: webPageSummary.summary,
-    Keywords: JSON.stringify(webPageSummary.keywords),
-    LargeLanguageModel: webPageSummary.largeLanguageModel,
+    Summary: scrapeResultAndSummary.summary,
+    Keywords: JSON.stringify(scrapeResultAndSummary.keywords),
+    LargeLanguageModel: scrapeResultAndSummary.largeLanguageModel,
   }
 
   try {
-    const ScrapedWebPageId = async () => {
-      const { scrapedWebPages } = await client.request(
-        GET_SCRAPE_WEBPAGES_BY_URL_QUERY,
-        { url: webPageSummary.url },
-      )
-      const existingScrapedWebPage = scrapedWebPages?.data?.[0]
-
-      if (existingScrapedWebPage?.id) {
-        return existingScrapedWebPage?.id
-      }
-
-      const createdScrapedWebPage = await client.request(
-        CREATE_SCRAPE_WEBPAGE_MUTATION,
-        {
-          data: {
-            Title: webPageSummary.title,
-            OriginalContent: webPageSummary.content,
-            Url: webPageSummary.url,
-          },
-          locale: webPageSummary.language,
-        },
-      )
-
-      const { id } = createdScrapedWebPage.createScrapedWebPage?.data || {}
-      console.log('Created ScrapedWebPage with ID:', id)
-      return id
-    }
-
     const { webPageSummaries } = await client.request(
       GET_WEBPAGE_SUMMARIES_BY_LANGUAGE_MODEL_AND_URL_QUERY,
       {
-        languageModel: webPageSummary.largeLanguageModel,
-        url: webPageSummary.url,
+        languageModel: scrapeResultAndSummary.largeLanguageModel,
+        url: scrapeResultAndSummary.url,
       },
     )
 
-    if (
-      webPageSummaries?.data &&
-      webPageSummaries?.data.length > 0 &&
-      webPageSummaries?.data[0].id
-    ) {
+    const webPageSummariesId = webPageSummaries?.data.at(0)?.id
+
+    if (webPageSummariesId) {
       const { updateWebPageSummary } = await client.request(
         UPDATE_WEBPAGE_SUMMARY_MUTATION,
         {
-          id: webPageSummaries?.data?.[0].id,
+          id: webPageSummariesId,
           data: newSummary,
         },
       )
       const createdSummaryId = updateWebPageSummary?.data?.id
+
       console.log('Update WebPageSummary with ID:', createdSummaryId)
     } else {
       const { createWebPageSummary } = await client.request(
         CREATE_WEBPAGE_SUMMARY_MUTATION,
         {
-          data: { ...newSummary, scraped_web_pages: await ScrapedWebPageId() },
+          data: {
+            ...newSummary,
+            scraped_web_pages: ScrapedWebPageId,
+          },
         },
       )
 
       const createdSummaryId = createWebPageSummary?.data?.id
+
       console.log('Created WebPageSummary with ID:', createdSummaryId)
     }
   } catch (error) {
     console.error(error)
+  }
+}
+
+export const upsertScrapedWebPageAndWebPageSummary = async (
+  scrapeResultAndSummary: ScrapeResultandSummary,
+) => {
+  const createdScrapedWebPage = await getOrCreateScrapedWebPage(
+    scrapeResultAndSummary,
+  )
+
+  if (createdScrapedWebPage && createdScrapedWebPage.id) {
+    await createOrUpdateWebPageSummary(
+      scrapeResultAndSummary,
+      createdScrapedWebPage.id,
+    )
   }
 }

@@ -1090,40 +1090,52 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
-export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
+export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetScrapedWebPagesQuery = {
+export type GetWebPageSummariesQuery = {
   __typename?: 'Query'
-  scrapedWebPages?: {
-    __typename?: 'ScrapedWebPageEntityResponseCollection'
+  webPageSummaries?: {
+    __typename?: 'WebPageSummaryEntityResponseCollection'
     data: Array<{
-      __typename?: 'ScrapedWebPageEntity'
+      __typename?: 'WebPageSummaryEntity'
       id?: string | null
       attributes?: {
-        __typename?: 'ScrapedWebPage'
-        Title?: string | null
-        Url?: string | null
-        OriginalContent?: string | null
-        locale?: string | null
-        publishedAt?: any | null
+        __typename?: 'WebPageSummary'
+        Keywords?: string | null
+        Summary?: string | null
+        LargeLanguageModel?: string | null
+        scraped_web_pages?: {
+          __typename?: 'ScrapedWebPageEntityResponse'
+          data?: {
+            __typename?: 'ScrapedWebPageEntity'
+            attributes?: {
+              __typename?: 'ScrapedWebPage'
+              Title?: string | null
+              Url?: string | null
+              OriginalContent?: string | null
+              locale?: string | null
+              publishedAt?: any | null
+            } | null
+          } | null
+        } | null
       } | null
     }>
   } | null
 }
 
-export const GetScrapedWebPagesDocument = {
+export const GetWebPageSummariesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetScrapedWebPages' },
+      name: { kind: 'Name', value: 'GetWebPageSummaries' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'scrapedWebPages' },
+            name: { kind: 'Name', value: 'webPageSummaries' },
             arguments: [
               {
                 kind: 'Argument',
@@ -1154,23 +1166,86 @@ export const GetScrapedWebPagesDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'Title' },
+                              name: { kind: 'Name', value: 'Keywords' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'Url' },
+                              name: { kind: 'Name', value: 'Summary' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'OriginalContent' },
+                              name: {
+                                kind: 'Name',
+                                value: 'LargeLanguageModel',
+                              },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'locale' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'publishedAt' },
+                              name: {
+                                kind: 'Name',
+                                value: 'scraped_web_pages',
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'Title',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'Url',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'OriginalContent',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'locale',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'publishedAt',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -1186,6 +1261,6 @@ export const GetScrapedWebPagesDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetScrapedWebPagesQuery,
-  GetScrapedWebPagesQueryVariables
+  GetWebPageSummariesQuery,
+  GetWebPageSummariesQueryVariables
 >

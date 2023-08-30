@@ -2,12 +2,7 @@ import { builder } from '../builder'
 import { graphql } from '../gql'
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
-import {
-  Maybe,
-  ScrapedWebPage,
-  ComponentWebPageSummaryWebPageSummary,
-  Enum_Componentwebpagesummarywebpagesummary_Feedback,
-} from '../gql/graphql'
+import { Maybe, WebPageSummaryEntity } from '../gql/graphql'
 
 dotenv.config()
 
@@ -18,98 +13,95 @@ const client = new GraphQLClient(endpoint, {
   },
 })
 
-const ALL_SCRAPED_PAGES_QUERY = graphql(`
-  query GetScrapedWebPages {
-    scrapedWebPages(publicationState: PREVIEW, locale: "all") {
+const GET_WEBPAGE_SUMMARIES_QUERY = graphql(`
+  query GetWebPageSummaries {
+    webPageSummaries(publicationState: PREVIEW, locale: "all") {
       data {
         id
         attributes {
-          Title
-          Url
-          OriginalContent
-          locale
-          publishedAt
+          Keywords
+          Summary
+          LargeLanguageModel
+
+          scraped_web_pages {
+            data {
+              attributes {
+                Title
+                Url
+                OriginalContent
+                locale
+                publishedAt
+              }
+            }
+          }
         }
       }
     }
   }
 `)
 
-const FeedbackEnumReference = builder.enumType(
-  Enum_Componentwebpagesummarywebpagesummary_Feedback,
-  {
-    name: 'Feedback',
-  },
-)
+const WebPageSummaryEntityReference =
+  builder.objectRef<Maybe<WebPageSummaryEntity | undefined>>('WebPageSummary')
 
-const ScrapedWebPageReference =
-  builder.objectRef<Maybe<ScrapedWebPage | undefined>>('ScrapedWebPage')
-
-const WebPageSummaryReference =
-  builder.objectRef<Maybe<ComponentWebPageSummaryWebPageSummary | undefined>>(
-    'WebPageSummary',
-  )
-
-builder.objectType(WebPageSummaryReference, {
+builder.objectType(WebPageSummaryEntityReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
-    feedback: t.field({
-      type: FeedbackEnumReference,
-      resolve: (parent) => parent?.Feedback,
-      nullable: true,
+    url: t.string({
+      resolve: (parent) =>
+        parent?.attributes?.scraped_web_pages?.data?.attributes?.Url ?? '',
+    }),
+    title: t.string({
+      resolve: (parent) =>
+        parent?.attributes?.scraped_web_pages?.data?.attributes?.Title ?? '',
+    }),
+    locale: t.string({
+      resolve: (parent) =>
+        parent?.attributes?.scraped_web_pages?.data?.attributes?.locale ?? '',
+    }),
+    publishedAt: t.string({
+      resolve: (parent) =>
+        parent?.attributes?.scraped_web_pages?.data?.attributes?.publishedAt ??
+        '',
+    }),
+    originalContent: t.string({
+      resolve: (parent) =>
+        parent?.attributes?.scraped_web_pages?.data?.attributes
+          ?.OriginalContent ?? '',
     }),
     largeLanguageModel: t.string({
-      resolve: (parent) => parent?.LargeLanguageModel ?? '',
+      resolve: (parent) => parent?.attributes?.LargeLanguageModel ?? '',
     }),
-    generatedSummary: t.string({
-      resolve: (parent) => parent?.GeneratedSummary ?? '',
+    summary: t.string({
+      resolve: (parent) => parent?.attributes?.Summary ?? '',
     }),
-    generatedKeywords: t.string({
-      resolve: (parent) => parent?.GeneratedKeywords ?? '',
-    }),
-  }),
-})
-
-builder.objectType(ScrapedWebPageReference, {
-  name: 'ScrapedWebPage',
-  fields: (t) => ({
-    url: t.string({ resolve: (parent) => parent?.Url ?? '' }),
-    title: t.string({ resolve: (parent) => parent?.Title ?? '' }),
-    locale: t.string({ resolve: (parent) => parent?.locale ?? '' }),
-    publishedAt: t.string({ resolve: (parent) => parent?.publishedAt ?? '' }),
-    originalContent: t.string({
-      resolve: (parent) => parent?.OriginalContent ?? '',
-    }),
-    webPageSummaries: t.field({
-      type: [WebPageSummaryReference],
-      resolve: (parent) => parent?.WebPageSummaries ?? [],
-      nullable: true,
+    keywords: t.string({
+      resolve: (parent) => parent?.attributes?.Keywords ?? '',
     }),
   }),
 })
 
-builder.queryField('allPages', (t) =>
+builder.queryField('allSummaries', (t) =>
   t.field({
-    type: [ScrapedWebPageReference],
+    type: [WebPageSummaryEntityReference],
     resolve: async () => {
       try {
-        const result = await client.request(ALL_SCRAPED_PAGES_QUERY, {})
-        const data = result.scrapedWebPages?.data ?? []
-        const attributes = data.map((entity) => entity.attributes) ?? []
-        return attributes.map((attribute) => ({
-          Url: attribute?.Url,
-          Title: attribute?.Title,
-          OriginalContent: attribute?.OriginalContent,
-          locale: attribute?.locale,
-          publishedAt: attribute?.publishedAt,
-          WebPageSummaries: attribute?.WebPageSummaries?.map((summary) => ({
-            id: summary?.id ?? '',
-            Feedback: summary?.Feedback,
-            LargeLanguageModel: summary?.LargeLanguageModel,
-            GeneratedKeywords: summary?.GeneratedKeywords,
-            GeneratedSummary: summary?.GeneratedSummary,
-          })),
+        const result = await client.request(GET_WEBPAGE_SUMMARIES_QUERY, {})
+        console.log('result:', result.webPageSummaries?.data[0])
+        const webPageSummarydatas = result.webPageSummaries?.data ?? []
+        return webPageSummarydatas.map((data) => ({
+          id: data.id,
+          Url: data?.attributes?.scraped_web_pages?.data?.attributes?.Url,
+          Title: data?.attributes?.scraped_web_pages?.data?.attributes?.Title,
+          OriginalContent:
+            data?.attributes?.scraped_web_pages?.data?.attributes
+              ?.OriginalContent,
+          locale: data?.attributes?.scraped_web_pages?.data?.attributes?.locale,
+          publishedAt:
+            data?.attributes?.scraped_web_pages?.data?.attributes?.publishedAt,
+          LargeLanguageModel: data.attributes?.LargeLanguageModel,
+          Keywords: data.attributes?.Keywords,
+          Summary: data.attributes?.Summary,
         }))
       } catch (error) {
         console.error('Error fetching data from Strapi:', error)
