@@ -12,24 +12,7 @@ const client = new GraphQLClient(endpoint, {
   },
 })
 
-const CREATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
-  mutation CreateScrapedWebPage(
-    $data: ScrapedWebPageInput!
-    $locale: I18NLocaleCode!
-  ) {
-    createScrapedWebPage(data: $data, locale: $locale) {
-      data {
-        id
-        attributes {
-          Title
-          Url
-          OriginalContent
-        }
-      }
-    }
-  }
-`)
-
+// TODO: should the locale be stored in the ScrapedWebPage or WebPageSummaries?
 const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
   query GetScrapedWebPagesByUrl($url: String!) {
     scrapedWebPages(
@@ -42,6 +25,24 @@ const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
         attributes {
           Url
           Title
+          OriginalContent
+        }
+      }
+    }
+  }
+`)
+
+const CREATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
+  mutation CreateScrapedWebPage(
+    $data: ScrapedWebPageInput!
+    $locale: I18NLocaleCode!
+  ) {
+    createScrapedWebPage(data: $data, locale: $locale) {
+      data {
+        id
+        attributes {
+          Title
+          Url
           OriginalContent
         }
       }
@@ -129,7 +130,7 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
   }
 
   try {
-    async function createScrapedWebPage() {
+    const ScrapedWebPageId = async () => {
       const { scrapedWebPages } = await client.request(
         GET_SCRAPE_WEBPAGES_BY_URL_QUERY,
         { url: webPageSummary.url },
@@ -152,13 +153,10 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
         },
       )
 
-      const createdScrapedWebPageId =
-        createdScrapedWebPage.createScrapedWebPage?.data?.id
-      console.log('Created ScrapedWebPage with ID:', createdScrapedWebPageId)
-      return createdScrapedWebPageId
+      const { id } = createdScrapedWebPage.createScrapedWebPage?.data || {}
+      console.log('Created ScrapedWebPage with ID:', id)
+      return id
     }
-
-    const ScrapedWebPageId = await createScrapedWebPage()
 
     const { webPageSummaries } = await client.request(
       GET_WEBPAGE_SUMMARIES_BY_LANGUAGE_MODEL_AND_URL_QUERY,
@@ -167,12 +165,6 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
         url: webPageSummary.url,
       },
     )
-
-    const newData = {
-      Keywords: JSON.stringify(webPageSummary.keywords),
-      Summary: webPageSummary.summary,
-      LargeLanguageModel: webPageSummary.largeLanguageModel,
-    }
 
     if (
       webPageSummaries?.data &&
@@ -183,7 +175,7 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
         UPDATE_WEBPAGE_SUMMARY_MUTATION,
         {
           id: webPageSummaries?.data?.[0].id,
-          data: newData,
+          data: newSummary,
         },
       )
       const createdSummaryId = updateWebPageSummary?.data?.id
@@ -191,7 +183,9 @@ export const upsertScrapedWebPage = async (webPageSummary: WebPageSummary) => {
     } else {
       const { createWebPageSummary } = await client.request(
         CREATE_WEBPAGE_SUMMARY_MUTATION,
-        { data: { ...newData, scraped_web_pages: ScrapedWebPageId } },
+        {
+          data: { ...newSummary, scraped_web_pages: await ScrapedWebPageId() },
+        },
       )
 
       const createdSummaryId = createWebPageSummary?.data?.id
