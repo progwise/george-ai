@@ -2,7 +2,12 @@ import { builder } from '../builder'
 import { graphql } from '../gql'
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
-import { Maybe, WebPageSummary, WebPageSummaryEntity } from '../gql/graphql'
+import {
+  Maybe,
+  ScrapedWebPage,
+  WebPageSummary,
+  WebPageSummaryEntity,
+} from '../gql/graphql'
 
 dotenv.config()
 
@@ -40,73 +45,73 @@ const GET_WEBPAGE_SUMMARIES_QUERY = graphql(`
   }
 `)
 
-const WebPageSummaryReference =
-  builder.objectRef<Maybe<WebPageSummaryEntity | undefined>>('WebPageSummary')
+type EnhancedWebPageSummary = Maybe<
+  Partial<WebPageSummary & ScrapedWebPage & { id: string }> | undefined
+>
 
-const WebPageSummaryAttributesReference =
-  builder.objectRef<Maybe<WebPageSummary | undefined>>('WebPageSummary')
+const WebPageSummaryReference =
+  builder.objectRef<EnhancedWebPageSummary>('WebPageSummary')
 
 builder.objectType(WebPageSummaryReference, {
   name: 'WebPageSummary',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent?.id ?? '' }),
     url: t.string({
-      resolve: (parent) =>
-        parent?.attributes?.scraped_web_pages?.data?.attributes?.Url ?? '',
+      resolve: (parent) => {
+        return parent?.Url ?? ''
+      },
     }),
     title: t.string({
-      resolve: (parent) =>
-        parent?.attributes?.scraped_web_pages?.data?.attributes?.Title ?? '',
+      resolve: (parent) => parent?.Title ?? '',
     }),
     locale: t.string({
-      resolve: (parent) =>
-        parent?.attributes?.scraped_web_pages?.data?.attributes?.locale ?? '',
+      resolve: (parent) => parent?.locale ?? '',
     }),
     publishedAt: t.string({
-      resolve: (parent) =>
-        parent?.attributes?.scraped_web_pages?.data?.attributes?.publishedAt ??
-        '',
+      resolve: (parent) => parent?.publishedAt ?? '',
     }),
     originalContent: t.string({
-      resolve: (parent) =>
-        parent?.attributes?.scraped_web_pages?.data?.attributes
-          ?.OriginalContent ?? '',
+      resolve: (parent) => parent?.OriginalContent ?? '',
     }),
 
     largeLanguageModel: t.string({
-      resolve: (parent) => parent?.attributes?.LargeLanguageModel ?? '',
+      resolve: (parent) => parent?.LargeLanguageModel ?? '',
     }),
     summary: t.string({
-      resolve: (parent) => parent?.attributes?.Summary ?? '',
+      resolve: (parent) => parent?.Summary ?? '',
     }),
     keywords: t.string({
-      resolve: (parent) => parent?.attributes?.Keywords ?? '',
+      resolve: (parent) => parent?.Keywords ?? '',
     }),
   }),
 })
-
 builder.queryField('allSummaries', (t) =>
   t.field({
     type: [WebPageSummaryReference],
     resolve: async () => {
       try {
         const result = await client.request(GET_WEBPAGE_SUMMARIES_QUERY, {})
-        console.log('result:', result.webPageSummaries?.data.at(0))
         const webPageSummarydatas = result.webPageSummaries?.data ?? []
-        return webPageSummarydatas.map((data) => ({
-          id: data.id,
-          Url: data?.attributes?.scraped_web_pages?.data?.attributes?.Url,
-          Title: data?.attributes?.scraped_web_pages?.data?.attributes?.Title,
-          OriginalContent:
-            data?.attributes?.scraped_web_pages?.data?.attributes
-              ?.OriginalContent,
-          locale: data?.attributes?.scraped_web_pages?.data?.attributes?.locale,
-          publishedAt:
-            data?.attributes?.scraped_web_pages?.data?.attributes?.publishedAt,
-          LargeLanguageModel: data.attributes?.LargeLanguageModel,
-          Keywords: data.attributes?.Keywords,
-          Summary: data.attributes?.Summary,
-        }))
+        return webPageSummarydatas.map(
+          (data) =>
+            ({
+              id: data.id,
+              Url: data?.attributes?.scraped_web_pages?.data?.attributes?.Url,
+              Title:
+                data?.attributes?.scraped_web_pages?.data?.attributes?.Title,
+              OriginalContent:
+                data?.attributes?.scraped_web_pages?.data?.attributes
+                  ?.OriginalContent,
+              locale:
+                data?.attributes?.scraped_web_pages?.data?.attributes?.locale,
+              publishedAt:
+                data?.attributes?.scraped_web_pages?.data?.attributes
+                  ?.publishedAt,
+              LargeLanguageModel: data.attributes?.LargeLanguageModel,
+              Keywords: data.attributes?.Keywords,
+              Summary: data.attributes?.Summary,
+            }) as EnhancedWebPageSummary,
+        )
       } catch (error) {
         console.error('Error fetching data from Strapi:', error)
         return []
