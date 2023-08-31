@@ -3,7 +3,7 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 
-const MAX_RUNS = 2 // Maximum number of runs
+const MAX_RUNS = 4 // Maximum number of runs
 
 export interface ScrapeResultandSummary extends ScrapeResult {
   summary: string

@@ -1090,39 +1090,132 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
+export type WebPageSummaryFragment = {
+  __typename?: 'WebPageSummaryEntity'
+  id?: string | null
+  attributes?: {
+    __typename?: 'WebPageSummary'
+    Keywords?: string | null
+    Summary?: string | null
+    LargeLanguageModel?: string | null
+    scraped_web_pages?: {
+      __typename?: 'ScrapedWebPageEntityResponse'
+      data?: {
+        __typename?: 'ScrapedWebPageEntity'
+        attributes?: {
+          __typename?: 'ScrapedWebPage'
+          Title?: string | null
+          Url?: string | null
+          OriginalContent?: string | null
+          locale?: string | null
+          publishedAt?: any | null
+        } | null
+      } | null
+    } | null
+  } | null
+} & { ' $fragmentName'?: 'WebPageSummaryFragment' }
+
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWebPageSummariesQuery = {
   __typename?: 'Query'
   webPageSummaries?: {
     __typename?: 'WebPageSummaryEntityResponseCollection'
-    data: Array<{
-      __typename?: 'WebPageSummaryEntity'
-      id?: string | null
-      attributes?: {
-        __typename?: 'WebPageSummary'
-        Keywords?: string | null
-        Summary?: string | null
-        LargeLanguageModel?: string | null
-        scraped_web_pages?: {
-          __typename?: 'ScrapedWebPageEntityResponse'
-          data?: {
-            __typename?: 'ScrapedWebPageEntity'
-            attributes?: {
-              __typename?: 'ScrapedWebPage'
-              Title?: string | null
-              Url?: string | null
-              OriginalContent?: string | null
-              locale?: string | null
-              publishedAt?: any | null
-            } | null
-          } | null
-        } | null
-      } | null
-    }>
+    data: Array<
+      { __typename?: 'WebPageSummaryEntity' } & {
+        ' $fragmentRefs'?: { WebPageSummaryFragment: WebPageSummaryFragment }
+      }
+    >
   } | null
 }
 
+export const WebPageSummaryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummary' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummaryEntity' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'attributes' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'Keywords' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'Summary' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'LargeLanguageModel' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'scraped_web_pages' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'data' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'attributes' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'Title' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'Url' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'OriginalContent',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'locale' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'publishedAt',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WebPageSummaryFragment, unknown>
 export const GetWebPageSummariesDocument = {
   kind: 'Document',
   definitions: [
@@ -1157,91 +1250,84 @@ export const GetWebPageSummariesDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'FragmentSpread',
+                        name: { kind: 'Name', value: 'WebPageSummary' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummary' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummaryEntity' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'attributes' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'Keywords' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'Summary' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'LargeLanguageModel' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'scraped_web_pages' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
+                        name: { kind: 'Name', value: 'data' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'Keywords' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'Summary' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'LargeLanguageModel',
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'scraped_web_pages',
-                              },
+                              name: { kind: 'Name', value: 'attributes' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'data' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        {
-                                          kind: 'Field',
-                                          name: {
-                                            kind: 'Name',
-                                            value: 'attributes',
-                                          },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'Title',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'Url',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'OriginalContent',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'locale',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'publishedAt',
-                                                },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                      ],
+                                    name: { kind: 'Name', value: 'Title' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'Url' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'OriginalContent',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'locale' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'publishedAt',
                                     },
                                   },
                                 ],

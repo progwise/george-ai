@@ -1,5 +1,4 @@
-import { FieldType } from 'typesense/lib/Typesense/Collection.js'
-import { client } from './typesense.js'
+import { ensureCollectionExists, upsertDocument } from './typesense.js'
 
 interface ScrapedWebPageAttributes {
   Title?: string | null
@@ -30,41 +29,10 @@ export interface WebPageSummaries {
   data: WebPageSummaryEntity[]
 }
 
-const baseCollectionSchema: {
-  name: string
-  fields: {
-    name: string
-    type: FieldType
-    optional?: boolean
-  }[]
-} = {
-  name: '',
-  fields: [
-    { name: 'id', type: 'string' },
-    { name: 'title', type: 'string' },
-    { name: 'url', type: 'string' },
-    { name: 'language', type: 'string' },
-    { name: 'originalContent', type: 'string' },
-    { name: 'publicationState', type: 'string' },
-    { name: 'keywords', type: 'string[]' },
-    { name: 'summary', type: 'string' },
-    { name: 'largeLanguageModel', type: 'string' },
-  ],
-}
-
 // TODO: any
 export const rebuildTypesenseCollection = async (webPageSummaries: any) => {
   try {
-    const collectionName = 'scraped_web_pages_summaries'
-    const collectionExists = await client.collections(collectionName).exists()
-    const collectionSchema = {
-      ...baseCollectionSchema,
-      name: collectionName,
-    }
-    if (!collectionExists) {
-      await client.collections().create(collectionSchema)
-      console.log(`Collection ${collectionName} created`)
-    }
+    await ensureCollectionExists()
 
     const documents =
       webPageSummaries?.data.map((summary: any) => ({
@@ -88,10 +56,7 @@ export const rebuildTypesenseCollection = async (webPageSummaries: any) => {
       })) || []
 
     for (const document of documents) {
-      await client.collections(collectionName).documents().upsert(document)
-      console.log(
-        `Data added to typesense in collection ${collectionName} by id: ${document.id}`,
-      )
+      await upsertDocument(document)
     }
   } catch (error) {
     console.error(error)
