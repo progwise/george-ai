@@ -2,8 +2,9 @@ import { registerUrql } from '@urql/next/rsc'
 import { InfoCard } from './components/info-card/info-card'
 import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
-import { FilterSelectionProps } from './components/filter-selection'
+
 import { PublicationState } from '@/src/gql/graphql'
+import { FilterSelectionProps } from './components/filter-selection'
 
 const SearchQuery = graphql(`
   query GetIndexedWebPage(
@@ -37,20 +38,15 @@ interface PageListProps extends FilterSelectionProps {
   query?: string
 }
 
-export async function PageList({
-  query,
-  language,
-  status,
-  largeLanguageModel,
-}: PageListProps) {
+export async function PageList({ query, lang, status, llm }: PageListProps) {
   const result = await getClient().query(SearchQuery, {
     query,
-    language,
+    language: lang,
     publicationState:
       status === 'published'
         ? PublicationState.Published
         : PublicationState.Draft,
-    largeLanguageModel,
+    largeLanguageModel: llm,
   })
   const pages = result.data?.searchResult
   console.log('pages:', pages)
