@@ -88,8 +88,8 @@ export const FilterSelection = ({
         <input
           type="checkbox"
           value="gpt-3.5-turbo"
-          checked={llm === 'gpt-3.5-turbo'}
-          onChange={() => handleFilterChange('llm', 'gpt-3.5-turbo')}
+          checked={llm === 'Gpt-3.5-turbo'}
+          onChange={() => handleFilterChange('llm', 'Gpt-3.5-turbo')}
           id="gpt-3.5-turbo-checkbox"
           className="cursor-pointer"
         />
