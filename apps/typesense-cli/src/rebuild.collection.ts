@@ -21,7 +21,6 @@ const GET_ALL_WEBPAGES_SUMMARIES_QUERY = graphql(`
           Keywords
           Summary
           LargeLanguageModel
-
           scraped_web_pages {
             data {
               attributes {
