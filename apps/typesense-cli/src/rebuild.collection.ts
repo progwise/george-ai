@@ -1,7 +1,9 @@
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import { graphql } from './gql'
-import { rebuildTypesenseCollection } from '@george-ai/typesense-client'
+import { upsertTypesenseCollection } from '@george-ai/typesense-client'
+import pMap from 'p-map'
+import { WebPageSummaryEntity } from './gql/graphql'
 
 dotenv.config()
 
@@ -44,7 +46,14 @@ export const rebuildCollection = async () => {
       GET_ALL_WEBPAGES_SUMMARIES_QUERY,
       {},
     )
-    rebuildTypesenseCollection(webPageSummaries)
+
+    const webPageSummaryArray = webPageSummaries?.data || []
+
+    const mapper = async (webPageSummary: WebPageSummaryEntity) => {
+      await upsertTypesenseCollection(webPageSummary)
+    }
+
+    await pMap(webPageSummaryArray, mapper, { concurrency: 10 })
   } catch (error) {
     console.error(error)
   }

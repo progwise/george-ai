@@ -5,7 +5,7 @@ import { ScrapeResult, scrapePage } from './scrape.js'
 
 const MAX_RUNS = 2 // Maximum number of runs
 
-export interface ScrapeResultandSummary extends ScrapeResult {
+export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
   keywords: string[]
   largeLanguageModel: string
@@ -33,14 +33,14 @@ const processPage = async (url: string): Promise<void> => {
         (await getServiceSummary(scrapeResult.content, language)) ?? ''
       const keywords = (await getKeywords(scrapeResult.content, language)) ?? []
 
-      const ScrapeResultandSummary: ScrapeResultandSummary = {
+      const scrapeResultAndSummary: ScrapeResultAndSummary = {
         ...scrapeResult,
         summary,
         keywords,
         largeLanguageModel: 'gpt-3.5-turbo',
       }
 
-      await upsertScrapedWebPageAndWebPageSummary(ScrapeResultandSummary)
+      await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
 
       urlsTodo = [
         ...new Set(

@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request'
-import { ScrapeResultandSummary } from './main.js'
+import { ScrapeResultAndSummary } from './main.js'
 import dotenv from 'dotenv'
 import { graphql } from './gql/gql'
 
@@ -123,7 +123,7 @@ const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
 `)
 
 const getOrCreateScrapedWebPage = async (
-  scrapeResultAndSummary: ScrapeResultandSummary,
+  scrapeResultAndSummary: ScrapeResultAndSummary,
 ) => {
   try {
     const { scrapedWebPages } = await client.request(
@@ -157,8 +157,8 @@ const getOrCreateScrapedWebPage = async (
   }
 }
 
-const createOrUpdateWebPageSummary = async (
-  scrapeResultAndSummary: ScrapeResultandSummary,
+const upsertWebPageSummary = async (
+  scrapeResultAndSummary: ScrapeResultAndSummary,
   ScrapedWebPageId: string,
 ) => {
   const newSummary = {
@@ -210,16 +210,13 @@ const createOrUpdateWebPageSummary = async (
 }
 
 export const upsertScrapedWebPageAndWebPageSummary = async (
-  scrapeResultAndSummary: ScrapeResultandSummary,
+  scrapeResultAndSummary: ScrapeResultAndSummary,
 ) => {
   const createdScrapedWebPage = await getOrCreateScrapedWebPage(
     scrapeResultAndSummary,
   )
 
-  if (createdScrapedWebPage && createdScrapedWebPage.id) {
-    await createOrUpdateWebPageSummary(
-      scrapeResultAndSummary,
-      createdScrapedWebPage.id,
-    )
+  if (createdScrapedWebPage?.id) {
+    await upsertWebPageSummary(scrapeResultAndSummary, createdScrapedWebPage.id)
   }
 }
