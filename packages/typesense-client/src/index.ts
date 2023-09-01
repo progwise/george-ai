@@ -47,22 +47,22 @@ export const upsertTypesenseCollection = async (
     const document = {
       id: webPageSummary?.id,
       title:
-        webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.Title,
-      url: webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.Url,
+        webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.title,
+      url: webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.url,
       language:
         webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.locale,
       originalContent:
         webPageSummary.attributes?.scraped_web_pages?.data?.attributes
-          ?.OriginalContent,
+          ?.originalContent,
       publicationState: webPageSummary.attributes?.scraped_web_pages?.data
         ?.attributes?.publishedAt
         ? 'published'
         : 'draft',
-      keywords: webPageSummary?.attributes?.Keywords
-        ? JSON.parse(webPageSummary.attributes?.Keywords)
+      keywords: webPageSummary?.attributes?.keywords
+        ? JSON.parse(webPageSummary.attributes?.keywords)
         : [],
-      summary: webPageSummary.attributes?.Summary,
-      largeLanguageModel: webPageSummary.attributes?.LargeLanguageModel,
+      summary: webPageSummary.attributes?.summary,
+      largeLanguageModel: webPageSummary.attributes?.largeLanguageModel,
     }
 
     await typesenseClient

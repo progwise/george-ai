@@ -4,7 +4,8 @@
   "info": {
     "singularName": "web-page-summary",
     "pluralName": "web-page-summaries",
-    "displayName": "WebPageSummary"
+    "displayName": "WebPageSummary",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -20,29 +21,32 @@
       "relation": "oneToOne",
       "target": "api::scraped-web-page.scraped-web-page"
     },
-    "Keywords": {
+    "keywords": {
       "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "required": true
     },
-    "Summary": {
+    "summary": {
       "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "required": true
     },
-    "LargeLanguageModel": {
+    "largeLanguageModel": {
       "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "required": true
     }
   }
 }

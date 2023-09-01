@@ -1,21 +1,21 @@
 import { upsertTypesenseCollection } from '@george-ai/typesense-client'
 
-const transformWebPageSummary = (WebPageSummaryResult) => {
+const transformWebPageSummary = (webPageSummaryResult) => {
   return {
-    id: WebPageSummaryResult.id.toString(),
+    id: webPageSummaryResult.id.toString(),
     attributes: {
-      Keywords: WebPageSummaryResult.Keywords,
-      Summary: WebPageSummaryResult.Summary,
-      LargeLanguageModel: WebPageSummaryResult.LargeLanguageModel,
+      keywords: webPageSummaryResult.keywords,
+      summary: webPageSummaryResult.summary,
+      largeLanguageModel: webPageSummaryResult.largeLanguageModel,
       scraped_web_pages: {
         data: {
           attributes: {
-            Title: WebPageSummaryResult.scraped_web_pages.Title,
-            Url: WebPageSummaryResult.scraped_web_pages.Url,
-            OriginalContent:
-              WebPageSummaryResult.scraped_web_pages.OriginalContent,
-            locale: WebPageSummaryResult.scraped_web_pages.locale,
-            publishedAt: WebPageSummaryResult.scraped_web_pages.publishedAt,
+            title: webPageSummaryResult.scraped_web_pages.title,
+            url: webPageSummaryResult.scraped_web_pages.url,
+            originalContent:
+              webPageSummaryResult.scraped_web_pages.originalContent,
+            locale: webPageSummaryResult.scraped_web_pages.locale,
+            publishedAt: webPageSummaryResult.scraped_web_pages.publishedAt,
           },
         },
       },
@@ -24,7 +24,7 @@ const transformWebPageSummary = (WebPageSummaryResult) => {
 }
 
 const transformAndUpsertSummary = async (id) => {
-  const WebPageSummaryResult = await strapi.entityService.findOne(
+  const webPageSummaryResult = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
     id,
     {
@@ -32,9 +32,9 @@ const transformAndUpsertSummary = async (id) => {
     },
   )
 
-  const WebPageSummary = transformWebPageSummary(WebPageSummaryResult)
+  const webPageSummary = transformWebPageSummary(webPageSummaryResult)
 
-  upsertTypesenseCollection(WebPageSummary)
+  upsertTypesenseCollection(webPageSummary)
 }
 
 export default {

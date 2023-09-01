@@ -12,20 +12,19 @@ const client = new GraphQLClient(endpoint, {
   },
 })
 
-// TODO: should the locale be stored in the ScrapedWebPage or WebPageSummaries?
 const GET_SCRAPE_WEBPAGES_BY_URL_QUERY = graphql(`
   query GetScrapedWebPagesByUrl($url: String!) {
     scrapedWebPages(
       publicationState: PREVIEW
       locale: "all"
-      filters: { Url: { eq: $url } }
+      filters: { url: { eq: $url } }
     ) {
       data {
         id
         attributes {
-          Url
-          Title
-          OriginalContent
+          url
+          title
+          originalContent
         }
       }
     }
@@ -41,9 +40,9 @@ const CREATE_SCRAPE_WEBPAGE_MUTATION = graphql(`
       data {
         id
         attributes {
-          Title
-          Url
-          OriginalContent
+          title
+          url
+          originalContent
         }
       }
     }
@@ -59,21 +58,21 @@ const GET_WEBPAGE_SUMMARIES_BY_LANGUAGE_MODEL_AND_URL_QUERY = graphql(`
       publicationState: PREVIEW
       locale: "all"
       filters: {
-        LargeLanguageModel: { eq: $languageModel }
-        scraped_web_pages: { Url: { eq: $url } }
+        largeLanguageModel: { eq: $languageModel }
+        scraped_web_pages: { url: { eq: $url } }
       }
     ) {
       data {
         id
         attributes {
-          Keywords
-          Summary
-          LargeLanguageModel
+          keywords
+          summary
+          largeLanguageModel
           scraped_web_pages {
             data {
               id
               attributes {
-                Url
+                url
               }
             }
           }
@@ -83,14 +82,17 @@ const GET_WEBPAGE_SUMMARIES_BY_LANGUAGE_MODEL_AND_URL_QUERY = graphql(`
   }
 `)
 const CREATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
-  mutation CreateWebPageSummary($data: WebPageSummaryInput!) {
-    createWebPageSummary(data: $data) {
+  mutation CreateWebPageSummary(
+    $data: WebPageSummaryInput!
+    $locale: I18NLocaleCode!
+  ) {
+    createWebPageSummary(data: $data, locale: $locale) {
       data {
         id
         attributes {
-          Keywords
-          Summary
-          LargeLanguageModel
+          keywords
+          summary
+          largeLanguageModel
           scraped_web_pages {
             data {
               id
@@ -108,9 +110,9 @@ const UPDATE_WEBPAGE_SUMMARY_MUTATION = graphql(`
       data {
         id
         attributes {
-          Keywords
-          Summary
-          LargeLanguageModel
+          keywords
+          summary
+          largeLanguageModel
           scraped_web_pages {
             data {
               id
@@ -140,9 +142,9 @@ const getOrCreateScrapedWebPage = async (
       CREATE_SCRAPE_WEBPAGE_MUTATION,
       {
         data: {
-          Title: scrapeResultAndSummary.title,
-          OriginalContent: scrapeResultAndSummary.content,
-          Url: scrapeResultAndSummary.url,
+          title: scrapeResultAndSummary.title,
+          originalContent: scrapeResultAndSummary.content,
+          url: scrapeResultAndSummary.url,
         },
         locale: scrapeResultAndSummary.language,
       },
@@ -162,9 +164,9 @@ const upsertWebPageSummary = async (
   ScrapedWebPageId: string,
 ) => {
   const newSummary = {
-    Summary: scrapeResultAndSummary.summary,
-    Keywords: JSON.stringify(scrapeResultAndSummary.keywords),
-    LargeLanguageModel: scrapeResultAndSummary.largeLanguageModel,
+    summary: scrapeResultAndSummary.summary,
+    keywords: JSON.stringify(scrapeResultAndSummary.keywords),
+    largeLanguageModel: scrapeResultAndSummary.largeLanguageModel,
   }
 
   try {
@@ -197,6 +199,7 @@ const upsertWebPageSummary = async (
             ...newSummary,
             scraped_web_pages: ScrapedWebPageId,
           },
+          locale: scrapeResultAndSummary.language,
         },
       )
 

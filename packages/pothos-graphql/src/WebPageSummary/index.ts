@@ -23,15 +23,15 @@ const WEBPAGE_SUMMARIES_FRAGMENT = graphql(`
   fragment WebPageSummary on WebPageSummaryEntity {
     id
     attributes {
-      Keywords
-      Summary
-      LargeLanguageModel
+      keywords
+      summary
+      largeLanguageModel
       scraped_web_pages {
         data {
           attributes {
-            Title
-            Url
-            OriginalContent
+            title
+            url
+            originalContent
             locale
             publishedAt
           }
@@ -60,12 +60,12 @@ builder.objectType(WebPageSummaryReference, {
     id: t.string({ resolve: (parent) => parent.id ?? '' }),
     url: t.string({
       resolve: (parent) => {
-        return parent.attributes?.scraped_web_pages?.data?.attributes?.Url ?? ''
+        return parent.attributes?.scraped_web_pages?.data?.attributes?.url ?? ''
       },
     }),
     title: t.string({
       resolve: (parent) =>
-        parent.attributes?.scraped_web_pages?.data?.attributes?.Title ?? '',
+        parent.attributes?.scraped_web_pages?.data?.attributes?.title ?? '',
     }),
     locale: t.string({
       resolve: (parent) =>
@@ -79,17 +79,17 @@ builder.objectType(WebPageSummaryReference, {
     originalContent: t.string({
       resolve: (parent) =>
         parent.attributes?.scraped_web_pages?.data?.attributes
-          ?.OriginalContent ?? '',
+          ?.originalContent ?? '',
     }),
 
     largeLanguageModel: t.string({
-      resolve: (parent) => parent.attributes?.LargeLanguageModel ?? '',
+      resolve: (parent) => parent.attributes?.largeLanguageModel ?? '',
     }),
     summary: t.string({
-      resolve: (parent) => parent.attributes?.Summary ?? '',
+      resolve: (parent) => parent.attributes?.summary ?? '',
     }),
     keywords: t.string({
-      resolve: (parent) => parent.attributes?.Keywords ?? '',
+      resolve: (parent) => parent.attributes?.keywords ?? '',
     }),
   }),
 })

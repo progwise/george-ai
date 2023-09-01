@@ -20,15 +20,15 @@ const GET_ALL_WEBPAGES_SUMMARIES_QUERY = graphql(`
       data {
         id
         attributes {
-          Keywords
-          Summary
-          LargeLanguageModel
+          keywords
+          summary
+          largeLanguageModel
           scraped_web_pages {
             data {
               attributes {
-                Title
-                Url
-                OriginalContent
+                title
+                url
+                originalContent
                 locale
                 publishedAt
               }
