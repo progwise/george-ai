@@ -1032,7 +1032,7 @@ export type WebPageSummary = {
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
-  scraped_web_pages?: Maybe<ScrapedWebPageEntityResponse>
+  scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
   summary?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -1072,7 +1072,7 @@ export type WebPageSummaryFiltersInput = {
   not?: InputMaybe<WebPageSummaryFiltersInput>
   or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
   publishedAt?: InputMaybe<DateTimeFilterInput>
-  scraped_web_pages?: InputMaybe<ScrapedWebPageFiltersInput>
+  scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
   summary?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
 }
@@ -1081,7 +1081,7 @@ export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
-  scraped_web_pages?: InputMaybe<Scalars['ID']['input']>
+  scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -1105,7 +1105,7 @@ export type GetWebPageSummariesQuery = {
         keywords?: string | null
         summary?: string | null
         largeLanguageModel?: string | null
-        scraped_web_pages?: {
+        scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
             __typename?: 'ScrapedWebPageEntity'
@@ -1185,10 +1185,7 @@ export const GetWebPageSummariesDocument = {
                             },
                             {
                               kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'scraped_web_pages',
-                              },
+                              name: { kind: 'Name', value: 'scraped_web_page' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [

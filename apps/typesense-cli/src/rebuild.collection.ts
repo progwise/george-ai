@@ -27,7 +27,7 @@ export const rebuildCollection = async () => {
                 keywords
                 summary
                 largeLanguageModel
-                scraped_web_pages {
+                scraped_web_page {
                   data {
                     attributes {
                       title

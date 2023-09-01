@@ -47,13 +47,13 @@ export const upsertTypesenseCollection = async (
     const document = {
       id: webPageSummary?.id,
       title:
-        webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.title,
-      url: webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.url,
+        webPageSummary.attributes?.scraped_web_page?.data?.attributes?.title,
+      url: webPageSummary.attributes?.scraped_web_page?.data?.attributes?.url,
       language: webPageSummary.attributes?.locale,
       originalContent:
-        webPageSummary.attributes?.scraped_web_pages?.data?.attributes
+        webPageSummary.attributes?.scraped_web_page?.data?.attributes
           ?.originalContent,
-      publicationState: webPageSummary.attributes?.scraped_web_pages?.data
+      publicationState: webPageSummary.attributes?.scraped_web_page?.data
         ?.attributes?.publishedAt
         ? 'published'
         : 'draft',

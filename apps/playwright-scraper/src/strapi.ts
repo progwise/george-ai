@@ -102,7 +102,7 @@ const upsertWebPageSummary = async (
             locale: "all"
             filters: {
               largeLanguageModel: { eq: $languageModel }
-              scraped_web_pages: { url: { eq: $url } }
+              scraped_web_page: { url: { eq: $url } }
             }
           ) {
             data {
@@ -111,7 +111,7 @@ const upsertWebPageSummary = async (
                 keywords
                 summary
                 largeLanguageModel
-                scraped_web_pages {
+                scraped_web_page {
                   data {
                     id
                     attributes {
@@ -143,7 +143,7 @@ const upsertWebPageSummary = async (
                   keywords
                   summary
                   largeLanguageModel
-                  scraped_web_pages {
+                  scraped_web_page {
                     data {
                       id
                     }
@@ -175,7 +175,7 @@ const upsertWebPageSummary = async (
                   keywords
                   summary
                   largeLanguageModel
-                  scraped_web_pages {
+                  scraped_web_page {
                     data {
                       id
                     }
@@ -188,7 +188,7 @@ const upsertWebPageSummary = async (
         {
           data: {
             ...newSummary,
-            scraped_web_pages: ScrapedWebPageId,
+            scraped_web_page: ScrapedWebPageId,
           },
           locale: scrapeResultAndSummary.language,
         },

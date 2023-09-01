@@ -8,14 +8,14 @@ const transformWebPageSummary = (webPageSummaryResult) => {
       keywords: webPageSummaryResult.keywords,
       summary: webPageSummaryResult.summary,
       largeLanguageModel: webPageSummaryResult.largeLanguageModel,
-      scraped_web_pages: {
+      scraped_web_page: {
         data: {
           attributes: {
-            title: webPageSummaryResult.scraped_web_pages.title,
-            url: webPageSummaryResult.scraped_web_pages.url,
+            title: webPageSummaryResult.scraped_web_page.title,
+            url: webPageSummaryResult.scraped_web_page.url,
             originalContent:
-              webPageSummaryResult.scraped_web_pages.originalContent,
-            publishedAt: webPageSummaryResult.scraped_web_pages.publishedAt,
+              webPageSummaryResult.scraped_web_page.originalContent,
+            publishedAt: webPageSummaryResult.scraped_web_page.publishedAt,
           },
         },
       },
@@ -28,7 +28,7 @@ const transformAndUpsertSummary = async (id) => {
     'api::web-page-summary.web-page-summary',
     id,
     {
-      populate: ['scraped_web_pages'],
+      populate: ['scraped_web_page'],
     },
   )
 

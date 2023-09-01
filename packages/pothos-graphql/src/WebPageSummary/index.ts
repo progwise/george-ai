@@ -21,25 +21,24 @@ builder.objectType(WebPageSummaryReference, {
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent.id ?? '' }),
     url: t.string({
-      resolve: (parent) => {
-        return parent.attributes?.scraped_web_pages?.data?.attributes?.url ?? ''
-      },
+      resolve: (parent) =>
+        parent.attributes?.scraped_web_page?.data?.attributes?.url ?? '',
     }),
     title: t.string({
       resolve: (parent) =>
-        parent.attributes?.scraped_web_pages?.data?.attributes?.title ?? '',
+        parent.attributes?.scraped_web_page?.data?.attributes?.title ?? '',
     }),
     locale: t.string({
       resolve: (parent) => parent.attributes?.locale ?? '',
     }),
     publishedAt: t.string({
       resolve: (parent) =>
-        parent.attributes?.scraped_web_pages?.data?.attributes?.publishedAt ??
+        parent.attributes?.scraped_web_page?.data?.attributes?.publishedAt ??
         '',
     }),
     originalContent: t.string({
       resolve: (parent) =>
-        parent.attributes?.scraped_web_pages?.data?.attributes
+        parent.attributes?.scraped_web_page?.data?.attributes
           ?.originalContent ?? '',
     }),
 
@@ -82,7 +81,7 @@ builder.queryField('allSummaries', (t) =>
                   keywords
                   summary
                   largeLanguageModel
-                  scraped_web_pages {
+                  scraped_web_page {
                     data {
                       attributes {
                         title

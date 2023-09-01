@@ -16,7 +16,7 @@
     }
   },
   "attributes": {
-    "scraped_web_pages": {
+    "scraped_web_page": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::scraped-web-page.scraped-web-page"
