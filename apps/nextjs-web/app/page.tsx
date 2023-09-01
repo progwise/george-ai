@@ -4,7 +4,7 @@ import React, { Suspense } from 'react'
 import { PageList } from './page-list'
 import Loading from './loading'
 import { Metadata } from 'next'
-import { FilterSelection } from './components/filter-selection'
+import { FilterSelection } from './components/filter-selection/filter-selection'
 import { PublicationState } from '@/src/gql/graphql'
 
 interface WebPageSummary {
@@ -38,16 +38,16 @@ export default function Home({
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox query={searchParams.query?.toString()} />
-        <FilterSelection
-          lang={searchParams.lang?.toString()}
-          status={searchParams.status?.toString().toLowerCase()}
-          llm={searchParams.llm?.toString()}
-        />
-
-        <span className="border-b border-black">
-          ich habe folgende Informationen für Sie gefunden:
-        </span>
         <Suspense fallback={<Loading />}>
+          <FilterSelection
+            lang={searchParams.lang?.toString()}
+            status={searchParams.status?.toString().toLowerCase()}
+            llm={searchParams.llm?.toString()}
+          />
+
+          <span className="border-b border-black">
+            ich habe folgende Informationen für Sie gefunden:
+          </span>
           <PageList
             query={searchParams.query?.toString()}
             lang={searchParams.lang?.toString()}

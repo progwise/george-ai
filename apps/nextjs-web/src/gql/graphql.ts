@@ -84,6 +84,17 @@ export type WebPageSummary = {
   largeLanguageModel: Scalars['String']['output']
 }
 
+export type GetAllSummariesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllSummariesQuery = {
+  __typename?: 'Query'
+  searchResult: Array<{
+    __typename?: 'IndexedWebPage'
+    language: string
+    largeLanguageModel: string
+  }>
+}
+
 export type InfoCardFragment = {
   __typename?: 'IndexedWebPage'
   title: string
@@ -134,6 +145,38 @@ export const InfoCardFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<InfoCardFragment, unknown>
+export const GetAllSummariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAllSummaries' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'searchResult' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetAllSummariesQuery,
+  GetAllSummariesQueryVariables
+>
 export const GetIndexedWebPageDocument = {
   kind: 'Document',
   definitions: [
