@@ -1101,6 +1101,7 @@ export type GetWebPageSummariesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
+        locale?: string | null
         keywords: string
         summary: string
         largeLanguageModel: string
@@ -1113,7 +1114,6 @@ export type GetWebPageSummariesQuery = {
               title: string
               url: string
               originalContent: string
-              locale?: string | null
               publishedAt?: any | null
             } | null
           } | null
@@ -1164,6 +1164,10 @@ export const GetWebPageSummariesDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'locale' },
+                            },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'keywords' },
@@ -1222,13 +1226,6 @@ export const GetWebPageSummariesDocument = {
                                                 name: {
                                                   kind: 'Name',
                                                   value: 'originalContent',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'locale',
                                                 },
                                               },
                                               {

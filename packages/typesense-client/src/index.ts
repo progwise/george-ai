@@ -49,8 +49,7 @@ export const upsertTypesenseCollection = async (
       title:
         webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.title,
       url: webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.url,
-      language:
-        webPageSummary.attributes?.scraped_web_pages?.data?.attributes?.locale,
+      language: webPageSummary.attributes?.locale,
       originalContent:
         webPageSummary.attributes?.scraped_web_pages?.data?.attributes
           ?.originalContent,

@@ -14,36 +14,34 @@ const strapiClient = new GraphQLClient(endpoint, {
   },
 })
 
-const GET_ALL_WEBPAGES_SUMMARIES_QUERY = graphql(`
-  query GetWebPageSummaries {
-    webPageSummaries(publicationState: PREVIEW, locale: "all") {
-      data {
-        id
-        attributes {
-          keywords
-          summary
-          largeLanguageModel
-          scraped_web_pages {
+export const rebuildCollection = async () => {
+  try {
+    const { webPageSummaries } = await strapiClient.request(
+      graphql(`
+        query GetWebPageSummaries {
+          webPageSummaries(publicationState: PREVIEW, locale: "all") {
             data {
+              id
               attributes {
-                title
-                url
-                originalContent
                 locale
-                publishedAt
+                keywords
+                summary
+                largeLanguageModel
+                scraped_web_pages {
+                  data {
+                    attributes {
+                      title
+                      url
+                      originalContent
+                      publishedAt
+                    }
+                  }
+                }
               }
             }
           }
         }
-      }
-    }
-  }
-`)
-
-export const rebuildCollection = async () => {
-  try {
-    const { webPageSummaries } = await strapiClient.request(
-      GET_ALL_WEBPAGES_SUMMARIES_QUERY,
+      `),
       {},
     )
 

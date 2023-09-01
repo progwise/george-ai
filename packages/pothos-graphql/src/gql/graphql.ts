@@ -1090,31 +1090,6 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
-export type WebPageSummaryFragment = {
-  __typename?: 'WebPageSummaryEntity'
-  id?: string | null
-  attributes?: {
-    __typename?: 'WebPageSummary'
-    keywords: string
-    summary: string
-    largeLanguageModel: string
-    scraped_web_pages?: {
-      __typename?: 'ScrapedWebPageEntityResponse'
-      data?: {
-        __typename?: 'ScrapedWebPageEntity'
-        attributes?: {
-          __typename?: 'ScrapedWebPage'
-          title: string
-          url: string
-          originalContent: string
-          locale?: string | null
-          publishedAt?: any | null
-        } | null
-      } | null
-    } | null
-  } | null
-} & { ' $fragmentName'?: 'WebPageSummaryFragment' }
-
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWebPageSummariesQuery = {
@@ -1128,6 +1103,31 @@ export type GetWebPageSummariesQuery = {
     >
   } | null
 }
+
+export type WebPageSummaryFragment = {
+  __typename?: 'WebPageSummaryEntity'
+  id?: string | null
+  attributes?: {
+    __typename?: 'WebPageSummary'
+    locale?: string | null
+    keywords: string
+    summary: string
+    largeLanguageModel: string
+    scraped_web_pages?: {
+      __typename?: 'ScrapedWebPageEntityResponse'
+      data?: {
+        __typename?: 'ScrapedWebPageEntity'
+        attributes?: {
+          __typename?: 'ScrapedWebPage'
+          title: string
+          url: string
+          originalContent: string
+          publishedAt?: any | null
+        } | null
+      } | null
+    } | null
+  } | null
+} & { ' $fragmentName'?: 'WebPageSummaryFragment' }
 
 export const WebPageSummaryFragmentDoc = {
   kind: 'Document',
@@ -1149,6 +1149,7 @@ export const WebPageSummaryFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
                 {
@@ -1187,10 +1188,6 @@ export const WebPageSummaryFragmentDoc = {
                                       kind: 'Name',
                                       value: 'originalContent',
                                     },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'locale' },
                                   },
                                   {
                                     kind: 'Field',
@@ -1280,6 +1277,7 @@ export const GetWebPageSummariesDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
                 {
@@ -1318,10 +1316,6 @@ export const GetWebPageSummariesDocument = {
                                       kind: 'Name',
                                       value: 'originalContent',
                                     },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'locale' },
                                   },
                                   {
                                     kind: 'Field',

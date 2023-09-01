@@ -4,6 +4,7 @@ const transformWebPageSummary = (webPageSummaryResult) => {
   return {
     id: webPageSummaryResult.id.toString(),
     attributes: {
+      locale: webPageSummaryResult.locale,
       keywords: webPageSummaryResult.keywords,
       summary: webPageSummaryResult.summary,
       largeLanguageModel: webPageSummaryResult.largeLanguageModel,
@@ -14,7 +15,6 @@ const transformWebPageSummary = (webPageSummaryResult) => {
             url: webPageSummaryResult.scraped_web_pages.url,
             originalContent:
               webPageSummaryResult.scraped_web_pages.originalContent,
-            locale: webPageSummaryResult.scraped_web_pages.locale,
             publishedAt: webPageSummaryResult.scraped_web_pages.publishedAt,
           },
         },
