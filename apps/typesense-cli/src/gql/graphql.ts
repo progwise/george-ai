@@ -572,11 +572,11 @@ export type ScrapedWebPage = {
   createdAt?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<ScrapedWebPageRelationResponseCollection>
-  originalContent: Scalars['String']['output']
+  originalContent?: Maybe<Scalars['String']['output']>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
-  title: Scalars['String']['output']
+  title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-  url: Scalars['String']['output']
+  url?: Maybe<Scalars['String']['output']>
 }
 
 export type ScrapedWebPageLocalizationsArgs = {
@@ -1027,13 +1027,13 @@ export type UsersPermissionsUserRelationResponseCollection = {
 export type WebPageSummary = {
   __typename?: 'WebPageSummary'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  keywords: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
+  keywords?: Maybe<Scalars['String']['output']>
+  largeLanguageModel?: Maybe<Scalars['String']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   scraped_web_pages?: Maybe<ScrapedWebPageEntityResponse>
-  summary: Scalars['String']['output']
+  summary?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
@@ -1102,18 +1102,18 @@ export type GetWebPageSummariesQuery = {
       attributes?: {
         __typename?: 'WebPageSummary'
         locale?: string | null
-        keywords: string
-        summary: string
-        largeLanguageModel: string
+        keywords?: string | null
+        summary?: string | null
+        largeLanguageModel?: string | null
         scraped_web_pages?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
             __typename?: 'ScrapedWebPageEntity'
             attributes?: {
               __typename?: 'ScrapedWebPage'
-              title: string
-              url: string
-              originalContent: string
+              title?: string | null
+              url?: string | null
+              originalContent?: string | null
               publishedAt?: any | null
             } | null
           } | null

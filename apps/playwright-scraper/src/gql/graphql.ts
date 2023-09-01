@@ -594,11 +594,11 @@ export type ScrapedWebPage = {
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   localizations?: Maybe<ScrapedWebPageRelationResponseCollection>;
-  originalContent: Scalars['String']['output'];
+  originalContent?: Maybe<Scalars['String']['output']>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
-  title: Scalars['String']['output'];
+  title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
-  url: Scalars['String']['output'];
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -1054,13 +1054,13 @@ export type UsersPermissionsUserRelationResponseCollection = {
 export type WebPageSummary = {
   __typename?: 'WebPageSummary';
   createdAt?: Maybe<Scalars['DateTime']['output']>;
-  keywords: Scalars['String']['output'];
-  largeLanguageModel: Scalars['String']['output'];
+  keywords?: Maybe<Scalars['String']['output']>;
+  largeLanguageModel?: Maybe<Scalars['String']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
   scraped_web_pages?: Maybe<ScrapedWebPageEntityResponse>;
-  summary: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
@@ -1123,7 +1123,7 @@ export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
 }>;
 
 
-export type GetScrapedWebPagesByUrlQuery = { __typename?: 'Query', scrapedWebPages?: { __typename?: 'ScrapedWebPageEntityResponseCollection', data: Array<{ __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', url: string, title: string, originalContent: string } | null }> } | null };
+export type GetScrapedWebPagesByUrlQuery = { __typename?: 'Query', scrapedWebPages?: { __typename?: 'ScrapedWebPageEntityResponseCollection', data: Array<{ __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', url?: string | null, title?: string | null, originalContent?: string | null } | null }> } | null };
 
 export type CreateScrapedWebPageMutationVariables = Exact<{
   data: ScrapedWebPageInput;
@@ -1131,7 +1131,7 @@ export type CreateScrapedWebPageMutationVariables = Exact<{
 }>;
 
 
-export type CreateScrapedWebPageMutation = { __typename?: 'Mutation', createScrapedWebPage?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', title: string, url: string, originalContent: string } | null } | null } | null };
+export type CreateScrapedWebPageMutation = { __typename?: 'Mutation', createScrapedWebPage?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', title?: string | null, url?: string | null, originalContent?: string | null } | null } | null } | null };
 
 export type GetWebPageSummariesByLanguageModelAndUrlQueryVariables = Exact<{
   languageModel: Scalars['String']['input'];
@@ -1139,7 +1139,7 @@ export type GetWebPageSummariesByLanguageModelAndUrlQueryVariables = Exact<{
 }>;
 
 
-export type GetWebPageSummariesByLanguageModelAndUrlQuery = { __typename?: 'Query', webPageSummaries?: { __typename?: 'WebPageSummaryEntityResponseCollection', data: Array<{ __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords: string, summary: string, largeLanguageModel: string, scraped_web_pages?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', url: string } | null } | null } | null } | null }> } | null };
+export type GetWebPageSummariesByLanguageModelAndUrlQuery = { __typename?: 'Query', webPageSummaries?: { __typename?: 'WebPageSummaryEntityResponseCollection', data: Array<{ __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_pages?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', url?: string | null } | null } | null } | null } | null }> } | null };
 
 export type UpdateWebPageSummaryMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1147,7 +1147,7 @@ export type UpdateWebPageSummaryMutationVariables = Exact<{
 }>;
 
 
-export type UpdateWebPageSummaryMutation = { __typename?: 'Mutation', updateWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords: string, summary: string, largeLanguageModel: string, scraped_web_pages?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
+export type UpdateWebPageSummaryMutation = { __typename?: 'Mutation', updateWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_pages?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
 
 export type CreateWebPageSummaryMutationVariables = Exact<{
   data: WebPageSummaryInput;
@@ -1155,7 +1155,7 @@ export type CreateWebPageSummaryMutationVariables = Exact<{
 }>;
 
 
-export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords: string, summary: string, largeLanguageModel: string, scraped_web_pages?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
+export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_pages?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
 
 
 export const GetScrapedWebPagesByUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetScrapedWebPagesByUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scrapedWebPages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"originalContent"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetScrapedWebPagesByUrlQuery, GetScrapedWebPagesByUrlQueryVariables>;

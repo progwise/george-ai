@@ -3,15 +3,6 @@ import { InfoCard } from './components/info-card/info-card'
 import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
 
-const SearchQuery = graphql(`
-  query GetIndexedWebPage($query: String) {
-    searchResult(query: $query) {
-      id
-      ...InfoCard
-    }
-  }
-`)
-
 const makeClient = () => {
   return createClient({
     url: 'http://localhost:3000/graphql',
@@ -22,7 +13,17 @@ const makeClient = () => {
 const { getClient } = registerUrql(makeClient)
 
 export async function PageList({ query }: { query?: string }) {
-  const result = await getClient().query(SearchQuery, { query })
+  const result = await getClient().query(
+    graphql(`
+      query GetIndexedWebPage($query: String) {
+        searchResult(query: $query) {
+          id
+          ...InfoCard
+        }
+      }
+    `),
+    { query },
+  )
   const pages = result.data?.searchResult
 
   return (

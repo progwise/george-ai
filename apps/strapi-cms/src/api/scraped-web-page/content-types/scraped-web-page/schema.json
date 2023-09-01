@@ -23,7 +23,7 @@
           "localized": true
         }
       },
-      "required": true
+      "required": false
     },
     "url": {
       "type": "string",
@@ -32,7 +32,7 @@
           "localized": true
         }
       },
-      "required": true
+      "required": false
     },
     "originalContent": {
       "type": "text",
@@ -41,7 +41,7 @@
           "localized": true
         }
       },
-      "required": true
+      "required": false
     }
   }
 }

@@ -28,7 +28,7 @@
           "localized": true
         }
       },
-      "required": true
+      "required": false
     },
     "summary": {
       "type": "text",
@@ -37,7 +37,7 @@
           "localized": true
         }
       },
-      "required": true
+      "required": false
     },
     "largeLanguageModel": {
       "type": "string",
@@ -46,7 +46,7 @@
           "localized": true
         }
       },
-      "required": true
+      "required": false
     }
   }
 }
