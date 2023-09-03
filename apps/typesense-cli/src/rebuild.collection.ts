@@ -1,8 +1,9 @@
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import { graphql } from './gql'
-import { client } from './typesense'
-import { FieldType } from 'typesense/lib/Typesense/Collection'
+import { upsertTypesenseCollection } from '@george-ai/typesense-client'
+import pMap from 'p-map'
+import { WebPageSummaryEntity } from './gql/graphql'
 
 dotenv.config()
 
@@ -13,98 +14,70 @@ const strapiClient = new GraphQLClient(endpoint, {
   },
 })
 
-const GET_ALL_SCRAPE_WEBPAGES_QUERY = graphql(`
-  query GetAllScrapedWebPages {
-    scrapedWebPages(publicationState: PREVIEW, locale: "all") {
-      data {
-        id
-        attributes {
-          Title
-          Url
-          locale
-          publishedAt
-          OriginalContent
-          WebPageSummaries {
-            id
-            Feedback
-            GeneratedKeywords
-            GeneratedSummary
-            LargeLanguageModel
+export const rebuildCollection = async () => {
+  try {
+    const { webPageSummaries } = await strapiClient.request(
+      graphql(`
+        query GetWebPageSummaries {
+          webPageSummaries(publicationState: PREVIEW, locale: "all") {
+            data {
+              id
+              attributes {
+                locale
+                keywords
+                summary
+                largeLanguageModel
+                scraped_web_page {
+                  data {
+                    attributes {
+                      title
+                      url
+                      originalContent
+                      publishedAt
+                    }
+                  }
+                }
+              }
+            }
           }
         }
-      }
-    }
-  }
-`)
-
-const baseCollectionSchema: {
-  name: string
-  fields: {
-    name: string
-    type: FieldType
-    optional?: boolean
-  }[]
-} = {
-  name: 'scraped_web_pages',
-  fields: [
-    { name: 'id', type: 'string' },
-    { name: 'title', type: 'string' },
-    { name: 'url', type: 'string' },
-    { name: 'language', type: 'string' },
-    { name: 'originalContent', type: 'string' },
-    { name: 'publicationState', type: 'string' },
-    { name: 'keywords', type: 'string[]' },
-    { name: 'summary', type: 'string' },
-    { name: 'largeLanguageModel', type: 'string' },
-  ],
-}
-
-export const rebuildTypesenseCollection = async () => {
-  try {
-    const { scrapedWebPages } = await strapiClient.request(
-      GET_ALL_SCRAPE_WEBPAGES_QUERY,
+      `),
       {},
     )
-    const collectionName = 'scraped_web_pages_summaries'
-    const collectionExists = await client.collections(collectionName).exists()
-    const collectionSchema = {
-      ...baseCollectionSchema,
-      name: collectionName,
-    }
-    if (!collectionExists) {
-      await client.collections().create(collectionSchema)
-      console.log(`Collection ${collectionName} created`)
+
+    const webPageSummaryArray = webPageSummaries?.data || []
+
+    const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
+      const webPageSummary = {
+        id: webPageSummaryEntity.id ?? '',
+        language: webPageSummaryEntity.attributes?.locale ?? '',
+        keywords: webPageSummaryEntity.attributes?.keywords
+          ? JSON.parse(webPageSummaryEntity.attributes?.keywords)
+          : [],
+        summary: webPageSummaryEntity.attributes?.summary ?? '',
+        largeLanguageModel:
+          webPageSummaryEntity.attributes?.largeLanguageModel ?? '',
+        title:
+          webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
+            ?.title ?? '',
+        url:
+          webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
+            ?.url ?? '',
+        originalContent:
+          webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
+            ?.originalContent ?? '',
+        publicationState: webPageSummaryEntity.attributes?.scraped_web_page
+          ?.data?.attributes?.publishedAt
+          ? 'published'
+          : 'draft',
+      }
+      await upsertTypesenseCollection(webPageSummary)
     }
 
-    const documents =
-      scrapedWebPages?.data.flatMap((page) =>
-        (page.attributes?.WebPageSummaries || []).map((summary) => ({
-          id: summary?.id,
-          title: page.attributes?.Title,
-          url: page.attributes?.Url,
-          language: page.attributes?.locale,
-          originalContent: page.attributes?.OriginalContent,
-          publicationState: page.attributes?.publishedAt
-            ? 'published'
-            : 'draft',
-          keywords: summary?.GeneratedKeywords
-            ? JSON.parse(summary.GeneratedKeywords)
-            : [],
-          summary: summary?.GeneratedSummary,
-          largeLanguageModel: summary?.LargeLanguageModel,
-        })),
-      ) || []
-
-    for (const document of documents) {
-      await client.collections(collectionName).documents().upsert(document)
-      console.log(
-        `Data added to typesense in collection ${collectionName}`,
-        document,
-      )
-    }
+    await pMap(webPageSummaryArray, mapper, { concurrency: 10 })
   } catch (error) {
     console.error(error)
   }
 }
 
-rebuildTypesenseCollection()
+rebuildCollection()

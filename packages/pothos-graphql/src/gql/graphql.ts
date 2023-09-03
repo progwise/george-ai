@@ -71,28 +71,6 @@ export type ComponentWebPageSummaryWebPageSummary = {
   id: Scalars['ID']['output']
 }
 
-export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
-  Feedback?: InputMaybe<StringFilterInput>
-  GeneratedKeywords?: InputMaybe<StringFilterInput>
-  GeneratedSummary?: InputMaybe<StringFilterInput>
-  LargeLanguageModel?: InputMaybe<StringFilterInput>
-  and?: InputMaybe<
-    Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>
-  >
-  not?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
-  or?: InputMaybe<
-    Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>
-  >
-}
-
-export type ComponentWebPageSummaryWebPageSummaryInput = {
-  Feedback?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
-  GeneratedKeywords?: InputMaybe<Scalars['String']['input']>
-  GeneratedSummary?: InputMaybe<Scalars['String']['input']>
-  LargeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  id?: InputMaybe<Scalars['ID']['input']>
-}
-
 export type DateTimeFilterInput = {
   and?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
   between?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
@@ -163,6 +141,7 @@ export type GenericMorph =
   | UsersPermissionsPermission
   | UsersPermissionsRole
   | UsersPermissionsUser
+  | WebPageSummary
 
 export type I18NLocale = {
   __typename?: 'I18NLocale'
@@ -287,6 +266,8 @@ export type Mutation = {
   createUsersPermissionsRole?: Maybe<UsersPermissionsCreateRolePayload>
   /** Create a new user */
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse
+  createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
+  createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   deleteUploadFile?: Maybe<UploadFileEntityResponse>
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -294,6 +275,7 @@ export type Mutation = {
   deleteUsersPermissionsRole?: Maybe<UsersPermissionsDeleteRolePayload>
   /** Delete an existing user */
   deleteUsersPermissionsUser: UsersPermissionsUserEntityResponse
+  deleteWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   /** Confirm an email users email address */
   emailConfirmation?: Maybe<UsersPermissionsLoginPayload>
   /** Request a reset password token */
@@ -313,6 +295,7 @@ export type Mutation = {
   updateUsersPermissionsRole?: Maybe<UsersPermissionsUpdateRolePayload>
   /** Update an existing user */
   updateUsersPermissionsUser: UsersPermissionsUserEntityResponse
+  updateWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   upload: UploadFileEntityResponse
 }
 
@@ -349,6 +332,17 @@ export type MutationCreateUsersPermissionsUserArgs = {
   data: UsersPermissionsUserInput
 }
 
+export type MutationCreateWebPageSummaryArgs = {
+  data: WebPageSummaryInput
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationCreateWebPageSummaryLocalizationArgs = {
+  data?: InputMaybe<WebPageSummaryInput>
+  id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
@@ -368,6 +362,11 @@ export type MutationDeleteUsersPermissionsRoleArgs = {
 
 export type MutationDeleteUsersPermissionsUserArgs = {
   id: Scalars['ID']['input']
+}
+
+export type MutationDeleteWebPageSummaryArgs = {
+  id: Scalars['ID']['input']
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationEmailConfirmationArgs = {
@@ -434,6 +433,12 @@ export type MutationUpdateUsersPermissionsUserArgs = {
   id: Scalars['ID']['input']
 }
 
+export type MutationUpdateWebPageSummaryArgs = {
+  data: WebPageSummaryInput
+  id: Scalars['ID']['input']
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type MutationUploadArgs = {
   field?: InputMaybe<Scalars['String']['input']>
   file: Scalars['Upload']['input']
@@ -477,6 +482,8 @@ export type Query = {
   usersPermissionsRoles?: Maybe<UsersPermissionsRoleEntityResponseCollection>
   usersPermissionsUser?: Maybe<UsersPermissionsUserEntityResponse>
   usersPermissionsUsers?: Maybe<UsersPermissionsUserEntityResponseCollection>
+  webPageSummaries?: Maybe<WebPageSummaryEntityResponseCollection>
+  webPageSummary?: Maybe<WebPageSummaryEntityResponse>
 }
 
 export type QueryI18NLocaleArgs = {
@@ -542,6 +549,19 @@ export type QueryUsersPermissionsUsersArgs = {
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
+export type QueryWebPageSummariesArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+  pagination?: InputMaybe<PaginationArg>
+  publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QueryWebPageSummaryArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type ResponseCollectionMeta = {
   __typename?: 'ResponseCollectionMeta'
   pagination: Pagination
@@ -549,21 +569,14 @@ export type ResponseCollectionMeta = {
 
 export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage'
-  OriginalContent?: Maybe<Scalars['String']['output']>
-  Title?: Maybe<Scalars['String']['output']>
-  Url?: Maybe<Scalars['String']['output']>
-  WebPageSummaries?: Maybe<Array<Maybe<ComponentWebPageSummaryWebPageSummary>>>
   createdAt?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<ScrapedWebPageRelationResponseCollection>
+  originalContent?: Maybe<Scalars['String']['output']>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
+  title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type ScrapedWebPageWebPageSummariesArgs = {
-  filters?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+  url?: Maybe<Scalars['String']['output']>
 }
 
 export type ScrapedWebPageLocalizationsArgs = {
@@ -591,10 +604,6 @@ export type ScrapedWebPageEntityResponseCollection = {
 }
 
 export type ScrapedWebPageFiltersInput = {
-  OriginalContent?: InputMaybe<StringFilterInput>
-  Title?: InputMaybe<StringFilterInput>
-  Url?: InputMaybe<StringFilterInput>
-  WebPageSummaries?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
@@ -602,18 +611,18 @@ export type ScrapedWebPageFiltersInput = {
   localizations?: InputMaybe<ScrapedWebPageFiltersInput>
   not?: InputMaybe<ScrapedWebPageFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
+  originalContent?: InputMaybe<StringFilterInput>
   publishedAt?: InputMaybe<DateTimeFilterInput>
+  title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
+  url?: InputMaybe<StringFilterInput>
 }
 
 export type ScrapedWebPageInput = {
-  OriginalContent?: InputMaybe<Scalars['String']['input']>
-  Title?: InputMaybe<Scalars['String']['input']>
-  Url?: InputMaybe<Scalars['String']['input']>
-  WebPageSummaries?: InputMaybe<
-    Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryInput>>
-  >
+  originalContent?: InputMaybe<Scalars['String']['input']>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
+  title?: InputMaybe<Scalars['String']['input']>
+  url?: InputMaybe<Scalars['String']['input']>
 }
 
 export type ScrapedWebPageRelationResponseCollection = {
@@ -1015,48 +1024,208 @@ export type UsersPermissionsUserRelationResponseCollection = {
   data: Array<UsersPermissionsUserEntity>
 }
 
-export type GetScrapedWebPagesQueryVariables = Exact<{ [key: string]: never }>
+export type WebPageSummary = {
+  __typename?: 'WebPageSummary'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  keywords?: Maybe<Scalars['String']['output']>
+  largeLanguageModel?: Maybe<Scalars['String']['output']>
+  locale?: Maybe<Scalars['String']['output']>
+  localizations?: Maybe<WebPageSummaryRelationResponseCollection>
+  publishedAt?: Maybe<Scalars['DateTime']['output']>
+  scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
+  summary?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
 
-export type GetScrapedWebPagesQuery = {
+export type WebPageSummaryLocalizationsArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type WebPageSummaryEntity = {
+  __typename?: 'WebPageSummaryEntity'
+  attributes?: Maybe<WebPageSummary>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type WebPageSummaryEntityResponse = {
+  __typename?: 'WebPageSummaryEntityResponse'
+  data?: Maybe<WebPageSummaryEntity>
+}
+
+export type WebPageSummaryEntityResponseCollection = {
+  __typename?: 'WebPageSummaryEntityResponseCollection'
+  data: Array<WebPageSummaryEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type WebPageSummaryFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  keywords?: InputMaybe<StringFilterInput>
+  largeLanguageModel?: InputMaybe<StringFilterInput>
+  locale?: InputMaybe<StringFilterInput>
+  localizations?: InputMaybe<WebPageSummaryFiltersInput>
+  not?: InputMaybe<WebPageSummaryFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  publishedAt?: InputMaybe<DateTimeFilterInput>
+  scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
+  summary?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+}
+
+export type WebPageSummaryInput = {
+  keywords?: InputMaybe<Scalars['String']['input']>
+  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>
+  scraped_web_page?: InputMaybe<Scalars['ID']['input']>
+  summary?: InputMaybe<Scalars['String']['input']>
+}
+
+export type WebPageSummaryRelationResponseCollection = {
+  __typename?: 'WebPageSummaryRelationResponseCollection'
+  data: Array<WebPageSummaryEntity>
+}
+
+export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetWebPageSummariesQuery = {
   __typename?: 'Query'
-  scrapedWebPages?: {
-    __typename?: 'ScrapedWebPageEntityResponseCollection'
-    data: Array<{
-      __typename?: 'ScrapedWebPageEntity'
-      id?: string | null
-      attributes?: {
-        __typename?: 'ScrapedWebPage'
-        Title?: string | null
-        Url?: string | null
-        OriginalContent?: string | null
-        locale?: string | null
-        publishedAt?: any | null
-        WebPageSummaries?: Array<{
-          __typename?: 'ComponentWebPageSummaryWebPageSummary'
-          id: string
-          Feedback?: Enum_Componentwebpagesummarywebpagesummary_Feedback | null
-          LargeLanguageModel?: string | null
-          GeneratedKeywords?: string | null
-          GeneratedSummary?: string | null
-        } | null> | null
-      } | null
-    }>
+  webPageSummaries?: {
+    __typename?: 'WebPageSummaryEntityResponseCollection'
+    data: Array<
+      { __typename?: 'WebPageSummaryEntity' } & {
+        ' $fragmentRefs'?: { WebPageSummaryFragment: WebPageSummaryFragment }
+      }
+    >
   } | null
 }
 
-export const GetScrapedWebPagesDocument = {
+export type WebPageSummaryFragment = {
+  __typename?: 'WebPageSummaryEntity'
+  id?: string | null
+  attributes?: {
+    __typename?: 'WebPageSummary'
+    locale?: string | null
+    keywords?: string | null
+    summary?: string | null
+    largeLanguageModel?: string | null
+    scraped_web_page?: {
+      __typename?: 'ScrapedWebPageEntityResponse'
+      data?: {
+        __typename?: 'ScrapedWebPageEntity'
+        attributes?: {
+          __typename?: 'ScrapedWebPage'
+          title?: string | null
+          url?: string | null
+          originalContent?: string | null
+          publishedAt?: any | null
+        } | null
+      } | null
+    } | null
+  } | null
+} & { ' $fragmentName'?: 'WebPageSummaryFragment' }
+
+export const WebPageSummaryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummary' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummaryEntity' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'attributes' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'scraped_web_page' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'data' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'attributes' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'title' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'url' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'originalContent',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'publishedAt',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WebPageSummaryFragment, unknown>
+export const GetWebPageSummariesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetScrapedWebPages' },
+      name: { kind: 'Name', value: 'GetWebPageSummaries' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'scrapedWebPages' },
+            name: { kind: 'Name', value: 'webPageSummaries' },
             arguments: [
               {
                 kind: 'Argument',
@@ -1078,66 +1247,81 @@ export const GetScrapedWebPagesDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'FragmentSpread',
+                        name: { kind: 'Name', value: 'WebPageSummary' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WebPageSummary' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'WebPageSummaryEntity' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'attributes' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'locale' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'scraped_web_page' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
+                        name: { kind: 'Name', value: 'data' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'Title' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'Url' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'OriginalContent' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'locale' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'publishedAt' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'WebPageSummaries' },
+                              name: { kind: 'Name', value: 'attributes' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'id' },
+                                    name: { kind: 'Name', value: 'title' },
                                   },
                                   {
                                     kind: 'Field',
-                                    name: { kind: 'Name', value: 'Feedback' },
+                                    name: { kind: 'Name', value: 'url' },
                                   },
                                   {
                                     kind: 'Field',
                                     name: {
                                       kind: 'Name',
-                                      value: 'LargeLanguageModel',
+                                      value: 'originalContent',
                                     },
                                   },
                                   {
                                     kind: 'Field',
                                     name: {
                                       kind: 'Name',
-                                      value: 'GeneratedKeywords',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'GeneratedSummary',
+                                      value: 'publishedAt',
                                     },
                                   },
                                 ],
@@ -1157,6 +1341,6 @@ export const GetScrapedWebPagesDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetScrapedWebPagesQuery,
-  GetScrapedWebPagesQueryVariables
+  GetWebPageSummariesQuery,
+  GetWebPageSummariesQueryVariables
 >

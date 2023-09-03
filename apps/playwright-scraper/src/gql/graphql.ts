@@ -58,24 +58,6 @@ export type ComponentWebPageSummaryWebPageSummary = {
   id: Scalars['ID']['output'];
 };
 
-export type ComponentWebPageSummaryWebPageSummaryFiltersInput = {
-  Feedback?: InputMaybe<StringFilterInput>;
-  GeneratedKeywords?: InputMaybe<StringFilterInput>;
-  GeneratedSummary?: InputMaybe<StringFilterInput>;
-  LargeLanguageModel?: InputMaybe<StringFilterInput>;
-  and?: InputMaybe<Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>>;
-  not?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>;
-  or?: InputMaybe<Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>>>;
-};
-
-export type ComponentWebPageSummaryWebPageSummaryInput = {
-  Feedback?: InputMaybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>;
-  GeneratedKeywords?: InputMaybe<Scalars['String']['input']>;
-  GeneratedSummary?: InputMaybe<Scalars['String']['input']>;
-  LargeLanguageModel?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
-};
-
 export type DateTimeFilterInput = {
   and?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
   between?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
@@ -137,7 +119,7 @@ export type FloatFilterInput = {
   startsWith?: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type GenericMorph = ComponentWebPageSummaryWebPageSummary | I18NLocale | ScrapedWebPage | UploadFile | UploadFolder | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser;
+export type GenericMorph = ComponentWebPageSummaryWebPageSummary | I18NLocale | ScrapedWebPage | UploadFile | UploadFolder | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser | WebPageSummary;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -262,6 +244,8 @@ export type Mutation = {
   createUsersPermissionsRole?: Maybe<UsersPermissionsCreateRolePayload>;
   /** Create a new user */
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>;
+  createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>;
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
   deleteUploadFile?: Maybe<UploadFileEntityResponse>;
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>;
@@ -269,6 +253,7 @@ export type Mutation = {
   deleteUsersPermissionsRole?: Maybe<UsersPermissionsDeleteRolePayload>;
   /** Delete an existing user */
   deleteUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  deleteWebPageSummary?: Maybe<WebPageSummaryEntityResponse>;
   /** Confirm an email users email address */
   emailConfirmation?: Maybe<UsersPermissionsLoginPayload>;
   /** Request a reset password token */
@@ -288,6 +273,7 @@ export type Mutation = {
   updateUsersPermissionsRole?: Maybe<UsersPermissionsUpdateRolePayload>;
   /** Update an existing user */
   updateUsersPermissionsUser: UsersPermissionsUserEntityResponse;
+  updateWebPageSummary?: Maybe<WebPageSummaryEntityResponse>;
   upload: UploadFileEntityResponse;
 };
 
@@ -332,6 +318,19 @@ export type MutationCreateUsersPermissionsUserArgs = {
 };
 
 
+export type MutationCreateWebPageSummaryArgs = {
+  data: WebPageSummaryInput;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationCreateWebPageSummaryLocalizationArgs = {
+  data?: InputMaybe<WebPageSummaryInput>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input'];
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
@@ -355,6 +354,12 @@ export type MutationDeleteUsersPermissionsRoleArgs = {
 
 export type MutationDeleteUsersPermissionsUserArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebPageSummaryArgs = {
+  id: Scalars['ID']['input'];
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 
@@ -435,6 +440,13 @@ export type MutationUpdateUsersPermissionsUserArgs = {
 };
 
 
+export type MutationUpdateWebPageSummaryArgs = {
+  data: WebPageSummaryInput;
+  id: Scalars['ID']['input'];
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
 export type MutationUploadArgs = {
   field?: InputMaybe<Scalars['String']['input']>;
   file: Scalars['Upload']['input'];
@@ -478,6 +490,8 @@ export type Query = {
   usersPermissionsRoles?: Maybe<UsersPermissionsRoleEntityResponseCollection>;
   usersPermissionsUser?: Maybe<UsersPermissionsUserEntityResponse>;
   usersPermissionsUsers?: Maybe<UsersPermissionsUserEntityResponseCollection>;
+  webPageSummaries?: Maybe<WebPageSummaryEntityResponseCollection>;
+  webPageSummary?: Maybe<WebPageSummaryEntityResponse>;
 };
 
 
@@ -555,6 +569,21 @@ export type QueryUsersPermissionsUsersArgs = {
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+
+export type QueryWebPageSummariesArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type QueryWebPageSummaryArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
 export type ResponseCollectionMeta = {
   __typename?: 'ResponseCollectionMeta';
   pagination: Pagination;
@@ -562,22 +591,14 @@ export type ResponseCollectionMeta = {
 
 export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage';
-  OriginalContent?: Maybe<Scalars['String']['output']>;
-  Title?: Maybe<Scalars['String']['output']>;
-  Url?: Maybe<Scalars['String']['output']>;
-  WebPageSummaries?: Maybe<Array<Maybe<ComponentWebPageSummaryWebPageSummary>>>;
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   localizations?: Maybe<ScrapedWebPageRelationResponseCollection>;
+  originalContent?: Maybe<Scalars['String']['output']>;
   publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
-};
-
-
-export type ScrapedWebPageWebPageSummariesArgs = {
-  filters?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>;
-  pagination?: InputMaybe<PaginationArg>;
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  url?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -606,10 +627,6 @@ export type ScrapedWebPageEntityResponseCollection = {
 };
 
 export type ScrapedWebPageFiltersInput = {
-  OriginalContent?: InputMaybe<StringFilterInput>;
-  Title?: InputMaybe<StringFilterInput>;
-  Url?: InputMaybe<StringFilterInput>;
-  WebPageSummaries?: InputMaybe<ComponentWebPageSummaryWebPageSummaryFiltersInput>;
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>;
   createdAt?: InputMaybe<DateTimeFilterInput>;
   id?: InputMaybe<IdFilterInput>;
@@ -617,16 +634,18 @@ export type ScrapedWebPageFiltersInput = {
   localizations?: InputMaybe<ScrapedWebPageFiltersInput>;
   not?: InputMaybe<ScrapedWebPageFiltersInput>;
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>;
+  originalContent?: InputMaybe<StringFilterInput>;
   publishedAt?: InputMaybe<DateTimeFilterInput>;
+  title?: InputMaybe<StringFilterInput>;
   updatedAt?: InputMaybe<DateTimeFilterInput>;
+  url?: InputMaybe<StringFilterInput>;
 };
 
 export type ScrapedWebPageInput = {
-  OriginalContent?: InputMaybe<Scalars['String']['input']>;
-  Title?: InputMaybe<Scalars['String']['input']>;
-  Url?: InputMaybe<Scalars['String']['input']>;
-  WebPageSummaries?: InputMaybe<Array<InputMaybe<ComponentWebPageSummaryWebPageSummaryInput>>>;
+  originalContent?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ScrapedWebPageRelationResponseCollection = {
@@ -1032,30 +1051,115 @@ export type UsersPermissionsUserRelationResponseCollection = {
   data: Array<UsersPermissionsUserEntity>;
 };
 
-export type CreateScrapedWebPageMutationVariables = Exact<{
-  data: ScrapedWebPageInput;
-  locale: Scalars['I18NLocaleCode']['input'];
-}>;
+export type WebPageSummary = {
+  __typename?: 'WebPageSummary';
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  keywords?: Maybe<Scalars['String']['output']>;
+  largeLanguageModel?: Maybe<Scalars['String']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
+  localizations?: Maybe<WebPageSummaryRelationResponseCollection>;
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>;
+  summary?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
 
 
-export type CreateScrapedWebPageMutation = { __typename?: 'Mutation', createScrapedWebPage?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', Title?: string | null, Url?: string | null, OriginalContent?: string | null, WebPageSummaries?: Array<{ __typename?: 'ComponentWebPageSummaryWebPageSummary', id: string, LargeLanguageModel?: string | null, GeneratedKeywords?: string | null, GeneratedSummary?: string | null } | null> | null } | null } | null } | null };
+export type WebPageSummaryLocalizationsArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
 
-export type UpdateScrapedWebPageMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  data: ScrapedWebPageInput;
-}>;
+export type WebPageSummaryEntity = {
+  __typename?: 'WebPageSummaryEntity';
+  attributes?: Maybe<WebPageSummary>;
+  id?: Maybe<Scalars['ID']['output']>;
+};
 
+export type WebPageSummaryEntityResponse = {
+  __typename?: 'WebPageSummaryEntityResponse';
+  data?: Maybe<WebPageSummaryEntity>;
+};
 
-export type UpdateScrapedWebPageMutation = { __typename?: 'Mutation', updateScrapedWebPage?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', WebPageSummaries?: Array<{ __typename?: 'ComponentWebPageSummaryWebPageSummary', id: string, LargeLanguageModel?: string | null, GeneratedKeywords?: string | null, GeneratedSummary?: string | null } | null> | null } | null } | null } | null };
+export type WebPageSummaryEntityResponseCollection = {
+  __typename?: 'WebPageSummaryEntityResponseCollection';
+  data: Array<WebPageSummaryEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type WebPageSummaryFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>;
+  createdAt?: InputMaybe<DateTimeFilterInput>;
+  id?: InputMaybe<IdFilterInput>;
+  keywords?: InputMaybe<StringFilterInput>;
+  largeLanguageModel?: InputMaybe<StringFilterInput>;
+  locale?: InputMaybe<StringFilterInput>;
+  localizations?: InputMaybe<WebPageSummaryFiltersInput>;
+  not?: InputMaybe<WebPageSummaryFiltersInput>;
+  or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>;
+  publishedAt?: InputMaybe<DateTimeFilterInput>;
+  scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>;
+  summary?: InputMaybe<StringFilterInput>;
+  updatedAt?: InputMaybe<DateTimeFilterInput>;
+};
+
+export type WebPageSummaryInput = {
+  keywords?: InputMaybe<Scalars['String']['input']>;
+  largeLanguageModel?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  scraped_web_page?: InputMaybe<Scalars['ID']['input']>;
+  summary?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WebPageSummaryRelationResponseCollection = {
+  __typename?: 'WebPageSummaryRelationResponseCollection';
+  data: Array<WebPageSummaryEntity>;
+};
 
 export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
   url: Scalars['String']['input'];
 }>;
 
 
-export type GetScrapedWebPagesByUrlQuery = { __typename?: 'Query', scrapedWebPages?: { __typename?: 'ScrapedWebPageEntityResponseCollection', data: Array<{ __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', Url?: string | null, Title?: string | null, OriginalContent?: string | null, WebPageSummaries?: Array<{ __typename?: 'ComponentWebPageSummaryWebPageSummary', id: string, LargeLanguageModel?: string | null, GeneratedSummary?: string | null, GeneratedKeywords?: string | null } | null> | null } | null }> } | null };
+export type GetScrapedWebPagesByUrlQuery = { __typename?: 'Query', scrapedWebPages?: { __typename?: 'ScrapedWebPageEntityResponseCollection', data: Array<{ __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', url?: string | null, title?: string | null, originalContent?: string | null } | null }> } | null };
+
+export type CreateScrapedWebPageMutationVariables = Exact<{
+  data: ScrapedWebPageInput;
+  locale: Scalars['I18NLocaleCode']['input'];
+}>;
 
 
-export const CreateScrapedWebPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateScrapedWebPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ScrapedWebPageInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"I18NLocaleCode"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createScrapedWebPage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Title"}},{"kind":"Field","name":{"kind":"Name","value":"Url"}},{"kind":"Field","name":{"kind":"Name","value":"OriginalContent"}},{"kind":"Field","name":{"kind":"Name","value":"WebPageSummaries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"LargeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedKeywords"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedSummary"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateScrapedWebPageMutation, CreateScrapedWebPageMutationVariables>;
-export const UpdateScrapedWebPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateScrapedWebPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ScrapedWebPageInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateScrapedWebPage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"WebPageSummaries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"LargeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedKeywords"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedSummary"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateScrapedWebPageMutation, UpdateScrapedWebPageMutationVariables>;
-export const GetScrapedWebPagesByUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetScrapedWebPagesByUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scrapedWebPages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"Url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Url"}},{"kind":"Field","name":{"kind":"Name","value":"Title"}},{"kind":"Field","name":{"kind":"Name","value":"OriginalContent"}},{"kind":"Field","name":{"kind":"Name","value":"WebPageSummaries"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"LargeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedSummary"}},{"kind":"Field","name":{"kind":"Name","value":"GeneratedKeywords"}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetScrapedWebPagesByUrlQuery, GetScrapedWebPagesByUrlQueryVariables>;
+export type CreateScrapedWebPageMutation = { __typename?: 'Mutation', createScrapedWebPage?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', title?: string | null, url?: string | null, originalContent?: string | null } | null } | null } | null };
+
+export type GetWebPageSummariesByLanguageModelAndUrlQueryVariables = Exact<{
+  languageModel: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+}>;
+
+
+export type GetWebPageSummariesByLanguageModelAndUrlQuery = { __typename?: 'Query', webPageSummaries?: { __typename?: 'WebPageSummaryEntityResponseCollection', data: Array<{ __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_page?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null, attributes?: { __typename?: 'ScrapedWebPage', url?: string | null } | null } | null } | null } | null }> } | null };
+
+export type UpdateWebPageSummaryMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  data: WebPageSummaryInput;
+}>;
+
+
+export type UpdateWebPageSummaryMutation = { __typename?: 'Mutation', updateWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_page?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
+
+export type CreateWebPageSummaryMutationVariables = Exact<{
+  data: WebPageSummaryInput;
+  locale: Scalars['I18NLocaleCode']['input'];
+}>;
+
+
+export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_page?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
+
+
+export const GetScrapedWebPagesByUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetScrapedWebPagesByUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scrapedWebPages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"originalContent"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetScrapedWebPagesByUrlQuery, GetScrapedWebPagesByUrlQueryVariables>;
+export const CreateScrapedWebPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateScrapedWebPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ScrapedWebPageInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"I18NLocaleCode"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createScrapedWebPage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"originalContent"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateScrapedWebPageMutation, CreateScrapedWebPageMutationVariables>;
+export const GetWebPageSummariesByLanguageModelAndUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWebPageSummariesByLanguageModelAndUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"languageModel"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"webPageSummaries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"largeLanguageModel"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"languageModel"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"scraped_web_page"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"largeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"scraped_web_page"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetWebPageSummariesByLanguageModelAndUrlQuery, GetWebPageSummariesByLanguageModelAndUrlQueryVariables>;
+export const UpdateWebPageSummaryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateWebPageSummary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WebPageSummaryInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateWebPageSummary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"largeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"scraped_web_page"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<UpdateWebPageSummaryMutation, UpdateWebPageSummaryMutationVariables>;
+export const CreateWebPageSummaryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateWebPageSummary"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"WebPageSummaryInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"I18NLocaleCode"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWebPageSummary"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"keywords"}},{"kind":"Field","name":{"kind":"Name","value":"summary"}},{"kind":"Field","name":{"kind":"Name","value":"largeLanguageModel"}},{"kind":"Field","name":{"kind":"Name","value":"scraped_web_page"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateWebPageSummaryMutation, CreateWebPageSummaryMutationVariables>;

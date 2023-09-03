@@ -1,21 +1,22 @@
 {
-  "name": "@george-ai/pothos-graphql",
+  "name": "@george-ai/typesense-client",
   "version": "1.0.0",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "type": "module",
   "scripts": {
+    "build": "tsup src/index.ts --format cjs --dts",
+    "dev": "yarn build --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
   "dependencies": {
-    "@pothos/core": "^3.32.1",
-    "graphql": "^16.7.1",
-    "graphql-request": "^6.1.0",
     "typesense": "^1.7.1"
   },
   "devDependencies": {
     "eslint": "^8.46.0",
     "eslint-config-custom": "*",
+    "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   }
 }

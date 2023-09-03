@@ -1,0 +1,96 @@
+import { builder } from '../builder'
+import { graphql, useFragment } from '../gql'
+import { strapiClient } from '../strapi-graphql-client'
+import { WebPageSummaryFragment } from '../gql/graphql'
+
+const WebPageSummaryReference =
+  builder.objectRef<WebPageSummaryFragment>('WebPageSummary')
+
+builder.objectType(WebPageSummaryReference, {
+  name: 'WebPageSummary',
+  fields: (t) => ({
+    id: t.string({ resolve: (parent) => parent.id ?? '' }),
+    url: t.string({
+      resolve: (parent) =>
+        parent.attributes?.scraped_web_page?.data?.attributes?.url ?? '',
+    }),
+    title: t.string({
+      resolve: (parent) =>
+        parent.attributes?.scraped_web_page?.data?.attributes?.title ?? '',
+    }),
+    locale: t.string({
+      resolve: (parent) => parent.attributes?.locale ?? '',
+    }),
+    publishedAt: t.string({
+      resolve: (parent) =>
+        parent.attributes?.scraped_web_page?.data?.attributes?.publishedAt ??
+        '',
+    }),
+    originalContent: t.string({
+      resolve: (parent) =>
+        parent.attributes?.scraped_web_page?.data?.attributes
+          ?.originalContent ?? '',
+    }),
+
+    largeLanguageModel: t.string({
+      resolve: (parent) => parent.attributes?.largeLanguageModel ?? '',
+    }),
+    summary: t.string({
+      resolve: (parent) => parent.attributes?.summary ?? '',
+    }),
+    keywords: t.string({
+      resolve: (parent) => parent.attributes?.keywords ?? '',
+    }),
+  }),
+})
+builder.queryField('allSummaries', (t) =>
+  t.field({
+    type: [WebPageSummaryReference],
+    resolve: async () => {
+      try {
+        const result = await strapiClient.request(
+          graphql(`
+            query GetWebPageSummaries {
+              webPageSummaries(publicationState: PREVIEW, locale: "all") {
+                data {
+                  ...WebPageSummary
+                }
+              }
+            }
+          `),
+          {},
+        )
+        const webPageSummarydatas = result.webPageSummaries?.data ?? []
+        return webPageSummarydatas.map((data) => {
+          return useFragment(
+            graphql(`
+              fragment WebPageSummary on WebPageSummaryEntity {
+                id
+                attributes {
+                  locale
+                  keywords
+                  summary
+                  largeLanguageModel
+                  scraped_web_page {
+                    data {
+                      attributes {
+                        title
+                        url
+                        originalContent
+                        publishedAt
+                      }
+                    }
+                  }
+                }
+              }
+            `),
+            data,
+          )
+        })
+      } catch (error) {
+        console.error('Error fetching data from Strapi:', error)
+        return []
+      }
+    },
+  }),
+)

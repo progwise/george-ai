@@ -29,11 +29,6 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export enum Feedback {
-  Down = 'Down',
-  Up = 'Up',
-}
-
 export type IndexedWebPage = {
   __typename?: 'IndexedWebPage'
   id: Scalars['String']['output']
@@ -54,7 +49,7 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
-  allPages: Array<ScrapedWebPage>
+  allSummaries: Array<WebPageSummary>
   searchResult: Array<IndexedWebPage>
 }
 
@@ -65,23 +60,17 @@ export type QuerySearchResultArgs = {
   query?: InputMaybe<Scalars['String']['input']>
 }
 
-export type ScrapedWebPage = {
-  __typename?: 'ScrapedWebPage'
+export type WebPageSummary = {
+  __typename?: 'WebPageSummary'
+  id: Scalars['String']['output']
+  keywords: Scalars['String']['output']
+  largeLanguageModel: Scalars['String']['output']
   locale: Scalars['String']['output']
   originalContent: Scalars['String']['output']
   publishedAt: Scalars['String']['output']
+  summary: Scalars['String']['output']
   title: Scalars['String']['output']
   url: Scalars['String']['output']
-  webPageSummaries?: Maybe<Array<WebPageSummary>>
-}
-
-export type WebPageSummary = {
-  __typename?: 'WebPageSummary'
-  feedback?: Maybe<Feedback>
-  generatedKeywords: Scalars['String']['output']
-  generatedSummary: Scalars['String']['output']
-  id: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
 }
 
 export type InfoCardFragment = {
