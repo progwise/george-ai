@@ -9,6 +9,10 @@ export interface FilterSelectionProps {
   llm?: string
 }
 
+const capitalizeFirstLetter = (string_: string) => {
+  return string_.charAt(0).toUpperCase() + string_.slice(1)
+}
+
 export const FilterSelection = async ({
   lang,
   status,
@@ -41,8 +45,8 @@ export const FilterSelection = async ({
       {Object.values(PublicationState).map((state) => (
         <FilterCheckbox
           key={state}
-          value={state.toLocaleLowerCase()}
-          checked={status === state.toLocaleLowerCase()}
+          value={state.toLowerCase()}
+          checked={status === state.toLowerCase()}
           filter="status"
         />
       ))}
@@ -57,8 +61,8 @@ export const FilterSelection = async ({
       {largeLanguageModels.map((model) => (
         <FilterCheckbox
           key={model}
-          value={model}
-          checked={llm === model}
+          value={capitalizeFirstLetter(model)}
+          checked={llm === capitalizeFirstLetter(model)}
           filter="llm"
         />
       ))}
