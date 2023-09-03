@@ -5,7 +5,6 @@ import { PageList } from './page-list'
 import Loading from './loading'
 import { Metadata } from 'next'
 import { FilterSelection } from './components/filter-selection/filter-selection'
-import { PublicationState } from '@/src/gql/graphql'
 
 interface WebPageSummary {
   id: string
