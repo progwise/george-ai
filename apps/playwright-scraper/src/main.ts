@@ -1,11 +1,11 @@
 import playwright from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chat-gpt'
-import { upsertScrapedWebPage } from './strapi.js'
+import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 
-const MAX_RUNS = 2 // Maximum number of runs
+const MAX_RUNS = 3 // Maximum number of runs
 
-export interface WebPageSummary extends ScrapeResult {
+export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
   keywords: string[]
   largeLanguageModel: string
@@ -33,14 +33,14 @@ const processPage = async (url: string): Promise<void> => {
         (await getServiceSummary(scrapeResult.content, language)) ?? ''
       const keywords = (await getKeywords(scrapeResult.content, language)) ?? []
 
-      const webPageSummary: WebPageSummary = {
+      const scrapeResultAndSummary: ScrapeResultAndSummary = {
         ...scrapeResult,
         summary,
         keywords,
         largeLanguageModel: 'gpt-3.5-turbo',
       }
 
-      await upsertScrapedWebPage(webPageSummary)
+      await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
 
       urlsTodo = [
         ...new Set(

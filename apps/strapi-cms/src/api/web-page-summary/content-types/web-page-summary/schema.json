@@ -1,10 +1,10 @@
 {
   "kind": "collectionType",
-  "collectionName": "scraped_web_pages",
+  "collectionName": "web_page_summaries",
   "info": {
-    "singularName": "scraped-web-page",
-    "pluralName": "scraped-web-pages",
-    "displayName": "ScrapedWebPage",
+    "singularName": "web-page-summary",
+    "pluralName": "web-page-summaries",
+    "displayName": "WebPageSummary",
     "description": ""
   },
   "options": {
@@ -16,7 +16,12 @@
     }
   },
   "attributes": {
-    "title": {
+    "scraped_web_page": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::scraped-web-page.scraped-web-page"
+    },
+    "keywords": {
       "type": "string",
       "pluginOptions": {
         "i18n": {
@@ -25,17 +30,17 @@
       },
       "required": false
     },
-    "url": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
-      "required": false
-    },
-    "originalContent": {
+    "summary": {
       "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false
+    },
+    "largeLanguageModel": {
+      "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true

@@ -2,7 +2,6 @@ import { registerUrql } from '@urql/next/rsc'
 import { InfoCard } from './components/info-card/info-card'
 import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
-
 import { PublicationState } from '@/src/gql/graphql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
 
