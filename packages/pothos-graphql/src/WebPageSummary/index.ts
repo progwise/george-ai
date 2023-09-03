@@ -1,17 +1,7 @@
 import { builder } from '../builder'
-import { FragmentType, graphql, useFragment } from '../gql'
-import { GraphQLClient } from 'graphql-request'
-import dotenv from 'dotenv'
+import { graphql, useFragment } from '../gql'
+import { strapiClient } from '../strapi-graphql-client'
 import { WebPageSummaryFragment } from '../gql/graphql'
-
-dotenv.config()
-
-const endpoint = 'http://localhost:1337/graphql'
-const client = new GraphQLClient(endpoint, {
-  headers: {
-    authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-  },
-})
 
 const WebPageSummaryReference =
   builder.objectRef<WebPageSummaryFragment>('WebPageSummary')
@@ -58,7 +48,7 @@ builder.queryField('allSummaries', (t) =>
     type: [WebPageSummaryReference],
     resolve: async () => {
       try {
-        const result = await client.request(
+        const result = await strapiClient.request(
           graphql(`
             query GetWebPageSummaries {
               webPageSummaries(publicationState: PREVIEW, locale: "all") {

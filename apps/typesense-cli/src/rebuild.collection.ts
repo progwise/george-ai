@@ -47,7 +47,30 @@ export const rebuildCollection = async () => {
 
     const webPageSummaryArray = webPageSummaries?.data || []
 
-    const mapper = async (webPageSummary: WebPageSummaryEntity) => {
+    const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
+      const webPageSummary = {
+        id: webPageSummaryEntity.id ?? '',
+        language: webPageSummaryEntity.attributes?.locale ?? '',
+        keywords: webPageSummaryEntity.attributes?.keywords
+          ? JSON.parse(webPageSummaryEntity.attributes?.keywords)
+          : [],
+        summary: webPageSummaryEntity.attributes?.summary ?? '',
+        largeLanguageModel:
+          webPageSummaryEntity.attributes?.largeLanguageModel ?? '',
+        title:
+          webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
+            ?.title ?? '',
+        url:
+          webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
+            ?.url ?? '',
+        originalContent:
+          webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
+            ?.originalContent ?? '',
+        publicationState: webPageSummaryEntity.attributes?.scraped_web_page
+          ?.data?.attributes?.publishedAt
+          ? 'published'
+          : 'draft',
+      }
       await upsertTypesenseCollection(webPageSummary)
     }
 

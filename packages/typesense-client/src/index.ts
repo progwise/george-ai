@@ -1,6 +1,17 @@
-import { WebPageSummaryEntity } from './gql/graphql.js'
 import { typesenseClient } from './typesense.js'
 import { FieldType } from 'typesense/lib/Typesense/Collection.js'
+
+interface WebPageSummary {
+  id: string
+  language: string
+  keywords: string
+  summary: string
+  largeLanguageModel: string
+  title: string
+  url: string
+  originalContent: string
+  publicationState: string
+}
 
 const baseCollectionSchema: {
   name: string
@@ -10,7 +21,7 @@ const baseCollectionSchema: {
     optional?: boolean
   }[]
 } = {
-  name: '',
+  name: 'summaryCollectionSchema',
   fields: [
     { name: 'id', type: 'string' },
     { name: 'title', type: 'string' },
@@ -25,51 +36,24 @@ const baseCollectionSchema: {
 }
 
 export const upsertTypesenseCollection = async (
-  webPageSummary: WebPageSummaryEntity,
+  webPageSummary: WebPageSummary,
 ) => {
-  const collectionName = 'scraped_web_pages_summaries'
-
   try {
     const collectionExists = await typesenseClient
-      .collections(collectionName)
+      .collections(baseCollectionSchema.name)
       .exists()
 
     if (!collectionExists) {
-      const collectionSchema = {
-        ...baseCollectionSchema,
-        name: collectionName,
-      }
-
-      await typesenseClient.collections().create(collectionSchema)
-      console.log(`Collection ${collectionName} created`)
-    }
-
-    const document = {
-      id: webPageSummary?.id,
-      title:
-        webPageSummary.attributes?.scraped_web_page?.data?.attributes?.title,
-      url: webPageSummary.attributes?.scraped_web_page?.data?.attributes?.url,
-      language: webPageSummary.attributes?.locale,
-      originalContent:
-        webPageSummary.attributes?.scraped_web_page?.data?.attributes
-          ?.originalContent,
-      publicationState: webPageSummary.attributes?.scraped_web_page?.data
-        ?.attributes?.publishedAt
-        ? 'published'
-        : 'draft',
-      keywords: webPageSummary?.attributes?.keywords
-        ? JSON.parse(webPageSummary.attributes?.keywords)
-        : [],
-      summary: webPageSummary.attributes?.summary,
-      largeLanguageModel: webPageSummary.attributes?.largeLanguageModel,
+      await typesenseClient.collections().create(baseCollectionSchema)
+      console.log(`Collection ${baseCollectionSchema.name} created`)
     }
 
     await typesenseClient
-      .collections(collectionName)
+      .collections(baseCollectionSchema.name)
       .documents()
-      .upsert(document)
+      .upsert(webPageSummary)
     console.log(
-      `Data upsert to typesense in collection ${collectionName} by id: ${document.id}`,
+      `Data upsert to typesense in collection ${baseCollectionSchema.name} by id: ${webPageSummary.id}`,
     )
   } catch (error) {
     console.error(error)

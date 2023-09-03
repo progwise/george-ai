@@ -5,7 +5,6 @@ const projects = [
   'pothosGraphql',
   'nextjsWeb',
   'typesenseCli',
-  'typesenseClient',
 ]
 
 projects.forEach((project) => {

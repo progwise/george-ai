@@ -88,6 +88,7 @@ const upsertWebPageSummary = async (
     summary: scrapeResultAndSummary.summary,
     keywords: JSON.stringify(scrapeResultAndSummary.keywords),
     largeLanguageModel: scrapeResultAndSummary.largeLanguageModel,
+    scraped_web_page: ScrapedWebPageId,
   }
 
   try {
@@ -130,10 +131,10 @@ const upsertWebPageSummary = async (
       },
     )
 
-    const webPageSummariesId = webPageSummaries?.data.at(0)?.id
+    const webPageSummaryId = webPageSummaries?.data.at(0)?.id
 
-    if (webPageSummariesId) {
-      const { updateWebPageSummary } = await client.request(
+    if (webPageSummaryId) {
+      await client.request(
         graphql(`
           mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
             updateWebPageSummary(id: $id, data: $data) {
@@ -154,13 +155,12 @@ const upsertWebPageSummary = async (
           }
         `),
         {
-          id: webPageSummariesId,
+          id: webPageSummaryId,
           data: newSummary,
         },
       )
-      const createdSummaryId = updateWebPageSummary?.data?.id
 
-      console.log('Update WebPageSummary with ID:', createdSummaryId)
+      console.log('Update WebPageSummary with ID:', webPageSummaryId)
     } else {
       const { createWebPageSummary } = await client.request(
         graphql(`
@@ -186,10 +186,7 @@ const upsertWebPageSummary = async (
           }
         `),
         {
-          data: {
-            ...newSummary,
-            scraped_web_page: ScrapedWebPageId,
-          },
+          data: newSummary,
           locale: scrapeResultAndSummary.language,
         },
       )
