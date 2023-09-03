@@ -13,7 +13,7 @@ interface WebPageSummary {
   publicationState: string
 }
 
-const baseCollectionSchema: {
+const summaryCollectionSchema: {
   name: string
   fields: {
     name: string
@@ -21,7 +21,7 @@ const baseCollectionSchema: {
     optional?: boolean
   }[]
 } = {
-  name: 'summaryCollectionSchema',
+  name: 'scraped_web_pages_summaries',
   fields: [
     { name: 'id', type: 'string' },
     { name: 'title', type: 'string' },
@@ -40,20 +40,20 @@ export const upsertTypesenseCollection = async (
 ) => {
   try {
     const collectionExists = await typesenseClient
-      .collections(baseCollectionSchema.name)
+      .collections(summaryCollectionSchema.name)
       .exists()
 
     if (!collectionExists) {
-      await typesenseClient.collections().create(baseCollectionSchema)
-      console.log(`Collection ${baseCollectionSchema.name} created`)
+      await typesenseClient.collections().create(summaryCollectionSchema)
+      console.log(`Collection ${summaryCollectionSchema.name} created`)
     }
 
     await typesenseClient
-      .collections(baseCollectionSchema.name)
+      .collections(summaryCollectionSchema.name)
       .documents()
       .upsert(webPageSummary)
     console.log(
-      `Data upsert to typesense in collection ${baseCollectionSchema.name} by id: ${webPageSummary.id}`,
+      `Data upsert to typesense in collection ${summaryCollectionSchema.name} by id: ${webPageSummary.id}`,
     )
   } catch (error) {
     console.error(error)
