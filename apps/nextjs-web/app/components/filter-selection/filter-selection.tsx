@@ -2,16 +2,11 @@ import { PublicationState } from '@/src/gql/graphql'
 import { FilterCheckbox } from './filter-checkbox'
 import { graphql } from '@/src/gql'
 import { getClient } from '@/app/page-list'
-import { FilterReset } from './filter-reset'
 
 export interface FilterSelectionProps {
   lang?: string[]
   status?: string[]
   llm?: string[]
-}
-
-const capitalizeFirstLetter = (string_: string) => {
-  return string_.charAt(0).toUpperCase() + string_.slice(1)
 }
 
 export const FilterSelection = async ({
@@ -42,14 +37,13 @@ export const FilterSelection = async ({
   const largeLanguageModels = [...largeLanguageModelSet]
 
   return (
-    <div className="flex justify-between gap-3">
-      <FilterReset />
+    <div className="flex justify-end gap-3">
       <div className="flex justify-end gap-3">
         {Object.values(PublicationState).map((state) => (
           <FilterCheckbox
             key={state}
-            value={state.toLowerCase()}
-            checked={status?.includes(state.toLowerCase()) ?? false}
+            value={state}
+            checked={status?.includes(state) ?? false}
             filter="status"
             valueArray={status ?? []}
           />
@@ -57,8 +51,8 @@ export const FilterSelection = async ({
         {languages.map((language) => (
           <FilterCheckbox
             key={language}
-            value={capitalizeFirstLetter(language)}
-            checked={lang?.includes(capitalizeFirstLetter(language)) ?? false}
+            value={language}
+            checked={lang?.includes(language) ?? false}
             valueArray={lang ?? []}
             filter="lang"
           />
@@ -66,8 +60,8 @@ export const FilterSelection = async ({
         {largeLanguageModels.map((model) => (
           <FilterCheckbox
             key={model}
-            value={capitalizeFirstLetter(model)}
-            checked={llm?.includes(capitalizeFirstLetter(model)) ?? false}
+            value={model}
+            checked={llm?.includes(model) ?? false}
             filter="llm"
             valueArray={llm ?? []}
           />
