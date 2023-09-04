@@ -47,7 +47,7 @@ export default function Home({
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center select-none p-24 ">
+    <main className="flex min-h-screen flex-col items-center p-24 ">
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox query={searchParams.query?.toString()} />
