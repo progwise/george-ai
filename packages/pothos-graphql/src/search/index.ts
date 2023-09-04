@@ -54,29 +54,62 @@ builder.objectType(IndexedWebPageReference, {
   }),
 })
 
+function generateFilterClauses(field: string, values: string[]): string {
+  return `${field}:[${values}]`
+}
+
 builder.queryField('searchResult', (t) =>
   t.field({
     type: [IndexedWebPageReference],
     args: {
       query: t.arg.string(),
-      largeLanguageModel: t.arg.string(),
-      publicationState: t.arg({
-        type: PublicationState,
-      }),
-      language: t.arg.string(),
+      largeLanguageModel: t.arg.stringList(),
+      // publicationState: t.arg({
+      //   type: PublicationState[],
+      // }),
+      publicationState: t.arg.stringList(),
+      language: t.arg.stringList(),
     },
     resolve: async (parent, arguments_) => {
       const filters: string[] = []
-      if (arguments_.largeLanguageModel) {
-        filters.push(`largeLanguageModel:${arguments_.largeLanguageModel}`)
-      }
-      if (arguments_.publicationState) {
-        filters.push(`publicationState:${arguments_.publicationState}`)
-      }
-      if (arguments_.language) {
-        filters.push(`language:${arguments_.language}`)
-      }
+      // if (arguments_.largeLanguageModel) {
+      //   filters.push(`largeLanguageModel:${arguments_.largeLanguageModel}`)
+      // }
+      // if (arguments_.publicationState) {
+      //   filters.push(`publicationState:${arguments_.publicationState}`)
+      // }
+      // if (arguments_.language) {
+      //   filters.push(`language:${arguments_.language}`)
+      // }
 
+      if (
+        arguments_.largeLanguageModel &&
+        arguments_.largeLanguageModel.length > 0
+      ) {
+        filters.push(
+          generateFilterClauses(
+            'largeLanguageModel',
+            arguments_.largeLanguageModel,
+          ),
+        )
+      }
+      if (
+        arguments_.publicationState &&
+        arguments_.publicationState.length > 0
+      ) {
+        filters.push(
+          generateFilterClauses(
+            'publicationState',
+            arguments_.publicationState,
+          ),
+        )
+      }
+      if (arguments_.language && arguments_.language.length > 0) {
+        filters.push(generateFilterClauses('language', arguments_.language))
+      }
+      const filterExpression = filters.join(' && ')
+
+      console.log('filterExpression:', filterExpression)
       try {
         const response = await client
           .collections<IndexedWebPage>('scraped_web_pages_summaries')
@@ -84,7 +117,7 @@ builder.queryField('searchResult', (t) =>
           .search({
             q: arguments_.query ?? '*',
             query_by: 'keywords',
-            filter_by: filters.join(' && '),
+            filter_by: filterExpression,
           })
 
         return response.hits?.map((hit) => hit.document) || []

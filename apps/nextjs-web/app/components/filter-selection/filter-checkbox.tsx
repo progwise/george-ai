@@ -7,13 +7,15 @@ interface FilterCheckboxProps {
   value: string
   checked: boolean
   filter: string
+  valueArray: string[]
 }
 
-export const FilterCheckbox: React.FC<FilterCheckboxProps> = ({
+export const FilterCheckbox = ({
   value,
   checked,
   filter,
-}) => {
+  valueArray,
+}: FilterCheckboxProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParameters = useSearchParams()!
@@ -22,16 +24,25 @@ export const FilterCheckbox: React.FC<FilterCheckboxProps> = ({
     const updatedParameters = new URLSearchParams(searchParameters.toString())
 
     if (checked) {
-      updatedParameters.delete(filter)
+      updatedParameters.delete(filter, value)
+      valueArray.map((item) => {
+        if (item !== value) {
+          updatedParameters.append(filter, item)
+        }
+      })
     } else {
-      updatedParameters.set(filter, value)
+      // updatedParameters.set(filter, value)
+      updatedParameters.append(filter, value)
     }
 
     router.replace(pathname + '?' + updatedParameters.toString())
   }
 
   return (
-    <div className="flex gap-0.5">
+    <label
+      htmlFor={`${value}-checkbox`}
+      className="cursor-pointer flex gap-0.5"
+    >
       <input
         type="checkbox"
         value={value}
@@ -40,9 +51,7 @@ export const FilterCheckbox: React.FC<FilterCheckboxProps> = ({
         id={`${value}-checkbox`}
         className="cursor-pointer"
       />
-      <label htmlFor={`${value}-checkbox`} className="cursor-pointer">
-        {value}
-      </label>
-    </div>
+      {value}
+    </label>
   )
 }

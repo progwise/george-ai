@@ -27,6 +27,20 @@ export const metadata: Metadata = {
   description: 'The intelligent index for your website',
 }
 
+function normalizeToArray(
+  value: string | string[] | undefined,
+): string[] | undefined {
+  if (!value) {
+    return undefined
+  }
+
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  return [value]
+}
+
 export default function Home({
   searchParams,
 }: {
@@ -39,19 +53,18 @@ export default function Home({
         <SearchBox query={searchParams.query?.toString()} />
         <Suspense fallback={<Loading />}>
           <FilterSelection
-            lang={searchParams.lang?.toString()}
-            status={searchParams.status?.toString().toLowerCase()}
-            llm={searchParams.llm?.toString()}
+            lang={normalizeToArray(searchParams.lang)}
+            status={normalizeToArray(searchParams.status)}
+            llm={normalizeToArray(searchParams.llm)}
           />
-
           <span className="border-b border-black">
             ich habe folgende Informationen für Sie gefunden:
           </span>
           <PageList
             query={searchParams.query?.toString()}
-            lang={searchParams.lang?.toString()}
-            status={searchParams.status?.toString().toLowerCase()}
-            llm={searchParams.llm?.toString()}
+            lang={normalizeToArray(searchParams.lang)}
+            status={normalizeToArray(searchParams.status)}
+            llm={normalizeToArray(searchParams.llm)}
           />
         </Suspense>
       </div>

@@ -54,9 +54,9 @@ export type Query = {
 }
 
 export type QuerySearchResultArgs = {
-  language?: InputMaybe<Scalars['String']['input']>
-  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  publicationState?: InputMaybe<PublicationState>
+  language?: InputMaybe<Array<Scalars['String']['input']>>
+  largeLanguageModel?: InputMaybe<Array<Scalars['String']['input']>>
+  publicationState?: InputMaybe<Array<Scalars['String']['input']>>
   query?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -96,9 +96,15 @@ export type InfoCardFragment = {
 
 export type GetIndexedWebPageQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
-  language?: InputMaybe<Scalars['String']['input']>
-  publicationState?: InputMaybe<PublicationState>
-  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  language?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  publicationState?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  largeLanguageModel?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
 }>
 
 export type GetIndexedWebPageQuery = {
@@ -188,7 +194,16 @@ export const GetIndexedWebPageDocument = {
             kind: 'Variable',
             name: { kind: 'Name', value: 'language' },
           },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
         },
         {
           kind: 'VariableDefinition',
@@ -197,8 +212,14 @@ export const GetIndexedWebPageDocument = {
             name: { kind: 'Name', value: 'publicationState' },
           },
           type: {
-            kind: 'NamedType',
-            name: { kind: 'Name', value: 'PublicationState' },
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
           },
         },
         {
@@ -207,7 +228,16 @@ export const GetIndexedWebPageDocument = {
             kind: 'Variable',
             name: { kind: 'Name', value: 'largeLanguageModel' },
           },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
         },
       ],
       selectionSet: {

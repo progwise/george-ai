@@ -2,11 +2,12 @@ import { PublicationState } from '@/src/gql/graphql'
 import { FilterCheckbox } from './filter-checkbox'
 import { graphql } from '@/src/gql'
 import { getClient } from '@/app/page-list'
+import { FilterReset } from './filter-reset'
 
 export interface FilterSelectionProps {
-  lang?: string
-  status?: string
-  llm?: string
+  lang?: string[]
+  status?: string[]
+  llm?: string[]
 }
 
 const capitalizeFirstLetter = (string_: string) => {
@@ -41,31 +42,37 @@ export const FilterSelection = async ({
   const largeLanguageModels = [...largeLanguageModelSet]
 
   return (
-    <div className="flex justify-end gap-3">
-      {Object.values(PublicationState).map((state) => (
-        <FilterCheckbox
-          key={state}
-          value={state.toLowerCase()}
-          checked={status === state.toLowerCase()}
-          filter="status"
-        />
-      ))}
-      {languages.map((language) => (
-        <FilterCheckbox
-          key={language}
-          value={language}
-          checked={lang === language}
-          filter="lang"
-        />
-      ))}
-      {largeLanguageModels.map((model) => (
-        <FilterCheckbox
-          key={model}
-          value={capitalizeFirstLetter(model)}
-          checked={llm === capitalizeFirstLetter(model)}
-          filter="llm"
-        />
-      ))}
+    <div className="flex justify-between gap-3">
+      <FilterReset />
+      <div className="flex justify-end gap-3">
+        {Object.values(PublicationState).map((state) => (
+          <FilterCheckbox
+            key={state}
+            value={state.toLowerCase()}
+            checked={status?.includes(state.toLowerCase()) ?? false}
+            filter="status"
+            valueArray={status ?? []}
+          />
+        ))}
+        {languages.map((language) => (
+          <FilterCheckbox
+            key={language}
+            value={capitalizeFirstLetter(language)}
+            checked={lang?.includes(capitalizeFirstLetter(language)) ?? false}
+            valueArray={lang ?? []}
+            filter="lang"
+          />
+        ))}
+        {largeLanguageModels.map((model) => (
+          <FilterCheckbox
+            key={model}
+            value={capitalizeFirstLetter(model)}
+            checked={llm?.includes(capitalizeFirstLetter(model)) ?? false}
+            filter="llm"
+            valueArray={llm ?? []}
+          />
+        ))}
+      </div>
     </div>
   )
 }
