@@ -26,6 +26,12 @@
     },
     "query": {
       "type": "string"
+    },
+    "feedbackDate": {
+      "type": "date"
+    },
+    "position": {
+      "type": "integer"
     }
   }
 }

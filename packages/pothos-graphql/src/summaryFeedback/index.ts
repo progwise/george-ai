@@ -12,6 +12,8 @@ const SummaryFeedbackMutationFragment = graphql(`
     data {
       id
       attributes {
+        feedbackDate
+        position
         query
         voting
         web_page_summary {
@@ -42,6 +44,8 @@ const SummaryFeedbackReference =
 
 const SummaryFeedbackInput = builder.inputType('SummaryFeedbackInput', {
   fields: (t) => ({
+    feedbackDate: t.string(),
+    position: t.float(),
     query: t.string(),
     voting: t.field({
       type: SummaryFeedbackVotingReference,
@@ -58,6 +62,8 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (root, arguments_) => {
       const input = {
+        feedbackDate: '2023-09-05,',
+        position: 0,
         query: 'uni',
         voting: Enum_Summaryfeedback_Voting.Up,
         web_page_summary: '7',
