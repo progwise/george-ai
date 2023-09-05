@@ -1,5 +1,5 @@
 import { PublicationState } from '@/src/gql/graphql'
-import { FeedbackButtons } from './feedback-buttons'
+import { FeedbackSelection } from './feedback-selection/feedback-selection'
 
 interface TitleProps {
   title: string
@@ -25,7 +25,7 @@ export const InfoCardTitle = ({
           {publicationState}
         </div>
       </div>
-      <FeedbackButtons />
+      <FeedbackSelection />
     </div>
   )
 }

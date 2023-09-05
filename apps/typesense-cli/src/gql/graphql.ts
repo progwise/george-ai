@@ -101,6 +101,11 @@ export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
   Up = 'up',
 }
 
+export enum Enum_Summaryfeedback_Voting {
+  Down = 'down',
+  Up = 'up',
+}
+
 export type FileInfoInput = {
   alternativeText?: InputMaybe<Scalars['String']['input']>
   caption?: InputMaybe<Scalars['String']['input']>
@@ -136,6 +141,7 @@ export type GenericMorph =
   | ComponentWebPageSummaryWebPageSummary
   | I18NLocale
   | ScrapedWebPage
+  | SummaryFeedback
   | UploadFile
   | UploadFolder
   | UsersPermissionsPermission
@@ -260,6 +266,7 @@ export type Mutation = {
   changePassword?: Maybe<UsersPermissionsLoginPayload>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>
+  createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
   createUploadFolder?: Maybe<UploadFolderEntityResponse>
   /** Create a new role */
@@ -269,6 +276,7 @@ export type Mutation = {
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
+  deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   deleteUploadFile?: Maybe<UploadFileEntityResponse>
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>
   /** Delete an existing role */
@@ -289,6 +297,7 @@ export type Mutation = {
   resetPassword?: Maybe<UsersPermissionsLoginPayload>
   updateFileInfo: UploadFileEntityResponse
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
+  updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   updateUploadFile?: Maybe<UploadFileEntityResponse>
   updateUploadFolder?: Maybe<UploadFolderEntityResponse>
   /** Update an existing role */
@@ -314,6 +323,10 @@ export type MutationCreateScrapedWebPageLocalizationArgs = {
   data?: InputMaybe<ScrapedWebPageInput>
   id?: InputMaybe<Scalars['ID']['input']>
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationCreateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput
 }
 
 export type MutationCreateUploadFileArgs = {
@@ -346,6 +359,10 @@ export type MutationCreateWebPageSummaryLocalizationArgs = {
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationDeleteSummaryFeedbackArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDeleteUploadFileArgs = {
@@ -413,6 +430,11 @@ export type MutationUpdateScrapedWebPageArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
+export type MutationUpdateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput
+  id: Scalars['ID']['input']
+}
+
 export type MutationUpdateUploadFileArgs = {
   data: UploadFileInput
   id: Scalars['ID']['input']
@@ -474,6 +496,8 @@ export type Query = {
   me?: Maybe<UsersPermissionsMe>
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>
+  summaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
+  summaryFeedbacks?: Maybe<SummaryFeedbackEntityResponseCollection>
   uploadFile?: Maybe<UploadFileEntityResponse>
   uploadFiles?: Maybe<UploadFileEntityResponseCollection>
   uploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -506,6 +530,16 @@ export type QueryScrapedWebPagesArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QuerySummaryFeedbackArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type QuerySummaryFeedbacksArgs = {
+  filters?: InputMaybe<SummaryFeedbackFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -653,6 +687,59 @@ export type StringFilterInput = {
   null?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
   startsWith?: InputMaybe<Scalars['String']['input']>
+}
+
+export type SummaryFeedback = {
+  __typename?: 'SummaryFeedback'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  filterLanguage?: Maybe<Scalars['String']['output']>
+  filterModel?: Maybe<Scalars['String']['output']>
+  filterStatus?: Maybe<Scalars['String']['output']>
+  query?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  voting?: Maybe<Enum_Summaryfeedback_Voting>
+  web_page_summary?: Maybe<WebPageSummaryEntityResponse>
+}
+
+export type SummaryFeedbackEntity = {
+  __typename?: 'SummaryFeedbackEntity'
+  attributes?: Maybe<SummaryFeedback>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type SummaryFeedbackEntityResponse = {
+  __typename?: 'SummaryFeedbackEntityResponse'
+  data?: Maybe<SummaryFeedbackEntity>
+}
+
+export type SummaryFeedbackEntityResponseCollection = {
+  __typename?: 'SummaryFeedbackEntityResponseCollection'
+  data: Array<SummaryFeedbackEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type SummaryFeedbackFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  filterLanguage?: InputMaybe<StringFilterInput>
+  filterModel?: InputMaybe<StringFilterInput>
+  filterStatus?: InputMaybe<StringFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  not?: InputMaybe<SummaryFeedbackFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
+  query?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+  voting?: InputMaybe<StringFilterInput>
+  web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
+}
+
+export type SummaryFeedbackInput = {
+  filterLanguage?: InputMaybe<Scalars['String']['input']>
+  filterModel?: InputMaybe<Scalars['String']['input']>
+  filterStatus?: InputMaybe<Scalars['String']['input']>
+  query?: InputMaybe<Scalars['String']['input']>
+  voting?: InputMaybe<Enum_Summaryfeedback_Voting>
+  web_page_summary?: InputMaybe<Scalars['ID']['input']>
 }
 
 export type UploadFile = {

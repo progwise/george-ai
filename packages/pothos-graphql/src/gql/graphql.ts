@@ -101,6 +101,11 @@ export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
   Up = 'up',
 }
 
+export enum Enum_Summaryfeedback_Voting {
+  Down = 'down',
+  Up = 'up',
+}
+
 export type FileInfoInput = {
   alternativeText?: InputMaybe<Scalars['String']['input']>
   caption?: InputMaybe<Scalars['String']['input']>
@@ -136,6 +141,7 @@ export type GenericMorph =
   | ComponentWebPageSummaryWebPageSummary
   | I18NLocale
   | ScrapedWebPage
+  | SummaryFeedback
   | UploadFile
   | UploadFolder
   | UsersPermissionsPermission
@@ -260,6 +266,7 @@ export type Mutation = {
   changePassword?: Maybe<UsersPermissionsLoginPayload>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>
+  createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
   createUploadFolder?: Maybe<UploadFolderEntityResponse>
   /** Create a new role */
@@ -269,6 +276,7 @@ export type Mutation = {
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
+  deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   deleteUploadFile?: Maybe<UploadFileEntityResponse>
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>
   /** Delete an existing role */
@@ -289,6 +297,7 @@ export type Mutation = {
   resetPassword?: Maybe<UsersPermissionsLoginPayload>
   updateFileInfo: UploadFileEntityResponse
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
+  updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   updateUploadFile?: Maybe<UploadFileEntityResponse>
   updateUploadFolder?: Maybe<UploadFolderEntityResponse>
   /** Update an existing role */
@@ -314,6 +323,10 @@ export type MutationCreateScrapedWebPageLocalizationArgs = {
   data?: InputMaybe<ScrapedWebPageInput>
   id?: InputMaybe<Scalars['ID']['input']>
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationCreateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput
 }
 
 export type MutationCreateUploadFileArgs = {
@@ -346,6 +359,10 @@ export type MutationCreateWebPageSummaryLocalizationArgs = {
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationDeleteSummaryFeedbackArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDeleteUploadFileArgs = {
@@ -413,6 +430,11 @@ export type MutationUpdateScrapedWebPageArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
+export type MutationUpdateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput
+  id: Scalars['ID']['input']
+}
+
 export type MutationUpdateUploadFileArgs = {
   data: UploadFileInput
   id: Scalars['ID']['input']
@@ -474,6 +496,8 @@ export type Query = {
   me?: Maybe<UsersPermissionsMe>
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>
+  summaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
+  summaryFeedbacks?: Maybe<SummaryFeedbackEntityResponseCollection>
   uploadFile?: Maybe<UploadFileEntityResponse>
   uploadFiles?: Maybe<UploadFileEntityResponseCollection>
   uploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -506,6 +530,16 @@ export type QueryScrapedWebPagesArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QuerySummaryFeedbackArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type QuerySummaryFeedbacksArgs = {
+  filters?: InputMaybe<SummaryFeedbackFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -653,6 +687,50 @@ export type StringFilterInput = {
   null?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
   startsWith?: InputMaybe<Scalars['String']['input']>
+}
+
+export type SummaryFeedback = {
+  __typename?: 'SummaryFeedback'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  query?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  voting?: Maybe<Enum_Summaryfeedback_Voting>
+  web_page_summary?: Maybe<WebPageSummaryEntityResponse>
+}
+
+export type SummaryFeedbackEntity = {
+  __typename?: 'SummaryFeedbackEntity'
+  attributes?: Maybe<SummaryFeedback>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type SummaryFeedbackEntityResponse = {
+  __typename?: 'SummaryFeedbackEntityResponse'
+  data?: Maybe<SummaryFeedbackEntity>
+}
+
+export type SummaryFeedbackEntityResponseCollection = {
+  __typename?: 'SummaryFeedbackEntityResponseCollection'
+  data: Array<SummaryFeedbackEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type SummaryFeedbackFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  not?: InputMaybe<SummaryFeedbackFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
+  query?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+  voting?: InputMaybe<StringFilterInput>
+  web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
+}
+
+export type SummaryFeedbackInput = {
+  query?: InputMaybe<Scalars['String']['input']>
+  voting?: InputMaybe<Enum_Summaryfeedback_Voting>
+  web_page_summary?: InputMaybe<Scalars['ID']['input']>
 }
 
 export type UploadFile = {
@@ -1090,6 +1168,41 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
+export type SummaryFeedbackMutationFragmentFragment = {
+  __typename?: 'SummaryFeedbackEntityResponse'
+  data?: {
+    __typename?: 'SummaryFeedbackEntity'
+    id?: string | null
+    attributes?: {
+      __typename?: 'SummaryFeedback'
+      query?: string | null
+      voting?: Enum_Summaryfeedback_Voting | null
+      web_page_summary?: {
+        __typename?: 'WebPageSummaryEntityResponse'
+        data?: {
+          __typename?: 'WebPageSummaryEntity'
+          id?: string | null
+        } | null
+      } | null
+    } | null
+  } | null
+} & { ' $fragmentName'?: 'SummaryFeedbackMutationFragmentFragment' }
+
+export type CreateSummaryFeedbackMutationVariables = Exact<{
+  input: SummaryFeedbackInput
+}>
+
+export type CreateSummaryFeedbackMutation = {
+  __typename?: 'Mutation'
+  createSummaryFeedback?:
+    | ({ __typename?: 'SummaryFeedbackEntityResponse' } & {
+        ' $fragmentRefs'?: {
+          SummaryFeedbackMutationFragmentFragment: SummaryFeedbackMutationFragmentFragment
+        }
+      })
+    | null
+}
+
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWebPageSummariesQuery = {
@@ -1129,6 +1242,70 @@ export type WebPageSummaryFragment = {
   } | null
 } & { ' $fragmentName'?: 'WebPageSummaryFragment' }
 
+export const SummaryFeedbackMutationFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'SummaryFeedbackMutationFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'SummaryFeedbackEntityResponse' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'data' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'attributes' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'voting' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'web_page_summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'data' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SummaryFeedbackMutationFragmentFragment, unknown>
 export const WebPageSummaryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -1213,6 +1390,125 @@ export const WebPageSummaryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<WebPageSummaryFragment, unknown>
+export const CreateSummaryFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'input' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'SummaryFeedbackInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createSummaryFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'input' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'SummaryFeedbackMutationFragment',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'SummaryFeedbackMutationFragment' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'SummaryFeedbackEntityResponse' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'data' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'attributes' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'voting' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'web_page_summary' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'data' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateSummaryFeedbackMutation,
+  CreateSummaryFeedbackMutationVariables
+>
 export const GetWebPageSummariesDocument = {
   kind: 'Document',
   definitions: [
