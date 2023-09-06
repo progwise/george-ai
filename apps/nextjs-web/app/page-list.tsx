@@ -10,7 +10,7 @@ const makeClient = () => {
   })
 }
 
-const { getClient } = registerUrql(makeClient)
+export const { getClient } = registerUrql(makeClient)
 
 export async function PageList({ query }: { query?: string }) {
   const result = await getClient().query(
@@ -27,6 +27,16 @@ export async function PageList({ query }: { query?: string }) {
   const pages = result.data?.searchResult
 
   return (
-    <>{pages?.map((page) => <InfoCard key={page.id} pageFragment={page} />)}</>
+    <>
+      {pages?.map((page, index) => (
+        <InfoCard
+          key={page.id}
+          pageFragment={page}
+          query={query}
+          position={index}
+          webPageSummaryId={page.id}
+        />
+      ))}
+    </>
   )
 }

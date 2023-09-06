@@ -15,10 +15,19 @@ const InfoCardFragment = graphql(`
   }
 `)
 
-export const InfoCard = (props: {
+interface InfoCardProps {
   pageFragment: FragmentType<typeof InfoCardFragment>
-}) => {
-  const page = useFragment(InfoCardFragment, props.pageFragment)
+  query?: string
+  position: number
+  webPageSummaryId: string
+}
+export const InfoCard = ({
+  pageFragment,
+  query,
+  position,
+  webPageSummaryId,
+}: InfoCardProps) => {
+  const page = useFragment(InfoCardFragment, pageFragment)
 
   return (
     <div className="flex flex-col gap-5 border-2 p-8 rounded-md">
@@ -26,6 +35,9 @@ export const InfoCard = (props: {
         title={page.title}
         publicationState={page.publicationState}
         language={page.language}
+        query={query}
+        position={position}
+        webPageSummaryId={webPageSummaryId}
       />
       <Summary summary={page.summary} />
       <Link url={page.url} />
