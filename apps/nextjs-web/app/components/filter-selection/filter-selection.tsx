@@ -16,8 +16,8 @@ export const FilterSelection = async ({
 }: FilterSelectionProps) => {
   const result = await getClient().query(
     graphql(`
-      query GetAllSummaries {
-        searchResult {
+      query GetLangAndLlm {
+        allLanguageAndLargeLanguageModel {
           language
           largeLanguageModel
         }
@@ -25,16 +25,7 @@ export const FilterSelection = async ({
     `),
     {},
   )
-  const allSummaries = result.data?.searchResult
-  const languageSet = new Set<string>()
-  const largeLanguageModelSet = new Set<string>()
-
-  for (const summary of allSummaries || []) {
-    languageSet.add(summary.language)
-    largeLanguageModelSet.add(summary.largeLanguageModel)
-  }
-  const languages = [...languageSet]
-  const largeLanguageModels = [...largeLanguageModelSet]
+  const allLangAndLlm = result.data?.allLanguageAndLargeLanguageModel
 
   return (
     <div className="flex justify-end gap-3">
@@ -48,7 +39,7 @@ export const FilterSelection = async ({
             valueArray={status ?? []}
           />
         ))}
-        {languages.map((language) => (
+        {allLangAndLlm?.language.map((language) => (
           <FilterCheckbox
             key={language}
             value={language}
@@ -57,7 +48,7 @@ export const FilterSelection = async ({
             filter="lang"
           />
         ))}
-        {largeLanguageModels.map((model) => (
+        {allLangAndLlm?.largeLanguageModel.map((model) => (
           <FilterCheckbox
             key={model}
             value={model}

@@ -13,6 +13,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+  '\n            query GetUniqueValues {\n              webPageSummaries(publicationState: PREVIEW, locale: "all") {\n                data {\n                  attributes {\n                    locale\n                    largeLanguageModel\n                  }\n                }\n              }\n            }\n          ':
+    types.GetUniqueValuesDocument,
   '\n            query GetWebPageSummaries {\n              webPageSummaries(publicationState: PREVIEW, locale: "all") {\n                data {\n                  ...WebPageSummary\n                }\n              }\n            }\n          ':
     types.GetWebPageSummariesDocument,
   '\n              fragment WebPageSummary on WebPageSummaryEntity {\n                id\n                attributes {\n                  locale\n                  keywords\n                  summary\n                  largeLanguageModel\n                  scraped_web_page {\n                    data {\n                      attributes {\n                        title\n                        url\n                        originalContent\n                        publishedAt\n                      }\n                    }\n                  }\n                }\n              }\n            ':
@@ -33,6 +35,12 @@ const documents = {
  */
 export function graphql(source: string): unknown
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n            query GetUniqueValues {\n              webPageSummaries(publicationState: PREVIEW, locale: "all") {\n                data {\n                  attributes {\n                    locale\n                    largeLanguageModel\n                  }\n                }\n              }\n            }\n          ',
+): (typeof documents)['\n            query GetUniqueValues {\n              webPageSummaries(publicationState: PREVIEW, locale: "all") {\n                data {\n                  attributes {\n                    locale\n                    largeLanguageModel\n                  }\n                }\n              }\n            }\n          ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

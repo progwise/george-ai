@@ -29,6 +29,12 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
+export type AllLanguageAndLargeLanguageModel = {
+  __typename?: 'AllLanguageAndLargeLanguageModel'
+  language: Array<Scalars['String']['output']>
+  largeLanguageModel: Array<Scalars['String']['output']>
+}
+
 export type IndexedWebPage = {
   __typename?: 'IndexedWebPage'
   id: Scalars['String']['output']
@@ -49,6 +55,7 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
+  allLanguageAndLargeLanguageModel: AllLanguageAndLargeLanguageModel
   allSummaries: Array<WebPageSummary>
   searchResult: Array<IndexedWebPage>
 }
@@ -73,15 +80,15 @@ export type WebPageSummary = {
   url: Scalars['String']['output']
 }
 
-export type GetAllSummariesQueryVariables = Exact<{ [key: string]: never }>
+export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetAllSummariesQuery = {
+export type GetLangAndLlmQuery = {
   __typename?: 'Query'
-  searchResult: Array<{
-    __typename?: 'IndexedWebPage'
-    language: string
-    largeLanguageModel: string
-  }>
+  allLanguageAndLargeLanguageModel: {
+    __typename?: 'AllLanguageAndLargeLanguageModel'
+    language: Array<string>
+    largeLanguageModel: Array<string>
+  }
 }
 
 export type InfoCardFragment = {
@@ -140,19 +147,19 @@ export const InfoCardFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<InfoCardFragment, unknown>
-export const GetAllSummariesDocument = {
+export const GetLangAndLlmDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetAllSummaries' },
+      name: { kind: 'Name', value: 'GetLangAndLlm' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'searchResult' },
+            name: { kind: 'Name', value: 'allLanguageAndLargeLanguageModel' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -168,10 +175,7 @@ export const GetAllSummariesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  GetAllSummariesQuery,
-  GetAllSummariesQueryVariables
->
+} as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
 export const GetIndexedWebPageDocument = {
   kind: 'Document',
   definitions: [

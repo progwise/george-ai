@@ -13,8 +13,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  '\n      query GetAllSummaries {\n        searchResult {\n          language\n          largeLanguageModel\n        }\n      }\n    ':
-    types.GetAllSummariesDocument,
+  '\n      query GetLangAndLlm {\n        allLanguageAndLargeLanguageModel {\n          language\n          largeLanguageModel\n        }\n      }\n    ':
+    types.GetLangAndLlmDocument,
   '\n  fragment InfoCard on IndexedWebPage {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n':
     types.InfoCardFragmentDoc,
   '\n      query GetIndexedWebPage(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
@@ -39,8 +39,8 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query GetAllSummaries {\n        searchResult {\n          language\n          largeLanguageModel\n        }\n      }\n    ',
-): (typeof documents)['\n      query GetAllSummaries {\n        searchResult {\n          language\n          largeLanguageModel\n        }\n      }\n    ']
+  source: '\n      query GetLangAndLlm {\n        allLanguageAndLargeLanguageModel {\n          language\n          largeLanguageModel\n        }\n      }\n    ',
+): (typeof documents)['\n      query GetLangAndLlm {\n        allLanguageAndLargeLanguageModel {\n          language\n          largeLanguageModel\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
