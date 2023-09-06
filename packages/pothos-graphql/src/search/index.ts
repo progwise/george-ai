@@ -1,8 +1,5 @@
 import { builder } from '../builder'
 import { Client } from 'typesense'
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 const client = new Client({
   nodes: [
