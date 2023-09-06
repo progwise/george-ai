@@ -42,6 +42,15 @@ export type IndexedWebPage = {
   url: Scalars['String']['output']
 }
 
+export type Mutation = {
+  __typename?: 'Mutation'
+  createSummaryFeedback: SummaryFeedback
+}
+
+export type MutationCreateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput
+}
+
 export enum PublicationState {
   Draft = 'Draft',
   Published = 'Published',
@@ -58,6 +67,28 @@ export type QuerySearchResultArgs = {
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
   publicationState?: InputMaybe<PublicationState>
   query?: InputMaybe<Scalars['String']['input']>
+}
+
+export type SummaryFeedback = {
+  __typename?: 'SummaryFeedback'
+  feedbackDate: Scalars['String']['output']
+  id: Scalars['String']['output']
+  position: Scalars['Int']['output']
+  query: Scalars['String']['output']
+  voting?: Maybe<SummaryFeedbackVoting>
+  webPageSummaryId: Scalars['String']['output']
+}
+
+export type SummaryFeedbackInput = {
+  position: Scalars['Int']['input']
+  query: Scalars['String']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
+}
+
+export enum SummaryFeedbackVoting {
+  Down = 'Down',
+  Up = 'Up',
 }
 
 export type WebPageSummary = {

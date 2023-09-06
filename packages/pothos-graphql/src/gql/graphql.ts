@@ -1201,42 +1201,39 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
-export type SummaryFeedbackMutationFragmentFragment = {
-  __typename?: 'SummaryFeedbackEntityResponse'
-  data?: {
-    __typename?: 'SummaryFeedbackEntity'
-    id?: string | null
-    attributes?: {
-      __typename?: 'SummaryFeedback'
-      feedbackDate?: any | null
-      position?: number | null
-      query?: string | null
-      voting?: Enum_Summaryfeedback_Voting | null
-      web_page_summary?: {
-        __typename?: 'WebPageSummaryEntityResponse'
-        data?: {
-          __typename?: 'WebPageSummaryEntity'
-          id?: string | null
-        } | null
-      } | null
-    } | null
-  } | null
-} & { ' $fragmentName'?: 'SummaryFeedbackMutationFragmentFragment' }
-
 export type CreateSummaryFeedbackMutationVariables = Exact<{
   input: SummaryFeedbackInput
 }>
 
 export type CreateSummaryFeedbackMutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback?:
-    | ({ __typename?: 'SummaryFeedbackEntityResponse' } & {
-        ' $fragmentRefs'?: {
-          SummaryFeedbackMutationFragmentFragment: SummaryFeedbackMutationFragmentFragment
-        }
-      })
-    | null
+  createSummaryFeedback?: {
+    __typename?: 'SummaryFeedbackEntityResponse'
+    data?:
+      | ({ __typename?: 'SummaryFeedbackEntity' } & {
+          ' $fragmentRefs'?: {
+            SummaryFeedbackFragment: SummaryFeedbackFragment
+          }
+        })
+      | null
+  } | null
 }
+
+export type SummaryFeedbackFragment = {
+  __typename?: 'SummaryFeedbackEntity'
+  id?: string | null
+  attributes?: {
+    __typename?: 'SummaryFeedback'
+    feedbackDate?: any | null
+    position?: number | null
+    query?: string | null
+    voting?: Enum_Summaryfeedback_Voting | null
+    web_page_summary?: {
+      __typename?: 'WebPageSummaryEntityResponse'
+      data?: { __typename?: 'WebPageSummaryEntity'; id?: string | null } | null
+    } | null
+  } | null
+} & { ' $fragmentName'?: 'SummaryFeedbackFragment' }
 
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
@@ -1277,63 +1274,48 @@ export type WebPageSummaryFragment = {
   } | null
 } & { ' $fragmentName'?: 'WebPageSummaryFragment' }
 
-export const SummaryFeedbackMutationFragmentFragmentDoc = {
+export const SummaryFeedbackFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'SummaryFeedbackMutationFragment' },
+      name: { kind: 'Name', value: 'SummaryFeedback' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'SummaryFeedbackEntityResponse' },
+        name: { kind: 'Name', value: 'SummaryFeedbackEntity' },
       },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'data' },
+            name: { kind: 'Name', value: 'attributes' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'attributes' },
+                  name: { kind: 'Name', value: 'feedbackDate' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'web_page_summary' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'feedbackDate' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'position' },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'query' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'voting' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'web_page_summary' },
+                        name: { kind: 'Name', value: 'data' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'data' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'id' },
-                                  },
-                                ],
-                              },
+                              name: { kind: 'Name', value: 'id' },
                             },
                           ],
                         },
@@ -1348,7 +1330,7 @@ export const SummaryFeedbackMutationFragmentFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<SummaryFeedbackMutationFragmentFragment, unknown>
+} as unknown as DocumentNode<SummaryFeedbackFragment, unknown>
 export const WebPageSummaryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -1476,10 +1458,16 @@ export const CreateSummaryFeedbackDocument = {
               kind: 'SelectionSet',
               selections: [
                 {
-                  kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'SummaryFeedbackMutationFragment',
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'FragmentSpread',
+                        name: { kind: 'Name', value: 'SummaryFeedback' },
+                      },
+                    ],
                   },
                 },
               ],
@@ -1490,58 +1478,43 @@ export const CreateSummaryFeedbackDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'SummaryFeedbackMutationFragment' },
+      name: { kind: 'Name', value: 'SummaryFeedback' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'SummaryFeedbackEntityResponse' },
+        name: { kind: 'Name', value: 'SummaryFeedbackEntity' },
       },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'data' },
+            name: { kind: 'Name', value: 'attributes' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'attributes' },
+                  name: { kind: 'Name', value: 'feedbackDate' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'web_page_summary' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'feedbackDate' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'position' },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'query' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'voting' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'web_page_summary' },
+                        name: { kind: 'Name', value: 'data' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'data' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'id' },
-                                  },
-                                ],
-                              },
+                              name: { kind: 'Name', value: 'id' },
                             },
                           ],
                         },

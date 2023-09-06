@@ -58,12 +58,13 @@ builder.queryField('searchResult', (t) =>
   t.field({
     type: [IndexedWebPageReference],
     args: {
-      query: t.arg.string(),
-      largeLanguageModel: t.arg.string(),
+      query: t.arg({ type: 'String', required: false }),
+      largeLanguageModel: t.arg({ type: 'String', required: false }),
       publicationState: t.arg({
         type: PublicationState,
+        required: false,
       }),
-      language: t.arg.string(),
+      language: t.arg({ type: 'String', required: false }),
     },
     resolve: async (parent, arguments_) => {
       const filters: string[] = []

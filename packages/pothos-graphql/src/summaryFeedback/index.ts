@@ -3,36 +3,36 @@ import { graphql, useFragment } from '../gql'
 import { strapiClient } from '../strapi-graphql-client'
 import {
   Enum_Summaryfeedback_Voting,
-  SummaryFeedbackEntityResponse,
-  SummaryFeedbackEntity,
+  SummaryFeedbackFragment,
 } from '../gql/graphql'
+import { formatISO } from 'date-fns'
 
-const SummaryFeedbackMutationFragment = graphql(`
-  fragment SummaryFeedbackMutationFragment on SummaryFeedbackEntityResponse {
-    data {
-      id
-      attributes {
-        feedbackDate
-        position
-        query
-        voting
-        web_page_summary {
-          data {
-            id
-          }
-        }
-      }
-    }
-  }
-`)
+// const SummaryFeedbackMutationFragment = graphql(`
+//   fragment SummaryFeedback on SummaryFeedbackEntity {
+//     id
+//     attributes {
+//       feedbackDate
+//       position
+//       query
+//       voting
+//       web_page_summary {
+//         data {
+//           id
+//         }
+//       }
+//     }
+//   }
+// `)
 
-const CreateSummaryFeedbackMutation = graphql(`
-  mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
-    createSummaryFeedback(data: $input) {
-      ...SummaryFeedbackMutationFragment
-    }
-  }
-`)
+// const CreateSummaryFeedbackMutation = graphql(`
+//   mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
+//     createSummaryFeedback(data: $input) {
+//       data {
+//         ...SummaryFeedback
+//       }
+//     }
+//   }
+// `)
 
 const SummaryFeedbackVotingReference = builder.enumType(
   Enum_Summaryfeedback_Voting,
@@ -40,17 +40,40 @@ const SummaryFeedbackVotingReference = builder.enumType(
 )
 
 const SummaryFeedbackReference =
-  builder.objectRef<SummaryFeedbackEntity>('SummaryFeedback')
+  builder.objectRef<SummaryFeedbackFragment>('SummaryFeedback')
 
 const SummaryFeedbackInput = builder.inputType('SummaryFeedbackInput', {
   fields: (t) => ({
-    feedbackDate: t.string(),
-    position: t.float(),
+    position: t.int(),
     query: t.string(),
     voting: t.field({
       type: SummaryFeedbackVotingReference,
     }),
     webPageSummaryId: t.string(),
+  }),
+})
+
+builder.objectType(SummaryFeedbackReference, {
+  name: 'SummaryFeedback',
+  fields: (t) => ({
+    id: t.string({ resolve: (parent) => parent.id ?? '' }),
+    feedbackDate: t.string({
+      resolve: (parent) => parent.attributes?.feedbackDate ?? '',
+    }),
+    position: t.int({
+      resolve: (parent) => parent.attributes?.position ?? 0,
+    }),
+    query: t.string({
+      resolve: (parent) => parent.attributes?.query ?? '',
+    }),
+    voting: t.field({
+      type: SummaryFeedbackVotingReference,
+      resolve: (parent) => parent.attributes?.voting,
+      nullable: true,
+    }),
+    webPageSummaryId: t.string({
+      resolve: (parent) => parent.attributes?.web_page_summary?.data?.id ?? '',
+    }),
   }),
 })
 
@@ -62,27 +85,47 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (root, arguments_) => {
       const input = {
-        feedbackDate: '2023-09-05,',
-        position: 0,
-        query: 'uni',
-        voting: Enum_Summaryfeedback_Voting.Up,
-        web_page_summary: '7',
+        feedbackDate: formatISO(new Date(), { representation: 'date' }),
+        position: arguments_.data.position,
+        query: arguments_.data.query,
+        voting: arguments_.data.voting,
+        web_page_summary: arguments_.data.webPageSummaryId,
       }
-
-      //const input = {
-      //   query: arguments_.data.query,
-      //   voting: arguments_.data.voting,
-      //   web_page_summary: arguments_.data.webPageSummaryId,
-      // }
-      const result = await strapiClient.request(CreateSummaryFeedbackMutation, {
-        input,
-      })
+      const result = await strapiClient.request(
+        graphql(`
+          mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
+            createSummaryFeedback(data: $input) {
+              data {
+                ...SummaryFeedback
+              }
+            }
+          }
+        `),
+        {
+          input,
+        },
+      )
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return useFragment(
-        SummaryFeedbackMutationFragment,
-        result.createSummaryFeedback,
-      )
+        graphql(`
+          fragment SummaryFeedback on SummaryFeedbackEntity {
+            id
+            attributes {
+              feedbackDate
+              position
+              query
+              voting
+              web_page_summary {
+                data {
+                  id
+                }
+              }
+            }
+          }
+        `),
+        result.createSummaryFeedback?.data,
+      )!
     },
   }),
 )

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@pothos/core": "^3.32.1",
+    "date-fns": "^2.30.0",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "typesense": "^1.7.1"

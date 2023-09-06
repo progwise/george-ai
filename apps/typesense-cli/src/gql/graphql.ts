@@ -27,6 +27,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
+  /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
+  Date: { input: any; output: any }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any }
   /** A string used to identify an i18n locale */
@@ -69,6 +71,31 @@ export type ComponentWebPageSummaryWebPageSummary = {
   GeneratedSummary?: Maybe<Scalars['String']['output']>
   LargeLanguageModel?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+}
+
+export type DateFilterInput = {
+  and?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
+  between?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
+  contains?: InputMaybe<Scalars['Date']['input']>
+  containsi?: InputMaybe<Scalars['Date']['input']>
+  endsWith?: InputMaybe<Scalars['Date']['input']>
+  eq?: InputMaybe<Scalars['Date']['input']>
+  eqi?: InputMaybe<Scalars['Date']['input']>
+  gt?: InputMaybe<Scalars['Date']['input']>
+  gte?: InputMaybe<Scalars['Date']['input']>
+  in?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
+  lt?: InputMaybe<Scalars['Date']['input']>
+  lte?: InputMaybe<Scalars['Date']['input']>
+  ne?: InputMaybe<Scalars['Date']['input']>
+  nei?: InputMaybe<Scalars['Date']['input']>
+  not?: InputMaybe<DateFilterInput>
+  notContains?: InputMaybe<Scalars['Date']['input']>
+  notContainsi?: InputMaybe<Scalars['Date']['input']>
+  notIn?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
+  notNull?: InputMaybe<Scalars['Boolean']['input']>
+  null?: InputMaybe<Scalars['Boolean']['input']>
+  or?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
+  startsWith?: InputMaybe<Scalars['Date']['input']>
 }
 
 export type DateTimeFilterInput = {
@@ -692,9 +719,8 @@ export type StringFilterInput = {
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  filterLanguage?: Maybe<Scalars['String']['output']>
-  filterModel?: Maybe<Scalars['String']['output']>
-  filterStatus?: Maybe<Scalars['String']['output']>
+  feedbackDate?: Maybe<Scalars['Date']['output']>
+  position?: Maybe<Scalars['Int']['output']>
   query?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   voting?: Maybe<Enum_Summaryfeedback_Voting>
@@ -721,12 +747,11 @@ export type SummaryFeedbackEntityResponseCollection = {
 export type SummaryFeedbackFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
-  filterLanguage?: InputMaybe<StringFilterInput>
-  filterModel?: InputMaybe<StringFilterInput>
-  filterStatus?: InputMaybe<StringFilterInput>
+  feedbackDate?: InputMaybe<DateFilterInput>
   id?: InputMaybe<IdFilterInput>
   not?: InputMaybe<SummaryFeedbackFiltersInput>
   or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
+  position?: InputMaybe<IntFilterInput>
   query?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   voting?: InputMaybe<StringFilterInput>
@@ -734,9 +759,8 @@ export type SummaryFeedbackFiltersInput = {
 }
 
 export type SummaryFeedbackInput = {
-  filterLanguage?: InputMaybe<Scalars['String']['input']>
-  filterModel?: InputMaybe<Scalars['String']['input']>
-  filterStatus?: InputMaybe<Scalars['String']['input']>
+  feedbackDate?: InputMaybe<Scalars['Date']['input']>
+  position?: InputMaybe<Scalars['Int']['input']>
   query?: InputMaybe<Scalars['String']['input']>
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: InputMaybe<Scalars['ID']['input']>
