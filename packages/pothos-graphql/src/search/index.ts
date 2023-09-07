@@ -88,7 +88,13 @@ builder.queryField('searchResult', (t) =>
           .documents()
           .search({
             q: arguments_.query ?? '*',
-            query_by: 'keywords',
+            query_by: [
+              'title',
+              'keywords',
+              'summary',
+              'url',
+              'originalContent',
+            ],
             filter_by: filters.join(' && '),
           })
 
