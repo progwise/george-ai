@@ -60,8 +60,8 @@ builder.queryField('allSummaries', (t) =>
           `),
           {},
         )
-        const webPageSummarydatas = result.webPageSummaries?.data ?? []
-        return webPageSummarydatas.map((data) => {
+        const webPageSummaryDatas = result.webPageSummaries?.data ?? []
+        return webPageSummaryDatas.map((data) => {
           return useFragment(
             graphql(`
               fragment WebPageSummary on WebPageSummaryEntity {

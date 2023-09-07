@@ -20,7 +20,7 @@ export const FeedbackSelection = ({
       if (feedback) {
         const response = await getClient().mutation(
           graphql(`
-            mutation CreateSummaryFeedback(
+            mutation createSummaryFeedbackMutation(
               $voting: SummaryFeedbackVoting!
               $webPageSummaryId: String!
               $position: Int!
