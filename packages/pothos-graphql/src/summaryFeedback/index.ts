@@ -57,48 +57,57 @@ builder.mutationField('createSummaryFeedback', (t) =>
       data: t.arg({ type: SummaryFeedbackInput, required: true }),
     },
     resolve: async (parent, arguments_) => {
-      const input = {
-        feedbackDate: formatISO(new Date(), { representation: 'date' }),
-        position: arguments_.data.position,
-        query: arguments_.data.query,
-        voting: arguments_.data.voting,
-        web_page_summary: arguments_.data.webPageSummaryId,
-      }
-      const result = await strapiClient.request(
-        graphql(`
-          mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
-            createSummaryFeedback(data: $input) {
-              data {
-                ...SummaryFeedback
-              }
-            }
-          }
-        `),
-        {
-          input,
-        },
-      )
+      try {
+        const input = {
+          feedbackDate: formatISO(new Date(), { representation: 'date' }),
+          position: arguments_.data.position,
+          query: arguments_.data.query,
+          voting: arguments_.data.voting,
+          web_page_summary: arguments_.data.webPageSummaryId,
+        }
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useFragment(
-        graphql(`
-          fragment SummaryFeedback on SummaryFeedbackEntity {
-            id
-            attributes {
-              feedbackDate
-              position
-              query
-              voting
-              web_page_summary {
+        const result = await strapiClient.request(
+          graphql(`
+            mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
+              createSummaryFeedback(data: $input) {
                 data {
-                  id
+                  ...SummaryFeedback
                 }
               }
             }
-          }
-        `),
-        result.createSummaryFeedback?.data,
-      )!
+          `),
+          {
+            input,
+          },
+        )
+
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        return useFragment(
+          graphql(`
+            fragment SummaryFeedback on SummaryFeedbackEntity {
+              id
+              attributes {
+                feedbackDate
+                position
+                query
+                voting
+                web_page_summary {
+                  data {
+                    id
+                  }
+                }
+              }
+            }
+          `),
+          result.createSummaryFeedback?.data,
+        )!
+      } catch (error) {
+        console.error(
+          'An error occurred while creating the Summary Feedback:',
+          error,
+        )
+        return {}
+      }
     },
   }),
 )
