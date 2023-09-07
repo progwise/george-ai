@@ -15,38 +15,44 @@ export const FeedbackSelection = ({
   webPageSummaryId,
 }: FeedbackSelectionProps) => {
   const handleFeedbackChange = async (feedback?: SummaryFeedbackVoting) => {
-    if (feedback) {
-      await getClient().mutation(
-        graphql(`
-          mutation CreateSummaryFeedback(
-            $voting: SummaryFeedbackVoting!
-            $webPageSummaryId: String!
-            $position: Int!
-            $query: String!
-          ) {
-            createSummaryFeedback(
-              data: {
-                voting: $voting
-                webPageSummaryId: $webPageSummaryId
-                position: $position
-                query: $query
-              }
+    'use server'
+    try {
+      if (feedback) {
+        const response = await getClient().mutation(
+          graphql(`
+            mutation CreateSummaryFeedback(
+              $voting: SummaryFeedbackVoting!
+              $webPageSummaryId: String!
+              $position: Int!
+              $query: String!
             ) {
-              voting
-              webPageSummaryId
-              position
-              query
-              feedbackDate
+              createSummaryFeedback(
+                data: {
+                  voting: $voting
+                  webPageSummaryId: $webPageSummaryId
+                  position: $position
+                  query: $query
+                }
+              ) {
+                voting
+                webPageSummaryId
+                position
+                query
+                feedbackDate
+              }
             }
-          }
-        `),
-        {
-          query: query ?? '',
-          voting: feedback,
-          position,
-          webPageSummaryId,
-        },
-      )
+          `),
+          {
+            query: query ?? '',
+            voting: feedback,
+            position,
+            webPageSummaryId,
+          },
+        )
+        console.log('Mutation successful:', response.data)
+      }
+    } catch (error) {
+      console.error('Error while executing the mutation:', error)
     }
   }
 

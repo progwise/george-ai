@@ -17,12 +17,12 @@ export const FeedbackButtons = ({ onFeedbackChange }: FeedbackButtonsProps) => {
     <div className="flex gap-4">
       <button
         onClick={() => {
-          setFeedbackChoice((previousChoice) =>
-            previousChoice === SummaryFeedbackVoting.Up
+          const vote =
+            feedbackChoice === SummaryFeedbackVoting.Up
               ? undefined
-              : SummaryFeedbackVoting.Up,
-          )
-          onFeedbackChange(feedbackChoice)
+              : SummaryFeedbackVoting.Up
+          setFeedbackChoice(vote)
+          onFeedbackChange(vote)
         }}
       >
         <Image
@@ -39,12 +39,12 @@ export const FeedbackButtons = ({ onFeedbackChange }: FeedbackButtonsProps) => {
       </button>
       <button
         onClick={() => {
-          setFeedbackChoice((previousChoice) =>
-            previousChoice === SummaryFeedbackVoting.Down
+          const vote =
+            feedbackChoice === SummaryFeedbackVoting.Down
               ? undefined
-              : SummaryFeedbackVoting.Down,
-          )
-          onFeedbackChange(feedbackChoice)
+              : SummaryFeedbackVoting.Down
+          setFeedbackChoice(vote)
+          onFeedbackChange(vote)
         }}
       >
         <Image

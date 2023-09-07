@@ -7,33 +7,6 @@ import {
 } from '../gql/graphql'
 import { formatISO } from 'date-fns'
 
-// const SummaryFeedbackMutationFragment = graphql(`
-//   fragment SummaryFeedback on SummaryFeedbackEntity {
-//     id
-//     attributes {
-//       feedbackDate
-//       position
-//       query
-//       voting
-//       web_page_summary {
-//         data {
-//           id
-//         }
-//       }
-//     }
-//   }
-// `)
-
-// const CreateSummaryFeedbackMutation = graphql(`
-//   mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
-//     createSummaryFeedback(data: $input) {
-//       data {
-//         ...SummaryFeedback
-//       }
-//     }
-//   }
-// `)
-
 const SummaryFeedbackVotingReference = builder.enumType(
   Enum_Summaryfeedback_Voting,
   { name: 'SummaryFeedbackVoting' },
@@ -83,7 +56,7 @@ builder.mutationField('createSummaryFeedback', (t) =>
     args: {
       data: t.arg({ type: SummaryFeedbackInput, required: true }),
     },
-    resolve: async (root, arguments_) => {
+    resolve: async (parent, arguments_) => {
       const input = {
         feedbackDate: formatISO(new Date(), { representation: 'date' }),
         position: arguments_.data.position,
