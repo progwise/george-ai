@@ -4,6 +4,7 @@ import React, { Suspense } from 'react'
 import { PageList } from './page-list'
 import Loading from './loading'
 import { Metadata } from 'next'
+import { FilterSelection } from './components/filter-selection/filter-selection'
 
 interface WebPageSummary {
   id: string
@@ -26,21 +27,45 @@ export const metadata: Metadata = {
   description: 'The intelligent index for your website',
 }
 
+function normalizeToArray(
+  value: string | string[] | undefined,
+): string[] | undefined {
+  if (!value) {
+    return undefined
+  }
+
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  return [value]
+}
+
 export default function Home({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center  p-24 ">
+    <main className="flex min-h-screen flex-col items-center p-24 ">
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox query={searchParams.query?.toString()} />
-        <span className="border-b border-black">
-          ich habe folgende Informationen für Sie gefunden:
-        </span>
         <Suspense fallback={<Loading />}>
-          <PageList query={searchParams.query?.toString()} />
+          <FilterSelection
+            lang={normalizeToArray(searchParams.lang)}
+            status={normalizeToArray(searchParams.status)}
+            llm={normalizeToArray(searchParams.llm)}
+          />
+          <span className="border-b border-black">
+            ich habe folgende Informationen für Sie gefunden:
+          </span>
+          <PageList
+            query={searchParams.query?.toString()}
+            lang={normalizeToArray(searchParams.lang)}
+            status={normalizeToArray(searchParams.status)}
+            llm={normalizeToArray(searchParams.llm)}
+          />
         </Suspense>
       </div>
     </main>

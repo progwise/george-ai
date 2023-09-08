@@ -1,6 +1,6 @@
-import SchemaBuilder from '@pothos/core'
 import { builder } from './builder'
 import './search'
-import './WebPageSummary'
+import './webPageSummary'
+import './searchFilters'
 
 export const schema = builder.toSchema()

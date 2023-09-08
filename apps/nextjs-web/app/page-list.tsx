@@ -1,28 +1,38 @@
-import { registerUrql } from '@urql/next/rsc'
 import { InfoCard } from './components/info-card/info-card'
-import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
+import { FilterSelectionProps } from './components/filter-selection/filter-selection'
+import { getClient } from './client/strapi-client'
 
-const makeClient = () => {
-  return createClient({
-    url: 'http://localhost:3000/graphql',
-    exchanges: [cacheExchange, fetchExchange],
-  })
+interface PageListProps extends FilterSelectionProps {
+  query?: string
 }
 
-const { getClient } = registerUrql(makeClient)
-
-export async function PageList({ query }: { query?: string }) {
+export async function PageList({ query, lang, status, llm }: PageListProps) {
   const result = await getClient().query(
     graphql(`
-      query GetIndexedWebPage($query: String) {
-        searchResult(query: $query) {
+      query GetIndexedWebPage(
+        $query: String
+        $language: [String!]
+        $publicationState: [String!]
+        $largeLanguageModel: [String!]
+      ) {
+        searchResult(
+          query: $query
+          language: $language
+          publicationState: $publicationState
+          largeLanguageModel: $largeLanguageModel
+        ) {
           id
           ...InfoCard
         }
       }
     `),
-    { query },
+    {
+      query,
+      language: lang,
+      publicationState: status,
+      largeLanguageModel: llm,
+    },
   )
   const pages = result.data?.searchResult
 

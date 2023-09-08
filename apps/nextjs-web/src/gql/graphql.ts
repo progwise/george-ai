@@ -50,14 +50,15 @@ export enum PublicationState {
 export type Query = {
   __typename?: 'Query'
   allSummaries: Array<WebPageSummary>
+  searchFilters: SearchFilters
   searchResult: Array<IndexedWebPage>
 }
 
 export type QuerySearchResultArgs = {
-  language?: InputMaybe<Scalars['String']['input']>
-  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  publicationState?: InputMaybe<PublicationState>
-  query?: InputMaybe<Scalars['String']['input']>
+  language?: Array<Scalars['String']['input']>
+  largeLanguageModel?: Array<Scalars['String']['input']>
+  publicationState?: Array<Scalars['String']['input']>
+  query?: Scalars['String']['input']
 }
 
 export type WebPageSummary = {
@@ -73,6 +74,25 @@ export type WebPageSummary = {
   url: Scalars['String']['output']
 }
 
+export type SearchFilters = {
+  __typename?: 'searchFilters'
+  language: Array<Scalars['String']['output']>
+  largeLanguageModel: Array<Scalars['String']['output']>
+  publicationState: Array<Scalars['String']['output']>
+}
+
+export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetLangAndLlmQuery = {
+  __typename?: 'Query'
+  searchFilters: {
+    __typename?: 'searchFilters'
+    language: Array<string>
+    largeLanguageModel: Array<string>
+    publicationState: Array<string>
+  }
+}
+
 export type InfoCardFragment = {
   __typename?: 'IndexedWebPage'
   title: string
@@ -85,6 +105,15 @@ export type InfoCardFragment = {
 
 export type GetIndexedWebPageQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
+  language?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  publicationState?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  largeLanguageModel?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
 }>
 
 export type GetIndexedWebPageQuery = {
@@ -120,6 +149,39 @@ export const InfoCardFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<InfoCardFragment, unknown>
+export const GetLangAndLlmDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetLangAndLlm' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'searchFilters' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'publicationState' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
 export const GetIndexedWebPageDocument = {
   kind: 'Document',
   definitions: [
@@ -136,6 +198,57 @@ export const GetIndexedWebPageDocument = {
           },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'language' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'publicationState' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -150,6 +263,30 @@ export const GetIndexedWebPageDocument = {
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'query' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'language' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'language' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'publicationState' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'largeLanguageModel' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
                 },
               },
             ],

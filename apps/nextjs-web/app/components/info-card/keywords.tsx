@@ -6,7 +6,7 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => (
           keyword && (
             <div
               key={`${keyword}_${index}`}
-              className="border border-black rounded-md text-xs px-4 cursor-pointer bg-slate-100 hover:bg-slate-300"
+              className="border border-black rounded-md text-xs px-4 bg-slate-100"
             >
               {keyword}
             </div>
