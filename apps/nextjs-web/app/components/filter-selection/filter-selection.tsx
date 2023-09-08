@@ -1,4 +1,4 @@
-import { getClient } from '@/app/client/strapi-client'
+import { getClient } from '@/app/client/urql-client'
 import { FilterCheckbox } from './filter-checkbox'
 import { graphql } from '@/src/gql'
 

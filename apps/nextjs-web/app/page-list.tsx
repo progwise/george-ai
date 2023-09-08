@@ -1,7 +1,7 @@
 import { InfoCard } from './components/info-card/info-card'
 import { graphql } from '@/src/gql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
-import { getClient } from './client/strapi-client'
+import { getClient } from './client/urql-client'
 
 interface PageListProps extends FilterSelectionProps {
   query?: string
