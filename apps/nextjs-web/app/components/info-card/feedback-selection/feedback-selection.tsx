@@ -16,8 +16,8 @@ export const FeedbackSelection = ({
 }: FeedbackSelectionProps) => {
   const handleFeedbackChange = async (feedback?: SummaryFeedbackVoting) => {
     'use server'
-    let summaryFeedbackId: string | undefined
     try {
+      let summaryFeedbackId: string | undefined
       try {
         const summaryFeedbacks = await getClient().query(
           graphql(`

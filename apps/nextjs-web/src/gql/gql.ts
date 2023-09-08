@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
   '\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ':
     types.GetLangAndLlmDocument,
-  '\n            query SummaryFeedbacksById($webPageSummaryId: String!) {\n              summaryFeedbacksById(\n                data: { webPageSummaryId: $webPageSummaryId }\n              ) {\n                id\n              }\n            }\n          ':
+  '\n            query SummaryFeedbacksById($webPageSummaryId: String!) {\n              summaryFeedbacksById(\n                data: { webPageSummaryId: $webPageSummaryId }\n              ) {\n                id\n                webPageSummaryId\n              }\n            }\n          ':
     types.SummaryFeedbacksByIdDocument,
   '\n              mutation deleteSummaryFeedbackMutation(\n                $summaryFeedbackId: String!\n              ) {\n                deleteSummaryFeedbackMutation(\n                  data: { summaryFeedbackId: $summaryFeedbackId }\n                ) {\n                  id\n                }\n              }\n            ':
     types.DeleteSummaryFeedbackMutationDocument,
@@ -53,8 +53,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n            query SummaryFeedbacksById($webPageSummaryId: String!) {\n              summaryFeedbacksById(\n                data: { webPageSummaryId: $webPageSummaryId }\n              ) {\n                id\n              }\n            }\n          ',
-): (typeof documents)['\n            query SummaryFeedbacksById($webPageSummaryId: String!) {\n              summaryFeedbacksById(\n                data: { webPageSummaryId: $webPageSummaryId }\n              ) {\n                id\n              }\n            }\n          ']
+  source: '\n            query SummaryFeedbacksById($webPageSummaryId: String!) {\n              summaryFeedbacksById(\n                data: { webPageSummaryId: $webPageSummaryId }\n              ) {\n                id\n                webPageSummaryId\n              }\n            }\n          ',
+): (typeof documents)['\n            query SummaryFeedbacksById($webPageSummaryId: String!) {\n              summaryFeedbacksById(\n                data: { webPageSummaryId: $webPageSummaryId }\n              ) {\n                id\n                webPageSummaryId\n              }\n            }\n          ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

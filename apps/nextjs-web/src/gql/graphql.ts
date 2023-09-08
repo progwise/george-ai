@@ -187,7 +187,11 @@ export type SummaryFeedbacksByIdQueryVariables = Exact<{
 
 export type SummaryFeedbacksByIdQuery = {
   __typename?: 'Query'
-  summaryFeedbacksById: Array<{ __typename?: 'SummaryFeedback'; id: string }>
+  summaryFeedbacksById: Array<{
+    __typename?: 'SummaryFeedback'
+    id: string
+    webPageSummaryId: string
+  }>
 }
 
 export type DeleteSummaryFeedbackMutationMutationVariables = Exact<{
@@ -384,6 +388,10 @@ export const SummaryFeedbacksByIdDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'webPageSummaryId' },
+                },
               ],
             },
           },
