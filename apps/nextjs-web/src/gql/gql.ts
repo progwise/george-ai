@@ -15,6 +15,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
   '\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ':
     types.GetLangAndLlmDocument,
+  '\n            mutation CreateSummaryFeedback(\n              $position: Int!\n              $voting: SummaryFeedbackVoting!\n              $webPageSummaryId: String!\n              $query: String!\n            ) {\n              createSummaryFeedbackMutation(\n                data: {\n                  position: $position\n                  voting: $voting\n                  webPageSummaryId: $webPageSummaryId\n                  query: $query\n                }\n              ) {\n                feedbackDate\n                id\n                position\n                query\n                voting\n                webPageSummaryId\n              }\n            }\n          ':
+    types.CreateSummaryFeedbackDocument,
   '\n  fragment InfoCard on IndexedWebPage {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n':
     types.InfoCardFragmentDoc,
   '\n      query GetIndexedWebPage(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
@@ -41,6 +43,12 @@ export function graphql(source: string): unknown
 export function graphql(
   source: '\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ',
 ): (typeof documents)['\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n            mutation CreateSummaryFeedback(\n              $position: Int!\n              $voting: SummaryFeedbackVoting!\n              $webPageSummaryId: String!\n              $query: String!\n            ) {\n              createSummaryFeedbackMutation(\n                data: {\n                  position: $position\n                  voting: $voting\n                  webPageSummaryId: $webPageSummaryId\n                  query: $query\n                }\n              ) {\n                feedbackDate\n                id\n                position\n                query\n                voting\n                webPageSummaryId\n              }\n            }\n          ',
+): (typeof documents)['\n            mutation CreateSummaryFeedback(\n              $position: Int!\n              $voting: SummaryFeedbackVoting!\n              $webPageSummaryId: String!\n              $query: String!\n            ) {\n              createSummaryFeedbackMutation(\n                data: {\n                  position: $position\n                  voting: $voting\n                  webPageSummaryId: $webPageSummaryId\n                  query: $query\n                }\n              ) {\n                feedbackDate\n                id\n                position\n                query\n                voting\n                webPageSummaryId\n              }\n            }\n          ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

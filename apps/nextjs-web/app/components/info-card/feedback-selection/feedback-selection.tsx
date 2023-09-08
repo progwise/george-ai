@@ -18,39 +18,39 @@ export const FeedbackSelection = ({
     'use server'
     try {
       if (feedback) {
-        // const response = await getClient().mutation(
-        //   graphql(`
-        //     mutation createSummaryFeedbackMutation(
-        //       $voting: SummaryFeedbackVoting!
-        //       $webPageSummaryId: String!
-        //       $position: Int!
-        //       $query: String!
-        //     ) {
-        //       createSummaryFeedback(
-        //         data: {
-        //           voting: $voting
-        //           webPageSummaryId: $webPageSummaryId
-        //           position: $position
-        //           query: $query
-        //         }
-        //       ) {
-        //         voting
-        //         webPageSummaryId
-        //         position
-        //         query
-        //         feedbackDate
-        //       }
-        //     }
-        //   `),
-        //   {
-        //     query: query ?? '',
-        //     voting: feedback,
-        //     position,
-        //     webPageSummaryId,
-        //   },
-        // )
-        // console.log('Mutation successful:', response.data)
-        console.log('Mutation successful:')
+        const response = await getClient().mutation(
+          graphql(`
+            mutation CreateSummaryFeedback(
+              $position: Int!
+              $voting: SummaryFeedbackVoting!
+              $webPageSummaryId: String!
+              $query: String!
+            ) {
+              createSummaryFeedbackMutation(
+                data: {
+                  position: $position
+                  voting: $voting
+                  webPageSummaryId: $webPageSummaryId
+                  query: $query
+                }
+              ) {
+                feedbackDate
+                id
+                position
+                query
+                voting
+                webPageSummaryId
+              }
+            }
+          `),
+          {
+            query: query ?? '',
+            voting: feedback,
+            position,
+            webPageSummaryId,
+          },
+        )
+        console.log('Mutation successful:', response.data)
       }
     } catch (error) {
       console.error('Error while executing the mutation:', error)

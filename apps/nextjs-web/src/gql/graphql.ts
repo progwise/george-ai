@@ -181,6 +181,26 @@ export type GetLangAndLlmQuery = {
   }
 }
 
+export type CreateSummaryFeedbackMutationVariables = Exact<{
+  position: Scalars['Int']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+}>
+
+export type CreateSummaryFeedbackMutation = {
+  __typename?: 'Mutation'
+  createSummaryFeedbackMutation: {
+    __typename?: 'createSummaryFeedback'
+    feedbackDate: string
+    id: string
+    position: number
+    query: string
+    voting?: SummaryFeedbackVoting | null
+    webPageSummaryId: string
+  }
+}
+
 export type InfoCardFragment = {
   __typename?: 'IndexedWebPage'
   title: string
@@ -270,6 +290,143 @@ export const GetLangAndLlmDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
+export const CreateSummaryFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'position' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'voting' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'SummaryFeedbackVoting' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'webPageSummaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'query' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createSummaryFeedbackMutation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'position' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'position' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'voting' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'voting' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'webPageSummaryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'webPageSummaryId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'query' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'query' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'feedbackDate' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'webPageSummaryId' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateSummaryFeedbackMutation,
+  CreateSummaryFeedbackMutationVariables
+>
 export const GetIndexedWebPageDocument = {
   kind: 'Document',
   definitions: [
