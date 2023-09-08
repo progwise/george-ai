@@ -1,31 +1,19 @@
 import { strapiClient } from '../strapi-graphql-client'
 import { graphql } from '../gql'
 import { builder } from '../builder'
-import { WebPageSummaryFragment } from '../gql/graphql'
+import { PublicationState } from '../search'
 
-interface AdditionalSearchFiltersType {
-  language: string[]
-  largeLanguageModel: string[]
-}
-
-const AdditionalSearchFiltersReference =
-  builder.objectRef<AdditionalSearchFiltersType>('AdditionalSearchFilters')
-
-builder.objectType(AdditionalSearchFiltersReference, {
-  name: 'AdditionalSearchFilters',
+const searchFilters = builder.simpleObject('searchFilters', {
   fields: (t) => ({
-    language: t.stringList({
-      resolve: (parent) => parent.language ?? [],
-    }),
-    largeLanguageModel: t.stringList({
-      resolve: (parent) => parent.largeLanguageModel ?? [],
-    }),
+    language: t.stringList(),
+    largeLanguageModel: t.stringList(),
+    publicationState: t.stringList(),
   }),
 })
 
-builder.queryField('additionalSearchFilters', (t) =>
+builder.queryField('searchFilters', (t) =>
   t.field({
-    type: AdditionalSearchFiltersReference,
+    type: searchFilters,
     resolve: async () => {
       try {
         const result = await strapiClient.request(
@@ -47,6 +35,7 @@ builder.queryField('additionalSearchFilters', (t) =>
 
         const languageSet = new Set<string>()
         const largeLanguageModelSet = new Set<string>()
+        const publicationStates = Object.values(PublicationState)
 
         for (const data of webPageSummaryDatas) {
           const { attributes } = data
@@ -61,12 +50,14 @@ builder.queryField('additionalSearchFilters', (t) =>
         return {
           language: [...languageSet],
           largeLanguageModel: [...largeLanguageModelSet],
+          publicationState: publicationStates,
         }
       } catch (error) {
         console.error('Error fetching data from Strapi:', error)
         return {
           language: [],
           largeLanguageModel: [],
+          publicationState: [],
         }
       }
     },

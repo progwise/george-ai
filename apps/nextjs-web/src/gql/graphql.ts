@@ -29,12 +29,6 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type AdditionalSearchFilters = {
-  __typename?: 'AdditionalSearchFilters'
-  language: Array<Scalars['String']['output']>
-  largeLanguageModel: Array<Scalars['String']['output']>
-}
-
 export type IndexedWebPage = {
   __typename?: 'IndexedWebPage'
   id: Scalars['String']['output']
@@ -55,16 +49,16 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
-  additionalSearchFilters: AdditionalSearchFilters
   allSummaries: Array<WebPageSummary>
+  searchFilters: SearchFilters
   searchResult: Array<IndexedWebPage>
 }
 
 export type QuerySearchResultArgs = {
-  language?: InputMaybe<Array<Scalars['String']['input']>>
-  largeLanguageModel?: InputMaybe<Array<Scalars['String']['input']>>
-  publicationState?: InputMaybe<Array<Scalars['String']['input']>>
-  query?: InputMaybe<Scalars['String']['input']>
+  language?: Array<Scalars['String']['input']>
+  largeLanguageModel?: Array<Scalars['String']['input']>
+  publicationState?: Array<Scalars['String']['input']>
+  query?: Scalars['String']['input']
 }
 
 export type WebPageSummary = {
@@ -80,14 +74,22 @@ export type WebPageSummary = {
   url: Scalars['String']['output']
 }
 
+export type SearchFilters = {
+  __typename?: 'searchFilters'
+  language: Array<Scalars['String']['output']>
+  largeLanguageModel: Array<Scalars['String']['output']>
+  publicationState: Array<Scalars['String']['output']>
+}
+
 export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetLangAndLlmQuery = {
   __typename?: 'Query'
-  additionalSearchFilters: {
-    __typename?: 'AdditionalSearchFilters'
+  searchFilters: {
+    __typename?: 'searchFilters'
     language: Array<string>
     largeLanguageModel: Array<string>
+    publicationState: Array<string>
   }
 }
 
@@ -159,7 +161,7 @@ export const GetLangAndLlmDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'additionalSearchFilters' },
+            name: { kind: 'Name', value: 'searchFilters' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -167,6 +169,10 @@ export const GetLangAndLlmDocument = {
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'largeLanguageModel' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'publicationState' },
                 },
               ],
             },

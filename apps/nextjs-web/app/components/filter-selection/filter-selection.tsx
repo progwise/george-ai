@@ -17,19 +17,20 @@ export const FilterSelection = async ({
   const result = await getClient().query(
     graphql(`
       query GetLangAndLlm {
-        additionalSearchFilters {
+        searchFilters {
           language
           largeLanguageModel
+          publicationState
         }
       }
     `),
     {},
   )
-  const allLangAndLlm = result.data?.additionalSearchFilters
+  const searchFilters = result.data?.searchFilters
 
   return (
     <div className="flex justify-end gap-3">
-      {Object.values(PublicationState).map((state) => (
+      {searchFilters?.publicationState.map((state) => (
         <FilterCheckbox
           key={state}
           value={state}
@@ -37,7 +38,7 @@ export const FilterSelection = async ({
           filter="status"
         />
       ))}
-      {allLangAndLlm?.language.map((language) => (
+      {searchFilters?.language.map((language) => (
         <FilterCheckbox
           key={language}
           value={language}
@@ -45,7 +46,7 @@ export const FilterSelection = async ({
           filter="lang"
         />
       ))}
-      {allLangAndLlm?.largeLanguageModel.map((model) => (
+      {searchFilters?.largeLanguageModel.map((model) => (
         <FilterCheckbox
           key={model}
           value={model}
