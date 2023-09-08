@@ -29,8 +29,8 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type AllLanguageAndLargeLanguageModel = {
-  __typename?: 'AllLanguageAndLargeLanguageModel'
+export type AdditionalSearchFilters = {
+  __typename?: 'AdditionalSearchFilters'
   language: Array<Scalars['String']['output']>
   largeLanguageModel: Array<Scalars['String']['output']>
 }
@@ -55,7 +55,7 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
-  allLanguageAndLargeLanguageModel: AllLanguageAndLargeLanguageModel
+  additionalSearchFilters: AdditionalSearchFilters
   allSummaries: Array<WebPageSummary>
   searchResult: Array<IndexedWebPage>
 }
@@ -84,8 +84,8 @@ export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetLangAndLlmQuery = {
   __typename?: 'Query'
-  allLanguageAndLargeLanguageModel: {
-    __typename?: 'AllLanguageAndLargeLanguageModel'
+  additionalSearchFilters: {
+    __typename?: 'AdditionalSearchFilters'
     language: Array<string>
     largeLanguageModel: Array<string>
   }
@@ -159,7 +159,7 @@ export const GetLangAndLlmDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'allLanguageAndLargeLanguageModel' },
+            name: { kind: 'Name', value: 'additionalSearchFilters' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [

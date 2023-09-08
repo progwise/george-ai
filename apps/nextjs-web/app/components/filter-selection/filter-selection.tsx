@@ -17,7 +17,7 @@ export const FilterSelection = async ({
   const result = await getClient().query(
     graphql(`
       query GetLangAndLlm {
-        allLanguageAndLargeLanguageModel {
+        additionalSearchFilters {
           language
           largeLanguageModel
         }
@@ -25,39 +25,34 @@ export const FilterSelection = async ({
     `),
     {},
   )
-  const allLangAndLlm = result.data?.allLanguageAndLargeLanguageModel
+  const allLangAndLlm = result.data?.additionalSearchFilters
 
   return (
     <div className="flex justify-end gap-3">
-      <div className="flex justify-end gap-3">
-        {Object.values(PublicationState).map((state) => (
-          <FilterCheckbox
-            key={state}
-            value={state}
-            checked={status?.includes(state) ?? false}
-            filter="status"
-            valueArray={status ?? []}
-          />
-        ))}
-        {allLangAndLlm?.language.map((language) => (
-          <FilterCheckbox
-            key={language}
-            value={language}
-            checked={lang?.includes(language) ?? false}
-            valueArray={lang ?? []}
-            filter="lang"
-          />
-        ))}
-        {allLangAndLlm?.largeLanguageModel.map((model) => (
-          <FilterCheckbox
-            key={model}
-            value={model}
-            checked={llm?.includes(model) ?? false}
-            filter="llm"
-            valueArray={llm ?? []}
-          />
-        ))}
-      </div>
+      {Object.values(PublicationState).map((state) => (
+        <FilterCheckbox
+          key={state}
+          value={state}
+          checked={status?.includes(state) ?? false}
+          filter="status"
+        />
+      ))}
+      {allLangAndLlm?.language.map((language) => (
+        <FilterCheckbox
+          key={language}
+          value={language}
+          checked={lang?.includes(language) ?? false}
+          filter="lang"
+        />
+      ))}
+      {allLangAndLlm?.largeLanguageModel.map((model) => (
+        <FilterCheckbox
+          key={model}
+          value={model}
+          checked={llm?.includes(model) ?? false}
+          filter="llm"
+        />
+      ))}
     </div>
   )
 }

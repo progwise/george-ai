@@ -3,18 +3,16 @@ import { graphql } from '../gql'
 import { builder } from '../builder'
 import { WebPageSummaryFragment } from '../gql/graphql'
 
-interface AllLanguageAndLargeLanguageModel {
+interface AdditionalSearchFiltersType {
   language: string[]
   largeLanguageModel: string[]
 }
 
-const AllLanguageAndLargeLanguageModelReference =
-  builder.objectRef<AllLanguageAndLargeLanguageModel>(
-    'AllLanguageAndLargeLanguageModel',
-  )
+const AdditionalSearchFiltersReference =
+  builder.objectRef<AdditionalSearchFiltersType>('AdditionalSearchFilters')
 
-builder.objectType(AllLanguageAndLargeLanguageModelReference, {
-  name: 'AllLanguageAndLargeLanguageModel',
+builder.objectType(AdditionalSearchFiltersReference, {
+  name: 'AdditionalSearchFilters',
   fields: (t) => ({
     language: t.stringList({
       resolve: (parent) => parent.language ?? [],
@@ -25,9 +23,9 @@ builder.objectType(AllLanguageAndLargeLanguageModelReference, {
   }),
 })
 
-builder.queryField('allLanguageAndLargeLanguageModel', (t) =>
+builder.queryField('additionalSearchFilters', (t) =>
   t.field({
-    type: AllLanguageAndLargeLanguageModelReference,
+    type: AdditionalSearchFiltersReference,
     resolve: async () => {
       try {
         const result = await strapiClient.request(
