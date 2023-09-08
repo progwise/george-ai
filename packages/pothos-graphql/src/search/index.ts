@@ -1,19 +1,7 @@
 import { builder } from '../builder'
-import { Client } from 'typesense'
+import { typesenseClient } from '../typesense-client'
 
-const client = new Client({
-  nodes: [
-    {
-      host: process.env.TYPESENSE_API_HOST ?? '',
-      port: Number.parseInt(process.env.TYPESENSE_API_PORT ?? '0'),
-      protocol: process.env.TYPESENSE_API_PROTOCOL ?? '',
-    },
-  ],
-
-  apiKey: process.env.TYPESENSE_API_KEY ?? '',
-})
-
-enum PublicationState {
+export enum PublicationState {
   Draft = 'draft',
   Published = 'published',
 }
@@ -58,33 +46,46 @@ builder.queryField('searchResult', (t) =>
   t.field({
     type: [IndexedWebPageReference],
     args: {
-      query: t.arg({ type: 'String', required: false }),
-      largeLanguageModel: t.arg({ type: 'String', required: false }),
-      publicationState: t.arg({
-        type: PublicationState,
-        required: false,
+      query: t.arg.string({
+        required: true,
+        defaultValue: '*',
       }),
-      language: t.arg({ type: 'String', required: false }),
+      largeLanguageModel: t.arg.stringList({
+        defaultValue: [],
+      }),
+      publicationState: t.arg.stringList({
+        defaultValue: [],
+      }),
+      language: t.arg.stringList({
+        defaultValue: [],
+      }),
     },
     resolve: async (parent, arguments_) => {
       const filters: string[] = []
-      if (arguments_.largeLanguageModel) {
-        filters.push(`largeLanguageModel:${arguments_.largeLanguageModel}`)
+
+      if (arguments_.largeLanguageModel.length > 0) {
+        filters.push(`largeLanguageModel:=[${arguments_.largeLanguageModel}]`)
       }
-      if (arguments_.publicationState) {
-        filters.push(`publicationState:${arguments_.publicationState}`)
+      if (arguments_.publicationState.length > 0) {
+        filters.push(`publicationState:=[${arguments_.publicationState}]`)
       }
-      if (arguments_.language) {
-        filters.push(`language:${arguments_.language}`)
+      if (arguments_.language.length > 0) {
+        filters.push(`language:=[${arguments_.language}]`)
       }
 
       try {
-        const response = await client
+        const response = await typesenseClient
           .collections<IndexedWebPage>('scraped_web_pages_summaries')
           .documents()
           .search({
-            q: arguments_.query ?? '*',
-            query_by: 'keywords',
+            q: arguments_.query,
+            query_by: [
+              'title',
+              'keywords',
+              'summary',
+              'url',
+              'originalContent',
+            ],
             filter_by: filters.join(' && '),
           })
 

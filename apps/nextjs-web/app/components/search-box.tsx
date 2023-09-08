@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 export const SearchBox = ({ query }: { query?: string }) => {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParameters = useSearchParams()!
+  const searchParameters = useSearchParams()
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value

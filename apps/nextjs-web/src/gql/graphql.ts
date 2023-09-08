@@ -29,6 +29,27 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
+export type CreateSummaryFeedbackInput = {
+  position: Scalars['Int']['input']
+  query: Scalars['String']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
+}
+
+export type DeleteSummaryFeedback = {
+  __typename?: 'DeleteSummaryFeedback'
+  feedbackDate: Scalars['String']['output']
+  id: Scalars['String']['output']
+  position: Scalars['Int']['output']
+  query: Scalars['String']['output']
+  voting?: Maybe<SummaryFeedbackVoting>
+  webPageSummaryId: Scalars['String']['output']
+}
+
+export type DeleteSummaryFeedbackInput = {
+  feedbackSummaryId: Scalars['String']['input']
+}
+
 export type IndexedWebPage = {
   __typename?: 'IndexedWebPage'
   id: Scalars['String']['output']
@@ -44,11 +65,26 @@ export type IndexedWebPage = {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: SummaryFeedback
+  createSummaryFeedback: Array<SummaryFeedback>
+  createSummaryFeedbackMutation: CreateSummaryFeedback
+  deleteSummaryFeedbackMutation: DeleteSummaryFeedback
+  updateSummaryFeedbackMutation: UpdateSummaryFeedback
 }
 
 export type MutationCreateSummaryFeedbackArgs = {
   data: SummaryFeedbackInput
+}
+
+export type MutationCreateSummaryFeedbackMutationArgs = {
+  data: CreateSummaryFeedbackInput
+}
+
+export type MutationDeleteSummaryFeedbackMutationArgs = {
+  data: DeleteSummaryFeedbackInput
+}
+
+export type MutationUpdateSummaryFeedbackMutationArgs = {
+  data: UpdateSummaryFeedbackInput
 }
 
 export enum PublicationState {
@@ -59,18 +95,34 @@ export enum PublicationState {
 export type Query = {
   __typename?: 'Query'
   allSummaries: Array<WebPageSummary>
+  searchFilters: SearchFilters
   searchResult: Array<IndexedWebPage>
 }
 
 export type QuerySearchResultArgs = {
-  language?: InputMaybe<Scalars['String']['input']>
-  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
-  publicationState?: InputMaybe<PublicationState>
-  query?: InputMaybe<Scalars['String']['input']>
+  language?: Array<Scalars['String']['input']>
+  largeLanguageModel?: Array<Scalars['String']['input']>
+  publicationState?: Array<Scalars['String']['input']>
+  query?: Scalars['String']['input']
 }
 
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback'
+  id: Scalars['String']['output']
+  webPageSummaryId: Scalars['String']['output']
+}
+
+export type SummaryFeedbackInput = {
+  webPageSummaryId: Scalars['String']['input']
+}
+
+export enum SummaryFeedbackVoting {
+  Down = 'Down',
+  Up = 'Up',
+}
+
+export type UpdateSummaryFeedback = {
+  __typename?: 'UpdateSummaryFeedback'
   feedbackDate: Scalars['String']['output']
   id: Scalars['String']['output']
   position: Scalars['Int']['output']
@@ -79,16 +131,12 @@ export type SummaryFeedback = {
   webPageSummaryId: Scalars['String']['output']
 }
 
-export type SummaryFeedbackInput = {
+export type UpdateSummaryFeedbackInput = {
+  feedbackSummaryId: Scalars['String']['input']
   position: Scalars['Int']['input']
   query: Scalars['String']['input']
   voting: SummaryFeedbackVoting
   webPageSummaryId: Scalars['String']['input']
-}
-
-export enum SummaryFeedbackVoting {
-  Down = 'Down',
-  Up = 'Up',
 }
 
 export type WebPageSummary = {
@@ -104,22 +152,32 @@ export type WebPageSummary = {
   url: Scalars['String']['output']
 }
 
-export type CreateSummaryFeedbackMutationVariables = Exact<{
-  voting: SummaryFeedbackVoting
-  webPageSummaryId: Scalars['String']['input']
-  position: Scalars['Int']['input']
-  query: Scalars['String']['input']
-}>
+export type CreateSummaryFeedback = {
+  __typename?: 'createSummaryFeedback'
+  feedbackDate: Scalars['String']['output']
+  id: Scalars['String']['output']
+  position: Scalars['Int']['output']
+  query: Scalars['String']['output']
+  voting?: Maybe<SummaryFeedbackVoting>
+  webPageSummaryId: Scalars['String']['output']
+}
 
-export type CreateSummaryFeedbackMutation = {
-  __typename?: 'Mutation'
-  createSummaryFeedback: {
-    __typename?: 'SummaryFeedback'
-    voting?: SummaryFeedbackVoting | null
-    webPageSummaryId: string
-    position: number
-    query: string
-    feedbackDate: string
+export type SearchFilters = {
+  __typename?: 'searchFilters'
+  language: Array<Scalars['String']['output']>
+  largeLanguageModel: Array<Scalars['String']['output']>
+  publicationState: Array<Scalars['String']['output']>
+}
+
+export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetLangAndLlmQuery = {
+  __typename?: 'Query'
+  searchFilters: {
+    __typename?: 'searchFilters'
+    language: Array<string>
+    largeLanguageModel: Array<string>
+    publicationState: Array<string>
   }
 }
 
@@ -135,6 +193,15 @@ export type InfoCardFragment = {
 
 export type GetIndexedWebPageQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
+  language?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  publicationState?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  largeLanguageModel?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
 }>
 
 export type GetIndexedWebPageQuery = {
@@ -170,130 +237,30 @@ export const InfoCardFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<InfoCardFragment, unknown>
-export const CreateSummaryFeedbackDocument = {
+export const GetLangAndLlmDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'voting' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'SummaryFeedbackVoting' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'webPageSummaryId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'position' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'query' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetLangAndLlm' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createSummaryFeedback' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'voting' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'voting' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'webPageSummaryId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'webPageSummaryId' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'position' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'position' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'query' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'query' },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
+            name: { kind: 'Name', value: 'searchFilters' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'language' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'webPageSummaryId' },
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
                 },
-                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'feedbackDate' },
+                  name: { kind: 'Name', value: 'publicationState' },
                 },
               ],
             },
@@ -302,10 +269,7 @@ export const CreateSummaryFeedbackDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  CreateSummaryFeedbackMutation,
-  CreateSummaryFeedbackMutationVariables
->
+} as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
 export const GetIndexedWebPageDocument = {
   kind: 'Document',
   definitions: [
@@ -322,6 +286,57 @@ export const GetIndexedWebPageDocument = {
           },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'language' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'publicationState' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -336,6 +351,30 @@ export const GetIndexedWebPageDocument = {
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'query' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'language' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'language' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'publicationState' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'largeLanguageModel' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'largeLanguageModel' },
                 },
               },
             ],

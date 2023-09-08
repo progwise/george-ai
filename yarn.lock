@@ -1741,6 +1741,7 @@ __metadata:
   resolution: "@george-ai/pothos-graphql@workspace:packages/pothos-graphql"
   dependencies:
     "@pothos/core": ^3.32.1
+    "@pothos/plugin-simple-objects": ^3.7.0
     date-fns: ^2.30.0
     eslint: ^8.46.0
     eslint-config-custom: "*"
@@ -2996,6 +2997,16 @@ __metadata:
   peerDependencies:
     graphql: ">=15.1.0"
   checksum: 31595fa250729c7263ed3a7bc7aad1641b7252aa2756ab88255383d08e0ed83240a05fea9ab291217f42b4c85ce096e4cc0e0ba8aa6721dc1e6e596a33493ab0
+  languageName: node
+  linkType: hard
+
+"@pothos/plugin-simple-objects@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "@pothos/plugin-simple-objects@npm:3.7.0"
+  peerDependencies:
+    "@pothos/core": "*"
+    graphql: ">=15.1.0"
+  checksum: 6acdd77dddea80bb0e2749822fe5e000774cd08669934302de44ce4daa54fda4da2f86c51205311eefb1ccce8b0930a08d427a535dc145e5e27e1ade5e7e8b27
   languageName: node
   linkType: hard
 
