@@ -65,14 +65,9 @@ export type IndexedWebPage = {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: Array<SummaryFeedback>
   createSummaryFeedbackMutation: CreateSummaryFeedback
   deleteSummaryFeedbackMutation: DeleteSummaryFeedback
   updateSummaryFeedbackMutation: UpdateSummaryFeedback
-}
-
-export type MutationCreateSummaryFeedbackArgs = {
-  data: SummaryFeedbackInput
 }
 
 export type MutationCreateSummaryFeedbackMutationArgs = {
@@ -97,6 +92,7 @@ export type Query = {
   allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
   searchResult: Array<IndexedWebPage>
+  summaryFeedbackById: Array<SummaryFeedback>
 }
 
 export type QuerySearchResultArgs = {
@@ -104,6 +100,10 @@ export type QuerySearchResultArgs = {
   largeLanguageModel?: Array<Scalars['String']['input']>
   publicationState?: Array<Scalars['String']['input']>
   query?: Scalars['String']['input']
+}
+
+export type QuerySummaryFeedbackByIdArgs = {
+  data: SummaryFeedbackInput
 }
 
 export type SummaryFeedback = {

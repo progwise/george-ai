@@ -22,7 +22,7 @@ builder.objectType(SummaryFeedbackReference, {
   }),
 })
 
-builder.mutationField('createSummaryFeedback', (t) =>
+builder.queryField('summaryFeedbacksById', (t) =>
   t.field({
     type: [SummaryFeedbackReference],
     args: {
