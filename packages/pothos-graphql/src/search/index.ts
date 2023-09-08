@@ -48,7 +48,7 @@ builder.queryField('searchResult', (t) =>
     args: {
       query: t.arg.string({
         required: true,
-        defaultValue: '+',
+        defaultValue: '*',
       }),
       largeLanguageModel: t.arg.stringList({
         required: true,
