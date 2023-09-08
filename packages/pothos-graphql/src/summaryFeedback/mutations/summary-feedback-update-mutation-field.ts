@@ -18,7 +18,7 @@ const UpdateSummaryFeedbackInput = builder.inputType(
   'UpdateSummaryFeedbackInput',
   {
     fields: (t) => ({
-      feedbackSummaryId: t.string(),
+      summaryFeedbackId: t.string(),
       position: t.int(),
       query: t.string(),
       voting: t.field({
@@ -57,7 +57,7 @@ builder.mutationField('updateSummaryFeedbackMutation', (t) =>
   t.field({
     type: UpdateSummaryFeedbackReference,
     args: {
-      data: t.arg({ type: UpdateSummaryFeedbackInput, required: true }),
+      data: t.arg({ type: UpdateSummaryFeedbackInput }),
     },
     resolve: async (parent, arguments_) => {
       try {
@@ -83,7 +83,7 @@ builder.mutationField('updateSummaryFeedbackMutation', (t) =>
             }
           `),
           {
-            id: arguments_.data.feedbackSummaryId,
+            id: arguments_.data.summaryFeedbackId,
             data: input,
           },
         )

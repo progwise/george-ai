@@ -14,7 +14,7 @@ const DeleteSummaryFeedbackInput = builder.inputType(
   'DeleteSummaryFeedbackInput',
   {
     fields: (t) => ({
-      feedbackSummaryId: t.string(),
+      summaryFeedbackId: t.string(),
     }),
   },
 )
@@ -62,7 +62,7 @@ builder.mutationField('deleteSummaryFeedbackMutation', (t) =>
             }
           `),
           {
-            id: arguments_.data.feedbackSummaryId,
+            id: arguments_.data.summaryFeedbackId,
           },
         )
 

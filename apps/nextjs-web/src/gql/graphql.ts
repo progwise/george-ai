@@ -47,7 +47,7 @@ export type DeleteSummaryFeedback = {
 }
 
 export type DeleteSummaryFeedbackInput = {
-  feedbackSummaryId: Scalars['String']['input']
+  summaryFeedbackId: Scalars['String']['input']
 }
 
 export type IndexedWebPage = {
@@ -92,7 +92,7 @@ export type Query = {
   allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
   searchResult: Array<IndexedWebPage>
-  summaryFeedbackById: Array<SummaryFeedback>
+  summaryFeedbacksById: Array<SummaryFeedback>
 }
 
 export type QuerySearchResultArgs = {
@@ -102,7 +102,7 @@ export type QuerySearchResultArgs = {
   query?: Scalars['String']['input']
 }
 
-export type QuerySummaryFeedbackByIdArgs = {
+export type QuerySummaryFeedbacksByIdArgs = {
   data: SummaryFeedbackInput
 }
 
@@ -132,9 +132,9 @@ export type UpdateSummaryFeedback = {
 }
 
 export type UpdateSummaryFeedbackInput = {
-  feedbackSummaryId: Scalars['String']['input']
   position: Scalars['Int']['input']
   query: Scalars['String']['input']
+  summaryFeedbackId: Scalars['String']['input']
   voting: SummaryFeedbackVoting
   webPageSummaryId: Scalars['String']['input']
 }
@@ -178,6 +178,48 @@ export type GetLangAndLlmQuery = {
     language: Array<string>
     largeLanguageModel: Array<string>
     publicationState: Array<string>
+  }
+}
+
+export type SummaryFeedbacksByIdQueryVariables = Exact<{
+  webPageSummaryId: Scalars['String']['input']
+}>
+
+export type SummaryFeedbacksByIdQuery = {
+  __typename?: 'Query'
+  summaryFeedbacksById: Array<{ __typename?: 'SummaryFeedback'; id: string }>
+}
+
+export type DeleteSummaryFeedbackMutationMutationVariables = Exact<{
+  summaryFeedbackId: Scalars['String']['input']
+}>
+
+export type DeleteSummaryFeedbackMutationMutation = {
+  __typename?: 'Mutation'
+  deleteSummaryFeedbackMutation: {
+    __typename?: 'DeleteSummaryFeedback'
+    id: string
+  }
+}
+
+export type UpdateSummaryFeedbackMutationMutationVariables = Exact<{
+  summaryFeedbackId: Scalars['String']['input']
+  position: Scalars['Int']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+}>
+
+export type UpdateSummaryFeedbackMutationMutation = {
+  __typename?: 'Mutation'
+  updateSummaryFeedbackMutation: {
+    __typename?: 'UpdateSummaryFeedback'
+    feedbackDate: string
+    id: string
+    position: number
+    voting?: SummaryFeedbackVoting | null
+    webPageSummaryId: string
+    query: string
   }
 }
 
@@ -290,13 +332,298 @@ export const GetLangAndLlmDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
+export const SummaryFeedbacksByIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'SummaryFeedbacksById' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'webPageSummaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'summaryFeedbacksById' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'webPageSummaryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'webPageSummaryId' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  SummaryFeedbacksByIdQuery,
+  SummaryFeedbacksByIdQueryVariables
+>
+export const DeleteSummaryFeedbackMutationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteSummaryFeedbackMutation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'summaryFeedbackId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteSummaryFeedbackMutation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'summaryFeedbackId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryFeedbackId' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteSummaryFeedbackMutationMutation,
+  DeleteSummaryFeedbackMutationMutationVariables
+>
+export const UpdateSummaryFeedbackMutationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateSummaryFeedbackMutation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'summaryFeedbackId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'position' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'voting' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'SummaryFeedbackVoting' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'webPageSummaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'query' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateSummaryFeedbackMutation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'summaryFeedbackId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryFeedbackId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'position' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'position' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'voting' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'voting' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'webPageSummaryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'webPageSummaryId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'query' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'query' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'feedbackDate' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'webPageSummaryId' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateSummaryFeedbackMutationMutation,
+  UpdateSummaryFeedbackMutationMutationVariables
+>
 export const CreateSummaryFeedbackDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
+      name: { kind: 'Name', value: 'createSummaryFeedback' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',

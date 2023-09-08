@@ -16,44 +16,148 @@ export const FeedbackSelection = ({
 }: FeedbackSelectionProps) => {
   const handleFeedbackChange = async (feedback?: SummaryFeedbackVoting) => {
     'use server'
+    let summaryFeedbackId: string | undefined
     try {
-      if (feedback) {
-        const response = await getClient().mutation(
+      try {
+        const summaryFeedbacks = await getClient().query(
           graphql(`
-            mutation CreateSummaryFeedback(
-              $position: Int!
-              $voting: SummaryFeedbackVoting!
-              $webPageSummaryId: String!
-              $query: String!
-            ) {
-              createSummaryFeedbackMutation(
-                data: {
-                  position: $position
-                  voting: $voting
-                  webPageSummaryId: $webPageSummaryId
-                  query: $query
-                }
+            query SummaryFeedbacksById($webPageSummaryId: String!) {
+              summaryFeedbacksById(
+                data: { webPageSummaryId: $webPageSummaryId }
               ) {
-                feedbackDate
                 id
-                position
-                query
-                voting
-                webPageSummaryId
               }
             }
           `),
           {
-            query: query ?? '',
-            voting: feedback,
-            position,
             webPageSummaryId,
           },
         )
-        console.log('Mutation successful:', response.data)
+
+        summaryFeedbackId =
+          summaryFeedbacks.data?.summaryFeedbacksById.at(0)?.id
+      } catch (error) {
+        console.error('Error while fetching summary feedbacks:', error)
+        return
+      }
+
+      console.log(
+        'Search by id:',
+        webPageSummaryId,
+        'SummaryFeedbackId:',
+        summaryFeedbackId,
+      )
+
+      if (!feedback && summaryFeedbackId) {
+        try {
+          const deleteResponse = await getClient().mutation(
+            graphql(`
+              mutation deleteSummaryFeedbackMutation(
+                $summaryFeedbackId: String!
+              ) {
+                deleteSummaryFeedbackMutation(
+                  data: { summaryFeedbackId: $summaryFeedbackId }
+                ) {
+                  id
+                }
+              }
+            `),
+            {
+              summaryFeedbackId,
+            },
+          )
+          // console.log('Delete successful:', deleteResponse.data)
+        } catch (error) {
+          console.error('Error while deleting summary feedback:', error)
+        }
+        return
+      }
+
+      if (feedback && summaryFeedbackId) {
+        try {
+          const updateResponse = await getClient().mutation(
+            graphql(`
+              mutation updateSummaryFeedbackMutation(
+                $summaryFeedbackId: String!
+                $position: Int!
+                $voting: SummaryFeedbackVoting!
+                $webPageSummaryId: String!
+                $query: String!
+              ) {
+                updateSummaryFeedbackMutation(
+                  data: {
+                    summaryFeedbackId: $summaryFeedbackId
+                    position: $position
+                    voting: $voting
+                    webPageSummaryId: $webPageSummaryId
+                    query: $query
+                  }
+                ) {
+                  feedbackDate
+                  id
+                  position
+                  voting
+                  webPageSummaryId
+                  query
+                }
+              }
+            `),
+            {
+              summaryFeedbackId,
+              query: query ?? '',
+              voting: feedback,
+              position,
+              webPageSummaryId,
+            },
+          )
+          // console.log('Update successful:', updateResponse.data)
+        } catch (error) {
+          console.error('Error while updating summary feedback:', error)
+        }
+        return
+      }
+
+      if (feedback) {
+        try {
+          const createResponse = await getClient().mutation(
+            graphql(`
+              mutation createSummaryFeedback(
+                $position: Int!
+                $voting: SummaryFeedbackVoting!
+                $webPageSummaryId: String!
+                $query: String!
+              ) {
+                createSummaryFeedbackMutation(
+                  data: {
+                    position: $position
+                    voting: $voting
+                    webPageSummaryId: $webPageSummaryId
+                    query: $query
+                  }
+                ) {
+                  feedbackDate
+                  id
+                  position
+                  query
+                  voting
+                  webPageSummaryId
+                }
+              }
+            `),
+            {
+              query: query ?? '',
+              voting: feedback,
+              position,
+              webPageSummaryId,
+            },
+          )
+          // console.log('Create successful:', createResponse.data)
+        } catch (error) {
+          console.error('Error while creating summary feedback:', error)
+        }
       }
     } catch (error) {
-      console.error('Error while executing the mutation:', error)
+      console.error('Error while executing the overall mutation flow:', error)
     }
   }
 
