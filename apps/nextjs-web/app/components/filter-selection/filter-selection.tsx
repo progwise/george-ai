@@ -1,7 +1,6 @@
-import { PublicationState } from '@/src/gql/graphql'
+import { getClient } from '@/app/client/strapi-client'
 import { FilterCheckbox } from './filter-checkbox'
 import { graphql } from '@/src/gql'
-import { getClient } from '@/app/page-list'
 
 export interface FilterSelectionProps {
   lang?: string[]

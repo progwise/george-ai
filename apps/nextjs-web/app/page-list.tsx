@@ -1,18 +1,7 @@
-import { registerUrql } from '@urql/next/rsc'
 import { InfoCard } from './components/info-card/info-card'
-import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 import { graphql } from '@/src/gql'
-import { PublicationState } from '@/src/gql/graphql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
-
-const makeClient = () => {
-  return createClient({
-    url: 'http://localhost:3000/graphql',
-    exchanges: [cacheExchange, fetchExchange],
-  })
-}
-
-export const { getClient } = registerUrql(makeClient)
+import { getClient } from './client/strapi-client'
 
 interface PageListProps extends FilterSelectionProps {
   query?: string
