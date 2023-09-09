@@ -1,6 +1,6 @@
 import { graphql } from '@/src/gql'
 import { FeedbackButtons } from './feedback-buttons'
-import { getClient } from '@/app/client/strapi-client'
+import { getClient } from '@/app/client/urql-client'
 import { SummaryFeedbackVoting } from '@/src/gql/graphql'
 
 interface FeedbackSelectionProps {
