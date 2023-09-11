@@ -110,10 +110,7 @@ builder.mutationField('createSummaryFeedback', (t) =>
           result.createSummaryFeedback?.data,
         )!
       } catch (error) {
-        console.error(
-          'An error occurred while creating the Summary Feedback:',
-          error,
-        )
+        console.error('Error while creating Summary Feedback:', error)
         return {}
       }
     },
