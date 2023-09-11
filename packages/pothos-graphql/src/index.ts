@@ -1,5 +1,5 @@
 import { builder } from './builder'
-import './search'
+import './searchQueryBy'
 import './webPageSummary'
 import './searchFilters'
 import './summaryFeedback'

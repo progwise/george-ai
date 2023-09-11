@@ -29,15 +29,8 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type CreateSummaryFeedbackInput = {
-  position: Scalars['Int']['input']
-  query: Scalars['String']['input']
-  voting: SummaryFeedbackVoting
-  webPageSummaryId: Scalars['String']['input']
-}
-
-export type DeleteSummaryFeedback = {
-  __typename?: 'DeleteSummaryFeedback'
+export type CreateSummaryFeedback = {
+  __typename?: 'CreateSummaryFeedback'
   feedbackDate: Scalars['String']['output']
   id: Scalars['String']['output']
   position: Scalars['Int']['output']
@@ -46,8 +39,11 @@ export type DeleteSummaryFeedback = {
   webPageSummaryId: Scalars['String']['output']
 }
 
-export type DeleteSummaryFeedbackInput = {
-  summaryFeedbackId: Scalars['String']['input']
+export type CreateSummaryFeedbackInput = {
+  position: Scalars['Int']['input']
+  query: Scalars['String']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
 }
 
 export type IndexedWebPage = {
@@ -65,21 +61,11 @@ export type IndexedWebPage = {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  createSummaryFeedbackMutation: CreateSummaryFeedback
-  deleteSummaryFeedbackMutation: DeleteSummaryFeedback
-  updateSummaryFeedbackMutation: UpdateSummaryFeedback
+  createSummaryFeedback: CreateSummaryFeedback
 }
 
-export type MutationCreateSummaryFeedbackMutationArgs = {
+export type MutationCreateSummaryFeedbackArgs = {
   data: CreateSummaryFeedbackInput
-}
-
-export type MutationDeleteSummaryFeedbackMutationArgs = {
-  data: DeleteSummaryFeedbackInput
-}
-
-export type MutationUpdateSummaryFeedbackMutationArgs = {
-  data: UpdateSummaryFeedbackInput
 }
 
 export enum PublicationState {
@@ -92,7 +78,6 @@ export type Query = {
   allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
   searchResult: Array<IndexedWebPage>
-  summaryFeedbacksById: Array<SummaryFeedback>
 }
 
 export type QuerySearchResultArgs = {
@@ -102,41 +87,9 @@ export type QuerySearchResultArgs = {
   query?: Scalars['String']['input']
 }
 
-export type QuerySummaryFeedbacksByIdArgs = {
-  data: SummaryFeedbackInput
-}
-
-export type SummaryFeedback = {
-  __typename?: 'SummaryFeedback'
-  id: Scalars['String']['output']
-  webPageSummaryId: Scalars['String']['output']
-}
-
-export type SummaryFeedbackInput = {
-  webPageSummaryId: Scalars['String']['input']
-}
-
 export enum SummaryFeedbackVoting {
   Down = 'Down',
   Up = 'Up',
-}
-
-export type UpdateSummaryFeedback = {
-  __typename?: 'UpdateSummaryFeedback'
-  feedbackDate: Scalars['String']['output']
-  id: Scalars['String']['output']
-  position: Scalars['Int']['output']
-  query: Scalars['String']['output']
-  voting?: Maybe<SummaryFeedbackVoting>
-  webPageSummaryId: Scalars['String']['output']
-}
-
-export type UpdateSummaryFeedbackInput = {
-  position: Scalars['Int']['input']
-  query: Scalars['String']['input']
-  summaryFeedbackId: Scalars['String']['input']
-  voting: SummaryFeedbackVoting
-  webPageSummaryId: Scalars['String']['input']
 }
 
 export type WebPageSummary = {
@@ -150,16 +103,6 @@ export type WebPageSummary = {
   summary: Scalars['String']['output']
   title: Scalars['String']['output']
   url: Scalars['String']['output']
-}
-
-export type CreateSummaryFeedback = {
-  __typename?: 'createSummaryFeedback'
-  feedbackDate: Scalars['String']['output']
-  id: Scalars['String']['output']
-  position: Scalars['Int']['output']
-  query: Scalars['String']['output']
-  voting?: Maybe<SummaryFeedbackVoting>
-  webPageSummaryId: Scalars['String']['output']
 }
 
 export type SearchFilters = {
@@ -181,48 +124,6 @@ export type GetLangAndLlmQuery = {
   }
 }
 
-export type SummaryFeedbacksByIdQueryVariables = Exact<{
-  webPageSummaryId: Scalars['String']['input']
-}>
-
-export type SummaryFeedbacksByIdQuery = {
-  __typename?: 'Query'
-  summaryFeedbacksById: Array<{ __typename?: 'SummaryFeedback'; id: string }>
-}
-
-export type DeleteSummaryFeedbackMutationMutationVariables = Exact<{
-  summaryFeedbackId: Scalars['String']['input']
-}>
-
-export type DeleteSummaryFeedbackMutationMutation = {
-  __typename?: 'Mutation'
-  deleteSummaryFeedbackMutation: {
-    __typename?: 'DeleteSummaryFeedback'
-    id: string
-  }
-}
-
-export type UpdateSummaryFeedbackMutationMutationVariables = Exact<{
-  summaryFeedbackId: Scalars['String']['input']
-  position: Scalars['Int']['input']
-  voting: SummaryFeedbackVoting
-  webPageSummaryId: Scalars['String']['input']
-  query: Scalars['String']['input']
-}>
-
-export type UpdateSummaryFeedbackMutationMutation = {
-  __typename?: 'Mutation'
-  updateSummaryFeedbackMutation: {
-    __typename?: 'UpdateSummaryFeedback'
-    feedbackDate: string
-    id: string
-    position: number
-    voting?: SummaryFeedbackVoting | null
-    webPageSummaryId: string
-    query: string
-  }
-}
-
 export type CreateSummaryFeedbackMutationVariables = Exact<{
   position: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
@@ -232,8 +133,8 @@ export type CreateSummaryFeedbackMutationVariables = Exact<{
 
 export type CreateSummaryFeedbackMutation = {
   __typename?: 'Mutation'
-  createSummaryFeedbackMutation: {
-    __typename?: 'createSummaryFeedback'
+  createSummaryFeedback: {
+    __typename?: 'CreateSummaryFeedback'
     feedbackDate: string
     id: string
     position: number
@@ -332,291 +233,6 @@ export const GetLangAndLlmDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
-export const SummaryFeedbacksByIdDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'SummaryFeedbacksById' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'webPageSummaryId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'summaryFeedbacksById' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'webPageSummaryId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'webPageSummaryId' },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  SummaryFeedbacksByIdQuery,
-  SummaryFeedbacksByIdQueryVariables
->
-export const DeleteSummaryFeedbackMutationDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteSummaryFeedbackMutation' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'summaryFeedbackId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteSummaryFeedbackMutation' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'summaryFeedbackId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'summaryFeedbackId' },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteSummaryFeedbackMutationMutation,
-  DeleteSummaryFeedbackMutationMutationVariables
->
-export const UpdateSummaryFeedbackMutationDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'updateSummaryFeedbackMutation' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'summaryFeedbackId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'position' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'voting' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'SummaryFeedbackVoting' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'webPageSummaryId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'query' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateSummaryFeedbackMutation' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'summaryFeedbackId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'summaryFeedbackId' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'position' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'position' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'voting' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'voting' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'webPageSummaryId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'webPageSummaryId' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'query' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'query' },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'feedbackDate' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'webPageSummaryId' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  UpdateSummaryFeedbackMutationMutation,
-  UpdateSummaryFeedbackMutationMutationVariables
->
 export const CreateSummaryFeedbackDocument = {
   kind: 'Document',
   definitions: [
@@ -684,7 +300,7 @@ export const CreateSummaryFeedbackDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createSummaryFeedbackMutation' },
+            name: { kind: 'Name', value: 'createSummaryFeedback' },
             arguments: [
               {
                 kind: 'Argument',
