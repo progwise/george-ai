@@ -64,14 +64,6 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (parent, arguments_) => {
       try {
-        const input = {
-          feedbackDate: formatISO(new Date(), { representation: 'date' }),
-          position: arguments_.data.position,
-          query: arguments_.data.query,
-          voting: arguments_.data.voting,
-          web_page_summary: arguments_.data.webPageSummaryId,
-        }
-
         const result = await strapiClient.request(
           graphql(`
             mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
@@ -83,7 +75,13 @@ builder.mutationField('createSummaryFeedback', (t) =>
             }
           `),
           {
-            input,
+            input: {
+              feedbackDate: formatISO(new Date(), { representation: 'date' }),
+              position: arguments_.data.position,
+              query: arguments_.data.query,
+              voting: arguments_.data.voting,
+              web_page_summary: arguments_.data.webPageSummaryId,
+            },
           },
         )
 

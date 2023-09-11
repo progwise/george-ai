@@ -133,15 +133,7 @@ export type CreateSummaryFeedbackMutationVariables = Exact<{
 
 export type CreateSummaryFeedbackMutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: {
-    __typename?: 'CreateSummaryFeedback'
-    feedbackDate: string
-    id: string
-    position: number
-    query: string
-    voting?: SummaryFeedbackVoting | null
-    webPageSummaryId: string
-  }
+  createSummaryFeedback: { __typename?: 'CreateSummaryFeedback'; id: string }
 }
 
 export type InfoCardFragment = {
@@ -347,18 +339,7 @@ export const CreateSummaryFeedbackDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'feedbackDate' },
-                },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'voting' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'webPageSummaryId' },
-                },
               ],
             },
           },

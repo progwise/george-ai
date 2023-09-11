@@ -4,7 +4,6 @@ import { cacheExchange, createClient, fetchExchange } from '@urql/core'
 const makeClient = () => {
   return createClient({
     url: 'http://localhost:3000/graphql',
-    requestPolicy: 'network-only',
     exchanges: [cacheExchange, fetchExchange],
   })
 }

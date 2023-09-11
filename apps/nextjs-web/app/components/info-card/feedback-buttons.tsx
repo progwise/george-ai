@@ -6,7 +6,7 @@ import { SummaryFeedbackVoting } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
 
-interface FeedbackSelectionProps {
+interface FeedbackButtonsProps {
   query?: string
   position: number
   webPageSummaryId: string
@@ -16,7 +16,7 @@ export const FeedbackButtons = ({
   query,
   position,
   webPageSummaryId,
-}: FeedbackSelectionProps) => {
+}: FeedbackButtonsProps) => {
   const [feedbackSelection, setFeedbackSelection] = useState<
     SummaryFeedbackVoting | undefined
   >()
@@ -28,7 +28,7 @@ export const FeedbackButtons = ({
 
     if (feedback) {
       try {
-        const createResponse = await getClient().mutation(
+        await getClient().mutation(
           graphql(`
             mutation createSummaryFeedback(
               $position: Int!
@@ -44,12 +44,7 @@ export const FeedbackButtons = ({
                   query: $query
                 }
               ) {
-                feedbackDate
                 id
-                position
-                query
-                voting
-                webPageSummaryId
               }
             }
           `),
@@ -60,7 +55,6 @@ export const FeedbackButtons = ({
             webPageSummaryId,
           },
         )
-        console.log('Create successful:', createResponse.data)
       } catch (error) {
         console.error('Error while creating summary feedback:', error)
       }
