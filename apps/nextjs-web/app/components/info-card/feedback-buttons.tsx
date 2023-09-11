@@ -1,9 +1,10 @@
 'use client'
 
 import { graphql } from '@/src/gql'
-import { FeedbackButtons } from './feedback-buttons'
 import { getClient } from '@/app/client/urql-client'
 import { SummaryFeedbackVoting } from '@/src/gql/graphql'
+import Image from 'next/image'
+import { useState } from 'react'
 
 interface FeedbackSelectionProps {
   query?: string
@@ -11,12 +12,20 @@ interface FeedbackSelectionProps {
   webPageSummaryId: string
 }
 
-export const FeedbackSelection = ({
+export const FeedbackButtons = ({
   query,
   position,
   webPageSummaryId,
 }: FeedbackSelectionProps) => {
-  const handleFeedbackChange = async (feedback?: SummaryFeedbackVoting) => {
+  const [feedbackSelection, setFeedbackSelection] = useState<
+    SummaryFeedbackVoting | undefined
+  >()
+
+  const onFeedbackChange = async (votingChoice?: SummaryFeedbackVoting) => {
+    const feedback =
+      feedbackSelection === votingChoice ? undefined : votingChoice
+    setFeedbackSelection(feedback)
+
     if (feedback) {
       try {
         const createResponse = await getClient().mutation(
@@ -58,5 +67,28 @@ export const FeedbackSelection = ({
     }
   }
 
-  return <FeedbackButtons onFeedbackChange={handleFeedbackChange} />
+  return (
+    <div className="flex gap-4">
+      {Object.values(SummaryFeedbackVoting)
+        .reverse()
+        .map((votingChoice) => (
+          <button
+            key={votingChoice}
+            onClick={() => onFeedbackChange(votingChoice)}
+          >
+            <Image
+              src={`/thumbs-${votingChoice}.svg`}
+              alt={votingChoice}
+              className={
+                feedbackSelection === votingChoice
+                  ? 'opacity-100'
+                  : 'opacity-25'
+              }
+              width={24}
+              height={24}
+            />
+          </button>
+        ))}
+    </div>
+  )
 }
