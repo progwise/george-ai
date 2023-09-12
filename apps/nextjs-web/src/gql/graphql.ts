@@ -46,19 +46,6 @@ export type CreateSummaryFeedbackInput = {
   webPageSummaryId: Scalars['String']['input']
 }
 
-export type IndexedWebPage = {
-  __typename?: 'IndexedWebPage'
-  id: Scalars['String']['output']
-  keywords: Array<Scalars['String']['output']>
-  language: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
-  originalContent: Scalars['String']['output']
-  publicationState: PublicationState
-  summary: Scalars['String']['output']
-  title: Scalars['String']['output']
-  url: Scalars['String']['output']
-}
-
 export type Mutation = {
   __typename?: 'Mutation'
   createSummaryFeedback: CreateSummaryFeedback
@@ -77,7 +64,7 @@ export type Query = {
   __typename?: 'Query'
   allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
-  searchResult: Array<IndexedWebPage>
+  searchResult: Array<SearchWebPages>
 }
 
 export type QuerySearchResultArgs = {
@@ -112,6 +99,19 @@ export type SearchFilters = {
   publicationState: Array<Scalars['String']['output']>
 }
 
+export type SearchWebPages = {
+  __typename?: 'searchWebPages'
+  id: Scalars['String']['output']
+  keywords: Array<Scalars['String']['output']>
+  language: Scalars['String']['output']
+  largeLanguageModel: Scalars['String']['output']
+  originalContent: Scalars['String']['output']
+  publicationState: PublicationState
+  summary: Scalars['String']['output']
+  title: Scalars['String']['output']
+  url: Scalars['String']['output']
+}
+
 export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetLangAndLlmQuery = {
@@ -137,7 +137,7 @@ export type CreateSummaryFeedbackMutation = {
 }
 
 export type InfoCardFragment = {
-  __typename?: 'IndexedWebPage'
+  __typename?: 'searchWebPages'
   title: string
   url: string
   language: string
@@ -146,7 +146,7 @@ export type InfoCardFragment = {
   summary: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
-export type GetIndexedWebPageQueryVariables = Exact<{
+export type GetSearchWebPagesQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
   language?: InputMaybe<
     Array<Scalars['String']['input']> | Scalars['String']['input']
@@ -159,10 +159,10 @@ export type GetIndexedWebPageQueryVariables = Exact<{
   >
 }>
 
-export type GetIndexedWebPageQuery = {
+export type GetSearchWebPagesQuery = {
   __typename?: 'Query'
   searchResult: Array<
-    { __typename?: 'IndexedWebPage'; id: string } & {
+    { __typename?: 'searchWebPages'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
   >
@@ -176,7 +176,7 @@ export const InfoCardFragmentDoc = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'IndexedWebPage' },
+        name: { kind: 'Name', value: 'searchWebPages' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -351,13 +351,13 @@ export const CreateSummaryFeedbackDocument = {
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
 >
-export const GetIndexedWebPageDocument = {
+export const GetSearchWebPagesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetIndexedWebPage' },
+      name: { kind: 'Name', value: 'GetSearchWebPages' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -478,7 +478,7 @@ export const GetIndexedWebPageDocument = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'IndexedWebPage' },
+        name: { kind: 'Name', value: 'searchWebPages' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -494,6 +494,6 @@ export const GetIndexedWebPageDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetIndexedWebPageQuery,
-  GetIndexedWebPageQueryVariables
+  GetSearchWebPagesQuery,
+  GetSearchWebPagesQueryVariables
 >

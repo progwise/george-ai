@@ -10,7 +10,7 @@ interface PageListProps extends FilterSelectionProps {
 export async function PageList({ query, lang, status, llm }: PageListProps) {
   const result = await getClient().query(
     graphql(`
-      query GetIndexedWebPage(
+      query GetSearchWebPages(
         $query: String
         $language: [String!]
         $publicationState: [String!]

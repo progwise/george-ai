@@ -1,7 +1,7 @@
 import { strapiClient } from '../strapi-graphql-client'
 import { graphql } from '../gql'
 import { builder } from '../builder'
-import { PublicationState } from '../searchQueryBy'
+import { PublicationState } from '../searchWebPages'
 
 const searchFilters = builder.simpleObject('searchFilters', {
   fields: (t) => ({

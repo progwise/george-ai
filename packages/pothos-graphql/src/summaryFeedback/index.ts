@@ -7,6 +7,23 @@ import {
 import { strapiClient } from '../strapi-graphql-client'
 import { formatISO } from 'date-fns'
 
+const summaryFeedbackFragment = graphql(`
+  fragment SummaryFeedback on SummaryFeedbackEntity {
+    id
+    attributes {
+      feedbackDate
+      position
+      query
+      voting
+      web_page_summary {
+        data {
+          id
+        }
+      }
+    }
+  }
+`)
+
 const SummaryFeedbackVoting = builder.enumType(Enum_Summaryfeedback_Voting, {
   name: 'SummaryFeedbackVoting',
 })
@@ -57,7 +74,7 @@ builder.mutationField('createSummaryFeedback', (t) =>
   t.field({
     type: SummaryFeedbackReference,
     args: {
-      data: t.arg({ type: CreateSummaryFeedbackInput, required: true }),
+      data: t.arg({ type: CreateSummaryFeedbackInput }),
     },
     resolve: async (parent, arguments_) => {
       try {
@@ -88,22 +105,7 @@ builder.mutationField('createSummaryFeedback', (t) =>
         )
         // eslint-disable-next-line react-hooks/rules-of-hooks
         return useFragment(
-          graphql(`
-            fragment SummaryFeedback on SummaryFeedbackEntity {
-              id
-              attributes {
-                feedbackDate
-                position
-                query
-                voting
-                web_page_summary {
-                  data {
-                    id
-                  }
-                }
-              }
-            }
-          `),
+          summaryFeedbackFragment,
           result.createSummaryFeedback?.data,
         )!
       } catch (error) {

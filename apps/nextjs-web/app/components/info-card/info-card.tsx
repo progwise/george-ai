@@ -5,7 +5,7 @@ import { Link } from './link'
 import { FragmentType, graphql, useFragment } from '@/src/gql'
 
 const InfoCardFragment = graphql(`
-  fragment InfoCard on IndexedWebPage {
+  fragment InfoCard on searchWebPages {
     title
     url
     language

@@ -1218,6 +1218,22 @@ export type GetUniqueValuesQuery = {
   } | null
 }
 
+export type SummaryFeedbackFragment = {
+  __typename?: 'SummaryFeedbackEntity'
+  id?: string | null
+  attributes?: {
+    __typename?: 'SummaryFeedback'
+    feedbackDate?: any | null
+    position?: number | null
+    query?: string | null
+    voting?: Enum_Summaryfeedback_Voting | null
+    web_page_summary?: {
+      __typename?: 'WebPageSummaryEntityResponse'
+      data?: { __typename?: 'WebPageSummaryEntity'; id?: string | null } | null
+    } | null
+  } | null
+} & { ' $fragmentName'?: 'SummaryFeedbackFragment' }
+
 export type CreateSummaryFeedbackMutationVariables = Exact<{
   input: SummaryFeedbackInput
 }>
@@ -1235,22 +1251,6 @@ export type CreateSummaryFeedbackMutation = {
       | null
   } | null
 }
-
-export type SummaryFeedbackFragment = {
-  __typename?: 'SummaryFeedbackEntity'
-  id?: string | null
-  attributes?: {
-    __typename?: 'SummaryFeedback'
-    feedbackDate?: any | null
-    position?: number | null
-    query?: string | null
-    voting?: Enum_Summaryfeedback_Voting | null
-    web_page_summary?: {
-      __typename?: 'WebPageSummaryEntityResponse'
-      data?: { __typename?: 'WebPageSummaryEntity'; id?: string | null } | null
-    } | null
-  } | null
-} & { ' $fragmentName'?: 'SummaryFeedbackFragment' }
 
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 

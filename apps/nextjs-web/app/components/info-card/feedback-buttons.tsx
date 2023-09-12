@@ -21,7 +21,7 @@ export const FeedbackButtons = ({
     SummaryFeedbackVoting | undefined
   >()
 
-  const onFeedbackChange = async (votingChoice?: SummaryFeedbackVoting) => {
+  const handleFeedbackChange = async (votingChoice?: SummaryFeedbackVoting) => {
     const feedback =
       feedbackSelection === votingChoice ? undefined : votingChoice
     setFeedbackSelection(feedback)
@@ -64,10 +64,7 @@ export const FeedbackButtons = ({
 
   return (
     <div className="flex gap-4">
-      <button
-        key={SummaryFeedbackVoting.Up}
-        onClick={() => onFeedbackChange(SummaryFeedbackVoting.Up)}
-      >
+      <button onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Up)}>
         <Image
           src="/thumbs-up.svg"
           alt={SummaryFeedbackVoting.Up}
@@ -81,10 +78,7 @@ export const FeedbackButtons = ({
         />
       </button>
 
-      <button
-        key={SummaryFeedbackVoting.Down}
-        onClick={() => onFeedbackChange(SummaryFeedbackVoting.Down)}
-      >
+      <button onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Down)}>
         <Image
           src="/thumbs-down.svg"
           alt={SummaryFeedbackVoting.Down}

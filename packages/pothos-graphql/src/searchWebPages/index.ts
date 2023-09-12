@@ -6,7 +6,7 @@ export enum PublicationState {
   Published = 'published',
 }
 
-type IndexedWebPage = {
+type searchWebPages = {
   id: string
   title: string
   url: string
@@ -18,15 +18,15 @@ type IndexedWebPage = {
   largeLanguageModel: string
 }
 
-const PublicationStateEnumReference = builder.enumType(PublicationState, {
+const PublicationStateEnum = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
-const IndexedWebPageReference =
-  builder.objectRef<IndexedWebPage>('IndexedWebPage')
+const searchWebPagesReference =
+  builder.objectRef<searchWebPages>('searchWebPages')
 
-builder.objectType(IndexedWebPageReference, {
-  name: 'IndexedWebPage',
+builder.objectType(searchWebPagesReference, {
+  name: 'searchWebPages',
   fields: (t) => ({
     id: t.exposeString('id'),
     title: t.exposeString('title'),
@@ -34,7 +34,7 @@ builder.objectType(IndexedWebPageReference, {
     language: t.exposeString('language'),
     originalContent: t.exposeString('originalContent'),
     publicationState: t.expose('publicationState', {
-      type: PublicationStateEnumReference,
+      type: PublicationStateEnum,
     }),
     keywords: t.exposeStringList('keywords'),
     summary: t.exposeString('summary'),
@@ -44,7 +44,7 @@ builder.objectType(IndexedWebPageReference, {
 
 builder.queryField('searchResult', (t) =>
   t.field({
-    type: [IndexedWebPageReference],
+    type: [searchWebPagesReference],
     args: {
       query: t.arg.string({
         required: true,
@@ -75,7 +75,7 @@ builder.queryField('searchResult', (t) =>
 
       try {
         const response = await typesenseClient
-          .collections<IndexedWebPage>('scraped_web_pages_summaries')
+          .collections<searchWebPages>('scraped_web_pages_summaries')
           .documents()
           .search({
             q: arguments_.query,
