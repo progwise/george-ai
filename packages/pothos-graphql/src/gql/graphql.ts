@@ -1275,6 +1275,7 @@ export type WebPageSummaryFragment = {
     keywords?: string | null
     summary?: string | null
     largeLanguageModel?: string | null
+    publishedAt?: any | null
     scraped_web_page?: {
       __typename?: 'ScrapedWebPageEntityResponse'
       data?: {
@@ -1284,7 +1285,6 @@ export type WebPageSummaryFragment = {
           title?: string | null
           url?: string | null
           originalContent?: string | null
-          publishedAt?: any | null
         } | null
       } | null
     } | null
@@ -1375,6 +1375,7 @@ export const WebPageSummaryFragmentDoc = {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'largeLanguageModel' },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'scraped_web_page' },
@@ -1406,13 +1407,6 @@ export const WebPageSummaryFragmentDoc = {
                                     name: {
                                       kind: 'Name',
                                       value: 'originalContent',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'publishedAt',
                                     },
                                   },
                                 ],
@@ -1689,6 +1683,7 @@ export const GetWebPageSummariesDocument = {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'largeLanguageModel' },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'scraped_web_page' },
@@ -1720,13 +1715,6 @@ export const GetWebPageSummariesDocument = {
                                     name: {
                                       kind: 'Name',
                                       value: 'originalContent',
-                                    },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'publishedAt',
                                     },
                                   },
                                 ],
