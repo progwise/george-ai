@@ -67,7 +67,7 @@ const getOrCreateScrapedWebPage = async (
           originalContent: scrapeResultAndSummary.content,
           url: scrapeResultAndSummary.url,
         },
-        locale: scrapeResultAndSummary.language,
+        locale: scrapeResultAndSummary.scrapedLanguage,
       },
     )
     const scrapedWebPage = createdScrapedWebPage.createScrapedWebPage?.data
@@ -97,6 +97,7 @@ const upsertWebPageSummary = async (
         query GetWebPageSummariesByLanguageModelAndUrl(
           $languageModel: String!
           $url: String!
+          $locale: String!
         ) {
           webPageSummaries(
             publicationState: PREVIEW
@@ -104,6 +105,7 @@ const upsertWebPageSummary = async (
             filters: {
               largeLanguageModel: { eq: $languageModel }
               scraped_web_page: { url: { eq: $url } }
+              locale: { eq: $locale }
             }
           ) {
             data {
@@ -128,6 +130,7 @@ const upsertWebPageSummary = async (
       {
         languageModel: scrapeResultAndSummary.largeLanguageModel,
         url: scrapeResultAndSummary.url,
+        locale: scrapeResultAndSummary.currentLanguage,
       },
     )
 
@@ -187,7 +190,7 @@ const upsertWebPageSummary = async (
         `),
         {
           data: newSummary,
-          locale: scrapeResultAndSummary.language,
+          locale: scrapeResultAndSummary.currentLanguage,
         },
       )
 

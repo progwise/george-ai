@@ -9,6 +9,7 @@ export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
   keywords: string[]
   largeLanguageModel: string
+  currentLanguage: string
 }
 
 const processPage = async (url: string): Promise<void> => {
@@ -25,23 +26,23 @@ const processPage = async (url: string): Promise<void> => {
     console.log(`scraping ${currentUrl}`)
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
-      const language = ['de', 'en'].includes(scrapeResult.language)
-        ? (scrapeResult.language as 'de' | 'en')
-        : 'en'
+      const languages: Array<'de' | 'en'> = ['de', 'en']
+      for (const currentLanguage of languages) {
+        const summary =
+          (await getServiceSummary(scrapeResult.content, currentLanguage)) ?? ''
+        const keywords =
+          (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
 
-      const summary =
-        (await getServiceSummary(scrapeResult.content, language)) ?? ''
-      const keywords = (await getKeywords(scrapeResult.content, language)) ?? []
+        const scrapeResultAndSummary: ScrapeResultAndSummary = {
+          ...scrapeResult,
+          currentLanguage,
+          summary,
+          keywords,
+          largeLanguageModel: 'gpt-3.5-turbo',
+        }
 
-      const scrapeResultAndSummary: ScrapeResultAndSummary = {
-        ...scrapeResult,
-        summary,
-        keywords,
-        largeLanguageModel: 'gpt-3.5-turbo',
+        await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
       }
-
-      await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
-
       urlsTodo = [
         ...new Set(
           [...urlsTodo.slice(1), ...scrapeResult.links].filter(

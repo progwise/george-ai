@@ -5,7 +5,7 @@ export interface ScrapeResult {
   url: string
   content: string
   links: string[]
-  language: string
+  scrapedLanguage: string
 }
 
 const acceptCookies = async (page: playwright.Page) => {
@@ -55,8 +55,9 @@ export const scrapePage = async (
     '\n\n' +
     // eslint-disable-next-line unicorn/prefer-string-replace-all
     allTexts.map((text) => text.replace(/\s\s+/g, ' ')).join('\n')
-  const language = (await page.locator('html').getAttribute('lang')) || ''
-  console.log('language:', language)
+  const scrapedLanguage =
+    (await page.locator('html').getAttribute('lang')) || 'en'
+  console.log('scrapedLanguage:', scrapedLanguage)
   const links = await extractLinks(page)
   await page.close()
   return {
@@ -64,6 +65,6 @@ export const scrapePage = async (
     url,
     content: texts,
     links,
-    language,
+    scrapedLanguage,
   }
 }
