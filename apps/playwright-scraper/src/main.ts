@@ -2,8 +2,9 @@ import playwright from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
+import { getAllStrapiLocales } from './locales'
 
-const MAX_RUNS = 3 // Maximum number of runs
+const MAX_RUNS = 2 // Maximum number of runs
 
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
@@ -26,8 +27,20 @@ const processPage = async (url: string): Promise<void> => {
     console.log(`scraping ${currentUrl}`)
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
-      const languages: Array<'de' | 'en'> = ['de', 'en']
+      const languages = await getAllStrapiLocales()
+      if (!languages.includes(scrapeResult.scrapedLanguage)) {
+        console.log(`Skipping ${currentUrl} due to language mismatch`)
+        urlsTodo = urlsTodo.slice(1)
+        continue
+      }
+
+      const filterLanguage = languages.includes()
+
       for (const currentLanguage of languages) {
+        if (currentLanguage !== 'de' && currentLanguage !== 'en') {
+          console.warn(`Unsupported language: ${currentLanguage}`)
+          continue
+        }
         const summary =
           (await getServiceSummary(scrapeResult.content, currentLanguage)) ?? ''
         const keywords =
@@ -60,4 +73,5 @@ const processPage = async (url: string): Promise<void> => {
   await browser.close()
 }
 
-await processPage('https://www.medizin.uni-greifswald.de/')
+// await processPage('https://www.medizin.uni-greifswald.de/')
+await processPage('https://www.safran-group.com/fr/societes/safran-nacelles')
