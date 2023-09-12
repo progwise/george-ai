@@ -29,17 +29,30 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type IndexedWebPage = {
-  __typename?: 'IndexedWebPage'
+export type CreateSummaryFeedback = {
+  __typename?: 'CreateSummaryFeedback'
+  feedbackDate: Scalars['String']['output']
   id: Scalars['String']['output']
-  keywords: Array<Scalars['String']['output']>
-  language: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
-  originalContent: Scalars['String']['output']
-  publicationState: PublicationState
-  summary: Scalars['String']['output']
-  title: Scalars['String']['output']
-  url: Scalars['String']['output']
+  position: Scalars['Int']['output']
+  query: Scalars['String']['output']
+  voting?: Maybe<SummaryFeedbackVoting>
+  webPageSummaryId: Scalars['String']['output']
+}
+
+export type CreateSummaryFeedbackInput = {
+  position: Scalars['Int']['input']
+  query: Scalars['String']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
+}
+
+export type Mutation = {
+  __typename?: 'Mutation'
+  createSummaryFeedback: CreateSummaryFeedback
+}
+
+export type MutationCreateSummaryFeedbackArgs = {
+  data: CreateSummaryFeedbackInput
 }
 
 export enum PublicationState {
@@ -51,7 +64,7 @@ export type Query = {
   __typename?: 'Query'
   allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
-  searchResult: Array<IndexedWebPage>
+  searchResult: Array<SearchWebPages>
 }
 
 export type QuerySearchResultArgs = {
@@ -59,6 +72,11 @@ export type QuerySearchResultArgs = {
   largeLanguageModel?: Array<Scalars['String']['input']>
   publicationState?: Array<Scalars['String']['input']>
   query?: Scalars['String']['input']
+}
+
+export enum SummaryFeedbackVoting {
+  Down = 'Down',
+  Up = 'Up',
 }
 
 export type WebPageSummary = {
@@ -81,6 +99,19 @@ export type SearchFilters = {
   publicationState: Array<Scalars['String']['output']>
 }
 
+export type SearchWebPages = {
+  __typename?: 'searchWebPages'
+  id: Scalars['String']['output']
+  keywords: Array<Scalars['String']['output']>
+  language: Scalars['String']['output']
+  largeLanguageModel: Scalars['String']['output']
+  originalContent: Scalars['String']['output']
+  publicationState: PublicationState
+  summary: Scalars['String']['output']
+  title: Scalars['String']['output']
+  url: Scalars['String']['output']
+}
+
 export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetLangAndLlmQuery = {
@@ -93,8 +124,20 @@ export type GetLangAndLlmQuery = {
   }
 }
 
+export type CreateSummaryFeedbackMutationVariables = Exact<{
+  position: Scalars['Int']['input']
+  voting: SummaryFeedbackVoting
+  webPageSummaryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+}>
+
+export type CreateSummaryFeedbackMutation = {
+  __typename?: 'Mutation'
+  createSummaryFeedback: { __typename?: 'CreateSummaryFeedback'; id: string }
+}
+
 export type InfoCardFragment = {
-  __typename?: 'IndexedWebPage'
+  __typename?: 'searchWebPages'
   title: string
   url: string
   language: string
@@ -103,7 +146,7 @@ export type InfoCardFragment = {
   summary: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
-export type GetIndexedWebPageQueryVariables = Exact<{
+export type GetSearchWebPagesQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
   language?: InputMaybe<
     Array<Scalars['String']['input']> | Scalars['String']['input']
@@ -116,10 +159,10 @@ export type GetIndexedWebPageQueryVariables = Exact<{
   >
 }>
 
-export type GetIndexedWebPageQuery = {
+export type GetSearchWebPagesQuery = {
   __typename?: 'Query'
   searchResult: Array<
-    { __typename?: 'IndexedWebPage'; id: string } & {
+    { __typename?: 'searchWebPages'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
   >
@@ -133,7 +176,7 @@ export const InfoCardFragmentDoc = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'IndexedWebPage' },
+        name: { kind: 'Name', value: 'searchWebPages' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -182,13 +225,139 @@ export const GetLangAndLlmDocument = {
     },
   ],
 } as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
-export const GetIndexedWebPageDocument = {
+export const CreateSummaryFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createSummaryFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'position' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'voting' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'SummaryFeedbackVoting' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'webPageSummaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'query' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createSummaryFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'position' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'position' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'voting' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'voting' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'webPageSummaryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'webPageSummaryId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'query' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'query' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateSummaryFeedbackMutation,
+  CreateSummaryFeedbackMutationVariables
+>
+export const GetSearchWebPagesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetIndexedWebPage' },
+      name: { kind: 'Name', value: 'GetSearchWebPages' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -309,7 +478,7 @@ export const GetIndexedWebPageDocument = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'IndexedWebPage' },
+        name: { kind: 'Name', value: 'searchWebPages' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -325,6 +494,6 @@ export const GetIndexedWebPageDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetIndexedWebPageQuery,
-  GetIndexedWebPageQueryVariables
+  GetSearchWebPagesQuery,
+  GetSearchWebPagesQueryVariables
 >

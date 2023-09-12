@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "summary_feedbacks",
+  "info": {
+    "singularName": "summary-feedback",
+    "pluralName": "summary-feedbacks",
+    "displayName": "SummaryFeedback",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "web_page_summary": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::web-page-summary.web-page-summary"
+    },
+    "voting": {
+      "type": "enumeration",
+      "enum": [
+        "up",
+        "down"
+      ]
+    },
+    "query": {
+      "type": "string"
+    },
+    "feedbackDate": {
+      "type": "date"
+    },
+    "position": {
+      "type": "integer"
+    }
+  }
+}

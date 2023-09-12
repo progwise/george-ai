@@ -1,17 +1,23 @@
 import { PublicationState } from '@/src/gql/graphql'
 import { FeedbackButtons } from './feedback-buttons'
 
-interface TitleProps {
+interface InfoCardTitleProps {
   title: string
   publicationState: PublicationState
   language: string
+  query?: string
+  position: number
+  webPageSummaryId: string
 }
 
 export const InfoCardTitle = ({
   title,
   publicationState,
   language,
-}: TitleProps) => {
+  query,
+  position,
+  webPageSummaryId,
+}: InfoCardTitleProps) => {
   return (
     <div className="flex gap-2 justify-between">
       <div className="flex gap-2 items-center">
@@ -25,7 +31,11 @@ export const InfoCardTitle = ({
           {publicationState}
         </div>
       </div>
-      <FeedbackButtons />
+      <FeedbackButtons
+        query={query}
+        position={position}
+        webPageSummaryId={webPageSummaryId}
+      />
     </div>
   )
 }

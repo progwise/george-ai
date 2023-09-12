@@ -15,10 +15,12 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
   '\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ':
     types.GetLangAndLlmDocument,
-  '\n  fragment InfoCard on IndexedWebPage {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n':
+  '\n          mutation createSummaryFeedback(\n            $position: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                position: $position\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ':
+    types.CreateSummaryFeedbackDocument,
+  '\n  fragment InfoCard on searchWebPages {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n':
     types.InfoCardFragmentDoc,
-  '\n      query GetIndexedWebPage(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
-    types.GetIndexedWebPageDocument,
+  '\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
+    types.GetSearchWebPagesDocument,
 }
 
 /**
@@ -45,14 +47,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment InfoCard on IndexedWebPage {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n',
-): (typeof documents)['\n  fragment InfoCard on IndexedWebPage {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n']
+  source: '\n          mutation createSummaryFeedback(\n            $position: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                position: $position\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation createSummaryFeedback(\n            $position: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                position: $position\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query GetIndexedWebPage(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ',
-): (typeof documents)['\n      query GetIndexedWebPage(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ']
+  source: '\n  fragment InfoCard on searchWebPages {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n',
+): (typeof documents)['\n  fragment InfoCard on searchWebPages {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ',
+): (typeof documents)['\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

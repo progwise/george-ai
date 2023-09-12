@@ -14,6 +14,8 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
+  Date: { input: any; output: any; }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any; }
   /** A string used to identify an i18n locale */
@@ -58,6 +60,31 @@ export type ComponentWebPageSummaryWebPageSummary = {
   id: Scalars['ID']['output'];
 };
 
+export type DateFilterInput = {
+  and?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  between?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  contains?: InputMaybe<Scalars['Date']['input']>;
+  containsi?: InputMaybe<Scalars['Date']['input']>;
+  endsWith?: InputMaybe<Scalars['Date']['input']>;
+  eq?: InputMaybe<Scalars['Date']['input']>;
+  eqi?: InputMaybe<Scalars['Date']['input']>;
+  gt?: InputMaybe<Scalars['Date']['input']>;
+  gte?: InputMaybe<Scalars['Date']['input']>;
+  in?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  lt?: InputMaybe<Scalars['Date']['input']>;
+  lte?: InputMaybe<Scalars['Date']['input']>;
+  ne?: InputMaybe<Scalars['Date']['input']>;
+  nei?: InputMaybe<Scalars['Date']['input']>;
+  not?: InputMaybe<DateFilterInput>;
+  notContains?: InputMaybe<Scalars['Date']['input']>;
+  notContainsi?: InputMaybe<Scalars['Date']['input']>;
+  notIn?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  notNull?: InputMaybe<Scalars['Boolean']['input']>;
+  null?: InputMaybe<Scalars['Boolean']['input']>;
+  or?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
+  startsWith?: InputMaybe<Scalars['Date']['input']>;
+};
+
 export type DateTimeFilterInput = {
   and?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
   between?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
@@ -84,6 +111,11 @@ export type DateTimeFilterInput = {
 };
 
 export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
+  Down = 'down',
+  Up = 'up'
+}
+
+export enum Enum_Summaryfeedback_Voting {
   Down = 'down',
   Up = 'up'
 }
@@ -119,7 +151,7 @@ export type FloatFilterInput = {
   startsWith?: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type GenericMorph = ComponentWebPageSummaryWebPageSummary | I18NLocale | ScrapedWebPage | UploadFile | UploadFolder | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser | WebPageSummary;
+export type GenericMorph = ComponentWebPageSummaryWebPageSummary | I18NLocale | ScrapedWebPage | SummaryFeedback | UploadFile | UploadFolder | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser | WebPageSummary;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -238,6 +270,7 @@ export type Mutation = {
   changePassword?: Maybe<UsersPermissionsLoginPayload>;
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
   createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>;
+  createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
   createUploadFile?: Maybe<UploadFileEntityResponse>;
   createUploadFolder?: Maybe<UploadFolderEntityResponse>;
   /** Create a new role */
@@ -247,6 +280,7 @@ export type Mutation = {
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>;
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>;
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
+  deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
   deleteUploadFile?: Maybe<UploadFileEntityResponse>;
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>;
   /** Delete an existing role */
@@ -267,6 +301,7 @@ export type Mutation = {
   resetPassword?: Maybe<UsersPermissionsLoginPayload>;
   updateFileInfo: UploadFileEntityResponse;
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
+  updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
   updateUploadFile?: Maybe<UploadFileEntityResponse>;
   updateUploadFolder?: Maybe<UploadFolderEntityResponse>;
   /** Update an existing role */
@@ -295,6 +330,11 @@ export type MutationCreateScrapedWebPageLocalizationArgs = {
   data?: InputMaybe<ScrapedWebPageInput>;
   id?: InputMaybe<Scalars['ID']['input']>;
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationCreateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput;
 };
 
 
@@ -334,6 +374,11 @@ export type MutationCreateWebPageSummaryLocalizationArgs = {
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input'];
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationDeleteSummaryFeedbackArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -416,6 +461,12 @@ export type MutationUpdateScrapedWebPageArgs = {
 };
 
 
+export type MutationUpdateSummaryFeedbackArgs = {
+  data: SummaryFeedbackInput;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUpdateUploadFileArgs = {
   data: UploadFileInput;
   id: Scalars['ID']['input'];
@@ -482,6 +533,8 @@ export type Query = {
   me?: Maybe<UsersPermissionsMe>;
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>;
+  summaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
+  summaryFeedbacks?: Maybe<SummaryFeedbackEntityResponseCollection>;
   uploadFile?: Maybe<UploadFileEntityResponse>;
   uploadFiles?: Maybe<UploadFileEntityResponseCollection>;
   uploadFolder?: Maybe<UploadFolderEntityResponse>;
@@ -518,6 +571,18 @@ export type QueryScrapedWebPagesArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   publicationState?: InputMaybe<PublicationState>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type QuerySummaryFeedbackArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QuerySummaryFeedbacksArgs = {
+  filters?: InputMaybe<SummaryFeedbackFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
@@ -676,6 +741,56 @@ export type StringFilterInput = {
   null?: InputMaybe<Scalars['Boolean']['input']>;
   or?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   startsWith?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SummaryFeedback = {
+  __typename?: 'SummaryFeedback';
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  feedbackDate?: Maybe<Scalars['Date']['output']>;
+  position?: Maybe<Scalars['Int']['output']>;
+  query?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  voting?: Maybe<Enum_Summaryfeedback_Voting>;
+  web_page_summary?: Maybe<WebPageSummaryEntityResponse>;
+};
+
+export type SummaryFeedbackEntity = {
+  __typename?: 'SummaryFeedbackEntity';
+  attributes?: Maybe<SummaryFeedback>;
+  id?: Maybe<Scalars['ID']['output']>;
+};
+
+export type SummaryFeedbackEntityResponse = {
+  __typename?: 'SummaryFeedbackEntityResponse';
+  data?: Maybe<SummaryFeedbackEntity>;
+};
+
+export type SummaryFeedbackEntityResponseCollection = {
+  __typename?: 'SummaryFeedbackEntityResponseCollection';
+  data: Array<SummaryFeedbackEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type SummaryFeedbackFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>;
+  createdAt?: InputMaybe<DateTimeFilterInput>;
+  feedbackDate?: InputMaybe<DateFilterInput>;
+  id?: InputMaybe<IdFilterInput>;
+  not?: InputMaybe<SummaryFeedbackFiltersInput>;
+  or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>;
+  position?: InputMaybe<IntFilterInput>;
+  query?: InputMaybe<StringFilterInput>;
+  updatedAt?: InputMaybe<DateTimeFilterInput>;
+  voting?: InputMaybe<StringFilterInput>;
+  web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>;
+};
+
+export type SummaryFeedbackInput = {
+  feedbackDate?: InputMaybe<Scalars['Date']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+  voting?: InputMaybe<Enum_Summaryfeedback_Voting>;
+  web_page_summary?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type UploadFile = {
