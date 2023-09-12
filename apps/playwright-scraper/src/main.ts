@@ -5,7 +5,7 @@ import { ScrapeResult, scrapePage } from './scrape.js'
 import { getAllStrapiLocales } from './locales'
 import { prompts } from './prompts'
 
-const MAX_RUNS = 3 // Maximum number of runs
+const MAX_RUNS = 2 // Maximum number of runs
 
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
@@ -18,28 +18,47 @@ const processPage = async (url: string): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
 
+  let runCounter = 0 // Counter
+
   const urlsDone: Array<string> = []
   let urlsTodo = [url]
+  const strapiLocales = await getAllStrapiLocales()
+  const promptsLocales = strapiLocales.filter((lang) =>
+    Object.keys(prompts).includes(lang),
+  )
 
-  let runCounter = 0 // Counter
+  if (promptsLocales.length === 0) {
+    console.log('No supported locales found. Exiting the process.')
+    return
+  }
+
   while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
     const currentUrl = urlsTodo[0]
+    urlsTodo = urlsTodo.slice(1)
     urlsDone.push(currentUrl)
     console.log(`scraping ${currentUrl}`)
+
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
-      const alllanguages = await getAllStrapiLocales()
-      const languages = alllanguages.filter((lang) =>
-        Object.keys(prompts).includes(lang),
-      )
 
-      if (!languages.includes(scrapeResult.scrapedLanguage)) {
-        console.log(`Skipping ${currentUrl} due to language mismatch`)
-        urlsTodo = urlsTodo.slice(1)
+      urlsTodo = [
+        ...new Set(
+          [...urlsTodo, ...scrapeResult.links].filter(
+            (url) => !urlsDone.includes(url),
+          ),
+        ),
+      ]
+
+      if (!promptsLocales.includes(scrapeResult.scrapedLanguage)) {
+        console.log(
+          `Skipping ${currentUrl}: Unsupported locale ${
+            scrapeResult.scrapedLanguage
+          }. Supported: ${promptsLocales.join(', ')}`,
+        )
         continue
       }
 
-      for (const currentLanguage of languages) {
+      for (const currentLanguage of promptsLocales) {
         const summary =
           (await getServiceSummary(
             scrapeResult.content,
@@ -61,22 +80,14 @@ const processPage = async (url: string): Promise<void> => {
 
         await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
       }
-      urlsTodo = [
-        ...new Set(
-          [...urlsTodo.slice(1), ...scrapeResult.links].filter(
-            (url) => !urlsDone.includes(url),
-          ),
-        ),
-      ]
     } catch (error) {
       console.error(`error scraping ${currentUrl}:`, error)
-      urlsTodo = urlsTodo.slice(1)
     }
+
     runCounter++ // Increases the counter after each run
   }
 
   await browser.close()
 }
 
-// await processPage('https://www.medizin.uni-greifswald.de/')
-await processPage('https://www.lefigaro.fr/')
+await processPage('https://www.medizin.uni-greifswald.de/')
