@@ -10,7 +10,7 @@ interface PageListProps extends FilterSelectionProps {
 export async function PageList({ query, lang, status, llm }: PageListProps) {
   const result = await getClient().query(
     graphql(`
-      query GetIndexedWebPage(
+      query GetSearchWebPages(
         $query: String
         $language: [String!]
         $publicationState: [String!]
@@ -37,6 +37,16 @@ export async function PageList({ query, lang, status, llm }: PageListProps) {
   const pages = result.data?.searchResult
 
   return (
-    <>{pages?.map((page) => <InfoCard key={page.id} pageFragment={page} />)}</>
+    <>
+      {pages?.map((page, index) => (
+        <InfoCard
+          key={page.id}
+          pageFragment={page}
+          query={query}
+          position={index}
+          webPageSummaryId={page.id}
+        />
+      ))}
+    </>
   )
 }

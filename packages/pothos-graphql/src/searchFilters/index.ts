@@ -1,7 +1,7 @@
 import { strapiClient } from '../strapi-graphql-client'
 import { graphql } from '../gql'
 import { builder } from '../builder'
-import { PublicationState } from '../search'
+import { PublicationState } from '../searchWebPages'
 
 const searchFilters = builder.simpleObject('searchFilters', {
   fields: (t) => ({
@@ -16,7 +16,7 @@ builder.queryField('searchFilters', (t) =>
     type: searchFilters,
     resolve: async () => {
       try {
-        const result = await strapiClient.request(
+        const { webPageSummaries } = await strapiClient.request(
           graphql(`
             query GetUniqueValues {
               webPageSummaries(publicationState: PREVIEW, locale: "all") {
@@ -31,13 +31,13 @@ builder.queryField('searchFilters', (t) =>
           `),
           {},
         )
-        const webPageSummaryDatas = result.webPageSummaries?.data ?? []
+        const webPageSummariesData = webPageSummaries?.data ?? []
 
         const languageSet = new Set<string>()
         const largeLanguageModelSet = new Set<string>()
         const publicationStates = Object.values(PublicationState)
 
-        for (const data of webPageSummaryDatas) {
+        for (const data of webPageSummariesData) {
           const { attributes } = data
           if (attributes?.locale) {
             languageSet.add(attributes.locale)
