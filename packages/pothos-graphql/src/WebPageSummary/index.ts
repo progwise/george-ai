@@ -48,7 +48,7 @@ builder.queryField('allSummaries', (t) =>
     type: [WebPageSummaryReference],
     resolve: async () => {
       try {
-        const result = await strapiClient.request(
+        const { webPageSummaries } = await strapiClient.request(
           graphql(`
             query GetWebPageSummaries {
               webPageSummaries(publicationState: PREVIEW, locale: "all") {
@@ -60,8 +60,8 @@ builder.queryField('allSummaries', (t) =>
           `),
           {},
         )
-        const webPageSummaryDatas = result.webPageSummaries?.data ?? []
-        return webPageSummaryDatas.map((data) => {
+        const webPageSummariesData = webPageSummaries?.data ?? []
+        return webPageSummariesData.map((data) => {
           return useFragment(
             graphql(`
               fragment WebPageSummary on WebPageSummaryEntity {

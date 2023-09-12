@@ -7,12 +7,9 @@ import {
 import { strapiClient } from '../strapi-graphql-client'
 import { formatISO } from 'date-fns'
 
-const SummaryFeedbackVotingReference = builder.enumType(
-  Enum_Summaryfeedback_Voting,
-  {
-    name: 'SummaryFeedbackVoting',
-  },
-)
+const SummaryFeedbackVoting = builder.enumType(Enum_Summaryfeedback_Voting, {
+  name: 'SummaryFeedbackVoting',
+})
 
 const SummaryFeedbackReference = builder.objectRef<SummaryFeedbackFragment>(
   'CreateSummaryFeedback',
@@ -25,7 +22,7 @@ const CreateSummaryFeedbackInput = builder.inputType(
       position: t.int(),
       query: t.string(),
       voting: t.field({
-        type: SummaryFeedbackVotingReference,
+        type: SummaryFeedbackVoting,
       }),
       webPageSummaryId: t.string(),
     }),
@@ -46,7 +43,7 @@ builder.objectType(SummaryFeedbackReference, {
       resolve: (parent) => parent.attributes?.query ?? '',
     }),
     voting: t.field({
-      type: SummaryFeedbackVotingReference,
+      type: SummaryFeedbackVoting,
       resolve: (parent) => parent.attributes?.voting,
       nullable: true,
     }),

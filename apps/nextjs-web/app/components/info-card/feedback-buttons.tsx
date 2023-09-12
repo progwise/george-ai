@@ -26,63 +26,77 @@ export const FeedbackButtons = ({
       feedbackSelection === votingChoice ? undefined : votingChoice
     setFeedbackSelection(feedback)
 
-    if (feedback) {
-      try {
-        await getClient().mutation(
-          graphql(`
-            mutation createSummaryFeedback(
-              $position: Int!
-              $voting: SummaryFeedbackVoting!
-              $webPageSummaryId: String!
-              $query: String!
-            ) {
-              createSummaryFeedback(
-                data: {
-                  position: $position
-                  voting: $voting
-                  webPageSummaryId: $webPageSummaryId
-                  query: $query
-                }
-              ) {
-                id
+    if (!feedback) {
+      return
+    }
+    try {
+      await getClient().mutation(
+        graphql(`
+          mutation createSummaryFeedback(
+            $position: Int!
+            $voting: SummaryFeedbackVoting!
+            $webPageSummaryId: String!
+            $query: String!
+          ) {
+            createSummaryFeedback(
+              data: {
+                position: $position
+                voting: $voting
+                webPageSummaryId: $webPageSummaryId
+                query: $query
               }
+            ) {
+              id
             }
-          `),
-          {
-            query: query ?? '',
-            voting: feedback,
-            position,
-            webPageSummaryId,
-          },
-        )
-      } catch (error) {
-        console.error('Error while creating summary feedback:', error)
-      }
+          }
+        `),
+        {
+          query: query ?? '',
+          voting: feedback,
+          position,
+          webPageSummaryId,
+        },
+      )
+    } catch (error) {
+      console.error('Error while creating summary feedback:', error)
     }
   }
 
   return (
     <div className="flex gap-4">
-      {Object.values(SummaryFeedbackVoting)
-        .reverse()
-        .map((votingChoice) => (
-          <button
-            key={votingChoice}
-            onClick={() => onFeedbackChange(votingChoice)}
-          >
-            <Image
-              src={`/thumbs-${votingChoice}.svg`}
-              alt={votingChoice}
-              className={
-                feedbackSelection === votingChoice
-                  ? 'opacity-100'
-                  : 'opacity-25'
-              }
-              width={24}
-              height={24}
-            />
-          </button>
-        ))}
+      <button
+        key={SummaryFeedbackVoting.Up}
+        onClick={() => onFeedbackChange(SummaryFeedbackVoting.Up)}
+      >
+        <Image
+          src="/thumbs-up.svg"
+          alt={SummaryFeedbackVoting.Up}
+          className={
+            feedbackSelection === SummaryFeedbackVoting.Up
+              ? 'opacity-100'
+              : 'opacity-25'
+          }
+          width={24}
+          height={24}
+        />
+      </button>
+
+      <button
+        key={SummaryFeedbackVoting.Down}
+        onClick={() => onFeedbackChange(SummaryFeedbackVoting.Down)}
+      >
+        <Image
+          src="/thumbs-down.svg"
+          alt={SummaryFeedbackVoting.Down}
+          className={
+            feedbackSelection === SummaryFeedbackVoting.Down
+              ? 'opacity-100'
+              : 'opacity-25'
+          }
+          width={24}
+          height={24}
+        />
+      </button>
     </div>
   )
 }
