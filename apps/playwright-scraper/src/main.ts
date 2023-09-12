@@ -4,7 +4,7 @@ import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 import { getAllStrapiLocales } from './locales'
 
-const MAX_RUNS = 2 // Maximum number of runs
+const MAX_RUNS = 3 // Maximum number of runs
 
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
@@ -34,10 +34,8 @@ const processPage = async (url: string): Promise<void> => {
         continue
       }
 
-      const filterLanguage = languages.includes()
-
       for (const currentLanguage of languages) {
-        if (currentLanguage !== 'de' && currentLanguage !== 'en') {
+        if (currentLanguage !== 'en' && currentLanguage !== 'de') {
           console.warn(`Unsupported language: ${currentLanguage}`)
           continue
         }
@@ -74,4 +72,4 @@ const processPage = async (url: string): Promise<void> => {
 }
 
 // await processPage('https://www.medizin.uni-greifswald.de/')
-await processPage('https://www.safran-group.com/fr/societes/safran-nacelles')
+await processPage('https://www.lefigaro.fr/')
