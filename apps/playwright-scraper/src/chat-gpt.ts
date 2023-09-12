@@ -7,6 +7,7 @@ import dotenv from 'dotenv'
 import { prompts } from './prompts'
 
 dotenv.config()
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
   organization: process.env.OPENAI_API_ORG,
@@ -15,7 +16,7 @@ const openai = new OpenAIApi(configuration)
 
 export const getServiceSummary = async (
   content: string,
-  language: 'de' | 'en',
+  language: keyof typeof prompts,
 ) => {
   try {
     const response = await openai.createChatCompletion({
@@ -37,7 +38,10 @@ export const getServiceSummary = async (
   }
 }
 
-export const getKeywords = async (content: string, language: 'de' | 'en') => {
+export const getKeywords = async (
+  content: string,
+  language: keyof typeof prompts,
+) => {
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',

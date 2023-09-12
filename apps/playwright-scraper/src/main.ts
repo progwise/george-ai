@@ -3,6 +3,7 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 import { getAllStrapiLocales } from './locales'
+import { prompts } from './prompts'
 
 const MAX_RUNS = 3 // Maximum number of runs
 
@@ -27,7 +28,11 @@ const processPage = async (url: string): Promise<void> => {
     console.log(`scraping ${currentUrl}`)
     try {
       const scrapeResult = await scrapePage(currentUrl, context)
-      const languages = await getAllStrapiLocales()
+      const alllanguages = await getAllStrapiLocales()
+      const languages = alllanguages.filter((lang) =>
+        Object.keys(prompts).includes(lang),
+      )
+
       if (!languages.includes(scrapeResult.scrapedLanguage)) {
         console.log(`Skipping ${currentUrl} due to language mismatch`)
         urlsTodo = urlsTodo.slice(1)
@@ -35,14 +40,16 @@ const processPage = async (url: string): Promise<void> => {
       }
 
       for (const currentLanguage of languages) {
-        if (currentLanguage !== 'en' && currentLanguage !== 'de') {
-          console.warn(`Unsupported language: ${currentLanguage}`)
-          continue
-        }
         const summary =
-          (await getServiceSummary(scrapeResult.content, currentLanguage)) ?? ''
+          (await getServiceSummary(
+            scrapeResult.content,
+            currentLanguage as keyof typeof prompts,
+          )) ?? ''
         const keywords =
-          (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
+          (await getKeywords(
+            scrapeResult.content,
+            currentLanguage as keyof typeof prompts,
+          )) ?? []
 
         const scrapeResultAndSummary: ScrapeResultAndSummary = {
           ...scrapeResult,
