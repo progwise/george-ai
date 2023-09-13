@@ -11,6 +11,7 @@
   },
   "scripts": {
     "rebuildcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/rebuild.collection.ts",
+    "dropcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/drop.collection.ts",
     "tsc": "tsc",
     "lint": "eslint ."
   },

@@ -1,7 +1,10 @@
 import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import { graphql } from './gql'
-import { upsertTypesenseCollection } from '@george-ai/typesense-client'
+import {
+  ensureCollectionExists,
+  upsertWebpageSummary,
+} from '@george-ai/typesense-client'
 import pMap from 'p-map'
 import { WebPageSummaryEntity } from './gql/graphql'
 
@@ -70,9 +73,9 @@ export const rebuildCollection = async () => {
           ? 'published'
           : 'draft',
       }
-      await upsertTypesenseCollection(webPageSummary)
+      await upsertWebpageSummary(webPageSummary)
     }
-
+    await ensureCollectionExists()
     await pMap(webPageSummaryArray, mapper, { concurrency: 10 })
   } catch (error) {
     console.error(error)
