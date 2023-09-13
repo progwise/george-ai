@@ -44,10 +44,89 @@ export const rebuildCollection = async () => {
       `),
       {},
     )
-
     const webPageSummaryArray = webPageSummaries?.data || []
 
+    // const { summaryFeedbacks } = await strapiClient.request(
+    //   graphql(`
+    //     query GetSummaryFeedbacks {
+    //       summaryFeedbacks {
+    //         data {
+    //           id
+    //           attributes {
+    //             voting
+    //             query
+    //             feedbackDate
+    //             position
+    //             web_page_summary {
+    //               data {
+    //                 id
+    //               }
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   `),
+    //   {},
+    // )
+    // const allSummaryFeedbacks = summaryFeedbacks?.data
+
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
+      const { summaryFeedbacks } = await strapiClient.request(
+        graphql(`
+          query GetSummaryFeedbacks($id: ID!) {
+            summaryFeedbacks(
+              filters: { web_page_summary: { id: { eq: $id } } }
+            ) {
+              data {
+                id
+                attributes {
+                  voting
+                  query
+                  feedbackDate
+                  position
+                }
+              }
+            }
+          }
+        `),
+        { id: webPageSummaryEntity.id ?? '' },
+      )
+
+      // const currentSummaryFeedbacks = allSummaryFeedbacks?.filter(
+      //   (feedback) =>
+      //     feedback.attributes?.web_page_summary?.data?.id ===
+      //     webPageSummaryEntity.id,
+      // )
+      console.log('currentSummaryFeedbacks:', summaryFeedbacks?.data)
+
+      let popularity = 0
+      if (summaryFeedbacks?.data) {
+        for (const feedback of summaryFeedbacks.data) {
+          const vote = feedback.attributes?.voting
+          if (vote === 'up') {
+            popularity += 1
+          }
+          if (vote === 'down') {
+            popularity -= 1
+          }
+        }
+      }
+
+      // const popularity = summaryFeedbacks?.data.reduce(
+      //   (accumulator, feedback) => {
+      //     const vote = feedback.attributes?.voting
+      //     if (vote === 'up') {
+      //       return accumulator + 1
+      //     }
+      //     if (vote === 'down') {
+      //       return accumulator - 1
+      //     }
+      //     return accumulator
+      //   },
+      //   0,
+      // )
+
       const webPageSummary = {
         id: webPageSummaryEntity.id ?? '',
         language: webPageSummaryEntity.attributes?.locale ?? '',
@@ -69,6 +148,7 @@ export const rebuildCollection = async () => {
         publicationState: webPageSummaryEntity.attributes?.publishedAt
           ? 'published'
           : 'draft',
+        popularity,
       }
       await upsertTypesenseCollection(webPageSummary)
     }

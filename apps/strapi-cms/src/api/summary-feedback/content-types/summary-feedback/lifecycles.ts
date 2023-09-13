@@ -1,13 +1,23 @@
 import { upsertTypesenseCollection } from '@george-ai/typesense-client'
 
-const transformAndUpsertSummary = async (id) => {
+const transformAndUpsertFeedback = async (id) => {
+  const summaryFeedbackResult = await strapi.entityService.findOne(
+    'api::summary-feedback.summary-feedback',
+    id,
+    {
+      populate: ['web_page_summary'],
+    },
+  )
+
   const webPageSummaryResult = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
-    id,
+    summaryFeedbackResult.web_page_summary.id,
     {
       populate: ['scraped_web_page'],
     },
-  )
+    )
+
+    console.log("webPageSummaryResult: ", webPageSummaryResult);
 
   const allSummaryFeedbackResult = await strapi.entityService.findMany(
     'api::summary-feedback.summary-feedback',
@@ -15,26 +25,26 @@ const transformAndUpsertSummary = async (id) => {
       filters: {
         web_page_summary: {
           id: {
-            $eq: id,
+            $eq: summaryFeedbackResult.web_page_summary.id,
           },
         },
       },
     },
-  )
-  console.log('allSummaryFeedbackResult: ', allSummaryFeedbackResult)
+    )
+    console.log("allSummaryFeedbackResult:", allSummaryFeedbackResult);
 
-  let popularity = 0
-  if (allSummaryFeedbackResult) {
-    for (const feedback of allSummaryFeedbackResult) {
-      const vote = feedback.voting
-      if (vote === 'up') {
-        popularity += 1
-      }
-      if (vote === 'down') {
-        popularity -= 1
+    let popularity = 0
+    if (allSummaryFeedbackResult) {
+      for (const feedback of allSummaryFeedbackResult) {
+        const vote = feedback.voting
+        if (vote === 'up') {
+          popularity += 1
+        }
+        if (vote === 'down') {
+          popularity -= 1
+        }
       }
     }
-  }
 
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),
@@ -47,21 +57,18 @@ const transformAndUpsertSummary = async (id) => {
     title: webPageSummaryResult.scraped_web_page.title,
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
-    publicationState: webPageSummaryResult.publishedAt
+    publicationState: webPageSummaryResult.scraped_web_page.publishedAt
       ? 'published'
       : 'draft',
-      popularity,
+    popularity,
   }
+    console.log("webPageSummary:", webPageSummary);
 
   upsertTypesenseCollection(webPageSummary)
 }
 
 export default {
   async afterCreate(event) {
-    await transformAndUpsertSummary(event.result.id)
-  },
-
-  async afterUpdate(event) {
-    await transformAndUpsertSummary(event.result.id)
+    await transformAndUpsertFeedback(event.result.id)
   },
 }
