@@ -42,6 +42,12 @@
         }
       },
       "required": false
+    },
+    "web_page_summaries": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::web-page-summary.web-page-summary",
+      "mappedBy": "scraped_web_page"
     }
   }
 }
