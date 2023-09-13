@@ -3,7 +3,7 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 import { getAllStrapiLocales } from './locales'
-import { prompts } from './prompts'
+import { isLanguage, prompts } from './prompts'
 
 const MAX_RUNS = 2 // Maximum number of runs
 
@@ -23,9 +23,8 @@ const processPage = async (url: string): Promise<void> => {
   const urlsDone: Array<string> = []
   let urlsTodo = [url]
   const strapiLocales = await getAllStrapiLocales()
-  const promptsLocales = strapiLocales.filter((lang) =>
-    Object.keys(prompts).includes(lang),
-  )
+  // eslint-disable-next-line unicorn/no-array-callback-reference
+  const promptsLocales = strapiLocales.filter(isLanguage)
 
   if (promptsLocales.length === 0) {
     console.log('No supported locales found. Exiting the process.')
@@ -49,7 +48,12 @@ const processPage = async (url: string): Promise<void> => {
         ),
       ]
 
-      if (!promptsLocales.includes(scrapeResult.scrapedLanguage)) {
+      if (
+        // eslint-disable-next-line unicorn/prefer-includes
+        !promptsLocales.some(
+          (locale) => locale === scrapeResult.scrapedLanguage,
+        )
+      ) {
         console.log(
           `Skipping ${currentUrl}: Unsupported locale ${
             scrapeResult.scrapedLanguage
@@ -60,15 +64,9 @@ const processPage = async (url: string): Promise<void> => {
 
       for (const currentLanguage of promptsLocales) {
         const summary =
-          (await getServiceSummary(
-            scrapeResult.content,
-            currentLanguage as keyof typeof prompts,
-          )) ?? ''
+          (await getServiceSummary(scrapeResult.content, currentLanguage)) ?? ''
         const keywords =
-          (await getKeywords(
-            scrapeResult.content,
-            currentLanguage as keyof typeof prompts,
-          )) ?? []
+          (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
 
         const scrapeResultAndSummary: ScrapeResultAndSummary = {
           ...scrapeResult,
