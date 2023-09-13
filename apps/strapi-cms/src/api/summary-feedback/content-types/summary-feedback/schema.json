@@ -14,8 +14,9 @@
   "attributes": {
     "web_page_summary": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::web-page-summary.web-page-summary"
+      "relation": "manyToOne",
+      "target": "api::web-page-summary.web-page-summary",
+      "inversedBy": "summary_feedbacks"
     },
     "voting": {
       "type": "enumeration",
