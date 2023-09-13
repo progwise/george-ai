@@ -27,13 +27,13 @@ export const rebuildCollection = async () => {
                 keywords
                 summary
                 largeLanguageModel
+                publishedAt
                 scraped_web_page {
                   data {
                     attributes {
                       title
                       url
                       originalContent
-                      publishedAt
                     }
                   }
                 }
@@ -66,8 +66,7 @@ export const rebuildCollection = async () => {
         originalContent:
           webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
             ?.originalContent ?? '',
-        publicationState: webPageSummaryEntity.attributes?.scraped_web_page
-          ?.data?.attributes?.publishedAt
+        publicationState: webPageSummaryEntity.attributes?.publishedAt
           ? 'published'
           : 'draft',
       }

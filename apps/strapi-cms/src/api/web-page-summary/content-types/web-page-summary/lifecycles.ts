@@ -20,7 +20,7 @@ const transformAndUpsertSummary = async (id) => {
     title: webPageSummaryResult.scraped_web_page.title,
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
-    publicationState: webPageSummaryResult.scraped_web_page.publishedAt
+    publicationState: webPageSummaryResult.publishedAt
       ? 'published'
       : 'draft',
   }

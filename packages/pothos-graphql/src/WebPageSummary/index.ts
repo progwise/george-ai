@@ -22,9 +22,7 @@ builder.objectType(WebPageSummaryReference, {
       resolve: (parent) => parent.attributes?.locale ?? '',
     }),
     publishedAt: t.string({
-      resolve: (parent) =>
-        parent.attributes?.scraped_web_page?.data?.attributes?.publishedAt ??
-        '',
+      resolve: (parent) => parent.attributes?.publishedAt ?? '',
     }),
     originalContent: t.string({
       resolve: (parent) =>
@@ -71,13 +69,13 @@ builder.queryField('allSummaries', (t) =>
                   keywords
                   summary
                   largeLanguageModel
+                  publishedAt
                   scraped_web_page {
                     data {
                       attributes {
                         title
                         url
                         originalContent
-                        publishedAt
                       }
                     }
                   }

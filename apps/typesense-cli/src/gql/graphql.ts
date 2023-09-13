@@ -638,10 +638,18 @@ export type ScrapedWebPage = {
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+  web_page_summaries?: Maybe<WebPageSummaryRelationResponseCollection>
 }
 
 export type ScrapedWebPageLocalizationsArgs = {
   filters?: InputMaybe<ScrapedWebPageFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type ScrapedWebPageWeb_Page_SummariesArgs = {
+  filters?: InputMaybe<WebPageSummaryFiltersInput>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
@@ -677,6 +685,7 @@ export type ScrapedWebPageFiltersInput = {
   title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   url?: InputMaybe<StringFilterInput>
+  web_page_summaries?: InputMaybe<WebPageSummaryFiltersInput>
 }
 
 export type ScrapedWebPageInput = {
@@ -684,6 +693,7 @@ export type ScrapedWebPageInput = {
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   title?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
+  web_page_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
 }
 
 export type ScrapedWebPageRelationResponseCollection = {
@@ -764,6 +774,11 @@ export type SummaryFeedbackInput = {
   query?: InputMaybe<Scalars['String']['input']>
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type SummaryFeedbackRelationResponseCollection = {
+  __typename?: 'SummaryFeedbackRelationResponseCollection'
+  data: Array<SummaryFeedbackEntity>
 }
 
 export type UploadFile = {
@@ -1145,6 +1160,7 @@ export type WebPageSummary = {
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
   summary?: Maybe<Scalars['String']['output']>
+  summary_feedbacks?: Maybe<SummaryFeedbackRelationResponseCollection>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
@@ -1152,6 +1168,12 @@ export type WebPageSummaryLocalizationsArgs = {
   filters?: InputMaybe<WebPageSummaryFiltersInput>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type WebPageSummarySummary_FeedbacksArgs = {
+  filters?: InputMaybe<SummaryFeedbackFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -1185,6 +1207,7 @@ export type WebPageSummaryFiltersInput = {
   publishedAt?: InputMaybe<DateTimeFilterInput>
   scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
   summary?: InputMaybe<StringFilterInput>
+  summary_feedbacks?: InputMaybe<SummaryFeedbackFiltersInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
 }
 
@@ -1194,6 +1217,7 @@ export type WebPageSummaryInput = {
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
+  summary_feedbacks?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
 }
 
 export type WebPageSummaryRelationResponseCollection = {
@@ -1216,6 +1240,7 @@ export type GetWebPageSummariesQuery = {
         keywords?: string | null
         summary?: string | null
         largeLanguageModel?: string | null
+        publishedAt?: any | null
         scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
@@ -1225,7 +1250,6 @@ export type GetWebPageSummariesQuery = {
               title?: string | null
               url?: string | null
               originalContent?: string | null
-              publishedAt?: any | null
             } | null
           } | null
         } | null
@@ -1296,6 +1320,10 @@ export const GetWebPageSummariesDocument = {
                             },
                             {
                               kind: 'Field',
+                              name: { kind: 'Name', value: 'publishedAt' },
+                            },
+                            {
+                              kind: 'Field',
                               name: { kind: 'Name', value: 'scraped_web_page' },
                               selectionSet: {
                                 kind: 'SelectionSet',
@@ -1334,13 +1362,6 @@ export const GetWebPageSummariesDocument = {
                                                 name: {
                                                   kind: 'Name',
                                                   value: 'originalContent',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'publishedAt',
                                                 },
                                               },
                                             ],
