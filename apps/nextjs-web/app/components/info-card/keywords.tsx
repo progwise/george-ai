@@ -1,7 +1,7 @@
 export const Keywords = ({ keywords }: { keywords: string[] }) => (
   <div className="flex items-end justify-between gap-2">
     <div className="flex flex-wrap gap-2">
-      {keywords.map(
+      {keywords.slice(0, 10).map(
         (keyword, index) =>
           keyword && (
             <div
