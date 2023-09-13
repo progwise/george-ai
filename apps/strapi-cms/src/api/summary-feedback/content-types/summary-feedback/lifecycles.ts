@@ -13,38 +13,22 @@ const transformAndUpsertFeedback = async (id) => {
     'api::web-page-summary.web-page-summary',
     summaryFeedbackResult.web_page_summary.id,
     {
-      populate: ['scraped_web_page'],
+      populate: ['scraped_web_page', 'summary_feedbacks'],
     },
-    )
+  )
 
-    console.log("webPageSummaryResult: ", webPageSummaryResult);
+  const summaryFeedbacks = webPageSummaryResult.summary_feedbacks ?? []
 
-  const allSummaryFeedbackResult = await strapi.entityService.findMany(
-    'api::summary-feedback.summary-feedback',
-    {
-      filters: {
-        web_page_summary: {
-          id: {
-            $eq: summaryFeedbackResult.web_page_summary.id,
-          },
-        },
-      },
-    },
-    )
-    console.log("allSummaryFeedbackResult:", allSummaryFeedbackResult);
-
-    let popularity = 0
-    if (allSummaryFeedbackResult) {
-      for (const feedback of allSummaryFeedbackResult) {
-        const vote = feedback.voting
-        if (vote === 'up') {
-          popularity += 1
-        }
-        if (vote === 'down') {
-          popularity -= 1
-        }
-      }
+  let popularity = 0
+  for (const feedback of summaryFeedbacks) {
+    const vote = feedback.voting
+    if (vote === 'up') {
+      popularity += 1
     }
+    if (vote === 'down') {
+      popularity -= 1
+    }
+  }
 
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),
@@ -62,7 +46,6 @@ const transformAndUpsertFeedback = async (id) => {
       : 'draft',
     popularity,
   }
-    console.log("webPageSummary:", webPageSummary);
 
   upsertTypesenseCollection(webPageSummary)
 }

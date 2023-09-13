@@ -5,34 +5,20 @@ const transformAndUpsertSummary = async (id) => {
     'api::web-page-summary.web-page-summary',
     id,
     {
-      populate: ['scraped_web_page'],
+      populate: ['scraped_web_page', 'summary_feedbacks'],
     },
   )
 
-  const allSummaryFeedbackResult = await strapi.entityService.findMany(
-    'api::summary-feedback.summary-feedback',
-    {
-      filters: {
-        web_page_summary: {
-          id: {
-            $eq: id,
-          },
-        },
-      },
-    },
-  )
-  console.log('allSummaryFeedbackResult: ', allSummaryFeedbackResult)
+  const summaryFeedbacks = webPageSummaryResult.summary_feedbacks ?? []
 
-  let popularity = 0
-  if (allSummaryFeedbackResult) {
-    for (const feedback of allSummaryFeedbackResult) {
-      const vote = feedback.voting
-      if (vote === 'up') {
-        popularity += 1
-      }
-      if (vote === 'down') {
-        popularity -= 1
-      }
+  let popularity = 0 // TODO: Should this be done when the summary is newly created or updated?
+  for (const feedback of summaryFeedbacks) {
+    const vote = feedback.voting
+    if (vote === 'up') {
+      popularity += 1
+    }
+    if (vote === 'down') {
+      popularity -= 1
     }
   }
 
@@ -47,10 +33,8 @@ const transformAndUpsertSummary = async (id) => {
     title: webPageSummaryResult.scraped_web_page.title,
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
-    publicationState: webPageSummaryResult.publishedAt
-      ? 'published'
-      : 'draft',
-      popularity,
+    publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
+    popularity,
   }
 
   upsertTypesenseCollection(webPageSummary)

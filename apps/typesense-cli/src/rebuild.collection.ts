@@ -28,6 +28,13 @@ export const rebuildCollection = async () => {
                 summary
                 largeLanguageModel
                 publishedAt
+                summary_feedbacks {
+                  data {
+                    attributes {
+                      voting
+                    }
+                  }
+                }
                 scraped_web_page {
                   data {
                     attributes {
@@ -46,74 +53,21 @@ export const rebuildCollection = async () => {
     )
     const webPageSummaryArray = webPageSummaries?.data || []
 
-    // const { summaryFeedbacks } = await strapiClient.request(
-    //   graphql(`
-    //     query GetSummaryFeedbacks {
-    //       summaryFeedbacks {
-    //         data {
-    //           id
-    //           attributes {
-    //             voting
-    //             query
-    //             feedbackDate
-    //             position
-    //             web_page_summary {
-    //               data {
-    //                 id
-    //               }
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //   `),
-    //   {},
-    // )
-    // const allSummaryFeedbacks = summaryFeedbacks?.data
-
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
-      const { summaryFeedbacks } = await strapiClient.request(
-        graphql(`
-          query GetSummaryFeedbacks($id: ID!) {
-            summaryFeedbacks(
-              filters: { web_page_summary: { id: { eq: $id } } }
-            ) {
-              data {
-                id
-                attributes {
-                  voting
-                  query
-                  feedbackDate
-                  position
-                }
-              }
-            }
-          }
-        `),
-        { id: webPageSummaryEntity.id ?? '' },
-      )
-
-      // const currentSummaryFeedbacks = allSummaryFeedbacks?.filter(
-      //   (feedback) =>
-      //     feedback.attributes?.web_page_summary?.data?.id ===
-      //     webPageSummaryEntity.id,
-      // )
-      console.log('currentSummaryFeedbacks:', summaryFeedbacks?.data)
-
+      const summaryFeedbacks =
+        webPageSummaryEntity.attributes?.summary_feedbacks?.data ?? []
       let popularity = 0
-      if (summaryFeedbacks?.data) {
-        for (const feedback of summaryFeedbacks.data) {
-          const vote = feedback.attributes?.voting
-          if (vote === 'up') {
-            popularity += 1
-          }
-          if (vote === 'down') {
-            popularity -= 1
-          }
+      for (const feedback of summaryFeedbacks) {
+        const vote = feedback.attributes?.voting
+        if (vote === 'up') {
+          popularity += 1
+        }
+        if (vote === 'down') {
+          popularity -= 1
         }
       }
 
-      // const popularity = summaryFeedbacks?.data.reduce(
+      // const popularity = summaryFeedbacks.reduce(
       //   (accumulator, feedback) => {
       //     const vote = feedback.attributes?.voting
       //     if (vote === 'up') {

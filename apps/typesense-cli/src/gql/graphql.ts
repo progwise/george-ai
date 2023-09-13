@@ -1241,6 +1241,16 @@ export type GetWebPageSummariesQuery = {
         summary?: string | null
         largeLanguageModel?: string | null
         publishedAt?: any | null
+        summary_feedbacks?: {
+          __typename?: 'SummaryFeedbackRelationResponseCollection'
+          data: Array<{
+            __typename?: 'SummaryFeedbackEntity'
+            attributes?: {
+              __typename?: 'SummaryFeedback'
+              voting?: Enum_Summaryfeedback_Voting | null
+            } | null
+          }>
+        } | null
         scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
@@ -1253,28 +1263,6 @@ export type GetWebPageSummariesQuery = {
             } | null
           } | null
         } | null
-      } | null
-    }>
-  } | null
-}
-
-export type GetSummaryFeedbacksQueryVariables = Exact<{
-  id: Scalars['ID']['input']
-}>
-
-export type GetSummaryFeedbacksQuery = {
-  __typename?: 'Query'
-  summaryFeedbacks?: {
-    __typename?: 'SummaryFeedbackEntityResponseCollection'
-    data: Array<{
-      __typename?: 'SummaryFeedbackEntity'
-      id?: string | null
-      attributes?: {
-        __typename?: 'SummaryFeedback'
-        voting?: Enum_Summaryfeedback_Voting | null
-        query?: string | null
-        feedbackDate?: any | null
-        position?: number | null
       } | null
     }>
   } | null
@@ -1346,6 +1334,46 @@ export const GetWebPageSummariesDocument = {
                             },
                             {
                               kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'summary_feedbacks',
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'voting',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
                               name: { kind: 'Name', value: 'scraped_web_page' },
                               selectionSet: {
                                 kind: 'SelectionSet',
@@ -1411,113 +1439,4 @@ export const GetWebPageSummariesDocument = {
 } as unknown as DocumentNode<
   GetWebPageSummariesQuery,
   GetWebPageSummariesQueryVariables
->
-export const GetSummaryFeedbacksDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetSummaryFeedbacks' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'summaryFeedbacks' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'filters' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'web_page_summary' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'id' },
-                            value: {
-                              kind: 'ObjectValue',
-                              fields: [
-                                {
-                                  kind: 'ObjectField',
-                                  name: { kind: 'Name', value: 'eq' },
-                                  value: {
-                                    kind: 'Variable',
-                                    name: { kind: 'Name', value: 'id' },
-                                  },
-                                },
-                              ],
-                            },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'voting' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'query' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'feedbackDate' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'position' },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GetSummaryFeedbacksQuery,
-  GetSummaryFeedbacksQueryVariables
 >
