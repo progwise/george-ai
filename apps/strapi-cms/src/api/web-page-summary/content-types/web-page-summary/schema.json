@@ -18,8 +18,9 @@
   "attributes": {
     "scraped_web_page": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::scraped-web-page.scraped-web-page"
+      "relation": "manyToOne",
+      "target": "api::scraped-web-page.scraped-web-page",
+      "inversedBy": "web_page_summaries"
     },
     "keywords": {
       "type": "string",
@@ -47,6 +48,12 @@
         }
       },
       "required": false
+    },
+    "summary_feedbacks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::summary-feedback.summary-feedback",
+      "mappedBy": "web_page_summary"
     }
   }
 }

@@ -26,11 +26,6 @@ const getOrCreateScrapedWebPage = async (
           ) {
             data {
               id
-              attributes {
-                url
-                title
-                originalContent
-              }
             }
           }
         }
@@ -110,19 +105,6 @@ const upsertWebPageSummary = async (
           ) {
             data {
               id
-              attributes {
-                keywords
-                summary
-                largeLanguageModel
-                scraped_web_page {
-                  data {
-                    id
-                    attributes {
-                      url
-                    }
-                  }
-                }
-              }
             }
           }
         }
