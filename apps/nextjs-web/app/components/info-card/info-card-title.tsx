@@ -19,7 +19,7 @@ export const InfoCardTitle = ({
   webPageSummaryId,
 }: InfoCardTitleProps) => {
   return (
-    <div className="flex gap-2 justify-between">
+    <div className="flex gap-4 justify-between">
       <div className="flex gap-2 items-center">
         <div className="flex gap-2 items-center">
           <span className="uppercase text-xs font-bold">{language}</span>
