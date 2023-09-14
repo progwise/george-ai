@@ -52,10 +52,17 @@ export const getKeywords = async (content: string, language: 'de' | 'en') => {
 
     const responseAsString = response.data.choices.at(0)?.message?.content
     const keywords = responseAsString
-      ?.split(',')
-      .map((keyword) => keyword.trim())
+      ?.split('\n')
+      .map((word) =>
+        word
+          .replace(/Keywords: \n1\. /, '')
+          .replace(/^\d+\. /, '')
+          .replace(/\.$/, '')
+          .trim(),
+      )
+      .slice(0, 10)
 
-    return keywords?.slice(0, 10)
+    return keywords
   } catch (error) {
     console.error('Error using chatGPT while fetching keywords')
     console.log(JSON.stringify(error, undefined, 2))
