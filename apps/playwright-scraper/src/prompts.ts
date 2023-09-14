@@ -7,8 +7,8 @@ export const prompts = {
     keywords: [
       'Erzeuge eine Liste, die die wichtigsten META Keywords für SEO für den Text, die der User sendet, enthält, in Deutsch.',
       'Die Liste sollte 10 Einträge enthalten, sortiert nach Wichtigkeit.',
-      'Die Liste sollte im Format sein: "Keyword1, Keyword2, Keyword3, ..., Keyword10".',
-      'Antworte nur mit den 10 Keywords, ohne jeglichen Präfix.',
+      'Die Liste sollte im Format sein: "Keyword1, Keyword2, Keyword3, Keyword4, Keyword5, Keyword6, Keyword7, Keyword8, Keyword9, Keyword10"',
+      'Antworte nur mit den 10 Keywords in Deutsch, ohne jeglichen Präfix!',
     ],
   },
   en: {
@@ -19,8 +19,8 @@ export const prompts = {
     keywords: [
       'Generate a list containing the most important META keywords for SEO from the text the user provides, in english.',
       'The list should contain 10 entries, sorted by importance.',
-      'The list should be in the format: "Keyword1, Keyword2, Keyword3, ..., Keyword10".',
-      'Reply only with the 10 keywords, without any prefix.',
+      'The list should be in the format: "Keyword1, Keyword2, Keyword3, Keyword4, Keyword5, Keyword6, Keyword7, Keyword8, Keyword9, Keyword10"',
+      'Reply only with the 10 keywords in english, without any prefix!',
     ],
   },
 }

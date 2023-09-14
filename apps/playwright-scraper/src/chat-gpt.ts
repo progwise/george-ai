@@ -55,7 +55,7 @@ export const getKeywords = async (content: string, language: 'de' | 'en') => {
       ?.split(',')
       .map((keyword) => keyword.trim())
 
-    return keywords
+    return keywords?.slice(0, 10)
   } catch (error) {
     console.error('Error using chatGPT while fetching keywords')
     console.log(JSON.stringify(error, undefined, 2))
