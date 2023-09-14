@@ -17,18 +17,25 @@ const transformAndUpsertFeedback = async (id) => {
     },
   )
 
-  const summaryFeedbacks = webPageSummaryResult.summary_feedbacks ?? []
+  const updatedAt = new Date(webPageSummaryResult.updatedAt)
+  const summaryFeedbacks = (
+    webPageSummaryResult.summary_feedbacks ?? []
+  ).filter((feedback) => {
+    const createdAt = new Date(feedback.createdAt)
+    return createdAt > updatedAt
+  })
 
-  let popularity = 0
-  for (const feedback of summaryFeedbacks) {
+  const popularity = summaryFeedbacks.reduce((accumulator, feedback) => {
     const vote = feedback.voting
     if (vote === 'up') {
-      popularity += 1
+      return accumulator + 1
     }
     if (vote === 'down') {
-      popularity -= 1
+      return accumulator - 1
     }
-  }
+    return accumulator
+  }, 0)
+  console.log('popularity: ', popularity)
 
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),

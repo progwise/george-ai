@@ -1742,7 +1742,6 @@ __metadata:
   dependencies:
     "@pothos/core": ^3.32.1
     "@pothos/plugin-simple-objects": ^3.7.0
-    date-fns: ^2.30.0
     eslint: ^8.46.0
     eslint-config-custom: "*"
     graphql: ^16.7.1
@@ -7792,7 +7791,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:2.30.0, date-fns@npm:^2.30.0":
+"date-fns@npm:2.30.0":
   version: 2.30.0
   resolution: "date-fns@npm:2.30.0"
   dependencies:

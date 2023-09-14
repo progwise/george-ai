@@ -5,22 +5,9 @@ const transformAndUpsertSummary = async (id) => {
     'api::web-page-summary.web-page-summary',
     id,
     {
-      populate: ['scraped_web_page', 'summary_feedbacks'],
+      populate: ['scraped_web_page'],
     },
   )
-
-  const summaryFeedbacks = webPageSummaryResult.summary_feedbacks ?? []
-
-  let popularity = 0 // TODO: Should this be done when the summary is newly created or updated?
-  for (const feedback of summaryFeedbacks) {
-    const vote = feedback.voting
-    if (vote === 'up') {
-      popularity += 1
-    }
-    if (vote === 'down') {
-      popularity -= 1
-    }
-  }
 
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),
@@ -34,7 +21,7 @@ const transformAndUpsertSummary = async (id) => {
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
     publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
-    popularity,
+    popularity: 0,
   }
 
   upsertTypesenseCollection(webPageSummary)

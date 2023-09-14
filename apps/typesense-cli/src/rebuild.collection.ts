@@ -23,6 +23,7 @@ export const rebuildCollection = async () => {
             data {
               id
               attributes {
+                updatedAt
                 locale
                 keywords
                 summary
@@ -31,6 +32,7 @@ export const rebuildCollection = async () => {
                 summary_feedbacks {
                   data {
                     attributes {
+                      createdAt
                       voting
                     }
                   }
@@ -54,32 +56,25 @@ export const rebuildCollection = async () => {
     const webPageSummaryArray = webPageSummaries?.data || []
 
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
-      const summaryFeedbacks =
+      const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
+      const summaryFeedbacks = (
         webPageSummaryEntity.attributes?.summary_feedbacks?.data ?? []
-      let popularity = 0
-      for (const feedback of summaryFeedbacks) {
+      ).filter((feedback) => {
+        const createdAt = new Date(feedback.attributes?.createdAt)
+        return createdAt > updatedAt
+      })
+
+      // eslint-disable-next-line unicorn/no-array-reduce
+      const popularity = summaryFeedbacks.reduce((accumulator, feedback) => {
         const vote = feedback.attributes?.voting
         if (vote === 'up') {
-          popularity += 1
+          return accumulator + 1
         }
         if (vote === 'down') {
-          popularity -= 1
+          return accumulator - 1
         }
-      }
-
-      // const popularity = summaryFeedbacks.reduce(
-      //   (accumulator, feedback) => {
-      //     const vote = feedback.attributes?.voting
-      //     if (vote === 'up') {
-      //       return accumulator + 1
-      //     }
-      //     if (vote === 'down') {
-      //       return accumulator - 1
-      //     }
-      //     return accumulator
-      //   },
-      //   0,
-      // )
+        return accumulator
+      }, 0)
 
       const webPageSummary = {
         id: webPageSummaryEntity.id ?? '',
