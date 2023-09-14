@@ -55,8 +55,9 @@ export const scrapePage = async (
     '\n\n' +
     // eslint-disable-next-line unicorn/prefer-string-replace-all
     allTexts.map((text) => text.replace(/\s\s+/g, ' ')).join('\n')
-  const scrapedLanguage =
+  const scrapedLanguage = (
     (await page.locator('html').getAttribute('lang')) || 'en'
+  ).split('-')[0]
   console.log('scrapedLanguage:', scrapedLanguage)
   const links = await extractLinks(page)
   await page.close()
