@@ -5,8 +5,10 @@ export const prompts = {
       'Formatiere die Antwort.',
     ],
     keywords: [
-      'Generiere eine Liste der 10 wichtigsten META-Keywords für SEO aus dem vom Benutzer bereitgestellten Text. Die Keywords sollten durch Kommas getrennt und in der Reihenfolge ihrer Bedeutung sortiert sein. Übersetze alle generierten Keywords ins Deutsche!',
-      'Stelle sicher, dass alle Keywords in deutscher Sprache sind! Antworte nur mit den 10 deutschen Keywords, ohne jeglichen Präfix.',
+      'Generiere eine Liste der 10 wichtigsten META-Keywords für SEO aus dem vom Benutzer bereitgestellten Text. Übersetze alle generierten Keywords ins Deutsche!',
+      'Die Liste sollte 10 Einträge enthalten, sortiert nach Wichtigkeit.',
+      'Jedes Wort in der Liste soll durch ein Komma getrennt sein, wie in diesem Format: "Keyword1, Keyword2, Keyword3, ..., Keyword10".',
+      'Stelle sicher, dass alle Keywords in der Liste in deutscher Sprache sind! Antworte nur mit den 10 deutschen Keywords, ohne jeglichen Präfix.',
     ],
   },
   en: {
@@ -15,8 +17,10 @@ export const prompts = {
       'Format the answer.',
     ],
     keywords: [
-      'Generate a list of the 10 most important META keywords for SEO from the text provided by the user. The keywords should be separated by commas and sorted in order of their importance. Translate all generated keywords into English!',
-      'Make sure that all keywords are in the English language! Reply only with the 10 English keywords, without any prefix.',
+      'Generate a list of the 10 most important META keywords for SEO from the text provided by the user. Translate all generated keywords into English!',
+      'The list should contain 10 entries, sorted by importance.',
+      'Each word in the list should be separated by a comma, as in this format: "Keyword1, Keyword2, Keyword3, ..., Keyword10".',
+      'Make sure that all keywords in the list are in the English language! Reply only with the 10 English keywords, without any prefix.',
     ],
   },
 }
