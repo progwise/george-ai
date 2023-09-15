@@ -3,7 +3,7 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 import { getStrapiLocales } from './locales'
-import { isLanguage, prompts } from './prompts'
+import { Language, isLanguage, prompts } from './prompts'
 
 const MAX_RUNS = 2 // Maximum number of runs
 
@@ -23,8 +23,10 @@ const processPage = async (url: string): Promise<void> => {
   const urlsDone: Array<string> = []
   let urlsTodo = [url]
   const strapiLocales = await getStrapiLocales()
-  // eslint-disable-next-line unicorn/no-array-callback-reference
-  const promptsLocales = strapiLocales.filter(isLanguage)
+
+  const promptsLocales = strapiLocales.filter((locale): locale is Language =>
+    isLanguage(locale),
+  )
 
   if (promptsLocales.length === 0) {
     console.log('No supported locales found. Exiting the process.')
@@ -48,12 +50,7 @@ const processPage = async (url: string): Promise<void> => {
         ),
       ]
 
-      if (
-        // eslint-disable-next-line unicorn/prefer-includes
-        !promptsLocales.some(
-          (locale) => locale === scrapeResult.scrapedLanguage,
-        )
-      ) {
+      if (!isLanguage(scrapeResult.scrapedLanguage)) {
         console.log(
           `Skipping ${currentUrl}: Unsupported locale ${
             scrapeResult.scrapedLanguage
