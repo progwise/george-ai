@@ -22,12 +22,10 @@ export const getServiceSummary = async (
       model: 'gpt-3.5-turbo',
       messages: [
         ...prompts[language].summary.map((prompt) => ({
-          // role: 'system' as ChatCompletionRequestMessageRoleEnum,
-          role: ChatCompletionRequestMessageRoleEnum.System,
+          role: 'system' as ChatCompletionRequestMessageRoleEnum,
           content: prompt,
         })),
-        // { role: 'user' as ChatCompletionRequestMessageRoleEnum, content },
-        { role: ChatCompletionRequestMessageRoleEnum.User, content },
+        { role: 'user' as ChatCompletionRequestMessageRoleEnum, content },
       ],
     })
 
