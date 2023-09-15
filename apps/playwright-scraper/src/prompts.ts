@@ -17,10 +17,10 @@ export const prompts = {
       'Format the answer.',
     ],
     keywords: [
-      'Generate a list of the 10 most important META keywords for SEO from the text provided by the user. Translate all generated keywords into English!',
+      'Generate a list of the 10 most important META keywords for SEO from the text provided by the user. Translate all generated keywords into english!',
       'The list should contain 10 entries, sorted by importance.',
       'Each word in the list should be separated by a comma, as in this format: "Keyword1, Keyword2, Keyword3, ..., Keyword10".',
-      'Make sure that all keywords in the list are in the English language! Reply only with the 10 English keywords, without any prefix.',
+      'Make sure that all keywords in the list are in the english language! Reply only with the 10 english keywords, without any prefix.',
     ],
   },
 }
