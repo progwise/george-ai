@@ -2,7 +2,7 @@ import playwright from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
-import { getAllStrapiLocales } from './locales'
+import { getStrapiLocales } from './locales'
 import { isLanguage, prompts } from './prompts'
 
 const MAX_RUNS = 2 // Maximum number of runs
@@ -22,7 +22,7 @@ const processPage = async (url: string): Promise<void> => {
 
   const urlsDone: Array<string> = []
   let urlsTodo = [url]
-  const strapiLocales = await getAllStrapiLocales()
+  const strapiLocales = await getStrapiLocales()
   // eslint-disable-next-line unicorn/no-array-callback-reference
   const promptsLocales = strapiLocales.filter(isLanguage)
 
