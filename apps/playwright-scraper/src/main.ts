@@ -3,7 +3,7 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 
-const MAX_RUNS = 3 // Maximum number of runs
+const MAX_RUNS = 30 // Maximum number of runs
 
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
@@ -12,12 +12,12 @@ export interface ScrapeResultAndSummary extends ScrapeResult {
   currentLanguage: string
 }
 
-const processPage = async (url: string): Promise<void> => {
+const processPage = async (url: string[]): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
 
   const urlsDone: Array<string> = []
-  let urlsTodo = [url]
+  let urlsTodo = [...url]
 
   let runCounter = 0 // Counter
   while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
@@ -60,4 +60,4 @@ const processPage = async (url: string): Promise<void> => {
   await browser.close()
 }
 
-await processPage('https://www.medizin.uni-greifswald.de/')
+await processPage(['https://www.up-aktuell.de/'])
