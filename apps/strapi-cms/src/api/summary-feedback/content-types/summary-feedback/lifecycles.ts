@@ -33,9 +33,11 @@ const transformAndUpsertFeedback = async (id) => {
     if (vote === 'down') {
       return accumulator - 1
     }
+    console.warn(
+      `Value ${vote} is not implemented for calculating the popularity, feedback.id: ${feedback.id}`,
+    )
     return accumulator
   }, 0)
-  console.log('popularity: ', popularity)
 
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),
