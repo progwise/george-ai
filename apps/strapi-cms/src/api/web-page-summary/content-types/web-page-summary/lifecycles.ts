@@ -20,9 +20,8 @@ const transformAndUpsertSummary = async (id) => {
     title: webPageSummaryResult.scraped_web_page.title,
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
-    publicationState: webPageSummaryResult.publishedAt
-      ? 'published'
-      : 'draft',
+    publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
+    popularity: 0,
   }
   await ensureCollectionExists()
   await upsertWebpageSummary(webPageSummary)

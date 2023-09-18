@@ -63,7 +63,7 @@ export const FeedbackButtons = ({
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex min-w-max gap-4">
       <button onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Up)}>
         <Image
           src="/thumbs-up.svg"

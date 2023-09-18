@@ -14,8 +14,6 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  Date: { input: any; output: any; }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any; }
   /** A string used to identify an i18n locale */
@@ -58,31 +56,6 @@ export type ComponentWebPageSummaryWebPageSummary = {
   GeneratedSummary?: Maybe<Scalars['String']['output']>;
   LargeLanguageModel?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
-};
-
-export type DateFilterInput = {
-  and?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
-  between?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
-  contains?: InputMaybe<Scalars['Date']['input']>;
-  containsi?: InputMaybe<Scalars['Date']['input']>;
-  endsWith?: InputMaybe<Scalars['Date']['input']>;
-  eq?: InputMaybe<Scalars['Date']['input']>;
-  eqi?: InputMaybe<Scalars['Date']['input']>;
-  gt?: InputMaybe<Scalars['Date']['input']>;
-  gte?: InputMaybe<Scalars['Date']['input']>;
-  in?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
-  lt?: InputMaybe<Scalars['Date']['input']>;
-  lte?: InputMaybe<Scalars['Date']['input']>;
-  ne?: InputMaybe<Scalars['Date']['input']>;
-  nei?: InputMaybe<Scalars['Date']['input']>;
-  not?: InputMaybe<DateFilterInput>;
-  notContains?: InputMaybe<Scalars['Date']['input']>;
-  notContainsi?: InputMaybe<Scalars['Date']['input']>;
-  notIn?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
-  notNull?: InputMaybe<Scalars['Boolean']['input']>;
-  null?: InputMaybe<Scalars['Boolean']['input']>;
-  or?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>;
-  startsWith?: InputMaybe<Scalars['Date']['input']>;
 };
 
 export type DateTimeFilterInput = {
@@ -757,7 +730,6 @@ export type StringFilterInput = {
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback';
   createdAt?: Maybe<Scalars['DateTime']['output']>;
-  feedbackDate?: Maybe<Scalars['Date']['output']>;
   position?: Maybe<Scalars['Int']['output']>;
   query?: Maybe<Scalars['String']['output']>;
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -785,7 +757,6 @@ export type SummaryFeedbackEntityResponseCollection = {
 export type SummaryFeedbackFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>;
   createdAt?: InputMaybe<DateTimeFilterInput>;
-  feedbackDate?: InputMaybe<DateFilterInput>;
   id?: InputMaybe<IdFilterInput>;
   not?: InputMaybe<SummaryFeedbackFiltersInput>;
   or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>;
@@ -797,7 +768,6 @@ export type SummaryFeedbackFiltersInput = {
 };
 
 export type SummaryFeedbackInput = {
-  feedbackDate?: InputMaybe<Scalars['Date']['input']>;
   position?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>;
@@ -1259,6 +1229,11 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>;
 };
 
+export type GetAllLocalesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllLocalesQuery = { __typename?: 'Query', i18NLocales?: { __typename?: 'I18NLocaleEntityResponseCollection', data: Array<{ __typename?: 'I18NLocaleEntity', id?: string | null, attributes?: { __typename?: 'I18NLocale', code?: string | null } | null }> } | null };
+
 export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
   url: Scalars['String']['input'];
 }>;
@@ -1300,6 +1275,7 @@ export type CreateWebPageSummaryMutationVariables = Exact<{
 export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_page?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
 
 
+export const GetAllLocalesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllLocales"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18NLocales"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetAllLocalesQuery, GetAllLocalesQueryVariables>;
 export const GetScrapedWebPagesByUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetScrapedWebPagesByUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scrapedWebPages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetScrapedWebPagesByUrlQuery, GetScrapedWebPagesByUrlQueryVariables>;
 export const CreateScrapedWebPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateScrapedWebPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ScrapedWebPageInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"I18NLocaleCode"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createScrapedWebPage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"originalContent"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateScrapedWebPageMutation, CreateScrapedWebPageMutationVariables>;
 export const GetWebPageSummariesByLanguageModelAndUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWebPageSummariesByLanguageModelAndUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"languageModel"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"webPageSummaries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"largeLanguageModel"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"languageModel"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"scraped_web_page"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetWebPageSummariesByLanguageModelAndUrlQuery, GetWebPageSummariesByLanguageModelAndUrlQueryVariables>;

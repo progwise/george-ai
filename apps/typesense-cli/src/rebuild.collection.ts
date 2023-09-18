@@ -26,11 +26,20 @@ export const rebuildCollection = async () => {
             data {
               id
               attributes {
+                updatedAt
                 locale
                 keywords
                 summary
                 largeLanguageModel
                 publishedAt
+                summary_feedbacks {
+                  data {
+                    attributes {
+                      createdAt
+                      voting
+                    }
+                  }
+                }
                 scraped_web_page {
                   data {
                     attributes {
@@ -47,10 +56,32 @@ export const rebuildCollection = async () => {
       `),
       {},
     )
-
     const webPageSummaryArray = webPageSummaries?.data || []
 
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
+      const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
+      const summaryFeedbacks = (
+        webPageSummaryEntity.attributes?.summary_feedbacks?.data ?? []
+      ).filter((feedback) => {
+        const createdAt = new Date(feedback.attributes?.createdAt)
+        return createdAt > updatedAt
+      })
+
+      // eslint-disable-next-line unicorn/no-array-reduce
+      const popularity = summaryFeedbacks.reduce((accumulator, feedback) => {
+        const vote = feedback.attributes?.voting
+        if (vote === 'up') {
+          return accumulator + 1
+        }
+        if (vote === 'down') {
+          return accumulator - 1
+        }
+        console.warn(
+          `Value ${vote} is not implemented for calculating the popularity, feedback.id: ${feedback.id}`,
+        )
+        return accumulator
+      }, 0)
+
       const webPageSummary = {
         id: webPageSummaryEntity.id ?? '',
         language: webPageSummaryEntity.attributes?.locale ?? '',
@@ -72,6 +103,7 @@ export const rebuildCollection = async () => {
         publicationState: webPageSummaryEntity.attributes?.publishedAt
           ? 'published'
           : 'draft',
+        popularity,
       }
       await upsertWebpageSummary(webPageSummary)
     }

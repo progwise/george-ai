@@ -27,8 +27,6 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
-  /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  Date: { input: any; output: any }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: any; output: any }
   /** A string used to identify an i18n locale */
@@ -71,31 +69,6 @@ export type ComponentWebPageSummaryWebPageSummary = {
   GeneratedSummary?: Maybe<Scalars['String']['output']>
   LargeLanguageModel?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
-}
-
-export type DateFilterInput = {
-  and?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
-  between?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
-  contains?: InputMaybe<Scalars['Date']['input']>
-  containsi?: InputMaybe<Scalars['Date']['input']>
-  endsWith?: InputMaybe<Scalars['Date']['input']>
-  eq?: InputMaybe<Scalars['Date']['input']>
-  eqi?: InputMaybe<Scalars['Date']['input']>
-  gt?: InputMaybe<Scalars['Date']['input']>
-  gte?: InputMaybe<Scalars['Date']['input']>
-  in?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
-  lt?: InputMaybe<Scalars['Date']['input']>
-  lte?: InputMaybe<Scalars['Date']['input']>
-  ne?: InputMaybe<Scalars['Date']['input']>
-  nei?: InputMaybe<Scalars['Date']['input']>
-  not?: InputMaybe<DateFilterInput>
-  notContains?: InputMaybe<Scalars['Date']['input']>
-  notContainsi?: InputMaybe<Scalars['Date']['input']>
-  notIn?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
-  notNull?: InputMaybe<Scalars['Boolean']['input']>
-  null?: InputMaybe<Scalars['Boolean']['input']>
-  or?: InputMaybe<Array<InputMaybe<Scalars['Date']['input']>>>
-  startsWith?: InputMaybe<Scalars['Date']['input']>
 }
 
 export type DateTimeFilterInput = {
@@ -729,7 +702,6 @@ export type StringFilterInput = {
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  feedbackDate?: Maybe<Scalars['Date']['output']>
   position?: Maybe<Scalars['Int']['output']>
   query?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
@@ -757,7 +729,6 @@ export type SummaryFeedbackEntityResponseCollection = {
 export type SummaryFeedbackFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
-  feedbackDate?: InputMaybe<DateFilterInput>
   id?: InputMaybe<IdFilterInput>
   not?: InputMaybe<SummaryFeedbackFiltersInput>
   or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
@@ -769,7 +740,6 @@ export type SummaryFeedbackFiltersInput = {
 }
 
 export type SummaryFeedbackInput = {
-  feedbackDate?: InputMaybe<Scalars['Date']['input']>
   position?: InputMaybe<Scalars['Int']['input']>
   query?: InputMaybe<Scalars['String']['input']>
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>
@@ -1236,11 +1206,23 @@ export type GetWebPageSummariesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
+        updatedAt?: any | null
         locale?: string | null
         keywords?: string | null
         summary?: string | null
         largeLanguageModel?: string | null
         publishedAt?: any | null
+        summary_feedbacks?: {
+          __typename?: 'SummaryFeedbackRelationResponseCollection'
+          data: Array<{
+            __typename?: 'SummaryFeedbackEntity'
+            attributes?: {
+              __typename?: 'SummaryFeedback'
+              createdAt?: any | null
+              voting?: Enum_Summaryfeedback_Voting | null
+            } | null
+          }>
+        } | null
         scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
@@ -1301,6 +1283,10 @@ export const GetWebPageSummariesDocument = {
                           selections: [
                             {
                               kind: 'Field',
+                              name: { kind: 'Name', value: 'updatedAt' },
+                            },
+                            {
+                              kind: 'Field',
                               name: { kind: 'Name', value: 'locale' },
                             },
                             {
@@ -1321,6 +1307,53 @@ export const GetWebPageSummariesDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'publishedAt' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'summary_feedbacks',
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'createdAt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'voting',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                             {
                               kind: 'Field',
