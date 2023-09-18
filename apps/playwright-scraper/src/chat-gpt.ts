@@ -57,7 +57,8 @@ export const getKeywords = async (
     const responseAsString = response.data.choices.at(0)?.message?.content
     const keywords = responseAsString
       ?.split(',')
-      .map((keyword) => keyword.trim())
+      .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
+      .slice(0, 10)
 
     return keywords
   } catch (error) {
