@@ -31,7 +31,6 @@ export type Scalars = {
 
 export type CreateSummaryFeedback = {
   __typename?: 'CreateSummaryFeedback'
-  feedbackDate: Scalars['String']['output']
   id: Scalars['String']['output']
   position: Scalars['Int']['output']
   query: Scalars['String']['output']

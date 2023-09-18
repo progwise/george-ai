@@ -5,13 +5,11 @@ import {
   SummaryFeedbackFragment,
 } from '../gql/graphql'
 import { strapiClient } from '../strapi-graphql-client'
-import { formatISO } from 'date-fns'
 
 const summaryFeedbackFragment = graphql(`
   fragment SummaryFeedback on SummaryFeedbackEntity {
     id
     attributes {
-      feedbackDate
       position
       query
       voting
@@ -50,9 +48,6 @@ builder.objectType(SummaryFeedbackReference, {
   name: 'CreateSummaryFeedback',
   fields: (t) => ({
     id: t.string({ resolve: (parent) => parent.id ?? '' }),
-    feedbackDate: t.string({
-      resolve: (parent) => parent.attributes?.feedbackDate ?? '',
-    }),
     position: t.int({
       resolve: (parent) => parent.attributes?.position ?? 0,
     }),
@@ -90,7 +85,6 @@ builder.mutationField('createSummaryFeedback', (t) =>
           `),
           {
             input: {
-              feedbackDate: formatISO(new Date(), { representation: 'date' }),
               position: arguments_.data.position,
               query: arguments_.data.query,
               voting: arguments_.data.voting,
