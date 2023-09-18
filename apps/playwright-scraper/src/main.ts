@@ -14,14 +14,14 @@ export interface ScrapeResultAndSummary extends ScrapeResult {
   currentLanguage: string
 }
 
-const processPage = async (url: string): Promise<void> => {
+const processPage = async (urls: string[]): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
 
   let runCounter = 0 // Counter
 
   const urlsDone: Array<string> = []
-  let urlsTodo = [url]
+  let urlsTodo: Array<string> = urls
   const strapiLocales = await getStrapiLocales()
 
   const promptsLocales = strapiLocales.filter((locale): locale is Language =>
@@ -85,4 +85,4 @@ const processPage = async (url: string): Promise<void> => {
   await browser.close()
 }
 
-await processPage('https://www.medizin.uni-greifswald.de/')
+await processPage(['https://www.medizin.uni-greifswald.de/'])
