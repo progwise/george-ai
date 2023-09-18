@@ -50,6 +50,11 @@ const processPage = async (urls: string[]): Promise<void> => {
         ),
       ]
 
+      if (!scrapeResult.content) {
+        console.log(`Skipping ${currentUrl}: No content was found on the page`)
+        continue
+      }
+
       if (!isLanguage(scrapeResult.scrapedLanguage)) {
         console.log(
           `Skipping ${currentUrl}: Unsupported locale ${
