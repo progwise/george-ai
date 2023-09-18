@@ -1,4 +1,4 @@
-import { upsertTypesenseCollection } from '@george-ai/typesense-client'
+import { ensureCollectionExists, upsertWebpageSummary } from '@george-ai/typesense-client'
 
 const transformAndUpsertSummary = async (id) => {
   const webPageSummaryResult = await strapi.entityService.findOne(
@@ -23,8 +23,8 @@ const transformAndUpsertSummary = async (id) => {
     publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
     popularity: 0,
   }
-
-  upsertTypesenseCollection(webPageSummary)
+  await ensureCollectionExists()
+  await upsertWebpageSummary(webPageSummary)
 }
 
 export default {
