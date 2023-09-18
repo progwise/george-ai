@@ -62,18 +62,16 @@ export const rebuildCollection = async () => {
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
       const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
 
-      const summaryFeedbacks = (
+      const votes = (
         webPageSummaryEntity.attributes?.summary_feedbacks?.data ?? []
       )
         .filter((feedback) => {
           const createdAt = new Date(feedback.attributes?.createdAt)
           return createdAt > updatedAt
         })
-        .map((feedback) => ({
-          voting: feedback.attributes?.voting || '',
-        }))
+        .map((feedback) => feedback.attributes?.voting || '')
 
-      const popularity = computeFeedbackPopularity(summaryFeedbacks)
+      const popularity = computeFeedbackPopularity(votes)
 
       const webPageSummary = {
         id: webPageSummaryEntity.id ?? '',

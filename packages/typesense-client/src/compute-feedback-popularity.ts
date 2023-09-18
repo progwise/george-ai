@@ -1,10 +1,7 @@
-export const computeFeedbackPopularity = (
-  summaryFeedbacks: { voting: string }[],
-) => {
+export const computeFeedbackPopularity = (votes: string[]) => {
   let accumulator = 0
 
-  for (const feedback of summaryFeedbacks) {
-    const vote = feedback.voting
+  for (const vote of votes) {
     if (vote === 'up') {
       accumulator += 1
     } else if (vote === 'down') {

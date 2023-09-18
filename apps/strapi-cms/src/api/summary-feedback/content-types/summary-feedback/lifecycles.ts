@@ -20,16 +20,15 @@ const transformAndUpsertFeedback = async (id) => {
 
   const updatedAt = new Date(webPageSummaryResult.updatedAt);
 
-  const summaryFeedbacks = (
+  const votes = (
     webPageSummaryResult.summary_feedbacks ?? []
   ).filter((feedback) => {
     const createdAt = new Date(feedback.createdAt);
     return createdAt > updatedAt;
-  }).map(feedback => ({
-    voting: feedback.voting,
-  }));
+  }).map(feedback => feedback.voting,
+ );
 
-  const popularity = computeFeedbackPopularity(summaryFeedbacks);
+  const popularity = computeFeedbackPopularity(votes);
 
   const webPageSummary = {
     id: webPageSummaryResult.id.toString() ?? '',
