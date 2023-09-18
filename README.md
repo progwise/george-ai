@@ -3,6 +3,11 @@ yarn workspaces turbo repo
 1. clone
 2. yarn
 
+# build typesense-client
+
+1. cd packages/typesense-client
+2. yarn run build
+
 # run strapi in develop mode
 
 1. cd apps/strapi-cms
