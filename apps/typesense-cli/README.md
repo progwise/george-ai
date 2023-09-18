@@ -7,6 +7,7 @@ This tool is designed to interface with Typesense and help manage its collection
 ### Overview of files
 
 - **rebuild.collection.ts**: The main script responsible for querying data from a Strapi GraphQL endpoint and using the result to rebuild the `scraped_web_pages_summaries` collection in Typesense.
+- **drop.collection.ts**: This script deletes the `scraped_web_pages_summaries` collection in Typesense.
 - **typesense.ts**: This file sets up the Typesense client to communicate with a Typesense server.
 - **package.json**: Contains the meta information and scripts related to this CLI tool.
 
@@ -45,13 +46,21 @@ You can set these using a `.env` file at the root or manually exporting them in 
    yarn rebuildcollection
    ```
 
-3. **TypeScript Compilation**: To compile TypeScript files:
+3. **Drop Collection**:
+
+   To delete the `scraped_web_pages_summaries` collection in Typesense:
+
+   ```bash
+   yarn dropcollection
+   ```
+
+4. **TypeScript Compilation**: To compile TypeScript files:
 
    ```bash
    yarn tsc
    ```
 
-4. **Linting**: To check the code for linting errors:
+5. **Linting**: To check the code for linting errors:
 
    ```bash
    yarn lint
@@ -59,4 +68,6 @@ You can set these using a `.env` file at the root or manually exporting them in 
 
 ### Important Note
 
-The script `rebuild.collection.ts` will not delete the existing `scraped_web_pages_summaries` collection in Typesense, but it will upsert documents. Use with caution.
+- The script `rebuild.collection.ts` will not delete the existing `scraped_web_pages_summaries` collection in Typesense, but it will upsert documents. Use with caution.
+
+- The script `drop.collection.ts` will delete the `scraped_web_pages_summaries` collection in Typesense. Make sure to back up any necessary data before running this script.
