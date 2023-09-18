@@ -1,22 +1,12 @@
-import { GraphQLClient } from 'graphql-request'
+import { strapiClient } from './strapi-client.js'
 import { ScrapeResultAndSummary } from './main.js'
-import dotenv from 'dotenv'
 import { graphql } from './gql/gql'
-
-dotenv.config()
-
-const endpoint = 'http://localhost:1337/graphql'
-const client = new GraphQLClient(endpoint, {
-  headers: {
-    authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-  },
-})
 
 const getOrCreateScrapedWebPage = async (
   scrapeResultAndSummary: ScrapeResultAndSummary,
 ) => {
   try {
-    const { scrapedWebPages } = await client.request(
+    const { scrapedWebPages } = await strapiClient.request(
       graphql(`
         query GetScrapedWebPagesByUrl($url: String!) {
           scrapedWebPages(
@@ -38,7 +28,7 @@ const getOrCreateScrapedWebPage = async (
       return existingScrapedWebPage
     }
 
-    const createdScrapedWebPage = await client.request(
+    const createdScrapedWebPage = await strapiClient.request(
       graphql(`
         mutation CreateScrapedWebPage(
           $data: ScrapedWebPageInput!
@@ -87,7 +77,7 @@ const upsertWebPageSummary = async (
   }
 
   try {
-    const { webPageSummaries } = await client.request(
+    const { webPageSummaries } = await strapiClient.request(
       graphql(`
         query GetWebPageSummariesByLanguageModelAndUrl(
           $languageModel: String!
@@ -119,7 +109,7 @@ const upsertWebPageSummary = async (
     const webPageSummaryId = webPageSummaries?.data.at(0)?.id
 
     if (webPageSummaryId) {
-      await client.request(
+      await strapiClient.request(
         graphql(`
           mutation UpdateWebPageSummary($id: ID!, $data: WebPageSummaryInput!) {
             updateWebPageSummary(id: $id, data: $data) {
@@ -147,7 +137,7 @@ const upsertWebPageSummary = async (
 
       console.log('Update WebPageSummary with ID:', webPageSummaryId)
     } else {
-      const { createWebPageSummary } = await client.request(
+      const { createWebPageSummary } = await strapiClient.request(
         graphql(`
           mutation CreateWebPageSummary(
             $data: WebPageSummaryInput!

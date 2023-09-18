@@ -24,3 +24,8 @@ export const prompts = {
     ],
   },
 }
+
+export type Language = keyof typeof prompts
+
+export const isLanguage = (language: string): language is Language =>
+  Object.keys(prompts).includes(language)
