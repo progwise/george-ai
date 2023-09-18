@@ -2,6 +2,7 @@ import { GraphQLClient } from 'graphql-request'
 import dotenv from 'dotenv'
 import { graphql } from './gql'
 import {
+  computeFeedbackPopularity,
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
@@ -60,27 +61,19 @@ export const rebuildCollection = async () => {
 
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
       const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
+
       const summaryFeedbacks = (
         webPageSummaryEntity.attributes?.summary_feedbacks?.data ?? []
-      ).filter((feedback) => {
-        const createdAt = new Date(feedback.attributes?.createdAt)
-        return createdAt > updatedAt
-      })
+      )
+        .filter((feedback) => {
+          const createdAt = new Date(feedback.attributes?.createdAt)
+          return createdAt > updatedAt
+        })
+        .map((feedback) => ({
+          voting: feedback.attributes?.voting || '',
+        }))
 
-      // eslint-disable-next-line unicorn/no-array-reduce
-      const popularity = summaryFeedbacks.reduce((accumulator, feedback) => {
-        const vote = feedback.attributes?.voting
-        if (vote === 'up') {
-          return accumulator + 1
-        }
-        if (vote === 'down') {
-          return accumulator - 1
-        }
-        console.warn(
-          `Value ${vote} is not implemented for calculating the popularity, feedback.id: ${feedback.id}`,
-        )
-        return accumulator
-      }, 0)
+      const popularity = computeFeedbackPopularity(summaryFeedbacks)
 
       const webPageSummary = {
         id: webPageSummaryEntity.id ?? '',
@@ -105,12 +98,16 @@ export const rebuildCollection = async () => {
           : 'draft',
         popularity,
       }
-      await upsertWebpageSummary(webPageSummary)
+      try {
+        await upsertWebpageSummary(webPageSummary)
+      } catch (error) {
+        console.error('Error upserting Webpage Summary:', error)
+      }
     }
     await ensureCollectionExists()
     await pMap(webPageSummaryArray, mapper, { concurrency: 10 })
   } catch (error) {
-    console.error(error)
+    console.error('Error fetching results from strapi:', error)
   }
 }
 
