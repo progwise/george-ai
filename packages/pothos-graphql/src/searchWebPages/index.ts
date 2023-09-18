@@ -87,6 +87,7 @@ builder.queryField('searchResult', (t) =>
               'originalContent',
             ],
             filter_by: filters.join(' && '),
+            sort_by: 'popularity:desc,_text_match:desc',
           })
 
         return response.hits?.map((hit) => hit.document) || []
