@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
   '\n            query GetUniqueValues {\n              webPageSummaries(publicationState: PREVIEW, locale: "all") {\n                data {\n                  attributes {\n                    locale\n                    largeLanguageModel\n                  }\n                }\n              }\n            }\n          ':
     types.GetUniqueValuesDocument,
-  '\n  fragment SummaryFeedback on SummaryFeedbackEntity {\n    id\n    attributes {\n      feedbackDate\n      position\n      query\n      voting\n      web_page_summary {\n        data {\n          id\n        }\n      }\n    }\n  }\n':
+  '\n  fragment SummaryFeedback on SummaryFeedbackEntity {\n    id\n    attributes {\n      position\n      query\n      voting\n      web_page_summary {\n        data {\n          id\n        }\n      }\n    }\n  }\n':
     types.SummaryFeedbackFragmentDoc,
   '\n            mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {\n              createSummaryFeedback(data: $input) {\n                data {\n                  ...SummaryFeedback\n                }\n              }\n            }\n          ':
     types.CreateSummaryFeedbackDocument,
@@ -49,8 +49,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment SummaryFeedback on SummaryFeedbackEntity {\n    id\n    attributes {\n      feedbackDate\n      position\n      query\n      voting\n      web_page_summary {\n        data {\n          id\n        }\n      }\n    }\n  }\n',
-): (typeof documents)['\n  fragment SummaryFeedback on SummaryFeedbackEntity {\n    id\n    attributes {\n      feedbackDate\n      position\n      query\n      voting\n      web_page_summary {\n        data {\n          id\n        }\n      }\n    }\n  }\n']
+  source: '\n  fragment SummaryFeedback on SummaryFeedbackEntity {\n    id\n    attributes {\n      position\n      query\n      voting\n      web_page_summary {\n        data {\n          id\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment SummaryFeedback on SummaryFeedbackEntity {\n    id\n    attributes {\n      position\n      query\n      voting\n      web_page_summary {\n        data {\n          id\n        }\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

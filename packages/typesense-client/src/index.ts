@@ -4,13 +4,14 @@ import { FieldType } from 'typesense/lib/Typesense/Collection.js'
 interface WebPageSummary {
   id: string
   language: string
-  keywords: string
+  keywords: string[]
   summary: string
   largeLanguageModel: string
   title: string
   url: string
   originalContent: string
   publicationState: string
+  popularity: number
 }
 
 const summaryCollectionSchema: {
@@ -32,6 +33,7 @@ const summaryCollectionSchema: {
     { name: 'keywords', type: 'string[]' },
     { name: 'summary', type: 'string' },
     { name: 'largeLanguageModel', type: 'string' },
+    { name: 'popularity', type: 'int32' },
   ],
 }
 
