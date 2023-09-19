@@ -5,18 +5,19 @@ import { getClient } from '@/app/client/urql-client'
 import { SummaryFeedbackVoting } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 interface FeedbackButtonsProps {
-  query?: string
   position: number
   webPageSummaryId: string
 }
 
 export const FeedbackButtons = ({
-  query,
   position,
   webPageSummaryId,
 }: FeedbackButtonsProps) => {
+  const searchParameters = useSearchParams()
+  const query = searchParameters.get('query')
   const [feedbackSelection, setFeedbackSelection] = useState<
     SummaryFeedbackVoting | undefined
   >()

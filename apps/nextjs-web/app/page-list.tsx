@@ -52,10 +52,8 @@ export async function PageList({
         <InfoCard
           key={page.id}
           pageFragment={page}
-          query={query}
           position={index}
           webPageSummaryId={page.id}
-          kw={kw}
         />
       ))}
     </>
