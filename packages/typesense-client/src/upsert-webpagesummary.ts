@@ -11,6 +11,7 @@ interface WebPageSummary {
   url: string
   originalContent: string
   publicationState: string
+  popularity: number
 }
 
 export const summaryCollectionSchema: CollectionCreateSchema = {
@@ -25,6 +26,7 @@ export const summaryCollectionSchema: CollectionCreateSchema = {
     { name: 'keywords', type: 'string[]' },
     { name: 'summary', type: 'string' },
     { name: 'largeLanguageModel', type: 'string' },
+    { name: 'popularity', type: 'int32' },
   ],
 }
 
