@@ -1,0 +1,29 @@
+{
+  "kind": "singleType",
+  "collectionName": "scraper_configurations",
+  "info": {
+    "singularName": "scraper-configuration",
+    "pluralName": "scraper-configurations",
+    "displayName": "ScraperConfiguration",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "scrapeEntryAdresses": {
+      "type": "string",
+      "required": true
+    },
+    "scrapeDepth": {
+      "type": "integer",
+      "default": 3
+    },
+    "prompts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::prompt.prompt"
+    }
+  }
+}

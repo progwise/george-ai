@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "prompts",
+  "info": {
+    "singularName": "prompt",
+    "pluralName": "prompts",
+    "displayName": "Prompt",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "promptForKeyword": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "promptForSummary": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
