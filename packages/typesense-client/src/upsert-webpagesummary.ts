@@ -25,6 +25,7 @@ export const summaryCollectionSchema: CollectionCreateSchema = {
     { name: 'keywords', type: 'string[]' },
     { name: 'summary', type: 'string' },
     { name: 'largeLanguageModel', type: 'string' },
+    { name: 'popularity', type: 'int32' },
   ],
 }
 
