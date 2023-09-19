@@ -19,7 +19,7 @@ export const Summary = ({
       <Image
         src={`/${isExpand ? 'collapse' : 'expand'}-symbols.svg`}
         alt={`${isExpand ? 'collapse' : 'expand'}-symbols`}
-        className="cursor-pointer"
+        className={`cursor-pointer hover:scale-y-${isExpand ? '75' : '125'}`}
         onClick={() => setIsExpand(!isExpand)}
         width={24}
         height={24}
