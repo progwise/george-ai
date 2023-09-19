@@ -20,6 +20,7 @@ interface InfoCardProps {
   query?: string
   position: number
   webPageSummaryId: string
+  kw?: string[]
 }
 export const InfoCard = ({
   pageFragment,

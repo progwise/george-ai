@@ -5,6 +5,7 @@ import { PageList } from './page-list'
 import Loading from './loading'
 import { Metadata } from 'next'
 import { FilterSelection } from './components/filter-selection/filter-selection'
+import { KeywordsDeselection } from './components/keyords-deselection'
 
 interface WebPageSummary {
   id: string
@@ -50,13 +51,14 @@ export default function Home({
     <main className="flex min-h-screen flex-col items-center p-24 ">
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
-        <SearchBox query={searchParams.query?.toString()} />
+        <SearchBox />
         <Suspense fallback={<Loading />}>
           <FilterSelection
             lang={normalizeToArray(searchParams.lang)}
             status={normalizeToArray(searchParams.status)}
             llm={normalizeToArray(searchParams.llm)}
           />
+          <KeywordsDeselection />
           <span className="border-b border-black">
             ich habe folgende Informationen für Sie gefunden:
           </span>
@@ -65,6 +67,7 @@ export default function Home({
             lang={normalizeToArray(searchParams.lang)}
             status={normalizeToArray(searchParams.status)}
             llm={normalizeToArray(searchParams.llm)}
+            kw={normalizeToArray(searchParams.kw)}
           />
         </Suspense>
       </div>

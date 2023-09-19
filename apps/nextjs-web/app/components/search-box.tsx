@@ -3,18 +3,19 @@
 import Image from 'next/image'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-export const SearchBox = ({ query }: { query?: string }) => {
+export const SearchBox = () => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParameters = useSearchParams()
+  const query = searchParameters.get('query')
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value
+    const queryValue = event.target.value
 
     const updatedParameter = new URLSearchParams(searchParameters.toString())
 
-    if (query) {
-      updatedParameter.set('query', query)
+    if (queryValue) {
+      updatedParameter.set('query', queryValue)
     } else {
       updatedParameter.delete('query')
     }

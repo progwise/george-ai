@@ -5,9 +5,16 @@ import { getClient } from './client/urql-client'
 
 interface PageListProps extends FilterSelectionProps {
   query?: string
+  kw?: string[]
 }
 
-export async function PageList({ query, lang, status, llm }: PageListProps) {
+export async function PageList({
+  query,
+  lang,
+  status,
+  llm,
+  kw,
+}: PageListProps) {
   const result = await getClient().query(
     graphql(`
       query GetSearchWebPages(
@@ -15,12 +22,14 @@ export async function PageList({ query, lang, status, llm }: PageListProps) {
         $language: [String!]
         $publicationState: [String!]
         $largeLanguageModel: [String!]
+        $keywords: [String!]
       ) {
         searchResult(
           query: $query
           language: $language
           publicationState: $publicationState
           largeLanguageModel: $largeLanguageModel
+          keywords: $keywords
         ) {
           id
           ...InfoCard
@@ -32,6 +41,7 @@ export async function PageList({ query, lang, status, llm }: PageListProps) {
       language: lang,
       publicationState: status,
       largeLanguageModel: llm,
+      keywords: kw,
     },
   )
   const pages = result.data?.searchResult
@@ -45,6 +55,7 @@ export async function PageList({ query, lang, status, llm }: PageListProps) {
           query={query}
           position={index}
           webPageSummaryId={page.id}
+          kw={kw}
         />
       ))}
     </>
