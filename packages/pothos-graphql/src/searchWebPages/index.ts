@@ -47,7 +47,6 @@ builder.queryField('searchResult', (t) =>
     type: [searchWebPagesReference],
     args: {
       query: t.arg.string({
-        required: true,
         defaultValue: '*',
       }),
       largeLanguageModel: t.arg.stringList({

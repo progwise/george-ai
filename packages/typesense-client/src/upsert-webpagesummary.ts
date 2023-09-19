@@ -11,6 +11,7 @@ interface WebPageSummary {
   url: string
   originalContent: string
   publicationState: string
+  popularity: number
 }
 
 export const summaryCollectionSchema: CollectionCreateSchema = {
