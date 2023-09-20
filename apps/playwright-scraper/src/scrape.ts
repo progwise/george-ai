@@ -25,7 +25,10 @@ const acceptCookies = async (page: playwright.Page) => {
   }
 }
 
-const extractLinks = async (page: Page): Promise<string[]> => {
+const extractLinks = async (
+  page: Page,
+  baseScrapeAddress: string,
+): Promise<string[]> => {
   const linkLocators = await page.locator('a').all()
   const links = await Promise.all(
     linkLocators.map((ll) => ll.getAttribute('href')),
@@ -34,7 +37,10 @@ const extractLinks = async (page: Page): Promise<string[]> => {
     ...new Set(
       links.filter(
         (link): link is string =>
-          link !== null && link.length > 0 && !link.startsWith('#'),
+          link !== null &&
+          link.length > 0 &&
+          !link.startsWith('#') &&
+          link.startsWith(baseScrapeAddress),
       ),
     ),
   ]
@@ -44,6 +50,8 @@ export const scrapePage = async (
   url: string,
   context: playwright.BrowserContext,
 ): Promise<ScrapeResult> => {
+  const urlObject = new URL(url)
+  const baseUrl = urlObject.origin
   const page = await context.newPage()
   await page.goto(url)
   await acceptCookies(page)
@@ -59,7 +67,7 @@ export const scrapePage = async (
     (await page.locator('html').getAttribute('lang')) || 'en'
   ).split('-')[0]
   console.log('scrapedLanguage:', scrapedLanguage)
-  const links = await extractLinks(page)
+  const links = await extractLinks(page, baseUrl)
   await page.close()
   return {
     title: pageTitle,
