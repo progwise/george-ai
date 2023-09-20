@@ -4,8 +4,7 @@
   "info": {
     "singularName": "prompt",
     "pluralName": "prompts",
-    "displayName": "Prompt",
-    "description": ""
+    "displayName": "Prompt"
   },
   "options": {
     "draftAndPublish": false
@@ -16,21 +15,29 @@
     }
   },
   "attributes": {
-    "promptForKeyword": {
-      "type": "string",
+    "summaryPrompt": {
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "type": "string"
     },
-    "promptForSummary": {
-      "type": "string",
+    "keywordPrompt": {
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
+      },
+      "type": "string"
+    },
+    "llm": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "type": "string"
     }
   }
 }
