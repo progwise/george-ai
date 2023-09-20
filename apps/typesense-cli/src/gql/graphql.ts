@@ -62,13 +62,38 @@ export type BooleanFilterInput = {
   startsWith?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export type ComponentWebPageSummaryWebPageSummary = {
-  __typename?: 'ComponentWebPageSummaryWebPageSummary'
-  Feedback?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>
-  GeneratedKeywords?: Maybe<Scalars['String']['output']>
-  GeneratedSummary?: Maybe<Scalars['String']['output']>
-  LargeLanguageModel?: Maybe<Scalars['String']['output']>
+export type ComponentConfigurationScrapeEntryPoint = {
+  __typename?: 'ComponentConfigurationScrapeEntryPoint'
+  depth?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
+  prompts?: Maybe<PromptRelationResponseCollection>
+  startUrl?: Maybe<Scalars['String']['output']>
+}
+
+export type ComponentConfigurationScrapeEntryPointPromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type ComponentConfigurationScrapeEntryPointFiltersInput = {
+  and?: InputMaybe<
+    Array<InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>>
+  >
+  depth?: InputMaybe<IntFilterInput>
+  not?: InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>
+  or?: InputMaybe<
+    Array<InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>>
+  >
+  prompts?: InputMaybe<PromptFiltersInput>
+  startUrl?: InputMaybe<StringFilterInput>
+}
+
+export type ComponentConfigurationScrapeEntryPointInput = {
+  depth?: InputMaybe<Scalars['Int']['input']>
+  id?: InputMaybe<Scalars['ID']['input']>
+  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
+  startUrl?: InputMaybe<Scalars['String']['input']>
 }
 
 export type DateTimeFilterInput = {
@@ -94,11 +119,6 @@ export type DateTimeFilterInput = {
   null?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>
   startsWith?: InputMaybe<Scalars['DateTime']['input']>
-}
-
-export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
-  Down = 'down',
-  Up = 'up',
 }
 
 export enum Enum_Summaryfeedback_Voting {
@@ -138,9 +158,11 @@ export type FloatFilterInput = {
 }
 
 export type GenericMorph =
-  | ComponentWebPageSummaryWebPageSummary
+  | ComponentConfigurationScrapeEntryPoint
   | I18NLocale
+  | Prompt
   | ScrapedWebPage
+  | ScraperConfiguration
   | SummaryFeedback
   | UploadFile
   | UploadFolder
@@ -264,6 +286,8 @@ export type Mutation = {
   __typename?: 'Mutation'
   /** Change user password. Confirm with the current password. */
   changePassword?: Maybe<UsersPermissionsLoginPayload>
+  createPrompt?: Maybe<PromptEntityResponse>
+  createPromptLocalization?: Maybe<PromptEntityResponse>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
@@ -275,7 +299,9 @@ export type Mutation = {
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
+  deletePrompt?: Maybe<PromptEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
+  deleteScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   deleteUploadFile?: Maybe<UploadFileEntityResponse>
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -296,7 +322,9 @@ export type Mutation = {
   /** Reset user password. Confirm with a code (resetToken from forgotPassword) */
   resetPassword?: Maybe<UsersPermissionsLoginPayload>
   updateFileInfo: UploadFileEntityResponse
+  updatePrompt?: Maybe<PromptEntityResponse>
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
+  updateScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   updateUploadFile?: Maybe<UploadFileEntityResponse>
   updateUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -312,6 +340,17 @@ export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input']
   password: Scalars['String']['input']
   passwordConfirmation: Scalars['String']['input']
+}
+
+export type MutationCreatePromptArgs = {
+  data: PromptInput
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationCreatePromptLocalizationArgs = {
+  data?: InputMaybe<PromptInput>
+  id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationCreateScrapedWebPageArgs = {
@@ -353,6 +392,11 @@ export type MutationCreateWebPageSummaryArgs = {
 export type MutationCreateWebPageSummaryLocalizationArgs = {
   data?: InputMaybe<WebPageSummaryInput>
   id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationDeletePromptArgs = {
+  id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
@@ -424,10 +468,20 @@ export type MutationUpdateFileInfoArgs = {
   info?: InputMaybe<FileInfoInput>
 }
 
+export type MutationUpdatePromptArgs = {
+  data: PromptInput
+  id: Scalars['ID']['input']
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
 export type MutationUpdateScrapedWebPageArgs = {
   data: ScrapedWebPageInput
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationUpdateScraperConfigurationArgs = {
+  data: ScraperConfigurationInput
 }
 
 export type MutationUpdateSummaryFeedbackArgs = {
@@ -484,6 +538,65 @@ export type PaginationArg = {
   start?: InputMaybe<Scalars['Int']['input']>
 }
 
+export type Prompt = {
+  __typename?: 'Prompt'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  keywordPrompt?: Maybe<Scalars['String']['output']>
+  llm?: Maybe<Scalars['String']['output']>
+  locale?: Maybe<Scalars['String']['output']>
+  localizations?: Maybe<PromptRelationResponseCollection>
+  summaryPrompt?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type PromptLocalizationsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type PromptEntity = {
+  __typename?: 'PromptEntity'
+  attributes?: Maybe<Prompt>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type PromptEntityResponse = {
+  __typename?: 'PromptEntityResponse'
+  data?: Maybe<PromptEntity>
+}
+
+export type PromptEntityResponseCollection = {
+  __typename?: 'PromptEntityResponseCollection'
+  data: Array<PromptEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type PromptFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  keywordPrompt?: InputMaybe<StringFilterInput>
+  llm?: InputMaybe<StringFilterInput>
+  locale?: InputMaybe<StringFilterInput>
+  localizations?: InputMaybe<PromptFiltersInput>
+  not?: InputMaybe<PromptFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>
+  summaryPrompt?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+}
+
+export type PromptInput = {
+  keywordPrompt?: InputMaybe<Scalars['String']['input']>
+  llm?: InputMaybe<Scalars['String']['input']>
+  summaryPrompt?: InputMaybe<Scalars['String']['input']>
+}
+
+export type PromptRelationResponseCollection = {
+  __typename?: 'PromptRelationResponseCollection'
+  data: Array<PromptEntity>
+}
+
 export enum PublicationState {
   Live = 'LIVE',
   Preview = 'PREVIEW',
@@ -494,8 +607,11 @@ export type Query = {
   i18NLocale?: Maybe<I18NLocaleEntityResponse>
   i18NLocales?: Maybe<I18NLocaleEntityResponseCollection>
   me?: Maybe<UsersPermissionsMe>
+  prompt?: Maybe<PromptEntityResponse>
+  prompts?: Maybe<PromptEntityResponseCollection>
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>
+  scraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   summaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   summaryFeedbacks?: Maybe<SummaryFeedbackEntityResponseCollection>
   uploadFile?: Maybe<UploadFileEntityResponse>
@@ -516,6 +632,18 @@ export type QueryI18NLocaleArgs = {
 
 export type QueryI18NLocalesArgs = {
   filters?: InputMaybe<I18NLocaleFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QueryPromptArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type QueryPromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
@@ -672,6 +800,36 @@ export type ScrapedWebPageInput = {
 export type ScrapedWebPageRelationResponseCollection = {
   __typename?: 'ScrapedWebPageRelationResponseCollection'
   data: Array<ScrapedWebPageEntity>
+}
+
+export type ScraperConfiguration = {
+  __typename?: 'ScraperConfiguration'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  entryPoints?: Maybe<Array<Maybe<ComponentConfigurationScrapeEntryPoint>>>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type ScraperConfigurationEntryPointsArgs = {
+  filters?: InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type ScraperConfigurationEntity = {
+  __typename?: 'ScraperConfigurationEntity'
+  attributes?: Maybe<ScraperConfiguration>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type ScraperConfigurationEntityResponse = {
+  __typename?: 'ScraperConfigurationEntityResponse'
+  data?: Maybe<ScraperConfigurationEntity>
+}
+
+export type ScraperConfigurationInput = {
+  entryPoints?: InputMaybe<
+    Array<InputMaybe<ComponentConfigurationScrapeEntryPointInput>>
+  >
 }
 
 export type StringFilterInput = {

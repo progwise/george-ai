@@ -49,13 +49,35 @@ export type BooleanFilterInput = {
   startsWith?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export type ComponentWebPageSummaryWebPageSummary = {
-  __typename?: 'ComponentWebPageSummaryWebPageSummary';
-  Feedback?: Maybe<Enum_Componentwebpagesummarywebpagesummary_Feedback>;
-  GeneratedKeywords?: Maybe<Scalars['String']['output']>;
-  GeneratedSummary?: Maybe<Scalars['String']['output']>;
-  LargeLanguageModel?: Maybe<Scalars['String']['output']>;
+export type ComponentConfigurationScrapeEntryPoint = {
+  __typename?: 'ComponentConfigurationScrapeEntryPoint';
+  depth?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
+  prompts?: Maybe<PromptRelationResponseCollection>;
+  startUrl?: Maybe<Scalars['String']['output']>;
+};
+
+
+export type ComponentConfigurationScrapeEntryPointPromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ComponentConfigurationScrapeEntryPointFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>>>;
+  depth?: InputMaybe<IntFilterInput>;
+  not?: InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>;
+  or?: InputMaybe<Array<InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>>>;
+  prompts?: InputMaybe<PromptFiltersInput>;
+  startUrl?: InputMaybe<StringFilterInput>;
+};
+
+export type ComponentConfigurationScrapeEntryPointInput = {
+  depth?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+  startUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DateTimeFilterInput = {
@@ -82,11 +104,6 @@ export type DateTimeFilterInput = {
   or?: InputMaybe<Array<InputMaybe<Scalars['DateTime']['input']>>>;
   startsWith?: InputMaybe<Scalars['DateTime']['input']>;
 };
-
-export enum Enum_Componentwebpagesummarywebpagesummary_Feedback {
-  Down = 'down',
-  Up = 'up'
-}
 
 export enum Enum_Summaryfeedback_Voting {
   Down = 'down',
@@ -124,7 +141,7 @@ export type FloatFilterInput = {
   startsWith?: InputMaybe<Scalars['Float']['input']>;
 };
 
-export type GenericMorph = ComponentWebPageSummaryWebPageSummary | I18NLocale | ScrapedWebPage | SummaryFeedback | UploadFile | UploadFolder | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser | WebPageSummary;
+export type GenericMorph = ComponentConfigurationScrapeEntryPoint | I18NLocale | Prompt | ScrapedWebPage | ScraperConfiguration | SummaryFeedback | UploadFile | UploadFolder | UsersPermissionsPermission | UsersPermissionsRole | UsersPermissionsUser | WebPageSummary;
 
 export type I18NLocale = {
   __typename?: 'I18NLocale';
@@ -241,6 +258,8 @@ export type Mutation = {
   __typename?: 'Mutation';
   /** Change user password. Confirm with the current password. */
   changePassword?: Maybe<UsersPermissionsLoginPayload>;
+  createPrompt?: Maybe<PromptEntityResponse>;
+  createPromptLocalization?: Maybe<PromptEntityResponse>;
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
   createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>;
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
@@ -252,7 +271,9 @@ export type Mutation = {
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse;
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>;
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>;
+  deletePrompt?: Maybe<PromptEntityResponse>;
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
+  deleteScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>;
   deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
   deleteUploadFile?: Maybe<UploadFileEntityResponse>;
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>;
@@ -273,7 +294,9 @@ export type Mutation = {
   /** Reset user password. Confirm with a code (resetToken from forgotPassword) */
   resetPassword?: Maybe<UsersPermissionsLoginPayload>;
   updateFileInfo: UploadFileEntityResponse;
+  updatePrompt?: Maybe<PromptEntityResponse>;
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
+  updateScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>;
   updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
   updateUploadFile?: Maybe<UploadFileEntityResponse>;
   updateUploadFolder?: Maybe<UploadFolderEntityResponse>;
@@ -290,6 +313,19 @@ export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   password: Scalars['String']['input'];
   passwordConfirmation: Scalars['String']['input'];
+};
+
+
+export type MutationCreatePromptArgs = {
+  data: PromptInput;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationCreatePromptLocalizationArgs = {
+  data?: InputMaybe<PromptInput>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
 
@@ -340,6 +376,12 @@ export type MutationCreateWebPageSummaryArgs = {
 export type MutationCreateWebPageSummaryLocalizationArgs = {
   data?: InputMaybe<WebPageSummaryInput>;
   id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationDeletePromptArgs = {
+  id: Scalars['ID']['input'];
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
 };
 
@@ -427,10 +469,22 @@ export type MutationUpdateFileInfoArgs = {
 };
 
 
+export type MutationUpdatePromptArgs = {
+  data: PromptInput;
+  id: Scalars['ID']['input'];
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
 export type MutationUpdateScrapedWebPageArgs = {
   data: ScrapedWebPageInput;
   id: Scalars['ID']['input'];
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type MutationUpdateScraperConfigurationArgs = {
+  data: ScraperConfigurationInput;
 };
 
 
@@ -494,6 +548,66 @@ export type PaginationArg = {
   start?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type Prompt = {
+  __typename?: 'Prompt';
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  keywordPrompt?: Maybe<Scalars['String']['output']>;
+  llm?: Maybe<Scalars['String']['output']>;
+  locale?: Maybe<Scalars['String']['output']>;
+  localizations?: Maybe<PromptRelationResponseCollection>;
+  summaryPrompt?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+
+export type PromptLocalizationsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type PromptEntity = {
+  __typename?: 'PromptEntity';
+  attributes?: Maybe<Prompt>;
+  id?: Maybe<Scalars['ID']['output']>;
+};
+
+export type PromptEntityResponse = {
+  __typename?: 'PromptEntityResponse';
+  data?: Maybe<PromptEntity>;
+};
+
+export type PromptEntityResponseCollection = {
+  __typename?: 'PromptEntityResponseCollection';
+  data: Array<PromptEntity>;
+  meta: ResponseCollectionMeta;
+};
+
+export type PromptFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>;
+  createdAt?: InputMaybe<DateTimeFilterInput>;
+  id?: InputMaybe<IdFilterInput>;
+  keywordPrompt?: InputMaybe<StringFilterInput>;
+  llm?: InputMaybe<StringFilterInput>;
+  locale?: InputMaybe<StringFilterInput>;
+  localizations?: InputMaybe<PromptFiltersInput>;
+  not?: InputMaybe<PromptFiltersInput>;
+  or?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>;
+  summaryPrompt?: InputMaybe<StringFilterInput>;
+  updatedAt?: InputMaybe<DateTimeFilterInput>;
+};
+
+export type PromptInput = {
+  keywordPrompt?: InputMaybe<Scalars['String']['input']>;
+  llm?: InputMaybe<Scalars['String']['input']>;
+  summaryPrompt?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PromptRelationResponseCollection = {
+  __typename?: 'PromptRelationResponseCollection';
+  data: Array<PromptEntity>;
+};
+
 export enum PublicationState {
   Live = 'LIVE',
   Preview = 'PREVIEW'
@@ -504,8 +618,11 @@ export type Query = {
   i18NLocale?: Maybe<I18NLocaleEntityResponse>;
   i18NLocales?: Maybe<I18NLocaleEntityResponseCollection>;
   me?: Maybe<UsersPermissionsMe>;
+  prompt?: Maybe<PromptEntityResponse>;
+  prompts?: Maybe<PromptEntityResponseCollection>;
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>;
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>;
+  scraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>;
   summaryFeedback?: Maybe<SummaryFeedbackEntityResponse>;
   summaryFeedbacks?: Maybe<SummaryFeedbackEntityResponseCollection>;
   uploadFile?: Maybe<UploadFileEntityResponse>;
@@ -528,6 +645,20 @@ export type QueryI18NLocaleArgs = {
 
 export type QueryI18NLocalesArgs = {
   filters?: InputMaybe<I18NLocaleFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+
+export type QueryPromptArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
+};
+
+
+export type QueryPromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>;
+  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>;
   pagination?: InputMaybe<PaginationArg>;
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
@@ -700,6 +831,35 @@ export type ScrapedWebPageInput = {
 export type ScrapedWebPageRelationResponseCollection = {
   __typename?: 'ScrapedWebPageRelationResponseCollection';
   data: Array<ScrapedWebPageEntity>;
+};
+
+export type ScraperConfiguration = {
+  __typename?: 'ScraperConfiguration';
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  entryPoints?: Maybe<Array<Maybe<ComponentConfigurationScrapeEntryPoint>>>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+
+export type ScraperConfigurationEntryPointsArgs = {
+  filters?: InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>;
+  pagination?: InputMaybe<PaginationArg>;
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+export type ScraperConfigurationEntity = {
+  __typename?: 'ScraperConfigurationEntity';
+  attributes?: Maybe<ScraperConfiguration>;
+  id?: Maybe<Scalars['ID']['output']>;
+};
+
+export type ScraperConfigurationEntityResponse = {
+  __typename?: 'ScraperConfigurationEntityResponse';
+  data?: Maybe<ScraperConfigurationEntity>;
+};
+
+export type ScraperConfigurationInput = {
+  entryPoints?: InputMaybe<Array<InputMaybe<ComponentConfigurationScrapeEntryPointInput>>>;
 };
 
 export type StringFilterInput = {
@@ -1229,10 +1389,10 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>;
 };
 
-export type GetAllLocalesQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetScraperConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllLocalesQuery = { __typename?: 'Query', i18NLocales?: { __typename?: 'I18NLocaleEntityResponseCollection', data: Array<{ __typename?: 'I18NLocaleEntity', id?: string | null, attributes?: { __typename?: 'I18NLocale', code?: string | null } | null }> } | null };
+export type GetScraperConfigurationQuery = { __typename?: 'Query', scraperConfiguration?: { __typename?: 'ScraperConfigurationEntityResponse', data?: { __typename?: 'ScraperConfigurationEntity', attributes?: { __typename?: 'ScraperConfiguration', entryPoints?: Array<{ __typename?: 'ComponentConfigurationScrapeEntryPoint', startUrl?: string | null, depth?: number | null, prompts?: { __typename?: 'PromptRelationResponseCollection', data: Array<{ __typename?: 'PromptEntity', attributes?: { __typename?: 'Prompt', summaryPrompt?: string | null, keywordPrompt?: string | null, llm?: string | null, locale?: string | null } | null }> } | null } | null> | null } | null } | null } | null };
 
 export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
   url: Scalars['String']['input'];
@@ -1275,7 +1435,7 @@ export type CreateWebPageSummaryMutationVariables = Exact<{
 export type CreateWebPageSummaryMutation = { __typename?: 'Mutation', createWebPageSummary?: { __typename?: 'WebPageSummaryEntityResponse', data?: { __typename?: 'WebPageSummaryEntity', id?: string | null, attributes?: { __typename?: 'WebPageSummary', keywords?: string | null, summary?: string | null, largeLanguageModel?: string | null, scraped_web_page?: { __typename?: 'ScrapedWebPageEntityResponse', data?: { __typename?: 'ScrapedWebPageEntity', id?: string | null } | null } | null } | null } | null } | null };
 
 
-export const GetAllLocalesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllLocales"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"i18NLocales"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"code"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetAllLocalesQuery, GetAllLocalesQueryVariables>;
+export const GetScraperConfigurationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetScraperConfiguration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scraperConfiguration"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"entryPoints"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startUrl"}},{"kind":"Field","name":{"kind":"Name","value":"depth"}},{"kind":"Field","name":{"kind":"Name","value":"prompts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"summaryPrompt"}},{"kind":"Field","name":{"kind":"Name","value":"keywordPrompt"}},{"kind":"Field","name":{"kind":"Name","value":"llm"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}}]}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetScraperConfigurationQuery, GetScraperConfigurationQueryVariables>;
 export const GetScrapedWebPagesByUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetScrapedWebPagesByUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"scrapedWebPages"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetScrapedWebPagesByUrlQuery, GetScrapedWebPagesByUrlQueryVariables>;
 export const CreateScrapedWebPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateScrapedWebPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ScrapedWebPageInput"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"I18NLocaleCode"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createScrapedWebPage"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"attributes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"originalContent"}}]}}]}}]}}]}}]} as unknown as DocumentNode<CreateScrapedWebPageMutation, CreateScrapedWebPageMutationVariables>;
 export const GetWebPageSummariesByLanguageModelAndUrlDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWebPageSummariesByLanguageModelAndUrl"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"languageModel"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"locale"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"webPageSummaries"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"publicationState"},"value":{"kind":"EnumValue","value":"PREVIEW"}},{"kind":"Argument","name":{"kind":"Name","value":"locale"},"value":{"kind":"StringValue","value":"all","block":false}},{"kind":"Argument","name":{"kind":"Name","value":"filters"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"largeLanguageModel"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"languageModel"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"scraped_web_page"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"url"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"locale"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"locale"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]} as unknown as DocumentNode<GetWebPageSummariesByLanguageModelAndUrlQuery, GetWebPageSummariesByLanguageModelAndUrlQueryVariables>;

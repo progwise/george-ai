@@ -16,17 +16,17 @@ const openai = new OpenAIApi(configuration)
 
 export const getServiceSummary = async (
   content: string,
-  language: keyof typeof prompts,
+  summaryPrompt: string[],
 ) => {
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
-        ...prompts[language].summary.map((prompt) => ({
-          role: 'system' as ChatCompletionRequestMessageRoleEnum,
+        ...summaryPrompt.map((prompt) => ({
+          role: ChatCompletionRequestMessageRoleEnum.System,
           content: prompt,
         })),
-        { role: 'user' as ChatCompletionRequestMessageRoleEnum, content },
+        { role: ChatCompletionRequestMessageRoleEnum.User, content },
       ],
     })
 
@@ -38,19 +38,16 @@ export const getServiceSummary = async (
   }
 }
 
-export const getKeywords = async (
-  content: string,
-  language: keyof typeof prompts,
-) => {
+export const getKeywords = async (content: string, keywordPrompt: string[]) => {
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
-        ...prompts[language].keywords.map((prompt) => ({
-          role: 'system' as ChatCompletionRequestMessageRoleEnum,
+        ...keywordPrompt.map((prompt) => ({
+          role: ChatCompletionRequestMessageRoleEnum.System,
           content: prompt,
         })),
-        { role: 'user' as ChatCompletionRequestMessageRoleEnum, content },
+        { role: ChatCompletionRequestMessageRoleEnum.User, content },
       ],
     })
 
