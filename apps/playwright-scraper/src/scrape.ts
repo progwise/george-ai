@@ -6,6 +6,7 @@ export interface ScrapeResult {
   content: string
   links: string[]
   scrapedLanguage: string
+  depth: number
 }
 
 const acceptCookies = async (page: playwright.Page) => {
@@ -49,6 +50,7 @@ const extractLinks = async (
 export const scrapePage = async (
   url: string,
   context: playwright.BrowserContext,
+  depth: number,
 ): Promise<ScrapeResult> => {
   const page = await context.newPage()
   await page.goto(url)
@@ -73,5 +75,6 @@ export const scrapePage = async (
     content: texts,
     links,
     scrapedLanguage,
+    depth,
   }
 }

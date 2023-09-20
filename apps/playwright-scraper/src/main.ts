@@ -3,9 +3,15 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 import { getStrapiLocales } from './locales'
-import { Language, isLanguage, prompts } from './prompts'
+import { Language, isLanguage } from './prompts'
 
-const MAX_RUNS = 2 // Maximum number of runs
+const MAX_RUNS = 5 // Maximum number of runs
+const MAX_DEPTH = 2
+
+interface UrlDepth {
+  url: string
+  depth: number
+}
 
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
@@ -14,14 +20,14 @@ export interface ScrapeResultAndSummary extends ScrapeResult {
   currentLanguage: string
 }
 
-const processPage = async (urls: string[]): Promise<void> => {
+const processPage = async (initialUrls: string[]): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
 
   let runCounter = 0 // Counter
 
-  const urlsDone: Array<string> = []
-  let urlsTodo: Array<string> = urls
+  const urlsDone = new Set<string>()
+  let urlsTodo: Array<UrlDepth> = initialUrls.map((url) => ({ url, depth: 0 }))
   const strapiLocales = await getStrapiLocales()
 
   const promptsLocales = strapiLocales.filter((locale): locale is Language =>
@@ -34,21 +40,34 @@ const processPage = async (urls: string[]): Promise<void> => {
   }
 
   while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
-    const currentUrl = urlsTodo[0]
-    urlsTodo = urlsTodo.slice(1)
-    urlsDone.push(currentUrl)
+    const nextUrlDepth = urlsTodo.shift()
+    if (!nextUrlDepth) {
+      console.log('No more URLs to process')
+      break
+    }
+
+    const { url: currentUrl, depth: currentDepth } = nextUrlDepth
+    urlsDone.add(currentUrl)
+
     console.log(`scraping ${currentUrl}`)
 
     try {
-      const scrapeResult = await scrapePage(currentUrl, context)
+      const scrapeResult = await scrapePage(currentUrl, context, currentDepth)
 
-      urlsTodo = [
-        ...new Set(
-          [...urlsTodo, ...scrapeResult.links].filter(
-            (url) => !urlsDone.includes(url),
+      if (currentDepth < MAX_DEPTH) {
+        const newUrls = scrapeResult.links.map((url) => ({
+          url,
+          depth: currentDepth + 1,
+        }))
+
+        urlsTodo = [
+          ...urlsTodo,
+          ...newUrls.filter(
+            ({ url }) =>
+              !urlsDone.has(url) && !urlsTodo.some((u) => u.url === url),
           ),
-        ),
-      ]
+        ]
+      }
 
       if (!scrapeResult.content) {
         console.log(`Skipping ${currentUrl}: No content was found on the page`)
