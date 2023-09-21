@@ -36,7 +36,7 @@ export const InfoCard = ({
         position={position}
         webPageSummaryId={webPageSummaryId}
       />
-      <Summary summary={page.summary} />
+      <Summary summary={page.summary} position={position} />
       <Link url={page.url} />
       <Keywords keywords={page?.keywords} />
     </div>
