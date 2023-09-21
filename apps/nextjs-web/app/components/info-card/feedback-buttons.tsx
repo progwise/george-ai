@@ -68,11 +68,13 @@ export const FeedbackButtons = ({
         <Image
           src="/thumbs-up.svg"
           alt={SummaryFeedbackVoting.Up}
-          className={
+          className={`hover:scale-125
+          ${
             feedbackSelection === SummaryFeedbackVoting.Up
               ? 'opacity-100'
               : 'opacity-25'
           }
+          `}
           width={24}
           height={24}
         />
@@ -82,11 +84,13 @@ export const FeedbackButtons = ({
         <Image
           src="/thumbs-down.svg"
           alt={SummaryFeedbackVoting.Down}
-          className={
+          className={`hover:scale-125
+          ${
             feedbackSelection === SummaryFeedbackVoting.Down
               ? 'opacity-100'
               : 'opacity-25'
           }
+          `}
           width={24}
           height={24}
         />
