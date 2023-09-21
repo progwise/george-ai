@@ -4,7 +4,6 @@ import {
   OpenAIApi,
 } from 'openai'
 import dotenv from 'dotenv'
-import { prompts } from './prompts'
 
 dotenv.config()
 

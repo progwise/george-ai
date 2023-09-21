@@ -3,7 +3,6 @@ import { getKeywords, getServiceSummary } from './chat-gpt'
 import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
 import { ScrapeResult, scrapePage } from './scrape.js'
 import { getScraperConfiguration } from './scraper-configuration'
-import { Language, isLanguage } from './prompts'
 
 const MAX_RUNS = 3 // Maximum number of runs
 
