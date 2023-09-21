@@ -67,7 +67,7 @@ export type ComponentConfigurationScrapeEntryPoint = {
   depth?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   prompts?: Maybe<PromptRelationResponseCollection>
-  startUrl?: Maybe<Scalars['String']['output']>
+  startUrl: Scalars['String']['output']
 }
 
 export type ComponentConfigurationScrapeEntryPointPromptsArgs = {

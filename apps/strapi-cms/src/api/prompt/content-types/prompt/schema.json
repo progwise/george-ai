@@ -4,7 +4,8 @@
   "info": {
     "singularName": "prompt",
     "pluralName": "prompts",
-    "displayName": "Prompt"
+    "displayName": "Prompt",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -21,7 +22,7 @@
           "localized": true
         }
       },
-      "type": "string"
+      "type": "text"
     },
     "keywordPrompt": {
       "pluginOptions": {
@@ -29,7 +30,7 @@
           "localized": true
         }
       },
-      "type": "string"
+      "type": "text"
     },
     "llm": {
       "pluginOptions": {

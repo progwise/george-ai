@@ -6,11 +6,6 @@ import { getScraperConfiguration } from './scraper-configuration'
 
 const MAX_RUNS = 3 // Maximum number of runs
 
-interface UrlDepth {
-  url: string
-  depth: number
-}
-
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
   keywords: string[]
@@ -42,16 +37,16 @@ const processPage = async (): Promise<void> => {
     }
     const maxDepth = scraperConfig.depth ?? 0
     const urlsDone = new Set<string>()
-    let urlsTodo: Array<UrlDepth> = [{ url: startUrl, depth: 0 }]
+    let urlsTodo = [{ url: startUrl, depth: 0 }]
 
     while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
-      const nextUrlDepth = urlsTodo.shift()
-      if (!nextUrlDepth) {
+      const nextUrlTodo = urlsTodo.shift()
+      if (!nextUrlTodo) {
         console.log('No more URLs to process')
         break
       }
 
-      const { url: currentUrl, depth: currentDepth } = nextUrlDepth
+      const { url: currentUrl, depth: currentDepth } = nextUrlTodo
       urlsDone.add(currentUrl)
 
       console.log(`scraping ${currentUrl}`)
@@ -108,7 +103,7 @@ const processPage = async (): Promise<void> => {
             currentLanguage: prompt.locale ?? 'en',
             summary,
             keywords,
-            largeLanguageModel: prompt.llm ?? '',
+            largeLanguageModel: prompt.llm ?? 'unspecified',
           }
 
           await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)

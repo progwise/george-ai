@@ -54,7 +54,7 @@ export type ComponentConfigurationScrapeEntryPoint = {
   depth?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   prompts?: Maybe<PromptRelationResponseCollection>;
-  startUrl?: Maybe<Scalars['String']['output']>;
+  startUrl: Scalars['String']['output'];
 };
 
 
@@ -1392,7 +1392,7 @@ export type WebPageSummaryRelationResponseCollection = {
 export type GetScraperConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetScraperConfigurationQuery = { __typename?: 'Query', scraperConfiguration?: { __typename?: 'ScraperConfigurationEntityResponse', data?: { __typename?: 'ScraperConfigurationEntity', attributes?: { __typename?: 'ScraperConfiguration', entryPoints?: Array<{ __typename?: 'ComponentConfigurationScrapeEntryPoint', startUrl?: string | null, depth?: number | null, prompts?: { __typename?: 'PromptRelationResponseCollection', data: Array<{ __typename?: 'PromptEntity', attributes?: { __typename?: 'Prompt', summaryPrompt?: string | null, keywordPrompt?: string | null, llm?: string | null, locale?: string | null } | null }> } | null } | null> | null } | null } | null } | null };
+export type GetScraperConfigurationQuery = { __typename?: 'Query', scraperConfiguration?: { __typename?: 'ScraperConfigurationEntityResponse', data?: { __typename?: 'ScraperConfigurationEntity', attributes?: { __typename?: 'ScraperConfiguration', entryPoints?: Array<{ __typename?: 'ComponentConfigurationScrapeEntryPoint', startUrl: string, depth?: number | null, prompts?: { __typename?: 'PromptRelationResponseCollection', data: Array<{ __typename?: 'PromptEntity', attributes?: { __typename?: 'Prompt', summaryPrompt?: string | null, keywordPrompt?: string | null, llm?: string | null, locale?: string | null } | null }> } | null } | null> | null } | null } | null } | null };
 
 export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
   url: Scalars['String']['input'];
