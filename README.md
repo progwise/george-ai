@@ -1,12 +1,15 @@
 # George AI Project
 
-This repository contains several interrelated apps, each with its own purpose and tech stack. Follow the steps below to set up the development environment.
-
 ## Table of Contents
 
+- [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [Obtaining API Keys](#obtaining-api-keys)
+
+## Prerequisites
+
+- Node.js version 16 is required for this project.
 
 ## Getting Started
 
