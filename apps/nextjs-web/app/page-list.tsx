@@ -1,7 +1,7 @@
 'use client'
 
 import { InfoCard } from './components/info-card/info-card'
-import { graphql, useFragment } from '@/src/gql'
+import { graphql } from '@/src/gql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
 import {
   GetSearchWebPagesQuery,
