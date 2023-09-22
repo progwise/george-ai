@@ -19,7 +19,7 @@ const documents = {
     types.CreateSummaryFeedbackDocument,
   '\n  fragment InfoCard on searchWebPages {\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n  }\n':
     types.InfoCardFragmentDoc,
-  '\n            query GetSearchWebPages(\n              $query: String\n              $language: [String!]\n              $publicationState: [String!]\n              $largeLanguageModel: [String!]\n            ) {\n              searchResult(\n                query: $query\n                language: $language\n                publicationState: $publicationState\n                largeLanguageModel: $largeLanguageModel\n              ) {\n                id\n                ...InfoCard\n              }\n            }\n          ':
+  '\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
     types.GetSearchWebPagesDocument,
 }
 
@@ -59,8 +59,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n            query GetSearchWebPages(\n              $query: String\n              $language: [String!]\n              $publicationState: [String!]\n              $largeLanguageModel: [String!]\n            ) {\n              searchResult(\n                query: $query\n                language: $language\n                publicationState: $publicationState\n                largeLanguageModel: $largeLanguageModel\n              ) {\n                id\n                ...InfoCard\n              }\n            }\n          ',
-): (typeof documents)['\n            query GetSearchWebPages(\n              $query: String\n              $language: [String!]\n              $publicationState: [String!]\n              $largeLanguageModel: [String!]\n            ) {\n              searchResult(\n                query: $query\n                language: $language\n                publicationState: $publicationState\n                largeLanguageModel: $largeLanguageModel\n              ) {\n                id\n                ...InfoCard\n              }\n            }\n          ']
+  source: '\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ',
+): (typeof documents)['\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}
