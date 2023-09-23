@@ -58,6 +58,9 @@ builder.queryField('searchResult', (t) =>
       language: t.arg.stringList({
         defaultValue: [],
       }),
+      keywords: t.arg.stringList({
+        defaultValue: [],
+      }),
     },
     resolve: async (parent, arguments_) => {
       const filters: string[] = []
@@ -70,6 +73,9 @@ builder.queryField('searchResult', (t) =>
       }
       if (arguments_.language.length > 0) {
         filters.push(`language:=[${arguments_.language}]`)
+      }
+      if (arguments_.keywords.length > 0) {
+        filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
       try {

@@ -11,9 +11,10 @@ import { useQuery } from '@urql/next'
 
 interface PageListProps extends FilterSelectionProps {
   query?: string
+  kw?: string[]
 }
 
-export function PageList({ query, lang, status, llm }: PageListProps) {
+export function PageList({ query, lang, status, llm, kw }: PageListProps) {
   const [{ data }] = useQuery<
     GetSearchWebPagesQuery,
     GetSearchWebPagesQueryVariables
@@ -24,12 +25,14 @@ export function PageList({ query, lang, status, llm }: PageListProps) {
         $language: [String!]
         $publicationState: [String!]
         $largeLanguageModel: [String!]
+        $keywords: [String!]
       ) {
         searchResult(
           query: $query
           language: $language
           publicationState: $publicationState
           largeLanguageModel: $largeLanguageModel
+          keywords: $keywords
         ) {
           id
           ...InfoCard
@@ -41,6 +44,7 @@ export function PageList({ query, lang, status, llm }: PageListProps) {
       language: lang,
       publicationState: status,
       largeLanguageModel: llm,
+      keywords: kw,
     },
   })
 
@@ -50,7 +54,6 @@ export function PageList({ query, lang, status, llm }: PageListProps) {
         <InfoCard
           key={page.id}
           pageFragment={page}
-          query={query}
           position={index}
           webPageSummaryId={page.id}
         />
