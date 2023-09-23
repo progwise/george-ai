@@ -1,5 +1,5 @@
 import { builder } from '../builder'
-import { typesenseClient } from '../typesense-client'
+import { typesenseClient } from '@george-ai/typesense-client'
 
 export enum PublicationState {
   Draft = 'draft',

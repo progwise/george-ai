@@ -1,4 +1,4 @@
-import { strapiClient } from './strapi-client.js'
+import { strapiClient } from '@george-ai/strapi-client'
 import { ScrapeResultAndSummary } from './main.js'
 import { graphql } from './gql/gql'
 

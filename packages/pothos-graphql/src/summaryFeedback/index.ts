@@ -4,7 +4,7 @@ import {
   Enum_Summaryfeedback_Voting,
   SummaryFeedbackFragment,
 } from '../gql/graphql'
-import { strapiClient } from '../strapi-graphql-client'
+import { strapiClient } from '@george-ai/strapi-client'
 
 const summaryFeedbackFragment = graphql(`
   fragment SummaryFeedback on SummaryFeedbackEntity {

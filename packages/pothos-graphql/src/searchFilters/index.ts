@@ -1,4 +1,4 @@
-import { strapiClient } from '../strapi-graphql-client'
+import { strapiClient } from '@george-ai/strapi-client'
 import { graphql } from '../gql'
 import { builder } from '../builder'
 import { PublicationState } from '../searchWebPages'

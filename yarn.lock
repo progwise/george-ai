@@ -1720,6 +1720,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@george-ai/playwright-scraper@workspace:apps/playwright-scraper"
   dependencies:
+    "@george-ai/strapi-client": "*"
     "@parcel/watcher": ^2.2.0
     "@types/node": ^20.4.4
     "@urql/core": ^4.1.0
@@ -1739,6 +1740,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@george-ai/pothos-graphql@workspace:packages/pothos-graphql"
   dependencies:
+    "@george-ai/strapi-client": "*"
+    "@george-ai/typesense-client": "*"
     "@pothos/core": ^3.32.1
     "@pothos/plugin-simple-objects": ^3.7.0
     eslint: ^8.46.0
@@ -1747,6 +1750,18 @@ __metadata:
     graphql-request: ^6.1.0
     typescript: ^5.2.2
     typesense: ^1.7.1
+  languageName: unknown
+  linkType: soft
+
+"@george-ai/strapi-client@*, @george-ai/strapi-client@workspace:packages/strapi-client":
+  version: 0.0.0-use.local
+  resolution: "@george-ai/strapi-client@workspace:packages/strapi-client"
+  dependencies:
+    eslint: ^8.46.0
+    eslint-config-custom: "*"
+    graphql-request: ^6.1.0
+    tsup: ^7.2.0
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
@@ -17923,12 +17938,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "typesense-cli@workspace:apps/typesense-cli"
   dependencies:
+    "@george-ai/strapi-client": "*"
     "@george-ai/typesense-client": "*"
     dotenv-cli: ^7.3.0
     eslint: ^8.47.0
     p-map: ^6.0.0
     ts-node: ^10.9.1
-    typesense: ^1.7.1
   languageName: unknown
   linkType: soft
 

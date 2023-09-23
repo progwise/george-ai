@@ -1,5 +1,5 @@
 import { graphql } from './gql'
-import { strapiClient } from './strapi-client'
+import { strapiClient } from '@george-ai/strapi-client'
 
 export const getStrapiLocales = async () => {
   const { i18NLocales } = await strapiClient.request(

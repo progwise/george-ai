@@ -1,6 +1,6 @@
 import { builder } from '../builder'
 import { graphql, useFragment } from '../gql'
-import { strapiClient } from '../strapi-graphql-client'
+import { strapiClient } from '@george-ai/strapi-client'
 import { WebPageSummaryFragment } from '../gql/graphql'
 
 const WebPageSummaryReference =
