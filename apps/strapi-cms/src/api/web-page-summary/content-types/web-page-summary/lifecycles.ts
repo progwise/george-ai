@@ -1,4 +1,5 @@
 import {
+  deletetDocument,
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
@@ -38,4 +39,14 @@ export default {
   async afterUpdate(event) {
     await transformAndUpsertSummary(event.result.id)
   },
+
+  async afterDeleteMany(event) {
+    for (const id of event.params?.where?.$and[0].id.$in) {
+      await deletetDocument(id);
+    }
+  },
+
+
 }
+
+
