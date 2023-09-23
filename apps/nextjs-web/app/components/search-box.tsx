@@ -10,12 +10,12 @@ export const SearchBox = () => {
   const query = searchParameters.get('query')
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const queryValue = event.target.value
+    const inputValue = event.target.value
 
     const updatedParameter = new URLSearchParams(searchParameters.toString())
 
-    if (queryValue) {
-      updatedParameter.set('query', queryValue)
+    if (inputValue) {
+      updatedParameter.set('query', inputValue)
     } else {
       updatedParameter.delete('query')
     }
