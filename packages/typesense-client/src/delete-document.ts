@@ -1,7 +1,7 @@
 import { summaryCollectionSchema } from './upsert-webpagesummary.js'
 import { typesenseClient } from './typesense.js'
 
-function isHttpError(error: any): error is { httpStatus: number } {
+const isHttpError = (error: any): error is { httpStatus: number } => {
   return error && typeof error.httpStatus === 'number'
 }
 
@@ -27,8 +27,7 @@ export const deletetDocument = async (id: string) => {
     if (isHttpError(error) && error.httpStatus === 404) {
       console.log(`Document ${id} does not exist. Skipping deletion.`)
       return
-    } else {
-      console.error(`Failed to delete document ${id}`, error)
     }
+    console.error(`Failed to delete document ${id}`, error)
   }
 }
