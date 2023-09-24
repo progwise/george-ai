@@ -19,7 +19,9 @@ export const SearchBox = () => {
     } else {
       updatedParameter.delete('query')
     }
-    router.replace(pathname + '?' + updatedParameter.toString())
+    router.replace(pathname + '?' + updatedParameter.toString(), {
+      scroll: false,
+    })
   }
 
   return (
