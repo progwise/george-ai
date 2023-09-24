@@ -13,7 +13,14 @@
       "dependsOn": ["build"],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
     },
-    "lint": {},
+    "lint": {
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        ".eslintrc.js",
+        "packages/eslint-config-custom/**/*.js"
+      ]
+    },
     "dev": {
       "cache": false,
       "persistent": true
