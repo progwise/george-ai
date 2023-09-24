@@ -6,7 +6,7 @@ export enum PublicationState {
   Published = 'published',
 }
 
-type searchWebPages = {
+type SearchWebPages = {
   id: string
   title: string
   url: string
@@ -23,7 +23,7 @@ const PublicationStateEnum = builder.enumType(PublicationState, {
 })
 
 const searchWebPagesReference =
-  builder.objectRef<searchWebPages>('searchWebPages')
+  builder.objectRef<SearchWebPages>('searchWebPages')
 
 builder.objectType(searchWebPagesReference, {
   name: 'searchWebPages',
@@ -80,7 +80,7 @@ builder.queryField('searchResult', (t) =>
 
       try {
         const response = await typesenseClient
-          .collections<searchWebPages>('scraped_web_pages_summaries')
+          .collections<SearchWebPages>('scraped_web_pages_summaries')
           .documents()
           .search({
             q: arguments_.query,
