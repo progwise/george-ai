@@ -5,7 +5,7 @@ import { ScrapeResult, scrapePage } from './scrape.js'
 import { getStrapiLocales } from './locales'
 import { Language, isLanguage, prompts } from './prompts'
 
-const MAX_RUNS = 3 // Maximum number of runs
+const MAX_RUNS = 2 // Maximum number of runs
 
 export interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
