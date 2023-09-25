@@ -12,6 +12,7 @@ const InfoCardFragment = graphql(`
     publicationState
     keywords
     summary
+    largeLanguageModel
   }
 `)
 
@@ -35,6 +36,7 @@ export const InfoCard = ({
         language={page.language}
         position={position}
         webPageSummaryId={webPageSummaryId}
+        largeLanguageModel={page.largeLanguageModel}
       />
       <Summary summary={page.summary} position={position} />
       <Link url={page.url} />

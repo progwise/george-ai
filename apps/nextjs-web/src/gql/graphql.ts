@@ -144,6 +144,7 @@ export type InfoCardFragment = {
   publicationState: PublicationState
   keywords: Array<string>
   summary: string
+  largeLanguageModel: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
 export type GetSearchWebPagesQueryVariables = Exact<{
@@ -190,6 +191,10 @@ export const InfoCardFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
           { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
           { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
         ],
       },
     },
@@ -517,6 +522,10 @@ export const GetSearchWebPagesDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
           { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
           { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
         ],
       },
     },
