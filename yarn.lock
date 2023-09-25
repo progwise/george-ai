@@ -1750,6 +1750,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@george-ai/strapi-client@workspace:packages/strapi-client":
+  version: 0.0.0-use.local
+  resolution: "@george-ai/strapi-client@workspace:packages/strapi-client"
+  dependencies:
+    eslint: ^8.46.0
+    eslint-config-custom: "*"
+    graphql-request: ^6.1.0
+    tsup: ^7.2.0
+    typescript: ^5.2.2
+  languageName: unknown
+  linkType: soft
+
 "@george-ai/typesense-client@*, @george-ai/typesense-client@workspace:packages/typesense-client":
   version: 0.0.0-use.local
   resolution: "@george-ai/typesense-client@workspace:packages/typesense-client"

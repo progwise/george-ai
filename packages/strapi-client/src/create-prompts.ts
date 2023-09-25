@@ -1,6 +1,6 @@
-import { graphql } from '../../../apps/playwright-scraper/src/gql/gql'
-import { strapiPrompts } from './prompts'
-// import { strapiClient } from '../../../apps/playwright-scraper/src/strapi-client'
+import { graphql } from './gql/gql.js'
+import { strapiPrompts } from './prompts.js'
+import { strapiClient } from './strapi-client.js'
 
 export const createPrompts = async () => {
   try {
