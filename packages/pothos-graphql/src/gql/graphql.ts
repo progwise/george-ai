@@ -1353,23 +1353,6 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
-export type GetUniqueValuesQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetUniqueValuesQuery = {
-  __typename?: 'Query'
-  webPageSummaries?: {
-    __typename?: 'WebPageSummaryEntityResponseCollection'
-    data: Array<{
-      __typename?: 'WebPageSummaryEntity'
-      attributes?: {
-        __typename?: 'WebPageSummary'
-        locale?: string | null
-        largeLanguageModel?: string | null
-      } | null
-    }>
-  } | null
-}
-
 export type SummaryFeedbackFragment = {
   __typename?: 'SummaryFeedbackEntity'
   id?: string | null
@@ -1573,74 +1556,6 @@ export const WebPageSummaryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<WebPageSummaryFragment, unknown>
-export const GetUniqueValuesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetUniqueValues' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'webPageSummaries' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'publicationState' },
-                value: { kind: 'EnumValue', value: 'PREVIEW' },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: { kind: 'StringValue', value: 'all', block: false },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'locale' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: {
-                                kind: 'Name',
-                                value: 'largeLanguageModel',
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GetUniqueValuesQuery,
-  GetUniqueValuesQueryVariables
->
 export const CreateSummaryFeedbackDocument = {
   kind: 'Document',
   definitions: [

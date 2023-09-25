@@ -17,13 +17,11 @@ const InfoCardFragment = graphql(`
 
 interface InfoCardProps {
   pageFragment: FragmentType<typeof InfoCardFragment>
-  query?: string
   position: number
   webPageSummaryId: string
 }
 export const InfoCard = ({
   pageFragment,
-  query,
   position,
   webPageSummaryId,
 }: InfoCardProps) => {
@@ -35,11 +33,10 @@ export const InfoCard = ({
         title={page.title}
         publicationState={page.publicationState}
         language={page.language}
-        query={query}
         position={position}
         webPageSummaryId={webPageSummaryId}
       />
-      <Summary summary={page.summary} />
+      <Summary summary={page.summary} position={position} />
       <Link url={page.url} />
       <Keywords keywords={page?.keywords} />
     </div>

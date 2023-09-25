@@ -10,8 +10,7 @@ import pMap from 'p-map'
 import { WebPageSummaryEntity } from './gql/graphql'
 
 dotenv.config()
-
-const endpoint = 'http://localhost:1337/graphql'
+const endpoint = 'http://127.0.0.1:1337/graphql'
 const strapiClient = new GraphQLClient(endpoint, {
   headers: {
     authorization: `Bearer ${process.env.STRAPI_API_KEY}`,

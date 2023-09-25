@@ -5,18 +5,19 @@ import { getClient } from '@/app/client/urql-client'
 import { SummaryFeedbackVoting } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 interface FeedbackButtonsProps {
-  query?: string
   position: number
   webPageSummaryId: string
 }
 
 export const FeedbackButtons = ({
-  query,
   position,
   webPageSummaryId,
 }: FeedbackButtonsProps) => {
+  const searchParameters = useSearchParams()
+  const query = searchParameters.get('query')
   const [feedbackSelection, setFeedbackSelection] = useState<
     SummaryFeedbackVoting | undefined
   >()
@@ -68,11 +69,13 @@ export const FeedbackButtons = ({
         <Image
           src="/thumbs-up.svg"
           alt={SummaryFeedbackVoting.Up}
-          className={
+          className={`hover:scale-125
+          ${
             feedbackSelection === SummaryFeedbackVoting.Up
               ? 'opacity-100'
               : 'opacity-25'
           }
+          `}
           width={24}
           height={24}
         />
@@ -82,11 +85,13 @@ export const FeedbackButtons = ({
         <Image
           src="/thumbs-down.svg"
           alt={SummaryFeedbackVoting.Down}
-          className={
+          className={`hover:scale-125
+          ${
             feedbackSelection === SummaryFeedbackVoting.Down
               ? 'opacity-100'
               : 'opacity-25'
           }
+          `}
           width={24}
           height={24}
         />
