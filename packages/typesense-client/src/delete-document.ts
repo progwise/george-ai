@@ -29,5 +29,6 @@ export const deletetDocument = async (id: string) => {
       return
     }
     console.error(`Failed to delete document ${id}`, error)
+    throw error
   }
 }
