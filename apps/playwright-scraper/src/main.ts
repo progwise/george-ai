@@ -29,12 +29,7 @@ const processPage = async (): Promise<void> => {
   let runCounter = 0 // Counter
 
   for (const scraperConfig of scraperConfigurations) {
-    console.log('scraperConfig:', scraperConfig.prompts)
-    const startUrl = scraperConfig.startUrl
-    if (!startUrl) {
-      console.log('Skipping: No start URL defined')
-      continue
-    }
+    const startUrl = scraperConfig.startUrl!
     const maxDepth = scraperConfig.depth ?? 0
     const urlsDone = new Set<string>()
     let urlsTodo = [{ url: startUrl, depth: 0 }]
