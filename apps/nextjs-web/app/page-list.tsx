@@ -1,25 +1,22 @@
-'use client'
-
 import { InfoCard } from './components/info-card/info-card'
 import { graphql } from '@/src/gql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
-import {
-  GetSearchWebPagesQuery,
-  GetSearchWebPagesQueryVariables,
-} from '@/src/gql/graphql'
-import { useQuery } from '@urql/next'
+import { getClient } from './client/urql-client'
 
 interface PageListProps extends FilterSelectionProps {
   query?: string
   kw?: string[]
 }
 
-export function PageList({ query, lang, status, llm, kw }: PageListProps) {
-  const [{ data }] = useQuery<
-    GetSearchWebPagesQuery,
-    GetSearchWebPagesQueryVariables
-  >({
-    query: graphql(`
+export async function PageList({
+  query,
+  lang,
+  status,
+  llm,
+  kw,
+}: PageListProps) {
+  const result = await getClient().query(
+    graphql(`
       query GetSearchWebPages(
         $query: String
         $language: [String!]
@@ -39,18 +36,19 @@ export function PageList({ query, lang, status, llm, kw }: PageListProps) {
         }
       }
     `),
-    variables: {
+    {
       query,
       language: lang,
       publicationState: status,
       largeLanguageModel: llm,
       keywords: kw,
     },
-  })
+  )
+  const pages = result.data?.searchResult
 
   return (
     <>
-      {data?.searchResult?.map((page, index) => (
+      {pages?.map((page, index) => (
         <InfoCard
           key={page.id}
           pageFragment={page}

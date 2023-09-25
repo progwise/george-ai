@@ -27,7 +27,7 @@ export const SearchBox = () => {
       <input
         className="border border-black rounded-md w-full p-1 px-2"
         type="text"
-        value={query ?? ''}
+        defaultValue={query ?? ''}
         placeholder="Stellen Sie Ihre Frage an das Intranet..."
         onChange={handleInputChange}
       />
