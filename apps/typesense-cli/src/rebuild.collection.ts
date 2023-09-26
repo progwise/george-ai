@@ -1,4 +1,3 @@
-import { graphql } from './gql'
 import {
   computeFeedbackPopularity,
   ensureCollectionExists,
@@ -6,48 +5,11 @@ import {
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
 import { WebPageSummaryEntity } from './gql/graphql'
-import { strapiClient } from '@george-ai/strapi-client'
+import { GetWebPageSummaries } from '@george-ai/strapi-client'
 
 export const rebuildCollection = async () => {
   try {
-    const { webPageSummaries } = await strapiClient.request(
-      graphql(`
-        query GetWebPageSummaries {
-          webPageSummaries(publicationState: PREVIEW, locale: "all") {
-            data {
-              id
-              attributes {
-                updatedAt
-                locale
-                keywords
-                summary
-                largeLanguageModel
-                publishedAt
-                summary_feedbacks {
-                  data {
-                    attributes {
-                      createdAt
-                      voting
-                    }
-                  }
-                }
-                scraped_web_page {
-                  data {
-                    attributes {
-                      title
-                      url
-                      originalContent
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `),
-      {},
-    )
-    const webPageSummaryArray = webPageSummaries?.data || []
+    const webPageSummaryArray = (await GetWebPageSummaries()) || []
 
     const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
       const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
