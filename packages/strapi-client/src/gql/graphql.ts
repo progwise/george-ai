@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
 export type Exact<T extends { [key: string]: unknown }> = {
@@ -1193,3 +1194,138 @@ export type WebPageSummaryRelationResponseCollection = {
   __typename?: 'WebPageSummaryRelationResponseCollection'
   data: Array<WebPageSummaryEntity>
 }
+
+export type CreateSummaryFeedbackMutationVariables = Exact<{
+  input: SummaryFeedbackInput
+}>
+
+export type CreateSummaryFeedbackMutation = {
+  __typename?: 'Mutation'
+  createSummaryFeedback?: {
+    __typename?: 'SummaryFeedbackEntityResponse'
+    data?: {
+      __typename?: 'SummaryFeedbackEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'SummaryFeedback'
+        position?: number | null
+        query?: string | null
+        voting?: Enum_Summaryfeedback_Voting | null
+        web_page_summary?: {
+          __typename?: 'WebPageSummaryEntityResponse'
+          data?: {
+            __typename?: 'WebPageSummaryEntity'
+            id?: string | null
+          } | null
+        } | null
+      } | null
+    } | null
+  } | null
+}
+
+export const CreateSummaryFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'input' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'SummaryFeedbackInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createSummaryFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'input' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'position' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'query' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'voting' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'web_page_summary' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateSummaryFeedbackMutation,
+  CreateSummaryFeedbackMutationVariables
+>

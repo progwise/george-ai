@@ -5,6 +5,7 @@ const projects = [
   'pothosGraphql',
   'nextjsWeb',
   'typesenseCli',
+  'strapiClient',
 ]
 
 projects.forEach((project) => {

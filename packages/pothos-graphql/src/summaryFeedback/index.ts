@@ -1,34 +1,16 @@
 import { builder } from '../builder'
-import { graphql, useFragment } from '../gql'
 import {
   Enum_Summaryfeedback_Voting,
-  SummaryFeedbackFragment,
+  SummaryFeedbackEntityResponse,
 } from '../gql/graphql'
-import { strapiClient } from '@george-ai/strapi-client'
-
-const summaryFeedbackFragment = graphql(`
-  fragment SummaryFeedback on SummaryFeedbackEntity {
-    id
-    attributes {
-      position
-      query
-      voting
-      web_page_summary {
-        data {
-          id
-        }
-      }
-    }
-  }
-`)
+import { createSummaryFeedback } from '@george-ai/strapi-client'
 
 const SummaryFeedbackVoting = builder.enumType(Enum_Summaryfeedback_Voting, {
   name: 'SummaryFeedbackVoting',
 })
 
-const SummaryFeedbackReference = builder.objectRef<SummaryFeedbackFragment>(
-  'CreateSummaryFeedback',
-)
+const SummaryFeedbackReference =
+  builder.objectRef<SummaryFeedbackEntityResponse>('CreateSummaryFeedback')
 
 const CreateSummaryFeedbackInput = builder.inputType(
   'CreateSummaryFeedbackInput',
@@ -73,35 +55,15 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (parent, arguments_) => {
       try {
-        const result = await strapiClient.request(
-          graphql(`
-            mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
-              createSummaryFeedback(data: $input) {
-                data {
-                  ...SummaryFeedback
-                }
-              }
-            }
-          `),
-          {
-            input: {
-              position: arguments_.data.position,
-              query: arguments_.data.query,
-              voting: arguments_.data.voting,
-              web_page_summary: arguments_.data.webPageSummaryId,
-            },
-          },
-        )
+        console.log('Imported createSummaryFeedback:', createSummaryFeedback)
 
-        console.log(
-          'create SummaryFeedback',
-          result.createSummaryFeedback?.data,
+        const feedbackData = await createSummaryFeedback(
+          arguments_.data.position,
+          arguments_.data.query,
+          arguments_.data.voting,
+          arguments_.data.webPageSummaryId,
         )
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        return useFragment(
-          summaryFeedbackFragment,
-          result.createSummaryFeedback?.data,
-        )!
+        return feedbackData!
       } catch (error) {
         console.error('Error while creating Summary Feedback:', error)
         return {}

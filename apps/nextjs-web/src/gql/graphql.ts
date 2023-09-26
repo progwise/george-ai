@@ -61,7 +61,6 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
-  allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
   searchResult: Array<SearchWebPages>
 }
@@ -77,19 +76,6 @@ export type QuerySearchResultArgs = {
 export enum SummaryFeedbackVoting {
   Down = 'Down',
   Up = 'Up',
-}
-
-export type WebPageSummary = {
-  __typename?: 'WebPageSummary'
-  id: Scalars['String']['output']
-  keywords: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
-  locale: Scalars['String']['output']
-  originalContent: Scalars['String']['output']
-  publishedAt: Scalars['String']['output']
-  summary: Scalars['String']['output']
-  title: Scalars['String']['output']
-  url: Scalars['String']['output']
 }
 
 export type SearchFilters = {

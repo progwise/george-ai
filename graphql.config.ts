@@ -53,12 +53,31 @@ module.exports = {
           },
         },
       },
-      documents: ['packages/pothos-graphql/src/**/*.ts'],
       extensions: {
         codegen: {
           hooks: { afterOneFileWrite: ['prettier --write'] },
           generates: {
             'packages/pothos-graphql/src/gql/': {
+              preset: 'client',
+            },
+          },
+        },
+      },
+    },
+    strapiClient: {
+      schema: {
+        'http://localhost:1337/graphql': {
+          headers: {
+            Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
+          },
+        },
+      },
+      documents: ['packages/strapi-client/src/**/*.ts'],
+      extensions: {
+        codegen: {
+          hooks: { afterOneFileWrite: ['prettier --write'] },
+          generates: {
+            'packages/strapi-client/src/gql/': {
               preset: 'client',
             },
           },
