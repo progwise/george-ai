@@ -56,8 +56,6 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (parent, arguments_) => {
       try {
-        console.log('Imported createFeedback:', createFeedback)
-
         const feedbackData = await createFeedback(
           arguments_.data.position,
           arguments_.data.query,

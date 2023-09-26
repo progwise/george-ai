@@ -3,9 +3,9 @@ const { execSync } = require('child_process')
 const projects = [
   'playwrightScraper',
   'pothosGraphql',
-  'nextjsWeb',
   'typesenseCli',
   'strapiClient',
+  'nextjsWeb',
 ]
 
 projects.forEach((project) => {

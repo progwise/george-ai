@@ -1,10 +1,10 @@
-import { graphql } from './gql/gql.js'
-import { GetWebPageSummariesQuery } from './gql/graphql.js'
-import { strapiClient } from './strapi.js'
+import { graphql } from '../gql/gql'
+import { GetWebPageSummariesQuery } from '../gql/graphql'
+import { strapiClient } from '../strapi'
 
-export const GetWebPageSummaries = async () => {
-  const { webPageSummaries } =
-    await strapiClient.request<GetWebPageSummariesQuery>(
+export const GetAllWebPageSummaries = async () => {
+  try {
+    const { webPageSummaries } = await strapiClient.request(
       graphql(`
         query GetWebPageSummaries {
           webPageSummaries(publicationState: PREVIEW, locale: "all") {
@@ -41,5 +41,9 @@ export const GetWebPageSummaries = async () => {
       `),
       {},
     )
-  return webPageSummaries?.data
+    return webPageSummaries?.data
+  } catch (error) {
+    console.error('An error occurred while fetching webPages summary:', error)
+    throw error
+  }
 }

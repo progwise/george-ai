@@ -92,7 +92,6 @@ module.exports = {
           },
         },
       },
-      documents: ['apps/typesense-cli/src/**/*.ts'],
       extensions: {
         codegen: {
           hooks: { afterOneFileWrite: ['prettier --write'] },
