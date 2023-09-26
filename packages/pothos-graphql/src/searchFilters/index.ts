@@ -1,7 +1,18 @@
-import { strapiClient } from '../strapi-graphql-client'
-import { graphql } from '../gql'
 import { builder } from '../builder'
 import { PublicationState } from '../searchWebPages'
+import { typesenseClient } from '../typesense-client'
+
+const fetchGroupedValues = async (fieldName: string) => {
+  const response = await typesenseClient
+    .collections('scraped_web_pages_summaries')
+    .documents()
+    .search({
+      q: '*',
+      query_by: '',
+      group_by: fieldName,
+    })
+  return response.grouped_hits?.map((item) => item.group_key).flat() || []
+}
 
 const searchFilters = builder.simpleObject('searchFilters', {
   fields: (t) => ({
@@ -16,44 +27,20 @@ builder.queryField('searchFilters', (t) =>
     type: searchFilters,
     resolve: async () => {
       try {
-        const { webPageSummaries } = await strapiClient.request(
-          graphql(`
-            query GetUniqueValues {
-              webPageSummaries(publicationState: PREVIEW, locale: "all") {
-                data {
-                  attributes {
-                    locale
-                    largeLanguageModel
-                  }
-                }
-              }
-            }
-          `),
-          {},
-        )
-        const webPageSummariesData = webPageSummaries?.data ?? []
-
-        const languageSet = new Set<string>()
-        const largeLanguageModelSet = new Set<string>()
-        const publicationStates = Object.values(PublicationState)
-
-        for (const data of webPageSummariesData) {
-          const { attributes } = data
-          if (attributes?.locale) {
-            languageSet.add(attributes.locale)
-          }
-          if (attributes?.largeLanguageModel) {
-            largeLanguageModelSet.add(attributes.largeLanguageModel)
-          }
-        }
+        const [language, largeLanguageModel, publicationState] =
+          await Promise.all([
+            fetchGroupedValues('language'),
+            fetchGroupedValues('largeLanguageModel'),
+            fetchGroupedValues('publicationState'),
+          ])
 
         return {
-          language: [...languageSet],
-          largeLanguageModel: [...largeLanguageModelSet],
-          publicationState: publicationStates,
+          language,
+          largeLanguageModel,
+          publicationState,
         }
       } catch (error) {
-        console.error('Error fetching data from Strapi:', error)
+        console.error('Error fetching data from Typesense:', error)
         return {
           language: [],
           largeLanguageModel: [],

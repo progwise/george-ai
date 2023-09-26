@@ -6,12 +6,14 @@ import { FragmentType, graphql, useFragment } from '@/src/gql'
 
 const InfoCardFragment = graphql(`
   fragment InfoCard on searchWebPages {
+    id
     title
     url
     language
     publicationState
     keywords
     summary
+    largeLanguageModel
   }
 `)
 
@@ -35,8 +37,9 @@ export const InfoCard = ({
         language={page.language}
         position={position}
         webPageSummaryId={webPageSummaryId}
+        largeLanguageModel={page.largeLanguageModel}
       />
-      <Summary summary={page.summary} position={position} />
+      <Summary key={page.id} summary={page.summary} />
       <Link url={page.url} />
       <Keywords keywords={page?.keywords} />
     </div>

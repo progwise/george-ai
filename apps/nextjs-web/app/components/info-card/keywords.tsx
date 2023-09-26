@@ -23,7 +23,9 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => {
       updatedParameter.append('kw', keyword)
     }
 
-    router.replace(pathname + '?' + updatedParameter.toString())
+    router.replace(pathname + '?' + updatedParameter.toString(), {
+      scroll: false,
+    })
   }
 
   return (
