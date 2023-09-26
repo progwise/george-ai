@@ -1,16 +1,17 @@
 import { builder } from '../builder'
 import {
   Enum_Summaryfeedback_Voting,
-  SummaryFeedbackEntityResponse,
+  SummaryFeedbackEntity,
 } from '../gql/graphql'
-import { createSummaryFeedback } from '@george-ai/strapi-client'
+import { createFeedback } from '@george-ai/strapi-client'
 
 const SummaryFeedbackVoting = builder.enumType(Enum_Summaryfeedback_Voting, {
   name: 'SummaryFeedbackVoting',
 })
 
-const SummaryFeedbackReference =
-  builder.objectRef<SummaryFeedbackEntityResponse>('CreateSummaryFeedback')
+const SummaryFeedbackReference = builder.objectRef<SummaryFeedbackEntity>(
+  'CreateSummaryFeedback',
+)
 
 const CreateSummaryFeedbackInput = builder.inputType(
   'CreateSummaryFeedbackInput',
@@ -55,9 +56,9 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (parent, arguments_) => {
       try {
-        console.log('Imported createSummaryFeedback:', createSummaryFeedback)
+        console.log('Imported createFeedback:', createFeedback)
 
-        const feedbackData = await createSummaryFeedback(
+        const feedbackData = await createFeedback(
           arguments_.data.position,
           arguments_.data.query,
           arguments_.data.voting,

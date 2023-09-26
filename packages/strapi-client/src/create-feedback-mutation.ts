@@ -5,7 +5,7 @@ import {
 } from './gql/graphql.js'
 import { strapiClient } from './strapi.js'
 
-export const createSummaryFeedback = async (
+export const createFeedback = async (
   position: number,
   query: string,
   voting: Enum_Summaryfeedback_Voting,
