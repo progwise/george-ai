@@ -4,7 +4,12 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**",
+        "packages/typesense-client/dist/**"
+      ]
     },
     "deploy": {
       "dependsOn": ["build", "test", "lint"]
