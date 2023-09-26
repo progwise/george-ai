@@ -22,7 +22,7 @@ export const summaryCollectionSchema: CollectionCreateSchema = {
     { name: 'url', type: 'string' },
     { name: 'language', type: 'string', facet: true },
     { name: 'originalContent', type: 'string' },
-    { name: 'publicationState', type: 'string' },
+    { name: 'publicationState', type: 'string', facet: true },
     { name: 'keywords', type: 'string[]' },
     { name: 'summary', type: 'string' },
     { name: 'largeLanguageModel', type: 'string', facet: true },

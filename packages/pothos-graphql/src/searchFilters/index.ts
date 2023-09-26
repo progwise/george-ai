@@ -27,12 +27,12 @@ builder.queryField('searchFilters', (t) =>
     type: searchFilters,
     resolve: async () => {
       try {
-        const [language, largeLanguageModel] = await Promise.all([
-          fetchGroupedValues('language'),
-          fetchGroupedValues('largeLanguageModel'),
-        ])
-
-        const publicationState = Object.values(PublicationState)
+        const [language, largeLanguageModel, publicationState] =
+          await Promise.all([
+            fetchGroupedValues('language'),
+            fetchGroupedValues('largeLanguageModel'),
+            fetchGroupedValues('publicationState'),
+          ])
 
         return {
           language,
