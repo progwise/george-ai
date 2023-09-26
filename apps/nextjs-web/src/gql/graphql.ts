@@ -138,12 +138,14 @@ export type CreateSummaryFeedbackMutation = {
 
 export type InfoCardFragment = {
   __typename?: 'searchWebPages'
+  id: string
   title: string
   url: string
   language: string
   publicationState: PublicationState
   keywords: Array<string>
   summary: string
+  largeLanguageModel: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
 export type GetSearchWebPagesQueryVariables = Exact<{
@@ -184,12 +186,17 @@ export const InfoCardFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'language' } },
           { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
           { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
           { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
         ],
       },
     },
@@ -511,12 +518,17 @@ export const GetSearchWebPagesDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'language' } },
           { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
           { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
           { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
         ],
       },
     },
