@@ -67,6 +67,7 @@ export type Query = {
 }
 
 export type QuerySearchResultArgs = {
+  keywords?: Array<Scalars['String']['input']>
   language?: Array<Scalars['String']['input']>
   largeLanguageModel?: Array<Scalars['String']['input']>
   publicationState?: Array<Scalars['String']['input']>
@@ -154,6 +155,9 @@ export type GetSearchWebPagesQueryVariables = Exact<{
     Array<Scalars['String']['input']> | Scalars['String']['input']
   >
   largeLanguageModel?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  keywords?: InputMaybe<
     Array<Scalars['String']['input']> | Scalars['String']['input']
   >
 }>
@@ -417,6 +421,23 @@ export const GetSearchWebPagesDocument = {
             },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'keywords' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -455,6 +476,14 @@ export const GetSearchWebPagesDocument = {
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'largeLanguageModel' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'keywords' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'keywords' },
                 },
               },
             ],
