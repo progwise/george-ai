@@ -138,6 +138,7 @@ export type CreateSummaryFeedbackMutation = {
 
 export type InfoCardFragment = {
   __typename?: 'searchWebPages'
+  id: string
   title: string
   url: string
   language: string
@@ -185,6 +186,7 @@ export const InfoCardFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'language' } },
@@ -516,6 +518,7 @@ export const GetSearchWebPagesDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'language' } },
