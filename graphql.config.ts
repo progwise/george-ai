@@ -27,7 +27,7 @@ module.exports = {
     },
     playwrightScraper: {
       schema: {
-        'http://localhost:1337/graphql': {
+        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
           headers: {
             Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
           },
@@ -47,7 +47,7 @@ module.exports = {
     },
     pothosGraphql: {
       schema: {
-        'http://localhost:1337/graphql': {
+        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
           headers: {
             Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
           },
@@ -66,7 +66,7 @@ module.exports = {
     },
     strapiClient: {
       schema: {
-        'http://localhost:1337/graphql': {
+        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
           headers: {
             Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
           },
@@ -86,7 +86,7 @@ module.exports = {
     },
     typesenseCli: {
       schema: {
-        'http://localhost:1337/graphql': {
+        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
           headers: {
             Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
           },
