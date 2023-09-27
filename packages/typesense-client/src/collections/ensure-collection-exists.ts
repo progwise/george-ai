@@ -1,5 +1,5 @@
 import { summaryCollectionSchema } from './summary-collection-schema.js'
-import { typesenseClient } from './typesense.js'
+import { typesenseClient } from '../typesense.js'
 
 export const ensureCollectionExists = async () => {
   try {

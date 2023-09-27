@@ -2,7 +2,7 @@ import { graphql } from '../gql/gql'
 import { GetWebPageSummariesQuery } from '../gql/graphql'
 import { strapiClient } from '../strapi'
 
-export const GetAllWebPageSummaries = async () => {
+export const GetAllSummaries = async () => {
   try {
     const { webPageSummaries } = await strapiClient.request(
       graphql(`

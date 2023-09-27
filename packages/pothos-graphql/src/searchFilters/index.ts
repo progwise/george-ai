@@ -13,26 +13,17 @@ builder.queryField('searchFilters', (t) =>
   t.field({
     type: searchFilters,
     resolve: async () => {
-      try {
-        const [language, largeLanguageModel, publicationState] =
-          await Promise.all([
-            fetchGroupedValues('language'),
-            fetchGroupedValues('largeLanguageModel'),
-            fetchGroupedValues('publicationState'),
-          ])
+      const [language, largeLanguageModel, publicationState] =
+        await Promise.all([
+          fetchGroupedValues('language'),
+          fetchGroupedValues('largeLanguageModel'),
+          fetchGroupedValues('publicationState'),
+        ])
 
-        return {
-          language,
-          largeLanguageModel,
-          publicationState,
-        }
-      } catch (error) {
-        console.error('Error fetching data from Typesense:', error)
-        return {
-          language: [],
-          largeLanguageModel: [],
-          publicationState: [],
-        }
+      return {
+        language,
+        largeLanguageModel,
+        publicationState,
       }
     },
   }),

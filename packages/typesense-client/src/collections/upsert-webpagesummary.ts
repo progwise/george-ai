@@ -1,5 +1,5 @@
 import { summaryCollectionSchema } from './summary-collection-schema.js'
-import { upsertDocument } from './upsert-document.js'
+import { upsertDocument } from '../documents/upsert-document.js'
 
 interface WebPageSummary {
   id: string

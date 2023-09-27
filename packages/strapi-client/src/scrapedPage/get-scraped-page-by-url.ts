@@ -2,7 +2,7 @@ import { graphql } from '../gql/gql'
 import { GetScrapedWebPagesByUrlQuery } from '../gql/graphql'
 import { strapiClient } from '../strapi'
 
-export const getScrapedWebPage = async (url: string) => {
+export const getScrapedPageByUrl = async (url: string) => {
   try {
     const { scrapedWebPages } = await strapiClient.request(
       graphql(`

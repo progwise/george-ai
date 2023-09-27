@@ -1,29 +1,16 @@
 import { builder } from '../builder'
-import { fetchSearchWebPages } from '@george-ai/typesense-client'
-
-export enum PublicationState {
-  Draft = 'draft',
-  Published = 'published',
-}
-
-type searchWebPages = {
-  id: string
-  title: string
-  url: string
-  language: string
-  originalContent: string
-  publicationState: PublicationState
-  keywords: string[]
-  summary: string
-  largeLanguageModel: string
-}
+import {
+  SearchWebPages,
+  fetchSearchWebPages,
+  PublicationState,
+} from '@george-ai/typesense-client'
 
 const PublicationStateEnum = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
 const searchWebPagesReference =
-  builder.objectRef<searchWebPages>('searchWebPages')
+  builder.objectRef<SearchWebPages>('searchWebPages')
 
 builder.objectType(searchWebPagesReference, {
   name: 'searchWebPages',
@@ -78,17 +65,7 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      try {
-        const searchWebPages =
-          ((await fetchSearchWebPages(
-            arguments_.query,
-            filters,
-          )) as searchWebPages[]) || []
-        return searchWebPages
-      } catch (error) {
-        console.error('Error fetching data from Typesense:', error)
-        return []
-      }
+      return (await fetchSearchWebPages(arguments_.query, filters)) || []
     },
   }),
 )

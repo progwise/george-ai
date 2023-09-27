@@ -1,7 +1,7 @@
 import { strapiClient } from '..'
 import { graphql } from '../gql'
 
-export const createdScrapedWebPage = async (
+export const createdScrapedPage = async (
   title: string,
   originalContent: string,
   url: string,

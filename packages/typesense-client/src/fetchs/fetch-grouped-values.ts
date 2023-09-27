@@ -1,7 +1,9 @@
-import { summaryCollectionSchema } from './summary-collection-schema.js'
-import { typesenseClient } from './typesense.js'
+import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
+import { typesenseClient } from '../typesense.js'
 
-export const fetchGroupedValues = async (fieldName: string) => {
+export const fetchGroupedValues = async (
+  fieldName: string,
+): Promise<string[]> => {
   try {
     const response = await typesenseClient
       .collections(summaryCollectionSchema.name)

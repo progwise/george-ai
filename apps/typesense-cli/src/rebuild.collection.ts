@@ -5,7 +5,7 @@ import {
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
 import { WebPageSummaryEntity } from './gql/graphql'
-import { GetAllWebPageSummaries } from '@george-ai/strapi-client'
+import { GetAllSummaries } from '@george-ai/strapi-client'
 
 const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
   const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
@@ -47,7 +47,7 @@ const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
 }
 
 export const rebuildCollection = async () => {
-  const webPageSummaryArray = (await GetAllWebPageSummaries()) || []
+  const webPageSummaryArray = (await GetAllSummaries()) || []
 
   await ensureCollectionExists()
   await pMap(webPageSummaryArray, mapper, { concurrency: 10 })

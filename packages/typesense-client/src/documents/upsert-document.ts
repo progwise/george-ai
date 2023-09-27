@@ -1,5 +1,5 @@
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections.js'
-import { typesenseClient } from './typesense.js'
+import { typesenseClient } from '../typesense.js'
 
 export const upsertDocument = async (
   schema: CollectionCreateSchema,

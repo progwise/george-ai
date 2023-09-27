@@ -1,7 +1,7 @@
 import { strapiClient } from '..'
 import { graphql } from '../gql'
 
-export const getWebPageSummaryId = async (
+export const getSummaryId = async (
   languageModel: string,
   url: string,
   locale: string,

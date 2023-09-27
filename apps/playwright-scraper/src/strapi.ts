@@ -1,16 +1,16 @@
 import {
-  createWebPageSummary,
-  createdScrapedWebPage,
-  getScrapedWebPage,
-  getWebPageSummaryId,
-  updateWebPageSummary,
+  createSummary,
+  createdScrapedPage,
+  getScrapedPageByUrl,
+  getSummaryId,
+  updateSummary,
 } from '@george-ai/strapi-client'
 import { ScrapeResultAndSummary } from './main.js'
 
 const getOrCreateScrapedWebPage = async (
   scrapeResultAndSummary: ScrapeResultAndSummary,
 ) => {
-  const existingScrapedWebPage = await getScrapedWebPage(
+  const existingScrapedWebPage = await getScrapedPageByUrl(
     scrapeResultAndSummary.url,
   )
 
@@ -18,7 +18,7 @@ const getOrCreateScrapedWebPage = async (
     return existingScrapedWebPage
   }
 
-  const scrapedWebPage = await createdScrapedWebPage(
+  const scrapedWebPage = await createdScrapedPage(
     scrapeResultAndSummary.title,
     scrapeResultAndSummary.content,
     scrapeResultAndSummary.url,
@@ -39,18 +39,15 @@ const upsertWebPageSummary = async (
     scraped_web_page: ScrapedWebPageId,
   }
 
-  const webPageSummaryId = await getWebPageSummaryId(
+  const webPageSummaryId = await getSummaryId(
     scrapeResultAndSummary.largeLanguageModel,
     scrapeResultAndSummary.url,
     scrapeResultAndSummary.currentLanguage,
   )
 
   webPageSummaryId
-    ? await updateWebPageSummary(newSummary, webPageSummaryId)
-    : await createWebPageSummary(
-        newSummary,
-        scrapeResultAndSummary.currentLanguage,
-      )
+    ? await updateSummary(newSummary, webPageSummaryId)
+    : await createSummary(newSummary, scrapeResultAndSummary.currentLanguage)
 }
 
 export const upsertScrapedWebPageAndWebPageSummary = async (

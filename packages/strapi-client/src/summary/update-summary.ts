@@ -8,7 +8,7 @@ export interface NewSummary {
   scraped_web_page: string
 }
 
-export const updateWebPageSummary = async (
+export const updateSummary = async (
   newSummary: NewSummary,
   webPageSummaryId: string,
 ) => {

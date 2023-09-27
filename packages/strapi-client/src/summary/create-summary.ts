@@ -1,10 +1,7 @@
 import { NewSummary, strapiClient } from '..'
 import { graphql } from '../gql'
 
-export const createWebPageSummary = async (
-  newSummary: NewSummary,
-  locale: string,
-) => {
+export const createSummary = async (newSummary: NewSummary, locale: string) => {
   try {
     const { createWebPageSummary } = await strapiClient.request(
       graphql(`
