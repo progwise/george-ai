@@ -6,7 +6,6 @@ import {
   updateWebPageSummary,
 } from '@george-ai/strapi-client'
 import { ScrapeResultAndSummary } from './main.js'
-import { graphql } from './gql/gql'
 
 const getOrCreateScrapedWebPage = async (
   scrapeResultAndSummary: ScrapeResultAndSummary,
@@ -25,8 +24,6 @@ const getOrCreateScrapedWebPage = async (
     scrapeResultAndSummary.url,
     scrapeResultAndSummary.scrapedLanguage,
   )
-
-  console.log('Created ScrapedWebPage with ID:', scrapedWebPage?.id)
 
   return scrapedWebPage
 }
@@ -49,7 +46,7 @@ const upsertWebPageSummary = async (
   )
 
   webPageSummaryId
-    ? await updateWebPageSummary(webPageSummaryId, newSummary)
+    ? await updateWebPageSummary(newSummary, webPageSummaryId)
     : await createWebPageSummary(
         newSummary,
         scrapeResultAndSummary.currentLanguage,

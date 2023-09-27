@@ -1,4 +1,4 @@
-import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections.js'
+import { summaryCollectionSchema } from './summary-collection-schema.js'
 import { upsertDocument } from './upsert-document.js'
 
 interface WebPageSummary {
@@ -12,22 +12,6 @@ interface WebPageSummary {
   originalContent: string
   publicationState: string
   popularity: number
-}
-
-export const summaryCollectionSchema: CollectionCreateSchema = {
-  name: 'scraped_web_pages_summaries',
-  fields: [
-    { name: 'id', type: 'string' },
-    { name: 'title', type: 'string' },
-    { name: 'url', type: 'string' },
-    { name: 'language', type: 'string', facet: true },
-    { name: 'originalContent', type: 'string' },
-    { name: 'publicationState', type: 'string', facet: true },
-    { name: 'keywords', type: 'string[]' },
-    { name: 'summary', type: 'string' },
-    { name: 'largeLanguageModel', type: 'string', facet: true },
-    { name: 'popularity', type: 'int32' },
-  ],
 }
 
 export const upsertWebpageSummary = async (WebPageSummary: WebPageSummary) => {

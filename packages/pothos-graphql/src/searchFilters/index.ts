@@ -1,17 +1,5 @@
 import { builder } from '../builder'
-import { typesenseClient } from '@george-ai/typesense-client'
-
-const fetchGroupedValues = async (fieldName: string) => {
-  const response = await typesenseClient
-    .collections('scraped_web_pages_summaries')
-    .documents()
-    .search({
-      q: '*',
-      query_by: '',
-      group_by: fieldName,
-    })
-  return response.grouped_hits?.map((item) => item.group_key).flat() || []
-}
+import { fetchGroupedValues } from '@george-ai/typesense-client'
 
 const searchFilters = builder.simpleObject('searchFilters', {
   fields: (t) => ({

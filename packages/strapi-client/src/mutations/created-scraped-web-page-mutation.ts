@@ -35,6 +35,12 @@ export const createdScrapedWebPage = async (
         locale,
       },
     )
+
+    console.log(
+      'Created ScrapedWebPage with ID:',
+      createScrapedWebPage?.data?.id,
+    )
+
     return createScrapedWebPage?.data
   } catch (error) {
     console.error('Error while creating ScrapedWebPage:', error)

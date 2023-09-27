@@ -1,5 +1,5 @@
 import { builder } from '../builder'
-import { typesenseClient } from '@george-ai/typesense-client'
+import { fetchSearchWebPages } from '@george-ai/typesense-client'
 
 export enum PublicationState {
   Draft = 'draft',
@@ -79,23 +79,12 @@ builder.queryField('searchResult', (t) =>
       }
 
       try {
-        const response = await typesenseClient
-          .collections<searchWebPages>('scraped_web_pages_summaries')
-          .documents()
-          .search({
-            q: arguments_.query,
-            query_by: [
-              'title',
-              'keywords',
-              'summary',
-              'url',
-              'originalContent',
-            ],
-            filter_by: filters.join(' && '),
-            sort_by: 'popularity:desc,_text_match:desc',
-          })
-
-        return response.hits?.map((hit) => hit.document) || []
+        const searchWebPages =
+          ((await fetchSearchWebPages(
+            arguments_.query,
+            filters,
+          )) as searchWebPages[]) || []
+        return searchWebPages
       } catch (error) {
         console.error('Error fetching data from Typesense:', error)
         return []

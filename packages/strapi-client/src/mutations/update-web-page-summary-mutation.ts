@@ -9,8 +9,8 @@ export interface NewSummary {
 }
 
 export const updateWebPageSummary = async (
-  webPageSummaryId: string,
   newSummary: NewSummary,
+  webPageSummaryId: string,
 ) => {
   try {
     await strapiClient.request(
