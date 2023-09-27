@@ -1,6 +1,6 @@
-import { graphql } from './gql/gql.js'
-import { strapiPrompts } from './prompts.js'
-import { strapiClient } from './strapi-client.js'
+import { graphql } from '../gql'
+import { strapiClient } from '../strapi-client'
+import { strapiPrompts } from './prompts'
 
 export const createPrompts = async () => {
   try {
@@ -18,6 +18,7 @@ export const createPrompts = async () => {
     )
 
     if (prompts?.data && prompts.data.length > 0) {
+      console.log('Prompts already exist')
       return
     }
 
@@ -56,6 +57,7 @@ export const createPrompts = async () => {
       console.log(`Prompt for ${locale} created by id:`, createPrompt?.data?.id)
     }
   } catch (error) {
-    console.error('An error occurred:', error)
+    console.error('Error while creating Prompts:', error)
+    throw error
   }
 }

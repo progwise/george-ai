@@ -24,8 +24,3 @@ export const strapiPrompts = {
     ],
   },
 }
-
-export type Language = keyof typeof strapiPrompts
-
-export const isLanguage = (language: string): language is Language =>
-  Object.keys(strapiPrompts).includes(language)

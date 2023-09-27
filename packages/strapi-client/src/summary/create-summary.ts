@@ -1,5 +1,6 @@
-import { NewSummary, strapiClient } from '..'
+import { NewSummary } from '..'
 import { graphql } from '../gql'
+import { strapiClient } from '../strapi-client'
 
 export const createSummary = async (newSummary: NewSummary, locale: string) => {
   try {

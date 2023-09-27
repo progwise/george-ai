@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "scrape": "ts-node --esm --experimentalSpecifierResolution node src/main.ts",
+    "createprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/create-prompts.ts",
     "tsc": "tsc",
     "lint": "eslint ."
   },
@@ -14,6 +15,7 @@
   "dependencies": {
     "@george-ai/strapi-client": "*",
     "@urql/core": "^4.1.0",
+    "dotenv-cli": "^7.3.0",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",

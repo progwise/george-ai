@@ -1,4 +1,5 @@
-export * from './strapi'
+export * from './configuration/create-prompts'
+export * from './configuration/get-scraper-configuration'
 export * from './feedback/create-feedback'
 export * from './feedback/delete-feedback'
 export * from './scrapedPage/created-scraped-page'

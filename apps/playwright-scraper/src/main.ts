@@ -1,9 +1,9 @@
 import playwright from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chat-gpt'
 import { scrapePage } from './scrape.js'
-import { getScraperConfiguration } from './scraper-configuration'
 import {
   getOrCreateScrapedWebPage,
+  getScraperConfiguration,
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
 
@@ -61,22 +61,50 @@ const processPage = async (): Promise<void> => {
           continue
         }
 
-        for (const currentLanguage of promptsLocales) {
-          const summary =
-            (await getServiceSummary(scrapeResult.content, currentLanguage)) ??
-            ''
-          const keywords =
-            (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
+        if (currentDepth < maxDepth) {
+          const newUrls = scrapeResult.links.map((url) => ({
+            url,
+            depth: currentDepth + 1,
+          }))
 
-          const scrapeResultAndSummary: ScrapeResultAndSummary = {
+          urlsTodo = [
+            ...urlsTodo,
+            ...newUrls.filter(
+              ({ url }) =>
+                !urlsDone.has(url) && !urlsTodo.some((u) => u.url === url),
+            ),
+          ]
+        }
+        const createdScrapedWebPage =
+          await getOrCreateScrapedWebPage(scrapeResult)
+
+        const prompts = scraperConfig.prompts || []
+        for (const prompt of prompts) {
+          const summary =
+            (await getServiceSummary(
+              scrapeResult.content,
+              JSON.parse(prompt.summaryPrompt || ''),
+            )) ?? ''
+          const keywords =
+            (await getKeywords(
+              scrapeResult.content,
+              JSON.parse(prompt.keywordPrompt || ''),
+            )) ?? []
+
+          const scrapeResultAndSummary = {
             ...scrapeResult,
-            currentLanguage,
+            currentLanguage: prompt.locale ?? 'en',
             summary,
             keywords,
-            largeLanguageModel: 'gpt-3.5-turbo',
+            largeLanguageModel: prompt.llm ?? 'unspecified',
           }
 
-          await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
+          if (createdScrapedWebPage?.id) {
+            await upsertWebPageSummary(
+              scrapeResultAndSummary,
+              createdScrapedWebPage.id,
+            )
+          }
         }
       } catch (error) {
         console.error(`error scraping ${currentUrl}:`, error)

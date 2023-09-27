@@ -1378,6 +1378,41 @@ export type CreatePromptMutation = {
   } | null
 }
 
+export type GetScraperConfigurationQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetScraperConfigurationQuery = {
+  __typename?: 'Query'
+  scraperConfiguration?: {
+    __typename?: 'ScraperConfigurationEntityResponse'
+    data?: {
+      __typename?: 'ScraperConfigurationEntity'
+      attributes?: {
+        __typename?: 'ScraperConfiguration'
+        entryPoints?: Array<{
+          __typename?: 'ComponentConfigurationScrapeEntryPoint'
+          startUrl: string
+          depth?: number | null
+          prompts?: {
+            __typename?: 'PromptRelationResponseCollection'
+            data: Array<{
+              __typename?: 'PromptEntity'
+              attributes?: {
+                __typename?: 'Prompt'
+                summaryPrompt?: string | null
+                keywordPrompt?: string | null
+                llm?: string | null
+                locale?: string | null
+              } | null
+            }>
+          } | null
+        } | null> | null
+      } | null
+    } | null
+  } | null
+}
+
 export type CreateSummaryFeedbackMutationVariables = Exact<{
   input: SummaryFeedbackInput
 }>
@@ -1744,6 +1779,126 @@ export const CreatePromptDocument = {
 } as unknown as DocumentNode<
   CreatePromptMutation,
   CreatePromptMutationVariables
+>
+export const GetScraperConfigurationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetScraperConfiguration' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'scraperConfiguration' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'entryPoints' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'startUrl' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'depth' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'prompts' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'data' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'attributes',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'summaryPrompt',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'keywordPrompt',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'llm',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'locale',
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetScraperConfigurationQuery,
+  GetScraperConfigurationQueryVariables
 >
 export const CreateSummaryFeedbackDocument = {
   kind: 'Document',
