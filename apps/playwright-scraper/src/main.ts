@@ -1,18 +1,14 @@
 import playwright from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chat-gpt'
-import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
-import { ScrapeResult, scrapePage } from './scrape.js'
+import { scrapePage } from './scrape.js'
 import { getStrapiLocales } from './locales'
-import { Language, isLanguage, prompts } from './prompts'
+import { Language, isLanguage } from './prompts'
+import {
+  getOrCreateScrapedWebPage,
+  upsertWebPageSummary,
+} from '@george-ai/strapi-client'
 
 const MAX_RUNS = 2 // Maximum number of runs
-
-export interface ScrapeResultAndSummary extends ScrapeResult {
-  summary: string
-  keywords: string[]
-  largeLanguageModel: string
-  currentLanguage: string
-}
 
 const processPage = async (urls: string[]): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
@@ -64,13 +60,16 @@ const processPage = async (urls: string[]): Promise<void> => {
         continue
       }
 
+      const createdScrapedWebPage =
+        await getOrCreateScrapedWebPage(scrapeResult)
+
       for (const currentLanguage of promptsLocales) {
         const summary =
           (await getServiceSummary(scrapeResult.content, currentLanguage)) ?? ''
         const keywords =
           (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
 
-        const scrapeResultAndSummary: ScrapeResultAndSummary = {
+        const scrapeResultAndSummary = {
           ...scrapeResult,
           currentLanguage,
           summary,
@@ -78,7 +77,12 @@ const processPage = async (urls: string[]): Promise<void> => {
           largeLanguageModel: 'gpt-3.5-turbo',
         }
 
-        await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)
+        if (createdScrapedWebPage?.id) {
+          await upsertWebPageSummary(
+            scrapeResultAndSummary,
+            createdScrapedWebPage.id,
+          )
+        }
       }
     } catch (error) {
       console.error(`error scraping ${currentUrl}:`, error)
