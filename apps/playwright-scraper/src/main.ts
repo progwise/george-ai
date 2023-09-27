@@ -1,17 +1,13 @@
 import playwright from 'playwright-chromium'
 import { getKeywords, getServiceSummary } from './chat-gpt'
-import { upsertScrapedWebPageAndWebPageSummary } from './strapi.js'
-import { ScrapeResult, scrapePage } from './scrape.js'
+import { scrapePage } from './scrape.js'
 import { getScraperConfiguration } from './scraper-configuration'
+import {
+  getOrCreateScrapedWebPage,
+  upsertWebPageSummary,
+} from '@george-ai/strapi-client'
 
-const MAX_RUNS = 3 // Maximum number of runs
-
-export interface ScrapeResultAndSummary extends ScrapeResult {
-  summary: string
-  keywords: string[]
-  largeLanguageModel: string
-  currentLanguage: string
-}
+const MAX_RUNS = 2 // Maximum number of runs
 
 const processPage = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
@@ -65,40 +61,19 @@ const processPage = async (): Promise<void> => {
           continue
         }
 
-        if (currentDepth < maxDepth) {
-          const newUrls = scrapeResult.links.map((url) => ({
-            url,
-            depth: currentDepth + 1,
-          }))
-
-          urlsTodo = [
-            ...urlsTodo,
-            ...newUrls.filter(
-              ({ url }) =>
-                !urlsDone.has(url) && !urlsTodo.some((u) => u.url === url),
-            ),
-          ]
-        }
-
-        const prompts = scraperConfig.prompts || []
-        for (const prompt of prompts) {
+        for (const currentLanguage of promptsLocales) {
           const summary =
-            (await getServiceSummary(
-              scrapeResult.content,
-              JSON.parse(prompt.summaryPrompt || ''),
-            )) ?? ''
+            (await getServiceSummary(scrapeResult.content, currentLanguage)) ??
+            ''
           const keywords =
-            (await getKeywords(
-              scrapeResult.content,
-              JSON.parse(prompt.keywordPrompt || ''),
-            )) ?? []
+            (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
 
           const scrapeResultAndSummary: ScrapeResultAndSummary = {
             ...scrapeResult,
-            currentLanguage: prompt.locale ?? 'en',
+            currentLanguage,
             summary,
             keywords,
-            largeLanguageModel: prompt.llm ?? 'unspecified',
+            largeLanguageModel: 'gpt-3.5-turbo',
           }
 
           await upsertScrapedWebPageAndWebPageSummary(scrapeResultAndSummary)

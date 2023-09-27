@@ -20,7 +20,9 @@ export const KeywordsDeselection = () => {
       }
     }
 
-    router.replace(pathname + '?' + updatedParameter.toString())
+    router.replace(pathname + '?' + updatedParameter.toString(), {
+      scroll: false,
+    })
   }
 
   return (

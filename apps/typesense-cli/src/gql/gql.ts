@@ -2,21 +2,7 @@
 import * as types from './graphql'
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core'
 
-/**
- * Map of all GraphQL operations in the project.
- *
- * This map has several performance disadvantages:
- * 1. It is not tree-shakeable, so it will include all operations in the project.
- * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
- * 3. It does not support dead code elimination, so it will add unused operations.
- *
- * Therefore it is highly recommended to use the babel or swc plugin for production.
- */
-const documents = {
-  '\n        query GetWebPageSummaries {\n          webPageSummaries(publicationState: PREVIEW, locale: "all") {\n            data {\n              id\n              attributes {\n                updatedAt\n                locale\n                keywords\n                summary\n                largeLanguageModel\n                publishedAt\n                summary_feedbacks {\n                  data {\n                    attributes {\n                      createdAt\n                      voting\n                    }\n                  }\n                }\n                scraped_web_page {\n                  data {\n                    attributes {\n                      title\n                      url\n                      originalContent\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
-    types.GetWebPageSummariesDocument,
-}
-
+const documents = []
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  *
@@ -30,13 +16,6 @@ const documents = {
  * Please regenerate the types.
  */
 export function graphql(source: string): unknown
-
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        query GetWebPageSummaries {\n          webPageSummaries(publicationState: PREVIEW, locale: "all") {\n            data {\n              id\n              attributes {\n                updatedAt\n                locale\n                keywords\n                summary\n                largeLanguageModel\n                publishedAt\n                summary_feedbacks {\n                  data {\n                    attributes {\n                      createdAt\n                      voting\n                    }\n                  }\n                }\n                scraped_web_page {\n                  data {\n                    attributes {\n                      title\n                      url\n                      originalContent\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query GetWebPageSummaries {\n          webPageSummaries(publicationState: PREVIEW, locale: "all") {\n            data {\n              id\n              attributes {\n                updatedAt\n                locale\n                keywords\n                summary\n                largeLanguageModel\n                publishedAt\n                summary_feedbacks {\n                  data {\n                    attributes {\n                      createdAt\n                      voting\n                    }\n                  }\n                }\n                scraped_web_page {\n                  data {\n                    attributes {\n                      title\n                      url\n                      originalContent\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

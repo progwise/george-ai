@@ -1,32 +1,15 @@
 import { builder } from '../builder'
-import { graphql, useFragment } from '../gql'
 import {
   Enum_Summaryfeedback_Voting,
-  SummaryFeedbackFragment,
+  SummaryFeedbackEntity,
 } from '../gql/graphql'
-import { strapiClient } from '../strapi-graphql-client'
-
-const summaryFeedbackFragment = graphql(`
-  fragment SummaryFeedback on SummaryFeedbackEntity {
-    id
-    attributes {
-      position
-      query
-      voting
-      web_page_summary {
-        data {
-          id
-        }
-      }
-    }
-  }
-`)
+import { createFeedback } from '@george-ai/strapi-client'
 
 const SummaryFeedbackVoting = builder.enumType(Enum_Summaryfeedback_Voting, {
   name: 'SummaryFeedbackVoting',
 })
 
-const SummaryFeedbackReference = builder.objectRef<SummaryFeedbackFragment>(
+const SummaryFeedbackReference = builder.objectRef<SummaryFeedbackEntity>(
   'CreateSummaryFeedback',
 )
 
@@ -72,40 +55,13 @@ builder.mutationField('createSummaryFeedback', (t) =>
       data: t.arg({ type: CreateSummaryFeedbackInput }),
     },
     resolve: async (parent, arguments_) => {
-      try {
-        const result = await strapiClient.request(
-          graphql(`
-            mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
-              createSummaryFeedback(data: $input) {
-                data {
-                  ...SummaryFeedback
-                }
-              }
-            }
-          `),
-          {
-            input: {
-              position: arguments_.data.position,
-              query: arguments_.data.query,
-              voting: arguments_.data.voting,
-              web_page_summary: arguments_.data.webPageSummaryId,
-            },
-          },
-        )
-
-        console.log(
-          'create SummaryFeedback',
-          result.createSummaryFeedback?.data,
-        )
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        return useFragment(
-          summaryFeedbackFragment,
-          result.createSummaryFeedback?.data,
-        )!
-      } catch (error) {
-        console.error('Error while creating Summary Feedback:', error)
-        return {}
-      }
+      const feedbackData = await createFeedback(
+        arguments_.data.position,
+        arguments_.data.query,
+        arguments_.data.voting,
+        arguments_.data.webPageSummaryId,
+      )
+      return feedbackData!
     },
   }),
 )

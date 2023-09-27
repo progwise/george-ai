@@ -53,7 +53,6 @@ module.exports = {
           },
         },
       },
-      documents: ['packages/pothos-graphql/src/**/*.ts'],
       extensions: {
         codegen: {
           hooks: { afterOneFileWrite: ['prettier --write'] },
@@ -93,7 +92,6 @@ module.exports = {
           },
         },
       },
-      documents: ['apps/typesense-cli/src/**/*.ts'],
       extensions: {
         codegen: {
           hooks: { afterOneFileWrite: ['prettier --write'] },
