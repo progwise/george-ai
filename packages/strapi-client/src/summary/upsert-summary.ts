@@ -1,5 +1,11 @@
-import { createSummary, getSummaryId, updateSummary } from '..'
-import { ScrapeResultAndSummary } from '../scrapedPage/get-or-create-scraped-page'
+import { ScrapeResult, createSummary, getSummaryId, updateSummary } from '..'
+
+interface ScrapeResultAndSummary extends ScrapeResult {
+  summary: string
+  keywords: string[]
+  largeLanguageModel: string
+  currentLanguage: string
+}
 
 export const upsertWebPageSummary = async (
   scrapeResultAndSummary: ScrapeResultAndSummary,

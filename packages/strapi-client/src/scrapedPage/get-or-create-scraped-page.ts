@@ -1,18 +1,6 @@
 import { createdScrapedPage, getScrapedPageByUrl } from '..'
 
-export interface ScrapeResultAndSummary {
-  summary: string
-  keywords: string[]
-  largeLanguageModel: string
-  currentLanguage: string
-  title: string
-  url: string
-  content: string
-  links: string[]
-  scrapedLanguage: string
-}
-
-interface ScrapeResult {
+export interface ScrapeResult {
   title: string
   url: string
   content: string
