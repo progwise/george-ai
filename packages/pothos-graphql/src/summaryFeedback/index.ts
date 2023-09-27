@@ -55,18 +55,13 @@ builder.mutationField('createSummaryFeedback', (t) =>
       data: t.arg({ type: CreateSummaryFeedbackInput }),
     },
     resolve: async (parent, arguments_) => {
-      try {
-        const feedbackData = await createFeedback(
-          arguments_.data.position,
-          arguments_.data.query,
-          arguments_.data.voting,
-          arguments_.data.webPageSummaryId,
-        )
-        return feedbackData!
-      } catch (error) {
-        console.error('Error while creating Summary Feedback:', error)
-        return {}
-      }
+      const feedbackData = await createFeedback(
+        arguments_.data.position,
+        arguments_.data.query,
+        arguments_.data.voting,
+        arguments_.data.webPageSummaryId,
+      )
+      return feedbackData!
     },
   }),
 )

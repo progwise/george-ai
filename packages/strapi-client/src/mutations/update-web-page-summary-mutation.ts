@@ -41,7 +41,7 @@ export const updateWebPageSummary = async (
 
     console.log('Update WebPageSummary with ID:', webPageSummaryId)
   } catch (error) {
-    console.error('Error updating WebPageSummary:', error)
+    console.error('Error while updating WebPageSummary:', error)
     throw error
   }
 }

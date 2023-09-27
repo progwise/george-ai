@@ -23,7 +23,7 @@ export const getScrapedWebPage = async (url: string) => {
 
     return scrapedWebPages?.data.at(0)
   } catch (error) {
-    console.error('An error occurred while fetching scraped web pages:', error)
+    console.error('Error while fetching ScrapedWebPages:', error)
     throw error
   }
 }

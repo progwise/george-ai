@@ -43,7 +43,7 @@ export const GetAllWebPageSummaries = async () => {
     )
     return webPageSummaries?.data
   } catch (error) {
-    console.error('An error occurred while fetching webPages summary:', error)
+    console.error('Error while fetching WebPagesSummaries:', error)
     throw error
   }
 }

@@ -37,7 +37,7 @@ export const createdScrapedWebPage = async (
     )
     return createScrapedWebPage?.data
   } catch (error) {
-    console.error('Error creating ScrapedWebPage:', error)
+    console.error('Error while creating ScrapedWebPage:', error)
     throw error
   }
 }

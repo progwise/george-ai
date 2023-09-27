@@ -9,8 +9,9 @@ export const deleteCollection = async () => {
     )
   } catch (error) {
     console.error(
-      `Failed to delete collection ${summaryCollectionSchema.name}:`,
+      `Error while deleting collection ${summaryCollectionSchema.name}:`,
       error,
     )
+    throw error
   }
 }

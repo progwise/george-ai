@@ -47,7 +47,7 @@ export const createFeedback = async (
     )
     return createSummaryFeedback?.data
   } catch (error) {
-    console.error('Error creating summary feedback:', error)
+    console.error('Error while creating SummaryFeedback:', error)
     throw error
   }
 }

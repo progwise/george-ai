@@ -37,7 +37,7 @@ export const getWebPageSummaryId = async (
     )
     return webPageSummaries?.data.at(0)?.id
   } catch (error) {
-    console.error('An error occurred while fetching webPages summary:', error)
+    console.error('Error while fetching WebPagesSummary:', error)
     throw error
   }
 }
