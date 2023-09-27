@@ -1,5 +1,5 @@
-import { summaryCollectionSchema } from './upsert-webpagesummary.js'
-import { typesenseClient } from './typesense.js'
+import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
+import { typesenseClient } from '../typesense.js'
 
 const isHttpError = (error: any): error is { httpStatus: number } => {
   return error && typeof error.httpStatus === 'number'

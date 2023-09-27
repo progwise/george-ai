@@ -1,5 +1,6 @@
 export * from './strapi'
 export * from './feedback/create-feedback'
+export * from './feedback/delete-feedback'
 export * from './scrapedPage/created-scraped-page'
 export * from './scrapedPage/get-or-create-scraped-page'
 export * from './scrapedPage/get-scraped-page-by-url'

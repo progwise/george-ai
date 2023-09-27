@@ -1223,6 +1223,18 @@ export type CreateSummaryFeedbackMutation = {
   } | null
 }
 
+export type DeleteSummaryFeedbackMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteSummaryFeedbackMutation = {
+  __typename?: 'Mutation'
+  deleteSummaryFeedback?: {
+    __typename?: 'SummaryFeedbackEntityResponse'
+    data?: { __typename?: 'SummaryFeedbackEntity'; id?: string | null } | null
+  } | null
+}
+
 export type CreateScrapedWebPageMutationVariables = Exact<{
   data: ScrapedWebPageInput
   locale: Scalars['I18NLocaleCode']['input']
@@ -1479,6 +1491,63 @@ export const CreateSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
+>
+export const DeleteSummaryFeedbackDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteSummaryFeedback' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteSummaryFeedback' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteSummaryFeedbackMutation,
+  DeleteSummaryFeedbackMutationVariables
 >
 export const CreateScrapedWebPageDocument = {
   kind: 'Document',
