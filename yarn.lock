@@ -10143,6 +10143,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "george-ai-strapi-cms@workspace:apps/strapi-cms"
   dependencies:
+    "@george-ai/strapi-client": "*"
     "@george-ai/typesense-client": "*"
     "@strapi/plugin-graphql": ^4.12.0
     "@strapi/plugin-i18n": 4.12.0
