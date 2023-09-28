@@ -8,6 +8,10 @@ export interface FilterSelectionProps {
   llm?: string[]
 }
 
+const shouldDisplayFilter = (array: string[] | undefined) => {
+  return (array?.length ?? 0) > 1
+}
+
 export const FilterSelection = async ({
   lang,
   status,
@@ -29,30 +33,33 @@ export const FilterSelection = async ({
 
   return (
     <div className="flex justify-end gap-3">
-      {searchFilters?.publicationState.map((state) => (
-        <FilterCheckbox
-          key={state}
-          value={state}
-          checked={status?.includes(state) ?? false}
-          filter="status"
-        />
-      ))}
-      {searchFilters?.language.map((language) => (
-        <FilterCheckbox
-          key={language}
-          value={language}
-          checked={lang?.includes(language) ?? false}
-          filter="lang"
-        />
-      ))}
-      {searchFilters?.largeLanguageModel.map((model) => (
-        <FilterCheckbox
-          key={model}
-          value={model}
-          checked={llm?.includes(model) ?? false}
-          filter="llm"
-        />
-      ))}
+      {shouldDisplayFilter(searchFilters?.publicationState) &&
+        searchFilters?.publicationState.map((state) => (
+          <FilterCheckbox
+            key={state}
+            value={state}
+            checked={status?.includes(state) ?? false}
+            filter="status"
+          />
+        ))}
+      {shouldDisplayFilter(searchFilters?.language) &&
+        searchFilters?.language.map((language) => (
+          <FilterCheckbox
+            key={language}
+            value={language}
+            checked={lang?.includes(language) ?? false}
+            filter="lang"
+          />
+        ))}
+      {shouldDisplayFilter(searchFilters?.largeLanguageModel) &&
+        searchFilters?.largeLanguageModel.map((model) => (
+          <FilterCheckbox
+            key={model}
+            value={model}
+            checked={llm?.includes(model) ?? false}
+            filter="llm"
+          />
+        ))}
     </div>
   )
 }

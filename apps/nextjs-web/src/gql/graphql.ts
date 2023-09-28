@@ -61,7 +61,6 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
-  allSummaries: Array<WebPageSummary>
   searchFilters: SearchFilters
   searchResult: Array<SearchWebPages>
 }
@@ -77,19 +76,6 @@ export type QuerySearchResultArgs = {
 export enum SummaryFeedbackVoting {
   Down = 'Down',
   Up = 'Up',
-}
-
-export type WebPageSummary = {
-  __typename?: 'WebPageSummary'
-  id: Scalars['String']['output']
-  keywords: Scalars['String']['output']
-  largeLanguageModel: Scalars['String']['output']
-  locale: Scalars['String']['output']
-  originalContent: Scalars['String']['output']
-  publishedAt: Scalars['String']['output']
-  summary: Scalars['String']['output']
-  title: Scalars['String']['output']
-  url: Scalars['String']['output']
 }
 
 export type SearchFilters = {
@@ -138,12 +124,14 @@ export type CreateSummaryFeedbackMutation = {
 
 export type InfoCardFragment = {
   __typename?: 'searchWebPages'
+  id: string
   title: string
   url: string
   language: string
   publicationState: PublicationState
   keywords: Array<string>
   summary: string
+  largeLanguageModel: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
 
 export type GetSearchWebPagesQueryVariables = Exact<{
@@ -184,12 +172,17 @@ export const InfoCardFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'language' } },
           { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
           { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
           { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
         ],
       },
     },
@@ -511,12 +504,17 @@ export const GetSearchWebPagesDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'title' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'language' } },
           { kind: 'Field', name: { kind: 'Name', value: 'publicationState' } },
           { kind: 'Field', name: { kind: 'Name', value: 'keywords' } },
           { kind: 'Field', name: { kind: 'Name', value: 'summary' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'largeLanguageModel' },
+          },
         ],
       },
     },
