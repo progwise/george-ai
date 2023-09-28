@@ -11,7 +11,8 @@
       "required": true
     },
     "depth": {
-      "type": "integer"
+      "type": "integer",
+      "min": 0
     },
     "prompts": {
       "type": "relation",
