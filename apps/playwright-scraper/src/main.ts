@@ -1,97 +1,113 @@
 import playwright from 'playwright-chromium'
-import { getKeywords, getServiceSummary } from './chat-gpt'
+import { getKeywords, getSummary } from './chat-gpt'
 import { scrapePage } from './scrape.js'
-import { getStrapiLocales } from './locales'
-import { Language, isLanguage } from './prompts'
 import {
   getOrCreateScrapedWebPage,
+  getScraperConfiguration,
+  getStrapiLocales,
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
 
-const MAX_RUNS = 4 // Maximum number of runs
+const MAX_RUNS = 2 // Maximum number of runs
 
-const processPage = async (urls: string[]): Promise<void> => {
+const processPage = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
-
+  const scraperConfigurations = (await getScraperConfiguration()) || []
+  const supportedLocales = new Set(await getStrapiLocales())
   let runCounter = 0 // Counter
 
-  const urlsDone: Array<string> = []
-  let urlsTodo: Array<string> = urls
-  const strapiLocales = await getStrapiLocales()
+  for (const scraperConfig of scraperConfigurations) {
+    const startUrl = scraperConfig.startUrl!
+    const maxDepth = scraperConfig.depth ?? 0
+    const urlsDone = new Set<string>()
+    let urlsTodo = [{ url: startUrl, depth: 0 }]
 
-  const promptsLocales = strapiLocales.filter((locale): locale is Language =>
-    isLanguage(locale),
-  )
-
-  if (promptsLocales.length === 0) {
-    console.log('No supported locales found. Exiting the process.')
-    return
-  }
-
-  while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
-    const currentUrl = urlsTodo[0]
-    urlsTodo = urlsTodo.slice(1)
-    urlsDone.push(currentUrl)
-    console.log(`scraping ${currentUrl}`)
-
-    try {
-      const scrapeResult = await scrapePage(currentUrl, context)
-
-      urlsTodo = [
-        ...new Set(
-          [...urlsTodo, ...scrapeResult.links].filter(
-            (url) => !urlsDone.includes(url),
-          ),
-        ),
-      ]
-
-      if (!scrapeResult.content) {
-        console.log(`Skipping ${currentUrl}: No content was found on the page`)
-        continue
+    while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
+      const nextUrlTodo = urlsTodo.shift()
+      if (!nextUrlTodo) {
+        console.log('No more URLs to process')
+        break
       }
 
-      if (!isLanguage(scrapeResult.scrapedLanguage)) {
-        console.log(
-          `Skipping ${currentUrl}: Unsupported locale ${
-            scrapeResult.scrapedLanguage
-          }. Supported: ${promptsLocales.join(', ')}`,
-        )
-        continue
-      }
+      const { url: currentUrl, depth: currentDepth } = nextUrlTodo
+      urlsDone.add(currentUrl)
 
-      const createdScrapedWebPage =
-        await getOrCreateScrapedWebPage(scrapeResult)
+      console.log(`scraping ${currentUrl}`)
 
-      for (const currentLanguage of promptsLocales) {
-        const summary =
-          (await getServiceSummary(scrapeResult.content, currentLanguage)) ?? ''
-        const keywords =
-          (await getKeywords(scrapeResult.content, currentLanguage)) ?? []
+      try {
+        const scrapeResult = await scrapePage(currentUrl, context, currentDepth)
 
-        const scrapeResultAndSummary = {
-          ...scrapeResult,
-          currentLanguage,
-          summary,
-          keywords,
-          largeLanguageModel: 'gpt-3.5-turbo',
-        }
-
-        if (createdScrapedWebPage?.id) {
-          await upsertWebPageSummary(
-            scrapeResultAndSummary,
-            createdScrapedWebPage.id,
+        if (!scrapeResult.content) {
+          console.log(
+            `Skipping ${currentUrl}: No content was found on the page`,
           )
+          continue
         }
+
+        if (!supportedLocales.has(scrapeResult.scrapedLanguage)) {
+          console.log(
+            `Skipping ${currentUrl}: Unsupported locale ${
+              scrapeResult.scrapedLanguage
+            }. Supported: ${[...supportedLocales].join(', ')}`,
+          )
+          continue
+        }
+
+        if (currentDepth < maxDepth) {
+          const newUrls = scrapeResult.links.map((url) => ({
+            url,
+            depth: currentDepth + 1,
+          }))
+
+          urlsTodo = [
+            ...urlsTodo,
+            ...newUrls.filter(
+              ({ url }) =>
+                !urlsDone.has(url) && !urlsTodo.some((u) => u.url === url),
+            ),
+          ]
+        }
+        const createdScrapedWebPage =
+          await getOrCreateScrapedWebPage(scrapeResult)
+
+        const prompts = scraperConfig.prompts || []
+
+        for (const prompt of prompts) {
+          const summary =
+            (await getSummary(
+              scrapeResult.content,
+              JSON.parse(prompt.summaryPrompt || ''),
+            )) ?? ''
+          const keywords =
+            (await getKeywords(
+              scrapeResult.content,
+              JSON.parse(prompt.keywordPrompt || ''),
+            )) ?? []
+
+          const scrapeResultAndSummary = {
+            ...scrapeResult,
+            currentLanguage: prompt.locale ?? 'en',
+            summary,
+            keywords,
+            largeLanguageModel: prompt.llm ?? 'unspecified',
+          }
+
+          if (createdScrapedWebPage?.id) {
+            await upsertWebPageSummary(
+              scrapeResultAndSummary,
+              createdScrapedWebPage.id,
+            )
+          }
+        }
+      } catch (error) {
+        console.error(`error scraping ${currentUrl}:`, error)
       }
-    } catch (error) {
-      console.error(`error scraping ${currentUrl}:`, error)
+
+      runCounter++ // Increases the counter after each run
     }
-
-    runCounter++ // Increases the counter after each run
   }
-
   await browser.close()
 }
 
-await processPage(['https://www.medizin.uni-greifswald.de/'])
+await processPage()

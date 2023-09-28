@@ -1701,6 +1701,7 @@ __metadata:
     "@parcel/watcher": ^2.2.0
     "@types/node": ^20.4.4
     "@urql/core": ^4.1.0
+    dotenv-cli: ^7.3.0
     eslint: 8.46.0
     eslint-config-custom: "*"
     graphql: ^16.7.1

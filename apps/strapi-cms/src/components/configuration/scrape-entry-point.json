@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_configuration_scrape_entry_points",
+  "info": {
+    "displayName": "scrapeUrl",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "startUrl": {
+      "type": "string",
+      "required": true
+    },
+    "depth": {
+      "type": "integer",
+      "min": 0
+    },
+    "prompts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::prompt.prompt"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-export const prompts = {
+export const defaultPrompts = {
   de: {
     summary: [
       'Gib mir eine Zusammenfassung der Angebote in maximal 300 Worten für den folgenden Textinhalt einer Website. Erwähne Ansprechpartner und Kontaktinformationen und nutze HTML-Tags wie <h3>, <p> und <ul> für eine bessere Formatierung.',
@@ -26,8 +26,3 @@ export const prompts = {
     ],
   },
 }
-
-export type Language = keyof typeof prompts
-
-export const isLanguage = (language: string): language is Language =>
-  Object.keys(prompts).includes(language)
