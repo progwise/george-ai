@@ -550,6 +550,7 @@ export type PaginationArg = {
 export type Prompt = {
   __typename?: 'Prompt';
   createdAt?: Maybe<Scalars['DateTime']['output']>;
+  isDefaultPrompt: Scalars['Boolean']['output'];
   keywordPrompt?: Maybe<Scalars['String']['output']>;
   llm?: Maybe<Scalars['String']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
@@ -586,6 +587,7 @@ export type PromptFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>;
   createdAt?: InputMaybe<DateTimeFilterInput>;
   id?: InputMaybe<IdFilterInput>;
+  isDefaultPrompt?: InputMaybe<BooleanFilterInput>;
   keywordPrompt?: InputMaybe<StringFilterInput>;
   llm?: InputMaybe<StringFilterInput>;
   locale?: InputMaybe<StringFilterInput>;
@@ -597,6 +599,7 @@ export type PromptFiltersInput = {
 };
 
 export type PromptInput = {
+  isDefaultPrompt?: InputMaybe<Scalars['Boolean']['input']>;
   keywordPrompt?: InputMaybe<Scalars['String']['input']>;
   llm?: InputMaybe<Scalars['String']['input']>;
   summaryPrompt?: InputMaybe<Scalars['String']['input']>;

@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "scrape": "ts-node --esm --experimentalSpecifierResolution node src/main.ts",
-    "createprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/create-prompts.ts",
+    "createdefaultprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/create-default-prompts.ts",
     "tsc": "tsc",
     "lint": "eslint ."
   },

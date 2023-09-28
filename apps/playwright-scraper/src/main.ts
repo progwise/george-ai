@@ -4,6 +4,7 @@ import { scrapePage } from './scrape.js'
 import {
   getOrCreateScrapedWebPage,
   getScraperConfiguration,
+  getStrapiLocales,
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
 
@@ -13,15 +14,7 @@ const processPage = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
   const scraperConfigurations = (await getScraperConfiguration()) || []
-  const supportedLocales = new Set(
-    (scraperConfigurations || []).flatMap((scraperConfig) =>
-      (scraperConfig.prompts || [])
-        .map((prompt) => prompt.locale)
-        .filter((locale): locale is string => {
-          return locale !== null && locale !== undefined
-        }),
-    ),
-  )
+  const supportedLocales = new Set(await getStrapiLocales())
   let runCounter = 0 // Counter
 
   for (const scraperConfig of scraperConfigurations) {
@@ -79,7 +72,10 @@ const processPage = async (): Promise<void> => {
           await getOrCreateScrapedWebPage(scrapeResult)
 
         const prompts = scraperConfig.prompts || []
+
         for (const prompt of prompts) {
+          console.log('prompt.summaryPrompt:', prompt.summaryPrompt)
+          console.log('prompt.keywordPrompt:', prompt.keywordPrompt)
           const summary =
             (await getServiceSummary(
               scrapeResult.content,

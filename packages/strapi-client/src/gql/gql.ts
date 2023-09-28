@@ -13,16 +13,20 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  '\n        query GetPrompts {\n          prompts(locale: "all") {\n            data {\n              id\n            }\n          }\n        }\n      ':
-    types.GetPromptsDocument,
-  '\n          mutation CreatePrompt(\n            $locale: I18NLocaleCode!\n            $summaryPrompt: String!\n            $keywordPrompt: String!\n            $llm: String!\n          ) {\n            createPrompt(\n              locale: $locale\n              data: {\n                summaryPrompt: $summaryPrompt\n                keywordPrompt: $keywordPrompt\n                llm: $llm\n              }\n            ) {\n              data {\n                id\n              }\n            }\n          }\n        ':
-    types.CreatePromptDocument,
+  '\n        query GetAllLocales {\n          i18NLocales {\n            data {\n              id\n              attributes {\n                code\n              }\n            }\n          }\n        }\n      ':
+    types.GetAllLocalesDocument,
   '\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        attributes {\n                          summaryPrompt\n                          keywordPrompt\n                          llm\n                          locale\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ':
     types.GetScraperConfigurationDocument,
   '\n        mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {\n          createSummaryFeedback(data: $input) {\n            data {\n              id\n              attributes {\n                position\n                query\n                voting\n                web_page_summary {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.CreateSummaryFeedbackDocument,
   '\n        mutation DeleteSummaryFeedback($id: ID!) {\n          deleteSummaryFeedback(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ':
     types.DeleteSummaryFeedbackDocument,
+  '\n        mutation CreatePrompt(\n          $locale: I18NLocaleCode!\n          $summaryPrompt: String!\n          $keywordPrompt: String!\n          $llm: String!\n        ) {\n          createPrompt(\n            locale: $locale\n            data: {\n              summaryPrompt: $summaryPrompt\n              keywordPrompt: $keywordPrompt\n              llm: $llm\n              isDefaultPrompt: true\n            }\n          ) {\n            data {\n              id\n            }\n          }\n        }\n      ':
+    types.CreatePromptDocument,
+  '\n        mutation DeletePrompt($id: ID!) {\n          deletePrompt(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ':
+    types.DeletePromptDocument,
+  '\n        query GetDefaultPrompts {\n          prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n            data {\n              id\n            }\n          }\n        }\n      ':
+    types.GetDefaultPromptsDocument,
   '\n        mutation CreateScrapedWebPage(\n          $data: ScrapedWebPageInput!\n          $locale: I18NLocaleCode!\n        ) {\n          createScrapedWebPage(data: $data, locale: $locale) {\n            data {\n              id\n              attributes {\n                title\n                url\n                originalContent\n              }\n            }\n          }\n        }\n      ':
     types.CreateScrapedWebPageDocument,
   '\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(\n            publicationState: PREVIEW\n            locale: "all"\n            filters: { url: { eq: $url } }\n          ) {\n            data {\n              id\n            }\n          }\n        }\n      ':
@@ -55,14 +59,8 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query GetPrompts {\n          prompts(locale: "all") {\n            data {\n              id\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query GetPrompts {\n          prompts(locale: "all") {\n            data {\n              id\n            }\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n          mutation CreatePrompt(\n            $locale: I18NLocaleCode!\n            $summaryPrompt: String!\n            $keywordPrompt: String!\n            $llm: String!\n          ) {\n            createPrompt(\n              locale: $locale\n              data: {\n                summaryPrompt: $summaryPrompt\n                keywordPrompt: $keywordPrompt\n                llm: $llm\n              }\n            ) {\n              data {\n                id\n              }\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation CreatePrompt(\n            $locale: I18NLocaleCode!\n            $summaryPrompt: String!\n            $keywordPrompt: String!\n            $llm: String!\n          ) {\n            createPrompt(\n              locale: $locale\n              data: {\n                summaryPrompt: $summaryPrompt\n                keywordPrompt: $keywordPrompt\n                llm: $llm\n              }\n            ) {\n              data {\n                id\n              }\n            }\n          }\n        ']
+  source: '\n        query GetAllLocales {\n          i18NLocales {\n            data {\n              id\n              attributes {\n                code\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetAllLocales {\n          i18NLocales {\n            data {\n              id\n              attributes {\n                code\n              }\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -81,6 +79,24 @@ export function graphql(
 export function graphql(
   source: '\n        mutation DeleteSummaryFeedback($id: ID!) {\n          deleteSummaryFeedback(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation DeleteSummaryFeedback($id: ID!) {\n          deleteSummaryFeedback(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation CreatePrompt(\n          $locale: I18NLocaleCode!\n          $summaryPrompt: String!\n          $keywordPrompt: String!\n          $llm: String!\n        ) {\n          createPrompt(\n            locale: $locale\n            data: {\n              summaryPrompt: $summaryPrompt\n              keywordPrompt: $keywordPrompt\n              llm: $llm\n              isDefaultPrompt: true\n            }\n          ) {\n            data {\n              id\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation CreatePrompt(\n          $locale: I18NLocaleCode!\n          $summaryPrompt: String!\n          $keywordPrompt: String!\n          $llm: String!\n        ) {\n          createPrompt(\n            locale: $locale\n            data: {\n              summaryPrompt: $summaryPrompt\n              keywordPrompt: $keywordPrompt\n              llm: $llm\n              isDefaultPrompt: true\n            }\n          ) {\n            data {\n              id\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation DeletePrompt($id: ID!) {\n          deletePrompt(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation DeletePrompt($id: ID!) {\n          deletePrompt(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query GetDefaultPrompts {\n          prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n            data {\n              id\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetDefaultPrompts {\n          prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n            data {\n              id\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

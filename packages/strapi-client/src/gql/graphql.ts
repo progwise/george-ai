@@ -541,6 +541,7 @@ export type PaginationArg = {
 export type Prompt = {
   __typename?: 'Prompt'
   createdAt?: Maybe<Scalars['DateTime']['output']>
+  isDefaultPrompt: Scalars['Boolean']['output']
   keywordPrompt?: Maybe<Scalars['String']['output']>
   llm?: Maybe<Scalars['String']['output']>
   locale?: Maybe<Scalars['String']['output']>
@@ -576,6 +577,7 @@ export type PromptFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
+  isDefaultPrompt?: InputMaybe<BooleanFilterInput>
   keywordPrompt?: InputMaybe<StringFilterInput>
   llm?: InputMaybe<StringFilterInput>
   locale?: InputMaybe<StringFilterInput>
@@ -587,6 +589,7 @@ export type PromptFiltersInput = {
 }
 
 export type PromptInput = {
+  isDefaultPrompt?: InputMaybe<Scalars['Boolean']['input']>
   keywordPrompt?: InputMaybe<Scalars['String']['input']>
   llm?: InputMaybe<Scalars['String']['input']>
   summaryPrompt?: InputMaybe<Scalars['String']['input']>
@@ -1353,28 +1356,17 @@ export type WebPageSummaryRelationResponseCollection = {
   data: Array<WebPageSummaryEntity>
 }
 
-export type GetPromptsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllLocalesQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetPromptsQuery = {
+export type GetAllLocalesQuery = {
   __typename?: 'Query'
-  prompts?: {
-    __typename?: 'PromptEntityResponseCollection'
-    data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
-  } | null
-}
-
-export type CreatePromptMutationVariables = Exact<{
-  locale: Scalars['I18NLocaleCode']['input']
-  summaryPrompt: Scalars['String']['input']
-  keywordPrompt: Scalars['String']['input']
-  llm: Scalars['String']['input']
-}>
-
-export type CreatePromptMutation = {
-  __typename?: 'Mutation'
-  createPrompt?: {
-    __typename?: 'PromptEntityResponse'
-    data?: { __typename?: 'PromptEntity'; id?: string | null } | null
+  i18NLocales?: {
+    __typename?: 'I18NLocaleEntityResponseCollection'
+    data: Array<{
+      __typename?: 'I18NLocaleEntity'
+      id?: string | null
+      attributes?: { __typename?: 'I18NLocale'; code?: string | null } | null
+    }>
   } | null
 }
 
@@ -1450,6 +1442,43 @@ export type DeleteSummaryFeedbackMutation = {
   deleteSummaryFeedback?: {
     __typename?: 'SummaryFeedbackEntityResponse'
     data?: { __typename?: 'SummaryFeedbackEntity'; id?: string | null } | null
+  } | null
+}
+
+export type CreatePromptMutationVariables = Exact<{
+  locale: Scalars['I18NLocaleCode']['input']
+  summaryPrompt: Scalars['String']['input']
+  keywordPrompt: Scalars['String']['input']
+  llm: Scalars['String']['input']
+}>
+
+export type CreatePromptMutation = {
+  __typename?: 'Mutation'
+  createPrompt?: {
+    __typename?: 'PromptEntityResponse'
+    data?: { __typename?: 'PromptEntity'; id?: string | null } | null
+  } | null
+}
+
+export type DeletePromptMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeletePromptMutation = {
+  __typename?: 'Mutation'
+  deletePrompt?: {
+    __typename?: 'PromptEntityResponse'
+    data?: { __typename?: 'PromptEntity'; id?: string | null } | null
+  } | null
+}
+
+export type GetDefaultPromptsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetDefaultPromptsQuery = {
+  __typename?: 'Query'
+  prompts?: {
+    __typename?: 'PromptEntityResponseCollection'
+    data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
   } | null
 }
 
@@ -1604,26 +1633,19 @@ export type UpdateWebPageSummaryMutation = {
   } | null
 }
 
-export const GetPromptsDocument = {
+export const GetAllLocalesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetPrompts' },
+      name: { kind: 'Name', value: 'GetAllLocales' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'prompts' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: { kind: 'StringValue', value: 'all', block: false },
-              },
-            ],
+            name: { kind: 'Name', value: 'i18NLocales' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -1634,6 +1656,19 @@ export const GetPromptsDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'code' },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -1644,142 +1679,7 @@ export const GetPromptsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<GetPromptsQuery, GetPromptsQueryVariables>
-export const CreatePromptDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'CreatePrompt' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'I18NLocaleCode' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'summaryPrompt' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'keywordPrompt' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'llm' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createPrompt' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'summaryPrompt' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'summaryPrompt' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'keywordPrompt' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'keywordPrompt' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'llm' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'llm' },
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreatePromptMutation,
-  CreatePromptMutationVariables
->
+} as unknown as DocumentNode<GetAllLocalesQuery, GetAllLocalesQueryVariables>
 export const GetScraperConfigurationDocument = {
   kind: 'Document',
   definitions: [
@@ -2062,6 +1962,270 @@ export const DeleteSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   DeleteSummaryFeedbackMutation,
   DeleteSummaryFeedbackMutationVariables
+>
+export const CreatePromptDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreatePrompt' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'I18NLocaleCode' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'summaryPrompt' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'keywordPrompt' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'llm' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createPrompt' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'summaryPrompt' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryPrompt' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'keywordPrompt' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'keywordPrompt' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'llm' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'llm' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'isDefaultPrompt' },
+                      value: { kind: 'BooleanValue', value: true },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreatePromptMutation,
+  CreatePromptMutationVariables
+>
+export const DeletePromptDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeletePrompt' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deletePrompt' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeletePromptMutation,
+  DeletePromptMutationVariables
+>
+export const GetDefaultPromptsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetDefaultPrompts' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'prompts' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'all', block: false },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filters' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'isDefaultPrompt' },
+                      value: {
+                        kind: 'ObjectValue',
+                        fields: [
+                          {
+                            kind: 'ObjectField',
+                            name: { kind: 'Name', value: 'eq' },
+                            value: { kind: 'BooleanValue', value: true },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetDefaultPromptsQuery,
+  GetDefaultPromptsQueryVariables
 >
 export const CreateScrapedWebPageDocument = {
   kind: 'Document',

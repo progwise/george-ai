@@ -48,6 +48,6 @@ export const getScraperConfiguration = async () => {
     return scraperConfiguration
   } catch (error) {
     console.error('Error fetching ScraperConfiguration:', error)
-    return []
+    throw error
   }
 }

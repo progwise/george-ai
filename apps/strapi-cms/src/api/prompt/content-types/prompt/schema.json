@@ -39,6 +39,15 @@
         }
       },
       "type": "string"
+    },
+    "isDefaultPrompt": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      },
+      "type": "boolean",
+      "required": true
     }
   }
 }
