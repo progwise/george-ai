@@ -32,8 +32,8 @@ export const createPrompts = async (
       `),
       {
         locale,
-        summaryPrompt: summary.join(' '),
-        keywordPrompt: keywords.join(' '),
+        summaryPrompt: JSON.stringify(summary),
+        keywordPrompt: JSON.stringify(keywords),
         llm: 'gpt-3.5-turbo',
       },
     )

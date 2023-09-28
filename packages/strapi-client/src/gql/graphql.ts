@@ -1618,6 +1618,7 @@ export type UpdateWebPageSummaryMutation = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
+        locale?: string | null
         keywords?: string | null
         summary?: string | null
         largeLanguageModel?: string | null
@@ -2956,6 +2957,10 @@ export const UpdateWebPageSummaryDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'locale' },
+                            },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'keywords' },

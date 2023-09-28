@@ -34,7 +34,7 @@ export const createSummary = async (newSummary: NewSummary, locale: string) => {
     )
 
     console.log(
-      'Created WebPageSummary with ID:',
+      `Created WebPageSummary for ${locale} with ID:`,
       createWebPageSummary?.data?.id,
     )
   } catch (error) {

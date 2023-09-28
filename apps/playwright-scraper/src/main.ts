@@ -74,8 +74,6 @@ const processPage = async (): Promise<void> => {
         const prompts = scraperConfig.prompts || []
 
         for (const prompt of prompts) {
-          console.log('prompt.summaryPrompt:', prompt.summaryPrompt)
-          console.log('prompt.keywordPrompt:', prompt.keywordPrompt)
           const summary =
             (await getServiceSummary(
               scrapeResult.content,

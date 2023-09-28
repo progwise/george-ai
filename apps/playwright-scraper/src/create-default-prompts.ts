@@ -3,7 +3,7 @@ import {
   deletePrompt,
   getDefaultPromptIds,
 } from '@george-ai/strapi-client'
-import strapiPrompts from './prompts.json' assert { type: 'json' }
+import { strapiPrompts } from './prompts'
 
 const createStrapiPrompts = async () => {
   const defaultPromptIds = (await getDefaultPromptIds()) || []
