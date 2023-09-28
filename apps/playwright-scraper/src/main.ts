@@ -8,7 +8,7 @@ import {
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
 
-const MAX_RUNS = 2 // Maximum number of runs
+const MAX_RUNS = 4 // Maximum number of runs
 
 const processPage = async (urls: string[]): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
