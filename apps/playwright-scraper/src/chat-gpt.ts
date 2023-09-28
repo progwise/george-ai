@@ -13,15 +13,12 @@ const configuration = new Configuration({
 })
 const openai = new OpenAIApi(configuration)
 
-export const getServiceSummary = async (
-  content: string,
-  summaryPrompt: string[],
-) => {
+const createChatCompletion = async (content: string, prompts: string[]) => {
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
-        ...summaryPrompt.map((prompt) => ({
+        ...prompts.map((prompt) => ({
           role: ChatCompletionRequestMessageRoleEnum.System,
           content: prompt,
         })),
@@ -29,36 +26,22 @@ export const getServiceSummary = async (
       ],
     })
 
-    const responseAsString = response.data.choices.at(0)?.message?.content
-    return responseAsString
+    return response.data.choices.at(0)?.message?.content
   } catch (error) {
-    console.error('Error using chatGPT while fetching summary')
+    console.error('Error using chatGPT')
     console.log(JSON.stringify(error, undefined, 2))
   }
 }
 
+export const getSummary = async (content: string, summaryPrompt: string[]) => {
+  return await createChatCompletion(content, summaryPrompt)
+}
+
 export const getKeywords = async (content: string, keywordPrompt: string[]) => {
-  try {
-    const response = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        ...keywordPrompt.map((prompt) => ({
-          role: ChatCompletionRequestMessageRoleEnum.System,
-          content: prompt,
-        })),
-        { role: ChatCompletionRequestMessageRoleEnum.User, content },
-      ],
-    })
+  const response = await createChatCompletion(content, keywordPrompt)
 
-    const responseAsString = response.data.choices.at(0)?.message?.content
-    const keywords = responseAsString
-      ?.split(',')
-      .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
-      .slice(0, 10)
-
-    return keywords
-  } catch (error) {
-    console.error('Error using chatGPT while fetching keywords')
-    console.log(JSON.stringify(error, undefined, 2))
-  }
+  return response
+    ?.split(',')
+    .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
+    .slice(0, 10)
 }

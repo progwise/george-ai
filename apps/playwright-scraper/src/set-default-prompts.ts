@@ -1,11 +1,11 @@
 import {
-  createPrompts,
+  createPrompt,
   deletePrompt,
   getDefaultPromptIds,
 } from '@george-ai/strapi-client'
 import { defaultPrompts } from './default-prompts'
 
-const createDefaultPrompts = async () => {
+const setDefaultPrompts = async () => {
   const defaultPromptIds = await getDefaultPromptIds()
   for (const promptId of defaultPromptIds) {
     await deletePrompt(promptId)
@@ -13,8 +13,8 @@ const createDefaultPrompts = async () => {
 
   for (const [locale, promptData] of Object.entries(defaultPrompts)) {
     const { summary, keywords } = promptData
-    await createPrompts(locale, summary, keywords)
+    await createPrompt(locale, summary, keywords)
   }
 }
 
-createDefaultPrompts()
+setDefaultPrompts()
