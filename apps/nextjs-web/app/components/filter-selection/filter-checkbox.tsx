@@ -32,7 +32,9 @@ export const FilterCheckbox = ({
       updatedParameters.append(filter, value)
     }
 
-    router.replace(pathname + '?' + updatedParameters.toString())
+    router.replace(pathname + '?' + updatedParameters.toString(), {
+      scroll: false,
+    })
   }
 
   return (

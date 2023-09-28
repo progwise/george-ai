@@ -1,5 +1,5 @@
-import { typesenseClient } from './typesense.js'
-import { summaryCollectionSchema } from './upsert-webpagesummary.js'
+import { summaryCollectionSchema } from './summary-collection-schema.js'
+import { typesenseClient } from '../typesense.js'
 
 export const deleteCollection = async () => {
   try {
@@ -9,8 +9,9 @@ export const deleteCollection = async () => {
     )
   } catch (error) {
     console.error(
-      `Failed to delete collection ${summaryCollectionSchema.name}:`,
+      `Error while deleting collection ${summaryCollectionSchema.name}:`,
       error,
     )
+    throw error
   }
 }

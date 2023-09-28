@@ -3,14 +3,8 @@
 import Image from 'next/image'
 import { useState } from 'react'
 
-export const Summary = ({
-  summary,
-  position,
-}: {
-  summary: string
-  position: number
-}) => {
-  const [isExpand, setIsExpand] = useState(position === 0 ? true : false)
+export const Summary = ({ summary }: { summary: string }) => {
+  const [isExpand, setIsExpand] = useState(false)
 
   return (
     <div className="flex items-start gap-2">

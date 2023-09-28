@@ -6,6 +6,7 @@ export interface ScrapeResult {
   content: string
   links: string[]
   scrapedLanguage: string
+  depth: number
 }
 
 const acceptCookies = async (page: playwright.Page) => {
@@ -25,7 +26,10 @@ const acceptCookies = async (page: playwright.Page) => {
   }
 }
 
-const extractLinks = async (page: Page): Promise<string[]> => {
+const extractLinks = async (
+  page: Page,
+  baseScrapeUrl: string,
+): Promise<string[]> => {
   const linkLocators = await page.locator('a').all()
   const links = await Promise.all(
     linkLocators.map((ll) => ll.getAttribute('href')),
@@ -34,7 +38,10 @@ const extractLinks = async (page: Page): Promise<string[]> => {
     ...new Set(
       links.filter(
         (link): link is string =>
-          link !== null && link.length > 0 && !link.startsWith('#'),
+          link !== null &&
+          link.length > 0 &&
+          !link.startsWith('#') &&
+          link.startsWith(baseScrapeUrl),
       ),
     ),
   ]
@@ -43,6 +50,7 @@ const extractLinks = async (page: Page): Promise<string[]> => {
 export const scrapePage = async (
   url: string,
   context: playwright.BrowserContext,
+  depth: number,
 ): Promise<ScrapeResult> => {
   const page = await context.newPage()
   await page.goto(url)
@@ -59,7 +67,7 @@ export const scrapePage = async (
     (await page.locator('html').getAttribute('lang')) || 'en'
   ).split('-')[0]
   console.log('scrapedLanguage:', scrapedLanguage)
-  const links = await extractLinks(page)
+  const links = await extractLinks(page, url)
   await page.close()
   return {
     title: pageTitle,
@@ -67,5 +75,6 @@ export const scrapePage = async (
     content: texts,
     links,
     scrapedLanguage,
+    depth,
   }
 }
