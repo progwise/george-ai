@@ -1,5 +1,5 @@
-import { strapiClient } from '..'
 import { graphql } from '../gql'
+import { strapiClient } from '../strapi-client'
 
 export const getSummaryId = async (
   languageModel: string,

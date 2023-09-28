@@ -4,7 +4,6 @@ import {
   OpenAIApi,
 } from 'openai'
 import dotenv from 'dotenv'
-import { prompts } from './prompts'
 
 dotenv.config()
 
@@ -14,55 +13,35 @@ const configuration = new Configuration({
 })
 const openai = new OpenAIApi(configuration)
 
-export const getServiceSummary = async (
-  content: string,
-  language: keyof typeof prompts,
-) => {
+const createChatCompletion = async (content: string, prompts: string[]) => {
   try {
     const response = await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: [
-        ...prompts[language].summary.map((prompt) => ({
-          role: 'system' as ChatCompletionRequestMessageRoleEnum,
+        ...prompts.map((prompt) => ({
+          role: ChatCompletionRequestMessageRoleEnum.System,
           content: prompt,
         })),
-        { role: 'user' as ChatCompletionRequestMessageRoleEnum, content },
+        { role: ChatCompletionRequestMessageRoleEnum.User, content },
       ],
     })
 
-    const responseAsString = response.data.choices.at(0)?.message?.content
-    return responseAsString
+    return response.data.choices.at(0)?.message?.content
   } catch (error) {
-    console.error('Error using chatGPT while fetching summary')
+    console.error('Error using chatGPT')
     console.log(JSON.stringify(error, undefined, 2))
   }
 }
 
-export const getKeywords = async (
-  content: string,
-  language: keyof typeof prompts,
-) => {
-  try {
-    const response = await openai.createChatCompletion({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        ...prompts[language].keywords.map((prompt) => ({
-          role: 'system' as ChatCompletionRequestMessageRoleEnum,
-          content: prompt,
-        })),
-        { role: 'user' as ChatCompletionRequestMessageRoleEnum, content },
-      ],
-    })
+export const getSummary = async (content: string, summaryPrompt: string[]) => {
+  return await createChatCompletion(content, summaryPrompt)
+}
 
-    const responseAsString = response.data.choices.at(0)?.message?.content
-    const keywords = responseAsString
-      ?.split(',')
-      .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
-      .slice(0, 10)
+export const getKeywords = async (content: string, keywordPrompt: string[]) => {
+  const response = await createChatCompletion(content, keywordPrompt)
 
-    return keywords
-  } catch (error) {
-    console.error('Error using chatGPT while fetching keywords')
-    console.log(JSON.stringify(error, undefined, 2))
-  }
+  return response
+    ?.split(',')
+    .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
+    .slice(0, 10)
 }

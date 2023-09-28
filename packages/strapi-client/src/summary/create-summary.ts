@@ -1,5 +1,12 @@
-import { NewSummary, strapiClient } from '..'
 import { graphql } from '../gql'
+import { strapiClient } from '../strapi-client'
+
+export interface NewSummary {
+  summary: string
+  keywords: string
+  largeLanguageModel: string
+  scraped_web_page: string
+}
 
 export const createSummary = async (newSummary: NewSummary, locale: string) => {
   try {
@@ -33,7 +40,7 @@ export const createSummary = async (newSummary: NewSummary, locale: string) => {
     )
 
     console.log(
-      'Created WebPageSummary with ID:',
+      `Created WebPageSummary for ${locale} with ID:`,
       createWebPageSummary?.data?.id,
     )
   } catch (error) {

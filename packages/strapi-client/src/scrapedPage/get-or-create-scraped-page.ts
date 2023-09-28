@@ -1,4 +1,5 @@
-import { createdScrapedPage, getScrapedPageByUrl } from '..'
+import { createdScrapedPage } from './created-scraped-page'
+import { getScrapedPageByUrl } from './get-scraped-page-by-url'
 
 export interface ScrapeResult {
   title: string

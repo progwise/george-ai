@@ -33,7 +33,6 @@ module.exports = {
           },
         },
       },
-      documents: ['apps/playwright-scraper/src/**/*.ts'],
       extensions: {
         codegen: {
           hooks: { afterOneFileWrite: ['prettier --write'] },

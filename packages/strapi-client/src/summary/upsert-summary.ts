@@ -1,4 +1,7 @@
-import { ScrapeResult, createSummary, getSummaryId, updateSummary } from '..'
+import { ScrapeResult } from '..'
+import { createSummary } from './create-summary'
+import { getSummaryId } from './get-summary-id'
+import { updateSummary } from './update-summary'
 
 interface ScrapeResultAndSummary extends ScrapeResult {
   summary: string
