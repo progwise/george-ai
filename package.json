@@ -9,11 +9,11 @@
   ],
   "packageManager": "yarn@3.6.1",
   "scripts": {
-    "codegen:pothosGraphql": "graphql-codegen --config graphql.config.ts --project pothosGraphql",
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
-    "codegen": "node codegen.ts"
+    "codegen": "node codegen.ts",
+    "build": "turbo run build "
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",

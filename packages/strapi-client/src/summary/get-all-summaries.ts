@@ -1,5 +1,5 @@
 import { graphql } from '../gql/gql'
-import { strapiClient } from '..'
+import { strapiClient } from '../strapi-client'
 
 export const GetAllSummaries = async () => {
   try {
