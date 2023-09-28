@@ -7,6 +7,14 @@ import {
   getStrapiLocales,
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
+import pMap from 'p-map'
+
+interface PromptType {
+  summaryPrompt: string | null | undefined
+  keywordPrompt: string | null | undefined
+  llm: string | null | undefined
+  locale: string | null | undefined
+}
 
 const MAX_RUNS = 3 // Maximum number of runs
 
@@ -73,7 +81,7 @@ const processPage = async (): Promise<void> => {
 
         const prompts = scraperConfig.prompts || []
 
-        for (const prompt of prompts) {
+        const processPrompt = async (prompt: PromptType) => {
           const summary =
             (await getSummary(
               scrapeResult.content,
@@ -100,6 +108,8 @@ const processPage = async (): Promise<void> => {
             )
           }
         }
+
+        await pMap(prompts, processPrompt, { concurrency: 2 })
       } catch (error) {
         console.error(`error scraping ${currentUrl}:`, error)
       }
