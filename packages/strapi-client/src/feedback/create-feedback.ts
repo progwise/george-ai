@@ -3,7 +3,7 @@ import {
   CreateSummaryFeedbackMutation,
   Enum_Summaryfeedback_Voting,
 } from '../gql/graphql'
-import { strapiClient } from '../strapi'
+import { strapiClient } from '..'
 
 export const createFeedback = async (
   position: number,

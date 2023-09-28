@@ -1,5 +1,5 @@
 import { graphql } from '../gql/gql'
-import { strapiClient } from '../strapi'
+import { strapiClient } from '..'
 
 export const getScrapedPageByUrl = async (url: string) => {
   try {
