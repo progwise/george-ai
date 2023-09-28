@@ -1,4 +1,4 @@
-import { NewSummary } from '..'
+import { NewSummary } from './update-summary'
 import { graphql } from '../gql'
 import { strapiClient } from '../strapi-client'
 
