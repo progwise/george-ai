@@ -20,9 +20,9 @@ export const getStrapiLocales = async () => {
     )
 
     const localeCodes =
-      (i18NLocales?.data
+      i18NLocales?.data
         ?.map((locale) => locale.attributes?.code)
-        .filter(Boolean) as string[]) || []
+        .filter((id): id is string => typeof id === 'string') || []
     return localeCodes
   } catch (error) {
     console.error('Error fetching Strapi locales:', error)

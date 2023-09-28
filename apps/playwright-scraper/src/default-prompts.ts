@@ -1,4 +1,4 @@
-export const strapiPrompts = {
+export const defaultPrompts = {
   de: {
     summary: [
       'Gib mir eine Zusammenfassung der Angebote in maximal 300 Worten für den folgenden Textinhalt einer Website, einschließlich der Nennung von Ansprechpartnern und Kontaktinformationen, in Deutsch.',

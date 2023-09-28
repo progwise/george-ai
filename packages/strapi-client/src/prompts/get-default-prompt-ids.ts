@@ -16,9 +16,11 @@ export const getDefaultPromptIds = async () => {
       {},
     )
 
-    return prompts?.data
-      .map((item) => item.id)
-      .filter((id): id is string => typeof id === 'string')
+    return (
+      prompts?.data
+        .map((item) => item.id)
+        .filter((id): id is string => typeof id === 'string') || []
+    )
   } catch (error) {
     console.error('Error while fetching DefaultPrompts:', error)
     throw error

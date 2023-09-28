@@ -1,7 +1,7 @@
 import { graphql } from '../gql'
 import { strapiClient } from '../strapi-client'
 
-export const createPrompts = async (
+export const createPrompt = async (
   locale: string,
   summary: string[],
   keywords: string[],
