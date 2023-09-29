@@ -1,6 +1,8 @@
 import {
+  PublicationState,
   computeFeedbackPopularity,
   ensureCollectionExists,
+  isStringArray,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
@@ -22,9 +24,11 @@ const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
   const webPageSummary = {
     id: webPageSummaryEntity.id ?? '',
     language: webPageSummaryEntity.attributes?.locale ?? '',
-    keywords: webPageSummaryEntity.attributes?.keywords
-      ? JSON.parse(webPageSummaryEntity.attributes?.keywords)
-      : [],
+    keywords:
+      webPageSummaryEntity.attributes?.keywords &&
+      isStringArray(JSON.parse(webPageSummaryEntity.attributes?.keywords))
+        ? JSON.parse(webPageSummaryEntity.attributes?.keywords)
+        : [],
     summary: webPageSummaryEntity.attributes?.summary ?? '',
     largeLanguageModel:
       webPageSummaryEntity.attributes?.largeLanguageModel ?? '',
@@ -38,8 +42,8 @@ const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
       webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
         ?.originalContent ?? '',
     publicationState: webPageSummaryEntity.attributes?.publishedAt
-      ? 'published'
-      : 'draft',
+      ? PublicationState.Published
+      : PublicationState.Draft,
     popularity,
   }
 
