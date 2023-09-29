@@ -6,7 +6,7 @@ export enum PublicationState {
   Published = 'published',
 }
 
-export type SearchWebPages = {
+export type WebPagesDocument = {
   id: string
   title: string
   url: string
@@ -18,13 +18,13 @@ export type SearchWebPages = {
   largeLanguageModel: string
 }
 
-export const fetchSearchWebPages = async (
+export const searchWebPageDocuments = async (
   query: string,
   filters: string[],
-): Promise<SearchWebPages[] | undefined> => {
+): Promise<WebPagesDocument[] | undefined> => {
   try {
     const response = await typesenseClient
-      .collections<SearchWebPages>(summaryCollectionSchema.name)
+      .collections<WebPagesDocument>(summaryCollectionSchema.name)
       .documents()
       .search({
         q: query,

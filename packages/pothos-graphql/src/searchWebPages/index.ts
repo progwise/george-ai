@@ -1,7 +1,7 @@
 import { builder } from '../builder'
 import {
-  SearchWebPages,
-  fetchSearchWebPages,
+  WebPagesDocument,
+  searchWebPageDocuments,
   PublicationState,
 } from '@george-ai/typesense-client'
 
@@ -10,7 +10,7 @@ const PublicationStateEnum = builder.enumType(PublicationState, {
 })
 
 const searchWebPagesReference =
-  builder.objectRef<SearchWebPages>('searchWebPages')
+  builder.objectRef<WebPagesDocument>('searchWebPages')
 
 builder.objectType(searchWebPagesReference, {
   name: 'searchWebPages',
@@ -65,7 +65,7 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      return (await fetchSearchWebPages(arguments_.query, filters)) || []
+      return (await searchWebPageDocuments(arguments_.query, filters)) || []
     },
   }),
 )
