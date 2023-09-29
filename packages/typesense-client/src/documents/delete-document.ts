@@ -5,7 +5,7 @@ const isHttpError = (error: any): error is { httpStatus: number } => {
   return error && typeof error.httpStatus === 'number'
 }
 
-export const deletetDocument = async (id: string) => {
+export const deleteDocument = async (id: string) => {
   try {
     const document = await typesenseClient
       .collections(summaryCollectionSchema.name)

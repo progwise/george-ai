@@ -1,5 +1,5 @@
 import {
-  deletetDocument,
+  deleteDocument,
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
@@ -32,6 +32,21 @@ const transformAndUpsertSummary = async (id) => {
   await upsertWebpageSummary(webPageSummary)
 }
 
+const deleteDocumentAndRelatedFeedbacks = async (id) => {
+  const summaryFeedbacks = await strapi.entityService.findMany(
+    'api::summary-feedback.summary-feedback',
+    {
+      'web_page_summary.id': id,
+    },
+  )
+
+  for (const feedback of summaryFeedbacks) {
+    await deleteFeedback(feedback.id)
+  }
+
+  await deleteDocument(id)
+}
+
 export default {
   async afterCreate(event) {
     await transformAndUpsertSummary(event.result.id)
@@ -43,17 +58,11 @@ export default {
 
   async afterDeleteMany(event) {
     for (const id of event.params?.where?.$and[0].id.$in) {
-      const summaryFeedbacks = await strapi.entityService.findMany(
-        'api::summary-feedback.summary-feedback',
-        {
-          'web_page_summary.id': id,
-        },
-      )
-
-      for (const feedback of summaryFeedbacks) {
-        await deleteFeedback(feedback.id)
-      }
-      await deletetDocument(id)
+      await deleteDocumentAndRelatedFeedbacks(id)
     }
+  },
+
+  async afterDelete(event) {
+    await deleteDocumentAndRelatedFeedbacks(event.result.id)
   },
 }

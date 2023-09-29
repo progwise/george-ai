@@ -1545,6 +1545,18 @@ export type CreateWebPageSummaryMutation = {
   } | null
 }
 
+export type DeleteWebPageSummaryMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type DeleteWebPageSummaryMutation = {
+  __typename?: 'Mutation'
+  deleteWebPageSummary?: {
+    __typename?: 'WebPageSummaryEntityResponse'
+    data?: { __typename?: 'WebPageSummaryEntity'; id?: string | null } | null
+  } | null
+}
+
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWebPageSummariesQuery = {
@@ -2546,6 +2558,63 @@ export const CreateWebPageSummaryDocument = {
 } as unknown as DocumentNode<
   CreateWebPageSummaryMutation,
   CreateWebPageSummaryMutationVariables
+>
+export const DeleteWebPageSummaryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'DeleteWebPageSummary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteWebPageSummary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteWebPageSummaryMutation,
+  DeleteWebPageSummaryMutationVariables
 >
 export const GetWebPageSummariesDocument = {
   kind: 'Document',

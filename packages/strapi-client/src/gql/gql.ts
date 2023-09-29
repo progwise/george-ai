@@ -33,6 +33,8 @@ const documents = {
     types.GetScrapedWebPagesByUrlDocument,
   '\n        mutation CreateWebPageSummary(\n          $data: WebPageSummaryInput!\n          $locale: I18NLocaleCode!\n        ) {\n          createWebPageSummary(data: $data, locale: $locale) {\n            data {\n              id\n              attributes {\n                keywords\n                summary\n                largeLanguageModel\n                scraped_web_page {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.CreateWebPageSummaryDocument,
+  '\n        mutation DeleteWebPageSummary($id: ID!) {\n          deleteWebPageSummary(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ':
+    types.DeleteWebPageSummaryDocument,
   '\n        query GetWebPageSummaries {\n          webPageSummaries(publicationState: PREVIEW, locale: "all") {\n            data {\n              id\n              attributes {\n                updatedAt\n                locale\n                keywords\n                summary\n                largeLanguageModel\n                publishedAt\n                summary_feedbacks {\n                  data {\n                    attributes {\n                      createdAt\n                      voting\n                    }\n                  }\n                }\n                scraped_web_page {\n                  data {\n                    attributes {\n                      title\n                      url\n                      originalContent\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.GetWebPageSummariesDocument,
   '\n        query GetWebPageSummariesByLanguageModelAndUrl(\n          $languageModel: String!\n          $url: String!\n          $locale: String!\n        ) {\n          webPageSummaries(\n            publicationState: PREVIEW\n            locale: "all"\n            filters: {\n              largeLanguageModel: { eq: $languageModel }\n              scraped_web_page: { url: { eq: $url } }\n              locale: { eq: $locale }\n            }\n          ) {\n            data {\n              id\n            }\n          }\n        }\n      ':
@@ -115,6 +117,12 @@ export function graphql(
 export function graphql(
   source: '\n        mutation CreateWebPageSummary(\n          $data: WebPageSummaryInput!\n          $locale: I18NLocaleCode!\n        ) {\n          createWebPageSummary(data: $data, locale: $locale) {\n            data {\n              id\n              attributes {\n                keywords\n                summary\n                largeLanguageModel\n                scraped_web_page {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation CreateWebPageSummary(\n          $data: WebPageSummaryInput!\n          $locale: I18NLocaleCode!\n        ) {\n          createWebPageSummary(data: $data, locale: $locale) {\n            data {\n              id\n              attributes {\n                keywords\n                summary\n                largeLanguageModel\n                scraped_web_page {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation DeleteWebPageSummary($id: ID!) {\n          deleteWebPageSummary(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation DeleteWebPageSummary($id: ID!) {\n          deleteWebPageSummary(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
