@@ -1,18 +1,20 @@
-import { deleteSummary } from '@george-ai/strapi-client'
-
 export default {
-  async afterDeleteMany(event) {
-    for (const id of event.params?.where?.$and[0].id.$in) {
-      console.log('id: ', id)
-      const webPageSummaries = await strapi.entityService.findMany(
-        'api::web-page-summary.web-page-summary',
+  async beforeDeleteMany(event) {
+    for (const pageId of event.params?.where?.$and[0].id.$in) {
+      const webPage = await strapi.entityService.findOne(
+        event.model.uid,
+        pageId,
         {
-          'scraped_web_page.id': id,
+          populate: [event.model.columnToAttribute.web_page_summaries],
         },
       )
-      console.log('webPageSummaries: ', webPageSummaries)
-      for (const summary of webPageSummaries) {
-        await deleteSummary(summary.id)
+      const summaryIds = webPage.web_page_summaries.map((summary) => summary.id)
+
+      for (const id of summaryIds) {
+        await strapi.entityService.delete(
+          'api::web-page-summary.web-page-summary',
+          id,
+        )
       }
     }
   },

@@ -3,7 +3,6 @@ import {
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
-import { deleteFeedback } from '@george-ai/strapi-client'
 
 const transformAndUpsertSummary = async (id) => {
   const webPageSummaryResult = await strapi.entityService.findOne(
@@ -32,19 +31,27 @@ const transformAndUpsertSummary = async (id) => {
   await upsertWebpageSummary(webPageSummary)
 }
 
-const deleteDocumentAndRelatedFeedbacks = async (id) => {
-  const summaryFeedbacks = await strapi.entityService.findMany(
-    'api::summary-feedback.summary-feedback',
+const deleteDocumentAndRelatedFeedbacks = async (summaryId) => {
+  const webPageSummary = await strapi.entityService.findOne(
+    'api::web-page-summary.web-page-summary',
+    summaryId,
     {
-      'web_page_summary.id': id,
+      populate: ['summary_feedbacks'],
     },
   )
 
-  for (const feedback of summaryFeedbacks) {
-    await deleteFeedback(feedback.id)
+  const feedbackIds = webPageSummary.summary_feedbacks.map(
+    (feedback) => feedback.id,
+  )
+
+  for (const id of feedbackIds) {
+    await strapi.entityService.delete(
+      'api::summary-feedback.summary-feedback',
+      id,
+    )
   }
 
-  await deleteDocument(id)
+  await deleteDocument(summaryId)
 }
 
 export default {
@@ -56,13 +63,15 @@ export default {
     await transformAndUpsertSummary(event.result.id)
   },
 
-  async afterDeleteMany(event) {
+  async beforeDeleteMany(event) {
+    console.log('beforeDeleteMany:', event.params?.where?.$and[0].id.$in)
     for (const id of event.params?.where?.$and[0].id.$in) {
       await deleteDocumentAndRelatedFeedbacks(id)
     }
   },
 
-  async afterDelete(event) {
-    await deleteDocumentAndRelatedFeedbacks(event.result.id)
+  async beforeDelete(event) {
+    console.log('beforeDelete:', event.params.where.id)
+    await deleteDocumentAndRelatedFeedbacks(event.params.where.id)
   },
 }
