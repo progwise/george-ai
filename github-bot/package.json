@@ -1,0 +1,11 @@
+{
+  "name": "github-bot",
+  "main": "index.ts",
+  "version": "1.0.0",
+  "scripts": {
+    "start-bot": "probot run github-bot/index.ts"
+  },
+  "dependencies": {
+    "probot": "^12.3.1"
+  }
+}
