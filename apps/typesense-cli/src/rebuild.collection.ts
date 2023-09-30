@@ -21,14 +21,14 @@ const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
 
   const popularity = computeFeedbackPopularity(votes)
 
+  const parsedKeywords =
+    webPageSummaryEntity.attributes?.keywords &&
+    JSON.parse(webPageSummaryEntity.attributes?.keywords)
+
   const webPageSummary = {
     id: webPageSummaryEntity.id ?? '',
     language: webPageSummaryEntity.attributes?.locale ?? '',
-    keywords:
-      webPageSummaryEntity.attributes?.keywords &&
-      isStringArray(JSON.parse(webPageSummaryEntity.attributes?.keywords))
-        ? JSON.parse(webPageSummaryEntity.attributes?.keywords)
-        : [],
+    keywords: isStringArray(parsedKeywords) ? parsedKeywords : [],
     summary: webPageSummaryEntity.attributes?.summary ?? '',
     largeLanguageModel:
       webPageSummaryEntity.attributes?.largeLanguageModel ?? '',
