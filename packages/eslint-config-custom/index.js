@@ -7,6 +7,14 @@ module.exports = {
       'error',
       { allowList: { props: true, Props: true } },
     ],
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'typeLike',
+        format: ['PascalCase'],
+      },
+    ],
   },
-  plugins: ['unicorn'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'unicorn'],
 }
