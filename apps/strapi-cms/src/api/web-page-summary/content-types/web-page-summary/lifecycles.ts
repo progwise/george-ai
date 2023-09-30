@@ -1,5 +1,5 @@
 import {
-  deletetDocument,
+  deleteDocument,
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
@@ -53,7 +53,7 @@ export default {
       for (const feedback of summaryFeedbacks) {
         await deleteFeedback(feedback.id)
       }
-      await deletetDocument(id)
+      await deleteDocument(id)
     }
   },
 }
