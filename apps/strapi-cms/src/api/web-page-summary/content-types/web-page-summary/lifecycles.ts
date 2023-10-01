@@ -1,4 +1,5 @@
 import {
+  computeFeedbackPopularity,
   deleteDocument,
   ensureCollectionExists,
   upsertWebpageSummary,
@@ -14,6 +15,17 @@ const transformAndUpsertSummary = async (id) => {
     },
   )
 
+  const updatedAt = new Date(webPageSummaryResult.updatedAt)
+
+  const votes = (webPageSummaryResult.summary_feedbacks ?? [])
+    .filter((feedback) => {
+      const createdAt = new Date(feedback.createdAt)
+      return createdAt > updatedAt
+    })
+    .map((feedback) => feedback.voting)
+
+  const popularity = computeFeedbackPopularity(votes)
+
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),
     language: webPageSummaryResult.locale,
@@ -26,7 +38,7 @@ const transformAndUpsertSummary = async (id) => {
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
     publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
-    popularity: 0,
+    popularity,
   }
   await ensureCollectionExists()
   await upsertWebpageSummary(webPageSummary)
@@ -39,6 +51,12 @@ export default {
 
   async afterUpdate(event) {
     await transformAndUpsertSummary(event.result.id)
+  },
+
+  async afterUpdateMany(event) {
+    for (const id of event.params.where.id.$in) {
+      await transformAndUpsertSummary(id)
+    }
   },
 
   async afterDeleteMany(event) {
