@@ -1696,6 +1696,7 @@ __metadata:
     tailwindcss: 3.3.3
     typescript: ^5.2.2
     urql: ^4.0.5
+    xss: ^1.0.14
   languageName: unknown
   linkType: soft
 
@@ -19274,7 +19275,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xss@npm:^1.0.6, xss@npm:^1.0.8":
+"xss@npm:^1.0.14, xss@npm:^1.0.6, xss@npm:^1.0.8":
   version: 1.0.14
   resolution: "xss@npm:1.0.14"
   dependencies:
