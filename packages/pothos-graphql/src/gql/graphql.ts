@@ -1285,6 +1285,7 @@ export type WebPageSummary = {
   createdAt?: Maybe<Scalars['DateTime']['output']>
   keywords?: Maybe<Scalars['String']['output']>
   largeLanguageModel?: Maybe<Scalars['String']['output']>
+  lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
@@ -1330,6 +1331,7 @@ export type WebPageSummaryFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   keywords?: InputMaybe<StringFilterInput>
   largeLanguageModel?: InputMaybe<StringFilterInput>
+  lastScrapeUpdate?: InputMaybe<DateTimeFilterInput>
   locale?: InputMaybe<StringFilterInput>
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
@@ -1344,6 +1346,7 @@ export type WebPageSummaryFiltersInput = {
 export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>

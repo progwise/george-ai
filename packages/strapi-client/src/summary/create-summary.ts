@@ -6,6 +6,7 @@ export interface NewSummary {
   keywords: string
   largeLanguageModel: string
   scraped_web_page: string
+  lastScrapeUpdate: Date
 }
 
 export const createSummary = async (newSummary: NewSummary, locale: string) => {

@@ -4,7 +4,7 @@ import { upsertDocument } from '../documents/upsert-document.js'
 interface WebPageSummary {
   id: string
   language: string
-  keywords: string
+  keywords: string[]
   summary: string
   largeLanguageModel: string
   title: string
@@ -15,5 +15,9 @@ interface WebPageSummary {
 }
 
 export const upsertWebpageSummary = async (WebPageSummary: WebPageSummary) => {
-  await upsertDocument(summaryCollectionSchema, WebPageSummary)
+  await upsertDocument(
+    summaryCollectionSchema,
+    WebPageSummary,
+    WebPageSummary.id,
+  )
 }

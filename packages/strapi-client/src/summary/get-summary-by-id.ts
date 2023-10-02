@@ -1,12 +1,12 @@
 import { graphql } from '../gql/gql'
 import { strapiClient } from '../strapi-client'
 
-export const getAllSummaries = async () => {
+export const getSummariesById = async (id: string) => {
   try {
-    const { webPageSummaries } = await strapiClient.request(
+    const { webPageSummary } = await strapiClient.request(
       graphql(`
-        query GetWebPageSummaries {
-          webPageSummaries(publicationState: PREVIEW, locale: "all") {
+        query WebPageSummary($id: ID!) {
+          webPageSummary(id: $id) {
             data {
               id
               attributes {
@@ -38,9 +38,9 @@ export const getAllSummaries = async () => {
           }
         }
       `),
-      {},
+      { id },
     )
-    return webPageSummaries?.data
+    return webPageSummary?.data
   } catch (error) {
     console.error('Error while fetching WebPagesSummaries:', error)
     throw error

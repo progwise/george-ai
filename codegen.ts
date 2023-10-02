@@ -6,6 +6,7 @@ const projects = [
   'typesenseCli',
   'strapiClient',
   'nextjsWeb',
+  'typesenseClient',
 ]
 
 projects.forEach((project) => {

@@ -1286,6 +1286,7 @@ export type WebPageSummary = {
   createdAt?: Maybe<Scalars['DateTime']['output']>
   keywords?: Maybe<Scalars['String']['output']>
   largeLanguageModel?: Maybe<Scalars['String']['output']>
+  lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
@@ -1331,6 +1332,7 @@ export type WebPageSummaryFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   keywords?: InputMaybe<StringFilterInput>
   largeLanguageModel?: InputMaybe<StringFilterInput>
+  lastScrapeUpdate?: InputMaybe<DateTimeFilterInput>
   locale?: InputMaybe<StringFilterInput>
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
@@ -1345,6 +1347,7 @@ export type WebPageSummaryFiltersInput = {
 export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
@@ -1556,7 +1559,7 @@ export type GetWebPageSummariesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
-        updatedAt?: any | null
+        lastScrapeUpdate?: any | null
         locale?: string | null
         keywords?: string | null
         summary?: string | null
@@ -1587,6 +1590,53 @@ export type GetWebPageSummariesQuery = {
         } | null
       } | null
     }>
+  } | null
+}
+
+export type WebPageSummaryQueryVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type WebPageSummaryQuery = {
+  __typename?: 'Query'
+  webPageSummary?: {
+    __typename?: 'WebPageSummaryEntityResponse'
+    data?: {
+      __typename?: 'WebPageSummaryEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'WebPageSummary'
+        lastScrapeUpdate?: any | null
+        locale?: string | null
+        keywords?: string | null
+        summary?: string | null
+        largeLanguageModel?: string | null
+        publishedAt?: any | null
+        summary_feedbacks?: {
+          __typename?: 'SummaryFeedbackRelationResponseCollection'
+          data: Array<{
+            __typename?: 'SummaryFeedbackEntity'
+            attributes?: {
+              __typename?: 'SummaryFeedback'
+              createdAt?: any | null
+              voting?: Enum_Summaryfeedback_Voting | null
+            } | null
+          }>
+        } | null
+        scraped_web_page?: {
+          __typename?: 'ScrapedWebPageEntityResponse'
+          data?: {
+            __typename?: 'ScrapedWebPageEntity'
+            attributes?: {
+              __typename?: 'ScrapedWebPage'
+              title?: string | null
+              url?: string | null
+              originalContent?: string | null
+            } | null
+          } | null
+        } | null
+      } | null
+    } | null
   } | null
 }
 
@@ -2590,7 +2640,7 @@ export const GetWebPageSummariesDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'updatedAt' },
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
                             },
                             {
                               kind: 'Field',
@@ -2730,6 +2780,194 @@ export const GetWebPageSummariesDocument = {
   GetWebPageSummariesQuery,
   GetWebPageSummariesQueryVariables
 >
+export const WebPageSummaryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'WebPageSummary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'webPageSummary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'locale' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'keywords' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'summary' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'largeLanguageModel',
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'publishedAt' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'summary_feedbacks',
+                              },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'createdAt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'voting',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'scraped_web_page' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'title',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'url',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'originalContent',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WebPageSummaryQuery, WebPageSummaryQueryVariables>
 export const GetWebPageSummariesByLanguageModelAndUrlDocument = {
   kind: 'Document',
   definitions: [
