@@ -10,7 +10,7 @@ export const Header = () => {
         height={100}
       />
       <div className="flex flex-col">
-        <span className="font-bold text-xl">George AI</span>
+        <h1 className="font-bold text-xl">George AI</h1>
         <span>Liest und analysiert das Intranet - zu Ihren Diensten...</span>
       </div>
     </div>
