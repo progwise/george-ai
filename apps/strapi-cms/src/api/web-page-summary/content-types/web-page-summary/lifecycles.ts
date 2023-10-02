@@ -6,9 +6,9 @@ import {
 import { deleteFeedback, getSummariesById } from '@george-ai/strapi-client'
 
 const getSummaryAndUpsert = async (id) => {
-  const webPageSummaryResult = await getSummariesById(id)
+  const webPageSummary = await getSummariesById(id)
   await ensureCollectionExists()
-  await transformAndUpsertSummary(webPageSummaryResult)
+  await transformAndUpsertSummary(webPageSummary)
 }
 
 export default {

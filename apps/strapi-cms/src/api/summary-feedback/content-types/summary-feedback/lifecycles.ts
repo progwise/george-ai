@@ -12,7 +12,7 @@ const getSummaryAndUpsert = async (id) => {
 
 export default {
   async afterCreate(event) {
-    const summaryFeedbackResult = await strapi.entityService.findOne(
+    const summaryFeedback = await strapi.entityService.findOne(
       'api::summary-feedback.summary-feedback',
       event.result.id,
       {
@@ -20,6 +20,6 @@ export default {
       },
     )
 
-    await getSummaryAndUpsert(summaryFeedbackResult.web_page_summary.id)
+    await getSummaryAndUpsert(summaryFeedback.web_page_summary.id)
   },
 }

@@ -6,13 +6,13 @@ import pMap from 'p-map'
 import { getAllSummaries } from '@george-ai/strapi-client'
 
 export const rebuildCollection = async () => {
-  const webPageSummaryArray = (await getAllSummaries()) || []
+  const AllWebPageSummaries = (await getAllSummaries()) || []
 
   await ensureCollectionExists()
   await pMap(
-    webPageSummaryArray,
-    async (webPageSummaryEntity) => {
-      await transformAndUpsertSummary(webPageSummaryEntity)
+    AllWebPageSummaries,
+    async (webPageSummary) => {
+      await transformAndUpsertSummary(webPageSummary)
     },
     { concurrency: 10 },
   )
