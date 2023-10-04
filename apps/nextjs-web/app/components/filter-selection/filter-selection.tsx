@@ -17,7 +17,7 @@ export const FilterSelection = async ({
   status,
   llm,
 }: FilterSelectionProps) => {
-  const result = await getClient().query(
+  const { data } = await getClient().query(
     graphql(`
       query GetLangAndLlm {
         searchFilters {
@@ -29,7 +29,7 @@ export const FilterSelection = async ({
     `),
     {},
   )
-  const searchFilters = result.data?.searchFilters
+  const searchFilters = data?.searchFilters
 
   return (
     <div className="flex justify-end gap-3">
@@ -42,6 +42,15 @@ export const FilterSelection = async ({
             filter="status"
           />
         ))}
+      {shouldDisplayFilter(searchFilters?.publicationState) &&
+        shouldDisplayFilter(searchFilters?.language) && (
+          <div className="divider">|</div>
+        )}
+      {shouldDisplayFilter(searchFilters?.publicationState) &&
+        !shouldDisplayFilter(searchFilters?.language) &&
+        shouldDisplayFilter(searchFilters?.largeLanguageModel) && (
+          <div className="divider">|</div>
+        )}
       {shouldDisplayFilter(searchFilters?.language) &&
         searchFilters?.language.map((language) => (
           <FilterCheckbox
@@ -51,6 +60,10 @@ export const FilterSelection = async ({
             filter="lang"
           />
         ))}
+      {shouldDisplayFilter(searchFilters?.language) &&
+        shouldDisplayFilter(searchFilters?.largeLanguageModel) && (
+          <div className="divider">|</div>
+        )}
       {shouldDisplayFilter(searchFilters?.largeLanguageModel) &&
         searchFilters?.largeLanguageModel.map((model) => (
           <FilterCheckbox
