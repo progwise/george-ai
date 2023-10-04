@@ -42,15 +42,14 @@ export const FilterSelection = async ({
             filter="status"
           />
         ))}
+
       {shouldDisplayFilter(searchFilters?.publicationState) &&
-        shouldDisplayFilter(searchFilters?.language) && (
-          <div className="divider">|</div>
-        )}
+        shouldDisplayFilter(searchFilters?.language) && <div>|</div>}
+
       {shouldDisplayFilter(searchFilters?.publicationState) &&
         !shouldDisplayFilter(searchFilters?.language) &&
-        shouldDisplayFilter(searchFilters?.largeLanguageModel) && (
-          <div className="divider">|</div>
-        )}
+        shouldDisplayFilter(searchFilters?.largeLanguageModel) && <div>|</div>}
+
       {shouldDisplayFilter(searchFilters?.language) &&
         searchFilters?.language.map((language) => (
           <FilterCheckbox
@@ -60,10 +59,10 @@ export const FilterSelection = async ({
             filter="lang"
           />
         ))}
+
       {shouldDisplayFilter(searchFilters?.language) &&
-        shouldDisplayFilter(searchFilters?.largeLanguageModel) && (
-          <div className="divider">|</div>
-        )}
+        shouldDisplayFilter(searchFilters?.largeLanguageModel) && <div>|</div>}
+
       {shouldDisplayFilter(searchFilters?.largeLanguageModel) &&
         searchFilters?.largeLanguageModel.map((model) => (
           <FilterCheckbox
