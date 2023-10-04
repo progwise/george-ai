@@ -81,35 +81,37 @@ const processPage = async (): Promise<void> => {
 
         const prompts = scraperConfig.prompts || []
 
-        const processPrompt = async (prompt: PromptType) => {
-          const summary =
-            (await getSummary(
-              scrapeResult.content,
-              JSON.parse(prompt.summaryPrompt || ''),
-            )) ?? ''
-          const keywords =
-            (await getKeywords(
-              scrapeResult.content,
-              JSON.parse(prompt.keywordPrompt || ''),
-            )) ?? []
+        await pMap(
+          prompts,
+          async (prompt: PromptType) => {
+            const summary =
+              (await getSummary(
+                scrapeResult.content,
+                JSON.parse(prompt.summaryPrompt || ''),
+              )) ?? ''
+            const keywords =
+              (await getKeywords(
+                scrapeResult.content,
+                JSON.parse(prompt.keywordPrompt || ''),
+              )) ?? []
 
-          const scrapeResultAndSummary = {
-            ...scrapeResult,
-            currentLanguage: prompt.locale ?? 'en',
-            summary,
-            keywords,
-            largeLanguageModel: prompt.llm ?? 'unspecified',
-          }
+            const scrapeResultAndSummary = {
+              ...scrapeResult,
+              currentLanguage: prompt.locale ?? 'en',
+              summary,
+              keywords,
+              largeLanguageModel: prompt.llm ?? 'unspecified',
+            }
 
-          if (createdScrapedWebPage?.id) {
-            await upsertWebPageSummary(
-              scrapeResultAndSummary,
-              createdScrapedWebPage.id,
-            )
-          }
-        }
-
-        await pMap(prompts, processPrompt, { concurrency: 2 })
+            if (createdScrapedWebPage?.id) {
+              await upsertWebPageSummary(
+                scrapeResultAndSummary,
+                createdScrapedWebPage.id,
+              )
+            }
+          },
+          { concurrency: 2 },
+        )
       } catch (error) {
         console.error(`error scraping ${currentUrl}:`, error)
       }
