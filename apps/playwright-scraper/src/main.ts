@@ -24,11 +24,8 @@ const processPage = async (): Promise<void> => {
     let urlsTodo = [{ url: startUrl, depth: 0 }]
 
     while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
-      const nextUrlTodo = urlsTodo.shift()
-      if (!nextUrlTodo) {
-        console.log('No more URLs to process')
-        break
-      }
+      const [nextUrlTodo, ...remainingUrls] = urlsTodo
+      urlsTodo = remainingUrls
 
       const { url: currentUrl, depth: currentDepth } = nextUrlTodo
       urlsDone.add(currentUrl)
