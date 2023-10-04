@@ -9,13 +9,6 @@ import {
 } from '@george-ai/strapi-client'
 import pMap from 'p-map'
 
-interface PromptType {
-  summaryPrompt: string | null | undefined
-  keywordPrompt: string | null | undefined
-  llm: string | null | undefined
-  locale: string | null | undefined
-}
-
 const MAX_RUNS = 3 // Maximum number of runs
 
 const processPage = async (): Promise<void> => {
@@ -83,7 +76,7 @@ const processPage = async (): Promise<void> => {
 
         await pMap(
           prompts,
-          async (prompt: PromptType) => {
+          async (prompt) => {
             const summary =
               (await getSummary(
                 scrapeResult.content,
