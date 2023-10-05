@@ -1,9 +1,9 @@
-import { ScrapeResult } from '..'
 import { createSummary } from './create-summary'
 import { getSummaryId } from './get-summary-id'
 import { updateSummary } from './update-summary'
 
-interface ScrapeResultAndSummary extends ScrapeResult {
+interface ScrapedUrlAndSummary {
+  url: string
   summary: string
   keywords: string[]
   largeLanguageModel: string
@@ -11,23 +11,23 @@ interface ScrapeResultAndSummary extends ScrapeResult {
 }
 
 export const upsertWebPageSummary = async (
-  scrapeResultAndSummary: ScrapeResultAndSummary,
-  ScrapedWebPageId: string,
+  scrapedUrlAndSummary: ScrapedUrlAndSummary,
+  scrapedWebPageId: string,
 ) => {
   const newSummary = {
-    summary: scrapeResultAndSummary.summary,
-    keywords: JSON.stringify(scrapeResultAndSummary.keywords),
-    largeLanguageModel: scrapeResultAndSummary.largeLanguageModel,
-    scraped_web_page: ScrapedWebPageId,
+    summary: scrapedUrlAndSummary.summary,
+    keywords: JSON.stringify(scrapedUrlAndSummary.keywords),
+    largeLanguageModel: scrapedUrlAndSummary.largeLanguageModel,
+    scraped_web_page: scrapedWebPageId,
   }
 
   const webPageSummaryId = await getSummaryId(
-    scrapeResultAndSummary.largeLanguageModel,
-    scrapeResultAndSummary.url,
-    scrapeResultAndSummary.currentLanguage,
+    scrapedUrlAndSummary.largeLanguageModel,
+    scrapedUrlAndSummary.url,
+    scrapedUrlAndSummary.currentLanguage,
   )
 
   webPageSummaryId
     ? await updateSummary(newSummary, webPageSummaryId)
-    : await createSummary(newSummary, scrapeResultAndSummary.currentLanguage)
+    : await createSummary(newSummary, scrapedUrlAndSummary.currentLanguage)
 }

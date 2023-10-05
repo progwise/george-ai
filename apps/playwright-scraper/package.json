@@ -21,6 +21,7 @@
     "graphql-tag": "^2.12.6",
     "openai": "^3.3.0",
     "playwright-chromium": "^1.36.1",
+    "pmap": "^2.0.0",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {

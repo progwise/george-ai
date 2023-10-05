@@ -2,20 +2,21 @@ import playwright from 'playwright-chromium'
 import { getKeywords, getSummary } from './chat-gpt'
 import { scrapePage } from './scrape.js'
 import {
+  getAllScrapedPages,
   getOrCreateScrapedWebPage,
   getScraperConfiguration,
   getStrapiLocales,
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
+import pMap from 'p-map'
 
-const MAX_RUNS = 3 // Maximum number of runs
+const MAX_URLS_DONE = 10 // Maximum number of runs
 
 const processPage = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
   const scraperConfigurations = (await getScraperConfiguration()) || []
   const supportedLocales = new Set(await getStrapiLocales())
-  let runCounter = 0 // Counter
 
   for (const scraperConfig of scraperConfigurations) {
     const startUrl = scraperConfig.startUrl!
@@ -23,89 +24,130 @@ const processPage = async (): Promise<void> => {
     const urlsDone = new Set<string>()
     let urlsTodo = [{ url: startUrl, depth: 0 }]
 
-    while (urlsTodo.length > 0 && runCounter < MAX_RUNS) {
-      const nextUrlTodo = urlsTodo.shift()
-      if (!nextUrlTodo) {
-        console.log('No more URLs to process')
-        break
-      }
-
-      const { url: currentUrl, depth: currentDepth } = nextUrlTodo
-      urlsDone.add(currentUrl)
-
-      console.log(`scraping ${currentUrl}`)
-
-      try {
-        const scrapeResult = await scrapePage(currentUrl, context, currentDepth)
-
-        if (!scrapeResult.content) {
-          console.log(
-            `Skipping ${currentUrl}: No content was found on the page`,
-          )
-          continue
-        }
-
-        if (!supportedLocales.has(scrapeResult.scrapedLanguage)) {
-          console.log(
-            `Skipping ${currentUrl}: Unsupported locale ${
-              scrapeResult.scrapedLanguage
-            }. Supported: ${[...supportedLocales].join(', ')}`,
-          )
-          continue
-        }
-
-        if (currentDepth < maxDepth) {
-          const newUrls = scrapeResult.links.map((url) => ({
-            url,
-            depth: currentDepth + 1,
-          }))
-
-          urlsTodo = [
-            ...urlsTodo,
-            ...newUrls.filter(
-              ({ url }) =>
-                !urlsDone.has(url) && !urlsTodo.some((u) => u.url === url),
-            ),
-          ]
-        }
-        const createdScrapedWebPage =
-          await getOrCreateScrapedWebPage(scrapeResult)
-
-        const prompts = scraperConfig.prompts || []
-
-        for (const prompt of prompts) {
-          const summary =
-            (await getSummary(
-              scrapeResult.content,
-              JSON.parse(prompt.summaryPrompt || ''),
-            )) ?? ''
-          const keywords =
-            (await getKeywords(
-              scrapeResult.content,
-              JSON.parse(prompt.keywordPrompt || ''),
-            )) ?? []
-
-          const scrapeResultAndSummary = {
-            ...scrapeResult,
-            currentLanguage: prompt.locale ?? 'en',
-            summary,
-            keywords,
-            largeLanguageModel: prompt.llm ?? 'unspecified',
-          }
-
-          if (createdScrapedWebPage?.id) {
-            await upsertWebPageSummary(
-              scrapeResultAndSummary,
-              createdScrapedWebPage.id,
+    while (urlsTodo.length > 0 && urlsDone.size < MAX_URLS_DONE) {
+      const chunkOfUrls = urlsTodo.splice(0, 5)
+      await pMap(
+        chunkOfUrls,
+        async (urlTodo) => {
+          const { url: currentUrl, depth: currentDepth } = urlTodo
+          console.log(`scraping ${currentUrl}`)
+          try {
+            const scrapeResult = await scrapePage(
+              currentUrl,
+              context,
+              currentDepth,
             )
-          }
-        }
-      } catch (error) {
-        console.error(`error scraping ${currentUrl}:`, error)
-      }
+            if (!scrapeResult.content) {
+              return
+            }
 
-      runCounter++ // Increases the counter after each run
+            if (!supportedLocales.has(scrapeResult.scrapedLanguage)) {
+              return
+            }
+
+            if (currentDepth < maxDepth) {
+              const newUrls = scrapeResult.links.map((url) => ({
+                url,
+                depth: currentDepth + 1,
+              }))
+
+              for (const newUrl of newUrls) {
+                if (
+                  !urlsDone.has(newUrl.url) &&
+                  !urlsTodo.some((u) => u.url === newUrl.url)
+                ) {
+                  urlsTodo.push(newUrl)
+                }
+              }
+            }
+            const scrapedWebPageId =
+              await getOrCreateScrapedWebPage(scrapeResult)
+
+            const prompts = scraperConfig.prompts || []
+
+            await pMap(
+              prompts,
+              async (prompt) => {
+                const summary =
+                  (await getSummary(
+                    scrapeResult.content ?? '',
+                    JSON.parse(prompt.summaryPrompt || ''),
+                  )) ?? ''
+                const keywords =
+                  (await getKeywords(
+                    scrapeResult.content ?? '',
+                    JSON.parse(prompt.keywordPrompt || ''),
+                  )) ?? []
+                const ScrapedUrlAndSummary = {
+                  url: scrapeResult.url ?? '',
+                  summary,
+                  keywords,
+                  largeLanguageModel: prompt.llm ?? 'unspecified',
+                  currentLanguage: prompt.locale ?? 'en',
+                }
+                if (scrapedWebPageId?.id) {
+                  await upsertWebPageSummary(
+                    ScrapedUrlAndSummary,
+                    scrapedWebPageId.id,
+                  )
+                }
+              },
+              { concurrency: 2 },
+            )
+          } catch (error) {
+            console.error(`error scraping ${currentUrl}:`, error)
+          }
+        },
+        { concurrency: 5 },
+      )
+
+      for (const urlTodo of chunkOfUrls) {
+        urlsDone.add(urlTodo.url)
+      }
     }
+
+    // const scrapedWebPages = await getAllScrapedPages()
+
+    // const prompts = scraperConfig.prompts || []
+
+    // await pMap(
+    //   scrapedWebPages || [],
+    //   async (scrapedWebPage) => {
+    //     if (!scrapedWebPage.id) {
+    //       return
+    //     }
+    //     await pMap(
+    //       prompts,
+    //       async (prompt) => {
+    //         const summary =
+    //           (await getSummary(
+    //             scrapedWebPage?.attributes?.originalContent ?? '',
+    //             JSON.parse(prompt.summaryPrompt || ''),
+    //           )) ?? ''
+    //         const keywords =
+    //           (await getKeywords(
+    //             scrapedWebPage?.attributes?.originalContent ?? '',
+    //             JSON.parse(prompt.keywordPrompt || ''),
+    //           )) ?? []
+    //         const ScrapedUrlAndSummary = {
+    //           url: scrapedWebPage?.attributes?.url ?? '',
+    //           summary,
+    //           keywords,
+    //           largeLanguageModel: prompt.llm ?? 'unspecified',
+    //           currentLanguage: prompt.locale ?? 'en',
+    //         }
+    //         if (scrapedWebPage?.id) {
+    //           await upsertWebPageSummary(
+    //             ScrapedUrlAndSummary,
+    //             scrapedWebPage?.id,
+    //           )
+    //         }
+    //       },
+    //       { concurrency: 2 },
+    //     )
+    //   },
+    //   { concurrency: 6 },
+    // )
   }
   await browser.close()
 }

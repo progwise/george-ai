@@ -1504,6 +1504,26 @@ export type CreateScrapedWebPageMutation = {
   } | null
 }
 
+export type GetAllScrapedWebPagesQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetAllScrapedWebPagesQuery = {
+  __typename?: 'Query'
+  scrapedWebPages?: {
+    __typename?: 'ScrapedWebPageEntityResponseCollection'
+    data: Array<{
+      __typename?: 'ScrapedWebPageEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ScrapedWebPage'
+        originalContent?: string | null
+        url?: string | null
+      } | null
+    }>
+  } | null
+}
+
 export type GetScrapedWebPagesByUrlQueryVariables = Exact<{
   url: Scalars['String']['input']
 }>
@@ -2330,6 +2350,72 @@ export const CreateScrapedWebPageDocument = {
 } as unknown as DocumentNode<
   CreateScrapedWebPageMutation,
   CreateScrapedWebPageMutationVariables
+>
+export const GetAllScrapedWebPagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAllScrapedWebPages' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'scrapedWebPages' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: { kind: 'EnumValue', value: 'PREVIEW' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'all', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'originalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'url' },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetAllScrapedWebPagesQuery,
+  GetAllScrapedWebPagesQueryVariables
 >
 export const GetScrapedWebPagesByUrlDocument = {
   kind: 'Document',

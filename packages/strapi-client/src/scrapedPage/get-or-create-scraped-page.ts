@@ -1,7 +1,7 @@
 import { createdScrapedPage } from './created-scraped-page'
 import { getScrapedPageByUrl } from './get-scraped-page-by-url'
 
-export interface ScrapeResult {
+interface ScrapeResult {
   title: string
   url: string
   content: string
