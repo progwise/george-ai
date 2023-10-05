@@ -288,7 +288,6 @@ export type Mutation = {
   createPrompt?: Maybe<PromptEntityResponse>
   createPromptLocalization?: Maybe<PromptEntityResponse>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
-  createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
   createUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -354,13 +353,6 @@ export type MutationCreatePromptLocalizationArgs = {
 
 export type MutationCreateScrapedWebPageArgs = {
   data: ScrapedWebPageInput
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
-}
-
-export type MutationCreateScrapedWebPageLocalizationArgs = {
-  data?: InputMaybe<ScrapedWebPageInput>
-  id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationCreateSummaryFeedbackArgs = {
@@ -401,7 +393,6 @@ export type MutationDeletePromptArgs = {
 
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationDeleteSummaryFeedbackArgs = {
@@ -476,7 +467,6 @@ export type MutationUpdatePromptArgs = {
 export type MutationUpdateScrapedWebPageArgs = {
   data: ScrapedWebPageInput
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationUpdateScraperConfigurationArgs = {
@@ -652,14 +642,11 @@ export type QueryPromptsArgs = {
 
 export type QueryScrapedWebPageArgs = {
   id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type QueryScrapedWebPagesArgs = {
   filters?: InputMaybe<ScrapedWebPageFiltersInput>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
-  publicationState?: InputMaybe<PublicationState>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -734,21 +721,11 @@ export type ResponseCollectionMeta = {
 export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  locale?: Maybe<Scalars['String']['output']>
-  localizations?: Maybe<ScrapedWebPageRelationResponseCollection>
   originalContent?: Maybe<Scalars['String']['output']>
-  publishedAt?: Maybe<Scalars['DateTime']['output']>
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
   web_page_summaries?: Maybe<WebPageSummaryRelationResponseCollection>
-}
-
-export type ScrapedWebPageLocalizationsArgs = {
-  filters?: InputMaybe<ScrapedWebPageFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  publicationState?: InputMaybe<PublicationState>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type ScrapedWebPageWeb_Page_SummariesArgs = {
@@ -779,12 +756,9 @@ export type ScrapedWebPageFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
-  locale?: InputMaybe<StringFilterInput>
-  localizations?: InputMaybe<ScrapedWebPageFiltersInput>
   not?: InputMaybe<ScrapedWebPageFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   originalContent?: InputMaybe<StringFilterInput>
-  publishedAt?: InputMaybe<DateTimeFilterInput>
   title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   url?: InputMaybe<StringFilterInput>
@@ -793,15 +767,9 @@ export type ScrapedWebPageFiltersInput = {
 
 export type ScrapedWebPageInput = {
   originalContent?: InputMaybe<Scalars['String']['input']>
-  publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   title?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
   web_page_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
-}
-
-export type ScrapedWebPageRelationResponseCollection = {
-  __typename?: 'ScrapedWebPageRelationResponseCollection'
-  data: Array<ScrapedWebPageEntity>
 }
 
 export type ScraperConfiguration = {
