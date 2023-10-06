@@ -33,7 +33,6 @@ export const searchWebPageDocuments = async (
         sort_by: 'popularity:desc,_text_match:desc',
       })
 
-    console.log('esponse.hits:', response.hits?.map((hit) => hit.document))
     return response.hits?.map((hit) => hit.document)
   } catch (error) {
     console.error(

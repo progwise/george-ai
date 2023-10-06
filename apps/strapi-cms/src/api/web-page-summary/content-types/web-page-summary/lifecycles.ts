@@ -15,6 +15,7 @@ export default {
       await transformAndUpsertSummary(id)
     }
   },
+
   async afterDeleteMany(event) {
     for (const id of event.params?.where?.$and[0].id.$in) {
       const summaryFeedbacks = await strapi.entityService.findMany(
