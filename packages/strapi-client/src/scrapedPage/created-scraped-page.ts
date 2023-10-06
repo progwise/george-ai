@@ -5,16 +5,12 @@ export const createdScrapedPage = async (
   title: string,
   originalContent: string,
   url: string,
-  locale: string,
 ) => {
   try {
     const { createScrapedWebPage } = await strapiClient.request(
       graphql(`
-        mutation CreateScrapedWebPage(
-          $data: ScrapedWebPageInput!
-          $locale: I18NLocaleCode!
-        ) {
-          createScrapedWebPage(data: $data, locale: $locale) {
+        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {
+          createScrapedWebPage(data: $data) {
             data {
               id
               attributes {
@@ -32,7 +28,6 @@ export const createdScrapedPage = async (
           originalContent,
           url,
         },
-        locale,
       },
     )
 
