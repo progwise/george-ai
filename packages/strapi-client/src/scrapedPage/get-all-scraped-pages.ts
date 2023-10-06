@@ -6,7 +6,7 @@ export const getAllScrapedPages = async () => {
     const { scrapedWebPages } = await strapiClient.request(
       graphql(`
         query GetAllScrapedWebPages {
-          scrapedWebPages(publicationState: PREVIEW, locale: "all") {
+          scrapedWebPages {
             data {
               id
               attributes {
@@ -19,7 +19,6 @@ export const getAllScrapedPages = async () => {
       `),
       {},
     )
-
     return scrapedWebPages?.data
   } catch (error) {
     console.error('Error while fetching ScrapedWebPages:', error)

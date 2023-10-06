@@ -9,6 +9,7 @@ import {
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
 import pMap from 'p-map'
+import pMap from 'p-map'
 
 const MAX_URLS_DONE = 10 // Maximum number of runs
 

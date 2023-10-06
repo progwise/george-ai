@@ -20,7 +20,6 @@ export const getOrCreateScrapedWebPage = async (scrapeResult: ScrapeResult) => {
     scrapeResult.title,
     scrapeResult.content,
     scrapeResult.url,
-    scrapeResult.scrapedLanguage,
   )
 
   return scrapedWebPage

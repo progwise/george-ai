@@ -39,9 +39,15 @@ export const getSummary = async (content: string, summaryPrompt: string[]) => {
 
 export const getKeywords = async (content: string, keywordPrompt: string[]) => {
   const response = await createChatCompletion(content, keywordPrompt)
+  if (!response) {
+    return []
+  }
+  const keywords =
+    /^\d+\./.test(response) || /^-\s/.test(response)
+      ? response.split('\n')
+      : response.split(',')
 
-  return response
-    ?.split(',')
-    .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
+  return keywords
+    .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,$/, '').trim())
     .slice(0, 10)
 }

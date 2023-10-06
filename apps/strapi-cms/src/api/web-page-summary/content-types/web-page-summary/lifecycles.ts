@@ -4,7 +4,6 @@ import {
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
-import { deleteFeedback } from '@george-ai/strapi-client'
 
 const transformAndUpsertSummary = async (id) => {
   const webPageSummaryResult = await strapi.entityService.findOne(
@@ -69,7 +68,7 @@ export default {
       )
 
       for (const feedback of summaryFeedbacks) {
-        await deleteFeedback(feedback.id)
+        await strapi.entityService.delete(feedback.id)
       }
       await deleteDocument(id)
     }
