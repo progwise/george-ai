@@ -1,6 +1,6 @@
 export * from './collections/delete-collection.js'
 export * from './collections/ensure-collection-exists.js'
+export * from './collections/upsert-webpagesummary.js'
 export * from './documents/delete-document.js'
 export * from './documents/search-web-page-documents.js'
 export * from './utilities/fetch-grouped-values.js'
-export * from './utilities/transform-and-upsert-summary.js'

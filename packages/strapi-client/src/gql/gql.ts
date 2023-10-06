@@ -19,8 +19,6 @@ const documents = {
     types.GetScraperConfigurationDocument,
   '\n        mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {\n          createSummaryFeedback(data: $input) {\n            data {\n              id\n              attributes {\n                position\n                query\n                voting\n                web_page_summary {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.CreateSummaryFeedbackDocument,
-  '\n        mutation DeleteSummaryFeedback($id: ID!) {\n          deleteSummaryFeedback(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ':
-    types.DeleteSummaryFeedbackDocument,
   '\n        mutation CreatePrompt(\n          $locale: I18NLocaleCode!\n          $summaryPrompt: String!\n          $keywordPrompt: String!\n          $llm: String!\n        ) {\n          createPrompt(\n            locale: $locale\n            data: {\n              summaryPrompt: $summaryPrompt\n              keywordPrompt: $keywordPrompt\n              llm: $llm\n              isDefaultPrompt: true\n            }\n          ) {\n            data {\n              id\n            }\n          }\n        }\n      ':
     types.CreatePromptDocument,
   '\n        mutation DeletePrompt($id: ID!) {\n          deletePrompt(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ':
@@ -75,12 +73,6 @@ export function graphql(
 export function graphql(
   source: '\n        mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {\n          createSummaryFeedback(data: $input) {\n            data {\n              id\n              attributes {\n                position\n                query\n                voting\n                web_page_summary {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {\n          createSummaryFeedback(data: $input) {\n            data {\n              id\n              attributes {\n                position\n                query\n                voting\n                web_page_summary {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation DeleteSummaryFeedback($id: ID!) {\n          deleteSummaryFeedback(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation DeleteSummaryFeedback($id: ID!) {\n          deleteSummaryFeedback(id: $id) {\n            data {\n              id\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

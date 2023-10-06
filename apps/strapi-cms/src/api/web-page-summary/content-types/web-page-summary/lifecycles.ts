@@ -1,31 +1,20 @@
-import {
-  deleteDocument,
-  ensureCollectionExists,
-  transformAndUpsertSummary,
-} from '@george-ai/typesense-client'
-import { deleteFeedback, getSummariesById } from '@george-ai/strapi-client'
-
-const getSummaryAndUpsert = async (id) => {
-  const webPageSummary = await getSummariesById(id)
-  await ensureCollectionExists()
-  await transformAndUpsertSummary(webPageSummary)
-}
+import { deleteDocument } from '@george-ai/typesense-client'
+import { transformAndUpsertSummary } from '../../../../transform-and-upsert-summary'
 
 export default {
   async afterCreate(event) {
-    await getSummaryAndUpsert(event.result.id)
+    await transformAndUpsertSummary(event.result.id)
   },
 
   async afterUpdate(event) {
-    await getSummaryAndUpsert(event.result.id)
+    await transformAndUpsertSummary(event.result.id)
   },
 
   async afterUpdateMany(event) {
     for (const id of event.params.where.id.$in) {
-      await getSummaryAndUpsert(id)
+      await transformAndUpsertSummary(id)
     }
   },
-
   async afterDeleteMany(event) {
     for (const id of event.params?.where?.$and[0].id.$in) {
       const summaryFeedbacks = await strapi.entityService.findMany(
@@ -36,7 +25,7 @@ export default {
       )
 
       for (const feedback of summaryFeedbacks) {
-        await deleteFeedback(feedback.id)
+        await strapi.entityService.delete(feedback.id)
       }
       await deleteDocument(id)
     }

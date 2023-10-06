@@ -1,8 +1,5 @@
 import { graphql } from '../gql/gql'
-import {
-  CreateSummaryFeedbackMutation,
-  Enum_Summaryfeedback_Voting,
-} from '../gql/graphql'
+import { Enum_Summaryfeedback_Voting } from '../gql/graphql'
 import { strapiClient } from '../strapi-client'
 
 export const createFeedback = async (

@@ -25,44 +25,6 @@ module.exports = {
         },
       },
     },
-    playwrightScraper: {
-      schema: {
-        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
-          headers: {
-            Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-          },
-        },
-      },
-      extensions: {
-        codegen: {
-          hooks: { afterOneFileWrite: ['prettier --write'] },
-          generates: {
-            'apps/playwright-scraper/src/gql/': {
-              preset: 'client',
-            },
-          },
-        },
-      },
-    },
-    pothosGraphql: {
-      schema: {
-        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
-          headers: {
-            Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-          },
-        },
-      },
-      extensions: {
-        codegen: {
-          hooks: { afterOneFileWrite: ['prettier --write'] },
-          generates: {
-            'packages/pothos-graphql/src/gql/': {
-              preset: 'client',
-            },
-          },
-        },
-      },
-    },
     strapiClient: {
       schema: {
         [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
@@ -77,25 +39,6 @@ module.exports = {
           hooks: { afterOneFileWrite: ['prettier --write'] },
           generates: {
             'packages/strapi-client/src/gql/': {
-              preset: 'client',
-            },
-          },
-        },
-      },
-    },
-    typesenseClient: {
-      schema: {
-        [`http://${process.env.STRAPI_HOST}:1337/graphql`]: {
-          headers: {
-            Authorization: `Bearer ${process.env.STRAPI_API_KEY}`,
-          },
-        },
-      },
-      extensions: {
-        codegen: {
-          hooks: { afterOneFileWrite: ['prettier --write'] },
-          generates: {
-            'packages/typesense-client/src/gql/': {
               preset: 'client',
             },
           },
