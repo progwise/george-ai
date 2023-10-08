@@ -3,7 +3,9 @@ import { strapiClient } from '../strapi-client'
 
 export const updateScrapedPage = async (
   id: string,
+  title: string,
   originalContent: string,
+  prompts: string[],
 ) => {
   try {
     const { updateScrapedWebPage } = await strapiClient.request(
@@ -19,7 +21,9 @@ export const updateScrapedPage = async (
       {
         id,
         data: {
+          title,
           originalContent,
+          prompts,
         },
       },
     )

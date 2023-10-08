@@ -33,15 +33,15 @@ const aiForContent = async () => {
               scrapedWebPage.attributes?.originalContent ?? '',
               JSON.parse(prompt.attributes?.keywordPrompt || ''),
             )) ?? []
-          const ScrapedUrlAndSummary = {
-            url: scrapedWebPage.attributes?.url ?? '',
-            summary,
-            keywords,
-            largeLanguageModel: prompt.attributes?.llm ?? 'unspecified',
-            currentLanguage: prompt.attributes?.locale ?? 'en',
-          }
-          if (scrapedWebPage?.id) {
-            await upsertWebPageSummary(ScrapedUrlAndSummary, scrapedWebPage?.id)
+          if (scrapedWebPage.id) {
+            await upsertWebPageSummary(
+              scrapedWebPage.attributes?.url ?? '',
+              summary,
+              keywords,
+              prompt.attributes?.llm ?? 'unspecified',
+              prompt.attributes?.locale ?? 'en',
+              scrapedWebPage.id,
+            )
           }
         },
         { concurrency: 2 },

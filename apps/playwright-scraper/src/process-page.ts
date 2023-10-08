@@ -66,7 +66,12 @@ const processPage = async (): Promise<void> => {
                 }
               }
             }
-            await upsertScrapedWebPage(scrapeResult, scraperConfig.prompts)
+            await upsertScrapedWebPage(
+              scrapeResult.title,
+              scrapeResult.url,
+              scrapeResult.content,
+              scraperConfig.prompts,
+            )
           } catch (error) {
             console.error(`error scraping ${currentUrl}:`, error)
           }

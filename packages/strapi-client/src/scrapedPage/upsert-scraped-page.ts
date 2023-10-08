@@ -2,35 +2,22 @@ import { createScrapedPage } from './create-scraped-page'
 import { getScrapedPageByUrl } from './get-scraped-page-by-url'
 import { updateScrapedPage } from './update-scraped-page'
 
-interface ScrapeResult {
-  title: string
-  url: string
-  content: string
-  links: string[]
-  scrapedLanguage: string
-}
-
 export const upsertScrapedWebPage = async (
-  scrapeResult: ScrapeResult,
+  title: string,
+  url: string,
+  content: string,
   prompts: string[],
 ) => {
-  const currentScrapedWebPage = await getScrapedPageByUrl(scrapeResult.url)
+  const currentScrapedWebPage = await getScrapedPageByUrl(url)
 
   if (!currentScrapedWebPage?.id) {
-    await createScrapedPage(
-      scrapeResult.title,
-      scrapeResult.content,
-      scrapeResult.url,
-      prompts,
-    )
+    await createScrapedPage(title, content, url, prompts)
     return
   }
 
-  if (
-    scrapeResult.content === currentScrapedWebPage.attributes?.originalContent
-  ) {
+  if (content === currentScrapedWebPage.attributes?.originalContent) {
     return
   }
 
-  await updateScrapedPage(currentScrapedWebPage.id, scrapeResult.content)
+  await updateScrapedPage(currentScrapedWebPage.id, title, content, prompts)
 }
