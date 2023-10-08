@@ -9,6 +9,9 @@ export const getScrapedPageByUrl = async (url: string) => {
           scrapedWebPages(filters: { url: { eq: $url } }) {
             data {
               id
+              attributes {
+                originalContent
+              }
             }
           }
         }

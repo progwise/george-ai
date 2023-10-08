@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
   '\n        query GetAllLocales {\n          i18NLocales {\n            data {\n              id\n              attributes {\n                code\n              }\n            }\n          }\n        }\n      ':
     types.GetAllLocalesDocument,
-  '\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        attributes {\n                          summaryPrompt\n                          keywordPrompt\n                          llm\n                          locale\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ':
+  '\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        id\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ':
     types.GetScraperConfigurationDocument,
   '\n        mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {\n          createSummaryFeedback(data: $input) {\n            data {\n              id\n              attributes {\n                position\n                query\n                voting\n                web_page_summary {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.CreateSummaryFeedbackDocument,
@@ -29,10 +29,12 @@ const documents = {
     types.GetDefaultPromptsDocument,
   '\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n              attributes {\n                title\n                url\n                originalContent\n              }\n            }\n          }\n        }\n      ':
     types.CreateScrapedWebPageDocument,
-  '\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n              }\n            }\n          }\n        }\n      ':
+  '\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n                prompts {\n                  data {\n                    attributes {\n                      summaryPrompt\n                      keywordPrompt\n                      llm\n                      locale\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.GetAllScrapedWebPagesDocument,
-  '\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(filters: { url: { eq: $url } }) {\n            data {\n              id\n            }\n          }\n        }\n      ':
+  '\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(filters: { url: { eq: $url } }) {\n            data {\n              id\n              attributes {\n                originalContent\n              }\n            }\n          }\n        }\n      ':
     types.GetScrapedWebPagesByUrlDocument,
+  '\n        mutation UpdateScrapedWebPage($id: ID!, $data: ScrapedWebPageInput!) {\n          updateScrapedWebPage(id: $id, data: $data) {\n            data {\n              id\n            }\n          }\n        }\n      ':
+    types.UpdateScrapedWebPageDocument,
   '\n        mutation CreateWebPageSummary(\n          $data: WebPageSummaryInput!\n          $locale: I18NLocaleCode!\n        ) {\n          createWebPageSummary(data: $data, locale: $locale) {\n            data {\n              id\n              attributes {\n                keywords\n                summary\n                largeLanguageModel\n                scraped_web_page {\n                  data {\n                    id\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.CreateWebPageSummaryDocument,
   '\n        query GetWebPageSummaries {\n          webPageSummaries(publicationState: PREVIEW, locale: "all") {\n            data {\n              id\n              attributes {\n                updatedAt\n                locale\n                keywords\n                summary\n                largeLanguageModel\n                publishedAt\n                summary_feedbacks {\n                  data {\n                    attributes {\n                      createdAt\n                      voting\n                    }\n                  }\n                }\n                scraped_web_page {\n                  data {\n                    attributes {\n                      title\n                      url\n                      originalContent\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
@@ -67,8 +69,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        attributes {\n                          summaryPrompt\n                          keywordPrompt\n                          llm\n                          locale\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ',
-): (typeof documents)['\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        attributes {\n                          summaryPrompt\n                          keywordPrompt\n                          llm\n                          locale\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ']
+  source: '\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        id\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ',
+): (typeof documents)['\n          query GetScraperConfiguration {\n            scraperConfiguration {\n              data {\n                attributes {\n                  entryPoints {\n                    startUrl\n                    depth\n                    prompts {\n                      data {\n                        id\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -109,14 +111,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n              }\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n              }\n            }\n          }\n        }\n      ']
+  source: '\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n                prompts {\n                  data {\n                    attributes {\n                      summaryPrompt\n                      keywordPrompt\n                      llm\n                      locale\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n                prompts {\n                  data {\n                    attributes {\n                      summaryPrompt\n                      keywordPrompt\n                      llm\n                      locale\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(filters: { url: { eq: $url } }) {\n            data {\n              id\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(filters: { url: { eq: $url } }) {\n            data {\n              id\n            }\n          }\n        }\n      ']
+  source: '\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(filters: { url: { eq: $url } }) {\n            data {\n              id\n              attributes {\n                originalContent\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetScrapedWebPagesByUrl($url: String!) {\n          scrapedWebPages(filters: { url: { eq: $url } }) {\n            data {\n              id\n              attributes {\n                originalContent\n              }\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation UpdateScrapedWebPage($id: ID!, $data: ScrapedWebPageInput!) {\n          updateScrapedWebPage(id: $id, data: $data) {\n            data {\n              id\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation UpdateScrapedWebPage($id: ID!, $data: ScrapedWebPageInput!) {\n          updateScrapedWebPage(id: $id, data: $data) {\n            data {\n              id\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

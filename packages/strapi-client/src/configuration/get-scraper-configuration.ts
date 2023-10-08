@@ -15,12 +15,7 @@ export const getScraperConfiguration = async () => {
                     depth
                     prompts {
                       data {
-                        attributes {
-                          summaryPrompt
-                          keywordPrompt
-                          llm
-                          locale
-                        }
+                        id
                       }
                     }
                   }
@@ -37,12 +32,10 @@ export const getScraperConfiguration = async () => {
     const scraperConfiguration = entryPoints?.map((entry) => ({
       startUrl: entry?.startUrl,
       depth: entry?.depth,
-      prompts: entry?.prompts?.data.map((prompt) => ({
-        summaryPrompt: prompt.attributes?.summaryPrompt,
-        keywordPrompt: prompt.attributes?.keywordPrompt,
-        llm: prompt.attributes?.llm,
-        locale: prompt.attributes?.locale,
-      })),
+      prompts:
+        entry?.prompts?.data
+          .map((prompt) => prompt.id)
+          .filter((id): id is string => typeof id === 'string') || [],
     }))
 
     return scraperConfiguration

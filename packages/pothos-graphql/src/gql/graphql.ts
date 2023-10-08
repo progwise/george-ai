@@ -722,10 +722,17 @@ export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage'
   createdAt?: Maybe<Scalars['DateTime']['output']>
   originalContent?: Maybe<Scalars['String']['output']>
+  prompts?: Maybe<PromptRelationResponseCollection>
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
   web_page_summaries?: Maybe<WebPageSummaryRelationResponseCollection>
+}
+
+export type ScrapedWebPagePromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type ScrapedWebPageWeb_Page_SummariesArgs = {
@@ -759,6 +766,7 @@ export type ScrapedWebPageFiltersInput = {
   not?: InputMaybe<ScrapedWebPageFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   originalContent?: InputMaybe<StringFilterInput>
+  prompts?: InputMaybe<PromptFiltersInput>
   title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   url?: InputMaybe<StringFilterInput>
@@ -767,6 +775,7 @@ export type ScrapedWebPageFiltersInput = {
 
 export type ScrapedWebPageInput = {
   originalContent?: InputMaybe<Scalars['String']['input']>
+  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   title?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
   web_page_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>

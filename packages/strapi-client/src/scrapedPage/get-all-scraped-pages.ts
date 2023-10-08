@@ -12,6 +12,16 @@ export const getAllScrapedPages = async () => {
               attributes {
                 originalContent
                 url
+                prompts {
+                  data {
+                    attributes {
+                      summaryPrompt
+                      keywordPrompt
+                      llm
+                      locale
+                    }
+                  }
+                }
               }
             }
           }

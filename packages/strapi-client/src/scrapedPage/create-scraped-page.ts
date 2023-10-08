@@ -1,10 +1,11 @@
 import { graphql } from '../gql'
 import { strapiClient } from '../strapi-client'
 
-export const createdScrapedPage = async (
+export const createScrapedPage = async (
   title: string,
   originalContent: string,
   url: string,
+  prompts: string[],
 ) => {
   try {
     const { createScrapedWebPage } = await strapiClient.request(
@@ -27,6 +28,7 @@ export const createdScrapedPage = async (
           title,
           originalContent,
           url,
+          prompts,
         },
       },
     )
