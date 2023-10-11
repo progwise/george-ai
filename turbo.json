@@ -11,7 +11,7 @@
     },
     "test": {
       "dependsOn": ["build"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+      "inputs": ["src/**/*.test.tsx", "src/**/*.test.ts"]
     },
     "lint": {
       "inputs": [
