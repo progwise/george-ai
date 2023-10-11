@@ -1,6 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
+import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
 import { GetAllSummaries } from '..'
 import { Enum_Summaryfeedback_Voting } from '../gql/graphql'
 
@@ -8,7 +8,7 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
-test('fetches all summaries successfully', async () => {
+it('fetches all summaries successfully', async () => {
   const summaries = await GetAllSummaries()
   expect(summaries).toEqual([
     {
@@ -44,7 +44,7 @@ test('fetches all summaries successfully', async () => {
   ])
 })
 
-test('handles failure in fetching all summaries', async () => {
+it('handles failure in fetching all summaries', async () => {
   server.use(
     graphql.query('GetWebPageSummaries', (request, response, context) => {
       return response(context.errors([{ message: 'An error occurred' }]))

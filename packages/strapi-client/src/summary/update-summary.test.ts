@@ -1,6 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
+import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
 import { updateSummary } from './update-summary'
 import { NewSummary } from './create-summary'
 
@@ -15,11 +15,11 @@ const updateData: NewSummary = {
   scraped_web_page: '1',
 }
 
-test('updates web page summary successfully', async () => {
+it('updates web page summary successfully', async () => {
   await expect(updateSummary(updateData, '1')).resolves.not.toThrow()
 })
 
-test('handles failure in updating summary', async () => {
+it('handles failure in updating summary', async () => {
   server.use(
     graphql.mutation('UpdateWebPageSummary', (request, response, context) => {
       return response(context.errors([{ message: 'An error occurred' }]))
