@@ -2,13 +2,19 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import styles from './summary.module.css'
+import xss from 'xss'
 
 export const Summary = ({ summary }: { summary: string }) => {
   const [isExpand, setIsExpand] = useState(false)
+  const cleanHtml = xss(summary)
 
   return (
     <div className="flex items-start gap-2">
-      <span className={isExpand ? '' : 'line-clamp-3'}>{summary}</span>
+      <div
+        className={`${styles.summary} ${isExpand ? '' : 'line-clamp-3'}`}
+        dangerouslySetInnerHTML={{ __html: cleanHtml }}
+      />
       {/* <button onClick={() => setIsExpand(!isExpand)}> */}
       <Image
         src={`/${isExpand ? 'collapse' : 'expand'}-symbols.svg`}

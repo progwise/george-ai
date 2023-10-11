@@ -1,5 +1,6 @@
 import {
-  deletetDocument,
+  computeFeedbackPopularity,
+  deleteDocument,
   ensureCollectionExists,
   upsertWebpageSummary,
 } from '@george-ai/typesense-client'
@@ -14,6 +15,17 @@ const transformAndUpsertSummary = async (id) => {
     },
   )
 
+  const updatedAt = new Date(webPageSummaryResult.updatedAt)
+
+  const votes = (webPageSummaryResult.summary_feedbacks ?? [])
+    .filter((feedback) => {
+      const createdAt = new Date(feedback.createdAt)
+      return createdAt > updatedAt
+    })
+    .map((feedback) => feedback.voting)
+
+  const popularity = computeFeedbackPopularity(votes)
+
   const webPageSummary = {
     id: webPageSummaryResult.id.toString(),
     language: webPageSummaryResult.locale,
@@ -26,7 +38,7 @@ const transformAndUpsertSummary = async (id) => {
     url: webPageSummaryResult.scraped_web_page.url,
     originalContent: webPageSummaryResult.scraped_web_page.originalContent,
     publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
-    popularity: 0,
+    popularity,
   }
   await ensureCollectionExists()
   await upsertWebpageSummary(webPageSummary)
@@ -41,6 +53,12 @@ export default {
     await transformAndUpsertSummary(event.result.id)
   },
 
+  async afterUpdateMany(event) {
+    for (const id of event.params.where.id.$in) {
+      await transformAndUpsertSummary(id)
+    }
+  },
+
   async afterDeleteMany(event) {
     for (const id of event.params?.where?.$and[0].id.$in) {
       const summaryFeedbacks = await strapi.entityService.findMany(
@@ -53,7 +71,7 @@ export default {
       for (const feedback of summaryFeedbacks) {
         await deleteFeedback(feedback.id)
       }
-      await deletetDocument(id)
+      await deleteDocument(id)
     }
   },
 }
