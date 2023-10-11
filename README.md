@@ -18,34 +18,31 @@
 1. Clone the repository
 2. Run `yarn` at the root directory
 
-### Build Typesense-Client
-
-1. `cd packages/typesense-client`
-2. `yarn run build`
-
-### Run Strapi in Develop Mode
+### Configure Environment Files
 
 1. `cd apps/strapi-cms`
 2. `cp .env.example .env`
-3. `yarn run develop`
+   Repeat for other services (playwright-scraper, nextjs-web, typesense-cli)
+
+### Run Development Environment
+
+**Make sure all environment variables are properly set before starting the development environment.**
+
+Execute the following command at the root directory to start the development environment:
+
+```bash
+yarn run dev
+```
 
 ### Run Scraper
 
 1. `cd apps/playwright-scraper`
-2. `cp .env.example .env`
-3. `yarn run scrape`
-
-### Run Next.js Web App
-
-1. `cd apps/nextjs-web`
-2. `cp .env.example .env`
-3. `yarn run dev`
+2. `yarn run scrape`
 
 ### Run Typesense-CLI
 
 1. `cd apps/typesense-cli`
-2. `cp .env.example .env`
-3. `yarn run rebuildcollection`
+2. `yarn run rebuildcollection`
 
 ## Environment Variables
 
