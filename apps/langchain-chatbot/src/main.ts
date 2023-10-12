@@ -2,6 +2,10 @@ import { doConversation } from './do-conversation';
 import { SalesGPT } from './sales-gpt';
 import { llm } from './setup'
 
+import dotenv from 'dotenv'
+
+dotenv.config()
+
 console.log('This is langchain-chatbot - setup completed')
 
 const config = {
