@@ -34,18 +34,19 @@ export const getScraperConfiguration = async () => {
 
     const entryPoints =
       scraperConfigurationResponse?.data?.attributes?.entryPoints
-    const scraperConfiguration = entryPoints?.map((entry) => ({
-      startUrl: entry?.startUrl,
-      depth: entry?.depth,
-      prompts: entry?.prompts?.data.map((prompt) => ({
-        summaryPrompt: prompt.attributes?.summaryPrompt,
-        keywordPrompt: prompt.attributes?.keywordPrompt,
-        llm: prompt.attributes?.llm,
-        locale: prompt.attributes?.locale,
-      })),
-    }))
 
-    return scraperConfiguration
+    return (
+      entryPoints?.map((entry) => ({
+        startUrl: entry?.startUrl,
+        depth: entry?.depth,
+        prompts: entry?.prompts?.data.map((prompt) => ({
+          summaryPrompt: prompt.attributes?.summaryPrompt,
+          keywordPrompt: prompt.attributes?.keywordPrompt,
+          llm: prompt.attributes?.llm,
+          locale: prompt.attributes?.locale,
+        })),
+      })) ?? []
+    )
   } catch (error) {
     console.error('Error fetching ScraperConfiguration:', error)
     throw error

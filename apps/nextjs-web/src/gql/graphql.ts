@@ -66,12 +66,12 @@ export type QuerySearchResultArgs = {
 
 export type SummaryFeedbackReference = {
   __typename?: 'SummaryFeedbackReference'
-  repuest: Scalars['Boolean']['output']
+  id: Scalars['String']['output']
 }
 
 export enum SummaryFeedbackVoting {
-  Down = 'Down',
-  Up = 'Up',
+  Down = 'down',
+  Up = 'up',
 }
 
 export type SearchFilters = {
@@ -115,10 +115,7 @@ export type CreateSummaryFeedbackMutationVariables = Exact<{
 
 export type CreateSummaryFeedbackMutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: {
-    __typename?: 'SummaryFeedbackReference'
-    repuest: boolean
-  }
+  createSummaryFeedback: { __typename?: 'SummaryFeedbackReference'; id: string }
 }
 
 export type InfoCardFragment = {
@@ -334,7 +331,7 @@ export const CreateSummaryFeedbackDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'repuest' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
               ],
             },
           },

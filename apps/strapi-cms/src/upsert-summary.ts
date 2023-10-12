@@ -4,8 +4,7 @@ import {
 } from '@george-ai/typesense-client'
 import { getSummary } from './get-summary'
 
-export const upsertSummary = async (summaryId: string) => {
-  const webPageSummary = await getSummary(summaryId)
+export const upsertSummary = async (summaryId) => {
   const {
     id,
     lastScrapeUpdate,
@@ -18,7 +17,7 @@ export const upsertSummary = async (summaryId: string) => {
     title,
     url,
     originalContent,
-  } = webPageSummary
+  } = await getSummary(summaryId)
 
   const votes = feedbacks
     .filter((feedback) => feedback.createdAt > lastScrapeUpdate)
@@ -28,6 +27,7 @@ export const upsertSummary = async (summaryId: string) => {
   for (const vote of votes) {
     vote === 'up' ? (popularity += 1) : (popularity -= 1)
   }
+  console.log('popularity: ', popularity)
 
   const parsedKeywords = JSON.parse(keywords)
 

@@ -1,21 +1,15 @@
 import { builder } from '../builder'
 import { createFeedback } from '@george-ai/strapi-client'
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-enum Enum_Summaryfeedback_Voting {
-  Down = 'down',
-  Up = 'up',
-}
-
-const SummaryFeedbackVoting = builder.enumType(Enum_Summaryfeedback_Voting, {
-  name: 'SummaryFeedbackVoting',
+const SummaryFeedbackVoting = builder.enumType('SummaryFeedbackVoting', {
+  values: ['down', 'up'] as const,
 })
 
 const SummaryFeedbackReference = builder.simpleObject(
   'SummaryFeedbackReference',
   {
     fields: (t) => ({
-      repuest: t.boolean(),
+      id: t.string(),
     }),
   },
 )
@@ -41,13 +35,13 @@ builder.mutationField('createSummaryFeedback', (t) =>
       data: t.arg({ type: CreateSummaryFeedbackInput }),
     },
     resolve: async (parent, arguments_) => {
-      await createFeedback(
+      const feedbackId = await createFeedback(
         arguments_.data.position,
         arguments_.data.query,
         arguments_.data.voting,
         arguments_.data.webPageSummaryId,
       )
-      return { repuest: true }
+      return { id: feedbackId }
     },
   }),
 )

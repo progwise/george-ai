@@ -14,7 +14,7 @@ const MAX_RUNS = 2 // Maximum number of runs
 const processPage = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
-  const scraperConfigurations = (await getScraperConfiguration()) || []
+  const scraperConfigurations = await getScraperConfiguration()
   const supportedLocales = new Set(await getStrapiLocales())
   let runCounter = 0 // Counter
 

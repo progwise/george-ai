@@ -1,6 +1,6 @@
 import { PublicationState } from '@george-ai/typesense-client'
 
-export const getSummary = async (summaryId: string) => {
+export const getSummary = async (summaryId) => {
   const webPageSummary = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
     summaryId,

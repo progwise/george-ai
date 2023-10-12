@@ -47,7 +47,7 @@ export const FeedbackButtons = ({
                 query: $query
               }
             ) {
-              repuest
+              id
             }
           }
         `),
