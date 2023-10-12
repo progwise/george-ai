@@ -4,7 +4,7 @@ import {
 } from '@george-ai/typesense-client'
 import { getSummary } from './get-summary'
 
-export const upsertSummary = async (summaryId) => {
+export const upsertSummary = async ({ summaryId }) => {
   const {
     id,
     lastScrapeUpdate,

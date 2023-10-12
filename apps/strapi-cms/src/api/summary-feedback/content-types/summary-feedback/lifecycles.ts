@@ -9,7 +9,7 @@ const updateSummaryPopularity = async ({ feedBackId }) => {
     },
   )
 
-  await upsertSummary(summaryFeedbackResult.web_page_summary.id)
+  await upsertSummary({ summaryId: summaryFeedbackResult.web_page_summary.id })
 }
 
 export default {

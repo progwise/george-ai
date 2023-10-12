@@ -3,16 +3,16 @@ import { upsertSummary } from '../../../../upsert-summary'
 
 export default {
   async afterCreate(event) {
-    await upsertSummary(event.result.id)
+    await upsertSummary({ summaryId: event.result.id })
   },
 
   async afterUpdate(event) {
-    await upsertSummary(event.result.id)
+    await upsertSummary({ summaryId: event.result.id })
   },
 
   async afterUpdateMany(event) {
     for (const id of event.params.where.id.$in) {
-      await upsertSummary(id)
+      await upsertSummary({ summaryId: id })
     }
   },
 
