@@ -27,7 +27,6 @@ export const upsertSummary = async ({ summaryId }) => {
   for (const vote of votes) {
     vote === 'up' ? (popularity += 1) : (popularity -= 1)
   }
-  console.log('popularity: ', popularity)
 
   const parsedKeywords = JSON.parse(keywords)
 

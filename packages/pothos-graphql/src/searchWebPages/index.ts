@@ -1,7 +1,7 @@
 import { builder } from '../builder'
 import {
   WebPagesDocument,
-  searchWebPageDocuments,
+  searchSummaryDocuments,
   PublicationState,
 } from '@george-ai/typesense-client'
 
@@ -65,7 +65,7 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      return (await searchWebPageDocuments(arguments_.query, filters)) || []
+      return (await searchSummaryDocuments(arguments_.query, filters)) || []
     },
   }),
 )

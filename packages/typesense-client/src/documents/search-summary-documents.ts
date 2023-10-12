@@ -18,7 +18,7 @@ export type WebPagesDocument = {
   largeLanguageModel: string
 }
 
-export const searchWebPageDocuments = async (
+export const searchSummaryDocuments = async (
   query: string,
   filters: string[],
 ): Promise<WebPagesDocument[] | undefined> => {
