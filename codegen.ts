@@ -1,6 +1,6 @@
 const { execSync } = require('child_process')
 
-const projects = ['typesenseCli', 'strapiClient', 'nextjsWeb']
+const projects = ['strapiClient', 'nextjsWeb']
 
 projects.forEach((project) => {
   console.log(`Generating code for ${project}...`)

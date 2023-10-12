@@ -1,6 +1,6 @@
-import { transformAndUpsertSummary } from '../../../../transform-and-upsert-summary'
+import { upsertSummary } from '../../../../upsert-summary'
 
-const getSummaryAndUpsert = async (id) => {
+const updateSummaryPopularity = async (id) => {
   const summaryFeedbackResult = await strapi.entityService.findOne(
     'api::summary-feedback.summary-feedback',
     id,
@@ -9,11 +9,11 @@ const getSummaryAndUpsert = async (id) => {
     },
   )
 
-  await transformAndUpsertSummary(summaryFeedbackResult.web_page_summary.id)
+  await upsertSummary(summaryFeedbackResult.web_page_summary.id)
 }
 
 export default {
   async afterCreate(event) {
-    await getSummaryAndUpsert(event.result.id)
+    await updateSummaryPopularity(event.result.id)
   },
 }

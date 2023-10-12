@@ -1,18 +1,18 @@
-import { deleteDocument } from '@george-ai/typesense-client'
-import { transformAndUpsertSummary } from '../../../../transform-and-upsert-summary'
+import { deleteSummaryDocument } from '@george-ai/typesense-client'
+import { upsertSummary } from '../../../../upsert-summary'
 
 export default {
   async afterCreate(event) {
-    await transformAndUpsertSummary(event.result.id)
+    await upsertSummary(event.result.id)
   },
 
   async afterUpdate(event) {
-    await transformAndUpsertSummary(event.result.id)
+    await upsertSummary(event.result.id)
   },
 
   async afterUpdateMany(event) {
     for (const id of event.params.where.id.$in) {
-      await transformAndUpsertSummary(id)
+      await upsertSummary(id)
     }
   },
 
@@ -28,7 +28,7 @@ export default {
       for (const feedback of summaryFeedbacks) {
         await strapi.entityService.delete(feedback.id)
       }
-      await deleteDocument(id)
+      await deleteSummaryDocument(id)
     }
   },
 }
