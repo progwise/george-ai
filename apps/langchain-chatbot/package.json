@@ -5,7 +5,8 @@
   "scripts": {
     "tsc": "tsc",
     "lint": "eslint .",
-    "hi": "ts-node --esm --experimentalSpecifierResolution node src/main.ts"
+    "hi": "ts-node --esm --experimentalSpecifierResolution node src/main.ts",
+    "config": "ts-node --esm --experimentalSpecifierResolution node src/config.ts"
   },
   "keywords": [],
   "author": "",

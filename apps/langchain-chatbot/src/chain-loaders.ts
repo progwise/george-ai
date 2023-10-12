@@ -1,9 +1,15 @@
-import { PromptTemplate } from "langchain/prompts";
-import { LLMChain } from "langchain/chains";
-import { BaseLanguageModel } from "langchain/base_language";
+import { PromptTemplate } from 'langchain/prompts'
+import { LLMChain } from 'langchain/chains'
+import { BaseLanguageModel } from 'langchain/base_language'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 // Chain to analyze which conversation stage should the conversation move into.
-export function loadStageAnalyzerChain(llm: BaseLanguageModel, verbose: boolean = false) {
+export function loadStageAnalyzerChain(
+  llm: BaseLanguageModel,
+  verbose: boolean = false,
+) {
   const prompt = new PromptTemplate({
     template: `You are a sales assistant helping your sales agent to determine which stage of a sales conversation should the agent stay at or move to when talking to a user.
              Following '===' is the conversation history.
@@ -26,13 +32,16 @@ export function loadStageAnalyzerChain(llm: BaseLanguageModel, verbose: boolean 
              If there is no conversation history, output 1.
              The answer needs to be one number only, no words.
              Do not answer anything else nor add anything to you answer.`,
-    inputVariables:['conversation_history'],
-  });
-  return new LLMChain({ llm , prompt, verbose, });
+    inputVariables: ['conversation_history'],
+  })
+  return new LLMChain({ llm, prompt, verbose })
 }
 
 // Chain to generate the next utterance for the conversation.
-export function loadSalesConversationChain(llm: BaseLanguageModel, verbose: boolean = false) {
+export function loadSalesConversationChain(
+  llm: BaseLanguageModel,
+  verbose: boolean = false,
+) {
   const prompt = new PromptTemplate({
     template: `Never forget your name is {salesperson_name}. You work as a {salesperson_role}.
              You work at company named {company_name}. {company_name}'s business is the following: {company_business}.
@@ -72,17 +81,17 @@ export function loadSalesConversationChain(llm: BaseLanguageModel, verbose: bool
              Conversation history:
              {conversation_history}
              {salesperson_name}:`,
-    inputVariables:[
-      "salesperson_name",
-      "salesperson_role",
-      "company_name",
-      "company_business",
-      "company_values",
-      "conversation_purpose",
-      "conversation_type",
-      "conversation_stage",
-      "conversation_history"
+    inputVariables: [
+      'salesperson_name',
+      'salesperson_role',
+      'company_name',
+      'company_business',
+      'company_values',
+      'conversation_purpose',
+      'conversation_type',
+      'conversation_stage',
+      'conversation_history',
     ],
-  });
-  return new LLMChain({ llm , prompt, verbose });
+  })
+  return new LLMChain({ llm, prompt, verbose })
 }
