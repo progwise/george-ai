@@ -4,7 +4,13 @@ import {
 } from '@george-ai/typesense-client'
 import { getSummary } from './get-summary'
 
-export const upsertSummary = async ({ summaryId }) => {
+export const upsertSummary = async ({
+  summaryId,
+  excludeFeedbackId,
+}: {
+  summaryId: string
+  excludeFeedbackId?: string
+}) => {
   const {
     id,
     lastScrapeUpdate,
@@ -20,7 +26,11 @@ export const upsertSummary = async ({ summaryId }) => {
   } = await getSummary(summaryId)
 
   const votes = feedbacks
-    .filter((feedback) => feedback.createdAt > lastScrapeUpdate)
+    .filter(
+      (feedback) =>
+        feedback.createdAt > lastScrapeUpdate &&
+        feedback.feedbackId !== excludeFeedbackId,
+    )
     .map((feedback) => feedback.voting)
 
   let popularity = 0

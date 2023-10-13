@@ -28,6 +28,7 @@ export const getSummary = async (summaryId) => {
           feedbackData,
         ): feedbackData is {
           attributes: {
+            id
             voting
             createdAt
           }
@@ -37,8 +38,9 @@ export const getSummary = async (summaryId) => {
         },
       )
       .map((feedback) => {
-        const { voting, createdAt } = feedback
+        const { voting, createdAt, id: feedbackId } = feedback
         return {
+          feedbackId,
           createdAt: new Date(createdAt ?? 0),
           voting,
         }
