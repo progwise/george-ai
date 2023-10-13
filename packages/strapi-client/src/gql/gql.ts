@@ -27,7 +27,7 @@ const documents = {
     types.DeletePromptDocument,
   '\n        query GetDefaultPrompts {\n          prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n            data {\n              id\n            }\n          }\n        }\n      ':
     types.GetDefaultPromptsDocument,
-  '\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n              attributes {\n                title\n                url\n                originalContent\n              }\n            }\n          }\n        }\n      ':
+  '\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n            }\n          }\n        }\n      ':
     types.CreateScrapedWebPageDocument,
   '\n        query GetAllScrapedWebPages {\n          scrapedWebPages {\n            data {\n              id\n              attributes {\n                originalContent\n                url\n                prompts {\n                  data {\n                    attributes {\n                      summaryPrompt\n                      keywordPrompt\n                      llm\n                      locale\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      ':
     types.GetAllScrapedWebPagesDocument,
@@ -105,8 +105,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n              attributes {\n                title\n                url\n                originalContent\n              }\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n              attributes {\n                title\n                url\n                originalContent\n              }\n            }\n          }\n        }\n      ']
+  source: '\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n          createScrapedWebPage(data: $data) {\n            data {\n              id\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

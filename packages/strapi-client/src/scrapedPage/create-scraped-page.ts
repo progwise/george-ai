@@ -14,11 +14,6 @@ export const createScrapedPage = async (
           createScrapedWebPage(data: $data) {
             data {
               id
-              attributes {
-                title
-                url
-                originalContent
-              }
             }
           }
         }
@@ -37,8 +32,6 @@ export const createScrapedPage = async (
       'Created ScrapedWebPage with ID:',
       createScrapedWebPage?.data?.id,
     )
-
-    return createScrapedWebPage?.data
   } catch (error) {
     console.error('Error while creating ScrapedWebPage:', error)
     throw error

@@ -1458,16 +1458,7 @@ export type CreateScrapedWebPageMutation = {
   __typename?: 'Mutation'
   createScrapedWebPage?: {
     __typename?: 'ScrapedWebPageEntityResponse'
-    data?: {
-      __typename?: 'ScrapedWebPageEntity'
-      id?: string | null
-      attributes?: {
-        __typename?: 'ScrapedWebPage'
-        title?: string | null
-        url?: string | null
-        originalContent?: string | null
-      } | null
-    } | null
+    data?: { __typename?: 'ScrapedWebPageEntity'; id?: string | null } | null
   } | null
 }
 
@@ -2261,27 +2252,6 @@ export const CreateScrapedWebPageDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'title' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'url' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'originalContent' },
-                            },
-                          ],
-                        },
-                      },
                     ],
                   },
                 },

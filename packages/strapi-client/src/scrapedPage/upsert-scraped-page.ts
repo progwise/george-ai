@@ -8,16 +8,16 @@ export const upsertScrapedWebPage = async (
   content: string,
   prompts: string[],
 ) => {
-  const currentScrapedWebPage = await getScrapedPageByUrl(url)
+  const { id, originalContent } = await getScrapedPageByUrl(url)
 
-  if (!currentScrapedWebPage?.id) {
+  if (!id) {
     await createScrapedPage(title, content, url, prompts)
     return
   }
 
-  if (content === currentScrapedWebPage.attributes?.originalContent) {
+  if (content === originalContent) {
     return
   }
 
-  await updateScrapedPage(currentScrapedWebPage.id, title, content, prompts)
+  await updateScrapedPage(id, title, content, prompts)
 }

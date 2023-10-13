@@ -5,7 +5,7 @@ import {
 import pMap from 'p-map'
 import { getKeywords, getSummary } from './chat-gpt'
 
-const aiForContent = async () => {
+const createSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
   const scrapedWebPages = (await getAllScrapedPages()) || []
 
   if (scrapedWebPages?.length === 0) {
@@ -20,6 +20,9 @@ const aiForContent = async () => {
         return
       }
       const prompts = scrapedWebPage.attributes?.prompts?.data || []
+      if (prompts.length === 0) {
+        console.log('no prompts found')
+      }
       await pMap(
         prompts,
         async (prompt) => {
@@ -51,4 +54,4 @@ const aiForContent = async () => {
   )
 }
 
-await aiForContent()
+await createSummaryAndKeywordsForAllScrapedPagesAndSave()

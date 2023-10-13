@@ -19,7 +19,11 @@ export const getScrapedPageByUrl = async (url: string) => {
       { url },
     )
 
-    return scrapedWebPages?.data.at(0)
+    return {
+      id: scrapedWebPages?.data.at(0)?.id ?? '',
+      originalContent:
+        scrapedWebPages?.data.at(0)?.attributes?.originalContent ?? '',
+    }
   } catch (error) {
     console.error('Error while fetching ScrapedWebPages:', error)
     throw error

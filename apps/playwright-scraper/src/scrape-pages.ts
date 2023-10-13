@@ -10,7 +10,7 @@ import pMap from 'p-map'
 
 const MAX_URLS_DONE = 4 // Maximum number of runs
 
-const processPage = async (): Promise<void> => {
+const scrapePagesForAllConfigurationsAndUpsert = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
   const scraperConfigurations = (await getScraperConfiguration()) || []
@@ -87,4 +87,4 @@ const processPage = async (): Promise<void> => {
   await browser.close()
 }
 
-await processPage()
+await scrapePagesForAllConfigurationsAndUpsert()

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "scrape": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/process-page.ts",
-    "generatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/ai-for-content.ts",
+    "scrape": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/scrape-pages.ts",
+    "generatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/create-summaries.ts",
     "setdefaultprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/set-default-prompts.ts",
     "tsc": "tsc",
     "lint": "eslint ."
