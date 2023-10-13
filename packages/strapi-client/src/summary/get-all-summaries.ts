@@ -71,7 +71,10 @@ export const getAllSummaries = async () => {
         scraped_web_page,
       } = attributes
 
-      const feedbacks =
+      const feedbacks: {
+        createdAt: Date
+        voting: 'up' | 'down'
+      }[] =
         summary_feedbacks?.data
           .filter(
             (

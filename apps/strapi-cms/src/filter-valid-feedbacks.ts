@@ -1,10 +1,5 @@
-import { fetchWebPageSummary } from './fetch-web-page-summary'
-
-export const getFeedbacks = async (summaryId) => {
-  const { lastScrapeUpdate, summary_feedbacks } =
-    await fetchWebPageSummary(summaryId)
-
-  const feedbacks =
+export const filterValidFeedbacks = (summary_feedbacks) => {
+  return (
     summary_feedbacks
       .filter(
         (
@@ -28,9 +23,5 @@ export const getFeedbacks = async (summaryId) => {
           voting,
         }
       }) ?? []
-
-  return {
-    lastScrapeUpdate: new Date(lastScrapeUpdate ?? 0),
-    feedbacks,
-  }
+  )
 }
