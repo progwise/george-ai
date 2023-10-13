@@ -1,17 +1,8 @@
-import { PublicationState } from '@george-ai/typesense-client'
 import { fetchWebPageSummary } from './fetch-web-page-summary'
 
-export const getSummary = async (summaryId) => {
-  const {
-    lastScrapeUpdate,
-    locale,
-    keywords,
-    summary,
-    largeLanguageModel,
-    publishedAt,
-    summary_feedbacks,
-    scraped_web_page,
-  } = await fetchWebPageSummary(summaryId)
+export const getFeedbacks = async (summaryId) => {
+  const { lastScrapeUpdate, summary_feedbacks } =
+    await fetchWebPageSummary(summaryId)
 
   const feedbacks =
     summary_feedbacks
@@ -40,16 +31,6 @@ export const getSummary = async (summaryId) => {
 
   return {
     lastScrapeUpdate: new Date(lastScrapeUpdate ?? 0),
-    language: locale ?? '',
-    keywords: keywords ?? '',
-    summary: summary ?? '',
-    largeLanguageModel: largeLanguageModel ?? '',
-    publicationState: publishedAt
-      ? PublicationState.Published
-      : PublicationState.Draft,
     feedbacks,
-    title: scraped_web_page?.title ?? '',
-    url: scraped_web_page?.url ?? '',
-    originalContent: scraped_web_page?.originalContent ?? '',
   }
 }

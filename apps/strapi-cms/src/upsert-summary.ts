@@ -3,16 +3,10 @@ import {
   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 import { getSummary } from './get-summary'
+import { calculatePopularity } from './calculate-popularity'
 
-export const upsertSummary = async ({
-  summaryId,
-  excludeFeedbackId,
-}: {
-  summaryId: string
-  excludeFeedbackId?: string
-}) => {
+export const upsertSummary = async ({ summaryId }) => {
   const {
-    id,
     lastScrapeUpdate,
     language,
     keywords,
@@ -25,23 +19,10 @@ export const upsertSummary = async ({
     originalContent,
   } = await getSummary(summaryId)
 
-  const votes = feedbacks
-    .filter(
-      (feedback) =>
-        feedback.createdAt > lastScrapeUpdate &&
-        feedback.feedbackId !== excludeFeedbackId,
-    )
-    .map((feedback) => feedback.voting)
-
-  let popularity = 0
-  for (const vote of votes) {
-    vote === 'up' ? (popularity += 1) : (popularity -= 1)
-  }
-
   const parsedKeywords = JSON.parse(keywords)
 
   const summaryDocument = {
-    id,
+    id: summaryId.toString(),
     language,
     keywords: ((value: any): value is string[] =>
       Array.isArray(value) && value.every((item) => typeof item === 'string'))(
@@ -55,7 +36,7 @@ export const upsertSummary = async ({
     url,
     originalContent,
     publicationState,
-    popularity,
+    popularity: calculatePopularity(feedbacks, lastScrapeUpdate),
   }
 
   await ensureSummaryCollectionExists()
