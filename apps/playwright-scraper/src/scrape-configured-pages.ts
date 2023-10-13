@@ -1,5 +1,4 @@
 import playwright from 'playwright-chromium'
-import { getSummary } from './chat-gpt'
 import { scrapePage } from './scrape.js'
 import {
   upsertScrapedWebPage,
@@ -13,12 +12,12 @@ const MAX_URLS_DONE = 4 // Maximum number of runs
 const scrapePagesForAllConfigurationsAndUpsert = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
-  const scraperConfigurations = (await getScraperConfiguration()) || []
+  const scraperConfigurations = await getScraperConfiguration()
   const supportedLocales = new Set(await getStrapiLocales())
 
   for (const scraperConfig of scraperConfigurations) {
-    const startUrl = scraperConfig.startUrl!
-    const maxDepth = scraperConfig.depth ?? 0
+    const startUrl = scraperConfig.startUrl
+    const maxDepth = scraperConfig.depth
     const urlsDone = new Set<string>()
     let urlsTodo = [{ url: startUrl, depth: 0 }]
 

@@ -34,7 +34,7 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
 }
 
 export const getSummary = async (content: string, summaryPrompt: string[]) => {
-  return await createChatCompletion(content, summaryPrompt)
+  return (await createChatCompletion(content, summaryPrompt)) ?? ''
 }
 
 export const getKeywords = async (content: string, keywordPrompt: string[]) => {
