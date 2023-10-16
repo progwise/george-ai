@@ -85,10 +85,8 @@ export const getAllSummaries = async () => {
               )
             },
           )
-          .map(({ attributes }) =>
-            attributes.voting === Enum_Summaryfeedback_Voting.Up
-              ? 'up'
-              : 'down',
+          .map(({ attributes: { voting } }) =>
+            voting === Enum_Summaryfeedback_Voting.Up ? 'up' : 'down',
           ) ?? []
 
       const scrapedData = scraped_web_page?.data?.attributes
