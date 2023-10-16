@@ -1,10 +1,27 @@
 import { typesenseClient } from '../typesense.js'
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
+import { PublicationState } from './search-summary-documents.js'
 
-export const upsertSummaryDocument = async (document: object, id: string) => {
+type UpserteDocument = {
+  id: string
+  language: string
+  keywords: string[]
+  summary: string
+  largeLanguageModel: string
+  title: string
+  url: string
+  originalContent: string
+  publicationState: PublicationState
+  popularity: number
+}
+
+export const upsertSummaryDocument = async (
+  document: UpserteDocument,
+  id: string,
+) => {
   try {
     await typesenseClient
-      .collections(summaryCollectionSchema.name)
+      .collections<UpserteDocument>(summaryCollectionSchema.name)
       .documents()
       .upsert(document)
     console.log(`Data upsert to typesense collection with id: ${id}`)

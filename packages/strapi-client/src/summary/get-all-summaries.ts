@@ -2,11 +2,6 @@ import { graphql } from '../gql/gql'
 import { Enum_Summaryfeedback_Voting } from '../gql/graphql'
 import { strapiClient } from '../strapi-client'
 
-export enum PublicationState {
-  Draft = 'draft',
-  Published = 'published',
-}
-
 export const getAllSummaries = async () => {
   try {
     const { webPageSummaries } = await strapiClient.request(
@@ -104,9 +99,7 @@ export const getAllSummaries = async () => {
         keywords: keywords ?? '',
         summary: summary ?? '',
         largeLanguageModel: largeLanguageModel ?? '',
-        publicationState: publishedAt
-          ? PublicationState.Published
-          : PublicationState.Draft,
+        publishedAt,
         feedbacks,
         title: scrapedData?.title ?? '',
         url: scrapedData?.url ?? '',

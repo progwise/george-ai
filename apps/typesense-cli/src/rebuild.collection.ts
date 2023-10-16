@@ -1,4 +1,5 @@
 import {
+  PublicationState,
   ensureSummaryCollectionExists,
   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
@@ -21,7 +22,7 @@ export const rebuildCollection = async () => {
         keywords,
         summary,
         largeLanguageModel,
-        publicationState,
+        publishedAt,
         feedbacks,
         title,
         url,
@@ -48,7 +49,9 @@ export const rebuildCollection = async () => {
         title,
         url,
         originalContent,
-        publicationState,
+        publicationState: publishedAt
+          ? PublicationState.Published
+          : PublicationState.Draft,
         popularity,
       }
 
