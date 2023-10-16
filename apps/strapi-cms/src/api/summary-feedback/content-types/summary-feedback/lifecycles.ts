@@ -1,12 +1,12 @@
 import { updateSummaryDocument } from '@george-ai/typesense-client'
 import { calculatePopularity } from '../../../../calculate-popularity'
 
-const getSummaryAndUpdatePopularity = async ({
+const updatePopularity = async ({
   feedbackId,
   excludeFeedbackId,
 }: {
   feedbackId: string
-  excludeFeedbackId: string
+  excludeFeedbackId: string | undefined
 }) => {
   const { id: summaryId }: { id: string } = await strapi.entityService.findOne(
     'api::summary-feedback.summary-feedback',
@@ -47,14 +47,14 @@ const getSummaryAndUpdatePopularity = async ({
 
 export default {
   async afterCreate(event) {
-    await getSummaryAndUpdatePopularity({
+    await updatePopularity({
       feedbackId: event.result.id,
       excludeFeedbackId: undefined,
     })
   },
 
   async beforeDelete(event) {
-    await getSummaryAndUpdatePopularity({
+    await updatePopularity({
       feedbackId: event.params.where.id,
       excludeFeedbackId: event.params.where.id,
     })
@@ -62,7 +62,7 @@ export default {
 
   async beforeDeleteMany(event) {
     for (const feedbackId of event.params?.where?.$and[0].id.$in) {
-      await getSummaryAndUpdatePopularity({
+      await updatePopularity({
         feedbackId,
         excludeFeedbackId: feedbackId,
       })

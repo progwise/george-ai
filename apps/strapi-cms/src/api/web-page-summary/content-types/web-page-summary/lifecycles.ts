@@ -48,7 +48,7 @@ const upsertSummary = async ({ summaryId }: { summaryId: string }) => {
 
   const summaryDocument = {
     id: summaryId.toString(),
-    language: locale ?? '',
+    language: locale,
     keywords: ((value: any): value is string[] =>
       Array.isArray(value) && value.every((item) => typeof item === 'string'))(
       parsedKeywords,
@@ -103,8 +103,8 @@ export default {
   },
 
   async afterUpdateMany(event) {
-    for (const id of event.params.where.id.$in) {
-      await upsertSummary({ summaryId: id })
+    for (const summaryId of event.params.where.id.$in) {
+      await upsertSummary({ summaryId })
     }
   },
 
@@ -113,8 +113,8 @@ export default {
   },
 
   async beforeDeleteMany(event) {
-    for (const id of event.params?.where?.$and[0].id.$in) {
-      getFeedbacksAndDelete({ summaryId: id })
+    for (const summaryId of event.params?.where?.$and[0].id.$in) {
+      getFeedbacksAndDelete({ summaryId })
     }
   },
 }

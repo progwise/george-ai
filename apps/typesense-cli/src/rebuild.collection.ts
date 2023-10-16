@@ -17,7 +17,6 @@ export const rebuildCollection = async () => {
       }
       const {
         id,
-        lastScrapeUpdate,
         language,
         keywords,
         summary,
@@ -29,13 +28,9 @@ export const rebuildCollection = async () => {
         originalContent,
       } = webPageSummary
 
-      const votes = feedbacks
-        .filter((feedback) => feedback?.createdAt > lastScrapeUpdate)
-        .map((feedback) => feedback.voting)
-
       let popularity = 0
-      for (const vote of votes) {
-        vote === 'up' ? (popularity += 1) : (popularity -= 1)
+      for (const feedback of feedbacks) {
+        feedback === 'up' ? (popularity += 1) : (popularity -= 1)
       }
 
       const parsedKeywords = JSON.parse(keywords)

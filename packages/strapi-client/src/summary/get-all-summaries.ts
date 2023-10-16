@@ -71,10 +71,7 @@ export const getAllSummaries = async () => {
         scraped_web_page,
       } = attributes
 
-      const feedbacks: {
-        createdAt: Date
-        voting: 'up' | 'down'
-      }[] =
+      const feedbacks =
         summary_feedbacks?.data
           .filter(
             (
@@ -85,26 +82,24 @@ export const getAllSummaries = async () => {
                 createdAt: any
               }
             } => {
-              const { voting } = feedbackData.attributes ?? {}
+              const { voting, createdAt } = feedbackData.attributes ?? {}
               return (
-                voting === Enum_Summaryfeedback_Voting.Down ||
-                voting === Enum_Summaryfeedback_Voting.Up
+                (voting === Enum_Summaryfeedback_Voting.Down ||
+                  voting === Enum_Summaryfeedback_Voting.Up) &&
+                createdAt > lastScrapeUpdate
               )
             },
           )
-          .map(({ attributes }) => {
-            const { voting, createdAt } = attributes
-            return {
-              createdAt: new Date(createdAt ?? 0),
-              voting: voting === Enum_Summaryfeedback_Voting.Up ? 'up' : 'down',
-            }
-          }) ?? []
+          .map(({ attributes }) =>
+            attributes.voting === Enum_Summaryfeedback_Voting.Up
+              ? 'up'
+              : 'down',
+          ) ?? []
 
       const scrapedData = scraped_web_page?.data?.attributes
 
       return {
         id,
-        lastScrapeUpdate: new Date(lastScrapeUpdate ?? 0),
         language: locale ?? '',
         keywords: keywords ?? '',
         summary: summary ?? '',
