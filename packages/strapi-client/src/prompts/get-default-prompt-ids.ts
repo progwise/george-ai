@@ -1,7 +1,7 @@
 import { graphql } from '../gql'
 import { strapiClient } from '../strapi-client'
 
-export const getDefaultPromptIds = async () => {
+export const getDefaultPromptIds = async (): Promise<string[]> => {
   try {
     const { prompts } = await strapiClient.request(
       graphql(`

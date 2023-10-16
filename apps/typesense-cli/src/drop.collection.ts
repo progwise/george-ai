@@ -1,7 +1,7 @@
-import { deleteCollection } from '@george-ai/typesense-client'
+import { deleteSummaryCollection } from '@george-ai/typesense-client'
 
 const dropCollection = async () => {
-  await deleteCollection()
+  await deleteSummaryCollection()
 }
 
 dropCollection()

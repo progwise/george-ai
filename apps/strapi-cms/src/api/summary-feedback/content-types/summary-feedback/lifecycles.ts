@@ -1,63 +1,71 @@
-import {
-  computeFeedbackPopularity,
-  upsertWebpageSummary,
-} from '@george-ai/typesense-client'
+import { updateSummaryDocument } from '@george-ai/typesense-client'
+import { calculatePopularity } from '../../../../calculate-popularity'
 
-const transformAndUpsertFeedback = async (id) => {
-  try {
-    const summaryFeedbackResult = await strapi.entityService.findOne(
-      'api::summary-feedback.summary-feedback',
-      id,
-      {
-        populate: ['web_page_summary'],
-      },
-    )
+const updatePopularity = async ({
+  feedbackId,
+  excludeFeedbackId,
+}: {
+  feedbackId: string
+  excludeFeedbackId: string | undefined
+}) => {
+  const { id: summaryId }: { id: string } = await strapi.entityService.findOne(
+    'api::summary-feedback.summary-feedback',
+    feedbackId,
+    {
+      populate: ['web_page_summary'],
+    },
+  )
 
-    const webPageSummaryResult = await strapi.entityService.findOne(
-      'api::web-page-summary.web-page-summary',
-      summaryFeedbackResult.web_page_summary.id,
-      {
-        populate: ['scraped_web_page', 'summary_feedbacks'],
-      },
-    )
+  const {
+    lastScrapeUpdate,
+    summary_feedbacks,
+  }: {
+    lastScrapeUpdate: number
+    summary_feedbacks: {
+      id: string
+      voting: 'up' | 'down'
+      createdAt: number
+    }[]
+  } = await strapi.entityService.findOne(
+    'api::web-page-summary.web-page-summary',
+    summaryId,
+    {
+      populate: ['scraped_web_page', 'summary_feedbacks'],
+    },
+  )
 
-    const updatedAt = new Date(webPageSummaryResult.updatedAt)
+  const filterFeedbacks = summary_feedbacks.filter(
+    (feedback) =>
+      feedback.id !== excludeFeedbackId &&
+      new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
+  )
 
-    const votes = (webPageSummaryResult.summary_feedbacks ?? [])
-      .filter((feedback) => {
-        const createdAt = new Date(feedback.createdAt)
-        return createdAt > updatedAt
-      })
-      .map((feedback) => feedback.voting)
+  const popularity = calculatePopularity(filterFeedbacks)
 
-    const popularity = computeFeedbackPopularity(votes)
-
-    const webPageSummary = {
-      id: webPageSummaryResult.id.toString() ?? '',
-      language: webPageSummaryResult.locale ?? '',
-      keywords: webPageSummaryResult.keywords
-        ? JSON.parse(webPageSummaryResult.keywords)
-        : [],
-      summary: webPageSummaryResult.summary ?? '',
-      largeLanguageModel: webPageSummaryResult.largeLanguageModel ?? '',
-      title: webPageSummaryResult.scraped_web_page.title ?? '',
-      url: webPageSummaryResult.scraped_web_page.url ?? '',
-      originalContent:
-        webPageSummaryResult.scraped_web_page.originalContent ?? '',
-      publicationState: webPageSummaryResult.scraped_web_page.publishedAt
-        ? 'published'
-        : 'draft',
-      popularity,
-    }
-
-    upsertWebpageSummary(webPageSummary)
-  } catch (error) {
-    console.error('Error fetching results from strapi:', error)
-  }
+  await updateSummaryDocument({ popularity }, summaryId.toString())
 }
 
 export default {
   async afterCreate(event) {
-    await transformAndUpsertFeedback(event.result.id)
+    await updatePopularity({
+      feedbackId: event.result.id,
+      excludeFeedbackId: undefined,
+    })
+  },
+
+  async beforeDelete(event) {
+    await updatePopularity({
+      feedbackId: event.params.where.id,
+      excludeFeedbackId: event.params.where.id,
+    })
+  },
+
+  async beforeDeleteMany(event) {
+    for (const feedbackId of event.params?.where?.$and[0].id.$in) {
+      await updatePopularity({
+        feedbackId,
+        excludeFeedbackId: feedbackId,
+      })
+    }
   },
 }

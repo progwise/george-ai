@@ -1,7 +1,7 @@
 import { graphql } from '../gql'
 import { strapiClient } from '../strapi-client'
 
-export const getStrapiLocales = async () => {
+export const getStrapiLocales = async (): Promise<string[]> => {
   try {
     const { i18NLocales } = await strapiClient.request(
       graphql(`
@@ -19,11 +19,11 @@ export const getStrapiLocales = async () => {
       {},
     )
 
-    const localeCodes =
+    return (
       i18NLocales?.data
         ?.map((locale) => locale.attributes?.code)
         .filter((id): id is string => typeof id === 'string') || []
-    return localeCodes
+    )
   } catch (error) {
     console.error('Error fetching Strapi locales:', error)
     throw error

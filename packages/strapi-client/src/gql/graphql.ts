@@ -1254,6 +1254,7 @@ export type WebPageSummary = {
   createdAt?: Maybe<Scalars['DateTime']['output']>
   keywords?: Maybe<Scalars['String']['output']>
   largeLanguageModel?: Maybe<Scalars['String']['output']>
+  lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
@@ -1299,6 +1300,7 @@ export type WebPageSummaryFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   keywords?: InputMaybe<StringFilterInput>
   largeLanguageModel?: InputMaybe<StringFilterInput>
+  lastScrapeUpdate?: InputMaybe<DateTimeFilterInput>
   locale?: InputMaybe<StringFilterInput>
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
@@ -1313,6 +1315,7 @@ export type WebPageSummaryFiltersInput = {
 export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
@@ -1398,18 +1401,6 @@ export type CreateSummaryFeedbackMutation = {
         } | null
       } | null
     } | null
-  } | null
-}
-
-export type DeleteSummaryFeedbackMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-}>
-
-export type DeleteSummaryFeedbackMutation = {
-  __typename?: 'Mutation'
-  deleteSummaryFeedback?: {
-    __typename?: 'SummaryFeedbackEntityResponse'
-    data?: { __typename?: 'SummaryFeedbackEntity'; id?: string | null } | null
   } | null
 }
 
@@ -1523,7 +1514,7 @@ export type GetWebPageSummariesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
-        updatedAt?: any | null
+        lastScrapeUpdate?: any | null
         locale?: string | null
         keywords?: string | null
         summary?: string | null
@@ -1873,63 +1864,6 @@ export const CreateSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
->
-export const DeleteSummaryFeedbackDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'DeleteSummaryFeedback' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteSummaryFeedback' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteSummaryFeedbackMutation,
-  DeleteSummaryFeedbackMutationVariables
 >
 export const CreatePromptDocument = {
   kind: 'Document',
@@ -2525,7 +2459,7 @@ export const GetWebPageSummariesDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'updatedAt' },
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
                             },
                             {
                               kind: 'Field',

@@ -29,15 +29,6 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
-export type CreateSummaryFeedback = {
-  __typename?: 'CreateSummaryFeedback'
-  id: Scalars['String']['output']
-  position: Scalars['Int']['output']
-  query: Scalars['String']['output']
-  voting?: Maybe<SummaryFeedbackVoting>
-  webPageSummaryId: Scalars['String']['output']
-}
-
 export type CreateSummaryFeedbackInput = {
   position: Scalars['Int']['input']
   query: Scalars['String']['input']
@@ -47,7 +38,7 @@ export type CreateSummaryFeedbackInput = {
 
 export type Mutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: CreateSummaryFeedback
+  createSummaryFeedback: SummaryFeedbackReference
 }
 
 export type MutationCreateSummaryFeedbackArgs = {
@@ -73,9 +64,14 @@ export type QuerySearchResultArgs = {
   query?: Scalars['String']['input']
 }
 
+export type SummaryFeedbackReference = {
+  __typename?: 'SummaryFeedbackReference'
+  id: Scalars['String']['output']
+}
+
 export enum SummaryFeedbackVoting {
-  Down = 'Down',
-  Up = 'Up',
+  Down = 'down',
+  Up = 'up',
 }
 
 export type SearchFilters = {
@@ -119,7 +115,7 @@ export type CreateSummaryFeedbackMutationVariables = Exact<{
 
 export type CreateSummaryFeedbackMutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: { __typename?: 'CreateSummaryFeedback'; id: string }
+  createSummaryFeedback: { __typename?: 'SummaryFeedbackReference'; id: string }
 }
 
 export type InfoCardFragment = {

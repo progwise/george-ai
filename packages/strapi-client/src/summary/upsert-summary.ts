@@ -19,6 +19,7 @@ export const upsertWebPageSummary = async (
     keywords: JSON.stringify(scrapeResultAndSummary.keywords),
     largeLanguageModel: scrapeResultAndSummary.largeLanguageModel,
     scraped_web_page: ScrapedWebPageId,
+    lastScrapeUpdate: new Date(),
   }
 
   const webPageSummaryId = await getSummaryId(

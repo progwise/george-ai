@@ -1,7 +1,7 @@
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
 import { typesenseClient } from '../typesense.js'
 
-export const deleteDocument = async (id: string) => {
+export const deleteSummaryDocument = async (id: string) => {
   try {
     await typesenseClient
       .collections(summaryCollectionSchema.name)

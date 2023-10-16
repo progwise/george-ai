@@ -1,7 +1,6 @@
 export * from './configuration/get-locales'
 export * from './configuration/get-scraper-configuration'
 export * from './feedback/create-feedback'
-export * from './feedback/delete-feedback'
 export * from './prompts/create-prompt'
 export * from './prompts/delete-all-default-prompts'
 export * from './scrapedPage/get-or-create-scraped-page'

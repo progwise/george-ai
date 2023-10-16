@@ -1,77 +1,120 @@
 import {
-  computeFeedbackPopularity,
-  deleteDocument,
-  ensureCollectionExists,
-  upsertWebpageSummary,
+  PublicationState,
+  deleteSummaryDocument,
+  ensureSummaryCollectionExists,
+  upsertSummaryDocument,
 } from '@george-ai/typesense-client'
-import { deleteFeedback } from '@george-ai/strapi-client'
+import { calculatePopularity } from '../../../../calculate-popularity'
 
-const transformAndUpsertSummary = async (id) => {
-  const webPageSummaryResult = await strapi.entityService.findOne(
+const upsertSummary = async ({ summaryId }: { summaryId: string }) => {
+  const {
+    lastScrapeUpdate,
+    locale,
+    keywords,
+    summary,
+    largeLanguageModel,
+    publishedAt,
+    summary_feedbacks,
+    scraped_web_page,
+  }: {
+    lastScrapeUpdate: number
+    locale: string
+    keywords: string
+    summary: string
+    largeLanguageModel: string
+    publishedAt: number | undefined
+    summary_feedbacks: {
+      id: string
+      voting: 'up' | 'down'
+      createdAt: number
+    }[]
+    scraped_web_page: {
+      title: string
+      url: string
+      originalContent: string
+    }
+  } = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
-    id,
+    summaryId,
     {
-      populate: ['scraped_web_page'],
+      populate: ['scraped_web_page', 'summary_feedbacks'],
     },
   )
 
-  const updatedAt = new Date(webPageSummaryResult.updatedAt)
+  const filterFeedbacks = summary_feedbacks.filter(
+    (feedback) => new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
+  )
+  const parsedKeywords = JSON.parse(keywords)
 
-  const votes = (webPageSummaryResult.summary_feedbacks ?? [])
-    .filter((feedback) => {
-      const createdAt = new Date(feedback.createdAt)
-      return createdAt > updatedAt
-    })
-    .map((feedback) => feedback.voting)
-
-  const popularity = computeFeedbackPopularity(votes)
-
-  const webPageSummary = {
-    id: webPageSummaryResult.id.toString(),
-    language: webPageSummaryResult.locale,
-    keywords: webPageSummaryResult.keywords
-      ? JSON.parse(webPageSummaryResult.keywords)
+  const summaryDocument = {
+    id: summaryId.toString(),
+    language: locale,
+    keywords: ((value: any): value is string[] =>
+      Array.isArray(value) && value.every((item) => typeof item === 'string'))(
+      parsedKeywords,
+    )
+      ? parsedKeywords
       : [],
-    summary: webPageSummaryResult.summary,
-    largeLanguageModel: webPageSummaryResult.largeLanguageModel,
-    title: webPageSummaryResult.scraped_web_page.title,
-    url: webPageSummaryResult.scraped_web_page.url,
-    originalContent: webPageSummaryResult.scraped_web_page.originalContent,
-    publicationState: webPageSummaryResult.publishedAt ? 'published' : 'draft',
-    popularity,
+    summary,
+    largeLanguageModel,
+    title: scraped_web_page?.title,
+    url: scraped_web_page?.url,
+    originalContent: scraped_web_page?.originalContent,
+    publicationState: publishedAt
+      ? PublicationState.Published
+      : PublicationState.Draft,
+    popularity: calculatePopularity(filterFeedbacks),
   }
-  await ensureCollectionExists()
-  await upsertWebpageSummary(webPageSummary)
+
+  await ensureSummaryCollectionExists()
+  await upsertSummaryDocument(summaryDocument, summaryId.toString())
+}
+
+const getFeedbacksAndDelete = async ({ summaryId }) => {
+  const webPageSummary = await strapi.entityService.findOne(
+    'api::web-page-summary.web-page-summary',
+    summaryId,
+    {
+      populate: ['summary_feedbacks'],
+    },
+  )
+
+  const feedbackIds = webPageSummary.summary_feedbacks.map(
+    (feedback) => feedback.id,
+  )
+
+  for (const feedbackId of feedbackIds) {
+    await strapi.entityService.delete(
+      'api::summary-feedback.summary-feedback',
+      feedbackId,
+    )
+  }
+
+  await deleteSummaryDocument(summaryId)
 }
 
 export default {
   async afterCreate(event) {
-    await transformAndUpsertSummary(event.result.id)
+    await upsertSummary({ summaryId: event.result.id })
   },
 
   async afterUpdate(event) {
-    await transformAndUpsertSummary(event.result.id)
+    await upsertSummary({ summaryId: event.result.id })
   },
 
   async afterUpdateMany(event) {
-    for (const id of event.params.where.id.$in) {
-      await transformAndUpsertSummary(id)
+    for (const summaryId of event.params.where.id.$in) {
+      await upsertSummary({ summaryId })
     }
   },
 
-  async afterDeleteMany(event) {
-    for (const id of event.params?.where?.$and[0].id.$in) {
-      const summaryFeedbacks = await strapi.entityService.findMany(
-        'api::summary-feedback.summary-feedback',
-        {
-          'web_page_summary.id': id,
-        },
-      )
+  async beforeDelete(event) {
+    await getFeedbacksAndDelete({ summaryId: event.params.where.id })
+  },
 
-      for (const feedback of summaryFeedbacks) {
-        await deleteFeedback(feedback.id)
-      }
-      await deleteDocument(id)
+  async beforeDeleteMany(event) {
+    for (const summaryId of event.params?.where?.$and[0].id.$in) {
+      getFeedbacksAndDelete({ summaryId })
     }
   },
 }
