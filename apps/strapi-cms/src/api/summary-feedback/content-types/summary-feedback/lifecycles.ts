@@ -1,10 +1,14 @@
-import { updatePopularity } from '../../../../update-summary '
+import { updateSummaryDocument } from '@george-ai/typesense-client'
+import { calculatePopularity } from '../../../../calculate-popularity'
 
 const getSummaryAndUpdatePopularity = async ({
   feedbackId,
   excludeFeedbackId,
+}: {
+  feedbackId: string
+  excludeFeedbackId: string
 }) => {
-  const summaryFeedbackResult = await strapi.entityService.findOne(
+  const { id: summaryId }: { id: string } = await strapi.entityService.findOne(
     'api::summary-feedback.summary-feedback',
     feedbackId,
     {
@@ -12,16 +16,39 @@ const getSummaryAndUpdatePopularity = async ({
     },
   )
 
-  await updatePopularity({
-    summaryId: summaryFeedbackResult.web_page_summary.id,
-    excludeFeedbackId,
-  })
+  const {
+    lastScrapeUpdate,
+    summary_feedbacks,
+  }: {
+    lastScrapeUpdate: number
+    summary_feedbacks: {
+      id: string
+      voting: 'up' | 'down'
+      createdAt: number
+    }[]
+  } = await strapi.entityService.findOne(
+    'api::web-page-summary.web-page-summary',
+    summaryId,
+    {
+      populate: ['scraped_web_page', 'summary_feedbacks'],
+    },
+  )
+
+  const filterFeedbacks = summary_feedbacks.filter(
+    (feedback) =>
+      feedback.id !== excludeFeedbackId &&
+      new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
+  )
+
+  const popularity = calculatePopularity(filterFeedbacks)
+
+  await updateSummaryDocument({ popularity }, summaryId.toString())
 }
 
 export default {
   async afterCreate(event) {
-    await updatePopularity({
-      summaryId: event.params.data.web_page_summary,
+    await getSummaryAndUpdatePopularity({
+      feedbackId: event.result.id,
       excludeFeedbackId: undefined,
     })
   },
