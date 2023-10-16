@@ -5,7 +5,7 @@ const appFunction: ApplicationFunction = (app) => {
     'pull_request.opened',
     async (context: Context<'pull_request.opened'>) => {
       const issueComment = context.issue({
-        body: 'Danke für den Pull Request!',
+        body: 'Thanks for the pull request!',
       })
       await context.octokit.issues.createComment(issueComment)
     },
