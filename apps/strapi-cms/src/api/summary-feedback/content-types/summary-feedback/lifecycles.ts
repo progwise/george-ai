@@ -5,34 +5,37 @@ const updatePopularity = async ({
   feedbackId,
   excludeFeedbackId,
 }: {
-  feedbackId: string
-  excludeFeedbackId: string | undefined
+  feedbackId: number
+  excludeFeedbackId: number | undefined
 }) => {
-  const { id: summaryId }: { id: string } = await strapi.entityService.findOne(
-    'api::summary-feedback.summary-feedback',
-    feedbackId,
-    {
-      populate: ['web_page_summary'],
-    },
-  )
+  const { web_page_summary }: { web_page_summary: { id: number } } =
+    await strapi.entityService.findOne(
+      'api::summary-feedback.summary-feedback',
+      feedbackId,
+      {
+        populate: ['web_page_summary'],
+      },
+    )
 
   const {
     lastScrapeUpdate,
     summary_feedbacks,
   }: {
-    lastScrapeUpdate: number
+    lastScrapeUpdate: string
     summary_feedbacks: {
-      id: string
+      id: number
       voting: 'up' | 'down'
-      createdAt: number
+      createdAt: string
     }[]
   } = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
-    summaryId,
+    web_page_summary.id,
     {
-      populate: ['scraped_web_page', 'summary_feedbacks'],
+      populate: ['summary_feedbacks'],
     },
   )
+  console.log('lastScrapeUpdate: ', lastScrapeUpdate)
+  console.log('summary_feedbacks: ', summary_feedbacks)
 
   const filterFeedbacks = summary_feedbacks.filter(
     (feedback) =>
@@ -42,7 +45,7 @@ const updatePopularity = async ({
 
   const popularity = calculatePopularity(filterFeedbacks)
 
-  await updateSummaryDocument({ popularity }, summaryId.toString())
+  await updateSummaryDocument({ popularity }, web_page_summary.id.toString())
 }
 
 export default {

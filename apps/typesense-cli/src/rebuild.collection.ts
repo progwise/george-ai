@@ -8,6 +8,9 @@ import { getAllSummaries } from '@george-ai/strapi-client'
 
 export const rebuildCollection = async () => {
   const allSummaries = (await getAllSummaries()) || []
+  if (allSummaries.length === 0) {
+    console.log('No webPageSummaries found')
+  }
 
   await ensureSummaryCollectionExists()
   await pMap(

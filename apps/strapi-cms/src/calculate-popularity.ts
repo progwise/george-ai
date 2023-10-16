@@ -1,8 +1,8 @@
 export const calculatePopularity = (
   feedbacks: {
-    id: string
+    id: number
     voting: 'up' | 'down'
-    createdAt: number
+    createdAt: string
   }[],
 ) => {
   let popularity = 0

@@ -6,7 +6,7 @@ import {
 } from '@george-ai/typesense-client'
 import { calculatePopularity } from '../../../../calculate-popularity'
 
-const upsertSummary = async ({ summaryId }: { summaryId: string }) => {
+const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
   const {
     lastScrapeUpdate,
     locale,
@@ -17,16 +17,16 @@ const upsertSummary = async ({ summaryId }: { summaryId: string }) => {
     summary_feedbacks,
     scraped_web_page,
   }: {
-    lastScrapeUpdate: number
+    lastScrapeUpdate: string
     locale: string
     keywords: string
     summary: string
     largeLanguageModel: string
     publishedAt: number | undefined
     summary_feedbacks: {
-      id: string
+      id: number
       voting: 'up' | 'down'
-      createdAt: number
+      createdAt: string
     }[]
     scraped_web_page: {
       title: string
