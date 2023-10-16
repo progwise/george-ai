@@ -43,11 +43,13 @@ export const getKeywords = async (content: string, keywordPrompt: string[]) => {
     return []
   }
   const keywords =
-    /^\d+\./.test(response) || /^-\s/.test(response)
+    /^\d+\./.test(response) ||
+    /^-\s/.test(response) ||
+    /^Keywords:\s/.test(response)
       ? response.split('\n')
       : response.split(',')
 
   return keywords
-    .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,$/, '').trim())
+    .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,|Keywords:\s*/, '').trim())
     .slice(0, 10)
 }
