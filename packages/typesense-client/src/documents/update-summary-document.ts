@@ -1,3 +1,4 @@
+import { isSummaryCollectionPopulated } from '../collections/is-summary-collection-populated .js'
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
 import { typesenseClient } from '../typesense.js'
 
@@ -10,6 +11,10 @@ export const updateSummaryDocument = async (
   id: string,
 ) => {
   try {
+    if (!(await isSummaryCollectionPopulated())) {
+      console.log('no collection documents')
+      return
+    }
     await typesenseClient
       .collections<UpdateDocument>(summaryCollectionSchema.name)
       .documents(id)
