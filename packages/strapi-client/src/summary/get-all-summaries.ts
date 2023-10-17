@@ -97,7 +97,7 @@ export const getAllSummaries = async () => {
         keywords: keywords ?? '',
         summary: summary ?? '',
         largeLanguageModel: largeLanguageModel ?? '',
-        publishedAt,
+        publishedAt: typeof publishedAt === 'string' ? publishedAt : undefined,
         feedbacks,
         title: scrapedData?.title ?? '',
         url: scrapedData?.url ?? '',

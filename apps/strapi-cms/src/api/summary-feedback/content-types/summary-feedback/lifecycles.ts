@@ -34,8 +34,6 @@ const updatePopularity = async ({
       populate: ['summary_feedbacks'],
     },
   )
-  console.log('lastScrapeUpdate: ', lastScrapeUpdate)
-  console.log('summary_feedbacks: ', summary_feedbacks)
 
   const filterFeedbacks = summary_feedbacks.filter(
     (feedback) =>

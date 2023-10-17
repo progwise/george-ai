@@ -42,7 +42,7 @@ export const rebuildCollection = async () => {
       const summaryDocument = {
         id,
         language,
-        keywords: ((value: any): value is string[] =>
+        keywords: ((value): value is string[] =>
           Array.isArray(value) &&
           value.every((item) => typeof item === 'string'))(parsedKeywords)
           ? parsedKeywords
