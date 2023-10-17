@@ -1,13 +1,7 @@
 import { updateSummaryDocument } from '@george-ai/typesense-client'
 import { calculatePopularity } from '../../../../calculate-popularity'
 
-const updatePopularity = async ({
-  feedbackId,
-  excludeFeedbackId,
-}: {
-  feedbackId: number
-  excludeFeedbackId: number | undefined
-}) => {
+const getSummaryId = async (feedbackId: number): Promise<number> => {
   const { web_page_summary }: { web_page_summary: { id: number } } =
     await strapi.entityService.findOne(
       'api::summary-feedback.summary-feedback',
@@ -16,7 +10,10 @@ const updatePopularity = async ({
         populate: ['web_page_summary'],
       },
     )
+  return web_page_summary.id
+}
 
+const getFeedbacks = async (summaryId: string | number) => {
   const {
     lastScrapeUpdate,
     summary_feedbacks,
@@ -29,44 +26,44 @@ const updatePopularity = async ({
     }[]
   } = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
-    web_page_summary.id,
+    summaryId,
     {
       populate: ['summary_feedbacks'],
     },
   )
-
-  const filterFeedbacks = summary_feedbacks.filter(
-    (feedback) =>
-      feedback.id !== excludeFeedbackId &&
-      new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
+  return summary_feedbacks.filter(
+    (feedback) => new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
   )
-
-  const popularity = calculatePopularity(filterFeedbacks)
-
-  await updateSummaryDocument({ popularity }, web_page_summary.id.toString())
 }
 
 export default {
   async afterCreate(event) {
-    await updatePopularity({
-      feedbackId: event.result.id,
-      excludeFeedbackId: undefined,
-    })
+    const summaryId: string = event.params.data.web_page_summary
+    const feedbacks = await getFeedbacks(summaryId)
+    const popularity = calculatePopularity(feedbacks)
+    console.log('popularity: ', popularity)
+    await updateSummaryDocument({ popularity }, summaryId)
   },
 
   async beforeDelete(event) {
-    await updatePopularity({
-      feedbackId: event.params.where.id,
-      excludeFeedbackId: event.params.where.id,
-    })
+    const feedbackId = event.params.where.id
+    console.log('feedbackId: ', typeof feedbackId === 'number')
+    const summaryId = await getSummaryId(feedbackId)
+    const feedbacks = await getFeedbacks(summaryId)
+    const popularity = calculatePopularity(
+      feedbacks.filter((feedback) => feedback.id !== feedbackId),
+    )
+    await updateSummaryDocument({ popularity }, summaryId.toString())
   },
 
   async beforeDeleteMany(event) {
     for (const feedbackId of event.params?.where?.$and[0].id.$in) {
-      await updatePopularity({
-        feedbackId,
-        excludeFeedbackId: feedbackId,
-      })
+      const summaryId = await getSummaryId(feedbackId)
+      const feedbacks = await getFeedbacks(summaryId)
+      const popularity = calculatePopularity(
+        feedbacks.filter((feedback) => feedback.id !== feedbackId),
+      )
+      await updateSummaryDocument({ popularity }, summaryId.toString())
     }
   },
 }

@@ -1,7 +1,7 @@
 import { graphql } from '../gql'
 import { strapiClient } from '../strapi-client'
 
-export const getScraperConfiguration = async () => {
+export const getScraperConfigurations = async () => {
   try {
     const { scraperConfiguration: scraperConfigurationResponse } =
       await strapiClient.request(

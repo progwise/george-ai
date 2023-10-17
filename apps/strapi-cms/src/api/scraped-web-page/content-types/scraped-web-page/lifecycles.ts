@@ -1,4 +1,4 @@
-const deleteSummaries = async ({ pageId }: { pageId: string }) => {
+const deleteSummaries = async ({ pageId }: { pageId: number }) => {
   const scrapedPage = await strapi.entityService.findOne(
     'api::scraped-web-page.scraped-web-page',
     pageId,

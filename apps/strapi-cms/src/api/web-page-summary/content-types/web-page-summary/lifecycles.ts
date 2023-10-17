@@ -6,7 +6,7 @@ import {
 } from '@george-ai/typesense-client'
 import { calculatePopularity } from '../../../../calculate-popularity'
 
-const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
+const getsummary = async (summaryId: number) => {
   const {
     lastScrapeUpdate,
     locale,
@@ -40,6 +40,29 @@ const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
       populate: ['scraped_web_page', 'summary_feedbacks'],
     },
   )
+  return {
+    lastScrapeUpdate,
+    locale,
+    keywords,
+    summary,
+    largeLanguageModel,
+    publishedAt,
+    summary_feedbacks,
+    scraped_web_page,
+  }
+}
+
+const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
+  const {
+    lastScrapeUpdate,
+    locale,
+    keywords,
+    summary,
+    largeLanguageModel,
+    publishedAt,
+    summary_feedbacks,
+    scraped_web_page,
+  } = await getsummary(summaryId)
 
   const filterFeedbacks = summary_feedbacks.filter(
     (feedback) => new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
@@ -71,26 +94,15 @@ const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
 }
 
 const deleteFeedbacks = async ({ summaryId }) => {
-  const webPageSummary = await strapi.entityService.findOne(
-    'api::web-page-summary.web-page-summary',
-    summaryId,
-    {
-      populate: ['summary_feedbacks'],
-    },
-  )
+  const { summary_feedbacks } = await getsummary(summaryId)
 
-  const feedbackIds = webPageSummary.summary_feedbacks.map(
-    (feedback) => feedback.id,
-  )
-
-  for (const feedbackId of feedbackIds) {
+  for (const feedback of summary_feedbacks) {
     await strapi.entityService.delete(
       'api::summary-feedback.summary-feedback',
-      feedbackId,
+      feedback.id,
     )
   }
-
-  await deleteSummaryDocument(summaryId)
+  await deleteSummaryDocument(summaryId.toString())
 }
 
 export default {
