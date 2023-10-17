@@ -22,7 +22,7 @@ const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
     keywords: string
     summary: string
     largeLanguageModel: string
-    publishedAt: number | undefined
+    publishedAt: string | null
     summary_feedbacks: {
       id: number
       voting: 'up' | 'down'
@@ -70,7 +70,7 @@ const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
   await upsertSummaryDocument(summaryDocument, summaryId.toString())
 }
 
-const getFeedbacksAndDelete = async ({ summaryId }) => {
+const deleteFeedbacks = async ({ summaryId }) => {
   const webPageSummary = await strapi.entityService.findOne(
     'api::web-page-summary.web-page-summary',
     summaryId,
@@ -109,12 +109,12 @@ export default {
   },
 
   async beforeDelete(event) {
-    await getFeedbacksAndDelete({ summaryId: event.params.where.id })
+    await deleteFeedbacks({ summaryId: event.params.where.id })
   },
 
   async beforeDeleteMany(event) {
     for (const summaryId of event.params?.where?.$and[0].id.$in) {
-      getFeedbacksAndDelete({ summaryId })
+      await deleteFeedbacks({ summaryId })
     }
   },
 }

@@ -81,7 +81,7 @@ export const getAllSummaries = async () => {
               return (
                 (voting === Enum_Summaryfeedback_Voting.Down ||
                   voting === Enum_Summaryfeedback_Voting.Up) &&
-                createdAt > lastScrapeUpdate
+                new Date(createdAt ?? 0) > new Date(lastScrapeUpdate ?? 0)
               )
             },
           )

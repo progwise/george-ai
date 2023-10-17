@@ -18,12 +18,12 @@ const deleteSummaries = async ({ pageId }: { pageId: string }) => {
 
 export default {
   async beforeDelete(event) {
-    deleteSummaries({ pageId: event.params.where.id })
+    await deleteSummaries({ pageId: event.params.where.id })
   },
 
   async beforeDeleteMany(event) {
     for (const pageId of event.params?.where?.$and[0].id.$in) {
-      deleteSummaries({ pageId })
+      await deleteSummaries({ pageId })
     }
   },
 }
