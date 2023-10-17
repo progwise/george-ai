@@ -41,13 +41,11 @@ export default {
     const summaryId: string = event.params.data.web_page_summary
     const feedbacks = await getFeedbacks(summaryId)
     const popularity = calculatePopularity(feedbacks)
-
     await updateSummaryDocument({ popularity }, summaryId)
   },
 
   async beforeDelete(event) {
     const feedbackId = event.params.where.id
-
     const summaryId = await getSummaryId(feedbackId)
     const feedbacks = await getFeedbacks(summaryId)
     const popularity = calculatePopularity(
