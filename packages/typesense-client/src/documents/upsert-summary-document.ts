@@ -1,6 +1,7 @@
 import { typesenseClient } from '../typesense.js'
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
 import { PublicationState } from './search-summary-documents.js'
+import { ensureSummaryCollectionExists } from '../collections/ensure-summary-collection-exists.js'
 
 type UpserteDocument = {
   id: string
@@ -20,6 +21,7 @@ export const upsertSummaryDocument = async (
   id: string,
 ) => {
   try {
+    await ensureSummaryCollectionExists()
     await typesenseClient
       .collections<UpserteDocument>(summaryCollectionSchema.name)
       .documents()

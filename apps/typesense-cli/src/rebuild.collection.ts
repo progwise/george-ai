@@ -1,6 +1,5 @@
 import {
   PublicationState,
-  ensureSummaryCollectionExists,
   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
@@ -12,7 +11,6 @@ export const rebuildCollection = async () => {
     console.log('No webPageSummaries found')
   }
 
-  await ensureSummaryCollectionExists()
   await pMap(
     allSummaries,
     async (webPageSummary) => {

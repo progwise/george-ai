@@ -1,7 +1,6 @@
 import {
   PublicationState,
   deleteSummaryDocument,
-  ensureSummaryCollectionExists,
   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 import { calculatePopularity } from '../../../../calculate-popularity'
@@ -89,7 +88,6 @@ const upsertSummary = async ({ summaryId }: { summaryId: number }) => {
     popularity: calculatePopularity(filterFeedbacks),
   }
 
-  await ensureSummaryCollectionExists()
   await upsertSummaryDocument(summaryDocument, summaryId.toString())
 }
 

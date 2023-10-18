@@ -15,7 +15,7 @@ export async function PageList({
   llm,
   kw,
 }: PageListProps) {
-  const result = await getClient().query(
+  const { data } = await getClient().query(
     graphql(`
       query GetSearchWebPages(
         $query: String
@@ -44,7 +44,11 @@ export async function PageList({
       keywords: kw,
     },
   )
-  const pages = result.data?.searchResult
+  const pages = data?.searchResult
+
+  if (pages?.length === 0) {
+    return <span>No entries found</span>
+  }
 
   return (
     <>

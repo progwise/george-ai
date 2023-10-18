@@ -21,7 +21,7 @@ export type WebPagesDocument = {
 export const searchSummaryDocuments = async (
   query: string,
   filters: string[],
-): Promise<WebPagesDocument[] | undefined> => {
+) => {
   try {
     const response = await typesenseClient
       .collections<WebPagesDocument>(summaryCollectionSchema.name)
@@ -33,7 +33,7 @@ export const searchSummaryDocuments = async (
         sort_by: 'popularity:desc,_text_match:desc',
       })
 
-    return response.hits?.map((hit) => hit.document)
+    return response.hits?.map((hit) => hit.document) ?? []
   } catch (error) {
     console.error(
       `An error occurred while fetching ${summaryCollectionSchema.name}:`,
