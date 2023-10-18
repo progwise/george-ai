@@ -5,7 +5,6 @@ import { typesenseClient } from '../typesense.js'
 export const deleteSummaryDocument = async (id: string) => {
   try {
     if (!(await isSummaryCollectionPopulated())) {
-      console.log('no collection documents')
       return
     }
     await typesenseClient

@@ -12,7 +12,6 @@ export const updateSummaryDocument = async (
 ) => {
   try {
     if (!(await isSummaryCollectionPopulated())) {
-      console.log('no collection documents')
       return
     }
     await typesenseClient
