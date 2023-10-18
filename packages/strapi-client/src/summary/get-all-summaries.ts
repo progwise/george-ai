@@ -47,13 +47,8 @@ export const getAllSummaries = async () => {
     }
 
     return webPageSummaries.data.map((item) => {
-      const { id, attributes } = item
-      if (!id) {
-        return
-      }
-      if (!attributes) {
-        return
-      }
+      const summaryId = item.id!
+      const summaryAttributes = item.attributes!
 
       const {
         lastScrapeUpdate,
@@ -64,7 +59,7 @@ export const getAllSummaries = async () => {
         publishedAt,
         summary_feedbacks,
         scraped_web_page,
-      } = attributes
+      } = summaryAttributes
 
       const feedbacks =
         summary_feedbacks?.data
@@ -92,7 +87,7 @@ export const getAllSummaries = async () => {
       const scrapedData = scraped_web_page?.data?.attributes
 
       return {
-        id,
+        id: summaryId,
         language: locale ?? '',
         keywords: keywords ?? '',
         summary: summary ?? '',

@@ -65,7 +65,7 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      return (await searchSummaryDocuments(arguments_.query, filters)) || []
+      return await searchSummaryDocuments(arguments_.query, filters)
     },
   }),
 )

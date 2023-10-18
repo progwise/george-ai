@@ -1,5 +1,7 @@
-import { updateSummaryDocument } from '@george-ai/typesense-client'
-import { calculatePopularity } from '../../../../calculate-popularity'
+import {
+  calculatePopularity,
+  updateSummaryDocument,
+} from '@george-ai/typesense-client'
 
 const getSummaryId = async (feedbackId: number): Promise<number> => {
   const { web_page_summary }: { web_page_summary: { id: number } } =
@@ -40,8 +42,16 @@ export default {
   async afterCreate(event) {
     const summaryId: string = event.params.data.web_page_summary
     const feedbacks = await getFeedbacks(summaryId)
-    const popularity = calculatePopularity(feedbacks)
-    await updateSummaryDocument({ popularity }, summaryId)
+    const popularity = calculatePopularity(
+      feedbacks.map((feedback) => feedback.voting),
+    )
+    try {
+      await updateSummaryDocument({ popularity }, summaryId)
+    } catch (error) {
+      console.error(
+        `Failed to update summary document with ID ${summaryId}: ${error}`,
+      )
+    }
   },
 
   async beforeDelete(event) {
@@ -49,9 +59,17 @@ export default {
     const summaryId = await getSummaryId(feedbackId)
     const feedbacks = await getFeedbacks(summaryId)
     const popularity = calculatePopularity(
-      feedbacks.filter((feedback) => feedback.id !== feedbackId),
+      feedbacks
+        .filter((feedback) => feedback.id !== feedbackId)
+        .map((feedback) => feedback.voting),
     )
-    await updateSummaryDocument({ popularity }, summaryId.toString())
+    try {
+      await updateSummaryDocument({ popularity }, summaryId.toString())
+    } catch (error) {
+      console.error(
+        `Failed to update summary document with ID ${summaryId}: ${error}`,
+      )
+    }
   },
 
   async beforeDeleteMany(event) {
@@ -59,9 +77,17 @@ export default {
       const summaryId = await getSummaryId(feedbackId)
       const feedbacks = await getFeedbacks(summaryId)
       const popularity = calculatePopularity(
-        feedbacks.filter((feedback) => feedback.id !== feedbackId),
+        feedbacks
+          .filter((feedback) => feedback.id !== feedbackId)
+          .map((feedback) => feedback.voting),
       )
-      await updateSummaryDocument({ popularity }, summaryId.toString())
+      try {
+        await updateSummaryDocument({ popularity }, summaryId.toString())
+      } catch (error) {
+        console.error(
+          `Failed to update summary document with ID ${summaryId}: ${error}`,
+        )
+      }
     }
   },
 }
