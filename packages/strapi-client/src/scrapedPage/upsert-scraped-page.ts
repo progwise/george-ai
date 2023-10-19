@@ -16,6 +16,7 @@ export const upsertScrapedWebPage = async (
   }
 
   if (content === originalContent) {
+    console.log(`Content for URL "${url}" is identical to the original.`)
     return
   }
 

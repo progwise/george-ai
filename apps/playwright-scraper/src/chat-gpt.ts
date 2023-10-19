@@ -26,29 +26,48 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
       ],
     })
 
-    return response.data.choices.at(0)?.message?.content
+    return response.data.choices.at(0)?.message?.content ?? ''
   } catch (error) {
     console.error('Error using chatGPT')
     console.log(JSON.stringify(error, undefined, 2))
+    return ''
   }
 }
 
-// TODO: should a webPageSummary be created if the creation of the summary or keywords fails?
-export const getSummary = async (content: string, summaryPrompt: string[]) => {
-  return (await createChatCompletion(content, summaryPrompt)) ?? ''
-}
-
-export const getKeywords = async (content: string, keywordPrompt: string[]) => {
-  const response = await createChatCompletion(content, keywordPrompt)
-  if (!response) {
-    return []
+export const getSummaryAndKeywords = async (
+  originalContent: string,
+  keywordPrompt: string | null | undefined,
+  summaryPrompt: string | null | undefined,
+) => {
+  if (!keywordPrompt || !summaryPrompt) {
+    console.log('no keywordPrompt or summaryPrompt found')
+    // TODO: a webPageSummary should be created if there is no summaryPrompt
+    //  or keywordPrompt,or if the creation of the summary or keywords fails?
+    return {
+      summary: '',
+      keywords: [],
+    }
   }
+
+  const summary = await createChatCompletion(
+    originalContent,
+    JSON.parse(summaryPrompt),
+  )
+
+  const keywordsResponse = await createChatCompletion(
+    originalContent,
+    JSON.parse(keywordPrompt),
+  )
+
   const keywords =
-    /^\d+\./.test(response) || /^-\s/.test(response)
-      ? response.split('\n')
-      : response.split(',')
+    /^\d+\./.test(keywordsResponse) || /^-\s/.test(keywordsResponse)
+      ? keywordsResponse.split('\n')
+      : keywordsResponse.split(',')
 
-  return keywords
-    .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,$/, '').trim())
-    .slice(0, 10)
+  return {
+    summary,
+    keywords: keywords
+      .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,$/, '').trim())
+      .slice(0, 10),
+  }
 }
