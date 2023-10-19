@@ -66,7 +66,6 @@ export const scrapePage = async (
   const scrapedLanguage = (
     (await page.locator('html').getAttribute('lang')) || 'en'
   ).split('-')[0]
-  console.log('scrapedLanguage:', scrapedLanguage)
   const links = await extractLinks(page, url)
   await page.close()
   return {

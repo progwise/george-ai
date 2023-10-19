@@ -1717,6 +1717,7 @@ __metadata:
     openai: ^3.3.0
     p-map: ^6.0.0
     playwright-chromium: ^1.36.1
+    pmap: ^2.0.0
     ts-node: ^10.9.1
     typescript: ^5.2.2
   languageName: unknown
@@ -6546,6 +6547,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"babel-runtime@npm:^5.7.0":
+  version: 5.8.38
+  resolution: "babel-runtime@npm:5.8.38"
+  dependencies:
+    core-js: ^1.0.0
+  checksum: fdb063787bdb2c2983cf7a61d8ed6171f21e59ce15e4a567e8737bb2e5dad7fe19b810cd351ba6dea13b487163c4ba8d2420f13a6e2e737a921b1bc2fbec04a9
+  languageName: node
+  linkType: hard
+
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -7816,6 +7826,13 @@ __metadata:
   version: 3.32.2
   resolution: "core-js-pure@npm:3.32.2"
   checksum: 19e781c624aee4003f8980f3c4fc441c16ef671473151affe114dc37cfe18958acdb42241b14827f62277f2d6eea73658f6c2e09131be20619e2859426bd03b4
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^1.0.0":
+  version: 1.2.7
+  resolution: "core-js@npm:1.2.7"
+  checksum: 0b76371bfa98708351cde580f9287e2360d2209920e738ae950ae74ad08639a2e063541020bf666c28778956fc356ed9fe56d962129c88a87a6a4a0612526c75
   languageName: node
   linkType: hard
 
@@ -15032,6 +15049,15 @@ __metadata:
   version: 8.0.0
   resolution: "pluralize@npm:8.0.0"
   checksum: 08931d4a6a4a5561a7f94f67a31c17e6632cb21e459ab3ff4f6f629d9a822984cf8afef2311d2005fbea5d7ef26016ebb090db008e2d8bce39d0a9a9d218736e
+  languageName: node
+  linkType: hard
+
+"pmap@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "pmap@npm:2.0.0"
+  dependencies:
+    babel-runtime: ^5.7.0
+  checksum: b2e858c7c2f9060cd57e23f02930fe92099a4c7ec8f56f5a5481ace3f0dcb873a0aaeca56a8c75dc24fbfbf49713692a231c0938c9a1ce513ffe837c65927a5c
   languageName: node
   linkType: hard
 

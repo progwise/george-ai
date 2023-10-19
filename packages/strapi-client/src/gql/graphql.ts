@@ -723,10 +723,17 @@ export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage'
   createdAt?: Maybe<Scalars['DateTime']['output']>
   originalContent?: Maybe<Scalars['String']['output']>
+  prompts?: Maybe<PromptRelationResponseCollection>
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
   web_page_summaries?: Maybe<WebPageSummaryRelationResponseCollection>
+}
+
+export type ScrapedWebPagePromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type ScrapedWebPageWeb_Page_SummariesArgs = {
@@ -760,6 +767,7 @@ export type ScrapedWebPageFiltersInput = {
   not?: InputMaybe<ScrapedWebPageFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   originalContent?: InputMaybe<StringFilterInput>
+  prompts?: InputMaybe<PromptFiltersInput>
   title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   url?: InputMaybe<StringFilterInput>
@@ -768,6 +776,7 @@ export type ScrapedWebPageFiltersInput = {
 
 export type ScrapedWebPageInput = {
   originalContent?: InputMaybe<Scalars['String']['input']>
+  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   title?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
   web_page_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
@@ -1356,16 +1365,7 @@ export type GetScraperConfigurationQuery = {
           depth?: number | null
           prompts?: {
             __typename?: 'PromptRelationResponseCollection'
-            data: Array<{
-              __typename?: 'PromptEntity'
-              attributes?: {
-                __typename?: 'Prompt'
-                summaryPrompt?: string | null
-                keywordPrompt?: string | null
-                llm?: string | null
-                locale?: string | null
-              } | null
-            }>
+            data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
           } | null
         } | null> | null
       } | null
@@ -1458,16 +1458,40 @@ export type CreateScrapedWebPageMutation = {
   __typename?: 'Mutation'
   createScrapedWebPage?: {
     __typename?: 'ScrapedWebPageEntityResponse'
-    data?: {
+    data?: { __typename?: 'ScrapedWebPageEntity'; id?: string | null } | null
+  } | null
+}
+
+export type GetAllScrapedWebPagesQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetAllScrapedWebPagesQuery = {
+  __typename?: 'Query'
+  scrapedWebPages?: {
+    __typename?: 'ScrapedWebPageEntityResponseCollection'
+    data: Array<{
       __typename?: 'ScrapedWebPageEntity'
       id?: string | null
       attributes?: {
         __typename?: 'ScrapedWebPage'
-        title?: string | null
-        url?: string | null
         originalContent?: string | null
+        url?: string | null
+        prompts?: {
+          __typename?: 'PromptRelationResponseCollection'
+          data: Array<{
+            __typename?: 'PromptEntity'
+            attributes?: {
+              __typename?: 'Prompt'
+              summaryPrompt?: string | null
+              keywordPrompt?: string | null
+              llm?: string | null
+              locale?: string | null
+            } | null
+          }>
+        } | null
       } | null
-    } | null
+    }>
   } | null
 }
 
@@ -1479,7 +1503,27 @@ export type GetScrapedWebPagesByUrlQuery = {
   __typename?: 'Query'
   scrapedWebPages?: {
     __typename?: 'ScrapedWebPageEntityResponseCollection'
-    data: Array<{ __typename?: 'ScrapedWebPageEntity'; id?: string | null }>
+    data: Array<{
+      __typename?: 'ScrapedWebPageEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ScrapedWebPage'
+        originalContent?: string | null
+      } | null
+    }>
+  } | null
+}
+
+export type UpdateScrapedWebPageMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: ScrapedWebPageInput
+}>
+
+export type UpdateScrapedWebPageMutation = {
+  __typename?: 'Mutation'
+  updateScrapedWebPage?: {
+    __typename?: 'ScrapedWebPageEntityResponse'
+    data?: { __typename?: 'ScrapedWebPageEntity'; id?: string | null } | null
   } | null
 }
 
@@ -1706,40 +1750,7 @@ export const GetScraperConfigurationDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'attributes',
-                                                },
-                                                selectionSet: {
-                                                  kind: 'SelectionSet',
-                                                  selections: [
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'summaryPrompt',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'keywordPrompt',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'llm',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'locale',
-                                                      },
-                                                    },
-                                                  ],
+                                                  value: 'id',
                                                 },
                                               },
                                             ],
@@ -2241,6 +2252,43 @@ export const CreateScrapedWebPageDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateScrapedWebPageMutation,
+  CreateScrapedWebPageMutationVariables
+>
+export const GetAllScrapedWebPagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAllScrapedWebPages' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'scrapedWebPages' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'attributes' },
@@ -2249,7 +2297,7 @@ export const CreateScrapedWebPageDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'title' },
+                              name: { kind: 'Name', value: 'originalContent' },
                             },
                             {
                               kind: 'Field',
@@ -2257,7 +2305,61 @@ export const CreateScrapedWebPageDocument = {
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'originalContent' },
+                              name: { kind: 'Name', value: 'prompts' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'summaryPrompt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'keywordPrompt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'llm',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'locale',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -2273,8 +2375,8 @@ export const CreateScrapedWebPageDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CreateScrapedWebPageMutation,
-  CreateScrapedWebPageMutationVariables
+  GetAllScrapedWebPagesQuery,
+  GetAllScrapedWebPagesQueryVariables
 >
 export const GetScrapedWebPagesByUrlDocument = {
   kind: 'Document',
@@ -2340,6 +2442,19 @@ export const GetScrapedWebPagesByUrlDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'originalContent' },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -2353,6 +2468,82 @@ export const GetScrapedWebPagesByUrlDocument = {
 } as unknown as DocumentNode<
   GetScrapedWebPagesByUrlQuery,
   GetScrapedWebPagesByUrlQueryVariables
+>
+export const UpdateScrapedWebPageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateScrapedWebPage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'ScrapedWebPageInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateScrapedWebPage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateScrapedWebPageMutation,
+  UpdateScrapedWebPageMutationVariables
 >
 export const CreateWebPageSummaryDocument = {
   kind: 'Document',
