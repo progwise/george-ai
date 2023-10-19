@@ -32,26 +32,19 @@ export const getAllScrapedPages = async () => {
 
     return (
       scrapedWebPages?.data.map(({ id, attributes }) => {
-        const pageId = id ?? ''
-        const originalContent = attributes?.originalContent ?? ''
-        const url = attributes?.url ?? ''
-        const promptsData = attributes?.prompts?.data
-        const prompts = promptsData
-          ? promptsData.map(({ attributes }) => {
+        return {
+          id: id ?? '',
+          originalContent: attributes?.originalContent ?? '',
+          url: attributes?.url ?? '',
+          prompts:
+            attributes?.prompts?.data.map(({ attributes }) => {
               return {
                 summaryPrompt: attributes?.summaryPrompt,
                 keywordPrompt: attributes?.keywordPrompt,
                 llm: attributes?.llm ?? 'unspecified',
                 locale: attributes?.locale ?? 'en',
               }
-            })
-          : []
-
-        return {
-          id: pageId,
-          originalContent,
-          url,
-          prompts,
+            }) ?? [],
         }
       }) ?? []
     )
