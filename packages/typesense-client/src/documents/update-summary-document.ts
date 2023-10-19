@@ -1,16 +1,13 @@
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
 import { typesenseClient } from '../typesense.js'
-
-type UpdateDocument = {
-  popularity: number
-}
+import { SummaryDocument } from './upsert-summary-document.js'
 
 export const updateSummaryDocument = async (
-  document: UpdateDocument,
+  document: Partial<SummaryDocument>,
   id: string,
 ) => {
   await typesenseClient
-    .collections<UpdateDocument>(summaryCollectionSchema.name)
+    .collections(summaryCollectionSchema.name)
     .documents(id)
     .update(document)
 

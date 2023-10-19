@@ -38,6 +38,16 @@ const getFeedbacks = async (summaryId: string | number) => {
   )
 }
 
+const saveUpdateSummaryDocument = async ( popularity: number , summaryId: string) => {
+  try {
+    await updateSummaryDocument({ popularity }, summaryId)
+  } catch (error) {
+    console.error(
+      `Failed to update summary document with ID ${summaryId}: ${error}`,
+    )
+  }
+}
+
 export default {
   async afterCreate(event) {
     const summaryId: string = event.params.data.web_page_summary
@@ -45,13 +55,7 @@ export default {
     const popularity = calculatePopularity(
       feedbacks.map((feedback) => feedback.voting),
     )
-    try {
-      await updateSummaryDocument({ popularity }, summaryId)
-    } catch (error) {
-      console.error(
-        `Failed to update summary document with ID ${summaryId}: ${error}`,
-      )
-    }
+    await saveUpdateSummaryDocument(popularity, summaryId)
   },
 
   async beforeDelete(event) {
@@ -63,13 +67,7 @@ export default {
         .filter((feedback) => feedback.id !== feedbackId)
         .map((feedback) => feedback.voting),
     )
-    try {
-      await updateSummaryDocument({ popularity }, summaryId.toString())
-    } catch (error) {
-      console.error(
-        `Failed to update summary document with ID ${summaryId}: ${error}`,
-      )
-    }
+    await saveUpdateSummaryDocument(popularity, summaryId.toString())
   },
 
   async beforeDeleteMany(event) {
@@ -81,13 +79,7 @@ export default {
           .filter((feedback) => feedback.id !== feedbackId)
           .map((feedback) => feedback.voting),
       )
-      try {
-        await updateSummaryDocument({ popularity }, summaryId.toString())
-      } catch (error) {
-        console.error(
-          `Failed to update summary document with ID ${summaryId}: ${error}`,
-        )
-      }
+      await saveUpdateSummaryDocument(popularity, summaryId.toString())
     }
   },
 }
