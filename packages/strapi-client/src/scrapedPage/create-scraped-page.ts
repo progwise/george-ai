@@ -7,33 +7,25 @@ export const createScrapedPage = async (
   url: string,
   prompts: string[],
 ) => {
-  try {
-    const { createScrapedWebPage } = await strapiClient.request(
-      graphql(`
-        mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {
-          createScrapedWebPage(data: $data) {
-            data {
-              id
-            }
+  const { createScrapedWebPage } = await strapiClient.request(
+    graphql(`
+      mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {
+        createScrapedWebPage(data: $data) {
+          data {
+            id
           }
         }
-      `),
-      {
-        data: {
-          title,
-          originalContent,
-          url,
-          prompts,
-        },
+      }
+    `),
+    {
+      data: {
+        title,
+        originalContent,
+        url,
+        prompts,
       },
-    )
+    },
+  )
 
-    console.log(
-      'Created ScrapedWebPage with ID:',
-      createScrapedWebPage?.data?.id,
-    )
-  } catch (error) {
-    console.error('Error while creating ScrapedWebPage:', error)
-    throw error
-  }
+  console.log('Created ScrapedWebPage with ID:', createScrapedWebPage?.data?.id)
 }

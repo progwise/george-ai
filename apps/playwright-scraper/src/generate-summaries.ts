@@ -6,7 +6,7 @@ import pMap from 'p-map'
 import { getKeywords, getSummary } from './chat-gpt'
 
 const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
-  const scrapedWebPages = (await getAllScrapedPages()) || []
+  const scrapedWebPages = await getAllScrapedPages()
 
   if (scrapedWebPages?.length === 0) {
     console.log('no scrapedWebPages found')

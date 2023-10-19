@@ -11,43 +11,35 @@ export const createFeedback = async (
   voting: Enum_Summaryfeedback_Voting,
   webPageSummaryId: string,
 ) => {
-  try {
-    const { createSummaryFeedback } = await strapiClient.request(
-      graphql(`
-        mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
-          createSummaryFeedback(data: $input) {
-            data {
-              id
-              attributes {
-                position
-                query
-                voting
-                web_page_summary {
-                  data {
-                    id
-                  }
+  const { createSummaryFeedback } = await strapiClient.request(
+    graphql(`
+      mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {
+        createSummaryFeedback(data: $input) {
+          data {
+            id
+            attributes {
+              position
+              query
+              voting
+              web_page_summary {
+                data {
+                  id
                 }
               }
             }
           }
         }
-      `),
-      {
-        input: {
-          position,
-          query,
-          voting,
-          web_page_summary: webPageSummaryId,
-        },
+      }
+    `),
+    {
+      input: {
+        position,
+        query,
+        voting,
+        web_page_summary: webPageSummaryId,
       },
-    )
-    console.log(
-      'create SummaryFeedback by id:',
-      createSummaryFeedback?.data?.id,
-    )
-    return createSummaryFeedback?.data
-  } catch (error) {
-    console.error('Error while creating SummaryFeedback:', error)
-    throw error
-  }
+    },
+  )
+  console.log('create SummaryFeedback by id:', createSummaryFeedback?.data?.id)
+  return createSummaryFeedback?.data
 }
