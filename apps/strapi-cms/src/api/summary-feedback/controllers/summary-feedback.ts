@@ -4,4 +4,6 @@
 
 import { factories } from '@strapi/strapi'
 
-export default factories.createCoreController('api::summary-feedback.summary-feedback');
+export default factories.createCoreController(
+  'api::summary-feedback.summary-feedback',
+)
