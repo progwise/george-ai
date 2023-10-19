@@ -34,10 +34,16 @@ Execute the following command at the root directory to start the development env
 yarn run dev
 ```
 
+### Run Docker
+
+1. start docker
+2. `docker-compose up`
+
 ### Run Scraper
 
 1. `cd apps/playwright-scraper`
 2. `yarn run scrape`
+3. `yarn run generatesummaries`
 
 ### Run Typesense-CLI
 
