@@ -33,8 +33,9 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
   }
 }
 
+// TODO: should a webPageSummary be created if the creation of the summary or keywords fails?
 export const getSummary = async (content: string, summaryPrompt: string[]) => {
-  return await createChatCompletion(content, summaryPrompt)
+  return (await createChatCompletion(content, summaryPrompt)) ?? ''
 }
 
 export const getKeywords = async (content: string, keywordPrompt: string[]) => {
