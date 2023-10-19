@@ -831,8 +831,8 @@ export type StringFilterInput = {
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  position?: Maybe<Scalars['Int']['output']>
   query?: Maybe<Scalars['String']['output']>
+  selectedSummaryIndex?: Maybe<Scalars['Int']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   voting?: Maybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: Maybe<WebPageSummaryEntityResponse>
@@ -861,16 +861,16 @@ export type SummaryFeedbackFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   not?: InputMaybe<SummaryFeedbackFiltersInput>
   or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
-  position?: InputMaybe<IntFilterInput>
   query?: InputMaybe<StringFilterInput>
+  selectedSummaryIndex?: InputMaybe<IntFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   voting?: InputMaybe<StringFilterInput>
   web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
 }
 
 export type SummaryFeedbackInput = {
-  position?: InputMaybe<Scalars['Int']['input']>
   query?: InputMaybe<Scalars['String']['input']>
+  selectedSummaryIndex?: InputMaybe<Scalars['Int']['input']>
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: InputMaybe<Scalars['ID']['input']>
 }
@@ -1389,7 +1389,7 @@ export type CreateSummaryFeedbackMutation = {
       id?: string | null
       attributes?: {
         __typename?: 'SummaryFeedback'
-        position?: number | null
+        selectedSummaryIndex?: number | null
         query?: string | null
         voting?: Enum_Summaryfeedback_Voting | null
         web_page_summary?: {
@@ -1816,7 +1816,10 @@ export const CreateSummaryFeedbackDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'position' },
+                              name: {
+                                kind: 'Name',
+                                value: 'selectedSummaryIndex',
+                              },
                             },
                             {
                               kind: 'Field',

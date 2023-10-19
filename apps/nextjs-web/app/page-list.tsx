@@ -56,7 +56,7 @@ export async function PageList({
         <InfoCard
           key={page.id}
           pageFragment={page}
-          position={index}
+          infoCardIndex={index}
           webPageSummaryId={page.id}
         />
       ))}

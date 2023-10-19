@@ -1,7 +1,6 @@
 import { typesenseClient } from '../typesense.js'
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
 import { PublicationState } from './search-summary-documents.js'
-import { ensureSummaryCollectionExists } from '../collections/ensure-summary-collection-exists.js'
 
 type UpserteDocument = {
   id: string
@@ -16,20 +15,16 @@ type UpserteDocument = {
   popularity: number
 }
 
-export const upsertSummaryDocument = async (
-  document: UpserteDocument,
-  id: string,
-) => {
+export const upsertSummaryDocument = async (document: UpserteDocument) => {
   try {
-    await ensureSummaryCollectionExists()
     await typesenseClient
       .collections<UpserteDocument>(summaryCollectionSchema.name)
       .documents()
       .upsert(document)
-    console.log(`Data upsert to typesense collection with id: ${id}`)
+    console.log(`Data upsert to typesense collection with id: ${document.id}`)
   } catch (error) {
     console.error(
-      `Error while Upsert collection ${summaryCollectionSchema.name} with id: ${id}`,
+      `Error while Upsert collection with id: ${document.id}`,
       error,
     )
     throw error

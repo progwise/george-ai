@@ -1,6 +1,7 @@
 import {
   PublicationState,
   calculatePopularity,
+  ensureSummaryCollectionExists,
   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
@@ -12,7 +13,7 @@ export const rebuildCollection = async () => {
     console.log('No webPageSummaries found')
     return
   }
-
+  await ensureSummaryCollectionExists()
   await pMap(
     allSummaries,
     async ({
@@ -43,7 +44,7 @@ export const rebuildCollection = async () => {
         popularity: calculatePopularity(feedbacks),
       }
 
-      await upsertSummaryDocument(summaryDocument, id)
+      await upsertSummaryDocument(summaryDocument)
     },
     { concurrency: 10 },
   )

@@ -8,12 +8,12 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 interface FeedbackButtonsProps {
-  position: number
+  infoCardIndex: number
   webPageSummaryId: string
 }
 
 export const FeedbackButtons = ({
-  position,
+  infoCardIndex,
   webPageSummaryId,
 }: FeedbackButtonsProps) => {
   const searchParameters = useSearchParams()
@@ -34,14 +34,14 @@ export const FeedbackButtons = ({
       await getClient().mutation(
         graphql(`
           mutation createSummaryFeedback(
-            $position: Int!
+            $infoCardIndex: Int!
             $voting: SummaryFeedbackVoting!
             $webPageSummaryId: String!
             $query: String!
           ) {
             createSummaryFeedback(
               data: {
-                position: $position
+                selectedSummaryIndex: $infoCardIndex
                 voting: $voting
                 webPageSummaryId: $webPageSummaryId
                 query: $query
@@ -54,7 +54,7 @@ export const FeedbackButtons = ({
         {
           query: query ?? '',
           voting: feedback,
-          position,
+          infoCardIndex,
           webPageSummaryId,
         },
       )

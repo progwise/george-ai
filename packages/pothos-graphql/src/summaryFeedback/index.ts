@@ -18,7 +18,7 @@ const CreateSummaryFeedbackInput = builder.inputType(
   'CreateSummaryFeedbackInput',
   {
     fields: (t) => ({
-      position: t.int(),
+      selectedSummaryIndex: t.int(),
       query: t.string(),
       voting: t.field({
         type: SummaryFeedbackVoting,
@@ -36,7 +36,7 @@ builder.mutationField('createSummaryFeedback', (t) =>
     },
     resolve: async (parent, arguments_) => {
       const feedbackId = await createFeedback(
-        arguments_.data.position,
+        arguments_.data.selectedSummaryIndex,
         arguments_.data.query,
         arguments_.data.voting,
         arguments_.data.webPageSummaryId,

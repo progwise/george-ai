@@ -10,7 +10,6 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@george-ai/strapi-client": "*",
     "@george-ai/typesense-client": "*",
     "@strapi/plugin-graphql": "^4.12.0",
     "@strapi/plugin-i18n": "4.12.0",

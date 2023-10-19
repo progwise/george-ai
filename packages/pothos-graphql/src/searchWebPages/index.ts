@@ -65,7 +65,15 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      return await searchSummaryDocuments(arguments_.query, filters)
+      try {
+        return await searchSummaryDocuments(
+          arguments_.query,
+          filters.join(' && '),
+        )
+      } catch (error) {
+        console.error('An error occurred while fetching:', error)
+        return []
+      }
     },
   }),
 )

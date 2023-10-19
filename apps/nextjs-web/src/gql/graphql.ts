@@ -30,8 +30,8 @@ export type Scalars = {
 }
 
 export type CreateSummaryFeedbackInput = {
-  position: Scalars['Int']['input']
   query: Scalars['String']['input']
+  selectedSummaryIndex: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
   webPageSummaryId: Scalars['String']['input']
 }
@@ -107,7 +107,7 @@ export type GetLangAndLlmQuery = {
 }
 
 export type CreateSummaryFeedbackMutationVariables = Exact<{
-  position: Scalars['Int']['input']
+  infoCardIndex: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
   webPageSummaryId: Scalars['String']['input']
   query: Scalars['String']['input']
@@ -229,7 +229,7 @@ export const CreateSummaryFeedbackDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'position' },
+            name: { kind: 'Name', value: 'infoCardIndex' },
           },
           type: {
             kind: 'NonNullType',
@@ -294,10 +294,10 @@ export const CreateSummaryFeedbackDocument = {
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'position' },
+                      name: { kind: 'Name', value: 'selectedSummaryIndex' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'position' },
+                        name: { kind: 'Name', value: 'infoCardIndex' },
                       },
                     },
                     {
