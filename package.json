@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "codegen": "node codegen.ts",
-    "build": "turbo run build "
+    "build": "turbo run build ",
+    "dev": "turbo run dev"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
