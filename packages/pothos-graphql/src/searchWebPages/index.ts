@@ -29,7 +29,7 @@ builder.objectType(searchWebPagesReference, {
   }),
 })
 
-builder.queryField('searchResult', (t) =>
+builder.queryField('searchWebPages', (t) =>
   t.field({
     type: [searchWebPagesReference],
     args: {
@@ -65,15 +65,10 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      try {
-        return await searchSummaryDocuments(
-          arguments_.query,
-          filters.join(' && '),
-        )
-      } catch (error) {
-        console.error('An error occurred while fetching:', error)
-        return []
-      }
+      return await searchSummaryDocuments(
+        arguments_.query,
+        filters.join(' && '),
+      )
     },
   }),
 )

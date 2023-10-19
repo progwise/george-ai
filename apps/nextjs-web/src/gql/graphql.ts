@@ -53,10 +53,10 @@ export enum PublicationState {
 export type Query = {
   __typename?: 'Query'
   searchFilters: SearchFilters
-  searchResult: Array<SearchWebPages>
+  searchWebPages: Array<SearchWebPages>
 }
 
-export type QuerySearchResultArgs = {
+export type QuerySearchWebPagesArgs = {
   keywords?: Array<Scalars['String']['input']>
   language?: Array<Scalars['String']['input']>
   largeLanguageModel?: Array<Scalars['String']['input']>
@@ -148,7 +148,7 @@ export type GetSearchWebPagesQueryVariables = Exact<{
 
 export type GetSearchWebPagesQuery = {
   __typename?: 'Query'
-  searchResult: Array<
+  searchWebPages: Array<
     { __typename?: 'searchWebPages'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
@@ -433,7 +433,7 @@ export const GetSearchWebPagesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'searchResult' },
+            name: { kind: 'Name', value: 'searchWebPages' },
             arguments: [
               {
                 kind: 'Argument',

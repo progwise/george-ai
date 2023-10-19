@@ -24,7 +24,7 @@ export async function PageList({
         $largeLanguageModel: [String!]
         $keywords: [String!]
       ) {
-        searchResult(
+        searchWebPages(
           query: $query
           language: $language
           publicationState: $publicationState
@@ -44,7 +44,11 @@ export async function PageList({
       keywords: kw,
     },
   )
-  const pages = data?.searchResult
+  const pages = data?.searchWebPages
+
+  if (!Array.isArray(pages)) {
+    return <span>An error has occurred</span>
+  }
 
   if (pages?.length === 0) {
     return <span>No entries found</span>

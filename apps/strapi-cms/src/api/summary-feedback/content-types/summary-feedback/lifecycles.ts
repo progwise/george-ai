@@ -15,7 +15,7 @@ const getSummaryId = async (feedbackId: number): Promise<number> => {
   return web_page_summary.id
 }
 
-const getFeedbacks = async (summaryId: string | number) => {
+const getCurrentFeedbacks = async (summaryId: string | number) => {
   const {
     lastScrapeUpdate,
     summary_feedbacks,
@@ -38,12 +38,16 @@ const getFeedbacks = async (summaryId: string | number) => {
   )
 }
 
-const saveUpdateSummaryDocument = async ( popularity: number , summaryId: string) => {
+const saveUpdateSummaryDocument = async (
+  popularity: number,
+  summaryId: string,
+) => {
   try {
     await updateSummaryDocument({ popularity }, summaryId)
   } catch (error) {
     console.error(
-      `Failed to update summary document with ID ${summaryId}: ${error}`,
+      `Failed to update summary document with ID ${summaryId}:`,
+      error,
     )
   }
 }
@@ -51,7 +55,7 @@ const saveUpdateSummaryDocument = async ( popularity: number , summaryId: string
 export default {
   async afterCreate(event) {
     const summaryId: string = event.params.data.web_page_summary
-    const feedbacks = await getFeedbacks(summaryId)
+    const feedbacks = await getCurrentFeedbacks(summaryId)
     const popularity = calculatePopularity(
       feedbacks.map((feedback) => feedback.voting),
     )
@@ -61,7 +65,7 @@ export default {
   async beforeDelete(event) {
     const feedbackId = event.params.where.id
     const summaryId = await getSummaryId(feedbackId)
-    const feedbacks = await getFeedbacks(summaryId)
+    const feedbacks = await getCurrentFeedbacks(summaryId)
     const popularity = calculatePopularity(
       feedbacks
         .filter((feedback) => feedback.id !== feedbackId)
@@ -73,7 +77,7 @@ export default {
   async beforeDeleteMany(event) {
     for (const feedbackId of event.params?.where?.$and[0].id.$in) {
       const summaryId = await getSummaryId(feedbackId)
-      const feedbacks = await getFeedbacks(summaryId)
+      const feedbacks = await getCurrentFeedbacks(summaryId)
       const popularity = calculatePopularity(
         feedbacks
           .filter((feedback) => feedback.id !== feedbackId)
