@@ -5,7 +5,7 @@ import {
 import pMap from 'p-map'
 import { getSummaryAndKeywords } from './chat-gpt'
 
-const updatedOutdatedSummaries = async () => {
+const updateOutdatedSummaries = async () => {
   const outdatedSummaries = await getAllOutdatedSummaries()
 
   if (outdatedSummaries?.length === 0) {
@@ -45,4 +45,4 @@ const updatedOutdatedSummaries = async () => {
   )
 }
 
-await updatedOutdatedSummaries()
+await updateOutdatedSummaries()
