@@ -2,7 +2,7 @@
 
 import { getClient } from '@/app/client/urql-client'
 import { graphql } from '@/src/gql'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export const SuggestModal = ({
   title,
@@ -12,6 +12,7 @@ export const SuggestModal = ({
   summaryId: string
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const formRef = useRef(null)
   useEffect(() => {
     if (isModalOpen) {
       document.body.style.overflow = 'hidden'
@@ -21,7 +22,8 @@ export const SuggestModal = ({
     }
   }, [isModalOpen])
   const handleSubmit = async () => {
-    const proposalSummary = ''
+    console.log('formRef: ', formRef)
+
     // try {
     //   await getClient().mutation(
     //     graphql(`
@@ -60,6 +62,7 @@ export const SuggestModal = ({
           className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
         >
           <form
+            ref={formRef}
             onSubmit={handleSubmit}
             onClick={(event) => event.stopPropagation()}
             className="relative w-full max-w-2xl max-h-full"
@@ -68,6 +71,7 @@ export const SuggestModal = ({
               <h3 className="font-bold text-lg p-4 border-b">{title}</h3>
               <div className="p-6 h-64">
                 <textarea
+                  name="proposalSummary"
                   className="border rounded-md p-2 w-full h-full resize-none"
                   placeholder="Enter your proposal"
                 />

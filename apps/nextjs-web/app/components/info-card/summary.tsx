@@ -15,16 +15,20 @@ export const Summary = ({ summary }: { summary: string }) => {
         className={`${styles.summary} ${isExpand ? '' : 'line-clamp-3'}`}
         dangerouslySetInnerHTML={{ __html: cleanHtml }}
       />
-      {/* <button onClick={() => setIsExpand(!isExpand)}> */}
-      <Image
-        src={`/${isExpand ? 'collapse' : 'expand'}-symbols.svg`}
-        alt={`${isExpand ? 'collapse' : 'expand'}-symbols`}
-        className={`cursor-pointer hover:scale-y-${isExpand ? '75' : '125'}`}
+      <button
+        className={`flex-none cursor-pointer transition-transform ${
+          isExpand ? 'hover:scale-y-75' : 'hover:scale-y-125'
+        }`}
         onClick={() => setIsExpand(!isExpand)}
-        width={24}
-        height={24}
-      />
-      {/* </button> */}
+      >
+        <Image
+          src={`/${isExpand ? 'collapse' : 'expand'}-symbols.svg`}
+          alt={`${isExpand ? 'collapse' : 'expand'}-symbols`}
+          onClick={() => setIsExpand(!isExpand)}
+          width={24}
+          height={24}
+        />
+      </button>
     </div>
   )
 }
