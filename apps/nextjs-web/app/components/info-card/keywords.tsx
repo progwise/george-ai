@@ -35,7 +35,7 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => {
           keyword && (
             <button
               key={`${keyword}_${index}`}
-              className="border border-black rounded-md text-xs px-4 bg-slate-100 hover:bg-slate-300 cursor-pointer"
+              className="border border-black rounded-md text-xs px-4 bg-slate-100 hover:bg-slate-300"
               onClick={() => handleFilterChange(keyword)}
             >
               {keyword}

@@ -27,6 +27,8 @@ const documents = {
     types.DeletePromptDocument,
   '\n      query GetDefaultPrompts {\n        prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n          data {\n            id\n          }\n        }\n      }\n    ':
     types.GetDefaultPromptsDocument,
+  '\n      mutation CreateProposalForSummary(\n        $proposalSummary: String!\n        $summaryId: ID!\n      ) {\n        createProposalForSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            web_page_summary: $summaryId\n          }\n        ) {\n          data {\n            id\n            attributes {\n              proposalSummary\n              web_page_summary {\n                data {\n                  id\n                }\n              }\n            }\n          }\n        }\n      }\n    ':
+    types.CreateProposalForSummaryDocument,
   '\n      mutation CreateScrapedWebPage($data: ScrapedWebPageInput!) {\n        createScrapedWebPage(data: $data) {\n          data {\n            id\n          }\n        }\n      }\n    ':
     types.CreateScrapedWebPageDocument,
   '\n      query GetAllScrapedWebPages {\n        scrapedWebPages {\n          data {\n            id\n            attributes {\n              originalContent\n              url\n              prompts {\n                data {\n                  attributes {\n                    summaryPrompt\n                    keywordPrompt\n                    llm\n                    locale\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    ':
@@ -101,6 +103,12 @@ export function graphql(
 export function graphql(
   source: '\n      query GetDefaultPrompts {\n        prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n          data {\n            id\n          }\n        }\n      }\n    ',
 ): (typeof documents)['\n      query GetDefaultPrompts {\n        prompts(locale: "all", filters: { isDefaultPrompt: { eq: true } }) {\n          data {\n            id\n          }\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      mutation CreateProposalForSummary(\n        $proposalSummary: String!\n        $summaryId: ID!\n      ) {\n        createProposalForSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            web_page_summary: $summaryId\n          }\n        ) {\n          data {\n            id\n            attributes {\n              proposalSummary\n              web_page_summary {\n                data {\n                  id\n                }\n              }\n            }\n          }\n        }\n      }\n    ',
+): (typeof documents)['\n      mutation CreateProposalForSummary(\n        $proposalSummary: String!\n        $summaryId: ID!\n      ) {\n        createProposalForSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            web_page_summary: $summaryId\n          }\n        ) {\n          data {\n            id\n            attributes {\n              proposalSummary\n              web_page_summary {\n                data {\n                  id\n                }\n              }\n            }\n          }\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

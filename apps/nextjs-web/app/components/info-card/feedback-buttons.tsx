@@ -6,6 +6,7 @@ import { SummaryFeedbackVoting } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useMutation } from 'urql'
 
 interface FeedbackButtonsProps {
   position: number
@@ -21,7 +22,27 @@ export const FeedbackButtons = ({
   const [feedbackSelection, setFeedbackSelection] = useState<
     SummaryFeedbackVoting | undefined
   >()
-
+  const [, createSummaryFeedback] = useMutation(
+    graphql(`
+      mutation CreateSummaryFeedback(
+        $position: Int!
+        $voting: SummaryFeedbackVoting!
+        $webPageSummaryId: String!
+        $query: String!
+      ) {
+        createSummaryFeedback(
+          data: {
+            position: $position
+            voting: $voting
+            webPageSummaryId: $webPageSummaryId
+            query: $query
+          }
+        ) {
+          id
+        }
+      }
+    `),
+  )
   const handleFeedbackChange = async (votingChoice?: SummaryFeedbackVoting) => {
     const feedback =
       feedbackSelection === votingChoice ? undefined : votingChoice
@@ -31,40 +52,19 @@ export const FeedbackButtons = ({
       return
     }
     try {
-      await getClient().mutation(
-        graphql(`
-          mutation createSummaryFeedback(
-            $position: Int!
-            $voting: SummaryFeedbackVoting!
-            $webPageSummaryId: String!
-            $query: String!
-          ) {
-            createSummaryFeedback(
-              data: {
-                position: $position
-                voting: $voting
-                webPageSummaryId: $webPageSummaryId
-                query: $query
-              }
-            ) {
-              id
-            }
-          }
-        `),
-        {
-          query: query ?? '',
-          voting: feedback,
-          position,
-          webPageSummaryId,
-        },
-      )
+      await createSummaryFeedback({
+        query: query ?? '',
+        voting: feedback,
+        position,
+        webPageSummaryId,
+      })
     } catch (error) {
       console.error('Error while creating summary feedback:', error)
     }
   }
 
   return (
-    <div className="flex min-w-max gap-4">
+    <div className="flex min-w-max gap-4 z-10">
       <button onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Up)}>
         <Image
           src="/thumbs-up.svg"

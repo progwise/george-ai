@@ -3,6 +3,7 @@ import { Summary } from './summary'
 import { Keywords } from './keywords'
 import { Link } from './link'
 import { FragmentType, graphql, useFragment } from '@/src/gql'
+import { SuggestModal } from './suggest-modal'
 
 const InfoCardFragment = graphql(`
   fragment InfoCard on searchWebPages {
@@ -42,6 +43,7 @@ export const InfoCard = ({
       <Summary key={page.id} summary={page.summary} />
       <Link url={page.url} />
       <Keywords keywords={page?.keywords} />
+      <SuggestModal title={page.title} />
     </div>
   )
 }

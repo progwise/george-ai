@@ -29,6 +29,11 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
+export type CreateProposalSummaryInput = {
+  proposalSummary: Scalars['String']['input']
+  summaryId: Scalars['String']['input']
+}
+
 export type CreateSummaryFeedback = {
   __typename?: 'CreateSummaryFeedback'
   id: Scalars['String']['output']
@@ -47,11 +52,21 @@ export type CreateSummaryFeedbackInput = {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  createProposalSummary: ProposalSummaryReference
   createSummaryFeedback: CreateSummaryFeedback
+}
+
+export type MutationCreateProposalSummaryArgs = {
+  data: CreateProposalSummaryInput
 }
 
 export type MutationCreateSummaryFeedbackArgs = {
   data: CreateSummaryFeedbackInput
+}
+
+export type ProposalSummaryReference = {
+  __typename?: 'ProposalSummaryReference'
+  id: Scalars['String']['output']
 }
 
 export enum PublicationState {
@@ -227,7 +242,7 @@ export const CreateSummaryFeedbackDocument = {
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'createSummaryFeedback' },
+      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',

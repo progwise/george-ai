@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "proposal_for_summaries",
+  "info": {
+    "singularName": "proposal-for-summary",
+    "pluralName": "proposal-for-summaries",
+    "displayName": "ProposalForSummary",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "proposalSummary": {
+      "type": "richtext"
+    },
+    "web_page_summary": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::web-page-summary.web-page-summary"
+    }
+  }
+}
