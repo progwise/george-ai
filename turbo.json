@@ -10,7 +10,7 @@
       "dependsOn": ["build", "test", "lint"]
     },
     "test": {
-      "dependsOn": ["build"],
+      "dependsOn": ["^build"],
       "inputs": ["src/**/*.test.tsx", "src/**/*.test.ts"]
     },
     "lint": {
