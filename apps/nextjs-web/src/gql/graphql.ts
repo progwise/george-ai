@@ -128,7 +128,7 @@ export type GetLangAndLlmQuery = {
 export type CreateSummaryFeedbackMutationVariables = Exact<{
   position: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
-  webPageSummaryId: Scalars['String']['input']
+  summaryId: Scalars['String']['input']
   query: Scalars['String']['input']
 }>
 
@@ -148,6 +148,16 @@ export type InfoCardFragment = {
   summary: string
   largeLanguageModel: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
+
+export type CreateProposalSummaryMutationVariables = Exact<{
+  proposalSummary: Scalars['String']['input']
+  summaryId: Scalars['String']['input']
+}>
+
+export type CreateProposalSummaryMutation = {
+  __typename?: 'Mutation'
+  createProposalSummary: { __typename?: 'ProposalSummaryReference'; id: string }
+}
 
 export type GetSearchWebPagesQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
@@ -273,7 +283,7 @@ export const CreateSummaryFeedbackDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'webPageSummaryId' },
+            name: { kind: 'Name', value: 'summaryId' },
           },
           type: {
             kind: 'NonNullType',
@@ -332,7 +342,7 @@ export const CreateSummaryFeedbackDocument = {
                       name: { kind: 'Name', value: 'webPageSummaryId' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'webPageSummaryId' },
+                        name: { kind: 'Name', value: 'summaryId' },
                       },
                     },
                     {
@@ -361,6 +371,91 @@ export const CreateSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
+>
+export const CreateProposalSummaryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateProposalSummary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'proposalSummary' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'summaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createProposalSummary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'proposalSummary' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'proposalSummary' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'summaryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryId' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateProposalSummaryMutation,
+  CreateProposalSummaryMutationVariables
 >
 export const GetSearchWebPagesDocument = {
   kind: 'Document',

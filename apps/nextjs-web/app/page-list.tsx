@@ -49,12 +49,7 @@ export async function PageList({
   return (
     <>
       {pages?.map((page, index) => (
-        <InfoCard
-          key={page.id}
-          pageFragment={page}
-          position={index}
-          webPageSummaryId={page.id}
-        />
+        <InfoCard key={page.id} pageFragment={page} position={index} />
       ))}
     </>
   )

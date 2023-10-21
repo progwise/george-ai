@@ -12,13 +12,13 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "proposalSummary": {
-      "type": "richtext"
-    },
     "web_page_summary": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::web-page-summary.web-page-summary"
+    },
+    "proposalSummary": {
+      "type": "text"
     }
   }
 }

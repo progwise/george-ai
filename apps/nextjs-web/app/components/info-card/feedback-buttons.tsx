@@ -1,7 +1,6 @@
 'use client'
 
 import { graphql } from '@/src/gql'
-import { getClient } from '@/app/client/urql-client'
 import { SummaryFeedbackVoting } from '@/src/gql/graphql'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -10,12 +9,12 @@ import { useMutation } from 'urql'
 
 interface FeedbackButtonsProps {
   position: number
-  webPageSummaryId: string
+  summaryId: string
 }
 
 export const FeedbackButtons = ({
   position,
-  webPageSummaryId,
+  summaryId,
 }: FeedbackButtonsProps) => {
   const searchParameters = useSearchParams()
   const query = searchParameters.get('query')
@@ -27,14 +26,14 @@ export const FeedbackButtons = ({
       mutation CreateSummaryFeedback(
         $position: Int!
         $voting: SummaryFeedbackVoting!
-        $webPageSummaryId: String!
+        $summaryId: String!
         $query: String!
       ) {
         createSummaryFeedback(
           data: {
             position: $position
             voting: $voting
-            webPageSummaryId: $webPageSummaryId
+            webPageSummaryId: $summaryId
             query: $query
           }
         ) {
@@ -56,7 +55,7 @@ export const FeedbackButtons = ({
         query: query ?? '',
         voting: feedback,
         position,
-        webPageSummaryId,
+        summaryId,
       })
     } catch (error) {
       console.error('Error while creating summary feedback:', error)

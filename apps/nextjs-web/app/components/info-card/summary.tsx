@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
-import styles from './summary.module.css'
 import xss from 'xss'
 
 export const Summary = ({ summary }: { summary: string }) => {
@@ -12,7 +11,7 @@ export const Summary = ({ summary }: { summary: string }) => {
   return (
     <div className="flex items-start gap-2">
       <div
-        className={`${styles.summary} ${isExpand ? '' : 'line-clamp-3'}`}
+        className={`prose prose-sm ${isExpand ? '' : 'line-clamp-3'}`}
         dangerouslySetInnerHTML={{ __html: cleanHtml }}
       />
       <button

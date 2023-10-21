@@ -6,7 +6,7 @@ interface InfoCardTitleProps {
   publicationState: PublicationState
   language: string
   position: number
-  webPageSummaryId: string
+  summaryId: string
   largeLanguageModel: string
 }
 
@@ -15,7 +15,7 @@ export const InfoCardTitle = ({
   publicationState,
   language,
   position,
-  webPageSummaryId,
+  summaryId,
   largeLanguageModel,
 }: InfoCardTitleProps) => {
   return (
@@ -36,10 +36,7 @@ export const InfoCardTitle = ({
         <div className="capitalize border whitespace-nowrap border-black text-xs rounded-md px-4 bg-slate-100">
           {largeLanguageModel}
         </div>
-        <FeedbackButtons
-          position={position}
-          webPageSummaryId={webPageSummaryId}
-        />
+        <FeedbackButtons position={position} summaryId={summaryId} />
       </div>
     </div>
   )
