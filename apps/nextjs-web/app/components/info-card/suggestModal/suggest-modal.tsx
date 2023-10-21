@@ -66,8 +66,10 @@ export const SuggestModal = ({
       </button>
       {isModalOpen && (
         <div
-          onClick={() => {
-            setIsModalOpen(false)
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsModalOpen(false)
+            }
           }}
           className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
         >
