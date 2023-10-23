@@ -4,6 +4,4 @@
 
 import { factories } from '@strapi/strapi'
 
-export default factories.createCoreController(
-  'api::web-page-summary.web-page-summary',
-)
+export default factories.createCoreController('api::web-page-summary.web-page-summary');

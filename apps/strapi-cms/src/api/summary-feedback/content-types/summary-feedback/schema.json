@@ -20,7 +20,10 @@
     },
     "voting": {
       "type": "enumeration",
-      "enum": ["up", "down"]
+      "enum": [
+        "up",
+        "down"
+      ]
     },
     "query": {
       "type": "string"

@@ -5,7 +5,10 @@
     "rootDir": ".",
     "allowJs": true //enables the build without .ts files
   },
-  "include": ["./", "src/**/*.json"],
+  "include": [
+    "./",
+    "src/**/*.json"
+  ],
   "exclude": [
     "node_modules/",
     "build/",
