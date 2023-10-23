@@ -26,7 +26,10 @@ export const InfoCard = ({ pageFragment, position }: InfoCardProps) => {
   const page = useFragment(InfoCardFragment, pageFragment)
 
   return (
-    <div className="flex flex-col gap-5 border-2 p-8 rounded-md">
+    <div
+      id={`infoCard_${page.id}`}
+      className={`card card-body card-bordered border-current flex flex-col gap-5 p-8 shadow-xl`}
+    >
       <InfoCardTitle
         title={page.title}
         publicationState={page.publicationState}
@@ -35,10 +38,18 @@ export const InfoCard = ({ pageFragment, position }: InfoCardProps) => {
         summaryId={page.id}
         largeLanguageModel={page.largeLanguageModel}
       />
-      <Summary key={page.id} summary={page.summary} />
+      <Summary
+        key={`summary_${page.id}`}
+        index={page.id}
+        summary={page.summary}
+      />
+      <SuggestModal
+        key={`modal_${page.id}`}
+        title={page.title}
+        summaryId={page.id}
+      />
       <Link url={page.url} />
       <Keywords keywords={page?.keywords} />
-      <SuggestModal title={page.title} summaryId={page.id} />
     </div>
   )
 }

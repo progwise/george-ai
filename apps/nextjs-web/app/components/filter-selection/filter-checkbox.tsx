@@ -19,10 +19,8 @@ export const FilterCheckbox = ({
 
   const handleFilterChange = () => {
     const updatedParameters = new URLSearchParams(searchParameters.toString())
-
     if (checked) {
       updatedParameters.delete(filter)
-
       for (const item of searchParameters.getAll(filter)) {
         if (item !== value) {
           updatedParameters.append(filter, item)
@@ -31,21 +29,22 @@ export const FilterCheckbox = ({
     } else {
       updatedParameters.append(filter, value)
     }
-
     router.replace(pathname + '?' + updatedParameters.toString(), {
       scroll: false,
     })
   }
 
   return (
-    <label className="cursor-pointer flex gap-0.5">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={handleFilterChange}
-        className="cursor-pointer"
-      />
-      {value}
-    </label>
+    <div className="form-control">
+      <label className="label gap-1 cursor-pointer">
+        <span className="capitalize label-text">{value}</span>
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={handleFilterChange}
+          className="checkbox checkbox-sm checkbox-info"
+        />
+      </label>
+    </div>
   )
 }

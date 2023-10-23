@@ -24,16 +24,16 @@ export const InfoCardTitle = ({
         <div className="flex gap-2 items-center">
           <span className="uppercase text-xs font-bold">{language}</span>
           {/*  TODO: A too-long {title} takes up more space than necessary after line-wrapping, which pushes the {publicationState} too far to the right. */}
-          <h2 className="font-bold text-lg" title={title}>
+          <h2 className="card-title" title={title}>
             {title}
           </h2>
         </div>
-        <div className="border border-black text-xs rounded-md px-4 bg-slate-100">
+        <div className="capitalize btn btn-active  btn-accent btn-xs cursor-default">
           {publicationState}
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <div className="capitalize border whitespace-nowrap border-black text-xs rounded-md px-4 bg-slate-100">
+        <div className="capitalize btn btn-active  btn-accent btn-xs cursor-default">
           {largeLanguageModel}
         </div>
         <FeedbackButtons position={position} summaryId={summaryId} />

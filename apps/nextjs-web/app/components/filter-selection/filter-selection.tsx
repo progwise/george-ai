@@ -32,7 +32,7 @@ export const FilterSelection = async ({
   const searchFilters = data?.searchFilters
 
   return (
-    <div className="flex justify-end gap-3">
+    <div className="flex items-center justify-end gap-3">
       {shouldDisplayFilter(searchFilters?.publicationState) &&
         searchFilters?.publicationState.map((state) => (
           <FilterCheckbox
