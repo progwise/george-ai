@@ -32,6 +32,11 @@
       "relation": "oneToMany",
       "target": "api::web-page-summary.web-page-summary",
       "mappedBy": "scraped_web_page"
+    },
+    "prompts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::prompt.prompt"
     }
   }
 }

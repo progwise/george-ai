@@ -1,56 +1,67 @@
 import {
-  computeFeedbackPopularity,
-  ensureCollectionExists,
-  upsertWebpageSummary,
+  PublicationState,
+  calculatePopularity,
+  ensureSummaryCollection,
+  upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
-import { WebPageSummaryEntity } from './gql/graphql'
-import { GetAllSummaries } from '@george-ai/strapi-client'
-
-const mapper = async (webPageSummaryEntity: WebPageSummaryEntity) => {
-  const updatedAt = new Date(webPageSummaryEntity.attributes?.updatedAt)
-
-  const votes = (webPageSummaryEntity.attributes?.summary_feedbacks?.data ?? [])
-    .filter((feedback) => {
-      const createdAt = new Date(feedback.attributes?.createdAt)
-      return createdAt > updatedAt
-    })
-    .map((feedback) => feedback.attributes?.voting || '')
-
-  const popularity = computeFeedbackPopularity(votes)
-
-  const webPageSummary = {
-    id: webPageSummaryEntity.id ?? '',
-    language: webPageSummaryEntity.attributes?.locale ?? '',
-    keywords: webPageSummaryEntity.attributes?.keywords
-      ? JSON.parse(webPageSummaryEntity.attributes?.keywords)
-      : [],
-    summary: webPageSummaryEntity.attributes?.summary ?? '',
-    largeLanguageModel:
-      webPageSummaryEntity.attributes?.largeLanguageModel ?? '',
-    title:
-      webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
-        ?.title ?? '',
-    url:
-      webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
-        ?.url ?? '',
-    originalContent:
-      webPageSummaryEntity.attributes?.scraped_web_page?.data?.attributes
-        ?.originalContent ?? '',
-    publicationState: webPageSummaryEntity.attributes?.publishedAt
-      ? 'published'
-      : 'draft',
-    popularity,
-  }
-
-  await upsertWebpageSummary(webPageSummary)
-}
+import { getAllSummaries } from '@george-ai/strapi-client'
 
 export const rebuildCollection = async () => {
-  const webPageSummaryArray = (await GetAllSummaries()) || []
+  const allSummaries = await getAllSummaries()
+  if (allSummaries.length === 0) {
+    console.log('No webPageSummaries found')
+    return
+  }
+  try {
+    await ensureSummaryCollection()
+  } catch (error) {
+    console.error(
+      'An error occurred while ensuring the summary collection exists:',
+      error,
+    )
+  }
+  await pMap(
+    allSummaries,
+    async ({
+      id,
+      language,
+      keywords,
+      summary,
+      largeLanguageModel,
+      publishedAt,
+      feedbacks,
+      title,
+      url,
+      originalContent,
+    }) => {
+      const parsedKeywords: string[] = JSON.parse(keywords)
+      const summaryDocument = {
+        id,
+        language,
+        keywords: parsedKeywords,
+        summary,
+        largeLanguageModel,
+        title,
+        url,
+        originalContent,
+        publicationState: publishedAt
+          ? PublicationState.Published
+          : PublicationState.Draft,
+        popularity: calculatePopularity(feedbacks),
+      }
 
-  await ensureCollectionExists()
-  await pMap(webPageSummaryArray, mapper, { concurrency: 10 })
+      try {
+        await upsertSummaryDocument(summaryDocument)
+      } catch (error) {
+        console.error(
+          `Error while Upsert the summary document with id: ${id}`,
+          error,
+        )
+      }
+    },
+    { concurrency: 10 },
+  )
 }
 
 rebuildCollection()

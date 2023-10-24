@@ -19,5 +19,4 @@
     "**/*.test.ts",
     "src/plugins/**"
   ]
-
 }
