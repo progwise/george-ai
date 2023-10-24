@@ -58,14 +58,16 @@ export const getSummaryAndKeywords = async (
   }
 
   const keywords =
-    /^\d+\./.test(keywordsResponse) || /^-\s/.test(keywordsResponse)
+    /^\d+\./.test(keywordsResponse) ||
+    /^-\s/.test(keywordsResponse) ||
+    /^Keywords:\s/.test(keywordsResponse)
       ? keywordsResponse.split('\n')
       : keywordsResponse.split(',')
 
   return {
     summary,
     keywords: keywords
-      .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,$/, '').trim())
+      .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,|Keywords:\s*/, '').trim())
       .slice(0, 10),
   }
 }
