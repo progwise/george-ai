@@ -33,22 +33,41 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
   }
 }
 
-// TODO: should a webPageSummary be created if the creation of the summary or keywords fails?
-export const getSummary = async (content: string, summaryPrompt: string[]) => {
-  return (await createChatCompletion(content, summaryPrompt)) ?? ''
-}
-
-export const getKeywords = async (content: string, keywordPrompt: string[]) => {
-  const response = await createChatCompletion(content, keywordPrompt)
-  if (!response) {
-    return []
+export const getSummaryAndKeywords = async (
+  originalContent: string,
+  keywordPrompt: string | null | undefined,
+  summaryPrompt: string | null | undefined,
+) => {
+  if (!keywordPrompt || !summaryPrompt) {
+    console.log('no keywordPrompt or summaryPrompt found')
+    return
   }
-  const keywords =
-    /^\d+\./.test(response) || /^-\s/.test(response)
-      ? response.split('\n')
-      : response.split(',')
 
-  return keywords
-    .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,$/, '').trim())
-    .slice(0, 10)
+  const summary = await createChatCompletion(
+    originalContent,
+    JSON.parse(summaryPrompt),
+  )
+
+  const keywordsResponse = await createChatCompletion(
+    originalContent,
+    JSON.parse(keywordPrompt),
+  )
+
+  if (!summary || !keywordsResponse) {
+    return
+  }
+
+  const keywords =
+    /^\d+\./.test(keywordsResponse) ||
+    /^-\s/.test(keywordsResponse) ||
+    /^Keywords:\s/.test(keywordsResponse)
+      ? keywordsResponse.split('\n')
+      : keywordsResponse.split(',')
+
+  return {
+    summary,
+    keywords: keywords
+      .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,|Keywords:\s*/, '').trim())
+      .slice(0, 10),
+  }
 }

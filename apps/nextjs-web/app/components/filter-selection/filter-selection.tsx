@@ -19,8 +19,8 @@ export const FilterSelection = async ({
 }: FilterSelectionProps) => {
   const { data } = await getClient().query(
     graphql(`
-      query GetLangAndLlm {
-        searchFilters {
+      query GetFilters {
+        filters {
           language
           largeLanguageModel
           publicationState
@@ -29,12 +29,12 @@ export const FilterSelection = async ({
     `),
     {},
   )
-  const searchFilters = data?.searchFilters
+  const filters = data?.filters
 
   return (
     <div className="flex items-center justify-end gap-3">
-      {shouldDisplayFilter(searchFilters?.publicationState) &&
-        searchFilters?.publicationState.map((state) => (
+      {shouldDisplayFilter(filters?.publicationState) &&
+        filters?.publicationState.map((state) => (
           <FilterCheckbox
             key={state}
             value={state}
@@ -43,15 +43,15 @@ export const FilterSelection = async ({
           />
         ))}
 
-      {shouldDisplayFilter(searchFilters?.publicationState) &&
-        shouldDisplayFilter(searchFilters?.language) && <div>|</div>}
+      {shouldDisplayFilter(filters?.publicationState) &&
+        shouldDisplayFilter(filters?.language) && <div>|</div>}
 
-      {shouldDisplayFilter(searchFilters?.publicationState) &&
-        !shouldDisplayFilter(searchFilters?.language) &&
-        shouldDisplayFilter(searchFilters?.largeLanguageModel) && <div>|</div>}
+      {shouldDisplayFilter(filters?.publicationState) &&
+        !shouldDisplayFilter(filters?.language) &&
+        shouldDisplayFilter(filters?.largeLanguageModel) && <div>|</div>}
 
-      {shouldDisplayFilter(searchFilters?.language) &&
-        searchFilters?.language.map((language) => (
+      {shouldDisplayFilter(filters?.language) &&
+        filters?.language.map((language) => (
           <FilterCheckbox
             key={language}
             value={language}
@@ -60,11 +60,11 @@ export const FilterSelection = async ({
           />
         ))}
 
-      {shouldDisplayFilter(searchFilters?.language) &&
-        shouldDisplayFilter(searchFilters?.largeLanguageModel) && <div>|</div>}
+      {shouldDisplayFilter(filters?.language) &&
+        shouldDisplayFilter(filters?.largeLanguageModel) && <div>|</div>}
 
-      {shouldDisplayFilter(searchFilters?.largeLanguageModel) &&
-        searchFilters?.largeLanguageModel.map((model) => (
+      {shouldDisplayFilter(filters?.largeLanguageModel) &&
+        filters?.largeLanguageModel.map((model) => (
           <FilterCheckbox
             key={model}
             value={model}

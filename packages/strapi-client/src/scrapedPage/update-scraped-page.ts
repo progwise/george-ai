@@ -27,5 +27,5 @@ export const updateScrapedPage = async (
     },
   )
 
-  console.log('Update ScrapedWebPage with ID:', id)
+  console.log('Update ScrapedWebPage with id:', id)
 }

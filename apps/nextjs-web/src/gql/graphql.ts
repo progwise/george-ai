@@ -34,18 +34,9 @@ export type CreateProposalSummaryInput = {
   summaryId: Scalars['String']['input']
 }
 
-export type CreateSummaryFeedback = {
-  __typename?: 'CreateSummaryFeedback'
-  id: Scalars['String']['output']
-  position: Scalars['Int']['output']
-  query: Scalars['String']['output']
-  voting?: Maybe<SummaryFeedbackVoting>
-  webPageSummaryId: Scalars['String']['output']
-}
-
 export type CreateSummaryFeedbackInput = {
-  position: Scalars['Int']['input']
   query: Scalars['String']['input']
+  selectedSummaryIndex: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
   webPageSummaryId: Scalars['String']['input']
 }
@@ -53,7 +44,7 @@ export type CreateSummaryFeedbackInput = {
 export type Mutation = {
   __typename?: 'Mutation'
   createProposalSummary: ProposalSummaryReference
-  createSummaryFeedback: CreateSummaryFeedback
+  createSummaryFeedback: SummaryFeedbackReference
 }
 
 export type MutationCreateProposalSummaryArgs = {
@@ -76,11 +67,11 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
-  searchFilters: SearchFilters
-  searchResult: Array<SearchWebPages>
+  filters: Filters
+  summaries: Array<Summaries>
 }
 
-export type QuerySearchResultArgs = {
+export type QuerySummariesArgs = {
   keywords?: Array<Scalars['String']['input']>
   language?: Array<Scalars['String']['input']>
   largeLanguageModel?: Array<Scalars['String']['input']>
@@ -88,20 +79,25 @@ export type QuerySearchResultArgs = {
   query?: Scalars['String']['input']
 }
 
-export enum SummaryFeedbackVoting {
-  Down = 'Down',
-  Up = 'Up',
+export type SummaryFeedbackReference = {
+  __typename?: 'SummaryFeedbackReference'
+  id: Scalars['String']['output']
 }
 
-export type SearchFilters = {
-  __typename?: 'searchFilters'
+export enum SummaryFeedbackVoting {
+  Down = 'down',
+  Up = 'up',
+}
+
+export type Filters = {
+  __typename?: 'filters'
   language: Array<Scalars['String']['output']>
   largeLanguageModel: Array<Scalars['String']['output']>
   publicationState: Array<Scalars['String']['output']>
 }
 
-export type SearchWebPages = {
-  __typename?: 'searchWebPages'
+export type Summaries = {
+  __typename?: 'summaries'
   id: Scalars['String']['output']
   keywords: Array<Scalars['String']['output']>
   language: Scalars['String']['output']
@@ -113,12 +109,12 @@ export type SearchWebPages = {
   url: Scalars['String']['output']
 }
 
-export type GetLangAndLlmQueryVariables = Exact<{ [key: string]: never }>
+export type GetFiltersQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetLangAndLlmQuery = {
+export type GetFiltersQuery = {
   __typename?: 'Query'
-  searchFilters: {
-    __typename?: 'searchFilters'
+  filters: {
+    __typename?: 'filters'
     language: Array<string>
     largeLanguageModel: Array<string>
     publicationState: Array<string>
@@ -126,7 +122,7 @@ export type GetLangAndLlmQuery = {
 }
 
 export type CreateSummaryFeedbackMutationVariables = Exact<{
-  position: Scalars['Int']['input']
+  infoCardIndex: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
   summaryId: Scalars['String']['input']
   query: Scalars['String']['input']
@@ -134,11 +130,11 @@ export type CreateSummaryFeedbackMutationVariables = Exact<{
 
 export type CreateSummaryFeedbackMutation = {
   __typename?: 'Mutation'
-  createSummaryFeedback: { __typename?: 'CreateSummaryFeedback'; id: string }
+  createSummaryFeedback: { __typename?: 'SummaryFeedbackReference'; id: string }
 }
 
 export type InfoCardFragment = {
-  __typename?: 'searchWebPages'
+  __typename?: 'summaries'
   id: string
   title: string
   url: string
@@ -159,7 +155,7 @@ export type CreateProposalSummaryMutation = {
   createProposalSummary: { __typename?: 'ProposalSummaryReference'; id: string }
 }
 
-export type GetSearchWebPagesQueryVariables = Exact<{
+export type GetSummariesQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
   language?: InputMaybe<
     Array<Scalars['String']['input']> | Scalars['String']['input']
@@ -175,10 +171,10 @@ export type GetSearchWebPagesQueryVariables = Exact<{
   >
 }>
 
-export type GetSearchWebPagesQuery = {
+export type GetSummariesQuery = {
   __typename?: 'Query'
-  searchResult: Array<
-    { __typename?: 'searchWebPages'; id: string } & {
+  summaries: Array<
+    { __typename?: 'summaries'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
     }
   >
@@ -192,7 +188,7 @@ export const InfoCardFragmentDoc = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'searchWebPages' },
+        name: { kind: 'Name', value: 'summaries' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -213,19 +209,19 @@ export const InfoCardFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<InfoCardFragment, unknown>
-export const GetLangAndLlmDocument = {
+export const GetFiltersDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetLangAndLlm' },
+      name: { kind: 'Name', value: 'GetFilters' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'searchFilters' },
+            name: { kind: 'Name', value: 'filters' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -245,7 +241,7 @@ export const GetLangAndLlmDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<GetLangAndLlmQuery, GetLangAndLlmQueryVariables>
+} as unknown as DocumentNode<GetFiltersQuery, GetFiltersQueryVariables>
 export const CreateSummaryFeedbackDocument = {
   kind: 'Document',
   definitions: [
@@ -258,7 +254,7 @@ export const CreateSummaryFeedbackDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'position' },
+            name: { kind: 'Name', value: 'infoCardIndex' },
           },
           type: {
             kind: 'NonNullType',
@@ -323,10 +319,10 @@ export const CreateSummaryFeedbackDocument = {
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'position' },
+                      name: { kind: 'Name', value: 'selectedSummaryIndex' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'position' },
+                        name: { kind: 'Name', value: 'infoCardIndex' },
                       },
                     },
                     {
@@ -457,13 +453,13 @@ export const CreateProposalSummaryDocument = {
   CreateProposalSummaryMutation,
   CreateProposalSummaryMutationVariables
 >
-export const GetSearchWebPagesDocument = {
+export const GetSummariesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetSearchWebPages' },
+      name: { kind: 'Name', value: 'GetSummaries' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -547,7 +543,7 @@ export const GetSearchWebPagesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'searchResult' },
+            name: { kind: 'Name', value: 'summaries' },
             arguments: [
               {
                 kind: 'Argument',
@@ -609,7 +605,7 @@ export const GetSearchWebPagesDocument = {
       name: { kind: 'Name', value: 'InfoCard' },
       typeCondition: {
         kind: 'NamedType',
-        name: { kind: 'Name', value: 'searchWebPages' },
+        name: { kind: 'Name', value: 'summaries' },
       },
       selectionSet: {
         kind: 'SelectionSet',
@@ -629,7 +625,4 @@ export const GetSearchWebPagesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  GetSearchWebPagesQuery,
-  GetSearchWebPagesQueryVariables
->
+} as unknown as DocumentNode<GetSummariesQuery, GetSummariesQueryVariables>

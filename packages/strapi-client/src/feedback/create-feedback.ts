@@ -1,14 +1,11 @@
 import { graphql } from '../gql/gql'
-import {
-  CreateSummaryFeedbackMutation,
-  Enum_Summaryfeedback_Voting,
-} from '../gql/graphql'
+import { Enum_Summaryfeedback_Voting } from '../gql/graphql'
 import { strapiClient } from '../strapi-client'
 
 export const createFeedback = async (
-  position: number,
+  selectedSummaryIndex: number,
   query: string,
-  voting: Enum_Summaryfeedback_Voting,
+  voting: 'down' | 'up',
   webPageSummaryId: string,
 ) => {
   const { createSummaryFeedback } = await strapiClient.request(
@@ -18,7 +15,7 @@ export const createFeedback = async (
           data {
             id
             attributes {
-              position
+              selectedSummaryIndex
               query
               voting
               web_page_summary {
@@ -33,13 +30,16 @@ export const createFeedback = async (
     `),
     {
       input: {
-        position,
+        selectedSummaryIndex,
         query,
-        voting,
+        voting:
+          voting === 'up'
+            ? Enum_Summaryfeedback_Voting.Up
+            : Enum_Summaryfeedback_Voting.Down,
         web_page_summary: webPageSummaryId,
       },
     },
   )
   console.log('create SummaryFeedback by id:', createSummaryFeedback?.data?.id)
-  return createSummaryFeedback?.data
+  return createSummaryFeedback?.data?.id ?? ''
 }

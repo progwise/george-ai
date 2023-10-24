@@ -3,7 +3,7 @@ import {
   upsertWebPageSummary,
 } from '@george-ai/strapi-client'
 import pMap from 'p-map'
-import { getKeywords, getSummary } from './chat-gpt'
+import { getSummaryAndKeywords } from './chat-gpt'
 
 const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
   const scrapedWebPages = await getAllScrapedPages()
@@ -24,20 +24,23 @@ const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
       await pMap(
         prompts,
         async ({ keywordPrompt, llm, locale, summaryPrompt }) => {
-          if (!keywordPrompt || !summaryPrompt) {
-            console.log('no keywordPrompt or summaryPrompt found')
+          const summaryAndKeywords = await getSummaryAndKeywords(
+            originalContent,
+            keywordPrompt,
+            summaryPrompt,
+          )
+          if (!summaryAndKeywords) {
             return
           }
-          const summary = await getSummary(
-            originalContent,
-            JSON.parse(summaryPrompt),
-          )
-          const keywords = await getKeywords(
-            originalContent,
-            JSON.parse(keywordPrompt),
-          )
 
-          await upsertWebPageSummary(url, summary, keywords, llm, locale, id)
+          await upsertWebPageSummary(
+            url,
+            summaryAndKeywords.summary,
+            summaryAndKeywords.keywords,
+            llm,
+            locale,
+            id,
+          )
         },
         { concurrency: 2 },
       )

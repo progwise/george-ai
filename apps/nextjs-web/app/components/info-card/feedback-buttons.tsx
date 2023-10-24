@@ -7,12 +7,12 @@ import { useSearchParams } from 'next/navigation'
 import { useMutation } from 'urql'
 
 interface FeedbackButtonsProps {
-  position: number
+  infoCardIndex: number
   summaryId: string
 }
 
 export const FeedbackButtons = ({
-  position,
+  infoCardIndex,
   summaryId,
 }: FeedbackButtonsProps) => {
   const searchParameters = useSearchParams()
@@ -23,14 +23,14 @@ export const FeedbackButtons = ({
   const [, createSummaryFeedback] = useMutation(
     graphql(`
       mutation CreateSummaryFeedback(
-        $position: Int!
+        $infoCardIndex: Int!
         $voting: SummaryFeedbackVoting!
         $summaryId: String!
         $query: String!
       ) {
         createSummaryFeedback(
           data: {
-            position: $position
+            selectedSummaryIndex: $infoCardIndex
             voting: $voting
             webPageSummaryId: $summaryId
             query: $query
@@ -53,7 +53,7 @@ export const FeedbackButtons = ({
       await createSummaryFeedback({
         query: query ?? '',
         voting: feedback,
-        position,
+        infoCardIndex,
         summaryId,
       })
     } catch (error) {

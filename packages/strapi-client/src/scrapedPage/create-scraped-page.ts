@@ -27,5 +27,5 @@ export const createScrapedPage = async (
     },
   )
 
-  console.log('Created ScrapedWebPage with ID:', createScrapedWebPage?.data?.id)
+  console.log('Created ScrapedWebPage with id:', createScrapedWebPage?.data?.id)
 }
