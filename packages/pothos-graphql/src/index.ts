@@ -1,6 +1,6 @@
 import { builder } from './builder'
-import './searchWebPages'
-import './searchFilters'
+import './summary'
+import './filters'
 import './summaryFeedback'
 
 export const schema = builder.toSchema()

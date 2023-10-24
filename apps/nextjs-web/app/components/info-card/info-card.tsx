@@ -5,7 +5,7 @@ import { Link } from './link'
 import { FragmentType, graphql, useFragment } from '@/src/gql'
 
 const InfoCardFragment = graphql(`
-  fragment InfoCard on searchWebPages {
+  fragment InfoCard on summaries {
     id
     title
     url
@@ -18,30 +18,30 @@ const InfoCardFragment = graphql(`
 `)
 
 interface InfoCardProps {
-  pageFragment: FragmentType<typeof InfoCardFragment>
-  position: number
+  summaryFragment: FragmentType<typeof InfoCardFragment>
+  infoCardIndex: number
   webPageSummaryId: string
 }
 export const InfoCard = ({
-  pageFragment,
-  position,
+  summaryFragment,
+  infoCardIndex,
   webPageSummaryId,
 }: InfoCardProps) => {
-  const page = useFragment(InfoCardFragment, pageFragment)
+  const summary = useFragment(InfoCardFragment, summaryFragment)
 
   return (
     <div className="flex flex-col gap-5 border-2 p-8 rounded-md">
       <InfoCardTitle
-        title={page.title}
-        publicationState={page.publicationState}
-        language={page.language}
-        position={position}
+        title={summary.title}
+        publicationState={summary.publicationState}
+        language={summary.language}
+        infoCardIndex={infoCardIndex}
         webPageSummaryId={webPageSummaryId}
-        largeLanguageModel={page.largeLanguageModel}
+        largeLanguageModel={summary.largeLanguageModel}
       />
-      <Summary key={page.id} summary={page.summary} />
-      <Link url={page.url} />
-      <Keywords keywords={page?.keywords} />
+      <Summary key={summary.id} summary={summary.summary} />
+      <Link url={summary.url} />
+      <Keywords keywords={summary?.keywords} />
     </div>
   )
 }

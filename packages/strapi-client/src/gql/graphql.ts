@@ -840,8 +840,8 @@ export type StringFilterInput = {
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  position?: Maybe<Scalars['Int']['output']>
   query?: Maybe<Scalars['String']['output']>
+  selectedSummaryIndex?: Maybe<Scalars['Int']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   voting?: Maybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: Maybe<WebPageSummaryEntityResponse>
@@ -870,16 +870,16 @@ export type SummaryFeedbackFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   not?: InputMaybe<SummaryFeedbackFiltersInput>
   or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
-  position?: InputMaybe<IntFilterInput>
   query?: InputMaybe<StringFilterInput>
+  selectedSummaryIndex?: InputMaybe<IntFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   voting?: InputMaybe<StringFilterInput>
   web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
 }
 
 export type SummaryFeedbackInput = {
-  position?: InputMaybe<Scalars['Int']['input']>
   query?: InputMaybe<Scalars['String']['input']>
+  selectedSummaryIndex?: InputMaybe<Scalars['Int']['input']>
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: InputMaybe<Scalars['ID']['input']>
 }
@@ -1389,7 +1389,7 @@ export type CreateSummaryFeedbackMutation = {
       id?: string | null
       attributes?: {
         __typename?: 'SummaryFeedback'
-        position?: number | null
+        selectedSummaryIndex?: number | null
         query?: string | null
         voting?: Enum_Summaryfeedback_Voting | null
         web_page_summary?: {
@@ -1401,18 +1401,6 @@ export type CreateSummaryFeedbackMutation = {
         } | null
       } | null
     } | null
-  } | null
-}
-
-export type DeleteSummaryFeedbackMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-}>
-
-export type DeleteSummaryFeedbackMutation = {
-  __typename?: 'Mutation'
-  deleteSummaryFeedback?: {
-    __typename?: 'SummaryFeedbackEntityResponse'
-    data?: { __typename?: 'SummaryFeedbackEntity'; id?: string | null } | null
   } | null
 }
 
@@ -1615,7 +1603,7 @@ export type GetWebPageSummariesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
-        updatedAt?: any | null
+        lastScrapeUpdate?: any | null
         locale?: string | null
         keywords?: string | null
         summary?: string | null
@@ -1884,7 +1872,10 @@ export const CreateSummaryFeedbackDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'position' },
+                              name: {
+                                kind: 'Name',
+                                value: 'selectedSummaryIndex',
+                              },
                             },
                             {
                               kind: 'Field',
@@ -1932,63 +1923,6 @@ export const CreateSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
->
-export const DeleteSummaryFeedbackDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'DeleteSummaryFeedback' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteSummaryFeedback' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteSummaryFeedbackMutation,
-  DeleteSummaryFeedbackMutationVariables
 >
 export const CreatePromptDocument = {
   kind: 'Document',
@@ -2947,7 +2881,7 @@ export const GetWebPageSummariesDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'updatedAt' },
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
                             },
                             {
                               kind: 'Field',

@@ -28,7 +28,7 @@
     "query": {
       "type": "string"
     },
-    "position": {
+    "selectedSummaryIndex": {
       "type": "integer"
     }
   }
