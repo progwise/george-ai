@@ -2,7 +2,7 @@ import {
   PublicationState,
   calculatePopularity,
   deleteSummaryDocument,
-  ensureSummaryCollectionExists,
+  ensureSummaryCollection,
   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 
@@ -85,8 +85,19 @@ const upsertSummary = async (summaryId: number) => {
       : PublicationState.Draft,
     popularity: calculatePopularity(filterFeedbacks),
   }
-  await ensureSummaryCollectionExists()
-  await upsertSummaryDocument(summaryDocument)
+  try {
+    await ensureSummaryCollection()
+  } catch (error) {
+    console.error(
+      'Failed to ensuring the summary collection exists:',
+      error,
+    )
+  }
+  try {
+    await upsertSummaryDocument(summaryDocument)
+  } catch (error) {
+    console.error(`Failed to upsert the summary document with id: ${summaryId}`, error)
+  }
 }
 
 const deleteFeedbacks = async (summaryId) => {
@@ -102,7 +113,8 @@ const deleteFeedbacks = async (summaryId) => {
     await deleteSummaryDocument(summaryId.toString())
   } catch (error) {
     console.error(
-      `Failed to delete summary document with ID ${summaryId}: ${error}`,
+      `Failed to delete the summary document with id: ${summaryId}`,
+      error,
     )
   }
 }

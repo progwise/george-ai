@@ -17,14 +17,14 @@ export async function PageList({
 }: PageListProps) {
   const { data } = await getClient().query(
     graphql(`
-      query GetSearchWebPages(
+      query GetSummaries(
         $query: String
         $language: [String!]
         $publicationState: [String!]
         $largeLanguageModel: [String!]
         $keywords: [String!]
       ) {
-        searchWebPages(
+        summaries(
           query: $query
           language: $language
           publicationState: $publicationState
@@ -44,24 +44,24 @@ export async function PageList({
       keywords: kw,
     },
   )
-  const pages = data?.searchWebPages
+  const summaries = data?.summaries
 
-  if (!Array.isArray(pages)) {
+  if (!Array.isArray(summaries)) {
     return <span>An error has occurred</span>
   }
 
-  if (pages?.length === 0) {
+  if (summaries?.length === 0) {
     return <span>No entries found</span>
   }
 
   return (
     <>
-      {pages?.map((page, index) => (
+      {summaries?.map((summary, index) => (
         <InfoCard
-          key={page.id}
-          pageFragment={page}
+          key={summary.id}
+          summaryFragment={summary}
           infoCardIndex={index}
-          webPageSummaryId={page.id}
+          webPageSummaryId={summary.id}
         />
       ))}
     </>

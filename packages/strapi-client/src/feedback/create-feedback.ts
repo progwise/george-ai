@@ -7,7 +7,7 @@ export const createFeedback = async (
   query: string,
   voting: 'down' | 'up',
   webPageSummaryId: string,
-): Promise<string> => {
+) => {
   const { createSummaryFeedback } = await strapiClient.request(
     graphql(`
       mutation CreateSummaryFeedback($input: SummaryFeedbackInput!) {

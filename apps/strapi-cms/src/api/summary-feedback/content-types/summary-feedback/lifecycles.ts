@@ -46,7 +46,7 @@ const saveUpdateSummaryDocument = async (
     await updateSummaryDocument({ popularity }, summaryId)
   } catch (error) {
     console.error(
-      `Failed to update summary document with ID ${summaryId}:`,
+      `Failed to update the summary document with id: ${summaryId}`,
       error,
     )
   }

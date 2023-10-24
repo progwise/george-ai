@@ -16,17 +16,9 @@ export type SummaryDocument = {
 }
 
 export const upsertSummaryDocument = async (document: SummaryDocument) => {
-  try {
-    await typesenseClient
-      .collections(summaryCollectionSchema.name)
-      .documents()
-      .upsert(document)
-    console.log(`Data upsert to typesense collection with id: ${document.id}`)
-  } catch (error) {
-    console.error(
-      `Error while Upsert collection with id: ${document.id}`,
-      error,
-    )
-    throw error
-  }
+  await typesenseClient
+    .collections(summaryCollectionSchema.name)
+    .documents()
+    .upsert(document)
+  console.log(`Document ${document.id} successfully upsert.`)
 }
