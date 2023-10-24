@@ -25,15 +25,19 @@ const updateOutdatedSummaries = async () => {
         originalContent,
       } = outdatedSummary
 
-      const { keywords, summary } = await getSummaryAndKeywords(
+      const summaryAndKeywords = await getSummaryAndKeywords(
         originalContent,
         keywordPrompt,
         summaryPrompt,
       )
 
+      if (!summaryAndKeywords) {
+        return
+      }
+
       const newSummary = {
-        summary,
-        keywords: JSON.stringify(keywords),
+        summary: summaryAndKeywords.summary,
+        keywords: JSON.stringify(summaryAndKeywords.keywords),
         largeLanguageModel,
         scraped_web_page: scrapedPageId,
         lastScrapeUpdate: new Date(),

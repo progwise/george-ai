@@ -26,11 +26,10 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
       ],
     })
 
-    return response.data.choices.at(0)?.message?.content ?? ''
+    return response.data.choices.at(0)?.message?.content
   } catch (error) {
     console.error('Error using chatGPT')
     console.log(JSON.stringify(error, undefined, 2))
-    return ''
   }
 }
 
@@ -41,12 +40,7 @@ export const getSummaryAndKeywords = async (
 ) => {
   if (!keywordPrompt || !summaryPrompt) {
     console.log('no keywordPrompt or summaryPrompt found')
-    // TODO: a webPageSummary should be created if there is no summaryPrompt
-    //  or keywordPrompt,or if the creation of the summary or keywords fails?
-    return {
-      summary: '',
-      keywords: [],
-    }
+    return
   }
 
   const summary = await createChatCompletion(
@@ -58,6 +52,10 @@ export const getSummaryAndKeywords = async (
     originalContent,
     JSON.parse(keywordPrompt),
   )
+
+  if (!summary || !keywordsResponse) {
+    return
+  }
 
   const keywords =
     /^\d+\./.test(keywordsResponse) || /^-\s/.test(keywordsResponse)

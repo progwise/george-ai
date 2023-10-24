@@ -24,13 +24,23 @@ const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
       await pMap(
         prompts,
         async ({ keywordPrompt, llm, locale, summaryPrompt }) => {
-          const { keywords, summary } = await getSummaryAndKeywords(
+          const summaryAndKeywords = await getSummaryAndKeywords(
             originalContent,
             keywordPrompt,
             summaryPrompt,
           )
+          if (!summaryAndKeywords) {
+            return
+          }
 
-          await upsertWebPageSummary(url, summary, keywords, llm, locale, id)
+          await upsertWebPageSummary(
+            url,
+            summaryAndKeywords.summary,
+            summaryAndKeywords.keywords,
+            llm,
+            locale,
+            id,
+          )
         },
         { concurrency: 2 },
       )
