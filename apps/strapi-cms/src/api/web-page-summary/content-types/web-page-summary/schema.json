@@ -61,7 +61,8 @@
           "localized": true
         }
       },
-      "type": "datetime"
+      "type": "datetime",
+      "required": false
     }
   }
 }
