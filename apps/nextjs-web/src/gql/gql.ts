@@ -13,14 +13,14 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-  '\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ':
-    types.GetLangAndLlmDocument,
-  '\n          mutation createSummaryFeedback(\n            $position: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                position: $position\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ':
+  '\n      query GetFilters {\n        filters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ':
+    types.GetFiltersDocument,
+  '\n          mutation createSummaryFeedback(\n            $infoCardIndex: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                selectedSummaryIndex: $infoCardIndex\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ':
     types.CreateSummaryFeedbackDocument,
-  '\n  fragment InfoCard on searchWebPages {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n':
+  '\n  fragment InfoCard on summaries {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n':
     types.InfoCardFragmentDoc,
-  '\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
-    types.GetSearchWebPagesDocument,
+  '\n      query GetSummaries(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        summaries(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
+    types.GetSummariesDocument,
 }
 
 /**
@@ -41,26 +41,26 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ',
-): (typeof documents)['\n      query GetLangAndLlm {\n        searchFilters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ']
+  source: '\n      query GetFilters {\n        filters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ',
+): (typeof documents)['\n      query GetFilters {\n        filters {\n          language\n          largeLanguageModel\n          publicationState\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n          mutation createSummaryFeedback(\n            $position: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                position: $position\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation createSummaryFeedback(\n            $position: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                position: $position\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ']
+  source: '\n          mutation createSummaryFeedback(\n            $infoCardIndex: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                selectedSummaryIndex: $infoCardIndex\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation createSummaryFeedback(\n            $infoCardIndex: Int!\n            $voting: SummaryFeedbackVoting!\n            $webPageSummaryId: String!\n            $query: String!\n          ) {\n            createSummaryFeedback(\n              data: {\n                selectedSummaryIndex: $infoCardIndex\n                voting: $voting\n                webPageSummaryId: $webPageSummaryId\n                query: $query\n              }\n            ) {\n              id\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment InfoCard on searchWebPages {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n',
-): (typeof documents)['\n  fragment InfoCard on searchWebPages {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n']
+  source: '\n  fragment InfoCard on summaries {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n',
+): (typeof documents)['\n  fragment InfoCard on summaries {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ',
-): (typeof documents)['\n      query GetSearchWebPages(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        searchResult(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ']
+  source: '\n      query GetSummaries(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        summaries(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ',
+): (typeof documents)['\n      query GetSummaries(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        summaries(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

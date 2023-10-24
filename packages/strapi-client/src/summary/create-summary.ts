@@ -6,6 +6,7 @@ export interface NewSummary {
   keywords: string
   largeLanguageModel: string
   scraped_web_page: string
+  lastScrapeUpdate: Date
 }
 
 export const createSummary = async (newSummary: NewSummary, locale: string) => {
@@ -39,7 +40,7 @@ export const createSummary = async (newSummary: NewSummary, locale: string) => {
   )
 
   console.log(
-    `Created WebPageSummary for ${locale} with ID:`,
+    `Created WebPageSummary for ${locale} with id:`,
     createWebPageSummary?.data?.id,
   )
 }

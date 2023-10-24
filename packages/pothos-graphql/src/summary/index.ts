@@ -1,7 +1,7 @@
 import { builder } from '../builder'
 import {
   WebPagesDocument,
-  searchWebPageDocuments,
+  searchSummaryDocuments,
   PublicationState,
 } from '@george-ai/typesense-client'
 
@@ -9,11 +9,10 @@ const PublicationStateEnum = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
-const searchWebPagesReference =
-  builder.objectRef<WebPagesDocument>('searchWebPages')
+const summariesReference = builder.objectRef<WebPagesDocument>('summaries')
 
-builder.objectType(searchWebPagesReference, {
-  name: 'searchWebPages',
+builder.objectType(summariesReference, {
+  name: 'summaries',
   fields: (t) => ({
     id: t.exposeString('id'),
     title: t.exposeString('title'),
@@ -29,9 +28,9 @@ builder.objectType(searchWebPagesReference, {
   }),
 })
 
-builder.queryField('searchResult', (t) =>
+builder.queryField('summaries', (t) =>
   t.field({
-    type: [searchWebPagesReference],
+    type: [summariesReference],
     args: {
       query: t.arg.string({
         defaultValue: '*',
@@ -65,7 +64,10 @@ builder.queryField('searchResult', (t) =>
         filters.push(`keywords:[${arguments_.keywords}]`)
       }
 
-      return (await searchWebPageDocuments(arguments_.query, filters)) || []
+      return await searchSummaryDocuments(
+        arguments_.query,
+        filters.join(' && '),
+      )
     },
   }),
 )

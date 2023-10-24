@@ -34,7 +34,7 @@ export const updateSummary = async (
   )
 
   console.log(
-    `Update WebPageSummary for ${updateWebPageSummary?.data?.attributes?.locale} with ID:`,
+    `Update WebPageSummary for ${updateWebPageSummary?.data?.attributes?.locale} with id:`,
     webPageSummaryId,
   )
 }
