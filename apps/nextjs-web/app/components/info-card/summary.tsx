@@ -5,10 +5,10 @@ import xss from 'xss'
 
 export const Summary = ({
   summary,
-  index,
+  summaryId,
 }: {
   summary: string
-  index: string
+  summaryId: string
 }) => {
   const [isExpand, setIsExpand] = useState(false)
   const summaryReference = useRef<HTMLDivElement | null>(null)
@@ -44,7 +44,7 @@ export const Summary = ({
         </button>
         {isExpand && (
           <div className="flex justify-end">
-            <a href={`#infoCard_${index}`}>
+            <a href={`#infoCard_${summaryId}`}>
               <button
                 className="btn btn-outline btn-accent btn-sm group"
                 onClick={() => {

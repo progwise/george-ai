@@ -9,16 +9,15 @@ import { ModalToast } from './suggest-modal-toast'
 interface SuggestModalrops {
   title: string
   summaryId: string
-  locales: string[]
   summary: string
-  locale: string
+  language: string
 }
 
 export const SuggestModal = ({
   title,
   summaryId,
-  locale,
   summary,
+  language,
 }: SuggestModalrops) => {
   const [textValue, setTextValue] = useState(summary)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
@@ -29,13 +28,13 @@ export const SuggestModal = ({
       mutation CreateProposalSummary(
         $proposalSummary: String!
         $summaryId: String!
-        $locale: String!
+        $language: String!
       ) {
         createProposalSummary(
           data: {
             proposalSummary: $proposalSummary
             summaryId: $summaryId
-            locale: $locale
+            locale: $language
           }
         ) {
           id
@@ -64,7 +63,7 @@ export const SuggestModal = ({
     await createProposalSummary({
       proposalSummary: textValue,
       summaryId,
-      locale,
+      language,
     })
   }
 

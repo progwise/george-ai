@@ -42,11 +42,6 @@ export type CreateSummaryFeedbackInput = {
   webPageSummaryId: Scalars['String']['input']
 }
 
-export type Locales = {
-  __typename?: 'Locales'
-  locales: Array<Scalars['String']['output']>
-}
-
 export type Mutation = {
   __typename?: 'Mutation'
   createProposalSummary: ProposalSummaryReference
@@ -74,7 +69,6 @@ export enum PublicationState {
 export type Query = {
   __typename?: 'Query'
   filters: Filters
-  locales: Locales
   summaries: Array<Summaries>
 }
 
@@ -155,7 +149,7 @@ export type InfoCardFragment = {
 export type CreateProposalSummaryMutationVariables = Exact<{
   proposalSummary: Scalars['String']['input']
   summaryId: Scalars['String']['input']
-  locale: Scalars['String']['input']
+  language: Scalars['String']['input']
 }>
 
 export type CreateProposalSummaryMutation = {
@@ -163,7 +157,7 @@ export type CreateProposalSummaryMutation = {
   createProposalSummary: { __typename?: 'ProposalSummaryReference'; id: string }
 }
 
-export type CombinedQueryQueryVariables = Exact<{
+export type GetSummariesQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
   language?: InputMaybe<
     Array<Scalars['String']['input']> | Scalars['String']['input']
@@ -179,9 +173,8 @@ export type CombinedQueryQueryVariables = Exact<{
   >
 }>
 
-export type CombinedQueryQuery = {
+export type GetSummariesQuery = {
   __typename?: 'Query'
-  locales: { __typename?: 'Locales'; locales: Array<string> }
   summaries: Array<
     { __typename?: 'summaries'; id: string } & {
       ' $fragmentRefs'?: { InfoCardFragment: InfoCardFragment }
@@ -417,7 +410,7 @@ export const CreateProposalSummaryDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
+            name: { kind: 'Name', value: 'language' },
           },
           type: {
             kind: 'NonNullType',
@@ -462,7 +455,7 @@ export const CreateProposalSummaryDocument = {
                       name: { kind: 'Name', value: 'locale' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'locale' },
+                        name: { kind: 'Name', value: 'language' },
                       },
                     },
                   ],
@@ -484,13 +477,13 @@ export const CreateProposalSummaryDocument = {
   CreateProposalSummaryMutation,
   CreateProposalSummaryMutationVariables
 >
-export const CombinedQueryDocument = {
+export const GetSummariesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'CombinedQuery' },
+      name: { kind: 'Name', value: 'GetSummaries' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -572,16 +565,6 @@ export const CombinedQueryDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'locales' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'locales' } },
-              ],
-            },
-          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'summaries' },
@@ -666,4 +649,4 @@ export const CombinedQueryDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<CombinedQueryQuery, CombinedQueryQueryVariables>
+} as unknown as DocumentNode<GetSummariesQuery, GetSummariesQueryVariables>

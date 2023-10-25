@@ -17,16 +17,13 @@ export async function SummaryList({
 }: SummaryListProps) {
   const { data } = await getClient().query(
     graphql(`
-      query CombinedQuery(
+      query GetSummaries(
         $query: String
         $language: [String!]
         $publicationState: [String!]
         $largeLanguageModel: [String!]
         $keywords: [String!]
       ) {
-        locales {
-          locales
-        }
         summaries(
           query: $query
           language: $language
@@ -47,9 +44,7 @@ export async function SummaryList({
       keywords: kw,
     },
   )
-
   const summaries = data?.summaries
-  const locales = data?.locales.locales ?? []
 
   if (!Array.isArray(summaries)) {
     return <span>An error has occurred</span>
@@ -66,7 +61,6 @@ export async function SummaryList({
           key={summary.id}
           summaryFragment={summary}
           infoCardIndex={index}
-          locales={locales}
         />
       ))}
     </>
