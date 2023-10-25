@@ -21,8 +21,13 @@ const InfoCardFragment = graphql(`
 interface InfoCardProps {
   summaryFragment: FragmentType<typeof InfoCardFragment>
   infoCardIndex: number
+  locales: string[]
 }
-export const InfoCard = ({ summaryFragment, infoCardIndex }: InfoCardProps) => {
+export const InfoCard = ({
+  summaryFragment,
+  infoCardIndex,
+  locales,
+}: InfoCardProps) => {
   const summary = useFragment(InfoCardFragment, summaryFragment)
 
   return (
@@ -47,6 +52,7 @@ export const InfoCard = ({ summaryFragment, infoCardIndex }: InfoCardProps) => {
         key={`modal_${summary.id}`}
         title={summary.title}
         summaryId={summary.id}
+        locales={locales}
       />
       <Link url={summary.url} />
       <Keywords keywords={summary?.keywords} />

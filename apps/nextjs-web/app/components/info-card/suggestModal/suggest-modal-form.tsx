@@ -11,6 +11,8 @@ interface ModalFormProps {
   summaryId: string
   textValue: string
   setTextValue: Dispatch<SetStateAction<string>>
+  locales: string[]
+  setSelectedLocale: Dispatch<SetStateAction<string>>
 }
 
 export const ModalForm = ({
@@ -21,31 +23,52 @@ export const ModalForm = ({
   summaryId,
   textValue,
   setTextValue,
+  locales,
+  setSelectedLocale,
 }: ModalFormProps) => {
   return (
-    <>
-      <form
-        ref={formReference}
-        onSubmit={handleSubmit}
-        className="relative w-full max-h-full"
-      >
-        <div className="relative bg-white rounded-md shadow">
-          <h3 className="font-bold text-lg p-4 border-b">{title}</h3>
-          <div className="p-6 h-64">
-            <div className="flex h-full items-center justify-center">
-              {!fetching && (
-                <textarea
-                  name="proposalSummary"
-                  className="textarea w-full h-full resize-none"
-                  placeholder="Enter your proposal"
-                  value={textValue}
-                  onChange={(event) => setTextValue(event.target.value)}
-                />
-              )}
-              {fetching && <Loading />}
+    <form
+      ref={formReference}
+      onSubmit={handleSubmit}
+      className="card card-bordered"
+    >
+      <div className="card-body">
+        <h3 className="card-title">{title}</h3>
+        <div className="divider" />
+        <div className="h-60">
+          <div className="flex h-full items-center justify-center">
+            {!fetching && (
+              <textarea
+                name="proposalSummary"
+                className="textarea w-full h-full resize-none"
+                placeholder="Enter your proposal"
+                value={textValue}
+                onChange={(event) => setTextValue(event.target.value)}
+              />
+            )}
+            {fetching && <Loading />}
+          </div>
+        </div>
+        <div className="divider" />
+        <div className="card-actions items-end justify-between">
+          <div className="flexflex-col w-1/2">
+            <span>Select the language of your proposal:</span>
+            <div className="flex">
+              {locales.map((locale) => (
+                <label key={locale} className="label cursor-pointer gap-1">
+                  <span className="label-text capitalize">{locale}</span>
+                  <input
+                    type="radio"
+                    name="radio-10"
+                    className="radio radio-accent"
+                    // checked={selectedLocale === locale}
+                    onChange={() => setSelectedLocale(locale)}
+                  />
+                </label>
+              ))}
             </div>
           </div>
-          <div className="flex join justify-end p-4 border-t">
+          <div className="join gap-0">
             <button
               type="submit"
               disabled={fetching || !textValue}
@@ -57,7 +80,7 @@ export const ModalForm = ({
             </button>
             <button
               type="button"
-              className="btn join-item  w-24 btn-outline"
+              className="btn join-item w-24 btn-outline"
               onClick={() => {
                 setTextValue('')
                 const modal = document.querySelector(`#modal_${summaryId}`)
@@ -70,7 +93,7 @@ export const ModalForm = ({
             </button>
           </div>
         </div>
-      </form>
-    </>
+      </div>
+    </form>
   )
 }

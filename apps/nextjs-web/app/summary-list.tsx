@@ -3,27 +3,30 @@ import { graphql } from '@/src/gql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
 import { getClient } from './client/urql-client'
 
-interface PageListProps extends FilterSelectionProps {
+interface SummaryListProps extends FilterSelectionProps {
   query?: string
   kw?: string[]
 }
 
-export async function PageList({
+export async function SummaryList({
   query,
   lang,
   status,
   llm,
   kw,
-}: PageListProps) {
+}: SummaryListProps) {
   const { data } = await getClient().query(
     graphql(`
-      query GetSummaries(
+      query CombinedQuery(
         $query: String
         $language: [String!]
         $publicationState: [String!]
         $largeLanguageModel: [String!]
         $keywords: [String!]
       ) {
+        locales {
+          locales
+        }
         summaries(
           query: $query
           language: $language
@@ -44,7 +47,9 @@ export async function PageList({
       keywords: kw,
     },
   )
+
   const summaries = data?.summaries
+  const locales = data?.locales.locales ?? []
 
   if (!Array.isArray(summaries)) {
     return <span>An error has occurred</span>
@@ -61,6 +66,7 @@ export async function PageList({
           key={summary.id}
           summaryFragment={summary}
           infoCardIndex={index}
+          locales={locales}
         />
       ))}
     </>

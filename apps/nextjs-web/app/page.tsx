@@ -1,7 +1,7 @@
 import { Header } from './components/header'
 import { SearchBox } from './components/search-box'
 import React, { Suspense } from 'react'
-import { PageList } from './page-list'
+import { SummaryList } from './summary-list'
 import Loading from './loading'
 import { Metadata } from 'next'
 import { FilterSelection } from './components/filter-selection/filter-selection'
@@ -64,7 +64,7 @@ export default function Home({
             <span>ich habe folgende Informationen für Sie gefunden:</span>
             <div className="divider" />
           </div>
-          <PageList
+          <SummaryList
             query={searchParams.query?.toString()}
             lang={normalizeToArray(searchParams.lang)}
             status={normalizeToArray(searchParams.status)}

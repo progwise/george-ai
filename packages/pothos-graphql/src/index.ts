@@ -1,7 +1,8 @@
 import { builder } from './builder'
-import './summary'
 import './filters'
-import './summaryFeedback'
+import './locales'
 import './proposalSummary'
+import './summary'
+import './summaryFeedback'
 
 export const schema = builder.toSchema()
