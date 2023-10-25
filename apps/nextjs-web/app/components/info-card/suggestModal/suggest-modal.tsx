@@ -80,7 +80,10 @@ export const SuggestModal = ({
       >
         Suggest proposal
       </button>
-      <dialog id={`modal_${summaryId}`} className="modal modal-xl shadow-xl">
+      <dialog
+        id={`modal_${summaryId}`}
+        className="modal modal-xl drop-shadow-2xl"
+      >
         <div className="modal-box max-w-2xl p-0">
           <ModalForm
             key={`modalForm_${summaryId}`}
