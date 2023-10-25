@@ -19,7 +19,7 @@ const documents = {
     types.CreateSummaryFeedbackDocument,
   '\n  fragment InfoCard on summaries {\n    id\n    title\n    url\n    language\n    publicationState\n    keywords\n    summary\n    largeLanguageModel\n  }\n':
     types.InfoCardFragmentDoc,
-  '\n      mutation CreateProposalSummary(\n        $proposalSummary: String!\n        $summaryId: String!\n        $selectedLocale: String!\n      ) {\n        createProposalSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            summaryId: $summaryId\n            locale: $selectedLocale\n          }\n        ) {\n          id\n        }\n      }\n    ':
+  '\n      mutation CreateProposalSummary(\n        $proposalSummary: String!\n        $summaryId: String!\n        $locale: String!\n      ) {\n        createProposalSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            summaryId: $summaryId\n            locale: $locale\n          }\n        ) {\n          id\n        }\n      }\n    ':
     types.CreateProposalSummaryDocument,
   '\n      query CombinedQuery(\n        $query: String\n        $language: [String!]\n        $publicationState: [String!]\n        $largeLanguageModel: [String!]\n        $keywords: [String!]\n      ) {\n        locales {\n          locales\n        }\n        summaries(\n          query: $query\n          language: $language\n          publicationState: $publicationState\n          largeLanguageModel: $largeLanguageModel\n          keywords: $keywords\n        ) {\n          id\n          ...InfoCard\n        }\n      }\n    ':
     types.CombinedQueryDocument,
@@ -61,8 +61,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      mutation CreateProposalSummary(\n        $proposalSummary: String!\n        $summaryId: String!\n        $selectedLocale: String!\n      ) {\n        createProposalSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            summaryId: $summaryId\n            locale: $selectedLocale\n          }\n        ) {\n          id\n        }\n      }\n    ',
-): (typeof documents)['\n      mutation CreateProposalSummary(\n        $proposalSummary: String!\n        $summaryId: String!\n        $selectedLocale: String!\n      ) {\n        createProposalSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            summaryId: $summaryId\n            locale: $selectedLocale\n          }\n        ) {\n          id\n        }\n      }\n    ']
+  source: '\n      mutation CreateProposalSummary(\n        $proposalSummary: String!\n        $summaryId: String!\n        $locale: String!\n      ) {\n        createProposalSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            summaryId: $summaryId\n            locale: $locale\n          }\n        ) {\n          id\n        }\n      }\n    ',
+): (typeof documents)['\n      mutation CreateProposalSummary(\n        $proposalSummary: String!\n        $summaryId: String!\n        $locale: String!\n      ) {\n        createProposalSummary(\n          data: {\n            proposalSummary: $proposalSummary\n            summaryId: $summaryId\n            locale: $locale\n          }\n        ) {\n          id\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

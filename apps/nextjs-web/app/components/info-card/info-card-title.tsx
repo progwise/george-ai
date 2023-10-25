@@ -28,12 +28,12 @@ export const InfoCardTitle = ({
             {title}
           </h2>
         </div>
-        <div className="capitalize btn btn-active  btn-accent btn-xs cursor-default">
+        <div className="capitalize badge badge-accent badge-md">
           {publicationState}
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <div className="capitalize btn btn-active  btn-accent btn-xs cursor-default">
+        <div className="capitalize text-xs whitespace-nowrap badge badge-accent badge-md">
           {largeLanguageModel}
         </div>
         <FeedbackButtons infoCardIndex={infoCardIndex} summaryId={summaryId} />

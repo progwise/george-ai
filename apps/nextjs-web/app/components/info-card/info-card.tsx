@@ -53,6 +53,8 @@ export const InfoCard = ({
         title={summary.title}
         summaryId={summary.id}
         locales={locales}
+        summary={summary.summary}
+        locale={summary.language}
       />
       <Link url={summary.url} />
       <Keywords keywords={summary?.keywords} />

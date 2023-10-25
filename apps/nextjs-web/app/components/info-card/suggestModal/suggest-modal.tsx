@@ -10,30 +10,32 @@ interface SuggestModalrops {
   title: string
   summaryId: string
   locales: string[]
+  summary: string
+  locale: string
 }
 
 export const SuggestModal = ({
   title,
   summaryId,
-  locales,
+  locale,
+  summary,
 }: SuggestModalrops) => {
-  const [textValue, setTextValue] = useState('')
+  const [textValue, setTextValue] = useState(summary)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
-  const [selectedLocale, setSelectedLocale] = useState('en')
 
   const [{ data, fetching, error }, createProposalSummary] = useMutation(
     graphql(`
       mutation CreateProposalSummary(
         $proposalSummary: String!
         $summaryId: String!
-        $selectedLocale: String!
+        $locale: String!
       ) {
         createProposalSummary(
           data: {
             proposalSummary: $proposalSummary
             summaryId: $summaryId
-            locale: $selectedLocale
+            locale: $locale
           }
         ) {
           id
@@ -44,7 +46,6 @@ export const SuggestModal = ({
 
   useEffect(() => {
     if (data) {
-      setTextValue('')
       setShowSuccessToast(true)
       setTimeout(() => {
         setShowSuccessToast(false)
@@ -63,7 +64,7 @@ export const SuggestModal = ({
     await createProposalSummary({
       proposalSummary: textValue,
       summaryId,
-      selectedLocale,
+      locale,
     })
   }
 
@@ -93,12 +94,10 @@ export const SuggestModal = ({
             summaryId={summaryId}
             textValue={textValue}
             setTextValue={setTextValue}
-            locales={locales}
-            setSelectedLocale={setSelectedLocale}
           />
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button onClick={() => setTextValue('')}>close</button>
+          <button>close</button>
         </form>
         <ModalToast
           showSuccessToast={showSuccessToast}

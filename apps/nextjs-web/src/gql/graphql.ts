@@ -155,7 +155,7 @@ export type InfoCardFragment = {
 export type CreateProposalSummaryMutationVariables = Exact<{
   proposalSummary: Scalars['String']['input']
   summaryId: Scalars['String']['input']
-  selectedLocale: Scalars['String']['input']
+  locale: Scalars['String']['input']
 }>
 
 export type CreateProposalSummaryMutation = {
@@ -417,7 +417,7 @@ export const CreateProposalSummaryDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'selectedLocale' },
+            name: { kind: 'Name', value: 'locale' },
           },
           type: {
             kind: 'NonNullType',
@@ -462,7 +462,7 @@ export const CreateProposalSummaryDocument = {
                       name: { kind: 'Name', value: 'locale' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'selectedLocale' },
+                        name: { kind: 'Name', value: 'locale' },
                       },
                     },
                   ],
