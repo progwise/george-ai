@@ -17,7 +17,6 @@ export const SuggestModal = ({
   summaryId,
   locales,
 }: SuggestModalrops) => {
-  const formReference = useRef<HTMLFormElement | null>(null)
   const [textValue, setTextValue] = useState('')
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
@@ -61,17 +60,8 @@ export const SuggestModal = ({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!formReference.current) {
-      return
-    }
-    const formData = new FormData(formReference.current)
-    const proposalSummary = formData.get('proposalSummary')
-    if (typeof proposalSummary !== 'string') {
-      return
-    }
-
     await createProposalSummary({
-      proposalSummary,
+      proposalSummary: textValue,
       summaryId,
       selectedLocale,
     })
@@ -97,7 +87,6 @@ export const SuggestModal = ({
             handleSubmit={handleSubmit}
             fetching={fetching}
             title={title}
-            formReference={formReference}
             summaryId={summaryId}
             textValue={textValue}
             setTextValue={setTextValue}
