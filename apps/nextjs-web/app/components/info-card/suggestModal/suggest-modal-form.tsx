@@ -1,7 +1,5 @@
-'use client'
-
 import Loading from '@/app/loading'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 interface ModalFormProps {
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
