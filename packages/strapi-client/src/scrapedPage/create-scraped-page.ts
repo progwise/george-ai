@@ -5,7 +5,7 @@ export const createScrapedPage = async (
   title: string,
   originalContent: string,
   url: string,
-  prompts: string[],
+  entryPointId: string,
 ) => {
   const { createScrapedWebPage } = await strapiClient.request(
     graphql(`
@@ -22,7 +22,7 @@ export const createScrapedPage = async (
         title,
         originalContent,
         url,
-        prompts,
+        entry_point: entryPointId,
       },
     },
   )

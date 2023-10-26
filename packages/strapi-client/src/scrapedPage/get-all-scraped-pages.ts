@@ -9,15 +9,18 @@ export const getAllScrapedPages = async () => {
           data {
             id
             attributes {
-              originalContent
               url
-              prompts {
+              originalContent
+              entry_point {
                 data {
                   attributes {
-                    summaryPrompt
-                    keywordPrompt
-                    llm
-                    locale
+                    prompts {
+                      promptForSummary
+                      promptForKeywords
+                      largeLanguageModel
+                      isDefaultPrompt
+                      language
+                    }
                   }
                 }
               }
@@ -28,20 +31,20 @@ export const getAllScrapedPages = async () => {
     `),
     {},
   )
-
   return (
     scrapedWebPages?.data.map(({ id, attributes }) => {
       return {
-        id: id ?? '',
+        scrapedPageId: id!,
         originalContent: attributes?.originalContent ?? '',
         url: attributes?.url ?? '',
         prompts:
-          attributes?.prompts?.data.map(({ attributes }) => {
+          attributes?.entry_point?.data?.attributes?.prompts?.map((prompt) => {
             return {
-              summaryPrompt: attributes?.summaryPrompt,
-              keywordPrompt: attributes?.keywordPrompt,
-              llm: attributes?.llm ?? 'unspecified',
-              locale: attributes?.locale ?? 'en',
+              promptForSummary: prompt?.promptForSummary,
+              promptForKeywords: prompt?.promptForKeywords,
+              largeLanguageModel: prompt?.largeLanguageModel ?? 'unspecified',
+              isDefaultPrompt: prompt?.isDefaultPrompt,
+              language: prompt?.language ?? 'en',
             }
           }) ?? [],
       }

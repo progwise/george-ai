@@ -33,10 +33,10 @@
       "target": "api::web-page-summary.web-page-summary",
       "mappedBy": "scraped_web_page"
     },
-    "prompts": {
+    "entry_point": {
       "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::prompt.prompt"
+      "relation": "oneToOne",
+      "target": "api::entry-point.entry-point"
     }
   }
 }

@@ -15,7 +15,7 @@ const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
 
   await pMap(
     scrapedWebPages,
-    async ({ id, originalContent, prompts, url }) => {
+    async ({ scrapedPageId, originalContent, prompts, url }) => {
       if (prompts.length === 0) {
         console.log('no prompts found')
         return
@@ -23,24 +23,25 @@ const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
 
       await pMap(
         prompts,
-        async ({ keywordPrompt, llm, locale, summaryPrompt }) => {
+        async (prompt) => {
           const summaryAndKeywords = await getSummaryAndKeywords(
             originalContent,
-            keywordPrompt,
-            summaryPrompt,
+            prompt.promptForSummary,
+            prompt.promptForKeywords,
           )
-          if (!summaryAndKeywords) {
+          if (!summaryAndKeywords || summaryAndKeywords.keywords.length < 2) {
             return
           }
 
-          await upsertWebPageSummary(
+          await upsertWebPageSummary({
             url,
-            summaryAndKeywords.summary,
-            summaryAndKeywords.keywords,
-            llm,
-            locale,
-            id,
-          )
+            summary: summaryAndKeywords.summary,
+            keywords: summaryAndKeywords.keywords,
+            largeLanguageModel: prompt.largeLanguageModel,
+            currentLanguage: prompt.language,
+            scrapedPageId,
+            prompt,
+          })
         },
         { concurrency: 2 },
       )

@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_prompts_prompts",
+  "info": {
+    "displayName": "Prompt",
+    "icon": "file"
+  },
+  "options": {},
+  "attributes": {
+    "promptForSummary": {
+      "type": "text"
+    },
+    "promptForKeywords": {
+      "type": "text"
+    },
+    "largeLanguageModel": {
+      "type": "string"
+    },
+    "isDefaultPrompt": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
+    "language": {
+      "type": "string"
+    }
+  }
+}

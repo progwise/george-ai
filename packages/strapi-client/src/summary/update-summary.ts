@@ -14,13 +14,22 @@ export const updateSummary = async (
             id
             attributes {
               locale
-              keywords
               summary
+              keywords
               largeLanguageModel
               scraped_web_page {
                 data {
                   id
                 }
+              }
+              lastScrapeUpdate
+              prompt {
+                id
+                promptForSummary
+                promptForKeywords
+                largeLanguageModel
+                isDefaultPrompt
+                language
               }
             }
           }

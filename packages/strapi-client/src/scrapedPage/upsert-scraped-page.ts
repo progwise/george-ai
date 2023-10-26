@@ -6,12 +6,12 @@ export const upsertScrapedWebPage = async (
   title: string,
   url: string,
   content: string,
-  prompts: string[],
+  entryPointId: string,
 ) => {
   const { id, originalContent } = await getScrapedPageByUrl(url)
 
   if (!id) {
-    await createScrapedPage(title, content, url, prompts)
+    await createScrapedPage(title, content, url, entryPointId)
     return
   }
 
@@ -20,5 +20,5 @@ export const upsertScrapedWebPage = async (
     return
   }
 
-  await updateScrapedPage(id, title, content, prompts)
+  await updateScrapedPage(id, title, content, entryPointId)
 }

@@ -5,7 +5,7 @@ export const updateScrapedPage = async (
   id: string,
   title: string,
   originalContent: string,
-  prompts: string[],
+  entryPointId: string,
 ) => {
   await strapiClient.request(
     graphql(`
@@ -22,7 +22,7 @@ export const updateScrapedPage = async (
       data: {
         title,
         originalContent,
-        prompts,
+        entry_point: entryPointId,
       },
     },
   )

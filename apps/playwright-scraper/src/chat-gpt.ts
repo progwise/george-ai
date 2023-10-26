@@ -35,22 +35,22 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
 
 export const getSummaryAndKeywords = async (
   originalContent: string,
-  keywordPrompt: string | null | undefined,
-  summaryPrompt: string | null | undefined,
+  promptForSummary: string | null | undefined,
+  promptForKeywords: string | null | undefined,
 ) => {
-  if (!keywordPrompt || !summaryPrompt) {
+  if (!promptForSummary || !promptForKeywords) {
     console.log('no keywordPrompt or summaryPrompt found')
     return
   }
 
   const summary = await createChatCompletion(
     originalContent,
-    JSON.parse(summaryPrompt),
+    JSON.parse(promptForSummary),
   )
 
   const keywordsResponse = await createChatCompletion(
     originalContent,
-    JSON.parse(keywordPrompt),
+    JSON.parse(promptForKeywords),
   )
 
   if (!summary || !keywordsResponse) {

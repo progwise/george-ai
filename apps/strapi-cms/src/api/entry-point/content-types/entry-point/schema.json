@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "entry_points",
+  "info": {
+    "singularName": "entry-point",
+    "pluralName": "entry-points",
+    "displayName": "EntryPoint",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "startUrl": {
+      "type": "string",
+      "required": true
+    },
+    "depth": {
+      "type": "integer"
+    },
+    "prompts": {
+      "type": "component",
+      "repeatable": true,
+      "component": "prompts.prompt"
+    }
+  }
+}
