@@ -290,7 +290,6 @@ export type Mutation = {
   createPrompt?: Maybe<PromptEntityResponse>
   createPromptLocalization?: Maybe<PromptEntityResponse>
   createProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
-  createProposalForSummaryLocalization?: Maybe<ProposalForSummaryEntityResponse>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
@@ -359,13 +358,6 @@ export type MutationCreatePromptLocalizationArgs = {
 
 export type MutationCreateProposalForSummaryArgs = {
   data: ProposalForSummaryInput
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
-}
-
-export type MutationCreateProposalForSummaryLocalizationArgs = {
-  data?: InputMaybe<ProposalForSummaryInput>
-  id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationCreateScrapedWebPageArgs = {
@@ -410,7 +402,6 @@ export type MutationDeletePromptArgs = {
 
 export type MutationDeleteProposalForSummaryArgs = {
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationDeleteScrapedWebPageArgs = {
@@ -489,7 +480,6 @@ export type MutationUpdatePromptArgs = {
 export type MutationUpdateProposalForSummaryArgs = {
   data: ProposalForSummaryInput
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationUpdateScrapedWebPageArgs = {
@@ -620,17 +610,9 @@ export type PromptRelationResponseCollection = {
 export type ProposalForSummary = {
   __typename?: 'ProposalForSummary'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  locale?: Maybe<Scalars['String']['output']>
-  localizations?: Maybe<ProposalForSummaryRelationResponseCollection>
   proposalSummary?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   web_page_summary?: Maybe<WebPageSummaryEntityResponse>
-}
-
-export type ProposalForSummaryLocalizationsArgs = {
-  filters?: InputMaybe<ProposalForSummaryFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type ProposalForSummaryEntity = {
@@ -654,8 +636,6 @@ export type ProposalForSummaryFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<ProposalForSummaryFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
-  locale?: InputMaybe<StringFilterInput>
-  localizations?: InputMaybe<ProposalForSummaryFiltersInput>
   not?: InputMaybe<ProposalForSummaryFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ProposalForSummaryFiltersInput>>>
   proposalSummary?: InputMaybe<StringFilterInput>
@@ -728,14 +708,12 @@ export type QueryPromptsArgs = {
 
 export type QueryProposalForSummariesArgs = {
   filters?: InputMaybe<ProposalForSummaryFiltersInput>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type QueryProposalForSummaryArgs = {
   id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type QueryScrapedWebPageArgs = {
@@ -1363,6 +1341,7 @@ export type WebPageSummary = {
   lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
+  proposal_for_summaries?: Maybe<ProposalForSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
   summary?: Maybe<Scalars['String']['output']>
@@ -1374,6 +1353,12 @@ export type WebPageSummaryLocalizationsArgs = {
   filters?: InputMaybe<WebPageSummaryFiltersInput>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type WebPageSummaryProposal_For_SummariesArgs = {
+  filters?: InputMaybe<ProposalForSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -1411,6 +1396,7 @@ export type WebPageSummaryFiltersInput = {
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
   or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  proposal_for_summaries?: InputMaybe<ProposalForSummaryFiltersInput>
   publishedAt?: InputMaybe<DateTimeFilterInput>
   scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
   summary?: InputMaybe<StringFilterInput>
@@ -1422,6 +1408,7 @@ export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
   lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
+  proposal_for_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
@@ -1541,7 +1528,6 @@ export type GetDefaultPromptsQuery = {
 export type CreateProposalForSummaryMutationVariables = Exact<{
   proposalSummary: Scalars['String']['input']
   summaryId: Scalars['ID']['input']
-  locale: Scalars['I18NLocaleCode']['input']
 }>
 
 export type CreateProposalForSummaryMutation = {
@@ -2346,20 +2332,6 @@ export const CreateProposalForSummaryDocument = {
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
           },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'I18NLocaleCode' },
-            },
-          },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -2391,14 +2363,6 @@ export const CreateProposalForSummaryDocument = {
                       },
                     },
                   ],
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
                 },
               },
             ],

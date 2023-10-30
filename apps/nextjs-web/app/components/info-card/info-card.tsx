@@ -48,7 +48,6 @@ export const InfoCard = ({ summaryFragment, infoCardIndex }: InfoCardProps) => {
         title={summary.title}
         summaryId={summary.id}
         summary={summary.summary}
-        language={summary.language}
       />
       <Link url={summary.url} />
       <Keywords keywords={summary?.keywords} />

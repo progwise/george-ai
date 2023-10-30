@@ -10,14 +10,12 @@ interface SuggestModalrops {
   title: string
   summaryId: string
   summary: string
-  language: string
 }
 
 export const SuggestModal = ({
   title,
   summaryId,
   summary,
-  language,
 }: SuggestModalrops) => {
   const [textValue, setTextValue] = useState(summary)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
@@ -28,14 +26,9 @@ export const SuggestModal = ({
       mutation CreateProposalSummary(
         $proposalSummary: String!
         $summaryId: String!
-        $language: String!
       ) {
         createProposalSummary(
-          data: {
-            proposalSummary: $proposalSummary
-            summaryId: $summaryId
-            locale: $language
-          }
+          data: { proposalSummary: $proposalSummary, summaryId: $summaryId }
         ) {
           id
         }
@@ -63,7 +56,6 @@ export const SuggestModal = ({
     await createProposalSummary({
       proposalSummary: textValue,
       summaryId,
-      language,
     })
   }
 

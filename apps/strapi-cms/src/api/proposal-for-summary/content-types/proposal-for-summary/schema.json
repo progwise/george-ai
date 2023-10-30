@@ -10,24 +10,17 @@
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
+  "pluginOptions": {},
   "attributes": {
     "web_page_summary": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::web-page-summary.web-page-summary"
+      "relation": "manyToOne",
+      "target": "api::web-page-summary.web-page-summary",
+      "inversedBy": "proposal_for_summaries"
     },
     "proposalSummary": {
       "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "pluginOptions": {}
     }
   }
 }

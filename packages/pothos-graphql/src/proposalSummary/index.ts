@@ -7,7 +7,6 @@ const CreateProposalSummaryInput = builder.inputType(
     fields: (t) => ({
       proposalSummary: t.string(),
       summaryId: t.string(),
-      locale: t.string(),
     }),
   },
 )
@@ -31,7 +30,6 @@ builder.mutationField('createProposalSummary', (t) =>
       return await createProposalForSummary(
         arguments_.data.proposalSummary,
         arguments_.data.summaryId,
-        arguments_.data.locale,
       )
     },
   }),
