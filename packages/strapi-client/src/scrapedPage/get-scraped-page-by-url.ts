@@ -28,6 +28,6 @@ export const getScrapedPageByUrl = async (url: string) => {
     originalContent:
       scrapedWebPages?.data.at(0)?.attributes?.originalContent ?? '',
     scrapedPageEntryPointId:
-      scrapedWebPages?.data.at(0)?.attributes?.entry_point?.data?.id,
+      scrapedWebPages?.data.at(0)?.attributes?.entry_point?.data?.id ?? '',
   }
 }
