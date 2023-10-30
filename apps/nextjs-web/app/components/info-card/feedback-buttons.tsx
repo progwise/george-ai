@@ -64,7 +64,7 @@ export const FeedbackButtons = ({
   return (
     <div className="flex min-w-max gap-0.5 z-10">
       <button
-        className={`btn btn-outline btn-accent btn-sm border-none group  ${
+        className={`btn btn-accent btn-sm border-none group ${
           feedbackSelection === SummaryFeedbackVoting.Up
             ? 'btn-active'
             : 'btn-outline'
@@ -82,7 +82,7 @@ export const FeedbackButtons = ({
       </button>
 
       <button
-        className={`btn btn-outline btn-accent btn-sm border-none group  ${
+        className={`btn btn-accent btn-sm border-none group ${
           feedbackSelection === SummaryFeedbackVoting.Down
             ? 'btn-active'
             : 'btn-outline'
