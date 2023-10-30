@@ -1349,27 +1349,6 @@ export type CreateSummaryFeedbackMutation = {
   } | null
 }
 
-export type GetDefaultPromptIdsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetDefaultPromptIdsQuery = {
-  __typename?: 'Query'
-  entryPoints?: {
-    __typename?: 'EntryPointEntityResponseCollection'
-    data: Array<{
-      __typename?: 'EntryPointEntity'
-      id?: string | null
-      attributes?: {
-        __typename?: 'EntryPoint'
-        prompts?: Array<{
-          __typename?: 'ComponentPromptsPrompt'
-          id: string
-          isDefaultPrompt: boolean
-        } | null> | null
-      } | null
-    }>
-  } | null
-}
-
 export type CreateScrapedWebPageMutationVariables = Exact<{
   data: ScrapedWebPageInput
 }>
@@ -1433,6 +1412,10 @@ export type GetScrapedWebPagesByUrlQuery = {
       attributes?: {
         __typename?: 'ScrapedWebPage'
         originalContent?: string | null
+        entry_point?: {
+          __typename?: 'EntryPointEntityResponse'
+          data?: { __typename?: 'EntryPointEntity'; id?: string | null } | null
+        } | null
       } | null
     }>
   } | null
@@ -1488,6 +1471,61 @@ export type CreateWebPageSummaryMutation = {
         } | null
       } | null
     } | null
+  } | null
+}
+
+export type GetOutdatedWebPageSummariesQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetOutdatedWebPageSummariesQuery = {
+  __typename?: 'Query'
+  webPageSummaries?: {
+    __typename?: 'WebPageSummaryEntityResponseCollection'
+    data: Array<{
+      __typename?: 'WebPageSummaryEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'WebPageSummary'
+        lastScrapeUpdate?: any | null
+        scraped_web_page?: {
+          __typename?: 'ScrapedWebPageEntityResponse'
+          data?: {
+            __typename?: 'ScrapedWebPageEntity'
+            id?: string | null
+            attributes?: {
+              __typename?: 'ScrapedWebPage'
+              updatedAt?: any | null
+              originalContent?: string | null
+              entry_point?: {
+                __typename?: 'EntryPointEntityResponse'
+                data?: {
+                  __typename?: 'EntryPointEntity'
+                  attributes?: {
+                    __typename?: 'EntryPoint'
+                    prompts?: Array<{
+                      __typename?: 'ComponentPromptsPrompt'
+                      promptForSummary?: string | null
+                      promptForKeywords?: string | null
+                      largeLanguageModel?: string | null
+                      isDefaultPrompt: boolean
+                      language?: string | null
+                    } | null> | null
+                  } | null
+                } | null
+              } | null
+            } | null
+          } | null
+        } | null
+        prompt?: {
+          __typename?: 'ComponentPromptsPrompt'
+          promptForSummary?: string | null
+          promptForKeywords?: string | null
+          largeLanguageModel?: string | null
+          language?: string | null
+        } | null
+      } | null
+    }>
   } | null
 }
 
@@ -1918,72 +1956,6 @@ export const CreateSummaryFeedbackDocument = {
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
 >
-export const GetDefaultPromptIdsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetDefaultPromptIds' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'entryPoints' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'prompts' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'id' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: {
-                                      kind: 'Name',
-                                      value: 'isDefaultPrompt',
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GetDefaultPromptIdsQuery,
-  GetDefaultPromptIdsQueryVariables
->
 export const CreateScrapedWebPageDocument = {
   kind: 'Document',
   definitions: [
@@ -2252,6 +2224,28 @@ export const GetScrapedWebPagesByUrlDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'originalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'entry_point' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -2526,6 +2520,242 @@ export const CreateWebPageSummaryDocument = {
 } as unknown as DocumentNode<
   CreateWebPageSummaryMutation,
   CreateWebPageSummaryMutationVariables
+>
+export const GetOutdatedWebPageSummariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetOutdatedWebPageSummaries' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'webPageSummaries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: { kind: 'EnumValue', value: 'PREVIEW' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'all', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'scraped_web_page' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'updatedAt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'originalContent',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'entry_point',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'prompts',
+                                                                  },
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'promptForSummary',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'promptForKeywords',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'largeLanguageModel',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'isDefaultPrompt',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'language',
+                                                                            },
+                                                                          },
+                                                                        ],
+                                                                    },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'prompt' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForSummary',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'largeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'language' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetOutdatedWebPageSummariesQuery,
+  GetOutdatedWebPageSummariesQueryVariables
 >
 export const GetWebPageSummariesDocument = {
   kind: 'Document',

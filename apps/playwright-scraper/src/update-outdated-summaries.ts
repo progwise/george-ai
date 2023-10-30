@@ -16,19 +16,13 @@ const updateOutdatedSummaries = async () => {
   await pMap(
     outdatedSummaries,
     async (outdatedSummary) => {
-      const {
-        summaryId,
-        keywordPrompt,
-        summaryPrompt,
-        largeLanguageModel,
-        scrapedPageId,
-        originalContent,
-      } = outdatedSummary
+      const { summaryId, scrapedPageId, originalContent, prompt } =
+        outdatedSummary
 
       const summaryAndKeywords = await getSummaryAndKeywords(
         originalContent,
-        keywordPrompt,
-        summaryPrompt,
+        prompt.promptForSummary,
+        prompt.promptForKeywords,
       )
 
       if (!summaryAndKeywords) {
@@ -38,9 +32,10 @@ const updateOutdatedSummaries = async () => {
       const newSummary = {
         summary: summaryAndKeywords.summary,
         keywords: JSON.stringify(summaryAndKeywords.keywords),
-        largeLanguageModel,
+        largeLanguageModel: prompt.largeLanguageModel,
         scraped_web_page: scrapedPageId,
         lastScrapeUpdate: new Date(),
+        prompt: prompt,
       }
 
       await updateSummary(newSummary, summaryId)

@@ -4,7 +4,7 @@ import { strapiClient } from '../strapi-client'
 export const updateEntryPoint = async (
   id: string,
   prompts: {
-    id: string
+    id?: string
     promptForSummary: string | null | undefined
     promptForKeywords: string | null | undefined
     largeLanguageModel: string

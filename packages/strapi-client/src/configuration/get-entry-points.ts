@@ -35,14 +35,14 @@ export const getEntryPoints = async () => {
       startUrl: entry.attributes?.startUrl!,
       depth: entry.attributes?.depth ?? 0,
       prompts:
-        entry.attributes?.prompts?.map((p) => {
+        entry.attributes?.prompts?.map((prompt) => {
           return {
-            id: p?.id!,
-            promptForSummary: p?.promptForKeywords,
-            promptForKeywords: p?.promptForKeywords,
-            largeLanguageModel: p?.largeLanguageModel ?? 'unspecified',
-            isDefaultPrompt: p?.isDefaultPrompt,
-            language: p?.language ?? 'en',
+            id: prompt?.id!,
+            promptForSummary: prompt?.promptForKeywords,
+            promptForKeywords: prompt?.promptForKeywords,
+            largeLanguageModel: prompt?.largeLanguageModel ?? 'unspecified',
+            isDefaultPrompt: prompt?.isDefaultPrompt,
+            language: prompt?.language ?? 'en',
           }
         }) ?? [],
     })) ?? []
