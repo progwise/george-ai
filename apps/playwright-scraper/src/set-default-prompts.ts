@@ -6,7 +6,7 @@ type SupportedLanguage = keyof typeof defaultPrompts
 const isSupportedLanguage = (lang: string): lang is SupportedLanguage =>
   Object.keys(defaultPrompts).includes(lang)
 
-const createPrompt = (lang: SupportedLanguage, id?: string) => {
+const createDefaultPrompt = (lang: SupportedLanguage, id?: string) => {
   const defaultPrompt = defaultPrompts[lang]
   return {
     id,
@@ -24,7 +24,7 @@ const setDefaultPrompts = async () => {
   for (const entryPoint of entryPoints) {
     if (entryPoint.prompts.length === 0) {
       const newPrompts = Object.keys(defaultPrompts).map((lang) =>
-        createPrompt(lang as SupportedLanguage),
+        createDefaultPrompt(lang as SupportedLanguage),
       )
 
       await updateEntryPoint(entryPoint.entryPointId, newPrompts)
@@ -38,7 +38,7 @@ const setDefaultPrompts = async () => {
 
     const updatedPrompts = entryPoint.prompts.map((prompt) =>
       prompt.isDefaultPrompt && isSupportedLanguage(prompt.language)
-        ? createPrompt(prompt.language, prompt.id)
+        ? createDefaultPrompt(prompt.language, prompt.id)
         : prompt,
     )
 
