@@ -1,12 +1,7 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
 import { updateSummary } from './update-summary'
 import { NewSummary } from './create-summary'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 const updateData: NewSummary = {
   summary: 'updated summary',

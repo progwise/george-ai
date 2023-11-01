@@ -2,11 +2,6 @@ import { graphql } from 'msw'
 import { Enum_Summaryfeedback_Voting } from '../gql/graphql'
 import { server } from '../mocks/server'
 import { createFeedback } from './create-feedback'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('creates feedback successfully', async () => {
   const feedback = await createFeedback(

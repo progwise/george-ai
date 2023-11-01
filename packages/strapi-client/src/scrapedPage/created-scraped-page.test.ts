@@ -1,11 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
 import { createdScrapedPage } from './created-scraped-page'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('creates scraped web page successfully', async () => {
   await expect(

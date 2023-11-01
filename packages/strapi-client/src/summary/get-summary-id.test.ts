@@ -1,11 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
 import { getSummaryId } from './get-summary-id'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('fetches summary ID successfully', async () => {
   const id = await getSummaryId('gpt-3.5-turbo', 'https://example.com', 'en')

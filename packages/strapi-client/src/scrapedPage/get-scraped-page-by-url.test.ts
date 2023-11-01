@@ -1,11 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
 import { getScrapedPageByUrl } from './get-scraped-page-by-url'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('fetches scraped web page by URL successfully', async () => {
   const scrapedPage = await getScrapedPageByUrl('https://example.com')

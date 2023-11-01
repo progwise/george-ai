@@ -1,11 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
 import { deleteFeedback } from './delete-feedback'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('deletes feedback successfully', async () => {
   await expect(deleteFeedback('1')).resolves.not.toThrow()

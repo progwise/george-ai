@@ -1,11 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
 import { createPrompt } from './create-prompt'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('creates prompt successfully', async () => {
   await expect(

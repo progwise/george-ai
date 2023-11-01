@@ -1,11 +1,6 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
 import { getScraperConfiguration } from './get-scraper-configuration'
-import { afterAll, afterEach, beforeAll, expect, it } from 'vitest'
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
 
 it('fetches scraper configuration successfully', async () => {
   const configuration = await getScraperConfiguration()
