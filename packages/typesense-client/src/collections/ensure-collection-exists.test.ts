@@ -3,11 +3,11 @@ import { summaryCollectionSchema } from './summary-collection-schema.js'
 import { rest } from 'msw'
 import { ensureCollectionExists } from './ensure-collection-exists.js'
 
-test('successfully get a collection', async () => {
+it('successfully get a collection', async () => {
   await expect(ensureCollectionExists()).resolves.not.toThrow()
 })
 
-test('successfully create a collection', async () => {
+it('successfully create a collection', async () => {
   let collectionCreated = false
   server.use(
     rest.get(

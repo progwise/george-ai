@@ -3,11 +3,11 @@ import { summaryCollectionSchema } from './summary-collection-schema.js'
 import { deleteCollection } from './delete-collection.js'
 import { rest } from 'msw'
 
-test('successfully deletes a collection', async () => {
+it('successfully deletes a collection', async () => {
   await expect(deleteCollection()).resolves.not.toThrow()
 })
 
-test('handles deletion failure', async () => {
+it('handles deletion failure', async () => {
   server.use(
     rest.delete(
       `https://localhost:8108/collections/${summaryCollectionSchema.name}`,

@@ -15,4 +15,23 @@ export const handlers: RestHandler[] = [
       return response(context.status(200))
     },
   ),
+  rest.delete(
+    `https://localhost:8108/collections/${summaryCollectionSchema.name}/documents/:id`,
+    (request, response, context) => {
+      const { id } = request.params
+      return response(context.status(200))
+    },
+  ),
+  rest.post(
+    `https://localhost:8108/collections/${summaryCollectionSchema.name}documents/upsert`,
+    (request, response, context) => {
+      return response(context.status(200))
+    },
+  ),
+  rest.post(
+    `https://localhost:8108/collections/${summaryCollectionSchema.name}/documents/search`,
+    (request, response, context) => {
+      return response(context.status(200), context.json({ hits: [] }))
+    },
+  ),
 ]
