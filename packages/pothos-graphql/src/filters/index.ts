@@ -1,7 +1,7 @@
 import { builder } from '../builder'
 import { fetchGroupedValues } from '@george-ai/typesense-client'
 
-const searchFilters = builder.simpleObject('searchFilters', {
+const filters = builder.simpleObject('filters', {
   fields: (t) => ({
     language: t.stringList(),
     largeLanguageModel: t.stringList(),
@@ -9,9 +9,9 @@ const searchFilters = builder.simpleObject('searchFilters', {
   }),
 })
 
-builder.queryField('searchFilters', (t) =>
+builder.queryField('filters', (t) =>
   t.field({
-    type: searchFilters,
+    type: filters,
     resolve: async () => {
       const [language, largeLanguageModel, publicationState] =
         await Promise.all([

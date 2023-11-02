@@ -1,63 +1,89 @@
 import {
-  computeFeedbackPopularity,
-  upsertWebpageSummary,
+  calculatePopularity,
+  updateSummaryDocument,
 } from '@george-ai/typesense-client'
 
-const transformAndUpsertFeedback = async (id) => {
-  try {
-    const summaryFeedbackResult = await strapi.entityService.findOne(
+const getSummaryId = async (feedbackId: number): Promise<number> => {
+  const { web_page_summary }: { web_page_summary: { id: number } } =
+    await strapi.entityService.findOne(
       'api::summary-feedback.summary-feedback',
-      id,
+      feedbackId,
       {
         populate: ['web_page_summary'],
       },
     )
+  return web_page_summary.id
+}
 
-    const webPageSummaryResult = await strapi.entityService.findOne(
-      'api::web-page-summary.web-page-summary',
-      summaryFeedbackResult.web_page_summary.id,
-      {
-        populate: ['scraped_web_page', 'summary_feedbacks'],
-      },
-    )
+const getCurrentFeedbacks = async (summaryId: string | number) => {
+  const {
+    lastScrapeUpdate,
+    summary_feedbacks,
+  }: {
+    lastScrapeUpdate: string
+    summary_feedbacks: {
+      id: number
+      voting: 'up' | 'down'
+      createdAt: string
+    }[]
+  } = await strapi.entityService.findOne(
+    'api::web-page-summary.web-page-summary',
+    summaryId,
+    {
+      populate: ['summary_feedbacks'],
+    },
+  )
+  return summary_feedbacks.filter(
+    (feedback) => new Date(feedback.createdAt) > new Date(lastScrapeUpdate),
+  )
+}
 
-    const updatedAt = new Date(webPageSummaryResult.updatedAt)
-
-    const votes = (webPageSummaryResult.summary_feedbacks ?? [])
-      .filter((feedback) => {
-        const createdAt = new Date(feedback.createdAt)
-        return createdAt > updatedAt
-      })
-      .map((feedback) => feedback.voting)
-
-    const popularity = computeFeedbackPopularity(votes)
-
-    const webPageSummary = {
-      id: webPageSummaryResult.id.toString() ?? '',
-      language: webPageSummaryResult.locale ?? '',
-      keywords: webPageSummaryResult.keywords
-        ? JSON.parse(webPageSummaryResult.keywords)
-        : [],
-      summary: webPageSummaryResult.summary ?? '',
-      largeLanguageModel: webPageSummaryResult.largeLanguageModel ?? '',
-      title: webPageSummaryResult.scraped_web_page.title ?? '',
-      url: webPageSummaryResult.scraped_web_page.url ?? '',
-      originalContent:
-        webPageSummaryResult.scraped_web_page.originalContent ?? '',
-      publicationState: webPageSummaryResult.scraped_web_page.publishedAt
-        ? 'published'
-        : 'draft',
-      popularity,
-    }
-
-    upsertWebpageSummary(webPageSummary)
+const saveUpdateSummaryDocument = async (
+  popularity: number,
+  summaryId: string,
+) => {
+  try {
+    await updateSummaryDocument({ popularity }, summaryId)
   } catch (error) {
-    console.error('Error fetching results from strapi:', error)
+    console.error(
+      `Failed to update the summary document with id: ${summaryId}`,
+      error,
+    )
   }
 }
 
 export default {
   async afterCreate(event) {
-    await transformAndUpsertFeedback(event.result.id)
+    const summaryId: string = event.params.data.web_page_summary
+    const feedbacks = await getCurrentFeedbacks(summaryId)
+    const popularity = calculatePopularity(
+      feedbacks.map((feedback) => feedback.voting),
+    )
+    await saveUpdateSummaryDocument(popularity, summaryId)
+  },
+
+  async beforeDelete(event) {
+    const feedbackId = event.params.where.id
+    const summaryId = await getSummaryId(feedbackId)
+    const feedbacks = await getCurrentFeedbacks(summaryId)
+    const popularity = calculatePopularity(
+      feedbacks
+        .filter((feedback) => feedback.id !== feedbackId)
+        .map((feedback) => feedback.voting),
+    )
+    await saveUpdateSummaryDocument(popularity, summaryId.toString())
+  },
+
+  async beforeDeleteMany(event) {
+    for (const feedbackId of event.params?.where?.$and[0].id.$in) {
+      const summaryId = await getSummaryId(feedbackId)
+      const feedbacks = await getCurrentFeedbacks(summaryId)
+      const popularity = calculatePopularity(
+        feedbacks
+          .filter((feedback) => feedback.id !== feedbackId)
+          .map((feedback) => feedback.voting),
+      )
+      await saveUpdateSummaryDocument(popularity, summaryId.toString())
+    }
   },
 }

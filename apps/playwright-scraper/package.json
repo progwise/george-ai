@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "scrape": "ts-node --esm --experimentalSpecifierResolution node src/main.ts",
+    "scrape": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/scrape-configured-pages.ts",
+    "generatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/generate-summaries.ts",
+    "updatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/update-outdated-summaries.ts",
     "setdefaultprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/set-default-prompts.ts",
     "tsc": "tsc",
     "lint": "eslint ."
@@ -22,6 +24,7 @@
     "openai": "^3.3.0",
     "p-map": "^6.0.0",
     "playwright-chromium": "^1.36.1",
+    "pmap": "^2.0.0",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {

@@ -4,13 +4,12 @@
   "version": "0.1.0",
   "description": "A Strapi application",
   "scripts": {
-    "develop": "strapi develop",
+    "dev": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi"
   },
   "dependencies": {
-    "@george-ai/strapi-client": "*",
     "@george-ai/typesense-client": "*",
     "@strapi/plugin-graphql": "^4.12.0",
     "@strapi/plugin-i18n": "4.12.0",
