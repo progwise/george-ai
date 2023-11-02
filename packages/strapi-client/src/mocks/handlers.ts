@@ -37,6 +37,7 @@ export const handlers = [
                   prompts: {
                     data: [
                       {
+                        id: '1',
                         attributes: {
                           summaryPrompt: 'summary',
                           keywordPrompt: 'keywords',

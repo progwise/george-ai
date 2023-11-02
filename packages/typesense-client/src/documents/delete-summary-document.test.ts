@@ -1,11 +1,11 @@
 import { server } from '../mocks/server.js'
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
-import { deleteDocument } from './delete-document.js'
+import { deleteSummaryDocument } from './delete-summary-document.js'
 import { rest } from 'msw'
 
 it('successfully deletes a document', async () => {
   const id = '1'
-  await expect(deleteDocument(id)).resolves.not.toThrow()
+  await expect(deleteSummaryDocument(id)).resolves.not.toThrow()
 })
 
 it('handles document deletion failure', async () => {
@@ -22,5 +22,5 @@ it('handles document deletion failure', async () => {
     ),
   )
 
-  await expect(deleteDocument(id)).rejects.toThrow()
+  await expect(deleteSummaryDocument(id)).rejects.toThrow()
 })

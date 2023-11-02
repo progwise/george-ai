@@ -1,10 +1,10 @@
 import { server } from '../mocks/server.js'
+import { ensureSummaryCollection } from './ensure-summary-collection.js'
 import { summaryCollectionSchema } from './summary-collection-schema.js'
 import { rest } from 'msw'
-import { ensureCollectionExists } from './ensure-collection-exists.js'
 
 it('successfully get a collection', async () => {
-  await expect(ensureCollectionExists()).resolves.not.toThrow()
+  await expect(ensureSummaryCollection()).resolves.not.toThrow()
 })
 
 it('successfully create a collection', async () => {
@@ -24,6 +24,6 @@ it('successfully create a collection', async () => {
       },
     ),
   )
-  await expect(ensureCollectionExists()).resolves.not.toThrow()
+  await expect(ensureSummaryCollection()).resolves.not.toThrow()
   expect(collectionCreated).toBeTruthy()
 })

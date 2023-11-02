@@ -1,19 +1,23 @@
 // packages/typesense-client/src/documents/search-web-page-documents.test.ts
 import { server } from '../mocks/server.js'
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
-import { searchWebPageDocuments } from './search-web-page-documents.js'
+import {
+  PublicationState,
+  searchSummaryDocuments,
+} from './search-summary-documents.js'
 import { rest } from 'msw'
 
 export const sampleDocument = {
   id: '1',
-  title: 'Sample Title',
-  url: 'http://example.com',
   language: 'en',
-  originalContent: 'Sample Content',
-  publicationState: 'published',
   keywords: ['sample'],
   summary: 'Sample Summary',
   largeLanguageModel: 'Sample Model',
+  title: 'Sample Title',
+  url: 'http://example.com',
+  originalContent: 'Sample Content',
+  publicationState: PublicationState.Draft,
+  popularity: 0,
 }
 
 // it('successfully searches for documents', async () => {
@@ -29,9 +33,7 @@ export const sampleDocument = {
 //     ),
 //   )
 
-//   const result = await searchWebPageDocuments('sample query', [
-//     'publicationState:published',
-//   ])
+//   const result = await searchSummaryDocuments('sample query', '["publicationState:published"]')
 //   expect(result).toEqual([sampleDocument])
 // })
 
@@ -49,6 +51,6 @@ it('handles search failure', async () => {
   )
 
   await expect(
-    searchWebPageDocuments('sample query', ['publicationState:published']),
+    searchSummaryDocuments('sample query', '["publicationState:published"]'),
   ).rejects.toThrow()
 })

@@ -1,12 +1,12 @@
 import { summaryCollectionSchema } from '../collections/summary-collection-schema.js'
 import { server } from '../mocks/server.js'
-import { sampleDocument } from './search-web-page-documents.test.js'
-import { upsertDocument } from './upsert-document.js'
+import { sampleDocument } from './search-summary-documents.test.js'
+import { upsertSummaryDocument } from './upsert-summary-document.js'
 import { rest } from 'msw'
 
 // it('successfully upserts a document', async () => {
 //   await expect(
-//     upsertDocument(summaryCollectionSchema, sampleDocument),
+//     upsertSummaryDocument(summaryCollectionSchema, sampleDocument),
 //   ).resolves.not.toThrow()
 // })
 
@@ -23,7 +23,5 @@ it('handles upsert failure', async () => {
     ),
   )
 
-  await expect(
-    upsertDocument(summaryCollectionSchema, sampleDocument),
-  ).rejects.toThrow()
+  await expect(upsertSummaryDocument(sampleDocument)).rejects.toThrow()
 })

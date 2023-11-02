@@ -1,40 +1,22 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { GetAllSummaries } from '..'
-import { Enum_Summaryfeedback_Voting } from '../gql/graphql'
+import { getAllSummaries } from '..'
 
 it('fetches all summaries successfully', async () => {
-  const summaries = await GetAllSummaries()
+  const summaries = await getAllSummaries()
+
   expect(summaries).toEqual([
     {
       id: '1',
-      attributes: {
-        updatedAt: '2023-12-01T00:00:00Z',
-        locale: 'en',
-        keywords: ['keyword1', 'keyword2'],
-        summary: 'summary',
-        largeLanguageModel: 'gpt-3.5-turbo',
-        publishedAt: '2023-11-01T00:00:00Z',
-        summary_feedbacks: {
-          data: [
-            {
-              attributes: {
-                createdAt: '2023-11-02T00:00:00Z',
-                voting: Enum_Summaryfeedback_Voting.Up,
-              },
-            },
-          ],
-        },
-        scraped_web_page: {
-          data: {
-            attributes: {
-              title: 'test-title',
-              url: 'http://test.com',
-              originalContent: 'originalContent',
-            },
-          },
-        },
-      },
+      language: 'en',
+      keywords: ['keyword1', 'keyword2'],
+      summary: 'summary',
+      largeLanguageModel: 'gpt-3.5-turbo',
+      publishedAt: '2023-11-01T00:00:00Z',
+      feedbacks: ['up'],
+      title: 'test-title',
+      url: 'http://test.com',
+      originalContent: 'originalContent',
     },
   ])
 })
@@ -46,5 +28,5 @@ it('handles failure in fetching all summaries', async () => {
     }),
   )
 
-  await expect(GetAllSummaries()).rejects.toThrow()
+  await expect(getAllSummaries()).rejects.toThrow()
 })

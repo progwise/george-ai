@@ -1,10 +1,10 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { createdScrapedPage } from './created-scraped-page'
+import { createScrapedPage } from './create-scraped-page'
 
 it('creates scraped web page successfully', async () => {
   await expect(
-    createdScrapedPage('title', 'content', 'https://example.com'),
+    createScrapedPage('title', 'content', 'https://example.com', ['1']),
   ).resolves.not.toThrow()
 })
 
@@ -15,6 +15,6 @@ it('handles creation failure', async () => {
     }),
   )
   await expect(
-    createdScrapedPage('title', 'content', 'https://example.com'),
+    createScrapedPage('title', 'content', 'https://example.com', ['1']),
   ).rejects.toThrow()
 })

@@ -10,16 +10,7 @@ it('creates feedback successfully', async () => {
     Enum_Summaryfeedback_Voting.Up,
     '1',
   )
-  expect(feedback?.attributes).toEqual({
-    position: 1,
-    query: 'query',
-    voting: Enum_Summaryfeedback_Voting.Up,
-    web_page_summary: {
-      data: {
-        id: '1',
-      },
-    },
-  })
+  expect(feedback).toEqual('1')
 })
 
 it('handles createFeedback failure', async () => {

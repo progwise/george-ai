@@ -1,10 +1,11 @@
 import { server } from '../mocks/server.js'
+import { deleteSummaryCollection } from './delete-summary-collection.js'
 import { summaryCollectionSchema } from './summary-collection-schema.js'
-import { deleteCollection } from './delete-collection.js'
+
 import { rest } from 'msw'
 
 it('successfully deletes a collection', async () => {
-  await expect(deleteCollection()).resolves.not.toThrow()
+  await expect(deleteSummaryCollection()).resolves.not.toThrow()
 })
 
 it('handles deletion failure', async () => {
@@ -20,5 +21,5 @@ it('handles deletion failure', async () => {
     ),
   )
 
-  await expect(deleteCollection()).rejects.toThrow()
+  await expect(deleteSummaryCollection()).rejects.toThrow()
 })

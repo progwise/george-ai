@@ -1,22 +1,15 @@
 import { graphql } from 'msw'
 import { server } from '../mocks/server'
-import { getScraperConfiguration } from './get-scraper-configuration'
+import { getScraperConfigurations } from './get-scraper-configurations'
 
 it('fetches scraper configuration successfully', async () => {
-  const configuration = await getScraperConfiguration()
+  const configuration = await getScraperConfigurations()
 
   expect(configuration).toEqual([
     {
       startUrl: 'http://example.com',
       depth: 2,
-      prompts: [
-        {
-          summaryPrompt: 'summary',
-          keywordPrompt: 'keywords',
-          llm: 'gpt-3.5-turbo',
-          locale: 'en',
-        },
-      ],
+      prompts: ['1'],
     },
   ])
 })
@@ -28,5 +21,5 @@ it('handles failure', async () => {
     }),
   )
 
-  await expect(getScraperConfiguration()).rejects.toThrow()
+  await expect(getScraperConfigurations()).rejects.toThrow()
 })

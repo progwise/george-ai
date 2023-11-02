@@ -5,7 +5,10 @@ import { getScrapedPageByUrl } from './get-scraped-page-by-url'
 it('fetches scraped web page by URL successfully', async () => {
   const scrapedPage = await getScrapedPageByUrl('https://example.com')
 
-  expect(scrapedPage).toEqual({ id: '1' })
+  expect(scrapedPage).toEqual({
+    id: '1',
+    originalContent: '',
+  })
 })
 
 it('handles fetch failure', async () => {
