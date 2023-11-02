@@ -16,7 +16,8 @@
     "skipLibCheck": true,
     "strict": true,
     "module": "Node16",
-    "target": "ES2022"
+    "target": "ES2022",
+    "types": ["vitest/globals"]
   },
   "exclude": ["node_modules"],
   "include": ["src"]
