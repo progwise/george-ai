@@ -35,16 +35,14 @@ export const FilterCheckbox = ({
   }
 
   return (
-    <div className="form-control">
-      <label className="label gap-1 cursor-pointer">
-        <span className="capitalize label-text">{value}</span>
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={handleFilterChange}
-          className="checkbox checkbox-sm checkbox-info"
-        />
-      </label>
-    </div>
+    <label className="label gap-1 cursor-pointer">
+      <span className="capitalize label-text">{value}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={handleFilterChange}
+        className="checkbox checkbox-sm checkbox-info"
+      />
+    </label>
   )
 }

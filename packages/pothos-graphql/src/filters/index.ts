@@ -1,7 +1,7 @@
 import { builder } from '../builder'
 import { fetchGroupedValues } from '@george-ai/typesense-client'
 
-const Filters = builder.simpleObject('filters', {
+const Filters = builder.simpleObject('Filters', {
   fields: (t) => ({
     language: t.stringList(),
     largeLanguageModel: t.stringList(),

@@ -62,7 +62,7 @@ export const SuggestModal = ({
   return (
     <div className="flex justify-center">
       <button
-        className="btn btn-outline btn-accent btn-sm"
+        className="btn btn-outline btn-accent btn-sm hover:text-white"
         onClick={() => {
           const modal = document.querySelector(`#modal_${summaryId}`)
           if (modal instanceof HTMLDialogElement) {

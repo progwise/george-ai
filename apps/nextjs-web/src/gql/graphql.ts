@@ -41,6 +41,13 @@ export type CreateSummaryFeedbackInput = {
   webPageSummaryId: Scalars['String']['input']
 }
 
+export type Filters = {
+  __typename?: 'Filters'
+  language: Array<Scalars['String']['output']>
+  largeLanguageModel: Array<Scalars['String']['output']>
+  publicationState: Array<Scalars['String']['output']>
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   createProposalSummary: ProposalSummaryReference
@@ -89,13 +96,6 @@ export enum SummaryFeedbackVoting {
   Up = 'up',
 }
 
-export type Filters = {
-  __typename?: 'filters'
-  language: Array<Scalars['String']['output']>
-  largeLanguageModel: Array<Scalars['String']['output']>
-  publicationState: Array<Scalars['String']['output']>
-}
-
 export type Summaries = {
   __typename?: 'summaries'
   id: Scalars['String']['output']
@@ -114,7 +114,7 @@ export type GetFiltersQueryVariables = Exact<{ [key: string]: never }>
 export type GetFiltersQuery = {
   __typename?: 'Query'
   filters: {
-    __typename?: 'filters'
+    __typename?: 'Filters'
     language: Array<string>
     largeLanguageModel: Array<string>
     publicationState: Array<string>

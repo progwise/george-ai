@@ -9,7 +9,7 @@ const PublicationStateEnum = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
-const SummariesReference = builder.objectRef<WebPagesDocument>('summaries')
+const SummariesReference = builder.objectRef<WebPagesDocument>('Summaries')
 
 builder.objectType(SummariesReference, {
   name: 'summaries',
