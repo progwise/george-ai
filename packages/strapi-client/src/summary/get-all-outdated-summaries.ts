@@ -10,25 +10,33 @@ export const getAllOutdatedSummaries = async () => {
             id
             attributes {
               lastScrapeUpdate
-              locale
               scraped_web_page {
                 data {
                   id
                   attributes {
                     updatedAt
                     originalContent
-                    prompts {
+                    entry_point {
                       data {
                         attributes {
-                          summaryPrompt
-                          keywordPrompt
-                          llm
-                          locale
+                          prompts {
+                            promptForSummary
+                            promptForKeywords
+                            largeLanguageModel
+                            isDefaultPrompt
+                            language
+                          }
                         }
                       }
                     }
                   }
                 }
+              }
+              prompt {
+                promptForSummary
+                promptForKeywords
+                largeLanguageModel
+                language
               }
             }
           }
@@ -37,32 +45,51 @@ export const getAllOutdatedSummaries = async () => {
     `),
     {},
   )
-
   return (
     webPageSummaries?.data
-      .filter(
-        (summary) =>
-          summary.attributes?.scraped_web_page?.data?.attributes?.updatedAt >
-          summary.attributes?.lastScrapeUpdate,
-      )
+      .filter(({ attributes }) => {
+        const updatedAt =
+          attributes?.scraped_web_page?.data?.attributes?.updatedAt
+        const lastScrapeUpdate = attributes?.lastScrapeUpdate
+        const keywordPrompt = attributes?.prompt?.promptForKeywords
+        const summaryPrompt = attributes?.prompt?.promptForSummary
+        const language = attributes?.prompt?.language
+        const entryPointPrompts =
+          attributes?.scraped_web_page?.data?.attributes?.entry_point?.data?.attributes?.prompts?.filter(
+            (prompt) => prompt?.language === language,
+          ) ?? []
+
+        const hasSamePrompts = entryPointPrompts.some((entryPrompt) => {
+          return (
+            entryPrompt?.promptForKeywords === keywordPrompt &&
+            entryPrompt?.promptForSummary === summaryPrompt
+          )
+        })
+
+        return updatedAt > lastScrapeUpdate || !hasSamePrompts
+      })
       .map((item) => {
         const id = item.id!
         const attributes = item.attributes!
-
-        const prompts =
-          attributes.scraped_web_page?.data?.attributes?.prompts?.data.filter(
-            (prompt) => prompt.attributes?.locale === attributes.locale,
-          ) ?? []
+        const entryPointPrompt =
+          attributes.scraped_web_page?.data?.attributes?.entry_point?.data?.attributes?.prompts?.find(
+            (prompt) => prompt?.language === attributes.prompt?.language,
+          )
 
         return {
           summaryId: id,
-          keywordPrompt: prompts.at(0)?.attributes?.keywordPrompt,
-          summaryPrompt: prompts.at(0)?.attributes?.summaryPrompt,
-          largeLanguageModel: prompts.at(0)?.attributes?.llm ?? 'unspecified',
           scrapedPageId: attributes.scraped_web_page?.data?.id ?? '',
           originalContent:
             attributes.scraped_web_page?.data?.attributes?.originalContent ??
             '',
+          prompt: {
+            promptForSummary: entryPointPrompt?.promptForSummary,
+            promptForKeywords: entryPointPrompt?.promptForKeywords,
+            largeLanguageModel:
+              entryPointPrompt?.largeLanguageModel ?? 'unspecified',
+            isDefaultPrompt: entryPointPrompt?.isDefaultPrompt,
+            language: entryPointPrompt?.language ?? 'en',
+          },
         }
       }) ?? []
   )

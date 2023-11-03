@@ -2,7 +2,7 @@ import playwright from 'playwright-chromium'
 import { scrapePage } from './scrape.js'
 import {
   upsertScrapedWebPage,
-  getScraperConfigurations,
+  getEntryPoints,
   getStrapiLocales,
 } from '@george-ai/strapi-client'
 import pMap from 'p-map'
@@ -12,12 +12,12 @@ const MAX_URLS_DONE = 4 // Maximum number of runs
 const scrapePagesForAllConfigurationsAndUpsert = async (): Promise<void> => {
   const browser = await playwright['chromium'].launch({ headless: true })
   const context = await browser.newContext()
-  const scraperConfigurations = await getScraperConfigurations()
+  const entryPoints = await getEntryPoints()
   const supportedLocales = new Set(await getStrapiLocales())
 
-  for (const scraperConfig of scraperConfigurations) {
-    const startUrl = scraperConfig.startUrl
-    const maxDepth = scraperConfig.depth
+  for (const entryPoint of entryPoints) {
+    const startUrl = entryPoint.startUrl
+    const maxDepth = entryPoint.depth
     const urlsDone = new Set<string>()
     let urlsTodo = [{ url: startUrl, depth: 0 }]
 
@@ -69,7 +69,7 @@ const scrapePagesForAllConfigurationsAndUpsert = async (): Promise<void> => {
               scrapeResult.title,
               scrapeResult.url,
               scrapeResult.content,
-              scraperConfig.prompts,
+              entryPoint.entryPointId,
             )
           } catch (error) {
             console.error(`error scraping ${currentUrl}:`, error)

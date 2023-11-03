@@ -3,8 +3,8 @@ import { strapiClient } from '../strapi-client'
 import { NewSummary } from './create-summary'
 
 export const updateSummary = async (
-  newSummary: NewSummary,
-  webPageSummaryId: string,
+  updatedSummary: NewSummary,
+  summaryId: string,
 ) => {
   const { updateWebPageSummary } = await strapiClient.request(
     graphql(`
@@ -14,13 +14,22 @@ export const updateSummary = async (
             id
             attributes {
               locale
-              keywords
               summary
+              keywords
               largeLanguageModel
               scraped_web_page {
                 data {
                   id
                 }
+              }
+              lastScrapeUpdate
+              prompt {
+                id
+                promptForSummary
+                promptForKeywords
+                largeLanguageModel
+                isDefaultPrompt
+                language
               }
             }
           }
@@ -28,13 +37,13 @@ export const updateSummary = async (
       }
     `),
     {
-      id: webPageSummaryId,
-      data: newSummary,
+      id: summaryId,
+      data: updatedSummary,
     },
   )
 
   console.log(
     `Update WebPageSummary for ${updateWebPageSummary?.data?.attributes?.locale} with id:`,
-    webPageSummaryId,
+    summaryId,
   )
 }

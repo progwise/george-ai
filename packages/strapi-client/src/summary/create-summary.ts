@@ -7,6 +7,13 @@ export interface NewSummary {
   largeLanguageModel: string
   scraped_web_page: string
   lastScrapeUpdate: Date
+  prompt: {
+    promptForSummary: string | null | undefined
+    promptForKeywords: string | null | undefined
+    largeLanguageModel: string
+    isDefaultPrompt: boolean | undefined
+    language: string
+  }
 }
 
 export const createSummary = async (newSummary: NewSummary, locale: string) => {
@@ -20,13 +27,23 @@ export const createSummary = async (newSummary: NewSummary, locale: string) => {
           data {
             id
             attributes {
-              keywords
+              locale
               summary
+              keywords
               largeLanguageModel
               scraped_web_page {
                 data {
                   id
                 }
+              }
+              lastScrapeUpdate
+              prompt {
+                id
+                promptForSummary
+                promptForKeywords
+                largeLanguageModel
+                isDefaultPrompt
+                language
               }
             }
           }

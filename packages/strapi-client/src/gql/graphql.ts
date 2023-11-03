@@ -62,38 +62,34 @@ export type BooleanFilterInput = {
   startsWith?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export type ComponentConfigurationScrapeEntryPoint = {
-  __typename?: 'ComponentConfigurationScrapeEntryPoint'
-  depth?: Maybe<Scalars['Int']['output']>
+export type ComponentPromptsPrompt = {
+  __typename?: 'ComponentPromptsPrompt'
   id: Scalars['ID']['output']
-  prompts?: Maybe<PromptRelationResponseCollection>
-  startUrl: Scalars['String']['output']
+  isDefaultPrompt: Scalars['Boolean']['output']
+  language?: Maybe<Scalars['String']['output']>
+  largeLanguageModel?: Maybe<Scalars['String']['output']>
+  promptForKeywords?: Maybe<Scalars['String']['output']>
+  promptForSummary?: Maybe<Scalars['String']['output']>
 }
 
-export type ComponentConfigurationScrapeEntryPointPromptsArgs = {
-  filters?: InputMaybe<PromptFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+export type ComponentPromptsPromptFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<ComponentPromptsPromptFiltersInput>>>
+  isDefaultPrompt?: InputMaybe<BooleanFilterInput>
+  language?: InputMaybe<StringFilterInput>
+  largeLanguageModel?: InputMaybe<StringFilterInput>
+  not?: InputMaybe<ComponentPromptsPromptFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<ComponentPromptsPromptFiltersInput>>>
+  promptForKeywords?: InputMaybe<StringFilterInput>
+  promptForSummary?: InputMaybe<StringFilterInput>
 }
 
-export type ComponentConfigurationScrapeEntryPointFiltersInput = {
-  and?: InputMaybe<
-    Array<InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>>
-  >
-  depth?: InputMaybe<IntFilterInput>
-  not?: InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>
-  or?: InputMaybe<
-    Array<InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>>
-  >
-  prompts?: InputMaybe<PromptFiltersInput>
-  startUrl?: InputMaybe<StringFilterInput>
-}
-
-export type ComponentConfigurationScrapeEntryPointInput = {
-  depth?: InputMaybe<Scalars['Int']['input']>
+export type ComponentPromptsPromptInput = {
   id?: InputMaybe<Scalars['ID']['input']>
-  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
-  startUrl?: InputMaybe<Scalars['String']['input']>
+  isDefaultPrompt?: InputMaybe<Scalars['Boolean']['input']>
+  language?: InputMaybe<Scalars['String']['input']>
+  largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  promptForKeywords?: InputMaybe<Scalars['String']['input']>
+  promptForSummary?: InputMaybe<Scalars['String']['input']>
 }
 
 export type DateTimeFilterInput = {
@@ -124,6 +120,56 @@ export type DateTimeFilterInput = {
 export enum Enum_Summaryfeedback_Voting {
   Down = 'down',
   Up = 'up',
+}
+
+export type EntryPoint = {
+  __typename?: 'EntryPoint'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  depth?: Maybe<Scalars['Int']['output']>
+  prompts?: Maybe<Array<Maybe<ComponentPromptsPrompt>>>
+  startUrl: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type EntryPointPromptsArgs = {
+  filters?: InputMaybe<ComponentPromptsPromptFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type EntryPointEntity = {
+  __typename?: 'EntryPointEntity'
+  attributes?: Maybe<EntryPoint>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type EntryPointEntityResponse = {
+  __typename?: 'EntryPointEntityResponse'
+  data?: Maybe<EntryPointEntity>
+}
+
+export type EntryPointEntityResponseCollection = {
+  __typename?: 'EntryPointEntityResponseCollection'
+  data: Array<EntryPointEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type EntryPointFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<EntryPointFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  depth?: InputMaybe<IntFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  not?: InputMaybe<EntryPointFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<EntryPointFiltersInput>>>
+  prompts?: InputMaybe<ComponentPromptsPromptFiltersInput>
+  startUrl?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+}
+
+export type EntryPointInput = {
+  depth?: InputMaybe<Scalars['Int']['input']>
+  prompts?: InputMaybe<Array<InputMaybe<ComponentPromptsPromptInput>>>
+  startUrl?: InputMaybe<Scalars['String']['input']>
 }
 
 export type FileInfoInput = {
@@ -158,11 +204,10 @@ export type FloatFilterInput = {
 }
 
 export type GenericMorph =
-  | ComponentConfigurationScrapeEntryPoint
+  | ComponentPromptsPrompt
+  | EntryPoint
   | I18NLocale
-  | Prompt
   | ScrapedWebPage
-  | ScraperConfiguration
   | SummaryFeedback
   | UploadFile
   | UploadFolder
@@ -286,8 +331,7 @@ export type Mutation = {
   __typename?: 'Mutation'
   /** Change user password. Confirm with the current password. */
   changePassword?: Maybe<UsersPermissionsLoginPayload>
-  createPrompt?: Maybe<PromptEntityResponse>
-  createPromptLocalization?: Maybe<PromptEntityResponse>
+  createEntryPoint?: Maybe<EntryPointEntityResponse>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
@@ -298,9 +342,8 @@ export type Mutation = {
   createUsersPermissionsUser: UsersPermissionsUserEntityResponse
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
-  deletePrompt?: Maybe<PromptEntityResponse>
+  deleteEntryPoint?: Maybe<EntryPointEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
-  deleteScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   deleteUploadFile?: Maybe<UploadFileEntityResponse>
   deleteUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -320,10 +363,9 @@ export type Mutation = {
   removeFile?: Maybe<UploadFileEntityResponse>
   /** Reset user password. Confirm with a code (resetToken from forgotPassword) */
   resetPassword?: Maybe<UsersPermissionsLoginPayload>
+  updateEntryPoint?: Maybe<EntryPointEntityResponse>
   updateFileInfo: UploadFileEntityResponse
-  updatePrompt?: Maybe<PromptEntityResponse>
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
-  updateScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   updateUploadFile?: Maybe<UploadFileEntityResponse>
   updateUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -341,15 +383,8 @@ export type MutationChangePasswordArgs = {
   passwordConfirmation: Scalars['String']['input']
 }
 
-export type MutationCreatePromptArgs = {
-  data: PromptInput
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
-}
-
-export type MutationCreatePromptLocalizationArgs = {
-  data?: InputMaybe<PromptInput>
-  id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+export type MutationCreateEntryPointArgs = {
+  data: EntryPointInput
 }
 
 export type MutationCreateScrapedWebPageArgs = {
@@ -387,9 +422,8 @@ export type MutationCreateWebPageSummaryLocalizationArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
-export type MutationDeletePromptArgs = {
+export type MutationDeleteEntryPointArgs = {
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationDeleteScrapedWebPageArgs = {
@@ -454,24 +488,19 @@ export type MutationResetPasswordArgs = {
   passwordConfirmation: Scalars['String']['input']
 }
 
+export type MutationUpdateEntryPointArgs = {
+  data: EntryPointInput
+  id: Scalars['ID']['input']
+}
+
 export type MutationUpdateFileInfoArgs = {
   id: Scalars['ID']['input']
   info?: InputMaybe<FileInfoInput>
 }
 
-export type MutationUpdatePromptArgs = {
-  data: PromptInput
-  id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
-}
-
 export type MutationUpdateScrapedWebPageArgs = {
   data: ScrapedWebPageInput
   id: Scalars['ID']['input']
-}
-
-export type MutationUpdateScraperConfigurationArgs = {
-  data: ScraperConfigurationInput
 }
 
 export type MutationUpdateSummaryFeedbackArgs = {
@@ -528,68 +557,6 @@ export type PaginationArg = {
   start?: InputMaybe<Scalars['Int']['input']>
 }
 
-export type Prompt = {
-  __typename?: 'Prompt'
-  createdAt?: Maybe<Scalars['DateTime']['output']>
-  isDefaultPrompt: Scalars['Boolean']['output']
-  keywordPrompt?: Maybe<Scalars['String']['output']>
-  llm?: Maybe<Scalars['String']['output']>
-  locale?: Maybe<Scalars['String']['output']>
-  localizations?: Maybe<PromptRelationResponseCollection>
-  summaryPrompt?: Maybe<Scalars['String']['output']>
-  updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type PromptLocalizationsArgs = {
-  filters?: InputMaybe<PromptFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
-}
-
-export type PromptEntity = {
-  __typename?: 'PromptEntity'
-  attributes?: Maybe<Prompt>
-  id?: Maybe<Scalars['ID']['output']>
-}
-
-export type PromptEntityResponse = {
-  __typename?: 'PromptEntityResponse'
-  data?: Maybe<PromptEntity>
-}
-
-export type PromptEntityResponseCollection = {
-  __typename?: 'PromptEntityResponseCollection'
-  data: Array<PromptEntity>
-  meta: ResponseCollectionMeta
-}
-
-export type PromptFiltersInput = {
-  and?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>
-  createdAt?: InputMaybe<DateTimeFilterInput>
-  id?: InputMaybe<IdFilterInput>
-  isDefaultPrompt?: InputMaybe<BooleanFilterInput>
-  keywordPrompt?: InputMaybe<StringFilterInput>
-  llm?: InputMaybe<StringFilterInput>
-  locale?: InputMaybe<StringFilterInput>
-  localizations?: InputMaybe<PromptFiltersInput>
-  not?: InputMaybe<PromptFiltersInput>
-  or?: InputMaybe<Array<InputMaybe<PromptFiltersInput>>>
-  summaryPrompt?: InputMaybe<StringFilterInput>
-  updatedAt?: InputMaybe<DateTimeFilterInput>
-}
-
-export type PromptInput = {
-  isDefaultPrompt?: InputMaybe<Scalars['Boolean']['input']>
-  keywordPrompt?: InputMaybe<Scalars['String']['input']>
-  llm?: InputMaybe<Scalars['String']['input']>
-  summaryPrompt?: InputMaybe<Scalars['String']['input']>
-}
-
-export type PromptRelationResponseCollection = {
-  __typename?: 'PromptRelationResponseCollection'
-  data: Array<PromptEntity>
-}
-
 export enum PublicationState {
   Live = 'LIVE',
   Preview = 'PREVIEW',
@@ -597,14 +564,13 @@ export enum PublicationState {
 
 export type Query = {
   __typename?: 'Query'
+  entryPoint?: Maybe<EntryPointEntityResponse>
+  entryPoints?: Maybe<EntryPointEntityResponseCollection>
   i18NLocale?: Maybe<I18NLocaleEntityResponse>
   i18NLocales?: Maybe<I18NLocaleEntityResponseCollection>
   me?: Maybe<UsersPermissionsMe>
-  prompt?: Maybe<PromptEntityResponse>
-  prompts?: Maybe<PromptEntityResponseCollection>
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>
-  scraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   summaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   summaryFeedbacks?: Maybe<SummaryFeedbackEntityResponseCollection>
   uploadFile?: Maybe<UploadFileEntityResponse>
@@ -619,24 +585,22 @@ export type Query = {
   webPageSummary?: Maybe<WebPageSummaryEntityResponse>
 }
 
+export type QueryEntryPointArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type QueryEntryPointsArgs = {
+  filters?: InputMaybe<EntryPointFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
 export type QueryI18NLocaleArgs = {
   id?: InputMaybe<Scalars['ID']['input']>
 }
 
 export type QueryI18NLocalesArgs = {
   filters?: InputMaybe<I18NLocaleFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
-}
-
-export type QueryPromptArgs = {
-  id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
-}
-
-export type QueryPromptsArgs = {
-  filters?: InputMaybe<PromptFiltersInput>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
@@ -722,18 +686,12 @@ export type ResponseCollectionMeta = {
 export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage'
   createdAt?: Maybe<Scalars['DateTime']['output']>
+  entry_point?: Maybe<EntryPointEntityResponse>
   originalContent?: Maybe<Scalars['String']['output']>
-  prompts?: Maybe<PromptRelationResponseCollection>
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
   web_page_summaries?: Maybe<WebPageSummaryRelationResponseCollection>
-}
-
-export type ScrapedWebPagePromptsArgs = {
-  filters?: InputMaybe<PromptFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
 export type ScrapedWebPageWeb_Page_SummariesArgs = {
@@ -763,11 +721,11 @@ export type ScrapedWebPageEntityResponseCollection = {
 export type ScrapedWebPageFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
+  entry_point?: InputMaybe<EntryPointFiltersInput>
   id?: InputMaybe<IdFilterInput>
   not?: InputMaybe<ScrapedWebPageFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   originalContent?: InputMaybe<StringFilterInput>
-  prompts?: InputMaybe<PromptFiltersInput>
   title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   url?: InputMaybe<StringFilterInput>
@@ -775,41 +733,11 @@ export type ScrapedWebPageFiltersInput = {
 }
 
 export type ScrapedWebPageInput = {
+  entry_point?: InputMaybe<Scalars['ID']['input']>
   originalContent?: InputMaybe<Scalars['String']['input']>
-  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   title?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
   web_page_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
-}
-
-export type ScraperConfiguration = {
-  __typename?: 'ScraperConfiguration'
-  createdAt?: Maybe<Scalars['DateTime']['output']>
-  entryPoints?: Maybe<Array<Maybe<ComponentConfigurationScrapeEntryPoint>>>
-  updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type ScraperConfigurationEntryPointsArgs = {
-  filters?: InputMaybe<ComponentConfigurationScrapeEntryPointFiltersInput>
-  pagination?: InputMaybe<PaginationArg>
-  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
-}
-
-export type ScraperConfigurationEntity = {
-  __typename?: 'ScraperConfigurationEntity'
-  attributes?: Maybe<ScraperConfiguration>
-  id?: Maybe<Scalars['ID']['output']>
-}
-
-export type ScraperConfigurationEntityResponse = {
-  __typename?: 'ScraperConfigurationEntityResponse'
-  data?: Maybe<ScraperConfigurationEntity>
-}
-
-export type ScraperConfigurationInput = {
-  entryPoints?: InputMaybe<
-    Array<InputMaybe<ComponentConfigurationScrapeEntryPointInput>>
-  >
 }
 
 export type StringFilterInput = {
@@ -1266,6 +1194,7 @@ export type WebPageSummary = {
   lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
+  prompt?: Maybe<ComponentPromptsPrompt>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
   summary?: Maybe<Scalars['String']['output']>
@@ -1314,6 +1243,7 @@ export type WebPageSummaryFiltersInput = {
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
   or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  prompt?: InputMaybe<ComponentPromptsPromptFiltersInput>
   publishedAt?: InputMaybe<DateTimeFilterInput>
   scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
   summary?: InputMaybe<StringFilterInput>
@@ -1325,6 +1255,7 @@ export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
   lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
+  prompt?: InputMaybe<ComponentPromptsPromptInput>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
@@ -1334,6 +1265,33 @@ export type WebPageSummaryInput = {
 export type WebPageSummaryRelationResponseCollection = {
   __typename?: 'WebPageSummaryRelationResponseCollection'
   data: Array<WebPageSummaryEntity>
+}
+
+export type GetEntryPointsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetEntryPointsQuery = {
+  __typename?: 'Query'
+  entryPoints?: {
+    __typename?: 'EntryPointEntityResponseCollection'
+    data: Array<{
+      __typename?: 'EntryPointEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'EntryPoint'
+        startUrl: string
+        depth?: number | null
+        prompts?: Array<{
+          __typename?: 'ComponentPromptsPrompt'
+          id: string
+          promptForSummary?: string | null
+          promptForKeywords?: string | null
+          largeLanguageModel?: string | null
+          isDefaultPrompt: boolean
+          language?: string | null
+        } | null> | null
+      } | null
+    }>
+  } | null
 }
 
 export type GetAllLocalesQueryVariables = Exact<{ [key: string]: never }>
@@ -1350,29 +1308,16 @@ export type GetAllLocalesQuery = {
   } | null
 }
 
-export type GetScraperConfigurationQueryVariables = Exact<{
-  [key: string]: never
+export type UpdateEntryPointMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: EntryPointInput
 }>
 
-export type GetScraperConfigurationQuery = {
-  __typename?: 'Query'
-  scraperConfiguration?: {
-    __typename?: 'ScraperConfigurationEntityResponse'
-    data?: {
-      __typename?: 'ScraperConfigurationEntity'
-      attributes?: {
-        __typename?: 'ScraperConfiguration'
-        entryPoints?: Array<{
-          __typename?: 'ComponentConfigurationScrapeEntryPoint'
-          startUrl: string
-          depth?: number | null
-          prompts?: {
-            __typename?: 'PromptRelationResponseCollection'
-            data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
-          } | null
-        } | null> | null
-      } | null
-    } | null
+export type UpdateEntryPointMutation = {
+  __typename?: 'Mutation'
+  updateEntryPoint?: {
+    __typename?: 'EntryPointEntityResponse'
+    data?: { __typename?: 'EntryPointEntity'; id?: string | null } | null
   } | null
 }
 
@@ -1404,43 +1349,6 @@ export type CreateSummaryFeedbackMutation = {
   } | null
 }
 
-export type CreatePromptMutationVariables = Exact<{
-  locale: Scalars['I18NLocaleCode']['input']
-  summaryPrompt: Scalars['String']['input']
-  keywordPrompt: Scalars['String']['input']
-  llm: Scalars['String']['input']
-}>
-
-export type CreatePromptMutation = {
-  __typename?: 'Mutation'
-  createPrompt?: {
-    __typename?: 'PromptEntityResponse'
-    data?: { __typename?: 'PromptEntity'; id?: string | null } | null
-  } | null
-}
-
-export type DeletePromptMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-}>
-
-export type DeletePromptMutation = {
-  __typename?: 'Mutation'
-  deletePrompt?: {
-    __typename?: 'PromptEntityResponse'
-    data?: { __typename?: 'PromptEntity'; id?: string | null } | null
-  } | null
-}
-
-export type GetDefaultPromptsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetDefaultPromptsQuery = {
-  __typename?: 'Query'
-  prompts?: {
-    __typename?: 'PromptEntityResponseCollection'
-    data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
-  } | null
-}
-
 export type CreateScrapedWebPageMutationVariables = Exact<{
   data: ScrapedWebPageInput
 }>
@@ -1466,20 +1374,24 @@ export type GetAllScrapedWebPagesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'ScrapedWebPage'
-        originalContent?: string | null
         url?: string | null
-        prompts?: {
-          __typename?: 'PromptRelationResponseCollection'
-          data: Array<{
-            __typename?: 'PromptEntity'
+        originalContent?: string | null
+        entry_point?: {
+          __typename?: 'EntryPointEntityResponse'
+          data?: {
+            __typename?: 'EntryPointEntity'
             attributes?: {
-              __typename?: 'Prompt'
-              summaryPrompt?: string | null
-              keywordPrompt?: string | null
-              llm?: string | null
-              locale?: string | null
+              __typename?: 'EntryPoint'
+              prompts?: Array<{
+                __typename?: 'ComponentPromptsPrompt'
+                promptForSummary?: string | null
+                promptForKeywords?: string | null
+                largeLanguageModel?: string | null
+                isDefaultPrompt: boolean
+                language?: string | null
+              } | null> | null
             } | null
-          }>
+          } | null
         } | null
       } | null
     }>
@@ -1500,6 +1412,10 @@ export type GetScrapedWebPagesByUrlQuery = {
       attributes?: {
         __typename?: 'ScrapedWebPage'
         originalContent?: string | null
+        entry_point?: {
+          __typename?: 'EntryPointEntityResponse'
+          data?: { __typename?: 'EntryPointEntity'; id?: string | null } | null
+        } | null
       } | null
     }>
   } | null
@@ -1532,15 +1448,26 @@ export type CreateWebPageSummaryMutation = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
-        keywords?: string | null
+        locale?: string | null
         summary?: string | null
+        keywords?: string | null
         largeLanguageModel?: string | null
+        lastScrapeUpdate?: any | null
         scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
             __typename?: 'ScrapedWebPageEntity'
             id?: string | null
           } | null
+        } | null
+        prompt?: {
+          __typename?: 'ComponentPromptsPrompt'
+          id: string
+          promptForSummary?: string | null
+          promptForKeywords?: string | null
+          largeLanguageModel?: string | null
+          isDefaultPrompt: boolean
+          language?: string | null
         } | null
       } | null
     } | null
@@ -1561,7 +1488,6 @@ export type GetOutdatedWebPageSummariesQuery = {
       attributes?: {
         __typename?: 'WebPageSummary'
         lastScrapeUpdate?: any | null
-        locale?: string | null
         scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
@@ -1571,21 +1497,32 @@ export type GetOutdatedWebPageSummariesQuery = {
               __typename?: 'ScrapedWebPage'
               updatedAt?: any | null
               originalContent?: string | null
-              prompts?: {
-                __typename?: 'PromptRelationResponseCollection'
-                data: Array<{
-                  __typename?: 'PromptEntity'
+              entry_point?: {
+                __typename?: 'EntryPointEntityResponse'
+                data?: {
+                  __typename?: 'EntryPointEntity'
                   attributes?: {
-                    __typename?: 'Prompt'
-                    summaryPrompt?: string | null
-                    keywordPrompt?: string | null
-                    llm?: string | null
-                    locale?: string | null
+                    __typename?: 'EntryPoint'
+                    prompts?: Array<{
+                      __typename?: 'ComponentPromptsPrompt'
+                      promptForSummary?: string | null
+                      promptForKeywords?: string | null
+                      largeLanguageModel?: string | null
+                      isDefaultPrompt: boolean
+                      language?: string | null
+                    } | null> | null
                   } | null
-                }>
+                } | null
               } | null
             } | null
           } | null
+        } | null
+        prompt?: {
+          __typename?: 'ComponentPromptsPrompt'
+          promptForSummary?: string | null
+          promptForKeywords?: string | null
+          largeLanguageModel?: string | null
+          language?: string | null
         } | null
       } | null
     }>
@@ -1666,9 +1603,10 @@ export type UpdateWebPageSummaryMutation = {
       attributes?: {
         __typename?: 'WebPageSummary'
         locale?: string | null
-        keywords?: string | null
         summary?: string | null
+        keywords?: string | null
         largeLanguageModel?: string | null
+        lastScrapeUpdate?: any | null
         scraped_web_page?: {
           __typename?: 'ScrapedWebPageEntityResponse'
           data?: {
@@ -1676,11 +1614,116 @@ export type UpdateWebPageSummaryMutation = {
             id?: string | null
           } | null
         } | null
+        prompt?: {
+          __typename?: 'ComponentPromptsPrompt'
+          id: string
+          promptForSummary?: string | null
+          promptForKeywords?: string | null
+          largeLanguageModel?: string | null
+          isDefaultPrompt: boolean
+          language?: string | null
+        } | null
       } | null
     } | null
   } | null
 }
 
+export const GetEntryPointsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetEntryPoints' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'entryPoints' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'startUrl' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'depth' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'prompts' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForSummary',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'largeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'isDefaultPrompt',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'language' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEntryPointsQuery, GetEntryPointsQueryVariables>
 export const GetAllLocalesDocument = {
   kind: 'Document',
   definitions: [
@@ -1728,19 +1771,58 @@ export const GetAllLocalesDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAllLocalesQuery, GetAllLocalesQueryVariables>
-export const GetScraperConfigurationDocument = {
+export const UpdateEntryPointDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetScraperConfiguration' },
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateEntryPoint' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'EntryPointInput' },
+            },
+          },
+        },
+      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'scraperConfiguration' },
+            name: { kind: 'Name', value: 'updateEntryPoint' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -1750,57 +1832,7 @@ export const GetScraperConfigurationDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'attributes' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'entryPoints' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'startUrl' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'depth' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'prompts' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'data' },
-                                          selectionSet: {
-                                            kind: 'SelectionSet',
-                                            selections: [
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'id',
-                                                },
-                                              },
-                                            ],
-                                          },
-                                        },
-                                      ],
-                                    },
-                                  },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                     ],
                   },
                 },
@@ -1812,8 +1844,8 @@ export const GetScraperConfigurationDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  GetScraperConfigurationQuery,
-  GetScraperConfigurationQueryVariables
+  UpdateEntryPointMutation,
+  UpdateEntryPointMutationVariables
 >
 export const CreateSummaryFeedbackDocument = {
   kind: 'Document',
@@ -1924,270 +1956,6 @@ export const CreateSummaryFeedbackDocument = {
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
 >
-export const CreatePromptDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'CreatePrompt' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'I18NLocaleCode' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'summaryPrompt' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'keywordPrompt' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'llm' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createPrompt' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'summaryPrompt' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'summaryPrompt' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'keywordPrompt' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'keywordPrompt' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'llm' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'llm' },
-                      },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'isDefaultPrompt' },
-                      value: { kind: 'BooleanValue', value: true },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  CreatePromptMutation,
-  CreatePromptMutationVariables
->
-export const DeletePromptDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'DeletePrompt' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deletePrompt' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeletePromptMutation,
-  DeletePromptMutationVariables
->
-export const GetDefaultPromptsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetDefaultPrompts' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'prompts' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: { kind: 'StringValue', value: 'all', block: false },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'filters' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'isDefaultPrompt' },
-                      value: {
-                        kind: 'ObjectValue',
-                        fields: [
-                          {
-                            kind: 'ObjectField',
-                            name: { kind: 'Name', value: 'eq' },
-                            value: { kind: 'BooleanValue', value: true },
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  GetDefaultPromptsQuery,
-  GetDefaultPromptsQueryVariables
->
 export const CreateScrapedWebPageDocument = {
   kind: 'Document',
   definitions: [
@@ -2279,15 +2047,15 @@ export const GetAllScrapedWebPagesDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'originalContent' },
-                            },
-                            {
-                              kind: 'Field',
                               name: { kind: 'Name', value: 'url' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'prompts' },
+                              name: { kind: 'Name', value: 'originalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'entry_point' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
@@ -2310,28 +2078,51 @@ export const GetAllScrapedWebPagesDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'summaryPrompt',
+                                                  value: 'prompts',
                                                 },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'keywordPrompt',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'llm',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'locale',
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value:
+                                                          'promptForSummary',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value:
+                                                          'promptForKeywords',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value:
+                                                          'largeLanguageModel',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value:
+                                                          'isDefaultPrompt',
+                                                      },
+                                                    },
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'language',
+                                                      },
+                                                    },
+                                                  ],
                                                 },
                                               },
                                             ],
@@ -2433,6 +2224,28 @@ export const GetScrapedWebPagesByUrlDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'originalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'entry_point' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -2603,11 +2416,15 @@ export const CreateWebPageSummaryDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'keywords' },
+                              name: { kind: 'Name', value: 'locale' },
                             },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'summary' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'keywords' },
                             },
                             {
                               kind: 'Field',
@@ -2634,6 +2451,55 @@ export const CreateWebPageSummaryDocument = {
                                         },
                                       ],
                                     },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'prompt' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForSummary',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'largeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'isDefaultPrompt',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'language' },
                                   },
                                 ],
                               },
@@ -2702,10 +2568,6 @@ export const GetOutdatedWebPageSummariesDocument = {
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'locale' },
-                            },
-                            {
-                              kind: 'Field',
                               name: { kind: 'Name', value: 'scraped_web_page' },
                               selectionSet: {
                                 kind: 'SelectionSet',
@@ -2747,7 +2609,7 @@ export const GetOutdatedWebPageSummariesDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'prompts',
+                                                  value: 'entry_point',
                                                 },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
@@ -2776,32 +2638,55 @@ export const GetOutdatedWebPageSummariesDocument = {
                                                                   name: {
                                                                     kind: 'Name',
                                                                     value:
-                                                                      'summaryPrompt',
+                                                                      'prompts',
                                                                   },
-                                                                },
-                                                                {
-                                                                  kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'keywordPrompt',
-                                                                  },
-                                                                },
-                                                                {
-                                                                  kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'llm',
-                                                                  },
-                                                                },
-                                                                {
-                                                                  kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'locale',
-                                                                  },
+                                                                  selectionSet:
+                                                                    {
+                                                                      kind: 'SelectionSet',
+                                                                      selections:
+                                                                        [
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'promptForSummary',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'promptForKeywords',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'largeLanguageModel',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'isDefaultPrompt',
+                                                                            },
+                                                                          },
+                                                                          {
+                                                                            kind: 'Field',
+                                                                            name: {
+                                                                              kind: 'Name',
+                                                                              value:
+                                                                                'language',
+                                                                            },
+                                                                          },
+                                                                        ],
+                                                                    },
                                                                 },
                                                               ],
                                                             },
@@ -2817,6 +2702,40 @@ export const GetOutdatedWebPageSummariesDocument = {
                                         },
                                       ],
                                     },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'prompt' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForSummary',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'largeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'language' },
                                   },
                                 ],
                               },
@@ -3254,11 +3173,11 @@ export const UpdateWebPageSummaryDocument = {
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'keywords' },
+                              name: { kind: 'Name', value: 'summary' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'summary' },
+                              name: { kind: 'Name', value: 'keywords' },
                             },
                             {
                               kind: 'Field',
@@ -3285,6 +3204,55 @@ export const UpdateWebPageSummaryDocument = {
                                         },
                                       ],
                                     },
+                                  },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'prompt' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'id' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForSummary',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'promptForKeywords',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'largeLanguageModel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'isDefaultPrompt',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'language' },
                                   },
                                 ],
                               },
