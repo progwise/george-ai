@@ -7,7 +7,7 @@
     "generatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/generate-summaries.ts",
     "updatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/update-outdated-summaries.ts",
     "setdefaultprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/set-default-prompts.ts",
-    "build": "tsc",
+    "build": "tsc --noEmit",
     "lint": "eslint ."
   },
   "keywords": [],
