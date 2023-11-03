@@ -7,7 +7,6 @@ interface UpsertWebPageSummaryParameters {
   summary: string
   keywords: string[]
   largeLanguageModel: string
-  currentLanguage: string
   scrapedPageId: string
   prompt: {
     promptForSummary: string | null | undefined
@@ -23,7 +22,6 @@ export const upsertWebPageSummary = async ({
   summary,
   keywords,
   largeLanguageModel,
-  currentLanguage,
   scrapedPageId,
   prompt,
 }: UpsertWebPageSummaryParameters) => {
@@ -39,10 +37,10 @@ export const upsertWebPageSummary = async ({
   const webPageSummaryId = await getSummaryId(
     largeLanguageModel,
     url,
-    currentLanguage,
+    prompt.language,
   )
 
   webPageSummaryId
     ? await updateSummary(newSummary, webPageSummaryId)
-    : await createSummary(newSummary, currentLanguage)
+    : await createSummary(newSummary, prompt.language)
 }

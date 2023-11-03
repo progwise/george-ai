@@ -38,7 +38,6 @@ const generateSummaryAndKeywordsForAllScrapedPagesAndSave = async () => {
             summary: summaryAndKeywords.summary,
             keywords: summaryAndKeywords.keywords,
             largeLanguageModel: prompt.largeLanguageModel,
-            currentLanguage: prompt.language,
             scrapedPageId,
             prompt,
           })
