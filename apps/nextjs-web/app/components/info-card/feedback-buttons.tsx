@@ -68,23 +68,23 @@ export const FeedbackButtons = ({
       <button
         className={`btn btn-accent btn-sm border-none group ${
           feedbackSelection === SummaryFeedbackVoting.Up
-            ? 'btn-active'
+            ? 'btn-active text-white'
             : 'btn-outline'
         }`}
         onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Up)}
       >
-        <ThumbsUpSvg />
+        <ThumbsUpSvg className="fill-current group-hover:scale-125 group-hover:text-white" />
       </button>
 
       <button
         className={`btn btn-accent btn-sm border-none group ${
           feedbackSelection === SummaryFeedbackVoting.Down
-            ? 'btn-active'
+            ? 'btn-active text-white'
             : 'btn-outline'
         }`}
         onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Down)}
       >
-        <ThumbsDownSvg />
+        <ThumbsDownSvg className="fill-current group-hover:scale-125 group-hover:text-white" />
       </button>
     </div>
   )
