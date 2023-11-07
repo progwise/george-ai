@@ -1,7 +1,7 @@
-export const VectorSvg = () => {
+export const VectorSvg = ({ className }: { className: string }) => {
   return (
     <svg
-      className="fill-current absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8"
+      className={className}
       viewBox="0 0 40 32"
       xmlns="http://www.w3.org/2000/svg"
     >

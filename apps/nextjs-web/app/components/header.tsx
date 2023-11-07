@@ -35,8 +35,8 @@ export const Header = () => {
           checked={ischecked}
           onChange={handleInputChange}
         />
-        <MoonSvg />
-        <SunSvg />
+        <MoonSvg className="swap-on fill-current w-10 h-10" />
+        <SunSvg className="swap-off fill-current w-10 h-10" />
       </label>
     </header>
   )

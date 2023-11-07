@@ -31,7 +31,7 @@ export const SearchBox = () => {
         placeholder="Stellen Sie Ihre Frage an das Intranet..."
         onChange={handleInputChange}
       />
-      <VectorSvg />
+      <VectorSvg className="fill-current absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8" />
     </div>
   )
 }
