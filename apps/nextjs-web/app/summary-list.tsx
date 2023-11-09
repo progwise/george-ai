@@ -3,18 +3,18 @@ import { graphql } from '@/src/gql'
 import { FilterSelectionProps } from './components/filter-selection/filter-selection'
 import { getClient } from './client/urql-client'
 
-interface PageListProps extends FilterSelectionProps {
+interface SummaryListProps extends FilterSelectionProps {
   query?: string
   kw?: string[]
 }
 
-export async function PageList({
+export async function SummaryList({
   query,
   lang,
   status,
   llm,
   kw,
-}: PageListProps) {
+}: SummaryListProps) {
   const { data } = await getClient().query(
     graphql(`
       query GetSummaries(
@@ -61,7 +61,6 @@ export async function PageList({
           key={summary.id}
           summaryFragment={summary}
           infoCardIndex={index}
-          webPageSummaryId={summary.id}
         />
       ))}
     </>

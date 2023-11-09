@@ -9,9 +9,9 @@ const PublicationStateEnum = builder.enumType(PublicationState, {
   name: 'PublicationState',
 })
 
-const summariesReference = builder.objectRef<WebPagesDocument>('summaries')
+const SummariesReference = builder.objectRef<WebPagesDocument>('Summaries')
 
-builder.objectType(summariesReference, {
+builder.objectType(SummariesReference, {
   name: 'summaries',
   fields: (t) => ({
     id: t.exposeString('id'),
@@ -30,7 +30,7 @@ builder.objectType(summariesReference, {
 
 builder.queryField('summaries', (t) =>
   t.field({
-    type: [summariesReference],
+    type: [SummariesReference],
     args: {
       query: t.arg.string({
         defaultValue: '*',

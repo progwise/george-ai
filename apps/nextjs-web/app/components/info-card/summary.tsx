@@ -1,30 +1,60 @@
 'use client'
 
-import Image from 'next/image'
-import { useState } from 'react'
-import styles from './summary.module.css'
+import { CollapseSymbolsSvg } from '@/public/collapse-symbols-svg'
+import { ExpandSymbolsSvg } from '@/public/expand-symbols-svg'
+import { useRef, useState } from 'react'
 import xss from 'xss'
 
-export const Summary = ({ summary }: { summary: string }) => {
+export const Summary = ({
+  summary,
+  summaryId,
+}: {
+  summary: string
+  summaryId: string
+}) => {
   const [isExpand, setIsExpand] = useState(false)
+  const summaryReference = useRef<HTMLDivElement | null>(null)
   const cleanHtml = xss(summary)
+  const svgClassName =
+    'group-hover:text-white transition-transform duration-200'
 
   return (
-    <div className="flex items-start gap-2">
-      <div
-        className={`${styles.summary} ${isExpand ? '' : 'line-clamp-3'}`}
-        dangerouslySetInnerHTML={{ __html: cleanHtml }}
-      />
-      {/* <button onClick={() => setIsExpand(!isExpand)}> */}
-      <Image
-        src={`/${isExpand ? 'collapse' : 'expand'}-symbols.svg`}
-        alt={`${isExpand ? 'collapse' : 'expand'}-symbols`}
-        className={`cursor-pointer hover:scale-y-${isExpand ? '75' : '125'}`}
-        onClick={() => setIsExpand(!isExpand)}
-        width={24}
-        height={24}
-      />
-      {/* </button> */}
+    <div className="flex gap-2">
+      <div>
+        <div
+          className={`prose prose-sm ${isExpand ? '' : 'line-clamp-3'}`}
+          dangerouslySetInnerHTML={{ __html: cleanHtml }}
+        />
+      </div>
+      <div className="flex flex-col justify-between">
+        <button
+          className="btn btn-outline btn-accent btn-sm group"
+          onClick={() => setIsExpand(!isExpand)}
+        >
+          {isExpand ? (
+            <CollapseSymbolsSvg className={svgClassName} isExpand={isExpand} />
+          ) : (
+            <ExpandSymbolsSvg className={svgClassName} isExpand={isExpand} />
+          )}
+        </button>
+        {isExpand && (
+          <div className="flex justify-end">
+            <a href={`#infoCard_${summaryId}`}>
+              <button
+                className="btn btn-outline btn-accent btn-sm group"
+                onClick={() => {
+                  setIsExpand(false)
+                }}
+              >
+                <CollapseSymbolsSvg
+                  className={svgClassName}
+                  isExpand={isExpand}
+                />
+              </button>
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

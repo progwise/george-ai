@@ -161,6 +161,7 @@ export type GenericMorph =
   | ComponentConfigurationScrapeEntryPoint
   | I18NLocale
   | Prompt
+  | ProposalForSummary
   | ScrapedWebPage
   | ScraperConfiguration
   | SummaryFeedback
@@ -288,6 +289,7 @@ export type Mutation = {
   changePassword?: Maybe<UsersPermissionsLoginPayload>
   createPrompt?: Maybe<PromptEntityResponse>
   createPromptLocalization?: Maybe<PromptEntityResponse>
+  createProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
@@ -299,6 +301,7 @@ export type Mutation = {
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
   deletePrompt?: Maybe<PromptEntityResponse>
+  deleteProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   deleteScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
@@ -322,6 +325,7 @@ export type Mutation = {
   resetPassword?: Maybe<UsersPermissionsLoginPayload>
   updateFileInfo: UploadFileEntityResponse
   updatePrompt?: Maybe<PromptEntityResponse>
+  updateProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   updateScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
@@ -350,6 +354,10 @@ export type MutationCreatePromptLocalizationArgs = {
   data?: InputMaybe<PromptInput>
   id?: InputMaybe<Scalars['ID']['input']>
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationCreateProposalForSummaryArgs = {
+  data: ProposalForSummaryInput
 }
 
 export type MutationCreateScrapedWebPageArgs = {
@@ -390,6 +398,10 @@ export type MutationCreateWebPageSummaryLocalizationArgs = {
 export type MutationDeletePromptArgs = {
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationDeleteProposalForSummaryArgs = {
+  id: Scalars['ID']['input']
 }
 
 export type MutationDeleteScrapedWebPageArgs = {
@@ -463,6 +475,11 @@ export type MutationUpdatePromptArgs = {
   data: PromptInput
   id: Scalars['ID']['input']
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+}
+
+export type MutationUpdateProposalForSummaryArgs = {
+  data: ProposalForSummaryInput
+  id: Scalars['ID']['input']
 }
 
 export type MutationUpdateScrapedWebPageArgs = {
@@ -590,6 +607,52 @@ export type PromptRelationResponseCollection = {
   data: Array<PromptEntity>
 }
 
+export type ProposalForSummary = {
+  __typename?: 'ProposalForSummary'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  proposalSummary?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  web_page_summary?: Maybe<WebPageSummaryEntityResponse>
+}
+
+export type ProposalForSummaryEntity = {
+  __typename?: 'ProposalForSummaryEntity'
+  attributes?: Maybe<ProposalForSummary>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type ProposalForSummaryEntityResponse = {
+  __typename?: 'ProposalForSummaryEntityResponse'
+  data?: Maybe<ProposalForSummaryEntity>
+}
+
+export type ProposalForSummaryEntityResponseCollection = {
+  __typename?: 'ProposalForSummaryEntityResponseCollection'
+  data: Array<ProposalForSummaryEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type ProposalForSummaryFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<ProposalForSummaryFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  not?: InputMaybe<ProposalForSummaryFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<ProposalForSummaryFiltersInput>>>
+  proposalSummary?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+  web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
+}
+
+export type ProposalForSummaryInput = {
+  proposalSummary?: InputMaybe<Scalars['String']['input']>
+  web_page_summary?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type ProposalForSummaryRelationResponseCollection = {
+  __typename?: 'ProposalForSummaryRelationResponseCollection'
+  data: Array<ProposalForSummaryEntity>
+}
+
 export enum PublicationState {
   Live = 'LIVE',
   Preview = 'PREVIEW',
@@ -602,6 +665,8 @@ export type Query = {
   me?: Maybe<UsersPermissionsMe>
   prompt?: Maybe<PromptEntityResponse>
   prompts?: Maybe<PromptEntityResponseCollection>
+  proposalForSummaries?: Maybe<ProposalForSummaryEntityResponseCollection>
+  proposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>
   scraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
@@ -639,6 +704,16 @@ export type QueryPromptsArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QueryProposalForSummariesArgs = {
+  filters?: InputMaybe<ProposalForSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QueryProposalForSummaryArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
 }
 
 export type QueryScrapedWebPageArgs = {
@@ -1266,6 +1341,7 @@ export type WebPageSummary = {
   lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
+  proposal_for_summaries?: Maybe<ProposalForSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
   summary?: Maybe<Scalars['String']['output']>
@@ -1277,6 +1353,12 @@ export type WebPageSummaryLocalizationsArgs = {
   filters?: InputMaybe<WebPageSummaryFiltersInput>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type WebPageSummaryProposal_For_SummariesArgs = {
+  filters?: InputMaybe<ProposalForSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -1314,6 +1396,7 @@ export type WebPageSummaryFiltersInput = {
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
   or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  proposal_for_summaries?: InputMaybe<ProposalForSummaryFiltersInput>
   publishedAt?: InputMaybe<DateTimeFilterInput>
   scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
   summary?: InputMaybe<StringFilterInput>
@@ -1325,6 +1408,7 @@ export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
   lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
+  proposal_for_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
@@ -1438,6 +1522,33 @@ export type GetDefaultPromptsQuery = {
   prompts?: {
     __typename?: 'PromptEntityResponseCollection'
     data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
+  } | null
+}
+
+export type CreateProposalForSummaryMutationVariables = Exact<{
+  proposalSummary: Scalars['String']['input']
+  summaryId: Scalars['ID']['input']
+}>
+
+export type CreateProposalForSummaryMutation = {
+  __typename?: 'Mutation'
+  createProposalForSummary?: {
+    __typename?: 'ProposalForSummaryEntityResponse'
+    data?: {
+      __typename?: 'ProposalForSummaryEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ProposalForSummary'
+        proposalSummary?: string | null
+        web_page_summary?: {
+          __typename?: 'WebPageSummaryEntityResponse'
+          data?: {
+            __typename?: 'WebPageSummaryEntity'
+            id?: string | null
+          } | null
+        } | null
+      } | null
+    } | null
   } | null
 }
 
@@ -2187,6 +2298,132 @@ export const GetDefaultPromptsDocument = {
 } as unknown as DocumentNode<
   GetDefaultPromptsQuery,
   GetDefaultPromptsQueryVariables
+>
+export const CreateProposalForSummaryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateProposalForSummary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'proposalSummary' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'summaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createProposalForSummary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'proposalSummary' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'proposalSummary' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'web_page_summary' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryId' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'proposalSummary' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'web_page_summary' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateProposalForSummaryMutation,
+  CreateProposalForSummaryMutationVariables
 >
 export const CreateScrapedWebPageDocument = {
   kind: 'Document',

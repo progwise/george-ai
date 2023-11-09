@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-module */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -14,5 +15,8 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  daisyui: {
+    themes: ['light', 'dark'],
+  },
+  plugins: [require('@tailwindcss/typography'), require('daisyui')],
 }

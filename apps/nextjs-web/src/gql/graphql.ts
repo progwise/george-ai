@@ -29,6 +29,11 @@ export type Scalars = {
   Float: { input: number; output: number }
 }
 
+export type CreateProposalSummaryInput = {
+  proposalSummary: Scalars['String']['input']
+  summaryId: Scalars['String']['input']
+}
+
 export type CreateSummaryFeedbackInput = {
   query: Scalars['String']['input']
   selectedSummaryIndex: Scalars['Int']['input']
@@ -36,13 +41,30 @@ export type CreateSummaryFeedbackInput = {
   webPageSummaryId: Scalars['String']['input']
 }
 
+export type Filters = {
+  __typename?: 'Filters'
+  language: Array<Scalars['String']['output']>
+  largeLanguageModel: Array<Scalars['String']['output']>
+  publicationState: Array<Scalars['String']['output']>
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
+  createProposalSummary: ProposalSummaryReference
   createSummaryFeedback: SummaryFeedbackReference
+}
+
+export type MutationCreateProposalSummaryArgs = {
+  data: CreateProposalSummaryInput
 }
 
 export type MutationCreateSummaryFeedbackArgs = {
   data: CreateSummaryFeedbackInput
+}
+
+export type ProposalSummaryReference = {
+  __typename?: 'ProposalSummaryReference'
+  id: Scalars['String']['output']
 }
 
 export enum PublicationState {
@@ -74,13 +96,6 @@ export enum SummaryFeedbackVoting {
   Up = 'up',
 }
 
-export type Filters = {
-  __typename?: 'filters'
-  language: Array<Scalars['String']['output']>
-  largeLanguageModel: Array<Scalars['String']['output']>
-  publicationState: Array<Scalars['String']['output']>
-}
-
 export type Summaries = {
   __typename?: 'summaries'
   id: Scalars['String']['output']
@@ -99,7 +114,7 @@ export type GetFiltersQueryVariables = Exact<{ [key: string]: never }>
 export type GetFiltersQuery = {
   __typename?: 'Query'
   filters: {
-    __typename?: 'filters'
+    __typename?: 'Filters'
     language: Array<string>
     largeLanguageModel: Array<string>
     publicationState: Array<string>
@@ -109,7 +124,7 @@ export type GetFiltersQuery = {
 export type CreateSummaryFeedbackMutationVariables = Exact<{
   infoCardIndex: Scalars['Int']['input']
   voting: SummaryFeedbackVoting
-  webPageSummaryId: Scalars['String']['input']
+  summaryId: Scalars['String']['input']
   query: Scalars['String']['input']
 }>
 
@@ -129,6 +144,16 @@ export type InfoCardFragment = {
   summary: string
   largeLanguageModel: string
 } & { ' $fragmentName'?: 'InfoCardFragment' }
+
+export type CreateProposalSummaryMutationVariables = Exact<{
+  proposalSummary: Scalars['String']['input']
+  summaryId: Scalars['String']['input']
+}>
+
+export type CreateProposalSummaryMutation = {
+  __typename?: 'Mutation'
+  createProposalSummary: { __typename?: 'ProposalSummaryReference'; id: string }
+}
 
 export type GetSummariesQueryVariables = Exact<{
   query?: InputMaybe<Scalars['String']['input']>
@@ -223,7 +248,7 @@ export const CreateSummaryFeedbackDocument = {
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'createSummaryFeedback' },
+      name: { kind: 'Name', value: 'CreateSummaryFeedback' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -254,7 +279,7 @@ export const CreateSummaryFeedbackDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'webPageSummaryId' },
+            name: { kind: 'Name', value: 'summaryId' },
           },
           type: {
             kind: 'NonNullType',
@@ -313,7 +338,7 @@ export const CreateSummaryFeedbackDocument = {
                       name: { kind: 'Name', value: 'webPageSummaryId' },
                       value: {
                         kind: 'Variable',
-                        name: { kind: 'Name', value: 'webPageSummaryId' },
+                        name: { kind: 'Name', value: 'summaryId' },
                       },
                     },
                     {
@@ -342,6 +367,91 @@ export const CreateSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
+>
+export const CreateProposalSummaryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateProposalSummary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'proposalSummary' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'summaryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createProposalSummary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'proposalSummary' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'proposalSummary' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'summaryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryId' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateProposalSummaryMutation,
+  CreateProposalSummaryMutationVariables
 >
 export const GetSummariesDocument = {
   kind: 'Document',

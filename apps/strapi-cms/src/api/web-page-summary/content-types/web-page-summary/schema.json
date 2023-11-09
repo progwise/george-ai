@@ -63,6 +63,12 @@
       },
       "type": "datetime",
       "required": false
+    },
+    "proposal_for_summaries": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::proposal-for-summary.proposal-for-summary",
+      "mappedBy": "web_page_summary"
     }
   }
 }

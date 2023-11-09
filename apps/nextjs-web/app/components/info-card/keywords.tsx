@@ -10,10 +10,8 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => {
   const handleFilterChange = (keyword: string) => {
     const updatedParameter = new URLSearchParams(searchParameters.toString())
     const keywordFilters = searchParameters.getAll('kw')
-
     if (keywordFilters.includes(keyword)) {
       updatedParameter.delete('kw')
-
       for (const item of keywordFilters) {
         if (item !== keyword) {
           updatedParameter.append('kw', item)
@@ -22,20 +20,19 @@ export const Keywords = ({ keywords }: { keywords: string[] }) => {
     } else {
       updatedParameter.append('kw', keyword)
     }
-
     router.replace(pathname + '?' + updatedParameter.toString(), {
       scroll: false,
     })
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="card-actions">
       {keywords.map(
         (keyword, index) =>
           keyword && (
             <button
               key={`${keyword}_${index}`}
-              className="border border-black rounded-md text-xs px-4 bg-slate-100 hover:bg-slate-300 cursor-pointer"
+              className="btn btn-outline btn-info btn-xs"
               onClick={() => handleFilterChange(keyword)}
             >
               {keyword}
