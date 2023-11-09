@@ -18417,6 +18417,7 @@ __metadata:
     eslint: ^8.47.0
     p-map: ^6.0.0
     ts-node: ^10.9.1
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
