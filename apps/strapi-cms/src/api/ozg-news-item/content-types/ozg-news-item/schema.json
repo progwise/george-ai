@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ozg_news",
+  "info": {
+    "singularName": "ozg-news-item",
+    "pluralName": "ozg-news",
+    "displayName": "OZG News",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "Title": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "Content": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "type": "blocks"
+    }
+  }
+}
