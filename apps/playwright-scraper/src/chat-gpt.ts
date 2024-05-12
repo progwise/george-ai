@@ -1,29 +1,27 @@
-import {
-  ChatCompletionRequestMessageRoleEnum,
-  Configuration,
-  OpenAIApi,
-} from 'openai'
+
 import dotenv from 'dotenv'
+import OpenAI from 'openai'
+import { ChatCompletionMessageParam } from 'openai/resources'
 
 dotenv.config()
 
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-  organization: process.env.OPENAI_API_ORG,
-})
-const openai = new OpenAIApi(configuration)
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY})
+
 
 const createChatCompletion = async (content: string, prompts: string[]) => {
   try {
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages: [
+      messages:[
         ...prompts.map((prompt) => ({
-          role: ChatCompletionRequestMessageRoleEnum.System,
+          role: 'system',
           content: prompt,
-        })),
-        { role: ChatCompletionRequestMessageRoleEnum.User, content },
-      ],
+        })) as ChatCompletionMessageParam[],
+        {
+          role: 'user',
+          content: content
+        }
+      ] 
     })
 
     return response.data.choices.at(0)?.message?.content

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "scrape": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/scrape-configured-pages.ts",
-    "generatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/generate-summaries.ts",
-    "updatesummaries": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/update-outdated-summaries.ts",
-    "setdefaultprompts": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/set-default-prompts.ts",
+    "scrape": "dotenv -- tsx src/scrape-configured-pages.ts",
+    "generatesummaries": "dotenv -- tsx src/generate-summaries.ts",
+    "updatesummaries": "dotenv -- tsx src/update-outdated-summaries.ts",
+    "setdefaultprompts": "dotenv -- tsx  src/set-default-prompts.ts",
     "build": "tsc --noEmit",
     "lint": "eslint ."
   },
@@ -21,7 +21,7 @@
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
-    "openai": "^3.3.0",
+    "openai": "^4.45.0",
     "p-map": "^6.0.0",
     "playwright-chromium": "^1.36.1",
     "pmap": "^2.0.0",
@@ -32,6 +32,7 @@
     "@types/node": "^20.4.4",
     "eslint": "8.46.0",
     "eslint-config-custom": "*",
+    "tsx": "^4.10.1",
     "typescript": "^5.2.2"
   }
 }
