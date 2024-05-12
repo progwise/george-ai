@@ -33,15 +33,41 @@ const createChatCompletion = async (content: string, prompts: string[]) => {
   }
 }
 
-export const getSummary = async (content: string, summaryPrompt: string[]) => {
-  return await createChatCompletion(content, summaryPrompt)
-}
+export const getSummaryAndKeywords = async (
+  originalContent: string,
+  keywordPrompt: string | null | undefined,
+  summaryPrompt: string | null | undefined,
+) => {
+  if (!keywordPrompt || !summaryPrompt) {
+    console.log('no keywordPrompt or summaryPrompt found')
+    return
+  }
 
-export const getKeywords = async (content: string, keywordPrompt: string[]) => {
-  const response = await createChatCompletion(content, keywordPrompt)
+  const summary = await createChatCompletion(
+    originalContent,
+    JSON.parse(summaryPrompt),
+  )
 
-  return response
-    ?.split(',')
-    .map((word) => word.replace(/Keywords: \n1\. |^\d+\. |\.$/, '').trim())
-    .slice(0, 10)
+  const keywordsResponse = await createChatCompletion(
+    originalContent,
+    JSON.parse(keywordPrompt),
+  )
+
+  if (!summary || !keywordsResponse) {
+    return
+  }
+
+  const keywords =
+    /^\d+\./.test(keywordsResponse) ||
+    /^-\s/.test(keywordsResponse) ||
+    /^Keywords:\s/.test(keywordsResponse)
+      ? keywordsResponse.split('\n')
+      : keywordsResponse.split(',')
+
+  return {
+    summary,
+    keywords: keywords
+      .map((word) => word.replace(/^\d+\.\s*|^-?\s*|,|Keywords:\s*/, '').trim())
+      .slice(0, 10),
+  }
 }

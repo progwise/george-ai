@@ -5,8 +5,8 @@ interface InfoCardTitleProps {
   title: string
   publicationState: PublicationState
   language: string
-  position: number
-  webPageSummaryId: string
+  infoCardIndex: number
+  summaryId: string
   largeLanguageModel: string
 }
 
@@ -14,8 +14,8 @@ export const InfoCardTitle = ({
   title,
   publicationState,
   language,
-  position,
-  webPageSummaryId,
+  infoCardIndex,
+  summaryId,
   largeLanguageModel,
 }: InfoCardTitleProps) => {
   return (
@@ -24,22 +24,19 @@ export const InfoCardTitle = ({
         <div className="flex gap-2 items-center">
           <span className="uppercase text-xs font-bold">{language}</span>
           {/*  TODO: A too-long {title} takes up more space than necessary after line-wrapping, which pushes the {publicationState} too far to the right. */}
-          <h2 className="font-bold text-lg" title={title}>
+          <h2 className="card-title" title={title}>
             {title}
           </h2>
         </div>
-        <div className="border border-black text-xs rounded-md px-4 bg-slate-100">
+        <div className="capitalize badge badge-accent badge-md text-white">
           {publicationState}
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <div className="capitalize border whitespace-nowrap border-black text-xs rounded-md px-4 bg-slate-100">
+        <div className="capitalize text-xs whitespace-nowrap badge badge-accent badge-md text-white">
           {largeLanguageModel}
         </div>
-        <FeedbackButtons
-          position={position}
-          webPageSummaryId={webPageSummaryId}
-        />
+        <FeedbackButtons infoCardIndex={infoCardIndex} summaryId={summaryId} />
       </div>
     </div>
   )

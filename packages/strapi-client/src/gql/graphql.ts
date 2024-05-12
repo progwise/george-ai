@@ -161,6 +161,7 @@ export type GenericMorph =
   | ComponentConfigurationScrapeEntryPoint
   | I18NLocale
   | Prompt
+  | ProposalForSummary
   | ScrapedWebPage
   | ScraperConfiguration
   | SummaryFeedback
@@ -288,8 +289,8 @@ export type Mutation = {
   changePassword?: Maybe<UsersPermissionsLoginPayload>
   createPrompt?: Maybe<PromptEntityResponse>
   createPromptLocalization?: Maybe<PromptEntityResponse>
+  createProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   createScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
-  createScrapedWebPageLocalization?: Maybe<ScrapedWebPageEntityResponse>
   createSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
   createUploadFile?: Maybe<UploadFileEntityResponse>
   createUploadFolder?: Maybe<UploadFolderEntityResponse>
@@ -300,6 +301,7 @@ export type Mutation = {
   createWebPageSummary?: Maybe<WebPageSummaryEntityResponse>
   createWebPageSummaryLocalization?: Maybe<WebPageSummaryEntityResponse>
   deletePrompt?: Maybe<PromptEntityResponse>
+  deleteProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   deleteScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   deleteScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   deleteSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
@@ -323,6 +325,7 @@ export type Mutation = {
   resetPassword?: Maybe<UsersPermissionsLoginPayload>
   updateFileInfo: UploadFileEntityResponse
   updatePrompt?: Maybe<PromptEntityResponse>
+  updateProposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   updateScrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   updateScraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
   updateSummaryFeedback?: Maybe<SummaryFeedbackEntityResponse>
@@ -353,15 +356,12 @@ export type MutationCreatePromptLocalizationArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
-export type MutationCreateScrapedWebPageArgs = {
-  data: ScrapedWebPageInput
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+export type MutationCreateProposalForSummaryArgs = {
+  data: ProposalForSummaryInput
 }
 
-export type MutationCreateScrapedWebPageLocalizationArgs = {
-  data?: InputMaybe<ScrapedWebPageInput>
-  id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
+export type MutationCreateScrapedWebPageArgs = {
+  data: ScrapedWebPageInput
 }
 
 export type MutationCreateSummaryFeedbackArgs = {
@@ -400,9 +400,12 @@ export type MutationDeletePromptArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
+export type MutationDeleteProposalForSummaryArgs = {
+  id: Scalars['ID']['input']
+}
+
 export type MutationDeleteScrapedWebPageArgs = {
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationDeleteSummaryFeedbackArgs = {
@@ -474,10 +477,14 @@ export type MutationUpdatePromptArgs = {
   locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
+export type MutationUpdateProposalForSummaryArgs = {
+  data: ProposalForSummaryInput
+  id: Scalars['ID']['input']
+}
+
 export type MutationUpdateScrapedWebPageArgs = {
   data: ScrapedWebPageInput
   id: Scalars['ID']['input']
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type MutationUpdateScraperConfigurationArgs = {
@@ -600,6 +607,52 @@ export type PromptRelationResponseCollection = {
   data: Array<PromptEntity>
 }
 
+export type ProposalForSummary = {
+  __typename?: 'ProposalForSummary'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  proposalSummary?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  web_page_summary?: Maybe<WebPageSummaryEntityResponse>
+}
+
+export type ProposalForSummaryEntity = {
+  __typename?: 'ProposalForSummaryEntity'
+  attributes?: Maybe<ProposalForSummary>
+  id?: Maybe<Scalars['ID']['output']>
+}
+
+export type ProposalForSummaryEntityResponse = {
+  __typename?: 'ProposalForSummaryEntityResponse'
+  data?: Maybe<ProposalForSummaryEntity>
+}
+
+export type ProposalForSummaryEntityResponseCollection = {
+  __typename?: 'ProposalForSummaryEntityResponseCollection'
+  data: Array<ProposalForSummaryEntity>
+  meta: ResponseCollectionMeta
+}
+
+export type ProposalForSummaryFiltersInput = {
+  and?: InputMaybe<Array<InputMaybe<ProposalForSummaryFiltersInput>>>
+  createdAt?: InputMaybe<DateTimeFilterInput>
+  id?: InputMaybe<IdFilterInput>
+  not?: InputMaybe<ProposalForSummaryFiltersInput>
+  or?: InputMaybe<Array<InputMaybe<ProposalForSummaryFiltersInput>>>
+  proposalSummary?: InputMaybe<StringFilterInput>
+  updatedAt?: InputMaybe<DateTimeFilterInput>
+  web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
+}
+
+export type ProposalForSummaryInput = {
+  proposalSummary?: InputMaybe<Scalars['String']['input']>
+  web_page_summary?: InputMaybe<Scalars['ID']['input']>
+}
+
+export type ProposalForSummaryRelationResponseCollection = {
+  __typename?: 'ProposalForSummaryRelationResponseCollection'
+  data: Array<ProposalForSummaryEntity>
+}
+
 export enum PublicationState {
   Live = 'LIVE',
   Preview = 'PREVIEW',
@@ -612,6 +665,8 @@ export type Query = {
   me?: Maybe<UsersPermissionsMe>
   prompt?: Maybe<PromptEntityResponse>
   prompts?: Maybe<PromptEntityResponseCollection>
+  proposalForSummaries?: Maybe<ProposalForSummaryEntityResponseCollection>
+  proposalForSummary?: Maybe<ProposalForSummaryEntityResponse>
   scrapedWebPage?: Maybe<ScrapedWebPageEntityResponse>
   scrapedWebPages?: Maybe<ScrapedWebPageEntityResponseCollection>
   scraperConfiguration?: Maybe<ScraperConfigurationEntityResponse>
@@ -651,16 +706,23 @@ export type QueryPromptsArgs = {
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
+export type QueryProposalForSummariesArgs = {
+  filters?: InputMaybe<ProposalForSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type QueryProposalForSummaryArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>
+}
+
 export type QueryScrapedWebPageArgs = {
   id?: InputMaybe<Scalars['ID']['input']>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
 }
 
 export type QueryScrapedWebPagesArgs = {
   filters?: InputMaybe<ScrapedWebPageFiltersInput>
-  locale?: InputMaybe<Scalars['I18NLocaleCode']['input']>
   pagination?: InputMaybe<PaginationArg>
-  publicationState?: InputMaybe<PublicationState>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -735,20 +797,17 @@ export type ResponseCollectionMeta = {
 export type ScrapedWebPage = {
   __typename?: 'ScrapedWebPage'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  locale?: Maybe<Scalars['String']['output']>
-  localizations?: Maybe<ScrapedWebPageRelationResponseCollection>
   originalContent?: Maybe<Scalars['String']['output']>
-  publishedAt?: Maybe<Scalars['DateTime']['output']>
+  prompts?: Maybe<PromptRelationResponseCollection>
   title?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
   web_page_summaries?: Maybe<WebPageSummaryRelationResponseCollection>
 }
 
-export type ScrapedWebPageLocalizationsArgs = {
-  filters?: InputMaybe<ScrapedWebPageFiltersInput>
+export type ScrapedWebPagePromptsArgs = {
+  filters?: InputMaybe<PromptFiltersInput>
   pagination?: InputMaybe<PaginationArg>
-  publicationState?: InputMaybe<PublicationState>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -780,12 +839,10 @@ export type ScrapedWebPageFiltersInput = {
   and?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   createdAt?: InputMaybe<DateTimeFilterInput>
   id?: InputMaybe<IdFilterInput>
-  locale?: InputMaybe<StringFilterInput>
-  localizations?: InputMaybe<ScrapedWebPageFiltersInput>
   not?: InputMaybe<ScrapedWebPageFiltersInput>
   or?: InputMaybe<Array<InputMaybe<ScrapedWebPageFiltersInput>>>
   originalContent?: InputMaybe<StringFilterInput>
-  publishedAt?: InputMaybe<DateTimeFilterInput>
+  prompts?: InputMaybe<PromptFiltersInput>
   title?: InputMaybe<StringFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   url?: InputMaybe<StringFilterInput>
@@ -794,15 +851,10 @@ export type ScrapedWebPageFiltersInput = {
 
 export type ScrapedWebPageInput = {
   originalContent?: InputMaybe<Scalars['String']['input']>
-  publishedAt?: InputMaybe<Scalars['DateTime']['input']>
+  prompts?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   title?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
   web_page_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
-}
-
-export type ScrapedWebPageRelationResponseCollection = {
-  __typename?: 'ScrapedWebPageRelationResponseCollection'
-  data: Array<ScrapedWebPageEntity>
 }
 
 export type ScraperConfiguration = {
@@ -863,8 +915,8 @@ export type StringFilterInput = {
 export type SummaryFeedback = {
   __typename?: 'SummaryFeedback'
   createdAt?: Maybe<Scalars['DateTime']['output']>
-  position?: Maybe<Scalars['Int']['output']>
   query?: Maybe<Scalars['String']['output']>
+  selectedSummaryIndex?: Maybe<Scalars['Int']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   voting?: Maybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: Maybe<WebPageSummaryEntityResponse>
@@ -893,16 +945,16 @@ export type SummaryFeedbackFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   not?: InputMaybe<SummaryFeedbackFiltersInput>
   or?: InputMaybe<Array<InputMaybe<SummaryFeedbackFiltersInput>>>
-  position?: InputMaybe<IntFilterInput>
   query?: InputMaybe<StringFilterInput>
+  selectedSummaryIndex?: InputMaybe<IntFilterInput>
   updatedAt?: InputMaybe<DateTimeFilterInput>
   voting?: InputMaybe<StringFilterInput>
   web_page_summary?: InputMaybe<WebPageSummaryFiltersInput>
 }
 
 export type SummaryFeedbackInput = {
-  position?: InputMaybe<Scalars['Int']['input']>
   query?: InputMaybe<Scalars['String']['input']>
+  selectedSummaryIndex?: InputMaybe<Scalars['Int']['input']>
   voting?: InputMaybe<Enum_Summaryfeedback_Voting>
   web_page_summary?: InputMaybe<Scalars['ID']['input']>
 }
@@ -1286,8 +1338,10 @@ export type WebPageSummary = {
   createdAt?: Maybe<Scalars['DateTime']['output']>
   keywords?: Maybe<Scalars['String']['output']>
   largeLanguageModel?: Maybe<Scalars['String']['output']>
+  lastScrapeUpdate?: Maybe<Scalars['DateTime']['output']>
   locale?: Maybe<Scalars['String']['output']>
   localizations?: Maybe<WebPageSummaryRelationResponseCollection>
+  proposal_for_summaries?: Maybe<ProposalForSummaryRelationResponseCollection>
   publishedAt?: Maybe<Scalars['DateTime']['output']>
   scraped_web_page?: Maybe<ScrapedWebPageEntityResponse>
   summary?: Maybe<Scalars['String']['output']>
@@ -1299,6 +1353,12 @@ export type WebPageSummaryLocalizationsArgs = {
   filters?: InputMaybe<WebPageSummaryFiltersInput>
   pagination?: InputMaybe<PaginationArg>
   publicationState?: InputMaybe<PublicationState>
+  sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
+}
+
+export type WebPageSummaryProposal_For_SummariesArgs = {
+  filters?: InputMaybe<ProposalForSummaryFiltersInput>
+  pagination?: InputMaybe<PaginationArg>
   sort?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>
 }
 
@@ -1331,10 +1391,12 @@ export type WebPageSummaryFiltersInput = {
   id?: InputMaybe<IdFilterInput>
   keywords?: InputMaybe<StringFilterInput>
   largeLanguageModel?: InputMaybe<StringFilterInput>
+  lastScrapeUpdate?: InputMaybe<DateTimeFilterInput>
   locale?: InputMaybe<StringFilterInput>
   localizations?: InputMaybe<WebPageSummaryFiltersInput>
   not?: InputMaybe<WebPageSummaryFiltersInput>
   or?: InputMaybe<Array<InputMaybe<WebPageSummaryFiltersInput>>>
+  proposal_for_summaries?: InputMaybe<ProposalForSummaryFiltersInput>
   publishedAt?: InputMaybe<DateTimeFilterInput>
   scraped_web_page?: InputMaybe<ScrapedWebPageFiltersInput>
   summary?: InputMaybe<StringFilterInput>
@@ -1345,6 +1407,8 @@ export type WebPageSummaryFiltersInput = {
 export type WebPageSummaryInput = {
   keywords?: InputMaybe<Scalars['String']['input']>
   largeLanguageModel?: InputMaybe<Scalars['String']['input']>
+  lastScrapeUpdate?: InputMaybe<Scalars['DateTime']['input']>
+  proposal_for_summaries?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>
   scraped_web_page?: InputMaybe<Scalars['ID']['input']>
   summary?: InputMaybe<Scalars['String']['input']>
@@ -1388,16 +1452,7 @@ export type GetScraperConfigurationQuery = {
           depth?: number | null
           prompts?: {
             __typename?: 'PromptRelationResponseCollection'
-            data: Array<{
-              __typename?: 'PromptEntity'
-              attributes?: {
-                __typename?: 'Prompt'
-                summaryPrompt?: string | null
-                keywordPrompt?: string | null
-                llm?: string | null
-                locale?: string | null
-              } | null
-            }>
+            data: Array<{ __typename?: 'PromptEntity'; id?: string | null }>
           } | null
         } | null> | null
       } | null
@@ -1418,7 +1473,7 @@ export type CreateSummaryFeedbackMutation = {
       id?: string | null
       attributes?: {
         __typename?: 'SummaryFeedback'
-        position?: number | null
+        selectedSummaryIndex?: number | null
         query?: string | null
         voting?: Enum_Summaryfeedback_Voting | null
         web_page_summary?: {
@@ -1430,18 +1485,6 @@ export type CreateSummaryFeedbackMutation = {
         } | null
       } | null
     } | null
-  } | null
-}
-
-export type DeleteSummaryFeedbackMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-}>
-
-export type DeleteSummaryFeedbackMutation = {
-  __typename?: 'Mutation'
-  deleteSummaryFeedback?: {
-    __typename?: 'SummaryFeedbackEntityResponse'
-    data?: { __typename?: 'SummaryFeedbackEntity'; id?: string | null } | null
   } | null
 }
 
@@ -1482,25 +1525,75 @@ export type GetDefaultPromptsQuery = {
   } | null
 }
 
+export type CreateProposalForSummaryMutationVariables = Exact<{
+  proposalSummary: Scalars['String']['input']
+  summaryId: Scalars['ID']['input']
+}>
+
+export type CreateProposalForSummaryMutation = {
+  __typename?: 'Mutation'
+  createProposalForSummary?: {
+    __typename?: 'ProposalForSummaryEntityResponse'
+    data?: {
+      __typename?: 'ProposalForSummaryEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ProposalForSummary'
+        proposalSummary?: string | null
+        web_page_summary?: {
+          __typename?: 'WebPageSummaryEntityResponse'
+          data?: {
+            __typename?: 'WebPageSummaryEntity'
+            id?: string | null
+          } | null
+        } | null
+      } | null
+    } | null
+  } | null
+}
+
 export type CreateScrapedWebPageMutationVariables = Exact<{
   data: ScrapedWebPageInput
-  locale: Scalars['I18NLocaleCode']['input']
 }>
 
 export type CreateScrapedWebPageMutation = {
   __typename?: 'Mutation'
   createScrapedWebPage?: {
     __typename?: 'ScrapedWebPageEntityResponse'
-    data?: {
+    data?: { __typename?: 'ScrapedWebPageEntity'; id?: string | null } | null
+  } | null
+}
+
+export type GetAllScrapedWebPagesQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetAllScrapedWebPagesQuery = {
+  __typename?: 'Query'
+  scrapedWebPages?: {
+    __typename?: 'ScrapedWebPageEntityResponseCollection'
+    data: Array<{
       __typename?: 'ScrapedWebPageEntity'
       id?: string | null
       attributes?: {
         __typename?: 'ScrapedWebPage'
-        title?: string | null
-        url?: string | null
         originalContent?: string | null
+        url?: string | null
+        prompts?: {
+          __typename?: 'PromptRelationResponseCollection'
+          data: Array<{
+            __typename?: 'PromptEntity'
+            attributes?: {
+              __typename?: 'Prompt'
+              summaryPrompt?: string | null
+              keywordPrompt?: string | null
+              llm?: string | null
+              locale?: string | null
+            } | null
+          }>
+        } | null
       } | null
-    } | null
+    }>
   } | null
 }
 
@@ -1512,7 +1605,27 @@ export type GetScrapedWebPagesByUrlQuery = {
   __typename?: 'Query'
   scrapedWebPages?: {
     __typename?: 'ScrapedWebPageEntityResponseCollection'
-    data: Array<{ __typename?: 'ScrapedWebPageEntity'; id?: string | null }>
+    data: Array<{
+      __typename?: 'ScrapedWebPageEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'ScrapedWebPage'
+        originalContent?: string | null
+      } | null
+    }>
+  } | null
+}
+
+export type UpdateScrapedWebPageMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  data: ScrapedWebPageInput
+}>
+
+export type UpdateScrapedWebPageMutation = {
+  __typename?: 'Mutation'
+  updateScrapedWebPage?: {
+    __typename?: 'ScrapedWebPageEntityResponse'
+    data?: { __typename?: 'ScrapedWebPageEntity'; id?: string | null } | null
   } | null
 }
 
@@ -1545,6 +1658,51 @@ export type CreateWebPageSummaryMutation = {
   } | null
 }
 
+export type GetOutdatedWebPageSummariesQueryVariables = Exact<{
+  [key: string]: never
+}>
+
+export type GetOutdatedWebPageSummariesQuery = {
+  __typename?: 'Query'
+  webPageSummaries?: {
+    __typename?: 'WebPageSummaryEntityResponseCollection'
+    data: Array<{
+      __typename?: 'WebPageSummaryEntity'
+      id?: string | null
+      attributes?: {
+        __typename?: 'WebPageSummary'
+        lastScrapeUpdate?: any | null
+        locale?: string | null
+        scraped_web_page?: {
+          __typename?: 'ScrapedWebPageEntityResponse'
+          data?: {
+            __typename?: 'ScrapedWebPageEntity'
+            id?: string | null
+            attributes?: {
+              __typename?: 'ScrapedWebPage'
+              updatedAt?: any | null
+              originalContent?: string | null
+              prompts?: {
+                __typename?: 'PromptRelationResponseCollection'
+                data: Array<{
+                  __typename?: 'PromptEntity'
+                  attributes?: {
+                    __typename?: 'Prompt'
+                    summaryPrompt?: string | null
+                    keywordPrompt?: string | null
+                    llm?: string | null
+                    locale?: string | null
+                  } | null
+                }>
+              } | null
+            } | null
+          } | null
+        } | null
+      } | null
+    }>
+  } | null
+}
+
 export type GetWebPageSummariesQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetWebPageSummariesQuery = {
@@ -1556,7 +1714,7 @@ export type GetWebPageSummariesQuery = {
       id?: string | null
       attributes?: {
         __typename?: 'WebPageSummary'
-        updatedAt?: any | null
+        lastScrapeUpdate?: any | null
         locale?: string | null
         keywords?: string | null
         summary?: string | null
@@ -1739,40 +1897,7 @@ export const GetScraperConfigurationDocument = {
                                                 kind: 'Field',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'attributes',
-                                                },
-                                                selectionSet: {
-                                                  kind: 'SelectionSet',
-                                                  selections: [
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'summaryPrompt',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'keywordPrompt',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'llm',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'locale',
-                                                      },
-                                                    },
-                                                  ],
+                                                  value: 'id',
                                                 },
                                               },
                                             ],
@@ -1858,7 +1983,10 @@ export const CreateSummaryFeedbackDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'position' },
+                              name: {
+                                kind: 'Name',
+                                value: 'selectedSummaryIndex',
+                              },
                             },
                             {
                               kind: 'Field',
@@ -1906,63 +2034,6 @@ export const CreateSummaryFeedbackDocument = {
 } as unknown as DocumentNode<
   CreateSummaryFeedbackMutation,
   CreateSummaryFeedbackMutationVariables
->
-export const DeleteSummaryFeedbackDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'DeleteSummaryFeedback' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteSummaryFeedback' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'data' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  DeleteSummaryFeedbackMutation,
-  DeleteSummaryFeedbackMutationVariables
 >
 export const CreatePromptDocument = {
   kind: 'Document',
@@ -2228,22 +2299,25 @@ export const GetDefaultPromptsDocument = {
   GetDefaultPromptsQuery,
   GetDefaultPromptsQueryVariables
 >
-export const CreateScrapedWebPageDocument = {
+export const CreateProposalForSummaryDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'CreateScrapedWebPage' },
+      name: { kind: 'Name', value: 'CreateProposalForSummary' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'proposalSummary' },
+          },
           type: {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'ScrapedWebPageInput' },
+              name: { kind: 'Name', value: 'String' },
             },
           },
         },
@@ -2251,14 +2325,11 @@ export const CreateScrapedWebPageDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'locale' },
+            name: { kind: 'Name', value: 'summaryId' },
           },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'I18NLocaleCode' },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
           },
         },
       ],
@@ -2267,22 +2338,31 @@ export const CreateScrapedWebPageDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createScrapedWebPage' },
+            name: { kind: 'Name', value: 'createProposalForSummary' },
             arguments: [
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
                 value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'locale' },
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'proposalSummary' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'proposalSummary' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'web_page_summary' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'summaryId' },
+                      },
+                    },
+                  ],
                 },
               },
             ],
@@ -2304,15 +2384,29 @@ export const CreateScrapedWebPageDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'title' },
+                              name: { kind: 'Name', value: 'proposalSummary' },
                             },
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'url' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'originalContent' },
+                              name: { kind: 'Name', value: 'web_page_summary' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
                             },
                           ],
                         },
@@ -2328,8 +2422,180 @@ export const CreateScrapedWebPageDocument = {
     },
   ],
 } as unknown as DocumentNode<
+  CreateProposalForSummaryMutation,
+  CreateProposalForSummaryMutationVariables
+>
+export const CreateScrapedWebPageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'CreateScrapedWebPage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'ScrapedWebPageInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createScrapedWebPage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
   CreateScrapedWebPageMutation,
   CreateScrapedWebPageMutationVariables
+>
+export const GetAllScrapedWebPagesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetAllScrapedWebPages' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'scrapedWebPages' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'originalContent' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'url' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'prompts' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'summaryPrompt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'keywordPrompt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'llm',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'locale',
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetAllScrapedWebPagesQuery,
+  GetAllScrapedWebPagesQueryVariables
 >
 export const GetScrapedWebPagesByUrlDocument = {
   kind: 'Document',
@@ -2358,16 +2624,6 @@ export const GetScrapedWebPagesByUrlDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'scrapedWebPages' },
             arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'publicationState' },
-                value: { kind: 'EnumValue', value: 'PREVIEW' },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'locale' },
-                value: { kind: 'StringValue', value: 'all', block: false },
-              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'filters' },
@@ -2405,6 +2661,19 @@ export const GetScrapedWebPagesByUrlDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'originalContent' },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -2418,6 +2687,82 @@ export const GetScrapedWebPagesByUrlDocument = {
 } as unknown as DocumentNode<
   GetScrapedWebPagesByUrlQuery,
   GetScrapedWebPagesByUrlQueryVariables
+>
+export const UpdateScrapedWebPageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'UpdateScrapedWebPage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'ScrapedWebPageInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateScrapedWebPage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateScrapedWebPageMutation,
+  UpdateScrapedWebPageMutationVariables
 >
 export const CreateWebPageSummaryDocument = {
   kind: 'Document',
@@ -2547,6 +2892,189 @@ export const CreateWebPageSummaryDocument = {
   CreateWebPageSummaryMutation,
   CreateWebPageSummaryMutationVariables
 >
+export const GetOutdatedWebPageSummariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetOutdatedWebPageSummaries' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'webPageSummaries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'publicationState' },
+                value: { kind: 'EnumValue', value: 'PREVIEW' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'all', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'data' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'attributes' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'locale' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'scraped_web_page' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'data' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'id' },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'attributes',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'updatedAt',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'originalContent',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'prompts',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'data',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'attributes',
+                                                            },
+                                                            selectionSet: {
+                                                              kind: 'SelectionSet',
+                                                              selections: [
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'summaryPrompt',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'keywordPrompt',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'llm',
+                                                                  },
+                                                                },
+                                                                {
+                                                                  kind: 'Field',
+                                                                  name: {
+                                                                    kind: 'Name',
+                                                                    value:
+                                                                      'locale',
+                                                                  },
+                                                                },
+                                                              ],
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetOutdatedWebPageSummariesQuery,
+  GetOutdatedWebPageSummariesQueryVariables
+>
 export const GetWebPageSummariesDocument = {
   kind: 'Document',
   definitions: [
@@ -2590,7 +3118,7 @@ export const GetWebPageSummariesDocument = {
                           selections: [
                             {
                               kind: 'Field',
-                              name: { kind: 'Name', value: 'updatedAt' },
+                              name: { kind: 'Name', value: 'lastScrapeUpdate' },
                             },
                             {
                               kind: 'Field',

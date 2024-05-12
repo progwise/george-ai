@@ -1,27 +1,48 @@
 'use client'
 
 import { graphql } from '@/src/gql'
-import { getClient } from '@/app/client/urql-client'
 import { SummaryFeedbackVoting } from '@/src/gql/graphql'
-import Image from 'next/image'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useMutation } from 'urql'
+import { ThumbsUpSvg } from '@/public/thumbs-up-svg'
+import { ThumbsDownSvg } from '@/public/thumbs-down-svg'
 
 interface FeedbackButtonsProps {
-  position: number
-  webPageSummaryId: string
+  infoCardIndex: number
+  summaryId: string
 }
 
 export const FeedbackButtons = ({
-  position,
-  webPageSummaryId,
+  infoCardIndex,
+  summaryId,
 }: FeedbackButtonsProps) => {
   const searchParameters = useSearchParams()
   const query = searchParameters.get('query')
   const [feedbackSelection, setFeedbackSelection] = useState<
     SummaryFeedbackVoting | undefined
   >()
-
+  const [, createSummaryFeedback] = useMutation(
+    graphql(`
+      mutation CreateSummaryFeedback(
+        $infoCardIndex: Int!
+        $voting: SummaryFeedbackVoting!
+        $summaryId: String!
+        $query: String!
+      ) {
+        createSummaryFeedback(
+          data: {
+            selectedSummaryIndex: $infoCardIndex
+            voting: $voting
+            webPageSummaryId: $summaryId
+            query: $query
+          }
+        ) {
+          id
+        }
+      }
+    `),
+  )
   const handleFeedbackChange = async (votingChoice?: SummaryFeedbackVoting) => {
     const feedback =
       feedbackSelection === votingChoice ? undefined : votingChoice
@@ -31,70 +52,39 @@ export const FeedbackButtons = ({
       return
     }
     try {
-      await getClient().mutation(
-        graphql(`
-          mutation createSummaryFeedback(
-            $position: Int!
-            $voting: SummaryFeedbackVoting!
-            $webPageSummaryId: String!
-            $query: String!
-          ) {
-            createSummaryFeedback(
-              data: {
-                position: $position
-                voting: $voting
-                webPageSummaryId: $webPageSummaryId
-                query: $query
-              }
-            ) {
-              id
-            }
-          }
-        `),
-        {
-          query: query ?? '',
-          voting: feedback,
-          position,
-          webPageSummaryId,
-        },
-      )
+      await createSummaryFeedback({
+        query: query ?? '',
+        voting: feedback,
+        infoCardIndex,
+        summaryId,
+      })
     } catch (error) {
       console.error('Error while creating summary feedback:', error)
     }
   }
 
   return (
-    <div className="flex min-w-max gap-4">
-      <button onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Up)}>
-        <Image
-          src="/thumbs-up.svg"
-          alt={SummaryFeedbackVoting.Up}
-          className={`hover:scale-125
-          ${
-            feedbackSelection === SummaryFeedbackVoting.Up
-              ? 'opacity-100'
-              : 'opacity-25'
-          }
-          `}
-          width={24}
-          height={24}
-        />
+    <div className="flex min-w-max gap-0.5 z-10">
+      <button
+        className={`btn btn-accent btn-sm border-none group ${
+          feedbackSelection === SummaryFeedbackVoting.Up
+            ? 'btn-active text-white'
+            : 'btn-outline'
+        }`}
+        onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Up)}
+      >
+        <ThumbsUpSvg className="fill-current group-hover:scale-125 group-hover:text-white" />
       </button>
 
-      <button onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Down)}>
-        <Image
-          src="/thumbs-down.svg"
-          alt={SummaryFeedbackVoting.Down}
-          className={`hover:scale-125
-          ${
-            feedbackSelection === SummaryFeedbackVoting.Down
-              ? 'opacity-100'
-              : 'opacity-25'
-          }
-          `}
-          width={24}
-          height={24}
-        />
+      <button
+        className={`btn btn-accent btn-sm border-none group ${
+          feedbackSelection === SummaryFeedbackVoting.Down
+            ? 'btn-active text-white'
+            : 'btn-outline'
+        }`}
+        onClick={() => handleFeedbackChange(SummaryFeedbackVoting.Down)}
+      >
+        <ThumbsDownSvg className="fill-current group-hover:scale-125 group-hover:text-white" />
       </button>
     </div>
   )

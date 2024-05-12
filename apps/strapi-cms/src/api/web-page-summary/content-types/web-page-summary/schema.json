@@ -54,6 +54,21 @@
       "relation": "oneToMany",
       "target": "api::summary-feedback.summary-feedback",
       "mappedBy": "web_page_summary"
+    },
+    "lastScrapeUpdate": {
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "type": "datetime",
+      "required": false
+    },
+    "proposal_for_summaries": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::proposal-for-summary.proposal-for-summary",
+      "mappedBy": "web_page_summary"
     }
   }
 }

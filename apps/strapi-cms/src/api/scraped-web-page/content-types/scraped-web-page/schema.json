@@ -8,39 +8,23 @@
     "description": ""
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
+  "pluginOptions": {},
   "attributes": {
     "title": {
       "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "required": false
     },
     "url": {
       "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "required": false
     },
     "originalContent": {
       "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      },
+      "pluginOptions": {},
       "required": false
     },
     "web_page_summaries": {
@@ -48,6 +32,11 @@
       "relation": "oneToMany",
       "target": "api::web-page-summary.web-page-summary",
       "mappedBy": "scraped_web_page"
+    },
+    "prompts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::prompt.prompt"
     }
   }
 }

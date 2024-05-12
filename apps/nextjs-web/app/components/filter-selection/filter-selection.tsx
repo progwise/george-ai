@@ -17,10 +17,10 @@ export const FilterSelection = async ({
   status,
   llm,
 }: FilterSelectionProps) => {
-  const result = await getClient().query(
+  const { data } = await getClient().query(
     graphql(`
-      query GetLangAndLlm {
-        searchFilters {
+      query GetFilters {
+        filters {
           language
           largeLanguageModel
           publicationState
@@ -29,12 +29,12 @@ export const FilterSelection = async ({
     `),
     {},
   )
-  const searchFilters = result.data?.searchFilters
+  const filters = data?.filters
 
   return (
-    <div className="flex justify-end gap-3">
-      {shouldDisplayFilter(searchFilters?.publicationState) &&
-        searchFilters?.publicationState.map((state) => (
+    <div className="flex items-center justify-end gap-3">
+      {shouldDisplayFilter(filters?.publicationState) &&
+        filters?.publicationState.map((state) => (
           <FilterCheckbox
             key={state}
             value={state}
@@ -42,8 +42,16 @@ export const FilterSelection = async ({
             filter="status"
           />
         ))}
-      {shouldDisplayFilter(searchFilters?.language) &&
-        searchFilters?.language.map((language) => (
+
+      {shouldDisplayFilter(filters?.publicationState) &&
+        shouldDisplayFilter(filters?.language) && <div>|</div>}
+
+      {shouldDisplayFilter(filters?.publicationState) &&
+        !shouldDisplayFilter(filters?.language) &&
+        shouldDisplayFilter(filters?.largeLanguageModel) && <div>|</div>}
+
+      {shouldDisplayFilter(filters?.language) &&
+        filters?.language.map((language) => (
           <FilterCheckbox
             key={language}
             value={language}
@@ -51,8 +59,12 @@ export const FilterSelection = async ({
             filter="lang"
           />
         ))}
-      {shouldDisplayFilter(searchFilters?.largeLanguageModel) &&
-        searchFilters?.largeLanguageModel.map((model) => (
+
+      {shouldDisplayFilter(filters?.language) &&
+        shouldDisplayFilter(filters?.largeLanguageModel) && <div>|</div>}
+
+      {shouldDisplayFilter(filters?.largeLanguageModel) &&
+        filters?.largeLanguageModel.map((model) => (
           <FilterCheckbox
             key={model}
             value={model}

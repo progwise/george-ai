@@ -1,7 +1,7 @@
 import { Header } from './components/header'
 import { SearchBox } from './components/search-box'
 import React, { Suspense } from 'react'
-import { PageList } from './page-list'
+import { SummaryList } from './summary-list'
 import Loading from './loading'
 import { Metadata } from 'next'
 import { FilterSelection } from './components/filter-selection/filter-selection'
@@ -34,11 +34,9 @@ function normalizeToArray(
   if (!value) {
     return undefined
   }
-
   if (Array.isArray(value)) {
     return value
   }
-
   return [value]
 }
 
@@ -48,7 +46,10 @@ export default function Home({
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center p-24 ">
+    <main
+      data-theme={searchParams.theme?.toString() ?? 'light'}
+      className="flex min-h-screen flex-col items-center px-12 py-24 ease-in-out duration-100"
+    >
       <div className="max-w-2xl w-full flex flex-col gap-5">
         <Header />
         <SearchBox />
@@ -59,10 +60,11 @@ export default function Home({
             llm={normalizeToArray(searchParams.llm)}
           />
           <KeywordsDeselection />
-          <span className="border-b border-black">
-            ich habe folgende Informationen für Sie gefunden:
-          </span>
-          <PageList
+          <div>
+            <span>ich habe folgende Informationen für Sie gefunden:</span>
+            <div className="divider" />
+          </div>
+          <SummaryList
             query={searchParams.query?.toString()}
             lang={normalizeToArray(searchParams.lang)}
             status={normalizeToArray(searchParams.status)}

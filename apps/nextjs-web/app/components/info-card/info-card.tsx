@@ -3,9 +3,10 @@ import { Summary } from './summary'
 import { Keywords } from './keywords'
 import { Link } from './link'
 import { FragmentType, graphql, useFragment } from '@/src/gql'
+import { SuggestModal } from './suggestModal/suggest-modal'
 
 const InfoCardFragment = graphql(`
-  fragment InfoCard on searchWebPages {
+  fragment InfoCard on summaries {
     id
     title
     url
@@ -18,30 +19,38 @@ const InfoCardFragment = graphql(`
 `)
 
 interface InfoCardProps {
-  pageFragment: FragmentType<typeof InfoCardFragment>
-  position: number
-  webPageSummaryId: string
+  summaryFragment: FragmentType<typeof InfoCardFragment>
+  infoCardIndex: number
 }
-export const InfoCard = ({
-  pageFragment,
-  position,
-  webPageSummaryId,
-}: InfoCardProps) => {
-  const page = useFragment(InfoCardFragment, pageFragment)
+export const InfoCard = ({ summaryFragment, infoCardIndex }: InfoCardProps) => {
+  const summary = useFragment(InfoCardFragment, summaryFragment)
 
   return (
-    <div className="flex flex-col gap-5 border-2 p-8 rounded-md">
+    <div
+      id={`infoCard_${summary.id}`}
+      className={`card card-body card-bordered border-current flex flex-col gap-5 p-8 shadow-xl`}
+    >
       <InfoCardTitle
-        title={page.title}
-        publicationState={page.publicationState}
-        language={page.language}
-        position={position}
-        webPageSummaryId={webPageSummaryId}
-        largeLanguageModel={page.largeLanguageModel}
+        title={summary.title}
+        publicationState={summary.publicationState}
+        language={summary.language}
+        infoCardIndex={infoCardIndex}
+        summaryId={summary.id}
+        largeLanguageModel={summary.largeLanguageModel}
       />
-      <Summary key={page.id} summary={page.summary} />
-      <Link url={page.url} />
-      <Keywords keywords={page?.keywords} />
+      <Summary
+        key={`summary_${summary.id}`}
+        summaryId={summary.id}
+        summary={summary.summary}
+      />
+      <SuggestModal
+        key={`modal_${summary.id}`}
+        title={summary.title}
+        summaryId={summary.id}
+        summary={summary.summary}
+      />
+      <Link url={summary.url} />
+      <Keywords keywords={summary?.keywords} />
     </div>
   )
 }
