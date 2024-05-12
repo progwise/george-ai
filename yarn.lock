@@ -8929,6 +8929,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.5":
+  version: 16.4.5
+  resolution: "dotenv@npm:16.4.5"
+  checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
+  languageName: node
+  linkType: hard
+
 "dset@npm:^3.1.1, dset@npm:^3.1.2":
   version: 3.1.2
   resolution: "dset@npm:3.1.2"
@@ -19311,10 +19318,12 @@ __metadata:
   dependencies:
     "@george-ai/strapi-client": "*"
     "@george-ai/typesense-client": "*"
+    dotenv: ^16.4.5
     dotenv-cli: ^7.3.0
     eslint: ^8.47.0
     p-map: ^6.0.0
     ts-node: ^10.9.1
+    tsx: ^4.10.1
     typescript: ^5.2.2
   languageName: unknown
   linkType: soft

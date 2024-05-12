@@ -3,20 +3,22 @@
   "packageManager": "yarn@3.6.1",
   "type": "module",
   "scripts": {
-    "rebuildcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/rebuild.collection.ts",
-    "dropcollection": "dotenv -- ts-node --esm --experimentalSpecifierResolution node src/drop.collection.ts",
+    "rebuildcollection": "dotenv -- tsx src/rebuild.collection.ts",
+    "dropcollection": "dotenv -- tsx src/drop.collection.ts",
     "build": "tsc --noEmit",
     "lint": "eslint ."
   },
   "dependencies": {
     "@george-ai/strapi-client": "*",
     "@george-ai/typesense-client": "*",
+    "dotenv": "^16.4.5",
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.47.0",
     "p-map": "^6.0.0",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
+    "tsx": "^4.10.1",
     "typescript": "^5.2.2"
   }
 }

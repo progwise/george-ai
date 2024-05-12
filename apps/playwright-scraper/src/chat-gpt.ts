@@ -1,30 +1,28 @@
-
 import dotenv from 'dotenv'
 import OpenAI from 'openai'
 import { ChatCompletionMessageParam } from 'openai/resources'
 
 dotenv.config()
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY})
-
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 const createChatCompletion = async (content: string, prompts: string[]) => {
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      messages:[
-        ...prompts.map((prompt) => ({
+      messages: [
+        ...(prompts.map((prompt) => ({
           role: 'system',
           content: prompt,
-        })) as ChatCompletionMessageParam[],
+        })) as ChatCompletionMessageParam[]),
         {
           role: 'user',
-          content: content
-        }
-      ] 
+          content: content,
+        },
+      ],
     })
 
-    return response.data.choices.at(0)?.message?.content
+    return response.choices.at(0)?.message?.content
   } catch (error) {
     console.error('Error using chatGPT')
     console.log(JSON.stringify(error, undefined, 2))
