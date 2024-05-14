@@ -28,6 +28,13 @@
 
 **Make sure all environment variables are properly set before starting the development environment.**
 
+Execute the following command from the root directory:
+
+```bash
+cd apps/nextjs-web
+yarn run start
+```
+
 Execute the following command at the root directory to start the development environment:
 
 ```bash
