@@ -3,6 +3,13 @@ import React from 'react'
 const ChatBotPage = () => {
   return (
     <>
+      <div>
+        <input
+          type="text"
+          placeholder="Type here"
+          className="input input-bordered w-full max-w-xs"
+        />
+      </div>
       <div className="chat chat-start">
         <div className="chat-bubble chat-bubble-primary">
           What kind of nonsense is this
