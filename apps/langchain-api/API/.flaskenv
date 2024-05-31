@@ -1,0 +1,2 @@
+FLASK_APP=flaskAPI
+FLASK_DEBUG=True
