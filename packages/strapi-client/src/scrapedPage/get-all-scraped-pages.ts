@@ -5,7 +5,7 @@ export const getAllScrapedPages = async () => {
   const { scrapedWebPages } = await strapiClient.request(
     graphql(`
       query GetAllScrapedWebPages {
-        scrapedWebPages {
+        scrapedWebPages(pagination: { limit: 1000 }) {
           data {
             id
             attributes {
