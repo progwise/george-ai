@@ -1,8 +1,8 @@
 import {
-  PublicationState,
-  calculatePopularity,
+  //   PublicationState,
+  //   calculatePopularity,
   ensureSummaryCollection,
-  upsertSummaryDocument,
+  //   upsertSummaryDocument,
 } from '@george-ai/typesense-client'
 import pMap from 'p-map'
 import { getAllSummaries } from '@george-ai/strapi-client'
@@ -15,15 +15,15 @@ export const rebuildCollection = async () => {
     console.log('No webPageSummaries found')
     return
   }
-  // try {
-  //   // await ensureSummaryCollection()
-  //   // await createVectorStoreWithTypesense()
-  // } catch (error) {
-  //   console.error(
-  //     'An error occurred while ensuring the summary collection exists:',
-  //     error,
-  //   )
-  // }
+  try {
+    await ensureSummaryCollection()
+    // await createVectorStoreWithTypesense()
+  } catch (error) {
+    console.error(
+      'An error occurred while ensuring the summary collection exists:',
+      error,
+    )
+  }
 
   const documents: Document[] = allSummaries.map((summary): Document => {
     return new Document({

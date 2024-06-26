@@ -28,22 +28,24 @@ const typesenseVectorStoreConfig = {
   // Typesense client
   typesenseClient: vectorTypesenseClient,
   // Name of the collection to store the vectors in
-  schemaName: 'summaryCollectionSchema',
+  schemaName: 'scraped_web_pages_summaries',
   // Optional column names to be used in Typesense
   columnNames: {
     // "vec" is the default name for the vector column in Typesense but you can change it to whatever you want
     vector: 'vec',
     // "text" is the default name for the text column in Typesense but you can change it to whatever you want
-    pageContent: 'text',
+    pageContent: 'originalContent',
     // Names of the columns that you will save in your typesense schema and need to be retrieved as metadata when searching
     metadataColumnNames: [
-      // Can we remove this?
-      'foo',
-      'bar',
-      'baz',
-
-      'url',
       'id',
+      'title',
+      'url',
+      'language',
+      'publicationState',
+      'keywords',
+      'summary',
+      'largeLanguageModel',
+      'popularity',
     ],
   },
   // Optional search parameters to be passed to Typesense when searching
