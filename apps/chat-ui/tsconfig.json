@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "types": ["@remix-run/node", "vite/client"],
+      "skipLibCheck": true,
+      "module": "ESNext",
+      "moduleResolution": "Bundler"
+    }
+  }
+  

@@ -1,0 +1,25 @@
+{
+  "name": "chat-ui",
+  "packageManager": "yarn@3.6.1",
+  "type": "module",
+  "scripts": {
+    "dev": "remix vite:dev",
+    "build": "remix vite:build",
+    "start": "remix-serve ./build/server/index.js"
+  },
+  "dependencies": {
+    "@remix-run/dev": "^2.10.2",
+    "@remix-run/node": "^2.10.2",
+    "@remix-run/react": "^2.10.2",
+    "@remix-run/serve": "^2.10.2",
+    "create-remix": "latest",
+    "isbot": "4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.3.3"
+  },
+  "devDependencies": {
+    "daisyui": "latest",
+    "tailwindcss": "^3.4.4"
+  }
+}

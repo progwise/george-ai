@@ -21,5 +21,13 @@
     "@graphql-codegen/client-preset": "^4.1.0",
     "prettier": "^3.0.1",
     "turbo": "latest"
+  },
+  "dependencies": {
+    "@remix-run/express": "^2.10.2",
+    "@remix-run/serve": "^2.10.2",
+    "create-remix": "latest",
+    "cross-env": "^7.0.3",
+    "express": "^4.19.2",
+    "uninstall": "^0.0.0"
   }
 }
