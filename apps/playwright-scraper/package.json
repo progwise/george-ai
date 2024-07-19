@@ -17,11 +17,12 @@
   "dependencies": {
     "@george-ai/strapi-client": "*",
     "@urql/core": "^4.1.0",
+    "dotenv": "^16.4.5",
     "dotenv-cli": "^7.3.0",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
-    "openai": "^3.3.0",
+    "openai": "^4.45.0",
     "p-map": "^6.0.0",
     "playwright-chromium": "^1.36.1",
     "pmap": "^2.0.0",
