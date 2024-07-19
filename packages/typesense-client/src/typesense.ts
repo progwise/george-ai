@@ -1,5 +1,6 @@
 import { Client } from 'typesense'
-
+import dotenv from 'dotenv'
+dotenv.config()
 export const typesenseClient = new Client({
   nodes: [
     {

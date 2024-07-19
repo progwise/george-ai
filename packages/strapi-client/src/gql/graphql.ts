@@ -2498,6 +2498,22 @@ export const GetAllScrapedWebPagesDocument = {
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'scrapedWebPages' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pagination' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: { kind: 'IntValue', value: '1000' },
+                    },
+                  ],
+                },
+              },
+            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -3098,6 +3114,20 @@ export const GetWebPageSummariesDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'locale' },
                 value: { kind: 'StringValue', value: 'all', block: false },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'pagination' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'limit' },
+                      value: { kind: 'IntValue', value: '1000' },
+                    },
+                  ],
+                },
               },
             ],
             selectionSet: {

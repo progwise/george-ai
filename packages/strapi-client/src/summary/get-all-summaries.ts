@@ -6,7 +6,11 @@ export const getAllSummaries = async () => {
   const { webPageSummaries } = await strapiClient.request(
     graphql(`
       query GetWebPageSummaries {
-        webPageSummaries(publicationState: PREVIEW, locale: "all") {
+        webPageSummaries(
+          publicationState: PREVIEW
+          locale: "all"
+          pagination: { limit: 1000 }
+        ) {
           data {
             id
             attributes {
