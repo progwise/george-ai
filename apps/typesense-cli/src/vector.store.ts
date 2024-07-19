@@ -34,7 +34,7 @@ const typesenseVectorStoreConfig = {
     // "vec" is the default name for the vector column in Typesense but you can change it to whatever you want
     vector: 'vec',
     // "text" is the default name for the text column in Typesense but you can change it to whatever you want
-    pageContent: 'originalContent',
+    pageContent: 'text',
     // Names of the columns that you will save in your typesense schema and need to be retrieved as metadata when searching
     metadataColumnNames: [
       'id',

@@ -25,12 +25,14 @@ export const rebuildCollection = async () => {
     )
   }
 
-  const documents: Document[] = allSummaries.map((summary): Document => {
-    return new Document({
-      pageContent: summary.originalContent,
-      metadata: { url: summary.url, id: summary.id },
-    })
-  })
+  const documents: Document[] = allSummaries.map(
+    ({ originalContent, ...metadata }): Document => {
+      return new Document({
+        pageContent: originalContent,
+        metadata,
+      })
+    },
+  )
   // await createVectorStoreWithTypesense()
   await createVectorStoreWithTypesense(documents)
 

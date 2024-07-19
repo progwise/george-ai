@@ -17,7 +17,7 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, UnstructuredExcelLoader, TextLoader
 import os
 
-data_directory = './docs/A-Schein.xlsx'
+data_directory = './docs/.'
 
 # Extract the directory part
 data_directory = os.path.dirname(data_directory)

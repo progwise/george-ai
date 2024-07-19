@@ -65,7 +65,7 @@ def get_documents(data_directory):
     return split_docs
 
 
-def create_db(docs):
+def create_db():
     embeddings = OpenAIEmbeddings()
     # FAISS configuration is replaced by Typesense
     docsearch = Typesense.from_client_params(
@@ -73,8 +73,8 @@ def create_db(docs):
         host="localhost",
         port="8108",
         protocol="http",
-        typesense_collection_name="lang-chain",
-        typesense_api_key="xyz" 
+        typesense_collection_name="scraped_web_pages_summaries",
+        typesense_api_key="xyz",
     )
     return docsearch
 
@@ -125,8 +125,8 @@ def process_chat(chain, question, chat_history):
 
 if __name__ == '__main__':
 
-    docs = get_documents(data_directory)
-    vectorStore = create_db(docs)
+    # docs = get_documents(data_directory)
+    vectorStore = create_db()
     chain = create_chain(vectorStore)
 
     chat_history = []
