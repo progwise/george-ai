@@ -27,6 +27,7 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 // iii) understand how tools are selected and queried? When does the chatbot agent use which tool?
 // iv) build a configuration route to add and activate configurations for the chatbot
 
+// eslint-disable-next-line no-unused-vars
 const chatbotConfiguration = {
   name: 'config 1',
   systemPrompt:

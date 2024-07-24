@@ -1,16 +1,20 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next.js
+/.next
+
+# production
+/build
+
+# misc
 .DS_Store
 .cache
-.turbo
 dist
-.next
-node_modules
-.env
-gaidata
-build
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+
+# local env files
+.env*.local
