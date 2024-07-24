@@ -29,25 +29,27 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 
 const chatbotConfiguration = {
   name: 'config 1',
-  systemPrompt: 'Du hilfst Angestellten bei der Suche von Information aus dem Intranet.', // more than 1 prompt??
+  systemPrompt:
+    'Du hilfst Angestellten bei der Suche von Information aus dem Intranet.', // more than 1 prompt??
   tools: [
     {
       type: 'cheerioWebLoader',
-      urls: ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/']
-    }, {
-      type: 'tavilySearchTool'
-    }, {
+      urls: ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/'],
+    },
+    {
+      type: 'tavilySearchTool',
+    },
+    {
       type: 'georgeAiTypesenseSearchTool',
       // ??
-    }
-  ]
+    },
+  ],
 }
 
 // v) how to build a UI to store several configurations to some DB  and activate one of them ? localhost:5173/configuration
 // vi) clear button for the chat history
 // vii) do not use send button, just send on Return key
 // viii) do it in typescript
-
 
 // Create Retriever
 const urls = ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/']

@@ -47,7 +47,9 @@ export const ChatUI = () => {
 
   return (
     <div
-      className={`fixed bottom-0 right-0 w-96 shadow-lg rounded-lg overflow-hidden flex flex-col ${isMinimized ? 'h-12' : 'h-96'}`}
+      className={`fixed bottom-0 right-0 w-96 shadow-lg rounded-lg overflow-hidden flex flex-col ${
+        isMinimized ? 'h-12' : 'h-96'
+      }`}
     >
       <div className="sticky top-0 bg-primary text-primary-content p-2 flex justify-between items-center h-12">
         <span>George AI</span>
