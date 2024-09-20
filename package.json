@@ -21,8 +21,5 @@
     "@graphql-codegen/client-preset": "^4.1.0",
     "prettier": "^3.0.1",
     "turbo": "latest"
-  },
-  "dependencies": {
-    "openai": "^4.51.0"
   }
 }

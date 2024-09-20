@@ -2461,8 +2461,8 @@ __metadata:
     graphql-yoga: ^4.0.3
     next: 13.4.12
     postcss: 8.4.27
-    react: 18.3.1
-    react-dom: 18.3.1
+    react: 18.2.0
+    react-dom: 18.2.0
     react-icons: ^4.10.1
     tailwindcss: 3.3.3
     typescript: ^5.2.2
@@ -2486,7 +2486,7 @@ __metadata:
     graphql: ^16.7.1
     graphql-request: ^6.1.0
     graphql-tag: ^2.12.6
-    openai: ^4.45.0
+    openai: ^3.3.0
     p-map: ^6.0.0
     playwright-chromium: ^1.36.1
     pmap: ^2.0.0
@@ -6601,20 +6601,6 @@ __metadata:
     prettier: 2.8.4
     typescript: 5.1.3
   checksum: 320ae5c528e2a50671721f7d5d0a44b728221e8e23eb73506e453b3276787e9553a0bc4b7283255d15ad202c827791a937cbd52998b752d9fc6156bf1e0ee242
-  languageName: node
-  linkType: hard
-
-"@strapi/typescript-utils@npm:^4.25.4":
-  version: 4.25.4
-  resolution: "@strapi/typescript-utils@npm:4.25.4"
-  dependencies:
-    chalk: 4.1.2
-    cli-table3: 0.6.2
-    fs-extra: 10.0.0
-    lodash: 4.17.21
-    prettier: 2.8.4
-    typescript: 5.2.2
-  checksum: 42ebbe0436655d5e1c1f3b203671974739ca3d1eded2b36b8cf1916a54e8d071497b0b7e5f3529eecffb5b11e8abea270322aa3f347e67eb81bef172060ddfb5
   languageName: node
   linkType: hard
 
@@ -14104,7 +14090,6 @@ __metadata:
     "@strapi/plugin-i18n": 4.12.0
     "@strapi/plugin-users-permissions": 4.12.0
     "@strapi/strapi": 4.12.0
-    "@strapi/typescript-utils": ^4.25.4
     better-sqlite3: 8.0.1
     eslint-config-custom: "*"
   languageName: unknown
@@ -14116,7 +14101,6 @@ __metadata:
   dependencies:
     "@graphql-codegen/cli": ^5.0.0
     "@graphql-codegen/client-preset": ^4.1.0
-    openai: ^4.51.0
     prettier: ^3.0.1
     turbo: latest
   languageName: unknown
@@ -19919,7 +19903,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openai@npm:^4.19.0, openai@npm:^4.41.1, openai@npm:^4.45.0, openai@npm:^4.49.1, openai@npm:^4.52.7":
+"openai@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "openai@npm:3.3.0"
+  dependencies:
+    axios: ^0.26.0
+    form-data: ^4.0.0
+  checksum: 28ccff8c09b6f47828c9583bb3bafc38a8459c76ea10eb9e08ca880f65523c5a9cc6c5f3c7669dded6f4c93e7cf49dd5c4dbfd12732a0f958c923117740d677b
+  languageName: node
+  linkType: hard
+
+"openai@npm:^4.19.0, openai@npm:^4.41.1, openai@npm:^4.49.1, openai@npm:^4.52.7":
   version: 4.52.7
   resolution: "openai@npm:4.52.7"
   dependencies:
@@ -19934,24 +19928,6 @@ __metadata:
   bin:
     openai: bin/cli
   checksum: dcf5adc107366c91276a93ec338bb50e82f98048d18ac9bc330e05327fea854404f6ee40b1012c0f99e290afc174d9b886b8fe37f864c22ece30c53c666ed2e1
-  languageName: node
-  linkType: hard
-
-"openai@npm:^4.51.0":
-  version: 4.53.0
-  resolution: "openai@npm:4.53.0"
-  dependencies:
-    "@types/node": ^18.11.18
-    "@types/node-fetch": ^2.6.4
-    abort-controller: ^3.0.0
-    agentkeepalive: ^4.2.1
-    form-data-encoder: 1.7.2
-    formdata-node: ^4.3.2
-    node-fetch: ^2.6.7
-    web-streams-polyfill: ^3.2.1
-  bin:
-    openai: bin/cli
-  checksum: 302699c0129c60f71078f3a808a096cfd9dccf10d2335093dd106bb7875f8b5387d92aa1f099a0a8d71438ef0d9b76aaf357bac1837b5b3c466a3974cfad0367
   languageName: node
   linkType: hard
 
@@ -21178,6 +21154,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:18.2.0":
+  version: 18.2.0
+  resolution: "react-dom@npm:18.2.0"
+  dependencies:
+    loose-envify: ^1.1.0
+    scheduler: ^0.23.0
+  peerDependencies:
+    react: ^18.2.0
+  checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:18.3.1, react-dom@npm:^18.2.0":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
@@ -21534,6 +21522,15 @@ __metadata:
     react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: a19f43b9015fb84e16db983617dac618a8b298881d2ca96ffc2fb00534afd958ee57a00fd0017733b56f8c34dd84e5be59337877aed3c66329ed3b84e8d018ba
+  languageName: node
+  linkType: hard
+
+"react@npm:18.2.0":
+  version: 18.2.0
+  resolution: "react@npm:18.2.0"
+  dependencies:
+    loose-envify: ^1.1.0
+  checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
   languageName: node
   linkType: hard
 
@@ -22436,7 +22433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.2":
+"scheduler@npm:^0.23.0, scheduler@npm:^0.23.2":
   version: 0.23.2
   resolution: "scheduler@npm:0.23.2"
   dependencies:
@@ -24530,7 +24527,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.2.2, typescript@npm:^5.2.2":
+"typescript@npm:^5.2.2":
   version: 5.2.2
   resolution: "typescript@npm:5.2.2"
   bin:
@@ -24560,7 +24557,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@5.2.2#~builtin<compat/typescript>, typescript@patch:typescript@^5.2.2#~builtin<compat/typescript>":
+"typescript@patch:typescript@^5.2.2#~builtin<compat/typescript>":
   version: 5.2.2
   resolution: "typescript@patch:typescript@npm%3A5.2.2#~builtin<compat/typescript>::version=5.2.2&hash=14eedb"
   bin:

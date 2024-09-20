@@ -22,7 +22,7 @@
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
-    "openai": "^4.45.0",
+    "openai": "^3.3.0",
     "p-map": "^6.0.0",
     "playwright-chromium": "^1.36.1",
     "pmap": "^2.0.0",
