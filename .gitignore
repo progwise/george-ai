@@ -4,6 +4,8 @@ dist
 .next
 node_modules
 .env
+.env*.local
+.cache
 gaidata
 build
 .pnp.*
