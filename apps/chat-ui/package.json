@@ -13,7 +13,8 @@
     "devserver": "nodemon app.js"
   },
   "dependencies": {
-    "@langchain/community": "^0.2.19",
+    "@langchain/community": "^0.3.6",
+    "@langchain/core": "^0.3.13",
     "@langchain/openai": "^0.0.10",
     "@remix-run/node": "^2.10.2",
     "@remix-run/react": "^2.10.2",
@@ -29,6 +30,7 @@
     "mammoth": "^1.8.0",
     "nodemon": "^3.0.2",
     "openai": "^4.52.7",
+    "pdf-parse": "^1.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "^5.2.1",

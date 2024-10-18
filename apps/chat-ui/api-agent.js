@@ -8,7 +8,7 @@ import {
 import { ChatOpenAI } from '@langchain/openai'
 
 import { AIMessage, HumanMessage } from '@langchain/core/messages'
-
+import {RunnableMap, RunnablePassthrough} from '@langchain/core/runnables'
 import { AgentExecutor, createOpenAIFunctionsAgent } from 'langchain/agents'
 
 // Tool imports
@@ -20,6 +20,11 @@ import { OpenAIEmbeddings } from '@langchain/openai'
 import { CheerioWebBaseLoader } from 'langchain/document_loaders/web/cheerio'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
+import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
+
+import { StringOutputParser } from "@langchain/core/output_parsers";
+
+
 
 //
 // i) Add new tool to make the george ai typesense search on the scraped pages
@@ -28,24 +33,24 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 // iv) build a configuration route to add and activate configurations for the chatbot
 
 // eslint-disable-next-line no-unused-vars
-const chatbotConfiguration = {
-  name: 'config 1',
-  systemPrompt:
-    'Du hilfst Angestellten bei der Suche von Information aus dem Intranet.', // more than 1 prompt??
-  tools: [
-    {
-      type: 'cheerioWebLoader',
-      urls: ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/'],
-    },
-    {
-      type: 'tavilySearchTool',
-    },
-    {
-      type: 'georgeAiTypesenseSearchTool',
-      // ??
-    },
-  ],
-}
+// const chatbotConfiguration = {
+//   name: 'config 1',
+//   systemPrompt:
+//     'Du hilfst Angestellten bei der Suche von Information aus dem Intranet.', // more than 1 prompt??
+//   tools: [
+//     {
+//       type: 'cheerioWebLoader',
+//       urls: ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/'],
+//     },
+//     {
+//       type: 'tavilySearchTool',
+//     },
+//     {
+//       type: 'georgeAiTypesenseSearchTool',
+//       // ??
+//     },
+//   ],
+// }
 
 // v) how to build a UI to store several configurations to some DB  and activate one of them ? localhost:5173/configuration
 // vi) clear button for the chat history
@@ -53,10 +58,18 @@ const chatbotConfiguration = {
 // viii) do it in typescript
 
 // Create Retriever
-const urls = ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/']
+// const urls = ['https://www.progwise.net/', 'https://prof.um.ac.ir/akbazar/']
 
-const loader = new CheerioWebBaseLoader(urls)
+// const loader = new CheerioWebBaseLoader(urls)
+
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+
+const mag_example1 = "./data/mag_example1.pdf";
+
+const loader = new PDFLoader(mag_example1);
+
 const docs = await loader.load()
+// console.log(docs[0])
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 200,
@@ -70,7 +83,7 @@ const embeddings = new OpenAIEmbeddings()
 const vectorStore = await MemoryVectorStore.fromDocuments(splitDocs, embeddings)
 
 const retriever = vectorStore.asRetriever({
-  k: 2,
+  k: 10,
 })
 
 // Instantiate the model
@@ -81,45 +94,67 @@ const model = new ChatOpenAI({
 
 // Prompt Template
 const prompt = ChatPromptTemplate.fromMessages([
-  ('system', 'You are a helpful assistant.'),
-  new MessagesPlaceholder('chat_history'),
+  ('system', `You are a helpful assistant.
+    Use the following pieces of retrieved context to answer 
+    the question. If you don't know the answer, say that you 
+    don't know. Use three sentences maximum and keep the
+    answer concise.
+
+    `),
+  //new MessagesPlaceholder('chat_history'),
   ('human', '{input}'),
-  new MessagesPlaceholder('agent_scratchpad'),
+  //new MessagesPlaceholder('agent_scratchpad'),
 ])
 
+const chain1 = prompt.pipe(model)
+
+const map1 = RunnableMap.from({
+  input: new RunnablePassthrough(),
+  docs: retriever
+})
+
+const chain2 = map1.assign({answer: chain1}).pick(['answer'])
+// const chain2 = createStuffDocumentsChain({
+//   llm: model,
+//   prompt,
+//   outputParser: new StringOutputParser(),}
+// )
+const response = await chain2.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?')
+console.log(response)
+
 // Tools
-const searchTool = new TavilySearchResults()
-const retrieverTool = createRetrieverTool(retriever, {
-  name: 'lcel_search',
-  description:
-    'Use this tool when searching for information about provided URLs.',
-})
+// const searchTool = new TavilySearchResults()
+// const retrieverTool = createRetrieverTool(retriever, {
+//   name: 'lcel_search',
+//   description:
+//     'Use this tool when searching for information about provided URLs.',
+// })
 
-const tools = [searchTool, retrieverTool]
+// const tools = [searchTool, retrieverTool]
 
-const agent = await createOpenAIFunctionsAgent({
-  llm: model,
-  prompt,
-  tools,
-})
+// const agent = await createOpenAIFunctionsAgent({
+//   llm: model,
+//   prompt,
+//   tools,
+// })
 
 // Create the executor
-const agentExecutor = new AgentExecutor({
-  agent,
-  tools,
-})
+// const agentExecutor = new AgentExecutor({
+//   agent,
+//   tools,
+// })
 
-const chat_history = []
+// const chat_history = []
 
-export async function handleUserInput(input) {
-  // agent.
-  const response = await agentExecutor.invoke({
-    input: input,
-    chat_history: chat_history,
-  })
+// export async function handleUserInput(input) {
+//   // agent.
+//   const response = await agentExecutor.invoke({
+//     input: input,
+//     chat_history: chat_history,
+//   })
 
-  chat_history.push(new HumanMessage(input))
-  chat_history.push(new AIMessage(response.output))
+//   chat_history.push(new HumanMessage(input))
+//   chat_history.push(new AIMessage(response.output))
 
-  return response.output
-}
+//   return response.output
+// }
