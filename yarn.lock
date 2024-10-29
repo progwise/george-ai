@@ -4177,7 +4177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@langchain/core@npm:~0.1.60, @langchain/core@npm:~0.1.9":
+"@langchain/core@npm:~0.1.60":
   version: 0.1.63
   resolution: "@langchain/core@npm:0.1.63"
   dependencies:
@@ -4211,16 +4211,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@langchain/openai@npm:^0.0.10":
-  version: 0.0.10
-  resolution: "@langchain/openai@npm:0.0.10"
+"@langchain/openai@npm:^0.3.11":
+  version: 0.3.11
+  resolution: "@langchain/openai@npm:0.3.11"
   dependencies:
-    "@langchain/core": ~0.1.9
-    js-tiktoken: ^1.0.7
-    openai: ^4.19.0
-    zod: ^3.22.3
-    zod-to-json-schema: 3.20.3
-  checksum: 1bee02b30ee99f6f7dd0d83ed471bfa19245ff1621116725623a8fa2b7566288006613497a5df2b2309d77569fc974d6b9ce2c174f00c3edcdac6e73b462bddf
+    js-tiktoken: ^1.0.12
+    openai: ^4.68.0
+    zod: ^3.22.4
+    zod-to-json-schema: ^3.22.3
+  peerDependencies:
+    "@langchain/core": ">=0.2.26 <0.4.0"
+  checksum: ea0fe974320a387469b91312c2a2a0ee80f194c7954b8aca0d8ab9cf68fd25ef74663af2e644d217257f2317dee2ac04ff0006b5dd9d3701f52daabfa097d868
   languageName: node
   linkType: hard
 
@@ -10093,7 +10094,7 @@ __metadata:
   dependencies:
     "@langchain/community": ^0.3.6
     "@langchain/core": ^0.3.13
-    "@langchain/openai": ^0.0.10
+    "@langchain/openai": ^0.3.11
     "@remix-run/dev": ^2.10.2
     "@remix-run/node": ^2.10.2
     "@remix-run/react": ^2.10.2
@@ -19863,7 +19864,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"openai@npm:^4.19.0, openai@npm:^4.41.1, openai@npm:^4.52.7":
+"openai@npm:^4.41.1, openai@npm:^4.52.7":
   version: 4.52.7
   resolution: "openai@npm:4.52.7"
   dependencies:
@@ -19900,6 +19901,28 @@ __metadata:
   bin:
     openai: bin/cli
   checksum: 2866e54ac1b34e074055dde7cc809bcc33d1172f0ab289dacd54ced04a62ab3c2b9f584fdb84ece981edc5c30939497af4e91fe33646f71d5c6ced5d7106a797
+  languageName: node
+  linkType: hard
+
+"openai@npm:^4.68.0":
+  version: 4.68.4
+  resolution: "openai@npm:4.68.4"
+  dependencies:
+    "@types/node": ^18.11.18
+    "@types/node-fetch": ^2.6.4
+    abort-controller: ^3.0.0
+    agentkeepalive: ^4.2.1
+    form-data-encoder: 1.7.2
+    formdata-node: ^4.3.2
+    node-fetch: ^2.6.7
+  peerDependencies:
+    zod: ^3.23.8
+  peerDependenciesMeta:
+    zod:
+      optional: true
+  bin:
+    openai: bin/cli
+  checksum: 7a17a5f51ec5f9799ca0fd68b329e169a6ae98a22d9dc388c62404a701edb159bc569d49154e147f3b84d9be24d496c3079269395f731d133789d0488446375c
   languageName: node
   linkType: hard
 
@@ -26147,15 +26170,6 @@ __metadata:
     property-expr: ^2.0.4
     toposort: ^2.0.2
   checksum: 43a16786b47cc910fed4891cebdd89df6d6e31702e9462e8f969c73eac88551ce750732608012201ea6b93802c8847cb0aa27b5d57370640f4ecf30f9f97d4b0
-  languageName: node
-  linkType: hard
-
-"zod-to-json-schema@npm:3.20.3":
-  version: 3.20.3
-  resolution: "zod-to-json-schema@npm:3.20.3"
-  peerDependencies:
-    zod: ^3.20.0
-  checksum: 1addf7e6f7d69398404dc90f5c9b76ea44e3f6deeb2fc7c72983a00e15b7340661d7e894b0a4eee3a07334dcdcc79d7064e44de46b4acc37d38ab2f3f7217ec8
   languageName: node
   linkType: hard
 

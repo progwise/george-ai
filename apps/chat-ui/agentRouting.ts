@@ -21,25 +21,6 @@ Do not use more than 100 words.
 Here is a question:
 {query}`
 
-const promptWebsearch = ChatPromptTemplate.fromMessages([
-  ('system',
-  `You are a helpful assistant.
-    Use the following pieces of retrieved context to answer 
-    the question. If you don't know the answer, say that you 
-    don't know. Use three sentences maximum and keep the
-    answer concise.
-
-    State that you cannot answer if there were no data about the question in the context.
-
-    This is the context:
-
-    {context}
-    `),
-  //new MessagesPlaceholder('chat_history'),
-  ('human', '{input}'),
-  //new MessagesPlaceholder('agent_scratchpad'),
-])
-
 const embeddings = new OpenAIEmbeddings({})
 
 const templates = [physicsTemplate, mathTemplate]

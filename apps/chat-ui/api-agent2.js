@@ -38,9 +38,9 @@ const retrieverLocal = vectorStore.asRetriever({
   k: 10,
 })
 
-const retrieverWeb = new TavilySearchAPIRetriever({
-  k: 6, // Number of articles to retrieve
-})
+// const retrieverWeb = new TavilySearchAPIRetriever({
+//   k: 6, // Number of articles to retrieve
+// })
 
 // Instantiate the model
 const model = new ChatOpenAI({
@@ -80,11 +80,23 @@ const chain1 = prompt.pipe(modelWithStructuredOutput)
 const map1 = RunnableMap.from({
   input: new RunnablePassthrough(),
   docs: retrieverLocal,
+  Array,
 })
 
 const chain2 = map1
   .assign({ context: (input) => formatDocumentsAsString(input.docs) })
   .assign({ answer: chain1 })
+  //Add another assign that takes Web retriever
+
+  .assign(({ answer }) => {
+    if (answer.answer) {
+      return { answer: answer.answer }
+    }
+    //Create WebChain and use
+    //return webChain //Add the formatDocumentsAsString and the prompt
+
+    ;({ input: new RunnablePassthrough(), docs: retrieverLocal })
+  })
   .pick(['answer'])
 
 const response = await chain2.invoke(
