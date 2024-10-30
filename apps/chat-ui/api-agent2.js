@@ -4,7 +4,7 @@ dotenv.config()
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { formatDocumentsAsString } from 'langchain/util/document'
-import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
+// import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
 import { RunnableMap, RunnablePassthrough } from '@langchain/core/runnables'
 
 // Custom Data Source, Vector Stores
@@ -56,7 +56,7 @@ const modelWithStructuredOutput = model.withStructuredOutput(
 )
 
 // Prompt Template
-const prompt = ChatPromptTemplate.fromMessages([
+const promptLocal = ChatPromptTemplate.fromMessages([
   ('system',
   `You are a helpful assistant.
     Use the following pieces of retrieved context to answer 
@@ -75,7 +75,7 @@ const prompt = ChatPromptTemplate.fromMessages([
   //new MessagesPlaceholder('agent_scratchpad'),
 ])
 
-const chain1 = prompt.pipe(modelWithStructuredOutput)
+const chainLocal = promptLocal.pipe(modelWithStructuredOutput)
 
 const map1 = RunnableMap.from({
   input: new RunnablePassthrough(),
@@ -85,16 +85,14 @@ const map1 = RunnableMap.from({
 
 const chain2 = map1
   .assign({ context: (input) => formatDocumentsAsString(input.docs) })
-  .assign({ answer: chain1 })
+  .assign({ answer: chainLocal })
   //Add another assign that takes Web retriever
 
   .assign(({ answer }) => {
     if (answer.answer) {
       return { answer: answer.answer }
-    }
-    //Create WebChain and use
+    } //Create WebChain and use
     //return webChain //Add the formatDocumentsAsString and the prompt
-
     ;({ input: new RunnablePassthrough(), docs: retrieverLocal })
   })
   .pick(['answer'])
