@@ -27,34 +27,33 @@ const pdf_file = path.resolve(__dirname, './data/mag_example1.pdf')
 const loader = new PDFLoader(pdf_file)
 const docs = await loader.load()
 
-// Step 1: Split the PDF content
+// Split the PDF content
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 2000,
   chunkOverlap: 200,
 })
 const splitDocs = await splitter.splitDocuments(docs)
 
-// Step 2: Create a Vector Store
+// Create a Vector Store
 const embeddings = new OpenAIEmbeddings()
 const vectorStore = await MemoryVectorStore.fromDocuments(splitDocs, embeddings)
 
 // Local retriever for PDF data
 const retrieverLocal = vectorStore.asRetriever({ k: 2 })
 
-// Uncomment if you have web retrieval (for fallback):
 const retrieverWeb = new TavilySearchAPIRetriever({ k: 3 })
 const retrieverWebTool = createRetrieverTool(retrieverWeb, {
   name: 'web_search',
   description: 'Searches for additional information on the web.',
 })
 
-// Step 3: Instantiate the model
+// Instantiate the model
 const model = new ChatOpenAI({
   modelName: 'gpt-4',
   temperature: 0.2,
 })
 
-// Step 4: Prompt Template
+// Prompt Template
 const prompt = ChatPromptTemplate.fromMessages([
   ['system', 'You are a helpful assistant with memory.'],
   new MessagesPlaceholder('chat_history'),
@@ -67,12 +66,9 @@ const retrieverLocalTool = createRetrieverTool(retrieverLocal, {
   name: 'pdf_search',
   description: 'Retrieves information from the loaded PDF document.',
 })
-const tools = [retrieverLocalTool]
+const tools = [retrieverLocalTool, retrieverWebTool]
 
-// Uncomment to add web retrieval as a fallback:
-tools.push(retrieverWebTool)
-
-// Step 5: Create the agent and executor
+// Create the agent and executor
 const agent = await createOpenAIFunctionsAgent({
   llm: model,
   prompt,
@@ -109,7 +105,6 @@ function askQuestion() {
     let outputText =
       response.output || "I couldn't find relevant information in the PDF."
 
-    // Uncomment this block to enable web retrieval fallback:
     if (!response.output) {
       const webResponse = await agentExecutor.invoke({
         input,
