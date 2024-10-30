@@ -4,7 +4,7 @@ dotenv.config()
 import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { formatDocumentsAsString } from 'langchain/util/document'
-// import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
+import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
 import { RunnableMap, RunnablePassthrough } from '@langchain/core/runnables'
 
 // Custom Data Source, Vector Stores
@@ -38,9 +38,9 @@ const retrieverLocal = vectorStore.asRetriever({
   k: 10,
 })
 
-// const retrieverWeb = new TavilySearchAPIRetriever({
-//   k: 6, // Number of articles to retrieve
-// })
+const retrieverWeb = new TavilySearchAPIRetriever({
+  k: 6, // Number of articles to retrieve
+})
 
 // Instantiate the model
 const model = new ChatOpenAI({
@@ -75,25 +75,35 @@ const promptLocal = ChatPromptTemplate.fromMessages([
   //new MessagesPlaceholder('agent_scratchpad'),
 ])
 
-const chainLocal = promptLocal.pipe(modelWithStructuredOutput)
+const promptChain = promptLocal.pipe(modelWithStructuredOutput)
 
 const map1 = RunnableMap.from({
   input: new RunnablePassthrough(),
   docs: retrieverLocal,
-  Array,
+  // Array,
 })
+
+const map2 = RunnableMap.from({
+  input: new RunnablePassthrough(),
+  docs: retrieverWeb,
+  // Array,
+})
+
+const webChain = map2
+  .assign({ context: (input) => formatDocumentsAsString(input.docs) })
+  .assign({ answer: promptChain })
 
 const chain2 = map1
   .assign({ context: (input) => formatDocumentsAsString(input.docs) })
-  .assign({ answer: chainLocal })
+  .assign({ answer: promptChain })
   //Add another assign that takes Web retriever
 
   .assign(({ answer }) => {
     if (answer.answer) {
       return { answer: answer.answer }
     } //Create WebChain and use
-    //return webChain //Add the formatDocumentsAsString and the prompt
-    ;({ input: new RunnablePassthrough(), docs: retrieverLocal })
+    return webChain //Add the formatDocumentsAsString and the prompt
+    // ;({ input: new RunnablePassthrough(), docs: retrieverLocal })
   })
   .pick(['answer'])
 

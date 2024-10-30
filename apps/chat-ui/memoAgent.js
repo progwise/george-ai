@@ -80,7 +80,7 @@ const agentExecutor = new AgentExecutor({
   tools,
 })
 
-// Step 6: User Interaction via Command Line
+// User Interaction via Command Line
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -101,6 +101,7 @@ function askQuestion() {
       chat_history: chatHistory,
     })
 
+    console.log(`response output:`, response.output)
     // Check if local PDF retrieval had an answer
     let outputText =
       response.output || "I couldn't find relevant information in the PDF."
