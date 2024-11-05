@@ -91,9 +91,11 @@ const map2 = RunnableMap.from({
 
 const webChain = map2
   .assign({ context: (input) => formatDocumentsAsString(input.docs) })
+
   .assign({ answer: promptChain })
   .assign({
     context: (data) => {
+      console.log('web', data.answer)
       return data
     },
   })
@@ -102,6 +104,7 @@ const webChain = map2
 const chain2 = map1
   .assign({
     context: (map1) => {
+      console.log('input', map1.input)
       return formatDocumentsAsString(map1.docs)
     },
   })
@@ -142,4 +145,4 @@ const response = await chain2.invoke(
 )
 //const response = await chain2.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?')
 //const response = await chain2.invoke('Was muss ich mir in Graz unbedingt ansehen?')
-console.log(`MY:`, response)
+console.log(response)
