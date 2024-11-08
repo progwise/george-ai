@@ -5,7 +5,12 @@ import { ChatPromptTemplate } from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { formatDocumentsAsString } from 'langchain/util/document'
 import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
-import { RunnableMap, RunnablePassthrough } from '@langchain/core/runnables'
+import {
+  RunnableMap,
+  RunnablePassthrough,
+  RunnableLambda,
+  RunnableBranch,
+} from '@langchain/core/runnables'
 
 // Custom Data Source, Vector Stores
 import { OpenAIEmbeddings } from '@langchain/openai'
@@ -56,7 +61,7 @@ const modelWithStructuredOutput = model.withStructuredOutput(
 )
 
 // Prompt Template
-const promptLocal = ChatPromptTemplate.fromMessages([
+const prompt = ChatPromptTemplate.fromMessages([
   ('system',
   `You are a helpful assistant.
     Use the following pieces of retrieved context to answer 
@@ -75,7 +80,7 @@ const promptLocal = ChatPromptTemplate.fromMessages([
   //new MessagesPlaceholder('agent_scratchpad'),
 ])
 
-const promptChain = promptLocal.pipe(modelWithStructuredOutput)
+const promptChain = prompt.pipe(modelWithStructuredOutput)
 
 const map1 = RunnableMap.from({
   input: new RunnablePassthrough(),
@@ -84,20 +89,32 @@ const map1 = RunnableMap.from({
 })
 
 const map2 = RunnableMap.from({
-  input: new RunnablePassthrough(),
-  docs: retrieverWeb,
+  input: (input) => input.input,
+  docs: (input) => retrieverWeb.invoke(input.input),
   // Array,
 })
 
 const webChain = map2
-  .assign({ context: (input) => formatDocumentsAsString(input.docs) })
+  .assign({
+    context: (input) => {
+      // console.log('web', input)
+      return formatDocumentsAsString(input.docs)
+    },
+  })
+  // .assign({
+  //   temp: (input) => {
+  //     console.log('assign', input)
+  //     return 'temp'
+  //   },
+  // })
   .assign({ answer: promptChain })
   .assign({
     context: (data) => {
+      console.log('result of promptchain', data)
       return data
     },
   })
-  .pick(['answer'])
+// .pick(['answer'])
 
 const chain2 = map1
   .assign({
@@ -115,6 +132,7 @@ const chain2 = map1
         return { input, docs, context, answer }
       } //Create WebChain and use
       console.log('asking webChain', { input })
+      // return webChain.invoke(input) //Add the formatDocumentsAsString and the prompt
       return webChain.invoke(input) //Add the formatDocumentsAsString and the prompt
     },
   })
@@ -136,10 +154,70 @@ const chain2 = map1
   })
   .pick(['answer'])
 
-const response = await chain2.invoke(
-  //'Ist Empuriabrava ein lohnendes Reiseziel?',
-  'Ist Greifswald ein lohnendes Reiseziel?',
+const formatDocs = new RunnableLambda({
+  func: (input) => {
+    return {
+      ...input,
+      context: formatDocumentsAsString(input.docs),
+    }
+  },
+})
+
+const outputChain = new RunnableLambda({
+  func: (input) => {
+    return {
+      answer: input.answerFromPrompt.answer,
+    }
+  },
+})
+
+// const debuggerChain = (tag) =>
+//   new RunnableLambda({
+//     func: (input) => {
+//       console.log('debug', tag, input)
+//       return input
+//     },
+//   })
+
+const webChain2 = map2
+  // .pipe(debuggerChain('after retrieve'))
+  .pipe(formatDocs)
+  // .pipe(debuggerChain('after formatting'))
+  .assign({ answerFromPrompt: promptChain })
+  // .pipe(debuggerChain('after prompt'))
+  .pipe(outputChain)
+
+const chain3 = map1.pipe(formatDocs).pipe(
+  RunnableMap.from({
+    input: (input) => input.input,
+    answerFromPrompt: promptChain,
+  }).pipe(
+    RunnableBranch.from([
+      [
+        (input) => {
+          const noDataInPdfFound = !input.answerFromPrompt.answer
+
+          if (noDataInPdfFound) {
+            console.log("Couldn't find any information in pdf, use web instead")
+          }
+
+          return noDataInPdfFound
+        },
+        webChain2,
+      ],
+      outputChain,
+    ]),
+  ),
 )
+// console.log(await chain3.invoke('Ist Greifswald ein lohnendes Reiseziel?'))
+console.log(
+  await chain3.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
+)
+
+// const response = await chain2.invoke(
+//   //'Ist Empuriabrava ein lohnendes Reiseziel?',
+//   'Ist Greifswald ein lohnendes Reiseziel?',
+// )
 //const response = await chain2.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?')
-//const response = await chain2.invoke('Was muss ich mir in Graz unbedingt ansehen?')
-console.log(`MY:`, response)
+// //const response = await chain2.invoke('Was muss ich mir in Graz unbedingt ansehen?')
+// console.log(`MY:`, response)
