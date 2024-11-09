@@ -212,6 +212,7 @@ const chain3 = map1.pipe(formatDocs).pipe(
 // console.log(await chain3.invoke('Ist Greifswald ein lohnendes Reiseziel?'))
 console.log(
   await chain3.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
+  // await chain3.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
 )
 
 // const response = await chain2.invoke(
