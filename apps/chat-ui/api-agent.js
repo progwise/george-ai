@@ -94,65 +94,65 @@ const map2 = RunnableMap.from({
   // Array,
 })
 
-const webChain = map2
-  .assign({
-    context: (input) => {
-      // console.log('web', input)
-      return formatDocumentsAsString(input.docs)
-    },
-  })
-  // .assign({
-  //   temp: (input) => {
-  //     console.log('assign', input)
-  //     return 'temp'
-  //   },
-  // })
-  .assign({ answer: promptChain })
-  .assign({
-    context: (data) => {
-      console.log('result of promptchain', data)
-      return data
-    },
-  })
+// const webChain = map2
+//   .assign({
+//     context: (input) => {
+//       // console.log('web', input)
+//       return formatDocumentsAsString(input.docs)
+//     },
+//   })
+// .assign({
+//   temp: (input) => {
+//     console.log('assign', input)
+//     return 'temp'
+//   },
+// })
+// .assign({ answer: promptChain })
+// .assign({
+//   context: (data) => {
+//     console.log('result of promptchain', data)
+//     return data
+//   },
+// })
 // .pick(['answer'])
 
-const chain2 = map1
-  .assign({
-    context: (map1) => {
-      return formatDocumentsAsString(map1.docs)
-    },
-  })
-  .assign({ answer: promptChain })
-  .assign({
-    context: ({ input, docs, context, answer }) => {
-      //console.log('huhu', Object.keys(data))
-      // return data
-      console.log('local answer', answer.answer)
-      if (answer.answer) {
-        return { input, docs, context, answer }
-      } //Create WebChain and use
-      console.log('asking webChain', { input })
-      // return webChain.invoke(input) //Add the formatDocumentsAsString and the prompt
-      return webChain.invoke(input) //Add the formatDocumentsAsString and the prompt
-    },
-  })
-  //Add another assign that takes Web retriever
+// const chain2 = map1
+//   .assign({
+//     context: (map1) => {
+//       return formatDocumentsAsString(map1.docs)
+//     },
+//   })
+//   .assign({ answer: promptChain })
+//   .assign({
+//     context: ({ input, docs, context, answer }) => {
+//       //console.log('huhu', Object.keys(data))
+//       // return data
+//       console.log('local answer', answer.answer)
+//       if (answer.answer) {
+//         return { input, docs, context, answer }
+//       } //Create WebChain and use
+//       console.log('asking webChain', { input })
+//       // return webChain.invoke(input) //Add the formatDocumentsAsString and the prompt
+//       return webChain.invoke(input) //Add the formatDocumentsAsString and the prompt
+//     },
+//   })
+//Add another assign that takes Web retriever
 
-  // .assign(({ answer }) => {
-  //   console.log(`Hi`, answer)
-  //   if (answer.answer) {
-  //     return { answer: answer.answer }
-  //   } //Create WebChain and use
-  //   return webChain //Add the formatDocumentsAsString and the prompt
-  //   // ;({ input: new RunnablePassthrough(), docs: retrieverLocal })
-  // })
-  .assign({
-    context: (data) => {
-      console.log('after', Object.keys(data.context))
-      return data.context
-    },
-  })
-  .pick(['answer'])
+// .assign(({ answer }) => {
+//   console.log(`Hi`, answer)
+//   if (answer.answer) {
+//     return { answer: answer.answer }
+//   } //Create WebChain and use
+//   return webChain //Add the formatDocumentsAsString and the prompt
+//   // ;({ input: new RunnablePassthrough(), docs: retrieverLocal })
+// })
+// .assign({
+//   context: (data) => {
+//     console.log('after', Object.keys(data.context))
+//     return data.context
+//   },
+// })
+// .pick(['answer'])
 
 const formatDocs = new RunnableLambda({
   func: (input) => {
@@ -211,8 +211,8 @@ const chain3 = map1.pipe(formatDocs).pipe(
 )
 // console.log(await chain3.invoke('Ist Greifswald ein lohnendes Reiseziel?'))
 console.log(
-  // await chain3.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
-  await chain3.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
+  await chain3.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
+  // await chain3.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
 )
 
 // const response = await chain2.invoke(

@@ -94,27 +94,27 @@ const map2 = RunnableMap.from({
   // Array,
 })
 
-const webChain = map2
-  .assign({
-    context: (input) => {
-      return formatDocumentsAsString(input.docs)
-    },
-  })
+//   const webChain = map2
+//   .assign({
+//     context: (input) => {
+//       return formatDocumentsAsString(input.docs)
+//     },
+//   })
 
-  .assign({ answer: promptChain })
-  .assign({
-    context: (data) => {
-      console.log('result of promptchain', data)
-      return data
-    },
-  })
-  .assign({
-    context: (data) => {
-      console.log('after', Object.keys(data.context))
-      return data.context
-    },
-  })
-  .pick(['answer'])
+//   .assign({ answer: promptChain })
+//   .assign({
+//     context: (data) => {
+//       console.log('result of promptchain', data)
+//       return data
+//     },
+//   })
+//   .assign({
+//     context: (data) => {
+//       console.log('after', Object.keys(data.context))
+//       return data.context
+//     },
+//   })
+//   .pick(['answer'])
 
 const formatDocs = new RunnableLambda({
   func: (input) => {
