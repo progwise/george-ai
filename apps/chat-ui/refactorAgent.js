@@ -127,7 +127,7 @@ const webChain = mapWeb
   // .pipe(debuggerChain('after prompt'))
   .pipe(outputChain)
 
-const chain3 = mapLocal.pipe(formatDocs).pipe(
+const mainChain = mapLocal.pipe(formatDocs).pipe(
   RunnableMap.from({
     input: (input) => input.input,
     answerFromPrompt: promptChain,
@@ -152,6 +152,6 @@ const chain3 = mapLocal.pipe(formatDocs).pipe(
   ),
 )
 console.log(
-  await chain3.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
-  //   await chain3.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
+  //   await mainChain.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
+  await mainChain.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
 )
