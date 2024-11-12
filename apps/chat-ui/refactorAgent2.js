@@ -20,11 +20,11 @@ import { z } from 'zod'
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 
 // Paths and Configurations
-const magExample1 = './data/mag_example1.pdf'
+const pdfFile = './data/mag_example1.pdf'
 const CHUNK_SIZE = 200
 const CHUNK_OVERLAP = 20
 const LOCAL_RETRIEVAL_K = 10
-const WEB_RETRIEVAL_K = 6
+const WEB_RETRIEVAL_K = 10
 
 // Load and split documents
 async function loadAndSplitDocuments(path) {
@@ -67,7 +67,7 @@ function createPromptTemplate() {
 
 // Main function
 async function main() {
-  const splitDocs = await loadAndSplitDocuments(magExample1)
+  const splitDocs = await loadAndSplitDocuments(pdfFile)
   const retrieverLocal = await setupLocalRetriever(splitDocs)
   const retrieverWeb = new TavilySearchAPIRetriever({ k: WEB_RETRIEVAL_K })
 
@@ -84,7 +84,7 @@ async function main() {
   const promptChain = promptTemplate.pipe(modelWithStructuredOutput)
 
   // Helper functions for formatting and output
-  const formatDocs = new RunnableLambda({
+  const formattedInputContext = new RunnableLambda({
     func: (input) => ({
       ...input,
       context: formatDocumentsAsString(input.docs),
@@ -108,12 +108,12 @@ async function main() {
 
   // Set up the web chain
   const webChain = mapWeb
-    .pipe(formatDocs)
+    .pipe(formattedInputContext)
     .assign({ answerFromPrompt: promptChain })
     .pipe(outputChain)
 
   // Main chain with conditional branching
-  const mainChain = mapLocal.pipe(formatDocs).pipe(
+  const mainChain = mapLocal.pipe(formattedInputContext).pipe(
     RunnableMap.from({
       input: (input) => input.input,
       answerFromPrompt: promptChain,
