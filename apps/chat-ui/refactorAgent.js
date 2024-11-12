@@ -82,13 +82,13 @@ const prompt = ChatPromptTemplate.fromMessages([
 
 const promptChain = prompt.pipe(modelWithStructuredOutput)
 
-const map1 = RunnableMap.from({
+const mapLocal = RunnableMap.from({
   input: new RunnablePassthrough(),
   docs: retrieverLocal,
   // Array,
 })
 
-const map2 = RunnableMap.from({
+const mapWeb = RunnableMap.from({
   input: (input) => input.input,
   docs: (input) => retrieverWeb.invoke(input.input),
   // Array,
@@ -119,7 +119,7 @@ const outputChain = new RunnableLambda({
 //     },
 //   })
 
-const webChain2 = map2
+const webChain = mapWeb
   // .pipe(debuggerChain('after retrieve'))
   .pipe(formatDocs)
   // .pipe(debuggerChain('after formatting'))
@@ -127,7 +127,7 @@ const webChain2 = map2
   // .pipe(debuggerChain('after prompt'))
   .pipe(outputChain)
 
-const chain3 = map1.pipe(formatDocs).pipe(
+const chain3 = mapLocal.pipe(formatDocs).pipe(
   RunnableMap.from({
     input: (input) => input.input,
     answerFromPrompt: promptChain,
@@ -145,7 +145,7 @@ const chain3 = map1.pipe(formatDocs).pipe(
 
           return noDataInPdfFound
         },
-        webChain2,
+        webChain,
       ],
       outputChain,
     ]),
