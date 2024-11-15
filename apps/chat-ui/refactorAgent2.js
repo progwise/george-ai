@@ -84,7 +84,7 @@ async function main() {
   const promptChain = promptTemplate.pipe(modelWithStructuredOutput)
 
   // Helper functions for formatting and output
-  const formattedInputContext = new RunnableLambda({
+  const formatDocsRunnable = new RunnableLambda({
     func: (input) => ({
       ...input,
       context: formatDocumentsAsString(input.docs),
@@ -95,8 +95,16 @@ async function main() {
     func: (input) => ({ answer: input.answerFromPrompt.answer }),
   })
 
+  const debuggerRunnable = (tag) =>
+    new RunnableLambda({
+      func: (input) => {
+        console.log('debug', tag, input)
+        return input
+      },
+    })
+
   // Set up retrieval maps
-  const mapLocal = RunnableMap.from({
+  const retrieveFromLocalRunnable = RunnableMap.from({
     input: new RunnablePassthrough(),
     docs: retrieverLocal,
   })
@@ -108,35 +116,39 @@ async function main() {
 
   // Set up the web chain
   const webChain = mapWeb
-    .pipe(formattedInputContext)
+    .pipe(formatDocsRunnable)
     .assign({ answerFromPrompt: promptChain })
     .pipe(outputChain)
 
   // Main chain with conditional branching
-  const mainChain = mapLocal.pipe(formattedInputContext).pipe(
-    RunnableMap.from({
-      input: (input) => input.input,
-      answerFromPrompt: promptChain,
-    }).pipe(
-      RunnableBranch.from([
-        [
-          (input) => {
-            const noDataInPdfFound = !input.answerFromPrompt.answer
+  const mainChain = retrieveFromLocalRunnable
+    .pipe(debuggerRunnable('after local retrieve'))
+    .pipe(formatDocsRunnable)
+    .pipe(debuggerRunnable('after formatting'))
+    .pipe(
+      RunnableMap.from({
+        input: (input) => input.input,
+        answerFromPrompt: promptChain,
+      }).pipe(
+        RunnableBranch.from([
+          [
+            (input) => {
+              const noDataInPdfFound = !input.answerFromPrompt.answer
 
-            if (noDataInPdfFound) {
-              console.warn(
-                'No relevant information found in the provided PDF. Switching to the web retriever for further search.',
-              )
-            }
+              if (noDataInPdfFound) {
+                console.warn(
+                  'No relevant information found in the provided PDF. Switching to the web retriever for further search.',
+                )
+              }
 
-            return noDataInPdfFound
-          },
-          webChain,
-        ],
-        outputChain,
-      ]),
-    ),
-  )
+              return noDataInPdfFound
+            },
+            webChain,
+          ],
+          outputChain,
+        ]),
+      ),
+    )
 
   console.log(
     await mainChain.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
