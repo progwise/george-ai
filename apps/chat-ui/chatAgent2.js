@@ -1,7 +1,10 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import { ChatPromptTemplate } from '@langchain/core/prompts'
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { formatDocumentsAsString } from 'langchain/util/document'
 import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
@@ -10,12 +13,12 @@ import {
   RunnablePassthrough,
   RunnableLambda,
   RunnableBranch,
+  RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
-
+import { UpstashRedisChatMessageHistory } from '@langchain/community/stores/message/upstash_redis'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
-
 import { z } from 'zod'
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 
@@ -44,7 +47,7 @@ async function setupLocalRetriever(docs) {
   return vectorStore.asRetriever({ k: LOCAL_RETRIEVAL_K })
 }
 
-// Define the prompt template
+// Define the prompt template with message history
 function createPromptTemplate() {
   return ChatPromptTemplate.fromMessages([
     [
@@ -61,12 +64,12 @@ function createPromptTemplate() {
       {context}
     `,
     ],
+    new MessagesPlaceholder('history'), // Placeholder for chat history
     ['human', '{input}'],
   ])
 }
 
 // Main function
-// async function main() {
 const splitDocs = await loadAndSplitDocuments(localDataFilePath)
 const retrieverLocal = await setupLocalRetriever(splitDocs)
 const retrieverWeb = new TavilySearchAPIRetriever({ k: WEB_RETRIEVAL_K })
@@ -112,11 +115,26 @@ const webChain = mapWeb
   .assign({ answerFromPrompt: promptChain })
   .pipe(outputChain)
 
+// Set up Upstash Redis for message history
+const chainWithHistory = new RunnableWithMessageHistory({
+  runnable: promptChain,
+  getMessageHistory: (sessionId) =>
+    new UpstashRedisChatMessageHistory({
+      sessionId,
+      config: {
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      },
+    }),
+  inputMessagesKey: 'input',
+  historyMessagesKey: 'history',
+})
+
 // Main chain with conditional branching
 const mainChain = mapLocal.pipe(formattedPairOfInputContext).pipe(
   RunnableMap.from({
     input: (input) => input.input,
-    answerFromPrompt: promptChain,
+    answerFromPrompt: chainWithHistory, // Pass chain with history here
   }).pipe(
     RunnableBranch.from([
       [
@@ -138,10 +156,16 @@ const mainChain = mapLocal.pipe(formattedPairOfInputContext).pipe(
   ),
 )
 
-console.log(
-  await mainChain.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
-  // await mainChain.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
-)
-// }
+// const result = await mainChain.invoke(
+//   {
+//     input: 'Was muss ich in Greifswald unbedingt ansehen?',
+//     // input: 'Was muss ich im Verzasca Tal unbedingt ansehen?',
+//   },
+//   {
+//     configurable: {
+//       sessionId: 'some_string_identifying_a_user',
+//     },
+//   },
+// )
 
-// main().catch(console.error)
+// console.log(result)

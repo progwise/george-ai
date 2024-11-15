@@ -1,7 +1,10 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import { ChatPromptTemplate } from '@langchain/core/prompts'
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { formatDocumentsAsString } from 'langchain/util/document'
 import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
@@ -10,14 +13,15 @@ import {
   RunnablePassthrough,
   RunnableLambda,
   RunnableBranch,
+  RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
-
+import { UpstashRedisChatMessageHistory } from '@langchain/community/stores/message/upstash_redis'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
-
 import { z } from 'zod'
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
+import { ConstitutionalPrinciple } from 'langchain/chains'
 
 // Paths and Configurations
 const localDataFilePath = './data/mag_example1.pdf'
@@ -40,11 +44,33 @@ async function loadAndSplitDocuments(path) {
 // Set up the local retriever with vector store
 async function setupLocalRetriever(docs) {
   const embeddings = new OpenAIEmbeddings()
-  const vectorStore = await MemoryVectorStore.fromDocuments(docs, embeddings)
+
+  // Ensure that all documents are strings, removing any undefined/null values
+  const sanitizedDocs = docs
+    .map((doc) => {
+      // If the document content is a string, keep it as is
+      if (typeof doc === 'string') {
+        return doc
+      }
+      // If it's an object (common for documents), try accessing a `pageContent` or text property
+      else if (doc && typeof doc === 'object') {
+        return doc.pageContent || JSON.stringify(doc) // Replace with actual content field if different
+      }
+      // If it's any other type, filter it out by returning null
+      return null
+    })
+    .filter((doc) => doc !== null && doc !== undefined) // Remove any null/undefined values
+
+  console.log('Sanitized Docs:', sanitizedDocs) // Debugging log to inspect sanitized documents
+
+  const vectorStore = await MemoryVectorStore.fromDocuments(
+    sanitizedDocs,
+    embeddings,
+  )
   return vectorStore.asRetriever({ k: LOCAL_RETRIEVAL_K })
 }
 
-// Define the prompt template
+// Define the prompt template with message history
 function createPromptTemplate() {
   return ChatPromptTemplate.fromMessages([
     [
@@ -61,12 +87,31 @@ function createPromptTemplate() {
       {context}
     `,
     ],
+    new MessagesPlaceholder('history'), // Placeholder for chat history
     ['human', '{input}'],
   ])
 }
 
+// Helper function to get embedding for a single query
+async function getEmbeddingForQuery(text) {
+  const embeddings = new OpenAIEmbeddings()
+  if (typeof text !== 'string') {
+    console.error('Expected a string for embedQuery but received:', typeof text)
+    text = String(text) // Convert to string if needed
+  }
+  return await embeddings.embedQuery(text)
+}
+
+// Helper function to get embeddings for multiple documents
+async function getEmbeddingsForDocuments(docs) {
+  const embeddings = new OpenAIEmbeddings()
+  const sanitizedDocs = docs.map((doc) =>
+    typeof doc === 'string' ? doc : JSON.stringify(doc),
+  )
+  return await embeddings.embedDocuments(sanitizedDocs)
+}
+
 // Main function
-// async function main() {
 const splitDocs = await loadAndSplitDocuments(localDataFilePath)
 const retrieverLocal = await setupLocalRetriever(splitDocs)
 const retrieverWeb = new TavilySearchAPIRetriever({ k: WEB_RETRIEVAL_K })
@@ -112,11 +157,26 @@ const webChain = mapWeb
   .assign({ answerFromPrompt: promptChain })
   .pipe(outputChain)
 
+// Set up Upstash Redis for message history
+const chainWithHistory = new RunnableWithMessageHistory({
+  runnable: promptChain,
+  getMessageHistory: (sessionId) =>
+    new UpstashRedisChatMessageHistory({
+      sessionId,
+      config: {
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      },
+    }),
+  inputMessagesKey: 'input',
+  historyMessagesKey: 'history',
+})
+
 // Main chain with conditional branching
 const mainChain = mapLocal.pipe(formattedPairOfInputContext).pipe(
   RunnableMap.from({
     input: (input) => input.input,
-    answerFromPrompt: promptChain,
+    answerFromPrompt: chainWithHistory, // Pass chain with history here
   }).pipe(
     RunnableBranch.from([
       [
@@ -138,10 +198,16 @@ const mainChain = mapLocal.pipe(formattedPairOfInputContext).pipe(
   ),
 )
 
-console.log(
-  await mainChain.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
-  // await mainChain.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
+// Example invocation
+const result = await mainChain.invoke(
+  {
+    input: 'Was muss ich in Greifswald unbedingt ansehen?',
+  },
+  {
+    configurable: {
+      sessionId: 'some_string_identifying_a_user',
+    },
+  },
 )
-// }
 
-// main().catch(console.error)
+console.log(result)

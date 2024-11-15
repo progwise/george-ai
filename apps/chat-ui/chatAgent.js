@@ -1,7 +1,10 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import { ChatPromptTemplate } from '@langchain/core/prompts'
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+} from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { formatDocumentsAsString } from 'langchain/util/document'
 import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
@@ -10,17 +13,21 @@ import {
   RunnablePassthrough,
   RunnableLambda,
   RunnableBranch,
+  RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 
+import { ChatAnthropic } from '@langchain/anthropic'
+import { UpstashRedisChatMessageHistory } from '@langchain/community/stores/message/upstash_redis'
+
 import { z } from 'zod'
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 
 // Paths and Configurations
-const localDataFilePath = './data/mag_example1.pdf'
+const pdfFile = './data/mag_example1.pdf'
 const CHUNK_SIZE = 200
 const CHUNK_OVERLAP = 20
 const LOCAL_RETRIEVAL_K = 10
@@ -37,7 +44,7 @@ async function loadAndSplitDocuments(path) {
   return await splitter.splitDocuments(docs)
 }
 
-// Set up the local retriever with vector store
+// Set up the local retriever with vector storage
 async function setupLocalRetriever(docs) {
   const embeddings = new OpenAIEmbeddings()
   const vectorStore = await MemoryVectorStore.fromDocuments(docs, embeddings)
@@ -67,7 +74,7 @@ function createPromptTemplate() {
 
 // Main function
 // async function main() {
-const splitDocs = await loadAndSplitDocuments(localDataFilePath)
+const splitDocs = await loadAndSplitDocuments(pdfFile)
 const retrieverLocal = await setupLocalRetriever(splitDocs)
 const retrieverWeb = new TavilySearchAPIRetriever({ k: WEB_RETRIEVAL_K })
 
@@ -84,7 +91,7 @@ const promptTemplate = createPromptTemplate()
 const promptChain = promptTemplate.pipe(modelWithStructuredOutput)
 
 // Helper functions for formatting and output
-const formattedPairOfInputContext = new RunnableLambda({
+const formattedInputContext = new RunnableLambda({
   func: (input) => ({
     ...input,
     context: formatDocumentsAsString(input.docs),
@@ -108,12 +115,12 @@ const mapWeb = RunnableMap.from({
 
 // Set up the web chain
 const webChain = mapWeb
-  .pipe(formattedPairOfInputContext)
+  .pipe(formattedInputContext)
   .assign({ answerFromPrompt: promptChain })
   .pipe(outputChain)
 
 // Main chain with conditional branching
-const mainChain = mapLocal.pipe(formattedPairOfInputContext).pipe(
+const mainChain = mapLocal.pipe(formattedInputContext).pipe(
   RunnableMap.from({
     input: (input) => input.input,
     answerFromPrompt: promptChain,
@@ -142,6 +149,21 @@ console.log(
   await mainChain.invoke('Was muss ich in Greifswald unbedingt ansehen?'),
   // await mainChain.invoke('Was muss ich im Verzasca Tal unbedingt ansehen?'),
 )
+
+const chainWithHistory = new RunnableWithMessageHistory({
+  runnable: mainChain,
+  getMessageHistory: (sessionId) =>
+    new UpstashRedisChatMessageHistory({
+      sessionId,
+      config: {
+        url: process.env.UPSTASH_REDIS_REST_URL || '',
+        token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
+      },
+    }),
+  inputMessagesKey: 'question',
+  historyMessagesKey: 'history',
+})
+
 // }
 
 // main().catch(console.error)
