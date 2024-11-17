@@ -87,8 +87,9 @@ Provide helpful information based on these web results.`,
   const getPdfContent = async (question) => {
     try {
       console.log('Searching PDF for:', question)
-      const docs = await retriever.getRelevantDocuments(question)
+      const docs = await retriever.invoke(question)
       const content = docs.map((doc) => doc.pageContent).join('\n\n')
+      // console.log('Found PDF content:', content.length > 0)
       console.log('Found PDF content:', content.length > 0)
       return content
     } catch (error) {
