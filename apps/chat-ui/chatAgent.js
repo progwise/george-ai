@@ -56,48 +56,49 @@ const createChatSystem = async () => {
     splitDocs,
     embeddings,
   )
-  const retriever = vectorStore.asRetriever(LOCAL_RETRIEVAL_K)
+  const retrieverLocal = vectorStore.asRetriever(LOCAL_RETRIEVAL_K)
   // Create prompt templates
-  const pdfPrompt = ChatPromptTemplate.fromMessages([
+  const promptLocal = ChatPromptTemplate.fromMessages([
     [
       'system',
       `You are a helpful travel assistant with access to the following magazine content:
 
-{context}
+      {context}
 
-Please use the above content to answer the user's question as specifically as possible.
+      Please use the above content to answer the user's question as specifically as possible.
 
-If you cannot find the answer in the content, say 'NOT_FOUND'.`,
+      If you cannot find the answer in the content, say 'NOT_FOUND'.`,
     ],
     new MessagesPlaceholder('chat_history'),
     ['human', '{question}'],
   ])
+
   const webPrompt = ChatPromptTemplate.fromMessages([
     [
       'system',
       `You are a travel assistant providing information from web search.
-Web search results: {webResults}
+       Web search results: {webResults}
 
-Provide helpful information based on these web results.`,
+       Provide helpful information based on these web results.`,
     ],
     new MessagesPlaceholder('chat_history'),
     ['human', '{question}'],
   ])
-  // Helper functions
-  const getPdfContent = async (question) => {
+
+  // Retriever functions
+  const retriveLocalContent = async (question) => {
     try {
       console.log('Searching PDF for:', question)
-      const docs = await retriever.invoke(question)
+      const docs = await retrieverLocal.invoke(question)
       const content = docs.map((doc) => doc.pageContent).join('\n\n')
       // console.log('Found PDF content:', content.length > 0)
-      console.log('Found PDF content:', content.length > 0)
       return content
     } catch (error) {
       console.error('Error retrieving PDF content:', error)
       return ''
     }
   }
-  const getWebContent = async (question) => {
+  const retrieveWebContent = async (question) => {
     try {
       console.log('Retrieving web information for:', question)
       return await searchTool.func(question)
@@ -107,30 +108,30 @@ Provide helpful information based on these web results.`,
     }
   }
   // Create the processing chains
-  const pdfChain = RunnableSequence.from([
-    pdfPrompt,
+  const chainLocal = RunnableSequence.from([
+    promptLocal,
     model,
     (output) => `[Magazine Source] ${output.content}`,
   ])
   const webChain = RunnableSequence.from([
     async (input) => ({
       ...input,
-      webResults: await getWebContent(input.question),
+      webResults: await retrieveWebContent(input.question),
     }),
     webPrompt,
     model,
     (output) => `[Web Source] ${output.content}`,
   ])
   // Create pdfOrWebChain using RunnableLambda
-  const pdfOrWebChain = new RunnableLambda({
+  const localOrWebChain = new RunnableLambda({
     func: async (input, options) => {
-      const pdfResponse = await pdfChain.invoke(input, options)
-      if (pdfResponse.includes('NOT_FOUND')) {
+      const localResponse = await chainLocal.invoke(input, options)
+      if (localResponse.includes('NOT_FOUND')) {
         console.log('Magazine content insufficient, switching to web...')
         const webResponse = await webChain.invoke(input, options)
         return webResponse
       } else {
-        return pdfResponse
+        return localResponse
       }
     },
   })
@@ -138,12 +139,12 @@ Provide helpful information based on these web results.`,
   const mainChain = RunnableSequence.from([
     async (input) => ({
       ...input,
-      context: await getPdfContent(input.question),
+      context: await retriveLocalContent(input.question),
     }),
     RunnableBranch.from([
       [
         (input) => !!(input.context && input.context.trim().length > 0),
-        pdfOrWebChain,
+        localOrWebChain,
       ],
       webChain,
     ]),
