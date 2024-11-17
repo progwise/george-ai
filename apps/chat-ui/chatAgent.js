@@ -38,7 +38,7 @@ const createChatSystem = async () => {
     description: 'Web search tool',
     func: async (query) => {
       console.log('Performing web search for:', query)
-      return `Web search results for "${query}". Since this information wasn't found in our travel magazine, here's what we know from general knowledge: This would be detailed information about ${query} from web sources.`
+      return `Web search results for "${query}". Since the corresponding information was not found in the travel magazine, here's a detailed summary from web sources.`
     },
   }
   // Load and process documents
