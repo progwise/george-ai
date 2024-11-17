@@ -61,7 +61,7 @@ const createChatSystem = async () => {
   const promptLocal = ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You are a helpful travel assistant with access to the following magazine content:
+      `Your name is George-AI. You are a helpful travel assistant with access to the following magazine content:
 
       {context}
 
@@ -76,7 +76,7 @@ const createChatSystem = async () => {
   const webPrompt = ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You are a travel assistant providing information from web search.
+      `Your name is George-AI. You are a travel assistant providing information from web search.
        Web search results: {webResults}
 
        Provide helpful information based on these web results.`,
@@ -170,7 +170,6 @@ const createCLIInterface = (chain) => {
     output: process.stdout,
   })
   const chat = async () => {
-    console.log('\nTravel Assistant initialized!')
     console.log('- Ask any travel-related question')
     console.log('- Type "exit" to quit\n')
     const sessionId = 'default_session'
@@ -186,14 +185,14 @@ const createCLIInterface = (chain) => {
             { question },
             { configurable: { sessionId } },
           )
-          console.log('\nAssistant:', response)
+          console.log('\nGeorge-AI:', response)
         } catch (error) {
           console.error(
             'Error:',
             error instanceof Error ? error.message : String(error),
           )
           console.log(
-            '\nAssistant: I apologize, but I encountered an error. Could you rephrase your question?',
+            '\nGeorge-AI: I apologize, but I encountered an error. Could you rephrase your question?',
           )
         }
         askQuestion()
@@ -205,7 +204,7 @@ const createCLIInterface = (chain) => {
 }
 const main = async () => {
   try {
-    console.log('Initializing travel assistant...')
+    console.log('Initializing George-AI travel assistant...')
     const chain = await createChatSystem()
     const chat = createCLIInterface(chain)
     await chat()
