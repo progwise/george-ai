@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ../..:/workspaces:cached
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    # Runs app on the same network as the typesense container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:gai-typesense
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+  gai-typesense:
+    image: typesense/typesense:0.24.1
+    container_name: gai-typesense
+    restart: unless-stopped
+    environment:
+      - TYPESENSE_API_HOST=localhost
+      - TYPESENSE_API_PORT=8108
+      - TYPESENSE_API_PROTOCOL=http
+      - TYPESENSE_API_KEY=xyz
+
+    ports:
+      - '8108:8108'
+    volumes:
+      - ./gaidata:/typesensedata
+    command: '--data-dir /typesensedata --api-key=xyz --enable-cors'
