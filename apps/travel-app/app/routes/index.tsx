@@ -5,7 +5,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 const filePath = 'count.txt'
 
 const readCount = async () =>
-  parseInt(await fs.promises.readFile(filePath, 'utf8').catch(() => '0'))
+  Number.parseInt(await fs.promises.readFile(filePath, 'utf8').catch(() => '0'))
 
 const getCount = createServerFn({ method: 'GET' }).handler(() => readCount())
 
