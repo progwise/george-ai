@@ -22,7 +22,10 @@
   // This can be used to network with other containers or with the host.
   // "forwardPorts": [3000, 5432],
 
-  "postCreateCommand": "yarn install"
+  "postCreateCommand": "yarn install",
+  "mounts": [
+    "type=bind,source=${localEnv:HOME}/.ssh,target=/home/node/.ssh"
+  ]
 
   // Configure tool-specific properties.
   // "customizations": {},
