@@ -7813,15 +7813,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@upstash/redis@npm:^1.34.3":
-  version: 1.34.3
-  resolution: "@upstash/redis@npm:1.34.3"
-  dependencies:
-    crypto-js: ^4.2.0
-  checksum: 4c738eb82e3d8906999345379ff0c96913627cdf96ec54b6880fa8fb5616331a92228b889c076b4a93bee4bb31324f5afa68aa927fb751d308fc83464de68e79
-  languageName: node
-  linkType: hard
-
 "@urql/core@npm:^4.1.0":
   version: 4.1.3
   resolution: "@urql/core@npm:4.1.3"
@@ -10032,7 +10023,6 @@ __metadata:
     "@types/react-dom": ^18.2.7
     "@typescript-eslint/eslint-plugin": ^6.7.4
     "@typescript-eslint/parser": ^6.7.4
-    "@upstash/redis": ^1.34.3
     autoprefixer: ^10.4.19
     body-parser: ^1.20.3
     cheerio: ^1.0.0-rc.12
@@ -10055,7 +10045,6 @@ __metadata:
     react: 18.3.1
     react-dom: 18.3.1
     react-icons: ^5.2.1
-    readline: ^1.3.0
     tailwindcss: ^3.4.15
     typescript: ^5.5.3
     typesense: ^1.8.2
@@ -10911,13 +10900,6 @@ __metadata:
     shebang-command: ^2.0.0
     which: ^2.0.1
   checksum: 671cc7c7288c3a8406f3c69a3ae2fc85555c04169e9d611def9a675635472614f1c0ed0ef80955d5b6d4e724f6ced67f0ad1bb006c2ea643488fcfef994d7f52
-  languageName: node
-  linkType: hard
-
-"crypto-js@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "crypto-js@npm:4.2.0"
-  checksum: f051666dbc077c8324777f44fbd3aaea2986f198fe85092535130d17026c7c2ccf2d23ee5b29b36f7a4a07312db2fae23c9094b644cc35f7858b1b4fcaf27774
   languageName: node
   linkType: hard
 
@@ -21456,13 +21438,6 @@ __metadata:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
-  languageName: node
-  linkType: hard
-
-"readline@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "readline@npm:1.3.0"
-  checksum: dfaf8e6ac20408ea00d650e95f7bb47f77c4c62dd12ed7fb51731ee84532a2f3675fcdc4cab4923dc1eef227520a2e082a093215190907758bea9f585b19438e
   languageName: node
   linkType: hard
 
