@@ -3301,6 +3301,7 @@ __metadata:
   dependencies:
     "@tanstack/eslint-plugin-router": ^1.81.9
     "@tanstack/react-router": ^1.82.1
+    "@tanstack/router-devtools": ^1.82.1
     "@tanstack/start": ^1.82.1
     "@types/react": ^18.3.12
     "@types/react-dom": ^18.3.1
@@ -8082,6 +8083,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/router-devtools@npm:^1.82.1":
+  version: 1.82.1
+  resolution: "@tanstack/router-devtools@npm:1.82.1"
+  dependencies:
+    clsx: ^2.1.1
+    goober: ^2.1.16
+  peerDependencies:
+    "@tanstack/react-router": ^1.82.1
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: c885bb9a9b57e775746d90fb4ada7a60c626702ac74c6dd3354cab57149fa7ab35c842f8702c38a7ec3fba71eee3ec789bf35193b8cbb7b03972d737bffd13ba
+  languageName: node
+  linkType: hard
+
 "@tanstack/router-generator@npm:^1.81.9":
   version: 1.81.9
   resolution: "@tanstack/router-generator@npm:1.81.9"
@@ -12437,6 +12452,13 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: d06418b7335897209e77bdd430d04f882189582e67bd1f75a04565f3f07f5b3f119a9d670c943b6697d0afb100f03b866b3b8a1f91d4d02d72c4ecf2bb64b5dd
+  languageName: node
+  linkType: hard
+
+"clsx@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "clsx@npm:2.1.1"
+  checksum: acd3e1ab9d8a433ecb3cc2f6a05ab95fe50b4a3cfc5ba47abb6cbf3754585fcb87b84e90c822a1f256c4198e3b41c7f6c391577ffc8678ad587fc0976b24fd57
   languageName: node
   linkType: hard
 
@@ -17112,6 +17134,15 @@ __metadata:
   version: 0.1.2
   resolution: "globrex@npm:0.1.2"
   checksum: adca162494a176ce9ecf4dd232f7b802956bb1966b37f60c15e49d2e7d961b66c60826366dc2649093cad5a0d69970cfa8875bd1695b5a1a2f33dcd2aa88da3c
+  languageName: node
+  linkType: hard
+
+"goober@npm:^2.1.16":
+  version: 2.1.16
+  resolution: "goober@npm:2.1.16"
+  peerDependencies:
+    csstype: ^3.0.10
+  checksum: ec82aa2e4dc7c30b1fc681e3555818386fbcb61350afdd4deb44431e4df4eba4f25ef7dbabbac06fccc1b62a417ddd66563b80045443a623554dcc793ee17238
   languageName: node
   linkType: hard
 

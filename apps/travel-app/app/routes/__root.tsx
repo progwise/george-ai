@@ -4,7 +4,7 @@ import {
   ScrollRestoration,
 } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
-import { ReactNode } from 'react'
+import React, { ReactNode, Suspense } from 'react'
 
 const RootComponent = () => (
   <RootDocument>
@@ -28,6 +28,18 @@ export const Route = createRootRoute({
   component: RootComponent,
 })
 
+const TanStackRouterDevtools =
+  process.env.NODE_ENV === 'production'
+    ? () => null // Render nothing in production
+    : React.lazy(() =>
+        // Lazy load in development
+        import('@tanstack/router-devtools').then((res) => ({
+          default: res.TanStackRouterDevtools,
+          // For Embedded Mode
+          // default: res.TanStackRouterDevtoolsPanel
+        })),
+      )
+
 const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
   <html>
     <head>
@@ -37,6 +49,9 @@ const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
       {children}
       <ScrollRestoration />
       <Scripts />
+      <Suspense>
+        <TanStackRouterDevtools />
+      </Suspense>
     </body>
   </html>
 )
