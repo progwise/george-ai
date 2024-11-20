@@ -30,11 +30,12 @@ export const Route = createRootRoute({
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === 'production'
-    ? () => null // Render nothing in production
+    ? // eslint-disable-next-line unicorn/no-null
+      () => null // Render nothing in production
     : React.lazy(() =>
         // Lazy load in development
-        import('@tanstack/router-devtools').then((res) => ({
-          default: res.TanStackRouterDevtools,
+        import('@tanstack/router-devtools').then((result) => ({
+          default: result.TanStackRouterDevtools,
           // For Embedded Mode
           // default: res.TanStackRouterDevtoolsPanel
         })),
