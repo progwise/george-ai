@@ -17,9 +17,8 @@ const LOCAL_RETRIEVAL_K = 4
 const retrieveLocalContent = async (question: string) => {
   try {
     // Load retriever
-    const retrieverLocal = (await getPDFVectorStore()).asRetriever(
-      LOCAL_RETRIEVAL_K,
-    )
+    const vectorStore = await getPDFVectorStore()
+    const retrieverLocal = vectorStore.asRetriever(LOCAL_RETRIEVAL_K)
     console.log('Searching PDF for:', question)
     const documents = await retrieverLocal.invoke(question)
     const content = documents
