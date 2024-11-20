@@ -2,7 +2,6 @@ import { ChatOpenAI } from '@langchain/openai'
 
 import {
   RunnableSequence,
-  RunnableBranch,
   RunnableLambda,
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
@@ -24,7 +23,6 @@ const retrieveLocalContent = async (question: string) => {
     const content = documents
       .map((document_) => document_.pageContent)
       .join('\n\n')
-    // console.log('Found PDF content:', content.length > 0)
     return content
   } catch (error) {
     console.error('Error retrieving PDF content:', error)
@@ -38,7 +36,7 @@ const model = new ChatOpenAI({ modelName: 'gpt-4', temperature: 0.7 })
 const pdfChain = RunnableSequence.from([
   localPrompt,
   model,
-  (output) => `[Magazine Source] ${output.content}`,
+  (output) => ({ pdfResult: output.content }),
 ])
 
 const webChain = RunnableSequence.from([
@@ -48,20 +46,17 @@ const webChain = RunnableSequence.from([
   }),
   webPrompt,
   model,
-  (output) => `[Web Source] ${output.content}`,
+  (output) => ({ webResult: output.content }),
 ])
 
-const localOrWebChain = new RunnableLambda({
-  func: async (input: any, options: any) => {
-    const localResponse = await pdfChain.invoke(input, options)
-    if (localResponse.includes('NOT_FOUND')) {
-      console.log('Magazine content insufficient, switching to web...')
-      const webResponse = await webChain.invoke(input, options)
-      return webResponse
-    } else {
-      return localResponse
-    }
-  },
+const branchChain = RunnableLambda.from(async (input: any, options: any) => {
+  const localResponse = await pdfChain.invoke(input, options)
+  if (localResponse.pdfResult.includes('NOT_FOUND')) {
+    const webResponse = await webChain.invoke(input, options)
+    return { ...webResponse, pdfResult: localResponse.pdfResult, source: 'web' }
+  } else {
+    return { ...localResponse, webResult: undefined, source: 'pdf' }
+  }
 })
 
 const mainChain = RunnableSequence.from([
@@ -69,13 +64,7 @@ const mainChain = RunnableSequence.from([
     ...input,
     context: await retrieveLocalContent(input.question),
   }),
-  RunnableBranch.from([
-    [
-      (input) => !!(input.context && input.context.trim().length > 0),
-      localOrWebChain,
-    ],
-    webChain,
-  ]),
+  branchChain,
 ])
 
 export const historyChain = new RunnableWithMessageHistory({

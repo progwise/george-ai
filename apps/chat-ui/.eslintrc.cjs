@@ -14,7 +14,13 @@ module.exports = {
     es6: true,
     node: true,
   },
-  ignorePatterns: ['!**/.server', '!**/.client'],
+  ignorePatterns: [
+    '!**/.server',
+    '!**/.client',
+    'build',
+    'dist',
+    'node_modules',
+  ],
 
   // Base config
   extends: ['eslint:recommended'],
