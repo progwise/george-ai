@@ -25,9 +25,7 @@ builder.mutationField('chat', (t) =>
         sessionId = 'default'
       }
       const result = await ask({ question, sessionId })
-      return result.source === 'pdf'
-        ? { answer: result.pdfResult, sessionId, source: result.source }
-        : { answer: result.webResult, sessionId, source: result.source }
+      return { answer: result.answer, sessionId, source: result.source }
     },
   }),
 )

@@ -7,62 +7,61 @@ import {
 } from '@langchain/core/runnables'
 
 import { localPrompt, webPrompt } from './prompts'
-import { getPDFVectorStore } from './pdf-vectorstore'
 import { getMessageHistory } from './message-history'
-
-const LOCAL_RETRIEVAL_K = 4
-
-// Retriever functions
-const retrieveLocalContent = async (question: string) => {
-  try {
-    // Load retriever
-    const vectorStore = await getPDFVectorStore()
-    const retrieverLocal = vectorStore.asRetriever(LOCAL_RETRIEVAL_K)
-    console.log('Searching PDF for:', question)
-    const documents = await retrieverLocal.invoke(question)
-    const content = documents
-      .map((document_) => document_.pageContent)
-      .join('\n\n')
-    return content
-  } catch (error) {
-    console.error('Error retrieving PDF content:', error)
-    return ''
-  }
-}
+import { getPDFContentForQuestion } from './pdf-vectorstore'
 
 const model = new ChatOpenAI({ modelName: 'gpt-4', temperature: 0.7 })
 
-// Create the processing chains
+// process PDF context and model output
 const pdfChain = RunnableSequence.from([
+  (input) => {
+    console.log('runnning pdfChain', input.question)
+    return { ...input }
+  },
   localPrompt,
   model,
-  (output) => ({ pdfResult: output.content }),
+  (output) => {
+    console.log('finished pdfChain', output.content)
+    return { pdfResult: output.content }
+  },
 ])
 
+// process web search and model output
 const webChain = RunnableSequence.from([
-  (input) => ({
-    ...input,
-    webResults: `Web search results for "${input.question}". Since the corresponding information was not found in the travel magazine, here's a detailed summary from web sources.`,
-  }),
+  (input) => {
+    console.log('runnning webChain', input.question)
+    return { ...input }
+  },
   webPrompt,
   model,
-  (output) => ({ webResult: output.content }),
+  (output) => {
+    console.log('finished pdfChain', output.content)
+    return { webResult: output.content }
+  },
 ])
 
+// branching between pdf and web chains
 const branchChain = RunnableLambda.from(async (input: any, options: any) => {
   const localResponse = await pdfChain.invoke(input, options)
   if (localResponse.pdfResult.includes('NOT_FOUND')) {
     const webResponse = await webChain.invoke(input, options)
-    return { ...webResponse, pdfResult: localResponse.pdfResult, source: 'web' }
+    return {
+      answer: webResponse.webResult,
+      source: 'web',
+    }
   } else {
-    return { ...localResponse, webResult: undefined, source: 'pdf' }
+    return {
+      answer: localResponse.pdfResult,
+      source: 'pdf',
+    }
   }
 })
 
+// setting up the context
 const mainChain = RunnableSequence.from([
   async (input) => ({
     ...input,
-    context: await retrieveLocalContent(input.question),
+    context: await getPDFContentForQuestion(input.question),
   }),
   branchChain,
 ])
@@ -71,5 +70,6 @@ export const historyChain = new RunnableWithMessageHistory({
   runnable: mainChain,
   getMessageHistory,
   inputMessagesKey: 'question',
+  outputMessagesKey: 'answer',
   historyMessagesKey: 'chat_history',
 })
