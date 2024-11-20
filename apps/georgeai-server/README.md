@@ -1,4 +1,5 @@
 # george-ai stand alone GraphQL server
+
 This project starts the graphql backend package.
 
 ## prerequisites
@@ -8,6 +9,7 @@ This project starts the graphql backend package.
 - You need to provide a .env file
 
 ## start
+
 ```
 yarn start
 ```
