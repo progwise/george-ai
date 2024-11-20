@@ -1,4 +1,6 @@
-import path from 'path'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai"
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
@@ -13,7 +15,8 @@ import {
 
 import { ChatMessageHistory } from 'langchain/stores/message/in_memory'
 import { localPrompt, webPrompt } from './prompts'
-
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const DATA_PATH = path.resolve(__dirname, '../data', 'mag_example1.pdf') // Path to the PDF document
 const CHUNK_SIZE = 1000 // Increased for better context
@@ -39,17 +42,17 @@ const getPDFRetriever = async () => {
     // Load and process documents
     console.log('Loading PDF document...')
     const loader = new PDFLoader(DATA_PATH)
-    const rawDocs = await loader.load()
-    console.log(`Loaded ${rawDocs.length} pages from PDF`)
+    const rawDocuments = await loader.load()
+    console.log(`Loaded ${rawDocuments.length} pages from PDF`)
     const splitter = new RecursiveCharacterTextSplitter({
         chunkSize: CHUNK_SIZE,
         chunkOverlap: CHUNK_OVERLAP,
     })
-    const splitDocs = await splitter.splitDocuments(rawDocs)
-    console.log(`Split into ${splitDocs.length} chunks`)
+    const splitDocuments = await splitter.splitDocuments(rawDocuments)
+    console.log(`Split into ${splitDocuments.length} chunks`)
     const embeddings = new OpenAIEmbeddings()
     pdfVectorStore = await MemoryVectorStore.fromDocuments(
-        splitDocs,
+        splitDocuments,
         embeddings,
     )
     return pdfVectorStore.asRetriever(LOCAL_RETRIEVAL_K)
@@ -63,8 +66,8 @@ const retrieveLocalContent = async (question: string) => {
         // Load retriever
         const retrieverLocal = await getPDFRetriever()
         console.log('Searching PDF for:', question)
-        const docs = await retrieverLocal.invoke(question)
-        const content = docs.map((doc) => doc.pageContent).join('\n\n')
+        const documents = await retrieverLocal.invoke(question)
+        const content = documents.map((document_) => document_.pageContent).join('\n\n')
         // console.log('Found PDF content:', content.length > 0)
         return content
     } catch (error) {

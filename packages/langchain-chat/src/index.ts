@@ -1,2 +1,2 @@
-import * as mainChain from './mainChain'
-export const ask = (params: {question: string, sessionId: string} ) => mainChain.chainWithHistory.invoke({question: params.question}, { configurable: { sessionId: params.sessionId}})
+import * as mainChain from './main-chain'
+export const ask = (parameters: {question: string, sessionId: string} ) => mainChain.chainWithHistory.invoke({question: parameters.question}, { configurable: { sessionId: parameters.sessionId}})
