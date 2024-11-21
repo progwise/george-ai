@@ -1,0 +1,3 @@
+{
+  "extends": ["custom", "plugin:@tanstack/eslint-plugin-router/recommended"]
+}
