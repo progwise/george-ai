@@ -4,7 +4,7 @@ import { chatMessagesQueryOptions } from '../server-functions/chat-history'
 
 export const ChatForm = () => {
   const queryClient = useQueryClient()
-  const sendMutation = useMutation({
+  const { mutate, error } = useMutation({
     mutationFn: (message: string) => sendChatMessage({ data: { message } }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions())
@@ -55,13 +55,14 @@ export const ChatForm = () => {
 
     form.reset()
 
-    sendMutation.mutate(message)
+    mutate(message)
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <input type="text" name="message" />
       <button type="submit">Send</button>
+      {error && <div>{error.message}</div>}
     </form>
   )
 }
