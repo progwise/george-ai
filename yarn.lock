@@ -3300,7 +3300,10 @@ __metadata:
   resolution: "@george-ai/travel-app@workspace:apps/travel-app"
   dependencies:
     "@tanstack/eslint-plugin-router": ^1.81.9
+    "@tanstack/react-query": ^5.61.0
+    "@tanstack/react-query-devtools": ^5.61.0
     "@tanstack/react-router": ^1.82.1
+    "@tanstack/react-router-with-query": ^1.82.1
     "@tanstack/router-devtools": ^1.82.1
     "@tanstack/start": ^1.82.1
     "@types/react": ^18.3.12
@@ -3312,6 +3315,7 @@ __metadata:
     react-dom: ^18.3.1
     typescript: ^5.6.3
     vinxi: ^0.4.3
+    zod: ^3.23.8
   languageName: unknown
   linkType: soft
 
@@ -8040,6 +8044,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.60.6":
+  version: 5.60.6
+  resolution: "@tanstack/query-core@npm:5.60.6"
+  checksum: 4c165d495bc1d182028d75eeef281866f9466d51316ba137da8b868e843ba47e614065a0b80d7b71636fd356bd87a7f458ebb0e201defb1a1b07bb2215fa7a8b
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-devtools@npm:5.59.20":
+  version: 5.59.20
+  resolution: "@tanstack/query-devtools@npm:5.59.20"
+  checksum: 5a4f351b0b9bda78095c4074da4d44743076287f07e544f77d840a9061c95fc85e15f80b08a04bb4b907a3cac63176ee79b3627b1dba6323444ba25419e63761
+  languageName: node
+  linkType: hard
+
 "@tanstack/react-cross-context@npm:^1.81.9":
   version: 1.81.9
   resolution: "@tanstack/react-cross-context@npm:1.81.9"
@@ -8047,6 +8065,41 @@ __metadata:
     react: ">=18"
     react-dom: ">=18"
   checksum: 265333c5f767be6c14faf7bdb8c9c7add766d50357611dea9e1b6ab3fd39ae9effbac9dec88578602e10e780ea5269fb6cf25a6c48279a0c36709f5e56561f39
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^5.61.0":
+  version: 5.61.0
+  resolution: "@tanstack/react-query-devtools@npm:5.61.0"
+  dependencies:
+    "@tanstack/query-devtools": 5.59.20
+  peerDependencies:
+    "@tanstack/react-query": ^5.61.0
+    react: ^18 || ^19
+  checksum: 0b367df4ae1381b4443cc6f6494715f0759e076bf85d68a667762706fd12daec444f0aade44c9491c67c5a4340d0907fa30ff2a4a86adbcc385e46c004c61f3d
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.61.0":
+  version: 5.61.0
+  resolution: "@tanstack/react-query@npm:5.61.0"
+  dependencies:
+    "@tanstack/query-core": 5.60.6
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: e63e5676aa6afe262845f064fd2c1624393511f027aa04a41f204966f677f37a268979dde212cf145b7827b527b2d444ec1bb245b6079ac757e4522bf6f09e6f
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-router-with-query@npm:^1.82.1":
+  version: 1.82.1
+  resolution: "@tanstack/react-router-with-query@npm:1.82.1"
+  peerDependencies:
+    "@tanstack/react-query": ">=5.49.2"
+    "@tanstack/react-router": ">=1.43.2"
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 3114a73e6a9bad175af60952870d223520c695f5b8bbd980ebd8aa3023d49ad278682779ac07d8e5e4bc328e45e5f662b31a778526d66c80eb83ae6b4e131cfb
   languageName: node
   linkType: hard
 
