@@ -9,7 +9,7 @@
 
 ## Prerequisites
 
-- Node.js version 16 is required for this project.
+- Node.js version 20 is required for this project.
 
 ## Getting Started
 
@@ -22,7 +22,7 @@
 
 1. `cd apps/strapi-cms`
 2. `cp .env.example .env`
-   Repeat for other services (playwright-scraper, nextjs-web, typesense-cli)
+   Repeat for other services (playwright-scraper, nextjs-web, typesense-cli, georgeai-server)
 
 ### Run Development Environment
 
@@ -49,6 +49,11 @@ yarn run dev
 
 1. `cd apps/typesense-cli`
 2. `yarn run rebuildcollection`
+
+### Run stand-alone graphql server
+
+1. `cd apps/georgeai-server`
+2. `yarn start`
 
 ## Environment Variables
 
@@ -82,6 +87,12 @@ These variables are required in the `.env` files of:
 
 - `OPENAI_API_KEY`
 - `OPENAI_API_ORG`
+
+### Tavily web search for AI
+
+Only required to run the document chat client
+
+- TAVILY_API_KEY=
 
 These variables are required in the `.env` file of `apps/playwright-scraper/.env`.
 
