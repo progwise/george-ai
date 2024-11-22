@@ -60,8 +60,10 @@ export const ChatForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="text" name="message" />
-      <button type="submit">Send</button>
+      <input className="input input-bordered" type="text" name="message" />
+      <button type="submit" className="btn btn-primary">
+        Send
+      </button>
       {error && <div>{error.message}</div>}
     </form>
   )

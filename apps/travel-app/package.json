@@ -14,8 +14,12 @@
     "@tanstack/react-router": "^1.82.1",
     "@tanstack/react-router-with-query": "^1.82.1",
     "@tanstack/start": "^1.82.1",
+    "autoprefixer": "^10.4.20",
+    "daisyui": "^4.12.14",
+    "postcss": "^8.4.49",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.15",
     "vinxi": "^0.4.3",
     "zod": "^3.23.8"
   },

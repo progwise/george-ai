@@ -26,6 +26,7 @@ const Home = () => {
       onClick={() => {
         updateCount({ data: 1 }).then(() => router.invalidate())
       }}
+      className="btn btn-primary"
     >
       Add 1 to {state}
     </button>
