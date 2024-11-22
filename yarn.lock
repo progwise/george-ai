@@ -3299,6 +3299,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@george-ai/travel-app@workspace:apps/travel-app"
   dependencies:
+    "@tailwindcss/typography": ^0.5.15
     "@tanstack/eslint-plugin-router": ^1.81.9
     "@tanstack/react-query": ^5.61.0
     "@tanstack/react-query-devtools": ^5.61.0
@@ -8027,6 +8028,20 @@ __metadata:
   peerDependencies:
     tailwindcss: "*"
   checksum: 44ee7417de2aa1facd3e5a85dfc509d94f8bfec1fe422a75f141cb6bf5f19e1da31c060fc7aa1b8f880bd98c1fc6210cf5b5124a20335b1a3cd6b3e1a2476c25
+  languageName: node
+  linkType: hard
+
+"@tailwindcss/typography@npm:^0.5.15":
+  version: 0.5.15
+  resolution: "@tailwindcss/typography@npm:0.5.15"
+  dependencies:
+    lodash.castarray: ^4.4.0
+    lodash.isplainobject: ^4.0.6
+    lodash.merge: ^4.6.2
+    postcss-selector-parser: 6.0.10
+  peerDependencies:
+    tailwindcss: "*"
+  checksum: 4e7ad4f7cf0e290030de63f123b53b431fdc3b0fc76e43b9abe21945cf9eca59b7d0d557bb6c7ebd16769586b22ca8cf40e75dc6db069a3afac4c678f4e4ed1e
   languageName: node
   linkType: hard
 
