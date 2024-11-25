@@ -5,9 +5,11 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@george-ai/langchain-chat": "*",
     "@george-ai/strapi-client": "*",
     "@george-ai/typesense-client": "*",
     "@pothos/core": "^3.32.1",
