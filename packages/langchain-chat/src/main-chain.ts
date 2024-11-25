@@ -9,50 +9,54 @@ import {
 import { localPrompt, webPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
 import { getPDFContentForQuestion } from './pdf-vectorstore'
+import * as z from 'zod'
 
-const model = new ChatOpenAI({ modelName: 'gpt-4', temperature: 0.7 })
+const outputSchema = z.object({
+  answer: z
+    .string()
+    .describe(
+      'The answer to the human question in the the model output without any hidden special characters.',
+    ),
+  source: z
+    .string()
+    .describe(
+      'The source field states in a single word where the final answer came from. State either "local" if the answer is derived from the context or "web".',
+    ),
+  notEnoughInformation: z
+    .boolean()
+    .describe(
+      'if the model did not have enough information to answer the question. Default is false',
+    ),
+})
 
-// process PDF context and model output
+const model = new ChatOpenAI({
+  modelName: 'gpt-4',
+  temperature: 0.7,
+  maxTokens: 500,
+})
+
 const pdfChain = RunnableSequence.from([
-  (input) => {
-    console.log('runnning pdfChain', input.question)
-    return { ...input }
-  },
   localPrompt,
-  model,
-  (output) => {
-    console.log('finished pdfChain', output.content)
-    return { pdfResult: output.content }
-  },
+  model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 // process web search and model output
 const webChain = RunnableSequence.from([
-  (input) => {
-    console.log('runnning webChain', input.question)
-    return { ...input }
-  },
   webPrompt,
-  model,
-  (output) => {
-    console.log('finished pdfChain', output.content)
-    return { webResult: output.content }
-  },
+  model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 // branching between pdf and web chains
-const branchChain = RunnableLambda.from(async (input: any, options: any) => {
+const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
-  if (localResponse.pdfResult.includes('NOT_FOUND')) {
+  if (localResponse.notEnoughInformation) {
     const webResponse = await webChain.invoke(input, options)
     return {
-      answer: webResponse.webResult,
-      source: 'web',
+      ...webResponse,
     }
   } else {
     return {
-      answer: localResponse.pdfResult,
-      source: 'pdf',
+      ...localResponse,
     }
   }
 })

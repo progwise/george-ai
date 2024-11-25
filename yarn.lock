@@ -3227,6 +3227,7 @@ __metadata:
     eslint-config-custom: "*"
     pdf-parse: ^1.1.1
     typescript: ^5.2.2
+    zod: ^3.23.8
   languageName: unknown
   linkType: soft
 
@@ -19708,8 +19709,8 @@ __metadata:
   linkType: hard
 
 "langsmith@npm:^0.2.0":
-  version: 0.2.5
-  resolution: "langsmith@npm:0.2.5"
+  version: 0.2.7
+  resolution: "langsmith@npm:0.2.7"
   dependencies:
     "@types/uuid": ^10.0.0
     commander: ^10.0.1
@@ -19722,7 +19723,7 @@ __metadata:
   peerDependenciesMeta:
     openai:
       optional: true
-  checksum: b89e7b62120dc3ee2ca2c3202e65389ea08e88e564256e2d3eee735fa533a7db784a2522e5f86132d128f1e2021a4092b9c4072700b44f3e997871c224d1822b
+  checksum: af0e888e693a555f0e7196701b1f1ff5783dc0320ee095d489033dc9c16d1196d9537734a4449cc3247c6377a51112934565c4546d661c30f13e5e89943baae5
   languageName: node
   linkType: hard
 

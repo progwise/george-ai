@@ -3,9 +3,10 @@ import { ask } from '@george-ai/langchain-chat'
 
 const ChatAnswer = builder.simpleObject('ChatAnswer', {
   fields: (t) => ({
-    answer: t.string(),
-    sessionId: t.string(),
-    source: t.string(),
+    answer: t.string({ nullable: true }),
+    sessionId: t.string({ nullable: true }),
+    source: t.string({ nullable: true }),
+    notEnoughInformation: t.boolean({ nullable: true }),
   }),
 })
 
@@ -25,7 +26,12 @@ builder.mutationField('chat', (t) =>
         sessionId = 'default'
       }
       const result = await ask({ question, sessionId })
-      return { answer: result.answer, sessionId, source: result.source }
+      return {
+        answer: result.answer,
+        sessionId,
+        source: result.source,
+        notEnoughInformation: result.notEnoughInformation,
+      }
     },
   }),
 )
