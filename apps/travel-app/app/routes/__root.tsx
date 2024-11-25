@@ -8,6 +8,8 @@ import {
 import { Meta, Scripts } from '@tanstack/start'
 import React, { ReactNode, Suspense } from 'react'
 
+import '../index.css'
+
 const RootComponent = () => (
   <RootDocument>
     <Outlet />
@@ -63,10 +65,14 @@ const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
     <head>
       <Meta />
     </head>
-    <body>
-      <nav style={{ display: 'flex', gap: '1rem' }}>
-        <Link to="/">Home</Link>
-        <Link to="/chat">Chat</Link>
+    <body className="container mx-auto">
+      <nav className="navbar bg-primary/10">
+        <Link className="btn btn-ghost" to="/">
+          Home
+        </Link>
+        <Link className="btn btn-ghost" to="/chat">
+          Chat
+        </Link>
       </nav>
       {children}
       <ScrollRestoration />

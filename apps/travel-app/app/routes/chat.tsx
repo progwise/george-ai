@@ -7,19 +7,20 @@ const ChatRoute = () => {
   const chatMessagesQuery = useSuspenseQuery(chatMessagesQueryOptions())
 
   return (
-    <>
+    <div className="max-w-96 flex flex-col gap-2 prose">
       <h1>Chat</h1>
-      <ol></ol>
-      {chatMessagesQuery.data.map((message) => (
-        <li
-          key={message.id}
-          style={{ color: message.sender === 'user' ? 'blue' : 'green' }}
-        >
-          {message.text}
-        </li>
-      ))}
+      <section>
+        {chatMessagesQuery.data.map((message) => (
+          <div
+            className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
+            key={message.id}
+          >
+            <div className="chat-bubble">{message.text}</div>
+          </div>
+        ))}
+      </section>
       <ChatForm />
-    </>
+    </div>
   )
 }
 
