@@ -11,14 +11,21 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as ChatImport } from './routes/chat'
+import { Route as LangchainChatImport } from './routes/langchain-chat'
+import { Route as ExampleChatImport } from './routes/example-chat'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
 
-const ChatRoute = ChatImport.update({
-  id: '/chat',
-  path: '/chat',
+const LangchainChatRoute = LangchainChatImport.update({
+  id: '/langchain-chat',
+  path: '/langchain-chat',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ExampleChatRoute = ExampleChatImport.update({
+  id: '/example-chat',
+  path: '/example-chat',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,11 +46,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatImport
+    '/example-chat': {
+      id: '/example-chat'
+      path: '/example-chat'
+      fullPath: '/example-chat'
+      preLoaderRoute: typeof ExampleChatImport
+      parentRoute: typeof rootRoute
+    }
+    '/langchain-chat': {
+      id: '/langchain-chat'
+      path: '/langchain-chat'
+      fullPath: '/langchain-chat'
+      preLoaderRoute: typeof LangchainChatImport
       parentRoute: typeof rootRoute
     }
   }
@@ -53,37 +67,42 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
+  '/example-chat': typeof ExampleChatRoute
+  '/langchain-chat': typeof LangchainChatRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
+  '/example-chat': typeof ExampleChatRoute
+  '/langchain-chat': typeof LangchainChatRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
+  '/example-chat': typeof ExampleChatRoute
+  '/langchain-chat': typeof LangchainChatRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat'
+  fullPaths: '/' | '/example-chat' | '/langchain-chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat'
-  id: '__root__' | '/' | '/chat'
+  to: '/' | '/example-chat' | '/langchain-chat'
+  id: '__root__' | '/' | '/example-chat' | '/langchain-chat'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChatRoute: typeof ChatRoute
+  ExampleChatRoute: typeof ExampleChatRoute
+  LangchainChatRoute: typeof LangchainChatRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChatRoute: ChatRoute,
+  ExampleChatRoute: ExampleChatRoute,
+  LangchainChatRoute: LangchainChatRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,14 +116,18 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/chat"
+        "/example-chat",
+        "/langchain-chat"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/chat": {
-      "filePath": "chat.tsx"
+    "/example-chat": {
+      "filePath": "example-chat.tsx"
+    },
+    "/langchain-chat": {
+      "filePath": "langchain-chat.tsx"
     }
   }
 }

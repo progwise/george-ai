@@ -2,6 +2,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendChatMessage } from '../server-functions/send-chat-message'
 import { chatMessagesQueryOptions } from '../server-functions/chat-history'
 
+const handleTextareaKeyDown = (
+  event: React.KeyboardEvent<HTMLTextAreaElement>,
+) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault()
+
+    event.currentTarget.form?.dispatchEvent(
+      new Event('submit', { bubbles: true, cancelable: true }),
+    )
+  }
+}
+
 export const ChatForm = () => {
   const queryClient = useQueryClient()
   const { mutate, error } = useMutation({
@@ -59,9 +71,15 @@ export const ChatForm = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="message" />
-      <button type="submit">Send</button>
+    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <textarea
+        className="textarea textarea-bordered flex-grow"
+        name="message"
+        onKeyDown={handleTextareaKeyDown}
+      />
+      <button type="submit" className="btn btn-primary">
+        Send
+      </button>
       {error && <div>{error.message}</div>}
     </form>
   )
