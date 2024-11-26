@@ -1,5 +1,5 @@
 {
-  "name": "@george-ai/travel-app",
+  "name": "@george-ai/chat-web",
   "private": true,
   "type": "module",
   "scripts": {

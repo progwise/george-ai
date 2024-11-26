@@ -2796,6 +2796,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@george-ai/chat-web@workspace:apps/chat-web":
+  version: 0.0.0-use.local
+  resolution: "@george-ai/chat-web@workspace:apps/chat-web"
+  dependencies:
+    "@tailwindcss/typography": ^0.5.15
+    "@tanstack/eslint-plugin-router": ^1.82.2
+    "@tanstack/react-query": ^5.61.3
+    "@tanstack/react-query-devtools": ^5.61.3
+    "@tanstack/react-router": ^1.82.8
+    "@tanstack/react-router-with-query": ^1.82.8
+    "@tanstack/router-devtools": ^1.82.8
+    "@tanstack/start": ^1.82.9
+    "@types/react": ^18.3.12
+    "@types/react-dom": ^18.3.1
+    "@vitejs/plugin-react": ^4.3.3
+    autoprefixer: ^10.4.20
+    daisyui: ^4.12.14
+    eslint: ^8.46.0
+    eslint-config-custom: "*"
+    postcss: ^8.4.49
+    react: ^18.3.1
+    react-dom: ^18.3.1
+    tailwindcss: ^3.4.15
+    typescript: ^5.6.3
+    vinxi: ^0.4.3
+    zod: ^3.23.8
+  languageName: unknown
+  linkType: soft
+
 "@george-ai/langchain-chat@*, @george-ai/langchain-chat@workspace:packages/langchain-chat":
   version: 0.0.0-use.local
   resolution: "@george-ai/langchain-chat@workspace:packages/langchain-chat"
@@ -2904,35 +2933,6 @@ __metadata:
     graphql-request: ^6.1.0
     tsup: ^7.2.0
     typescript: ^5.2.2
-  languageName: unknown
-  linkType: soft
-
-"@george-ai/travel-app@workspace:apps/travel-app":
-  version: 0.0.0-use.local
-  resolution: "@george-ai/travel-app@workspace:apps/travel-app"
-  dependencies:
-    "@tailwindcss/typography": ^0.5.15
-    "@tanstack/eslint-plugin-router": ^1.82.2
-    "@tanstack/react-query": ^5.61.3
-    "@tanstack/react-query-devtools": ^5.61.3
-    "@tanstack/react-router": ^1.82.8
-    "@tanstack/react-router-with-query": ^1.82.8
-    "@tanstack/router-devtools": ^1.82.8
-    "@tanstack/start": ^1.82.9
-    "@types/react": ^18.3.12
-    "@types/react-dom": ^18.3.1
-    "@vitejs/plugin-react": ^4.3.3
-    autoprefixer: ^10.4.20
-    daisyui: ^4.12.14
-    eslint: ^8.46.0
-    eslint-config-custom: "*"
-    postcss: ^8.4.49
-    react: ^18.3.1
-    react-dom: ^18.3.1
-    tailwindcss: ^3.4.15
-    typescript: ^5.6.3
-    vinxi: ^0.4.3
-    zod: ^3.23.8
   languageName: unknown
   linkType: soft
 
