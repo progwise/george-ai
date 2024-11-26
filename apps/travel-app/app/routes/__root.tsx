@@ -70,8 +70,11 @@ const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
         <Link className="btn btn-ghost" to="/">
           Home
         </Link>
-        <Link className="btn btn-ghost" to="/chat">
-          Chat
+        <Link className="btn btn-ghost" to="/example-chat">
+          Example Chat
+        </Link>
+        <Link className="btn btn-ghost" to="/langchain-chat">
+          Langchain Chat
         </Link>
       </nav>
       {children}
