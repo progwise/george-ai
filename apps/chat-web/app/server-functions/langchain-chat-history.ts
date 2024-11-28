@@ -13,7 +13,7 @@ const fetchChatHistory = createServerFn({ method: 'GET' }).handler(
 
 export const chatMessagesQueryOptions = () =>
   queryOptions({
-    queryKey: ['chatMessages'],
+    queryKey: ['langchainChatMessages'],
     queryFn: () => fetchChatHistory(),
   })
 
