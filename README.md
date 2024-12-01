@@ -2,121 +2,53 @@
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Obtaining API Keys](#obtaining-api-keys)
+- [George AI Project](#george-ai-project)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+    - [Clone and Install Dependencies](#clone-and-install-dependencies)
+  - [Install Docker](#install-docker)
+    - [Debian](#debian)
 
 ## Prerequisites
 
 - Node.js version 20 is required for this project.
+- This project currently uses yarn as the package manager.
 
 ## Getting Started
 
 ### Clone and Install Dependencies
 
 1. Clone the repository
-2. Run `yarn` at the root directory
+2. ```bash
+   cd apps/george-ai-server
+   mv .env.example .env
+   ```
 
-### Configure Environment Files
-
-1. `cd apps/strapi-cms`
-2. `cp .env.example .env`
-   Repeat for other services (playwright-scraper, nextjs-web, typesense-cli, georgeai-server)
-
-### Run Development Environment
-
-**Make sure all environment variables are properly set before starting the development environment.**
-
-Execute the following command at the root directory to start the development environment:
+3. fill the .env file with the API keys.
+4. get back to the root folder and run the following commands:
 
 ```bash
-yarn run dev
+cd ../..
+yarn
 ```
 
-### Run Docker
+Then you will need to install docker version 17.12.0 or later and vscode extension "Remote - Containers" and "Remote - SSH" to run the project in a container.
 
-1. start docker
-2. `docker-compose up`
+## Install Docker
 
-### Run Scraper
+### Debian
 
-1. `cd apps/playwright-scraper`
-2. `yarn run scrape`
-3. `yarn run generatesummaries`
+to install docker on [Debian](https://docs.docker.com/desktop/setup/install/linux/debian/)
 
-### Run Typesense-CLI
+Then, in your vscode press `ctrl + shift + p' and select "Dev Container: Rebuid and Reopen in Container" just like the image below:
 
-1. `cd apps/typesense-cli`
-2. `yarn run rebuildcollection`
+![alt text](<Screenshot from 2024-12-01 16-57-47.png>)
 
-### Run stand-alone graphql server
+Then do the following steps:
 
-1. `cd apps/georgeai-server`
-2. `yarn start`
-
-## Environment Variables
-
-Different parts of the application require specific environment variables to be set in the respective `.env` files within each app directory and at the root of the project.
-
-### Common Variables
-
-#### `STRAPI_API_KEY`
-
-This variable is required in the `.env` files of:
-
-- `apps/nextjs-web/.env`
-- `apps/playwright-scraper/.env`
-- `apps/typesense-cli/.env`
-- `.env` (at the project root)
-
-### Typesense-Specific Variables
-
-- `TYPESENSE_API_HOST`
-- `TYPESENSE_API_PORT`
-- `TYPESENSE_API_PROTOCOL`
-- `TYPESENSE_API_KEY`
-
-These variables are required in the `.env` files of:
-
-- `apps/nextjs-web/.env`
-- `apps/strapi-cms/.env`
-- `apps/typesense-cli/.env`
-
-### OpenAI-Specific Variables
-
-- `OPENAI_API_KEY`
-- `OPENAI_API_ORG`
-
-### Tavily web search for AI
-
-Only required to run the document chat client
-
-- TAVILY_API_KEY=
-
-These variables are required in the `.env` file of `apps/playwright-scraper/.env`.
-
-## Obtaining API Keys
-
-### STRAPI_API_KEY
-
-To obtain a `STRAPI_API_KEY`, follow these steps:
-
-1. **Login to Admin Panel**: Visit the Strapi admin interface (usually at `http://localhost:1337/admin`) and log in.
-2. **Navigate to Settings**: Once logged in, go to the "Settings" menu.
-3. **API Tokens**: Click on "API Tokens".
-4. **Create New API Token**: Click the "Create new API Token" button.
-5. **Configure Token**:
-   - **Name**: Enter a name for the API token.
-   - **Token Duration**: Set the expiration duration for the token.
-   - **Token Type**: Choose the type of token you'd like to generate.
-6. **Save**: Click the "Save" button to generate the token.
-7. **Copy Token**: Your new API token will be displayed. Make sure to copy it and save it securely, as you will not be able to see it again.
-
-Place this token in the relevant `.env` files where `STRAPI_API_KEY` is required.
-
-![Project Architecture](https://github.com/progwise/george-ai/assets/16672443/892a434c-7c93-44f6-a3f7-b8cb5b28d66f)
-
-### Project Architecture Diagram
-
-The diagram above illustrates how Strapi, Typesense, Pothos, and Next.js are interconnected. It shows the direction in which queries are made or written.
+```bash
+cd apps/george-ai-server
+yarn
+yarn start
+```
