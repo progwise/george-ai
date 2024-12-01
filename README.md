@@ -29,7 +29,7 @@
 4. get back to the root folder and run the following commands:
 
 ```bash
-cd ../..
+cd $(git rev-parse --show-toplevel)
 yarn
 ```
 
@@ -47,8 +47,23 @@ Then, in your vscode press `ctrl + shift + p' and select "Dev Container: Rebuid 
 
 Then do the following steps:
 
+#### to start the server:
+
 ```bash
 cd apps/george-ai-server
 yarn
 yarn start
 ```
+
+Then you should go to localhost:3000 to see the server running.
+
+to run the chat interface:
+
+```bash
+cd $(git rev-parse --show-toplevel)
+cd apps/chat-web
+yarn
+yarn start
+```
+
+Then you should go to localhost:3001 to see the chat interface running.
