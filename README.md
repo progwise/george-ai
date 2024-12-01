@@ -67,3 +67,23 @@ yarn start
 ```
 
 Then you should go to localhost:3001 to see the chat interface running.
+
+## Modify the Chat Bot Agent
+
+To modify the code in of the chat bot Agent go to:
+
+```bash
+cd $(git rev-parse --show-toplevel)
+cd packages/langchain-chat/src
+```
+
+Then you can see the ts files there:
+
+```bash
+.
+├── index.ts
+├── main-chain.ts
+├── message-history.ts
+├── pdf-vectorstore.ts
+└── prompts.ts
+```
