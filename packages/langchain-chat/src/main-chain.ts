@@ -8,7 +8,7 @@ import {
 
 import { localPrompt, webPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
-import { getPDFContentForQuestion } from './pdf-vectorstore'
+import { getPDFContentForQuestion, getWebContent } from './pdf-vectorstore'
 import * as z from 'zod'
 
 const outputSchema = z.object({
@@ -41,9 +41,15 @@ const pdfChain = RunnableSequence.from([
 ])
 
 // process web search and model output
+
 const webChain = RunnableSequence.from([
+  async (input) => ({
+    ...input,
+    webResults: await getWebContent(input.question),
+  }),
   webPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
+  model,
+  (output) => `[Web Source] ${output.content}`,
 ])
 
 // branching between pdf and web chains
@@ -52,7 +58,7 @@ const branchChain = RunnableLambda.from(async (input, options) => {
   if (localResponse.notEnoughInformation) {
     const webResponse = await webChain.invoke(input, options)
     return {
-      ...webResponse,
+      webResponse,
     }
   } else {
     return {
