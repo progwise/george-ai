@@ -81,7 +81,7 @@ Once Docker is installed, open VS Code and:
 1. Navigate to the server directory:
 
    ```bash
-   cd apps/george-ai-server
+   cd apps/georgeai-server
    ```
 
 2. Install dependencies and start the server:
