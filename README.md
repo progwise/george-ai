@@ -1,5 +1,7 @@
 # George AI Project
 
+Welcome to the **George AI Project**!
+
 ## Table of Contents
 
 - [George AI Project](#george-ai-project)
@@ -7,68 +9,111 @@
   - [Prerequisites](#prerequisites)
   - [Getting Started](#getting-started)
     - [Clone and Install Dependencies](#clone-and-install-dependencies)
-  - [Install Docker](#install-docker)
-    - [Debian](#debian)
-      - [to start the server:](#to-start-the-server)
-  - [Modify the Chat Bot Agent](#modify-the-chat-bot-agent)
+    - [Install Docker](#install-docker)
+      - [Installing on Debian](#installing-on-debian)
+    - [Running the Server and Chat Interface](#running-the-server-and-chat-interface)
+      - [Start the Server](#start-the-server)
+      - [Start the Chat Interface](#start-the-chat-interface)
+      - [Sending Messages via GraphiQL](#sending-messages-via-graphiql)
+  - [Modifying the Chat Bot Agent](#modifying-the-chat-bot-agent)
+
+---
 
 ## Prerequisites
 
-- Node.js version 20 is required for this project.
-- This project currently uses yarn as the package manager.
+Before you begin, ensure you have the following installed:
+
+- **Node.js**: Version 20 or later.
+- **Yarn**: Used as the package manager for this project.
+- **Docker**: Version 17.12.0 or later.
+- **VS Code Extensions**:
+  - [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  - [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+
+---
 
 ## Getting Started
 
 ### Clone and Install Dependencies
 
-1. Clone the repository
-2. ```bash
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/progwise/george-ai.git
+   ```
+
+2. Navigate to the server directory:
+
+   ```bash
    cd apps/george-ai-server
    mv .env.example .env
    ```
 
-3. fill the .env file with the API keys.
-4. get back to the root folder and run the following commands:
+3. Fill the `.env` file with the required API keys.
 
-```bash
-cd $(git rev-parse --show-toplevel)
-yarn
-```
+4. Return to the root folder and install dependencies:
+   ```bash
+   cd $(git rev-parse --show-toplevel)
+   yarn
+   ```
 
-Then you will need to install docker version 17.12.0 or later and vscode extension "Remote - Containers" and "Remote - SSH" to run the project in a container.
+---
 
-## Install Docker
+### Install Docker
 
-### Debian
+#### Installing on Debian
 
-to install docker on [Debian](https://docs.docker.com/desktop/setup/install/linux/debian/)
+To install Docker on Debian, follow the [official Docker documentation](https://docs.docker.com/desktop/setup/install/linux/debian/).
 
-Then, in your vscode press `ctrl + shift + p' and select "Dev Container: Rebuid and Reopen in Container" just like the image below:
+Once Docker is installed, open VS Code and:
 
-![alt text](<Screenshot from 2024-12-01 16-57-47.png>)
+1. Press `Ctrl + Shift + P`.
+2. Select **Dev Container: Rebuild and Reopen in Container**.
+3. Follow the prompts, similar to the example below:
 
-Then do the following steps:
+   ![alt text](<Screenshot from 2024-12-01 16-57-47.png>)
 
-#### to start the server:
+---
 
-```bash
-cd apps/george-ai-server
-yarn
-yarn start
-```
+### Running the Server and Chat Interface
 
-Then you should go to localhost:3000 to see the server running.
+#### Start the Server
 
-to run the chat interface:
+1. Navigate to the server directory:
 
-```bash
-cd $(git rev-parse --show-toplevel)
-cd apps/chat-web
-yarn
-yarn dev
-```
+   ```bash
+   cd apps/george-ai-server
+   ```
 
-Then you can send messages to the yoga graphiql interface like this:
+2. Install dependencies and start the server:
+
+   ```bash
+   yarn
+   yarn start
+   ```
+
+3. Visit `http://localhost:3000` to verify the server is running.
+
+#### Start the Chat Interface
+
+1. Navigate to the chat interface directory:
+
+   ```bash
+   cd $(git rev-parse --show-toplevel)/apps/chat-web
+   ```
+
+2. Install dependencies and start the development server:
+
+   ```bash
+   yarn
+   yarn dev
+   ```
+
+3. Visit `http://localhost:3001` to interact with the chat interface.
+
+#### Sending Messages via GraphiQL
+
+To send messages using the GraphiQL interface, use the following mutation:
 
 ```graphql
 mutation {
@@ -79,24 +124,24 @@ mutation {
 }
 ```
 
-Then you should go to localhost:3001 to see the chat interface running.
+---
 
-## Modify the Chat Bot Agent
+## Modifying the Chat Bot Agent
 
-To modify the code in of the chat bot Agent go to:
+To modify the chatbot agent logic, navigate to the source code directory:
 
 ```bash
-cd $(git rev-parse --show-toplevel)
-cd packages/langchain-chat/src
+cd $(git rev-parse --show-toplevel)/packages/langchain-chat/src
 ```
 
-Then you can see the ts files there:
+Here, you will find the following TypeScript files:
 
-```bash
+```plaintext
 .
 ├── index.ts
 ├── main-chain.ts
 ├── message-history.ts
 ├── pdf-vectorstore.ts
-└── prompts.ts
+├── prompts.ts
+└── web-vectorstore.ts
 ```
