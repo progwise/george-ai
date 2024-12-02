@@ -9,6 +9,8 @@
     - [Clone and Install Dependencies](#clone-and-install-dependencies)
   - [Install Docker](#install-docker)
     - [Debian](#debian)
+      - [to start the server:](#to-start-the-server)
+  - [Modify the Chat Bot Agent](#modify-the-chat-bot-agent)
 
 ## Prerequisites
 
@@ -63,7 +65,7 @@ to run the chat interface:
 cd $(git rev-parse --show-toplevel)
 cd apps/chat-web
 yarn
-yarn start
+yarn dev
 ```
 
 Then you can send messages to the yoga graphiql interface like this:
