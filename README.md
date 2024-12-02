@@ -68,8 +68,7 @@ To install Docker on Debian, follow the [official Docker documentation](https://
 Once Docker is installed, open VS Code and:
 
 1. Press `Ctrl + Shift + P`.
-2. Select **Dev Container: Rebuild and Reopen in Container**.
-3. Follow the prompts, similar to the example below:
+2. Select **Dev Container: Rebuild and Reopen in Container**, similar to the example below:
 
    ![alt text](<Screenshot from 2024-12-01 16-57-47.png>)
 
