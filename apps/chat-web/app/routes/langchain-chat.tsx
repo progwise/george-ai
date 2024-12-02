@@ -5,6 +5,7 @@ import {
 } from '../server-functions/langchain-chat-history'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LangchainChatForm } from '../components/langchain-chat-form'
+import { useEffect } from 'react'
 
 const ChatRoute = () => {
   const { data, refetch, status } = useSuspenseQuery(chatMessagesQueryOptions())
@@ -19,7 +20,7 @@ const ChatRoute = () => {
       <button
         onClick={async () => {
           await reset()
-          chatMessagesQuery.refetch()
+          refetch()
         }}
       >
         Reset
