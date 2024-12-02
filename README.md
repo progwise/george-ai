@@ -70,7 +70,7 @@ Once Docker is installed, open VS Code and:
 1. Press `Ctrl + Shift + P`.
 2. Select **Dev Container: Rebuild and Reopen in Container**, similar to the example below:
 
-   ![alt text](<Screenshot from 2024-12-01 16-57-47.png>)
+   ![alt text](devContainerScreenCaputre.png)
 
 ---
 
