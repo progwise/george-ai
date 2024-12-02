@@ -16,7 +16,7 @@ const handleTextareaKeyDown = (
 
 export const LangchainChatForm = () => {
   const queryClient = useQueryClient()
-  const { mutate, error } = useMutation({
+  const { mutate, error, status } = useMutation({
     mutationFn: (message: string) => sendChatMessage({ data: { message } }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions())
@@ -81,7 +81,11 @@ export const LangchainChatForm = () => {
         name="message"
         onKeyDown={handleTextareaKeyDown}
       />
-      <button type="submit" className="btn btn-primary">
+      <button
+        type="submit"
+        className="btn btn-primary"
+        disabled={status === 'pending'}
+      >
         Send
       </button>
       {error && <div>{error.message}</div>}

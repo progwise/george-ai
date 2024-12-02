@@ -5,9 +5,14 @@ import {
 } from '../server-functions/langchain-chat-history'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LangchainChatForm } from '../components/langchain-chat-form'
+import { useEffect } from 'react'
 
 const ChatRoute = () => {
-  const chatMessagesQuery = useSuspenseQuery(chatMessagesQueryOptions())
+  const { data, refetch, status } = useSuspenseQuery(chatMessagesQueryOptions())
+
+  useEffect(() => {
+    window.scrollTo(0, document.body.scrollHeight)
+  }, [data])
 
   return (
     <div className="flex flex-col gap-2 prose">
@@ -15,13 +20,13 @@ const ChatRoute = () => {
       <button
         onClick={async () => {
           await reset()
-          chatMessagesQuery.refetch()
+          refetch()
         }}
       >
         Reset
       </button>
       <section>
-        {chatMessagesQuery.data.map((message) => (
+        {data.map((message) => (
           <div
             className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
             key={message.id}
