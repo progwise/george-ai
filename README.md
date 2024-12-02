@@ -66,6 +66,17 @@ yarn
 yarn start
 ```
 
+Then you can send messages to the yoga graphiql interface like this:
+
+```graphql
+mutation {
+  chat(question: "What can I do in Greifswald?", sessionId: "v1") {
+    answer
+    source
+  }
+}
+```
+
 Then you should go to localhost:3001 to see the chat interface running.
 
 ## Modify the Chat Bot Agent
