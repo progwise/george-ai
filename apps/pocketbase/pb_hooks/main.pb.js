@@ -5,3 +5,9 @@ onRecordUpdate((e) => {
 
   e.next()
 }, 'documents')
+
+onRecordCreate((e) => {
+  console.log('documents created...', JSON.stringify(e.record, null, 2))
+
+  e.next()
+}, 'documents')
