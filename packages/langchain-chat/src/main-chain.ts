@@ -8,7 +8,8 @@ import {
 
 import { localPrompt, webPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
-import { getPDFContentForQuestion, getWebContent } from './pdf-vectorstore'
+import { getPDFContentForQuestion } from './pdf-vectorstore'
+import { getWebContent } from './web-vectorstore'
 import * as z from 'zod'
 
 const outputSchema = z.object({
