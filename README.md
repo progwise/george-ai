@@ -45,7 +45,7 @@ Before you begin, ensure you have the following installed:
 2. Navigate to the server directory:
 
    ```bash
-   cd apps/george-ai-server
+   cd apps/georgeai-server
    mv .env.example .env
    ```
 
