@@ -15,7 +15,7 @@ const ChatRoute = () => {
   }, [data])
 
   return (
-    <div className="flex flex-col gap-2 prose">
+    <div className="flex flex-col gap-2 prose mb-10">
       <h1>Langchain Chat</h1>
       <button
         onClick={async () => {

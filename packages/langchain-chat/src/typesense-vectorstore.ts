@@ -22,9 +22,9 @@ const vectorTypesenseClient = new Client({
   nodes: [
     {
       // Ideally should come from your .env file
-      host: 'localhost',
-      port: 8108,
-      protocol: 'http',
+      host: process.env.TYPESENSE_API_HOST || 'gai-typesense',
+      port: Number.parseInt(process.env.TYPESENSE_API_PORT || '8108'),
+      protocol: process.env.TYPESENSE_API_PROTOCOL || 'http',
     },
   ],
   // Ideally should come from your .env file
