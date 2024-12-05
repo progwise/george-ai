@@ -44,13 +44,15 @@ const pdfChain = RunnableSequence.from([
 // process web search and model output
 
 const webChain = RunnableSequence.from([
-  async (input) => ({
-    ...input,
-    webResults: await getWebContent(input.question),
-  }),
+  async (input) => {
+    const context = await getWebContent({
+      question: input.question,
+    })
+    input.context = context
+    return input
+  },
   webPrompt,
-  model,
-  (output) => `[Web Source] ${output.content}`,
+  model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 // branching between pdf and web chains
@@ -58,8 +60,9 @@ const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
   if (localResponse.notEnoughInformation) {
     const webResponse = await webChain.invoke(input, options)
+
     return {
-      webResponse,
+      ...webResponse,
     }
   } else {
     return {
