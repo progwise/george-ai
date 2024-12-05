@@ -27,7 +27,6 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
 
     {context}
 
-    
     Remove all control characters and provide the answer to the user's question as specifically as possible.
     `,
   ],
