@@ -4,13 +4,16 @@ import { LangchainChatMessage, chatStore } from '../store/langchain-chat-store'
 
 const fetchChatHistory = createServerFn({ method: 'GET' }).handler(
   async (): Promise<LangchainChatMessage[]> => {
+    // Simulate a slow network request
+    // await new Promise((resolve) => setTimeout(resolve, 2000))
+
     return chatStore.getChat()
   },
 )
 
 export const chatMessagesQueryOptions = () =>
   queryOptions({
-    queryKey: ['langchainChatMessages'],
+    queryKey: ['chatMessages'],
     queryFn: () => fetchChatHistory(),
   })
 

@@ -34,6 +34,9 @@ const sendChatMessage = async (
   message: string,
 ): Promise<LangchainChatMessage[]> => {
   const oldChat = await getChat()
+
+  // const answer =
+  //   possibleAnswers[Math.floor(Math.random() * possibleAnswers.length)]
   const langchainResult = await ask({
     question: message,
     sessionId: langchainSessionId,
