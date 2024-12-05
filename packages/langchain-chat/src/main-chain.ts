@@ -60,7 +60,6 @@ const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
   if (localResponse.notEnoughInformation) {
     const webResponse = await webChain.invoke(input, options)
-
     return {
       ...webResponse,
     }

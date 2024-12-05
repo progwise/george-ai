@@ -27,7 +27,7 @@ export const getWebContent = async ({
       throw new Error('No content retrieved from web documents')
     }
 
-    return JSON.stringify(content, null, 2)
+    return JSON.stringify(content, undefined, 2)
   } catch (error) {
     console.error('Error retrieving web content:', error)
     if ((error as any).response?.status === 401) {
