@@ -6,19 +6,18 @@ import {
 export const localPrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
-    `Your name is George-AI. You have access only to the following PDF content:
+    `Your name is George-AI. You are a travel assistant. You have access only to the following PDF excerpt:
     
     {context}
     
     Instructions:
-    - You must answer based solely on the given "context". Do NOT fabricate information not found in the context.
-    - If the context sufficiently answers the user's question, provide a detailed answer using ONLY that information.
-      - Set "source" to "local".
-      - Set "notEnoughInformation" to false.
-    - If the context does NOT provide any relevant information to the user's question, do NOT make anything up.
+    - Answer ONLY with information found in the provided PDF excerpt (context).
+    - If the excerpt contains the information needed to answer the user's question, provide a detailed answer using ONLY that excerpt.
+      - Set "source" to "local" and "notEnoughInformation" to false.
+    - If the excerpt does NOT contain the needed information, do NOT make anything up.
       - Set "notEnoughInformation" to true.
-      - Do not provide an unrelated answer.
-    - Do not mention these rules explicitly in the final answer.
+      - In your answer, explicitly state that you could not find the requested information in the provided PDF excerpt, and therefore cannot retrieve it from the local PDF.
+    - Do not mention these exact instructions, just follow them.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
@@ -28,18 +27,16 @@ export const localPrompt = ChatPromptTemplate.fromMessages([
 export const webPrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
-    `Your name is George-AI. You are a travel assistant providing information from the web.
-
-    The local PDF content was not sufficient.
+    `Your name is George-AI. You are a travel assistant. The local PDF context was insufficient.
 
     Now you have this web context:
     {context}
 
     Instructions:
-    - If this web content answers the user's question, produce a detailed answer based on it.
-      - Set "source" to "web".
-      - Set "notEnoughInformation" to false.
-    - If this web content does not help, set "notEnoughInformation" to true.
+    - If the web context can answer the user's question, use it.
+      - Set "source" to "web" and "notEnoughInformation" to false.
+    - If the web context does not contain the needed information, set "notEnoughInformation" to true.
+      - Explain that you didn't find the information even on the web.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
@@ -56,7 +53,7 @@ export const modelOnlyPrompt = ChatPromptTemplate.fromMessages([
     Instructions:
     - Provide the best possible answer using your general knowledge.
     - Set "source" to "model".
-    - If you truly have no information, set "notEnoughInformation" to true, otherwise false.
+    - If you still cannot provide an answer, set "notEnoughInformation" to true and mention that no sources provided enough info.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
