@@ -45,7 +45,6 @@ const webChain = RunnableSequence.from([
     const context = await getWebContent({
       question: input.question,
     })
-    input.context = context
     return { ...input, context }
   },
   webPrompt,
@@ -61,17 +60,14 @@ const modelChain = RunnableSequence.from([
 const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
   if (!localResponse.notEnoughInformation) {
-    // Local had enough info
     return localResponse
   }
 
-  // Local not enough, try web
   const webResponse = await webChain.invoke(input, options)
   if (!webResponse.notEnoughInformation) {
     return webResponse
   }
 
-  // Web not enough, try model
   return await modelChain.invoke(input, options)
 })
 
