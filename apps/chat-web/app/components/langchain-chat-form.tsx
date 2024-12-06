@@ -32,14 +32,14 @@ export const LangchainChatForm = () => {
             id: Math.random().toString(),
             sender: 'user',
             text: message,
-            source: 'local, web, or model',
+            source: '',
             time: new Date(),
           },
           {
             id: Math.random().toString(),
             sender: 'bot',
             text: '.........',
-            source: 'local, web, or model',
+            source: '',
             time: new Date(),
           },
         ])

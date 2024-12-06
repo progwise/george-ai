@@ -5,7 +5,7 @@ import {
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt, modelOnlyPrompt } from './prompts'
+import { localPrompt, webPrompt, modelPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
 import { getPDFContentForQuestion } from './pdf-vectorstore'
 import { getWebContent } from './web-vectorstore'
@@ -15,7 +15,7 @@ const outputSchema = z.object({
   answer: z
     .string()
     .describe(
-      'The answer to the human question without any hidden special characters. Must follow the prompt instructions.',
+      'The answer to the human question without any hidden special characters.',
     ),
   source: z
     .string()
@@ -46,33 +46,33 @@ const webChain = RunnableSequence.from([
       question: input.question,
     })
     input.context = context
-    return input
+    return { ...input, context }
   },
   webPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const modelOnlyChain = RunnableSequence.from([
-  modelOnlyPrompt,
+const modelChain = RunnableSequence.from([
+  modelPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 // Branching logic: local -> web -> model
 const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
-  if (localResponse.notEnoughInformation) {
-    // Local didn't have info, try web
-    const webResponse = await webChain.invoke(input, options)
-    if (webResponse.notEnoughInformation) {
-      // Web didn't have info either, fallback to model
-      const modelResponse = await modelOnlyChain.invoke(input, options)
-      return modelResponse
-    } else {
-      return webResponse
-    }
-  } else {
+  if (!localResponse.notEnoughInformation) {
+    // Local had enough info
     return localResponse
   }
+
+  // Local not enough, try web
+  const webResponse = await webChain.invoke(input, options)
+  if (!webResponse.notEnoughInformation) {
+    return webResponse
+  }
+
+  // Web not enough, try model
+  return await modelChain.invoke(input, options)
 })
 
 const mainChain = RunnableSequence.from([
