@@ -56,7 +56,6 @@ const modelChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-// Branching logic: local -> web -> model
 const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
   if (!localResponse.notEnoughInformation) {
