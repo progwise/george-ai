@@ -43,7 +43,7 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
   ['human', '{question}'],
 ])
 
-export const modelOnlyPrompt = ChatPromptTemplate.fromMessages([
+export const modelPrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
     `Your name is George-AI. Both local PDF and web retrievals were insufficient.
