@@ -19,6 +19,7 @@ export const getWebContent = async ({
       throw new Error('Invalid response format: Expected an array of documents')
     }
 
+    console.log('Retrieved web content:', webDocuments)
     const content = webDocuments
       .map((document_) => document_.pageContent)
       .join('\n\n')
@@ -27,7 +28,8 @@ export const getWebContent = async ({
       throw new Error('No content retrieved from web documents')
     }
 
-    return JSON.stringify(content, undefined, 2)
+    const webResponse = JSON.stringify(content, undefined, 2)
+    return webResponse
   } catch (error) {
     console.error('Error retrieving web content:', error)
     if ((error as any).response?.status === 401) {

@@ -2,7 +2,6 @@
 
 onRecordUpdate((e) => {
   try {
-    e.next()
     var url = $os.getenv('GAI_WEBHOOK_URL')
     console.log('sending webhook to:', url)
     const res = $http.send({
@@ -11,13 +10,14 @@ onRecordUpdate((e) => {
     })
   } catch (e) {
     console.error('error sending hook:', e)
+  } finally {
+    e.next()
   }
 }, 'documents')
 
 onRecordCreate((e) => {
   console.log('documents created3...', JSON.stringify(e.record, null, 2))
   try {
-    e.next()
     var url = $os.getenv('GAI_WEBHOOK_URL')
     console.log('sending webhook to:', url)
     const res = $http.send({
@@ -26,5 +26,7 @@ onRecordCreate((e) => {
     })
   } catch (e) {
     console.error('error sending hook:', e)
+  } finally {
+    e.next()
   }
 }, 'documents')

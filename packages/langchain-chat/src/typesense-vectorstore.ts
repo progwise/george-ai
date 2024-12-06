@@ -73,7 +73,7 @@ const typesenseVectorStoreConfig = {
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
-    metadataColumnNames: ['points', 'docName', 'docType'],
+    metadataColumnNames: ['points', 'docName', 'docType', 'docId'],
   },
 
   // Optional search parameters to be passed to Typesense when searching
@@ -136,13 +136,13 @@ const loadDocument = async (document: {
   return splitDocuments
 }
 
-const removeFilesByNames = async (fileNames: string[]) => {
-  const promises = fileNames.map((fileName) => {
-    console.log('removing file:', fileName)
+const removeFilesByDocumentIds = async (documentIds: string[]) => {
+  const promises = documentIds.map((documentId) => {
+    console.log('removing file:', documentId)
     return vectorTypesenseClient
       .collections('gai-documents')
       .documents()
-      .delete({ filter_by: `docName:=${fileName}` })
+      .delete({ filter_by: `docId:=${documentId}` })
   })
   await Promise.all(promises)
 }
@@ -168,11 +168,11 @@ const loadDocuments = async (
     }),
   )
   splitDocuments.map(async (splitDocument, index) => {
-    const fileNames = [
-      ...new Set(splitDocument.map((document) => document.metadata.docName)),
+    const documentIds = [
+      ...new Set(splitDocument.map((document) => document.metadata.docId)),
     ]
-    console.log('removing files:', fileNames)
-    await removeFilesByNames(fileNames)
+    console.log('removing files:', documentIds)
+    await removeFilesByDocumentIds(documentIds)
     console.log(
       'loading documents:',
       JSON.stringify(splitDocument, undefined, 2),
@@ -195,10 +195,10 @@ const loadDocuments = async (
       )
     } catch (error) {
       if (error instanceof ImportError) {
-        // console.error(
-        //   'Error loading documents:',
-        //   JSON.stringify(error.importResults, undefined, 2),
-        // )
+        console.error(
+          'Error loading documents:',
+          JSON.stringify(error.importResults, undefined, 2),
+        )
       } else {
         console.error('Error loading documents:', error)
       }
@@ -206,10 +206,16 @@ const loadDocuments = async (
   })
 }
 
+let processing = 0
+
 export const loadUprocessedDocumentsIntoVectorStore = async () => {
+  console.log('processing:', processing++)
   await ensureVectorStore()
   const documents = await getUnprocessedDocuments()
-  console.log('found unprocessed documents:', documents.length)
+  console.log(
+    'unprocessed documents:',
+    documents.map((d) => d.fileName),
+  )
   await loadDocuments(documents)
 }
 
@@ -219,6 +225,7 @@ export const getPDFContentForQuestion = async (question: string) => {
   try {
     console.log('searching for:', question)
     const documents = await typesenseVectorStore.similaritySearch(question)
+    console.log('retrieved documents:', documents)
     const content = documents
       .map((document_) => document_.pageContent)
       .join('\n\n')
