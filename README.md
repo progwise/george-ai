@@ -1,8 +1,8 @@
 # George AI Project
 
-Welcome to the **George AI Project**!
+**Welcome to the George AI Project!**
 
-This project features a chatbot agent built with LangChain that prioritizes local PDF-based retrieval before resorting to web or model-generated content. The agent now clearly indicates the source of its answers—**"local"**, **"web"**, or **"model"**—ensuring greater transparency in how responses are derived.
+This project introduces a chatbot agent built using LangChain. It prioritizes retrieving information from local PDFs before resorting to web-based searches or model-generated content. The agent provides clear transparency by labeling its answers as **"local"**, **"web"**, or **"model"**, so you always know the source of its response.
 
 ## Table of Contents
 
@@ -19,11 +19,9 @@ This project features a chatbot agent built with LangChain that prioritizes loca
       - [Sending Messages via GraphiQL](#sending-messages-via-graphiql)
   - [Modifying the Chat Bot Agent](#modifying-the-chat-bot-agent)
 
----
-
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+Before you get started, ensure you have the following tools installed:
 
 - **Node.js**: Version 20 or later.
 - **Yarn**: Used as the package manager.
@@ -31,8 +29,6 @@ Before you begin, ensure you have the following installed:
 - **VS Code Extensions**:
   - [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
   - [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
-
----
 
 ## Getting Started
 
@@ -44,22 +40,21 @@ Before you begin, ensure you have the following installed:
    git clone https://github.com/progwise/george-ai.git
    ```
 
-2. Navigate to the server directory and set up environment variables:
+2. Navigate to the server directory and set up the environment variables:
 
    ```bash
    cd apps/georgeai-server
    mv .env.example .env
    ```
 
-3. Populate the `.env` file with the required API keys.
+3. Populate the `.env` file with the necessary API keys.
 
-4. Return to the repository’s root folder and install dependencies:
+4. Return to the repository's root folder and install dependencies:
+
    ```bash
    cd $(git rev-parse --show-toplevel)
    yarn
    ```
-
----
 
 ### Install Docker
 
@@ -67,14 +62,12 @@ Before you begin, ensure you have the following installed:
 
 Follow the [official Docker documentation](https://docs.docker.com/desktop/setup/install/linux/debian/) for installation instructions.
 
-After installation, open VS Code and:
+Once installed, open VS Code and:
 
 1. Press `Ctrl + Shift + P`.
 2. Select **Dev Container: Rebuild and Reopen in Container**.
 
    ![alt text](devContainerScreenCaputre.png)
-
----
 
 ### Running the Server and Chat Interface
 
@@ -93,7 +86,7 @@ After installation, open VS Code and:
    yarn start
    ```
 
-3. The server should now be running at `http://localhost:3000`.
+3. The server should now be running at `http://localhost:300X`.
 
 #### Start the Chat Interface
 
@@ -114,7 +107,7 @@ After installation, open VS Code and:
 
 #### Sending Messages via GraphiQL
 
-You can test the chatbot using GraphiQL:
+You can also test the chatbot using GraphiQL:
 
 ```graphql
 mutation {
@@ -125,19 +118,17 @@ mutation {
 }
 ```
 
-**Note:** The `source` field now indicates whether the answer came from the local PDF (`"local"`), a web-based retrieval (`"web"`), or the model’s own reasoning (`"model"`).
-
----
+**Note:** The `source` field specifies if the answer is derived from a local PDF (`"local"`), a web search (`"web"`), or the model's reasoning (`"model"`).
 
 ## Modifying the Chat Bot Agent
 
-To modify the chatbot’s retrieval and reasoning logic, go to the source directory:
+To customize the chatbot’s retrieval and reasoning logic, go to the source directory:
 
 ```bash
 cd $(git rev-parse --show-toplevel)/packages/langchain-chat/src
 ```
 
-Here, you can find the main TypeScript files:
+The following TypeScript files define the chatbot’s behavior:
 
 - `index.ts`
 - `main-chain.ts`
@@ -146,4 +137,4 @@ Here, you can find the main TypeScript files:
 - `prompts.ts`
 - `web-vectorstore.ts`
 
-These files define how the chatbot retrieves context from the PDF, when it resorts to web search, and how it falls back to model reasoning. Adjusting these prompts and chains can further fine-tune the agent’s behavior.
+These files control how the chatbot retrieves context from PDFs, when it turns to web-based retrieval, and how it uses model reasoning. Adjust the prompts and chains in these files to further fine-tune the agent’s behavior.
