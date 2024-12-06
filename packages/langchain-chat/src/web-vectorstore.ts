@@ -1,4 +1,5 @@
 import { TavilySearchAPIRetriever } from '@langchain/community/retrievers/tavily_search_api'
+
 const WEB_RETRIEVAL_K = 4
 
 const retrieverWeb = new TavilySearchAPIRetriever({
@@ -12,7 +13,6 @@ export const getWebContent = async ({
 }): Promise<string> => {
   try {
     const webQuery = `${question}`
-
     const webDocuments = await retrieverWeb.invoke(webQuery)
 
     if (!webDocuments || !Array.isArray(webDocuments)) {
