@@ -2,6 +2,8 @@
 
 Welcome to the **George AI Project**!
 
+This project features a chatbot agent built with LangChain that prioritizes local PDF-based retrieval before resorting to web or model-generated content. The agent now clearly indicates the source of its answers—**"local"**, **"web"**, or **"model"**—ensuring greater transparency in how responses are derived.
+
 ## Table of Contents
 
 - [George AI Project](#george-ai-project)
@@ -24,7 +26,7 @@ Welcome to the **George AI Project**!
 Before you begin, ensure you have the following installed:
 
 - **Node.js**: Version 20 or later.
-- **Yarn**: Used as the package manager for this project.
+- **Yarn**: Used as the package manager.
 - **Docker**: Version 17.12.0 or later.
 - **VS Code Extensions**:
   - [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
@@ -42,16 +44,16 @@ Before you begin, ensure you have the following installed:
    git clone https://github.com/progwise/george-ai.git
    ```
 
-2. Navigate to the server directory:
+2. Navigate to the server directory and set up environment variables:
 
    ```bash
    cd apps/georgeai-server
    mv .env.example .env
    ```
 
-3. Fill the `.env` file with the required API keys.
+3. Populate the `.env` file with the required API keys.
 
-4. Return to the root folder and install dependencies:
+4. Return to the repository’s root folder and install dependencies:
    ```bash
    cd $(git rev-parse --show-toplevel)
    yarn
@@ -63,12 +65,12 @@ Before you begin, ensure you have the following installed:
 
 #### Installing on Debian
 
-To install Docker on Debian, follow the [official Docker documentation](https://docs.docker.com/desktop/setup/install/linux/debian/).
+Follow the [official Docker documentation](https://docs.docker.com/desktop/setup/install/linux/debian/) for installation instructions.
 
-Once Docker is installed, open VS Code and:
+After installation, open VS Code and:
 
 1. Press `Ctrl + Shift + P`.
-2. Select **Dev Container: Rebuild and Reopen in Container**, similar to the example below:
+2. Select **Dev Container: Rebuild and Reopen in Container**.
 
    ![alt text](devContainerScreenCaputre.png)
 
@@ -91,7 +93,7 @@ Once Docker is installed, open VS Code and:
    yarn start
    ```
 
-3. Visit `http://localhost:3000` to verify the server is running.
+3. The server should now be running at `http://localhost:3000`.
 
 #### Start the Chat Interface
 
@@ -108,11 +110,11 @@ Once Docker is installed, open VS Code and:
    yarn dev
    ```
 
-3. Visit `http://localhost:3001` to interact with the chat interface.
+3. Access the chat interface at `http://localhost:3001`.
 
 #### Sending Messages via GraphiQL
 
-To send messages using the GraphiQL interface, use the following mutation:
+You can test the chatbot using GraphiQL:
 
 ```graphql
 mutation {
@@ -123,24 +125,25 @@ mutation {
 }
 ```
 
+**Note:** The `source` field now indicates whether the answer came from the local PDF (`"local"`), a web-based retrieval (`"web"`), or the model’s own reasoning (`"model"`).
+
 ---
 
 ## Modifying the Chat Bot Agent
 
-To modify the chatbot agent logic, navigate to the source code directory:
+To modify the chatbot’s retrieval and reasoning logic, go to the source directory:
 
 ```bash
 cd $(git rev-parse --show-toplevel)/packages/langchain-chat/src
 ```
 
-Here, you will find the following TypeScript files:
+Here, you can find the main TypeScript files:
 
-```plaintext
-.
-├── index.ts
-├── main-chain.ts
-├── message-history.ts
-├── pdf-vectorstore.ts
-├── prompts.ts
-└── web-vectorstore.ts
-```
+- `index.ts`
+- `main-chain.ts`
+- `message-history.ts`
+- `pdf-vectorstore.ts`
+- `prompts.ts`
+- `web-vectorstore.ts`
+
+These files define how the chatbot retrieves context from the PDF, when it resorts to web search, and how it falls back to model reasoning. Adjusting these prompts and chains can further fine-tune the agent’s behavior.
