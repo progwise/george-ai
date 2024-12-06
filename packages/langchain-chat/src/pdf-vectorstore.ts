@@ -9,8 +9,8 @@ import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const DATA_PATH = path.resolve(__dirname, '../data', 'mag_example1.pdf') // Path to the PDF document
-const CHUNK_SIZE = 1000 // Increased for better context
+const DATA_PATH = path.resolve(__dirname, '../data', 'mag_example1.pdf')
+const CHUNK_SIZE = 1000
 const CHUNK_OVERLAP = 100
 const LOCAL_RETRIEVAL_K = 4
 
@@ -38,7 +38,6 @@ const getPDFVectorStore = async () => {
   return pdfVectorStore
 }
 
-// retrieves related vectors from the local PDF content
 export const getPDFContentForQuestion = async (question: string) => {
   try {
     const vectorStore = await getPDFVectorStore()
