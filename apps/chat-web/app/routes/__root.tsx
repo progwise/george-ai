@@ -26,7 +26,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content: 'width=device-width, initial-scale=1',
         },
         {
-          title: 'Travel App',
+          title: 'GeorgeAI Chats',
         },
       ],
     }),
