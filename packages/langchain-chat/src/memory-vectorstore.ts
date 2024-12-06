@@ -14,11 +14,11 @@ const CHUNK_SIZE = 1000
 const CHUNK_OVERLAP = 100
 const LOCAL_RETRIEVAL_K = 4
 
-let pdfVectorStore: MemoryVectorStore | null
+let memoryVectorStore: MemoryVectorStore | null
 
 const getPDFVectorStore = async () => {
-  if (pdfVectorStore) {
-    return pdfVectorStore
+  if (memoryVectorStore) {
+    return memoryVectorStore
   }
   console.log('Loading PDF document...')
   const loader = new PDFLoader(DATA_PATH)
@@ -31,11 +31,11 @@ const getPDFVectorStore = async () => {
   const splitDocuments = await splitter.splitDocuments(rawDocuments)
   console.log(`Split into ${splitDocuments.length} chunks`)
   const embeddings = new OpenAIEmbeddings()
-  pdfVectorStore = await MemoryVectorStore.fromDocuments(
+  memoryVectorStore = await MemoryVectorStore.fromDocuments(
     splitDocuments,
     embeddings,
   )
-  return pdfVectorStore
+  return memoryVectorStore
 }
 
 export const getPDFContentForQuestion = async (question: string) => {

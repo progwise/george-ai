@@ -11,7 +11,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "typesense": "^1.7.1"
+    "typesense": "^1.8.2"
   },
   "devDependencies": {
     "eslint": "^8.46.0",
