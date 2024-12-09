@@ -7,7 +7,8 @@ import {
 
 import { localPrompt, webPrompt, modelPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
-import { getPDFContentForQuestion } from './pdf-vectorstore'
+// import { getPDFContentForQuestion } from './memory-vectorstore'
+import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 import * as z from 'zod'
 
