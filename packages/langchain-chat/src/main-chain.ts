@@ -64,7 +64,7 @@ const branchChain = RunnableLambda.from(
       return webResponse
     }
 
-    const apologyResponse = await model.call([
+    const apologyResponse = await model.invoke([
       {
         role: 'system',
         content:
