@@ -51,24 +51,35 @@ const webChain = RunnableSequence.from([
   webPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
-const branchChain = RunnableLambda.from(async (input, options) => {
-  const localResponse = await pdfChain.invoke(input, options)
-  if (!localResponse.notEnoughInformation) {
-    return localResponse
-  }
 
-  const webResponse = await webChain.invoke(input, options)
-  if (!webResponse.notEnoughInformation) {
-    return webResponse
-  }
+const branchChain = RunnableLambda.from(
+  async (input: { question: string }, options) => {
+    const localResponse = await pdfChain.invoke(input, options)
+    if (!localResponse.notEnoughInformation) {
+      return localResponse
+    }
 
-  return {
-    answer:
-      'Appologies, I could not find the information in the local content or web.',
-    source: 'model',
-    notEnoughInformation: true,
-  }
-})
+    const webResponse = await webChain.invoke(input, options)
+    if (!webResponse.notEnoughInformation) {
+      return webResponse
+    }
+
+    const apologyResponse = await model.call([
+      {
+        role: 'system',
+        content:
+          "Apologize and say something like: Neither the local content nor the web sources contained sufficient information to answer the user's question.",
+      },
+      { role: 'user', content: input.question },
+    ])
+
+    return {
+      answer: apologyResponse.content,
+      source: 'model',
+      notEnoughInformation: true,
+    }
+  },
+)
 
 const mainChain = RunnableSequence.from([
   async (input) => ({
