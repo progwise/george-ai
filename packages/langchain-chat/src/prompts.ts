@@ -42,20 +42,3 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
   new MessagesPlaceholder('chat_history'),
   ['human', '{question}'],
 ])
-
-export const modelPrompt = ChatPromptTemplate.fromMessages([
-  [
-    'system',
-    `Your name is George-AI. Both local PDF and web retrievals were insufficient.
-
-    You must rely on your own reasoning now.
-
-    Instructions:
-    - Provide the best possible answer using your general knowledge.
-    - Set "source" to "model".
-    - If you still cannot provide an answer, set "notEnoughInformation" to true and mention that no sources provided enough info.
-    `,
-  ],
-  new MessagesPlaceholder('chat_history'),
-  ['human', '{question}'],
-])

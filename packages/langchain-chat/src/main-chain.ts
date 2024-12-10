@@ -5,7 +5,7 @@ import {
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt, modelPrompt } from './prompts'
+import { localPrompt, webPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
@@ -51,12 +51,6 @@ const webChain = RunnableSequence.from([
   webPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
-
-const modelChain = RunnableSequence.from([
-  modelPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
-])
-
 const branchChain = RunnableLambda.from(async (input, options) => {
   const localResponse = await pdfChain.invoke(input, options)
   if (!localResponse.notEnoughInformation) {
@@ -68,7 +62,12 @@ const branchChain = RunnableLambda.from(async (input, options) => {
     return webResponse
   }
 
-  return await modelChain.invoke(input, options)
+  return {
+    answer:
+      'Appologies, I could not find the information in the local content or web.',
+    source: 'model',
+    notEnoughInformation: true,
+  }
 })
 
 const mainChain = RunnableSequence.from([
