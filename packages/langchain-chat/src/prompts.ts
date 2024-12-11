@@ -43,10 +43,18 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
   ['human', '{question}'],
 ])
 
-export const apologyPrompt = [
-  {
-    role: 'system',
-    content:
-      "Apologize and say something like: Neither the local content nor the web sources contained sufficient information to answer the user's question.",
-  },
-]
+export const apologyPrompt = ChatPromptTemplate.fromMessages([
+  [
+    'system',
+    `Your name is George-AI. You are a travel assistant. Both the local context as well as the web content were insufficient. 
+
+    Instructions:
+    - If the web context and local context cannot answer the user's question.
+      - Set "source" to "model" and "notEnoughInformation" to true.
+      - Apologize and say something like: Neither the "local" content nor the "web" sources contained sufficient information to answer the question of the user.
+
+    `,
+  ],
+  new MessagesPlaceholder('chat_history'),
+  ['human', '{question}'],
+])
