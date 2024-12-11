@@ -5,7 +5,7 @@ import {
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt } from './prompts'
+import { localPrompt, webPrompt, apologyPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
@@ -65,11 +65,7 @@ const branchChain = RunnableLambda.from(
     }
 
     const apologyResponse = await model.invoke([
-      {
-        role: 'system',
-        content:
-          "Apologize and say something like: Neither the local content nor the web sources contained sufficient information to answer the user's question.",
-      },
+      ...apologyPrompt,
       { role: 'user', content: input.question },
     ])
 
