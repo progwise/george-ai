@@ -42,3 +42,11 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
   new MessagesPlaceholder('chat_history'),
   ['human', '{question}'],
 ])
+
+export const apologyPrompt = [
+  {
+    role: 'system',
+    content:
+      "Apologize and say something like: Neither the local content nor the web sources contained sufficient information to answer the user's question.",
+  },
+]
