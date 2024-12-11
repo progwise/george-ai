@@ -5,7 +5,7 @@ import {
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt, modelPrompt } from './prompts'
+import { localPrompt, webPrompt, apologyPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
@@ -52,24 +52,30 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const modelChain = RunnableSequence.from([
-  modelPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
-])
+const branchChain = RunnableLambda.from(
+  async (input: { question: string }, options) => {
+    const localResponse = await pdfChain.invoke(input, options)
+    if (!localResponse.notEnoughInformation) {
+      return localResponse
+    }
 
-const branchChain = RunnableLambda.from(async (input, options) => {
-  const localResponse = await pdfChain.invoke(input, options)
-  if (!localResponse.notEnoughInformation) {
-    return localResponse
-  }
+    const webResponse = await webChain.invoke(input, options)
+    if (!webResponse.notEnoughInformation) {
+      return webResponse
+    }
 
-  const webResponse = await webChain.invoke(input, options)
-  if (!webResponse.notEnoughInformation) {
-    return webResponse
-  }
+    const apologyResponse = await model.invoke([
+      { role: 'system', content: await apologyPrompt.format(input) },
+      { role: 'user', content: input.question },
+    ])
 
-  return await modelChain.invoke(input, options)
-})
+    return {
+      answer: apologyResponse.content,
+      source: 'model',
+      notEnoughInformation: true,
+    }
+  },
+)
 
 const mainChain = RunnableSequence.from([
   async (input) => ({

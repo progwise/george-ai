@@ -43,17 +43,19 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
   ['human', '{question}'],
 ])
 
-export const modelPrompt = ChatPromptTemplate.fromMessages([
+export const apologyPrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
-    `Your name is George-AI. Both local PDF and web retrievals were insufficient.
+    `Your name is George-AI, a travel assistant.
 
-    You must rely on your own reasoning now.
+No relevant information was found in the local PDF or web sources to answer the user's question.
 
-    Instructions:
-    - Provide the best possible answer using your general knowledge.
-    - Set "source" to "model".
-    - If you still cannot provide an answer, set "notEnoughInformation" to true and mention that no sources provided enough info.
+Instructions:
+- Apologize explicitly and politely.
+- Clearly state that neither the local nor the web sources contained the necessary information.
+- Keep the response concise, honest, and natural.
+- Set "source" to "model" and "notEnoughInformation" to true; However, do not mention these terms in your response or include any JSON. Just provide a direct, apologetic answer in a manner that fits the conversation's tone.
+- Adapt your language and style to the context provided in the conversation history.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
