@@ -64,21 +64,21 @@ const branchChain = RunnableLambda.from(
       return webResponse
     }
 
-    // const apologyResponse = await model.invoke([
-    //   ...apologyPrompt,
-    //   { role: 'user', content: input.question },
-    // ])
+    const apologyResponse = await model.invoke([
+      { role: 'system', content: await apologyPrompt.format(input) },
+      { role: 'user', content: input.question },
+    ])
 
-    const apologyResponse = await model.invoke(
-      [{ role: 'user', content: input.question }],
-      options,
-    )
-    if (
-      !webResponse.notEnoughInformation &&
-      !localResponse.notEnoughInformation
-    ) {
-      return apologyResponse
-    }
+    // const apologyResponse = await model.invoke(
+    //   [{ role: 'user', content: input.question }],
+    //   options,
+    // )
+    // if (
+    //   !webResponse.notEnoughInformation &&
+    //   !localResponse.notEnoughInformation
+    // ) {
+    //   return apologyResponse
+    // }
 
     return {
       answer: apologyResponse.content,
