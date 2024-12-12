@@ -52,30 +52,24 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const branchChain = RunnableLambda.from(
-  async (input: { question: string }, options) => {
-    const localResponse = await pdfChain.invoke(input, options)
-    if (!localResponse.notEnoughInformation) {
-      return localResponse
-    }
+const modelChain = RunnableSequence.from([
+  apologyPrompt,
+  model.withStructuredOutput(outputSchema, { strict: true }),
+])
 
-    const webResponse = await webChain.invoke(input, options)
-    if (!webResponse.notEnoughInformation) {
-      return webResponse
-    }
+const branchChain = RunnableLambda.from(async (input, options) => {
+  const localResponse = await pdfChain.invoke(input, options)
+  if (!localResponse.notEnoughInformation) {
+    return localResponse
+  }
 
-    const apologyResponse = await model.invoke([
-      { role: 'system', content: await apologyPrompt.format(input) },
-      { role: 'user', content: input.question },
-    ])
+  const webResponse = await webChain.invoke(input, options)
+  if (!webResponse.notEnoughInformation) {
+    return webResponse
+  }
 
-    return {
-      answer: apologyResponse.content,
-      source: 'model',
-      notEnoughInformation: true,
-    }
-  },
-)
+  return await modelChain.invoke(input, options)
+})
 
 const mainChain = RunnableSequence.from([
   async (input) => ({

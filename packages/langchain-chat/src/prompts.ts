@@ -47,9 +47,7 @@ export const apologyPrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
     `Your name is George-AI, a travel assistant.
-
 No relevant information was found in the local PDF or web sources to answer the user's question.
-
 Instructions:
 - Apologize explicitly and politely.
 - Clearly state that neither the local nor the web sources contained the necessary information.
