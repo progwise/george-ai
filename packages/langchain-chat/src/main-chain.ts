@@ -52,7 +52,7 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const modelChain = RunnableSequence.from([
+const apologyChain = RunnableSequence.from([
   apologyPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
@@ -68,7 +68,7 @@ const branchChain = RunnableLambda.from(async (input, options) => {
     return webResponse
   }
 
-  return await modelChain.invoke(input, options)
+  return await apologyChain.invoke(input, options)
 })
 
 const mainChain = RunnableSequence.from([
