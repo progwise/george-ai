@@ -1,14 +1,13 @@
 import { ChatOpenAI } from '@langchain/openai'
 import {
   RunnableSequence,
-  RunnableLambda,
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt, apologyPrompt } from './prompts'
+import { combinedPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
-// import { getPDFContentForQuestion } from './memory-vectorstore'
-import { getPDFContentForQuestion } from './typesense-vectorstore'
+import { getPDFContentForQuestion } from './memory-vectorstore'
+// import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 import * as z from 'zod'
 
@@ -36,53 +35,14 @@ const model = new ChatOpenAI({
   maxTokens: 500,
 })
 
-const pdfChain = RunnableSequence.from([
-  localPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
-])
-
-const webChain = RunnableSequence.from([
-  async (input) => {
-    const context = await getWebContent({
-      question: input.question,
-    })
-    return { ...input, context }
-  },
-  webPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
-])
-
-const branchChain = RunnableLambda.from(
-  async (input: { question: string }, options) => {
-    const localResponse = await pdfChain.invoke(input, options)
-    if (!localResponse.notEnoughInformation) {
-      return localResponse
-    }
-
-    const webResponse = await webChain.invoke(input, options)
-    if (!webResponse.notEnoughInformation) {
-      return webResponse
-    }
-
-    const apologyResponse = await model.invoke([
-      { role: 'system', content: await apologyPrompt.format(input) },
-      { role: 'user', content: input.question },
-    ])
-
-    return {
-      answer: apologyResponse.content,
-      source: 'model',
-      notEnoughInformation: true,
-    }
-  },
-)
-
 const mainChain = RunnableSequence.from([
-  async (input) => ({
-    ...input,
-    context: await getPDFContentForQuestion(input.question),
-  }),
-  branchChain,
+  async (input) => {
+    const local_context = await getPDFContentForQuestion(input.question)
+    const web_context = await getWebContent({ question: input.question })
+    return { ...input, local_context, web_context }
+  },
+  combinedPrompt,
+  model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 export const historyChain = new RunnableWithMessageHistory({
