@@ -5,7 +5,7 @@ import {
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt, modelPrompt } from './prompts'
+import { localPrompt, webPrompt, apologyPrompt } from './prompts'
 import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
@@ -52,8 +52,8 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const modelChain = RunnableSequence.from([
-  modelPrompt,
+const apologyChain = RunnableSequence.from([
+  apologyPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
@@ -68,7 +68,7 @@ const branchChain = RunnableLambda.from(async (input, options) => {
     return webResponse
   }
 
-  return await modelChain.invoke(input, options)
+  return await apologyChain.invoke(input, options)
 })
 
 const mainChain = RunnableSequence.from([
