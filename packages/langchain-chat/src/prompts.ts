@@ -60,7 +60,6 @@ Instructions:
   ['human', '{question}'],
 ])
 
-// New prompt for the historyToQueryChain
 export const searchQueryPrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
