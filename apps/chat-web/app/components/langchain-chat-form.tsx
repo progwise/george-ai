@@ -16,6 +16,7 @@ const handleTextareaKeyDown = (
 
 export const LangchainChatForm = () => {
   const queryClient = useQueryClient()
+  const sessionId = ''
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) => sendChatMessage({ data: { message } }),
     onMutate: async (message) => {
@@ -30,6 +31,7 @@ export const LangchainChatForm = () => {
           ...previousMessages,
           {
             id: Math.random().toString(),
+            sessionId,
             sender: 'user',
             text: message,
             source: '',
@@ -37,6 +39,7 @@ export const LangchainChatForm = () => {
           },
           {
             id: Math.random().toString(),
+            sessionId
             sender: 'bot',
             text: '.........',
             source: '',

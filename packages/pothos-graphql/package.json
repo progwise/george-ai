@@ -9,9 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@george-ai/langchain-chat": "*",
-    "@george-ai/strapi-client": "*",
-    "@george-ai/typesense-client": "*",
+    "@george-ai/langchain-chat": "workspace:*",
     "@pothos/core": "^3.32.1",
     "@pothos/plugin-simple-objects": "^3.7.0",
     "graphql": "^16.7.1",

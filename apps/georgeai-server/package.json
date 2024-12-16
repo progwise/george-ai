@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@george-ai/pothos-graphql": "*",
+    "@george-ai/pothos-graphql": "workspace:*",
     "dotenv": "^16.4.5",
     "graphql-yoga": "^5.10.2"
   },

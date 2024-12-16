@@ -8,7 +8,7 @@ import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useEffect } from 'react'
 
 const ChatRoute = () => {
-  const { data, refetch, status } = useSuspenseQuery(chatMessagesQueryOptions())
+  const { data, refetch } = useSuspenseQuery(chatMessagesQueryOptions())
 
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight)
@@ -18,6 +18,7 @@ const ChatRoute = () => {
     <div className="flex flex-col gap-2 prose mb-10">
       <h1>Langchain Chat</h1>
       <button
+        type="button"
         onClick={async () => {
           await reset()
           refetch()

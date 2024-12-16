@@ -8,7 +8,7 @@ import {
 import { Meta, Scripts } from '@tanstack/start'
 import React, { ReactNode, Suspense } from 'react'
 
-import '../index.css'
+import appCss from '../index.css?url'
 
 const RootComponent = () => (
   <RootDocument>
@@ -29,6 +29,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           title: 'GeorgeAI Chats',
         },
       ],
+      links: [{ rel: 'stylesheet', href: appCss }],
     }),
     component: RootComponent,
   },
@@ -36,8 +37,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === 'production'
-    ? // eslint-disable-next-line unicorn/no-null
-      () => null // Render nothing in production
+    ? () => null // Render nothing in production
     : React.lazy(() =>
         // Lazy load in development
         import('@tanstack/router-devtools').then((result) => ({
@@ -49,8 +49,7 @@ const TanStackRouterDevtools =
 
 const TanStackQueryDevtools =
   process.env.NODE_ENV === 'production'
-    ? // eslint-disable-next-line unicorn/no-null
-      () => null // Render nothing in production
+    ? () => null // Render nothing in production
     : React.lazy(() =>
         // Lazy load in development
         import('@tanstack/react-query-devtools').then((result) => ({
@@ -69,9 +68,6 @@ const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
       <nav className="navbar bg-primary/10">
         <Link className="btn btn-ghost" to="/">
           Home
-        </Link>
-        <Link className="btn btn-ghost" to="/example-chat">
-          Example Chat
         </Link>
         <Link className="btn btn-ghost" to="/langchain-chat">
           Langchain Chat
