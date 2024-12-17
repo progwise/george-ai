@@ -5,10 +5,15 @@ import {
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
 
-import { localPrompt, webPrompt, modelPrompt } from './prompts'
+import {
+  localPrompt,
+  webPrompt,
+  apologyPrompt,
+  searchQueryPrompt,
+} from './prompts'
 import { getMessageHistory } from './message-history'
-// import { getPDFContentForQuestion } from './memory-vectorstore'
-import { getPDFContentForQuestion } from './typesense-vectorstore'
+import { getPDFContentForQuestion } from './memory-vectorstore'
+// import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 import * as z from 'zod'
 
@@ -36,6 +41,16 @@ const model = new ChatOpenAI({
   maxTokens: 500,
 })
 
+const historyToQueryChain = RunnableSequence.from([
+  (input) => ({
+    chat_history: input.chat_history,
+    question: input.question,
+  }),
+  searchQueryPrompt,
+  model,
+  (modelResponse) => modelResponse.text,
+])
+
 const pdfChain = RunnableSequence.from([
   localPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
@@ -44,7 +59,7 @@ const pdfChain = RunnableSequence.from([
 const webChain = RunnableSequence.from([
   async (input) => {
     const context = await getWebContent({
-      question: input.question,
+      question: input.searchQuery,
     })
     return { ...input, context }
   },
@@ -52,8 +67,8 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const modelChain = RunnableSequence.from([
-  modelPrompt,
+const apologyChain = RunnableSequence.from([
+  apologyPrompt,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
@@ -68,13 +83,20 @@ const branchChain = RunnableLambda.from(async (input, options) => {
     return webResponse
   }
 
-  return await modelChain.invoke(input, options)
+  return await apologyChain.invoke(input, options)
 })
 
 const mainChain = RunnableSequence.from([
+  async (input) => {
+    const searchQuery = await historyToQueryChain.invoke({
+      question: input.question,
+      chat_history: input.chat_history,
+    })
+    return { ...input, searchQuery }
+  },
   async (input) => ({
     ...input,
-    context: await getPDFContentForQuestion(input.question),
+    context: await getPDFContentForQuestion(input.searchQuery),
   }),
   branchChain,
 ])
