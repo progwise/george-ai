@@ -187,6 +187,9 @@ importers:
       '@eslint/js':
         specifier: ^9.16.0
         version: 9.17.0
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.10.2
       eslint:
         specifier: ^9.17.0
         version: 9.17.0(jiti@2.4.1)
@@ -10676,7 +10679,7 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 18.19.68
+      '@types/node': 22.10.2
       form-data: 4.0.1
 
   '@types/node@10.14.22': {}
@@ -12243,7 +12246,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.4)
+      retry-axios: 2.6.0(axios@1.7.4(debug@4.4.0))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -13334,7 +13337,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.4):
+  retry-axios@2.6.0(axios@1.7.4(debug@4.4.0)):
     dependencies:
       axios: 1.7.4(debug@4.4.0)
 
