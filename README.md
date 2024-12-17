@@ -6,7 +6,7 @@ To start the george-web app you need to
 
 - `cd apps/chat-web`
 - create and edit the .env file there
-- `yarn dev`
+- `pnpm dev`
 
 Enjoy.
 

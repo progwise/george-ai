@@ -11,7 +11,7 @@ This project starts the graphql backend package.
 ## start
 
 ```
-yarn start
+pnpm start
 ```
 
 ## provided schema

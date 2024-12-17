@@ -7,5 +7,3 @@ node_modules
 .env
 .pb_data
 .typesense-data
-.yarn/cache
-.yarn/install-state.gz
