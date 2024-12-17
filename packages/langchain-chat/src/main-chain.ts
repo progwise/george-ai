@@ -12,8 +12,8 @@ import {
   searchQueryPrompt,
 } from './prompts'
 import { getMessageHistory } from './message-history'
-import { getPDFContentForQuestion } from './memory-vectorstore'
-// import { getPDFContentForQuestion } from './typesense-vectorstore'
+// import { getPDFContentForQuestion } from './memory-vectorstore'
+import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 import * as z from 'zod'
 
