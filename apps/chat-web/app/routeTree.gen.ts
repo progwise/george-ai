@@ -12,7 +12,6 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
-import { Route as ExampleChatImport } from './routes/example-chat'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -20,12 +19,6 @@ import { Route as IndexImport } from './routes/index'
 const LangchainChatRoute = LangchainChatImport.update({
   id: '/langchain-chat',
   path: '/langchain-chat',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const ExampleChatRoute = ExampleChatImport.update({
-  id: '/example-chat',
-  path: '/example-chat',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,13 +39,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/example-chat': {
-      id: '/example-chat'
-      path: '/example-chat'
-      fullPath: '/example-chat'
-      preLoaderRoute: typeof ExampleChatImport
-      parentRoute: typeof rootRoute
-    }
     '/langchain-chat': {
       id: '/langchain-chat'
       path: '/langchain-chat'
@@ -67,41 +53,36 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/example-chat': typeof ExampleChatRoute
   '/langchain-chat': typeof LangchainChatRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/example-chat': typeof ExampleChatRoute
   '/langchain-chat': typeof LangchainChatRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/example-chat': typeof ExampleChatRoute
   '/langchain-chat': typeof LangchainChatRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/example-chat' | '/langchain-chat'
+  fullPaths: '/' | '/langchain-chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/example-chat' | '/langchain-chat'
-  id: '__root__' | '/' | '/example-chat' | '/langchain-chat'
+  to: '/' | '/langchain-chat'
+  id: '__root__' | '/' | '/langchain-chat'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ExampleChatRoute: typeof ExampleChatRoute
   LangchainChatRoute: typeof LangchainChatRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ExampleChatRoute: ExampleChatRoute,
   LangchainChatRoute: LangchainChatRoute,
 }
 
@@ -116,15 +97,11 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/example-chat",
         "/langchain-chat"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/example-chat": {
-      "filePath": "example-chat.tsx"
     },
     "/langchain-chat": {
       "filePath": "langchain-chat.tsx"

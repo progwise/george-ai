@@ -14,38 +14,41 @@ const handleTextareaKeyDown = (
   }
 }
 
-export const LangchainChatForm = () => {
+export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
   const queryClient = useQueryClient()
-  const sessionId = ''
   const { mutate, error, status } = useMutation({
-    mutationFn: (message: string) => sendChatMessage({ data: { message } }),
+    mutationFn: (message: string) =>
+      sendChatMessage({ data: { message, sessionId } }),
     onMutate: async (message) => {
-      await queryClient.cancelQueries(chatMessagesQueryOptions())
+      await queryClient.cancelQueries(chatMessagesQueryOptions(sessionId))
 
       const previousMessages = queryClient.getQueryData(
-        chatMessagesQueryOptions().queryKey,
+        chatMessagesQueryOptions(sessionId).queryKey,
       )
 
       if (previousMessages) {
-        queryClient.setQueryData(chatMessagesQueryOptions().queryKey, [
-          ...previousMessages,
-          {
-            id: Math.random().toString(),
-            sessionId,
-            sender: 'user',
-            text: message,
-            source: '',
-            time: new Date(),
-          },
-          {
-            id: Math.random().toString(),
-            sessionId
-            sender: 'bot',
-            text: '.........',
-            source: '',
-            time: new Date(),
-          },
-        ])
+        queryClient.setQueryData(chatMessagesQueryOptions(sessionId).queryKey, {
+          sessionId,
+          messages: [
+            ...previousMessages.messages,
+            {
+              id: Math.random().toString(),
+              sessionId,
+              sender: 'user',
+              text: message,
+              source: '',
+              time: new Date(),
+            },
+            {
+              id: Math.random().toString(),
+              sessionId,
+              sender: 'bot',
+              text: '.........',
+              source: '',
+              time: new Date(),
+            },
+          ],
+        })
       }
 
       return { previousMessages }
@@ -53,16 +56,21 @@ export const LangchainChatForm = () => {
     onError: (_error, _variables, context) => {
       if (context?.previousMessages) {
         queryClient.setQueryData(
-          chatMessagesQueryOptions().queryKey,
+          chatMessagesQueryOptions(sessionId).queryKey,
           context.previousMessages,
         )
       }
     },
     onSuccess: (result) => {
-      queryClient.setQueryData(chatMessagesQueryOptions().queryKey, result)
+      console.log('onSuccess result', result)
+      queryClient.setQueryData(chatMessagesQueryOptions(sessionId).queryKey, {
+        sessionId,
+        messages: result,
+      })
     },
     onSettled: () => {
-      queryClient.invalidateQueries(chatMessagesQueryOptions())
+      console.log('onSettled', sessionId)
+      queryClient.invalidateQueries(chatMessagesQueryOptions(sessionId))
     },
   })
 

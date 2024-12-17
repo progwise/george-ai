@@ -12,16 +12,21 @@ const fetchNewChat = createServerFn({ method: 'GET' }).handler(async () => {
   return chatStore.getNewChat()
 })
 
-export const chatMessagesQueryOptions = () =>
+export const chatMessagesQueryOptions = (sessionId?: string) =>
   queryOptions({
-    queryKey: ['langchainChatMessages'],
-    queryFn: (request) => {
-      console.log('request', request)
-      const sessionId = request.queryKey['sessionId']
+    queryKey: ['langchainChatMessages', sessionId],
+    queryFn: async () => {
       if (!sessionId) {
-        fetchNewChat()
+        const newChatMessages = await fetchNewChat()
+        return {
+          sessionId: newChatMessages[0].sessionId,
+          messages: newChatMessages,
+        }
       } else {
-        fetchChatHistory(sessionId)
+        return {
+          sessionId,
+          messages: await fetchChatHistory({ data: sessionId }),
+        }
       }
     },
   })
@@ -29,5 +34,6 @@ export const chatMessagesQueryOptions = () =>
 export const reset = createServerFn({ method: 'POST' })
   .validator((sessionId: string) => sessionId)
   .handler(async (ctx) => {
-    return chatStore.reset(ctx.data)
+    const messages = chatStore.reset(ctx.data)
+    return { sessionId: messages[0].sessionId, messages }
   })

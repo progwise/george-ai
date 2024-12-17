@@ -14,37 +14,68 @@ Enjoy.
 
 ```mermaid
 flowchart TD
-  subgraph pocketbaseGroup[Pocketbase]
-    pocketbase[Pocketbase 📦]
-    pocketbaseDb[(Pocketbase Database 🗄️)]
-    pocketbase --> pocketbaseDb
+
+
+  content -- Document uploaded/updated/deleted--> workflow
+  workflow -- Embedding success/failed --> content
+  docEmbedder -- Document processed--> workflow
+  content -- Doc changed --> docEmbedder
+
+  subgraph georgeFrontend[George Frontend 💻]
+    chatbot[Chatbot 🤖]
+    docGenerator[Output Doc 🗺️]
+    georgeAdmin[George Admin]
   end
 
-  pocketbase -- PDF uploaded/updated/deleted--> graphql
-  pdfProcessor -- PDF parsed & processed--> pocketbase
+  subgraph otherFrontend[Custom Frontend]
+    formProvider[Some Forms UI]
+    mapProvider[Some Maps UI]
+  end
 
-  subgraph backend[Backend]
-    subgraph llmService[LLM Service 🛠️]
-      graphql[GraphQL Endpoint 🌐]
-      pdfProcessor[PDF Processor 📄]
-      chains[Chains 🔗]
-
-      graphql --> pdfProcessor
-      graphql --> chains
+  subgraph backend[George Backend]
+    subgraph georgeAPI [George API]
+      restApi[Rest]
+      graphqlAPI[GraphQL]
+      graphqlAdminAPI[GraphQLAdmin]
     end
 
-    llmDb[(LLM Database 🗃️)]
-    pdfProcessor -- write docs with embeddings --> llmDb
-    chains -- use db as retriever --> llmDb
+    webSearch[(webSearch 🗃️)]
+    vectorStore[(vectorStore 🗃️)]
+
+    subgraph llmService[LLM Service 🛠️]
+      docEmbedder[docEmbedder 📄]
+      contextChains[contextChains 🔗]
+    end
+
+    georgeAPI --> contextChains
+
+
+    docEmbedder -- write docs with embeddings --> vectorStore
+    contextChains <-- similaritySearch --> vectorStore
+    contextChains <-- webSearch --> webSearch
+    subgraph model[LLM Model Runner🤖]
+      openAI[openAI]
+      mistral[Mistral]
+      xai[XAI]
+      pineCone[PineCone]
+    end
+
+  end
+  subgraph content[Content]
+      pocketbase[Pocketbase 📦]
+      strapi[Strapi 📦]
+    end
+
+  subgraph workflow[Workflow]
+    camunda[Camunda]
+    windmill[windmill]
+
   end
 
-  subgraph frontend[Frontend 💻]
-    chatbot[Chatbot 🤖]
-    travelPlanner[Travel Planner 🗺️]
-  end
-
-  chatbot --> graphql
-  travelPlanner --> graphql
+  contextChains <-- generate text --> model
+  georgeFrontend <-- query with history session --> graphqlAPI
+  otherFrontend <-- query with history session --> graphqlAPI
+  georgeAdmin <-- configure --> graphqlAdminAPI
 ```
 
 ## Components

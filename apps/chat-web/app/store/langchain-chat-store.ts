@@ -56,6 +56,10 @@ const sendChatMessage = async (
   ] satisfies LangchainChatMessage[]
 
   const newChat = [...oldChat, ...newMessages]
+  chatItems = [
+    ...chatItems.filter((item) => item.sessionId !== sessionId),
+    ...newChat,
+  ]
 
   return newChat
 }
