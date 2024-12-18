@@ -10,7 +10,8 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "bierner.markdown-mermaid"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -20,13 +21,15 @@
   },
 
   // Features to add to the dev container. More info: https://containers.dev/features.
-  // "features": {},
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or with the host.
-  "forwardPorts": [3001],
+  "forwardPorts": [3000, 3001, 8090, 8108],
 
-  "postCreateCommand": "yarn install"
+  "postCreateCommand": "pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i;"
 
   // Configure tool-specific properties.
   // "customizations": {},

@@ -3,15 +3,14 @@
   "version": "1.0.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "build": "tsc --noEmit",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@george-ai/langchain-chat": "*",
-    "@george-ai/strapi-client": "*",
-    "@george-ai/typesense-client": "*",
+    "@george-ai/langchain-chat": "workspace:*",
     "@pothos/core": "^3.32.1",
     "@pothos/plugin-simple-objects": "^3.7.0",
     "graphql": "^16.7.1",
@@ -19,8 +18,9 @@
     "typesense": "^1.7.1"
   },
   "devDependencies": {
-    "eslint": "^8.46.0",
-    "eslint-config-custom": "*",
-    "typescript": "^5.2.2"
+    "@eslint/js": "^9.16.0",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   }
 }

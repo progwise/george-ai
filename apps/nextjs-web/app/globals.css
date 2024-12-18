@@ -1,8 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  @apply dark:bg-slate-800;
-  @apply dark:text-white;
-}

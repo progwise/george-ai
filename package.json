@@ -1,25 +1,22 @@
 {
-  "name": "george-ai",
+  "name": "@george-ai/workspaces",
   "version": "1.0.0",
   "license": "ISC",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "packageManager": "yarn@3.6.1",
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
     "codegen": "node codegen.ts",
-    "build": "turbo run build ",
-    "dev": "turbo run dev"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
-    "prettier": "3.3.3",
-    "turbo": "latest"
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
   }
 }

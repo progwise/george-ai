@@ -5,10 +5,17 @@ import {
 } from '../server-functions/langchain-chat-history'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LangchainChatForm } from '../components/langchain-chat-form'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 const ChatRoute = () => {
-  const { data, refetch, status } = useSuspenseQuery(chatMessagesQueryOptions())
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined)
+  const { data, refetch, isSuccess } = useSuspenseQuery(
+    chatMessagesQueryOptions(sessionId),
+  )
+
+  if (isSuccess && data.sessionId !== sessionId) {
+    setSessionId(data.sessionId)
+  }
 
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight)
@@ -18,15 +25,17 @@ const ChatRoute = () => {
     <div className="flex flex-col gap-2 prose mb-10">
       <h1>Langchain Chat</h1>
       <button
+        type="button"
         onClick={async () => {
-          await reset()
+          const { sessionId } = await reset({ data: data.sessionId })
+          setSessionId(sessionId)
           refetch()
         }}
       >
         Reset
       </button>
       <section>
-        {data.map((message) => (
+        {data.messages.map((message) => (
           <div
             className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
             key={message.id}
@@ -42,7 +51,7 @@ const ChatRoute = () => {
           </div>
         ))}
       </section>
-      <LangchainChatForm />
+      <LangchainChatForm sessionId={data.sessionId} />
     </div>
   )
 }

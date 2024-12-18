@@ -29,8 +29,6 @@ const vectorTypesenseClient = new Client({
   connectionTimeoutSeconds: 60,
 })
 
-vectorTypesenseClient.debug
-
 const typesenseSchema = {
   name: 'gai-documents',
   fields: [
@@ -151,7 +149,7 @@ const loadDocuments = async (
   documents: {
     collectionId: string
     documentId: string
-    fileName: any
+    fileName: string
     url: string
     blob: Blob
   }[],
@@ -167,7 +165,7 @@ const loadDocuments = async (
       return loadedDocument
     }),
   )
-  splitDocuments.map(async (splitDocument, index) => {
+  splitDocuments.map(async (splitDocument) => {
     const documentIds = [
       ...new Set(splitDocument.map((document) => document.metadata.docId)),
     ]

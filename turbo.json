@@ -1,28 +1,25 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["STRAPI_API_KEY", "OPENAI_API_KEY", "OPENAI_API_ORG"],
-  "pipeline": {
+  "globalEnv": ["TAVILY_API_KEY", "OPENAI_API_KEY"],
+  "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**",
-        "packages/typesense-client/dist/**"
-      ]
+      "dependsOn": ["typecheck"]
     },
     "deploy": {
-      "dependsOn": ["build", "test", "lint"]
+      "dependsOn": ["build"]
     },
     "test": {
-      "dependsOn": ["^build"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts", "test/**/*.tsx"]
+      "dependsOn": ["build"]
     },
-    "lint": {},
+    "lint": {
+      "dependsOn": []
+    },
     "dev": {
-      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": []
     }
   }
 }
