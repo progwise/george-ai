@@ -30,7 +30,7 @@
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // This can be used to network with other containers or with the host.
-  "forwardPorts": [3001],
+  "forwardPorts": [3001, 3000, 8090, 8108],
 
   "postCreateCommand": "pnpm config set store-dir /home/node/.local/share/pnpm/store; pnpm i;"
 

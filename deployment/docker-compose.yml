@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: .
+      context: ..
       dockerfile: ./apps/chat-web/Dockerfile
     container_name: gai-chat-web
     restart: unless-stopped
@@ -25,11 +25,11 @@ services:
     command: '--data-dir /typesensedata --api-key=xyz --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
 
   gai-pocketbase:
-    build: ./apps/pocketbase
+    build: ../apps/pocketbase
     container_name: gai-pocketbase
     restart: unless-stopped
     environment:
-      - GAI_WEBHOOK_URL=http://app:3001/api/process-documents
+      - GAI_WEBHOOK_URL=http://app:3000/api/process-documents
     ports:
       - '8090:8090'
     volumes:

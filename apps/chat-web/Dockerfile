@@ -33,4 +33,4 @@ RUN adduser --system --uid 1001 vinxi
 USER vinxi
  
 COPY --from=builder --chown=vinxi:nodejs /app/apps/chat-web/.output .
-CMD node /app/server/index.mjs
+CMD ["node", "/app/server/index.mjs"]
