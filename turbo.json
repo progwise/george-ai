@@ -2,9 +2,15 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["TAVILY_API_KEY", "OPENAI_API_KEY"],
   "tasks": {
-    "build": {},
-    "deploy": {},
-    "test": {},
+    "build": {
+      "dependsOn": ["typecheck"]
+    },
+    "deploy": {
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "dependsOn": ["build"]
+    },
     "lint": {
       "dependsOn": []
     },
@@ -13,7 +19,7 @@
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "dependsOn": []
     }
   }
 }

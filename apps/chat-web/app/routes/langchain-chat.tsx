@@ -9,13 +9,16 @@ import { useState, useEffect } from 'react'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
-  const { data, refetch } = useSuspenseQuery(
+  const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
   )
 
+  if (isSuccess && data.sessionId !== sessionId) {
+    setSessionId(data.sessionId)
+  }
+
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight)
-    setSessionId(data.sessionId)
   }, [data])
 
   return (
