@@ -57,10 +57,18 @@ const pdfChain = RunnableSequence.from([
 ])
 
 const webChain = RunnableSequence.from([
-  async (input) => {
-    const context = await getWebContent({
-      question: input.searchQuery,
-    })
+  async (input, options) => {
+    const sessionId = options?.configurable?.sessionId
+    const messageHistory = sessionId
+      ? await getMessageHistory(sessionId).getMessages()
+      : []
+    const historyContent = messageHistory.map((m) => m.content).join('\n')
+    const combinedQuery =
+      historyContent.trim().length > 0
+        ? `Relevant conversation history:\n${historyContent}\n\nUser's current question:\n${input.question}`
+        : input.question
+
+    const context = await getWebContent({ question: combinedQuery })
     return { ...input, context }
   },
   webPrompt,
@@ -79,22 +87,7 @@ const branchChain = RunnableLambda.from(
       return localResponse
     }
 
-    const sessionId = options?.configurable?.sessionId
-    const messageHistory = sessionId
-      ? await getMessageHistory(sessionId).getMessages()
-      : []
-    const historyContent = messageHistory.map((m) => m.content).join('\n')
-    const combinedQuery =
-      historyContent.trim().length > 0
-        ? `Relevant conversation history:\n${historyContent}\n\nUser's current question:\n${input.question}`
-        : input.question
-
-    const webContext = await getWebContent({ question: combinedQuery })
-
-    const webResponse = await webChain.invoke(
-      { ...input, context: webContext },
-      options,
-    )
+    const webResponse = await webChain.invoke(input, options)
     if (!webResponse.notEnoughInformation) {
       return webResponse
     }
