@@ -62,14 +62,12 @@ export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
       }
     },
     onSuccess: (result) => {
-      console.log('onSuccess result', result)
       queryClient.setQueryData(chatMessagesQueryOptions(sessionId).queryKey, {
         sessionId,
         messages: result,
       })
     },
     onSettled: () => {
-      console.log('onSettled', sessionId)
       queryClient.invalidateQueries(chatMessagesQueryOptions(sessionId))
     },
   })
