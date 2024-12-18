@@ -20,8 +20,8 @@ WORKDIR /app
 COPY . .
 
 RUN pnpm i --frozen-lockfile
-RUN --mount=type=secret,id=OPENAI_API_KEY,env=OPENAI_API_KEY \
-    --mount=type=secret,id=TAVILY_API_KEY,env=TAVILY_API_KEY \
+RUN --mount=type=secret,id=OPENAI_API_KEY \
+    --mount=type=secret,id=TAVILY_API_KEY \
     pnpm run build
 RUN ls -al ./apps/chat-web
 
