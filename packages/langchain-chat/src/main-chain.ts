@@ -57,10 +57,18 @@ const pdfChain = RunnableSequence.from([
 ])
 
 const webChain = RunnableSequence.from([
-  async (input) => {
-    const context = await getWebContent({
-      question: input.searchQuery,
-    })
+  async (input, options) => {
+    const sessionId = options?.configurable?.sessionId
+    const messageHistory = sessionId
+      ? await getMessageHistory(sessionId).getMessages()
+      : []
+    const historyContent = messageHistory.map((m) => m.content).join('\n')
+    const combinedQuery =
+      historyContent.trim().length > 0
+        ? `Relevant conversation history:\n${historyContent}\n\nUser's current question:\n${input.question}`
+        : input.question
+
+    const context = await getWebContent({ question: combinedQuery })
     return { ...input, context }
   },
   webPrompt,
@@ -72,19 +80,21 @@ const apologyChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const branchChain = RunnableLambda.from(async (input, options) => {
-  const localResponse = await pdfChain.invoke(input, options)
-  if (!localResponse.notEnoughInformation) {
-    return localResponse
-  }
+const branchChain = RunnableLambda.from(
+  async (input: { question: string }, options) => {
+    const localResponse = await pdfChain.invoke(input, options)
+    if (!localResponse.notEnoughInformation) {
+      return localResponse
+    }
 
-  const webResponse = await webChain.invoke(input, options)
-  if (!webResponse.notEnoughInformation) {
-    return webResponse
-  }
+    const webResponse = await webChain.invoke(input, options)
+    if (!webResponse.notEnoughInformation) {
+      return webResponse
+    }
 
-  return await apologyChain.invoke(input, options)
-})
+    return await apologyChain.invoke(input, options)
+  },
+)
 
 const mainChain = RunnableSequence.from([
   async (input) => {
