@@ -1,6 +1,5 @@
 {
   "name": "@george-ai/workspaces",
-  "version": "1.0.0",
   "license": "ISC",
   "private": true,
   "packageManager": "pnpm@9.15.0",
@@ -14,6 +13,7 @@
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.11",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
     "prettier": "^3.4.2",
