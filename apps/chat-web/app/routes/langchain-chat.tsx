@@ -34,6 +34,31 @@ const ChatRoute = () => {
       >
         Reset
       </button>
+      {/* Dropdown Start */}
+
+      <div className="dropdown">
+        <div tabIndex={0} role="button" className="btn m-1">
+          Chain Selector
+        </div>
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+        >
+          <li>
+            <a>Sequential: Local & Web</a>
+          </li>
+          <li>
+            <a>Parallel: Local & Web</a>
+          </li>
+          <li>
+            <a>Only: Local</a>
+          </li>
+          <li>
+            <a>Only: Web</a>
+          </li>
+        </ul>
+      </div>
+      {/* Dropdown End*/}
       <section>
         {data.messages.map((message) => (
           <div
