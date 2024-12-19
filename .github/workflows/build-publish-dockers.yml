@@ -1,6 +1,7 @@
 name: Build and publish Docker images for ghcr.io/progwise/george-ai
 
 on:
+  push:
 #  workflow_dispatch:
 #    environment:
 #      description: 'Environment to run tests against'
