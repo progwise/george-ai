@@ -1,16 +1,13 @@
 {
   "name": "@george-ai/server",
-  "version": "0.2.1",
-  "description": "",
   "packageManager": "pnpm@9.15.0",
+  "author": "progwise.net",
+  "private": true,
   "scripts": {
     "start": "tsx ./src/server.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@george-ai/pothos-graphql": "workspace:*",
     "dotenv": "^16.4.5",
