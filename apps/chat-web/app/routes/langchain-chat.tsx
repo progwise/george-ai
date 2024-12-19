@@ -23,15 +23,13 @@ const ChatRoute = () => {
 
   return (
     <div className="flex flex-col gap-2 prose mb-10">
-      <h1>Agent Path</h1>
-
       {/* Menu Row */}
       <div className="flex justify-between">
         {/* Dropdown Start */}
 
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn m-1">
-            Chain Selector
+            Retrieval Method
           </div>
           <ul
             tabIndex={0}
@@ -63,6 +61,7 @@ const ChatRoute = () => {
           Reset
         </button>
       </div>
+      <hr />
       <section>
         {data.messages.map((message) => (
           <div
