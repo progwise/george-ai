@@ -1,8 +1,9 @@
 {
   "name": "@george-ai/chat-web",
-  "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.0",
+  "author": "progwise.net",
+  "private": true,
   "scripts": {
     "dev": "vinxi dev --port 3001",
     "build": "vinxi build",

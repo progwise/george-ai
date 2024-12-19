@@ -1,22 +1,13 @@
 {
   "name": "@george-ai/langchain-chat",
-  "version": "1.0.0",
-  "description": "",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "packageManager": "pnpm@9.15.0",
+  "author": "progwise.net",
+  "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@eslint/js": "^9.16.0",
-    "eslint": "^9.17.0",
-    "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0"
   },
   "dependencies": {
     "@george-ai/pocketbase-client": "workspace:*",
@@ -27,5 +18,11 @@
     "pdf-parse": "^1.1.1",
     "typesense": "^1.8.2",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0"
   }
 }
