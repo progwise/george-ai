@@ -1,4 +1,4 @@
-name: Create and publish Docker images to ghcr.io/progwise/george-ai
+name: Build and publish Docker images for ghcr.io/progwise/george-ai
 
 on:
   workflow_dispatch:

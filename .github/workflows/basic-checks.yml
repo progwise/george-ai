@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Basic linting, formatting and type checking
 
 on:
   push:
