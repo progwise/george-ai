@@ -23,42 +23,46 @@ const ChatRoute = () => {
 
   return (
     <div className="flex flex-col gap-2 prose mb-10">
-      <h1>Langchain Chat</h1>
-      <button
-        type="button"
-        onClick={async () => {
-          const { sessionId } = await reset({ data: data.sessionId })
-          setSessionId(sessionId)
-          refetch()
-        }}
-      >
-        Reset
-      </button>
-      {/* Dropdown Start */}
+      <h1>Agent Path</h1>
 
-      <div className="dropdown">
-        <div tabIndex={0} role="button" className="btn m-1">
-          Chain Selector
+      {/* Menu Row */}
+      <div className="flex justify-between">
+        {/* Dropdown Start */}
+
+        <div className="dropdown">
+          <div tabIndex={0} role="button" className="btn m-1">
+            Chain Selector
+          </div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+          >
+            <li>
+              <a>Sequential: Local & Web</a>
+            </li>
+            <li>
+              <a>Parallel: Local & Web</a>
+            </li>
+            <li>
+              <a>Only: Local</a>
+            </li>
+            <li>
+              <a>Only: Web</a>
+            </li>
+          </ul>
         </div>
-        <ul
-          tabIndex={0}
-          className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+        {/* Dropdown End*/}
+        <button
+          type="button"
+          onClick={async () => {
+            const { sessionId } = await reset({ data: data.sessionId })
+            setSessionId(sessionId)
+            refetch()
+          }}
         >
-          <li>
-            <a>Sequential: Local & Web</a>
-          </li>
-          <li>
-            <a>Parallel: Local & Web</a>
-          </li>
-          <li>
-            <a>Only: Local</a>
-          </li>
-          <li>
-            <a>Only: Web</a>
-          </li>
-        </ul>
+          Reset
+        </button>
       </div>
-      {/* Dropdown End*/}
       <section>
         {data.messages.map((message) => (
           <div
