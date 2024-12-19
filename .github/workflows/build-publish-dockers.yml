@@ -1,14 +1,13 @@
 name: Build and publish Docker images for ghcr.io/progwise/george-ai
 
 on:
-  push:
-#  workflow_dispatch:
-#    environment:
-#      description: 'Environment to run tests against'
-#      type: environment
-#      required: true
-#  release:
-#    types: [published]
+  workflow_dispatch:
+    environment:
+      description: 'Environment to run tests against'
+      type: environment
+      required: true
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io
