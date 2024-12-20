@@ -35,8 +35,16 @@ jobs:
       attestations: write
       id-token: write
 
-    steps: *common-steps
-      # https://github.com/docker/metadata-action#about
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Extract metadata (tags, labels) for chat-web
         id: meta-chat-web
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
@@ -74,14 +82,22 @@ jobs:
       attestations: write
       id-token: write
 
-    steps: *common-steps
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       # https://github.com/docker/metadata-action#about
       - name: Extract metadata (tags, labels) for chat-web
         id: meta-pocketbase
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY_PATH }}/pocketbase
-
       # https://github.com/docker/build-push-action#usage
       - name: Build and push pocketbase
         id: push-pocketbase
@@ -101,4 +117,3 @@ jobs:
           subject-name: ${{ env.REGISTRY_PATH }}/chat-web
           subject-digest: ${{ steps.push-pocketbase.outputs.digest }}
           push-to-registry: true
-          
