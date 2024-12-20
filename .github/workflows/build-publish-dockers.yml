@@ -89,7 +89,7 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           file: ./apps/pocketbase/Dockerfile.production
-          context: .
+          context: ./apps/pocketbase
           push: true
           tags: ${{ steps.meta-pocketbase.outputs.tags }}
           labels: ${{ steps.meta-pocketbase.outputs.labels }}
