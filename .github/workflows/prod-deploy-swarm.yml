@@ -26,4 +26,4 @@ jobs:
           remote_host: ssh://swarm@178.254.6.16
           ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
           ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
-          args: stack deploy --with-registry-auth --compose-file ../.deploy/stack.yaml george-ai
+          args: stack deploy --with-registry-auth --compose-file ./.deploy/stack.yaml george-ai
