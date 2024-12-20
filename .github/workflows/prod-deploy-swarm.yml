@@ -1,6 +1,7 @@
 name: Deploy to Docker Swarm on Production Servers
 
 on:
+  push:
   workflow_dispatch:
 
 env:
