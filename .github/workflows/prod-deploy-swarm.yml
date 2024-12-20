@@ -3,6 +3,10 @@ name: Deploy to Docker Swarm on Production Servers
 on:
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  REGISTRY_PATH: ghcr.io/progwise/george-ai
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
@@ -22,4 +26,3 @@ jobs:
           ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
           ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
           args: stack deploy --with-registry-auth --compose-file ../.deploy/stack.yaml george-ai
-```
