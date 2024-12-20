@@ -20,11 +20,10 @@ services:
     command: '--data-dir /typesensedata --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
 
   gai-pocketbase:
-    build: ../apps/pocketbase
-    container_name: gai-pocketbase
+    image: ghcr.io/progwise/george-ai/pocketbase:latest
     restart: unless-stopped
     environment:
-      - GAI_WEBHOOK_URL=http://app:3000/api/process-documents
+      - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
     ports:
       - '8090:8090'
     volumes:
