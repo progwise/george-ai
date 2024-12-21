@@ -27,7 +27,7 @@ RUN ls -al ./apps/chat-web
 
 
 FROM base AS runner
-LABEL org.opencontainers.image.source https://github.com/progwise/george-ai
+LABEL org.opencontainers.image.source https://github.com/progwise/george-ai/apps/chat-web
 WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 vinxi
