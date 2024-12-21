@@ -11,7 +11,8 @@
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
-        "bierner.markdown-mermaid"
+        "bierner.markdown-mermaid",
+        "redhat.vscode-yaml"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
