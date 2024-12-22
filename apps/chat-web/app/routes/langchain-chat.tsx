@@ -53,7 +53,7 @@ const ChatRoute = () => {
             {/* Dropdown End */}
             <button
               type="button"
-              className="btn btn-outline"
+              className="btn mb-1"
               onClick={async () => {
                 const { sessionId } = await reset({ data: data.sessionId })
                 setSessionId(sessionId)
