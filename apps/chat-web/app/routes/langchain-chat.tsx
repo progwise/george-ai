@@ -22,46 +22,50 @@ const ChatRoute = () => {
   }, [data])
 
   return (
-    <div className="flex flex-col gap-2 prose mb-10">
-      {/* Menu Row */}
-      <div className="flex justify-between">
-        {/* Dropdown Start */}
-
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className="btn m-1">
-            Retrieval Method
+    <div className="flex flex-col gap-4 prose mb-10">
+      {/* Card Section Start */}
+      <div className="card bg-base-100 shadow-xl">
+        <div className="card-body">
+          <div className="flex justify-between">
+            {/* Dropdown Start */}
+            <div className="dropdown">
+              <div tabIndex={0} role="button" className="btn m-1">
+                Retrieval Flow
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+              >
+                <li>
+                  <a>Sequential: Local & Web</a>
+                </li>
+                <li>
+                  <a>Parallel: Local & Web</a>
+                </li>
+                <li>
+                  <a>Only: Local</a>
+                </li>
+                <li>
+                  <a>Only: Web</a>
+                </li>
+              </ul>
+            </div>
+            {/* Dropdown End */}
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={async () => {
+                const { sessionId } = await reset({ data: data.sessionId })
+                setSessionId(sessionId)
+                refetch()
+              }}
+            >
+              Reset
+            </button>
           </div>
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-          >
-            <li>
-              <a>Sequential: Local & Web</a>
-            </li>
-            <li>
-              <a>Parallel: Local & Web</a>
-            </li>
-            <li>
-              <a>Only: Local</a>
-            </li>
-            <li>
-              <a>Only: Web</a>
-            </li>
-          </ul>
         </div>
-        {/* Dropdown End*/}
-        <button
-          type="button"
-          onClick={async () => {
-            const { sessionId } = await reset({ data: data.sessionId })
-            setSessionId(sessionId)
-            refetch()
-          }}
-        >
-          Reset
-        </button>
       </div>
-      <hr />
+      {/* Card Section End */}
       <section>
         {data.messages.map((message) => (
           <div
