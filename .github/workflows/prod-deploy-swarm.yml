@@ -12,18 +12,23 @@ jobs:
   deploy:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Deploy to swarm
-        uses: sagebind/docker-swarm-deploy-action@v2
-        with:
-          remote_host: ssh://swarm@178.254.6.16
-          ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
-          ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
-          args: stack deploy --with-registry-auth --compose-file ./.deploy/stack.yml george-ai
+      - uses: actions/checkout@v4
+      - name: SSH prerequisites for target server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa.pub
+          ssh-keyscan -H
+      - name: Copy swarm stack file
+        run: |
+          echo "Copy stack file"
+          scp -i ~/.ssh/id_rsa /home/swarm/george_ai_stack.yml swarm@
+
+      - name: Run deployment script
+        run: |
+          echo "Deploying to production server"
+          ssh -i ~/.ssh/id_rsa swarm@178.254.6.16 << EOF
+            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            docker stack deploy --with-registry-auth --compose-file /home/swarm/george_ai_stack.yml george-ai
