@@ -38,3 +38,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+secrets:
+  TAVILY_API_KEY:
+  OPENAI_API_KEY:
