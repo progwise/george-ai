@@ -31,8 +31,12 @@ jobs:
       - name: Set Docker Swarm secrets
         run: |
           echo "Set Docker Swarm secrets"
-          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo ${{ secrets.TAVILY_API_KEY }} | docker secret create TAVILY_API_KEY -"
-          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo ${{ secrets.OPENAI_API_KEY }} | docker secret create OPENAI_API_KEY -"
+          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
+            set +e
+            echo ${{ secrets.TAVILY_API_KEY }} | docker secret create TAVILY_API_KEY -
+            echo ${{ secrets.OPENAI_API_KEY }} | docker secret create OPENAI_API_KEY -
+            set -e
+          EOF
       - name: Run deployment script
         run: |
           echo "Deploying to production server"

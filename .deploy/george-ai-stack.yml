@@ -41,4 +41,6 @@ services:
 
 secrets:
   TAVILY_API_KEY:
+    external: true
   OPENAI_API_KEY:
+    external: true
