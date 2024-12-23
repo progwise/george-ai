@@ -33,11 +33,11 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 vinxi
 USER vinxi
 
-RUN --mount=type=secret,id=OPENAI_API_KEY \
-    --mount=type=secret,id=TAVILY_API_KEY \
+RUN --mount=type=secret,id=OPENAI_API_KEY,uid=1001 \
+    --mount=type=secret,id=TAVILY_API_KEY,uid=1001 \
     echo "OPENAI_API_KEY=$(cat /run/secrets/OPENAI_API_KEY)" > .env \
     echo "TAVILY_API_KEY=$(cat /run/secrets/TAVILY_API_KEY)" >> .env \
-    source .env
+    source ./.env 
 
 COPY --from=builder --chown=vinxi:nodejs /app/apps/chat-web/.output .
 CMD ["node", "/app/server/index.mjs"]
