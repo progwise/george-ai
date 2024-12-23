@@ -3,13 +3,13 @@ version: '3.7'
 services:
   gai-chatweb:
     image: ghcr.io/progwise/george-ai/chat-web:latest
-    restart: unless-stopped
     ports:
       - '3000:3000'
+    network:
+      - gai-network
 
   gai-typesense:
     image: typesense/typesense:27.1
-    restart: unless-stopped
     environment:
       - TYPESENSE_API_HOST=gai-typesense
       - TYPESENSE_API_PORT=8108
@@ -20,10 +20,11 @@ services:
     volumes:
       - ../.typesense-data:/typesensedata
     command: '--data-dir /typesensedata --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
+    network:
+      - gai-network
 
   gai-pocketbase:
     image: ghcr.io/progwise/george-ai/pocketbase:latest
-    restart: unless-stopped
     environment:
       - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
     ports:
@@ -38,3 +39,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    network:
+      - gai-network
+
+networks:
+  gai-network:
+    driver: overlay
