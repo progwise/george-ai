@@ -7,6 +7,7 @@ on:
 env:
   REGISTRY: ghcr.io
   REGISTRY_PATH: ghcr.io/progwise/george-ai
+  HOST: 178.254.6.16
 
 jobs:
   deploy:
@@ -20,7 +21,8 @@ jobs:
           echo "${{ secrets.SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa.pub
-          ssh-keyscan -H 178.254.6.16
+          ssh-keyscan -H ${{ env.HOST }} >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo SSH connection established"
       - name: Copy swarm stack file
         run: |
           echo "Copy stack file"
