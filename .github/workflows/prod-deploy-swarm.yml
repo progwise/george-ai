@@ -24,11 +24,11 @@ jobs:
       - name: Copy swarm stack file
         run: |
           echo "Copy stack file"
-          scp -i ~/.ssh/id_rsa /home/swarm/george_ai_stack.yml swarm@
+          scp -i ~/.ssh/id_rsa ./.deploy/george-ai-stack.yml swarm@178.254.6.16:/home/swarm/george_ai_stack.yml
 
       - name: Run deployment script
         run: |
           echo "Deploying to production server"
           ssh -i ~/.ssh/id_rsa swarm@178.254.6.16 << EOF
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker stack deploy --with-registry-auth --compose-file /home/swarm/george_ai_stack.yml george-ai
+            docker stack deploy --with-registry-auth --compose-file /home/swarm/george-ai-stack.yml george-ai
