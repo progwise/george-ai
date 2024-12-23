@@ -20,8 +20,8 @@ WORKDIR /app
 COPY . .
 
 RUN pnpm i --frozen-lockfile
-RUN --mount=type=secret,id=OPENAI_API_KEY \
-    --mount=type=secret,id=TAVILY_API_KEY \
+RUN --mount=type=secret,id=OPENAI_API_KEY,env=OPENAI_API_KEY \
+    --mount=type=secret,id=TAVILY_API_KEY,env=OPENAI_API_KEY \
     pnpm run build
 RUN ls -al ./apps/chat-web
 
@@ -33,5 +33,8 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 vinxi
 USER vinxi
  
+RUN --mount=type=secret,id=OPENAI_API_KEY,env=OPENAI_API_KEY \
+    --mount=type=secret,id=TAVILY_API_KEY,env=OPENAI_API_KEY
+
 COPY --from=builder --chown=vinxi:nodejs /app/apps/chat-web/.output .
 CMD ["node", "/app/server/index.mjs"]
