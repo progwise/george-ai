@@ -5,9 +5,6 @@ services:
     image: ghcr.io/progwise/george-ai/chat-web:deploy-swarm
     ports:
       - '3000:3000'
-    secrets:
-      - TAVILY_API_KEY
-      - OPENAI_API_KEY
 
   gai-typesense:
     image: typesense/typesense:27.1
@@ -38,9 +35,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-secrets:
-  TAVILY_API_KEY:
-    external: true
-  OPENAI_API_KEY:
-    external: true
