@@ -20,7 +20,7 @@ jobs:
           echo "${{ secrets.SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
           chmod 600 ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa.pub
-          ssh-keyscan -H
+          ssh-keyscan -H 178.254.6.16
       - name: Copy swarm stack file
         run: |
           echo "Copy stack file"
