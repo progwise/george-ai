@@ -16,7 +16,7 @@ services:
     ports:
       - '8108:8108'
     volumes:
-      - ../.typesense-data:/typesensedata
+      - /home/swarm/data/typesense:/typesensedata
     command: '--data-dir /typesensedata --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
 
   gai-pocketbase:
@@ -26,10 +26,8 @@ services:
     ports:
       - '8090:8090'
     volumes:
-      - ../apps/pocketbase/pb_data:/pb/pb_data
-      - ../apps/pocketbase/pb_public:/pb/pb_public
-      - ../apps/pocketbase/pb_hooks:/pb/pb_hooks
-      - ../apps/pocketbase/pb_migrations:/pb/pb_migrations
+      - /home/swarm/data/pocketbase/pb_data:/pb/pb_data
+      - /home/swarm/data/pocketbase/pb_public:/pb/pb_public
     healthcheck: # optional, recommended since v0.10.0
       test: wget --no-verbose --tries=1 --spider http://gai-pocketbase:8090/api/health || exit 1
       interval: 5s
