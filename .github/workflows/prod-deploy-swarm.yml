@@ -28,7 +28,11 @@ jobs:
         run: |
           echo "Copy stack file"
           scp -i ~/.ssh/id_rsa ./.deploy/george-ai-stack.yml swarm@${{ env.HOST }}:/home/swarm/george-ai-stack.yml
-
+      - name: Set Docker Swarm secrets
+        run: |
+          echo "Set Docker Swarm secrets"
+          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo ${{ secrets.TAVILY_API_KEY }} > docker secret create TAVILY_API_KEY -"
+          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo ${{ secrets.OPENAI_API_KEY }} > docker secret create OPENAI_API_KEY -"
       - name: Run deployment script
         run: |
           echo "Deploying to production server"
