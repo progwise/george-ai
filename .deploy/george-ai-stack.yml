@@ -58,11 +58,11 @@ services:
     volumes:
       - /home/swarm/data/pocketbase/pb_data:/pb/pb_data
       - /home/swarm/data/pocketbase/pb_public:/pb/pb_public
-    healthcheck: # optional, recommended since v0.10.0
-      test: wget --no-verbose --tries=1 --spider http://gai-pocketbase:8090/api/health || exit 1
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    #healthcheck: # optional, recommended since v0.10.0
+    #  test: wget --no-verbose --tries=1 --spider http://gai-pocketbase:8090/api/health || exit 1
+    #  interval: 5s
+    #  timeout: 5s
+    #  retries: 5
     deploy:
       replicas: 1
       resources:
