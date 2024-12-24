@@ -78,3 +78,6 @@ services:
         caddy: pocketbase.george-ai.net
         caddy.reverse_proxy: '{{upstreams 8090}}'
         caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+networks:
+  caddy:
+    external: true
