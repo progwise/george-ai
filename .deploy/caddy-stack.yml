@@ -38,8 +38,7 @@ services:
 
 networks:
   caddy:
-    driver: overlay
-    scope: swarm
+    external: true
 
 volumes:
   caddy_data: {}
