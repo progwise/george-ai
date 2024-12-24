@@ -16,7 +16,7 @@ services:
         window: 120s
       labels:
         caddy: chat.george-ai.net
-        caddy.reverse_proxy: { { upstreams 3000 } }
+        caddy.reverse_proxy: '{{upstreams 3000}}'
         caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-typesense:
@@ -42,7 +42,7 @@ services:
         window: 120s
       labels:
         caddy: typesense.george-ai.net
-        caddy.reverse_proxy: { { upstreams 8108 } }
+        caddy.reverse_proxy: '{{upstreams 8108}}'
         caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-pocketbase:
@@ -70,5 +70,5 @@ services:
         window: 120s
       labels:
         caddy: pocketbase.george-ai.net
-        caddy.reverse_proxy: { { upstreams 8090 } }
+        caddy.reverse_proxy: '{{upstreams 8090}}'
         caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
