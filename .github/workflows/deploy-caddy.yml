@@ -1,12 +1,10 @@
-name: Deploy to Docker Swarm on Production Servers
+name: Deploy Caddy to docker swarm
 
 on:
   push:
   workflow_dispatch:
 
 env:
-  REGISTRY: ghcr.io
-  REGISTRY_PATH: ghcr.io/progwise/george-ai
   HOST: 82.165.141.156
 
 jobs:
@@ -26,11 +24,10 @@ jobs:
       - name: Copy swarm stack file
         run: |
           echo "Copy stack file"
-          scp -i ~/.ssh/id_rsa ./.deploy/george-ai-stack.yml swarm@${{ env.HOST }}:/home/swarm/george-ai-stack.yml
+          scp -i ~/.ssh/id_rsa ./.deploy/caddy-stack.yml swarm@${{ env.HOST }}:/home/swarm/caddy-stack.yml
       - name: Run deployment script
         run: |
           echo "Deploying to production server"
           ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/progwise -u ${{ github.actor }} --password-stdin
-            docker stack deploy --with-registry-auth --compose-file /home/swarm/george-ai-stack.yml george-ai
+            docker stack deploy --compose-file /home/swarm/caddy-stack.yml caddy
           EOF

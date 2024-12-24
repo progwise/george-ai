@@ -3,8 +3,21 @@ version: '3.7'
 services:
   gai-chatweb:
     image: ghcr.io/progwise/george-ai/chat-web:deploy-swarm
-    ports:
-      - '3000:3000'
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        caddy: chat.george-ai.net
+        caddy.reverse_proxy: { { upstreams 3000 } }
+        caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-typesense:
     image: typesense/typesense:27.1
@@ -13,18 +26,29 @@ services:
       - TYPESENSE_API_PORT=8108
       - TYPESENSE_API_PROTOCOL=http
       - TYPESENSE_API_KEY=xyz
-    ports:
-      - '8108:8108'
     volumes:
       - /home/swarm/data/typesense:/typesensedata
     command: '--data-dir /typesensedata --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        caddy: typesense.george-ai.net
+        caddy.reverse_proxy: { { upstreams 8108 } }
+        caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-pocketbase:
     image: ghcr.io/progwise/george-ai/pocketbase:deploy-swarm
     environment:
       - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
-    ports:
-      - '8090:8090'
     volumes:
       - /home/swarm/data/pocketbase/pb_data:/pb/pb_data
       - /home/swarm/data/pocketbase/pb_public:/pb/pb_public
@@ -33,3 +57,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        caddy: pocketbase.george-ai.net
+        caddy.reverse_proxy: { { upstreams 8090 } }
+        caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
