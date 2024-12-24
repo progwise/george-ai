@@ -3,6 +3,8 @@ version: '3.7'
 services:
   gai-chatweb:
     image: ghcr.io/progwise/george-ai/chat-web:deploy-swarm
+    networks:
+      - caddy
     deploy:
       replicas: 1
       resources:
@@ -26,6 +28,8 @@ services:
       - TYPESENSE_API_PORT=8108
       - TYPESENSE_API_PROTOCOL=http
       - TYPESENSE_API_KEY=xyz
+    networks:
+      - caddy
     volumes:
       - /home/swarm/data/typesense:/typesensedata
     command: '--data-dir /typesensedata --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
@@ -49,6 +53,8 @@ services:
     image: ghcr.io/progwise/george-ai/pocketbase:deploy-swarm
     environment:
       - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
+    networks:
+      - caddy
     volumes:
       - /home/swarm/data/pocketbase/pb_data:/pb/pb_data
       - /home/swarm/data/pocketbase/pb_public:/pb/pb_public
