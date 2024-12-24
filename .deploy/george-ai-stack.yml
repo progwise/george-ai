@@ -12,9 +12,9 @@ services:
           cpus: '0.5'
           memory: 512M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
-        max_attempts: 3
+        #max_attempts: 3
         window: 120s
       labels:
         caddy: chat.george-ai.net
@@ -40,9 +40,9 @@ services:
           cpus: '0.5'
           memory: 512M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
-        max_attempts: 3
+        #max_attempts: 3
         window: 120s
       labels:
         caddy: typesense.george-ai.net
@@ -70,9 +70,9 @@ services:
           cpus: '0.5'
           memory: 512M
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
-        max_attempts: 3
+        # max_attempts: 3
         window: 120s
       labels:
         caddy: pocketbase.george-ai.net
