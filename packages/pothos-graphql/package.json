@@ -1,9 +1,10 @@
 {
   "name": "@george-ai/pothos-graphql",
-  "version": "1.0.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "packageManager": "pnpm@9.15.0",
+  "author": "progwise.net",
+  "private": true,
   "scripts": {
     "build": "tsc --noEmit",
     "lint": "eslint .",
