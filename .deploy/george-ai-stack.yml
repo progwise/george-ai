@@ -48,7 +48,8 @@ services:
       labels:
         caddy: typesense.george-ai.net
         caddy.reverse_proxy: '{{upstreams 8108}}'
-        caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-pocketbase:
     image: ghcr.io/progwise/george-ai/pocketbase:latest
@@ -79,7 +80,8 @@ services:
       labels:
         caddy: pocketbase.george-ai.net
         caddy.reverse_proxy: '{{upstreams 8090}}'
-        caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
 networks:
   caddy:
