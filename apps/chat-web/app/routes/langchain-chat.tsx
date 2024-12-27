@@ -58,7 +58,6 @@ const ChatRoute = () => {
                 </li>
               </ul>
             </div>
-            {/* Dropdown End */}
             <button
               type="button"
               className="btn mb-1"

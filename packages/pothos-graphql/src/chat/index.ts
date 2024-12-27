@@ -21,11 +21,15 @@ builder.mutationField('chat', (t) =>
         required: false,
       }),
     },
-    resolve: async (parent, { question, sessionId }) => {
+    resolve: async (_parent, { question, sessionId }) => {
       if (!sessionId) {
         sessionId = 'default'
       }
-      const result = await ask({ question, sessionId })
+      const result = await ask({
+        question,
+        sessionId,
+        retrievalFlow: 'sequential',
+      })
       return {
         answer: result.answer,
         sessionId,
