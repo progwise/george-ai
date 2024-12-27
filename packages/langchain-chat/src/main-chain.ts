@@ -99,7 +99,7 @@ const apologyChainLocalAndWeb = RunnableSequence.from([
 const branchChain = RunnableLambda.from(
   async (input: { question: string; retrievalFlow?: string }, options) => {
     switch (input.retrievalFlow) {
-      case 'onlyLocal': {
+      case 'Only Local': {
         const localResponse = await pdfChain.invoke(input, options)
         if (!localResponse.notEnoughInformation) {
           return localResponse
@@ -108,7 +108,7 @@ const branchChain = RunnableLambda.from(
         return apologyChainOnlyLocal.invoke(input, options)
       }
 
-      case 'onlyWeb': {
+      case 'Only Web': {
         const webResponse = await webChain.invoke(input, options)
         if (!webResponse.notEnoughInformation) {
           return webResponse
@@ -117,7 +117,7 @@ const branchChain = RunnableLambda.from(
         return apologyChainOnlyWeb.invoke(input, options)
       }
 
-      case 'sequential': {
+      case 'Sequential': {
         const localResponse = await pdfChain.invoke(input, options)
         if (!localResponse.notEnoughInformation) {
           return localResponse
@@ -130,7 +130,7 @@ const branchChain = RunnableLambda.from(
         return apologyChainLocalAndWeb.invoke(input, options)
       }
 
-      case 'parallel': {
+      case 'Parallel': {
         const [localResponse, webResponse] = await Promise.all([
           pdfChain.invoke(input, options),
           webChain.invoke(input, options),

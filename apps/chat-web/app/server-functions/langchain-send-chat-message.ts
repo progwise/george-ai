@@ -9,10 +9,10 @@ export const sendChatMessage = createServerFn({ method: 'POST' })
         message: z.string().max(200),
         sessionId: z.string().max(10),
         retrievalFlow: z.enum([
-          'sequential',
-          'parallel',
-          'onlyLocal',
-          'onlyWeb',
+          'Sequential',
+          'Parallel',
+          'Only Local',
+          'Only Web',
         ]),
       })
       .parse(data),

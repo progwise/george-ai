@@ -6,12 +6,13 @@ import {
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
+import { Dropdown } from '../components/dropdown'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [retrievalFlow, setRetrievalFlow] = useState<
-    'sequential' | 'parallel' | 'onlyLocal' | 'onlyWeb'
-  >('sequential')
+    'Sequential' | 'Parallel' | 'Only Local' | 'Only Web'
+  >('Sequential')
 
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
@@ -30,34 +31,27 @@ const ChatRoute = () => {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <div className="flex justify-between">
-            <div className="dropdown">
-              <div tabIndex={0} role="button" className="btn m-1">
-                Retrieval Flow
-              </div>
-              <ul
-                tabIndex={0}
-                className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-              >
-                <li>
-                  <a onClick={() => setRetrievalFlow('sequential')}>
-                    Sequential: Local & Web
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setRetrievalFlow('parallel')}>
-                    Parallel: Local & Web
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setRetrievalFlow('onlyLocal')}>
-                    Only: Local
-                  </a>
-                </li>
-                <li>
-                  <a onClick={() => setRetrievalFlow('onlyWeb')}>Only: Web</a>
-                </li>
-              </ul>
-            </div>
+            <Dropdown
+              title="Retrieval Flow"
+              options={[
+                {
+                  title: 'Sequential',
+                  action: () => setRetrievalFlow('Sequential'),
+                },
+                {
+                  title: 'Parallel',
+                  action: () => setRetrievalFlow('Parallel'),
+                },
+                {
+                  title: 'Only Local',
+                  action: () => setRetrievalFlow('Only Local'),
+                },
+                {
+                  title: 'Only Web',
+                  action: () => setRetrievalFlow('Only Web'),
+                },
+              ]}
+            />
             <button
               type="button"
               className="btn mb-1"

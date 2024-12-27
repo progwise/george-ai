@@ -18,7 +18,7 @@ export const LangchainChatForm = ({
   retrievalFlow,
 }: {
   sessionId: string
-  retrievalFlow: 'sequential' | 'parallel' | 'onlyLocal' | 'onlyWeb'
+  retrievalFlow: 'Sequential' | 'Parallel' | 'Only Local' | 'Only Web'
 }) => {
   const queryClient = useQueryClient()
   const { mutate, error, status } = useMutation({

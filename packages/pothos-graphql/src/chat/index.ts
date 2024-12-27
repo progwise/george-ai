@@ -28,7 +28,7 @@ builder.mutationField('chat', (t) =>
       const result = await ask({
         question,
         sessionId,
-        retrievalFlow: 'sequential',
+        retrievalFlow: 'Sequential',
       })
       return {
         answer: result.answer,

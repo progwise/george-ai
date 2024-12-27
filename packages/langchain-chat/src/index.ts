@@ -4,7 +4,7 @@ import * as vectorStore from './typesense-vectorstore'
 export const ask = (parameters: {
   question: string
   sessionId: string
-  retrievalFlow: 'sequential' | 'parallel' | 'onlyLocal' | 'onlyWeb'
+  retrievalFlow: 'Sequential' | 'Parallel' | 'Only Local' | 'Only Web'
 }) =>
   mainChain.historyChain.invoke(
     { question: parameters.question, retrievalFlow: parameters.retrievalFlow },
