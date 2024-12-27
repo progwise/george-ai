@@ -21,7 +21,7 @@ builder.mutationField('chat', (t) =>
         required: false,
       }),
     },
-    resolve: async (_parent, { question, sessionId }) => {
+    resolve: async (_root, { question, sessionId }) => {
       if (!sessionId) {
         sessionId = 'default'
       }
