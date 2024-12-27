@@ -9,6 +9,10 @@ import { useState, useEffect } from 'react'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
+  const [retrievalFlow, setRetrievalFlow] = useState<
+    'sequential' | 'parallel' | 'onlyLocal' | 'onlyWeb'
+  >('sequential')
+
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
   )
@@ -23,11 +27,9 @@ const ChatRoute = () => {
 
   return (
     <div className="flex flex-col gap-4 prose mb-10">
-      {/* Card Section Start */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <div className="flex justify-between">
-            {/* Dropdown Start */}
             <div className="dropdown">
               <div tabIndex={0} role="button" className="btn m-1">
                 Retrieval Flow
@@ -37,16 +39,22 @@ const ChatRoute = () => {
                 className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
               >
                 <li>
-                  <a>Sequential: Local & Web</a>
+                  <a onClick={() => setRetrievalFlow('sequential')}>
+                    Sequential: Local & Web
+                  </a>
                 </li>
                 <li>
-                  <a>Parallel: Local & Web</a>
+                  <a onClick={() => setRetrievalFlow('parallel')}>
+                    Parallel: Local & Web
+                  </a>
                 </li>
                 <li>
-                  <a>Only: Local</a>
+                  <a onClick={() => setRetrievalFlow('onlyLocal')}>
+                    Only: Local
+                  </a>
                 </li>
                 <li>
-                  <a>Only: Web</a>
+                  <a onClick={() => setRetrievalFlow('onlyWeb')}>Only: Web</a>
                 </li>
               </ul>
             </div>
@@ -63,13 +71,18 @@ const ChatRoute = () => {
               Reset
             </button>
           </div>
+          <div className="mt-2">
+            Current Retrieval Flow: <b>{retrievalFlow}</b>
+          </div>
         </div>
       </div>
-      {/* Card Section End */}
+
       <section>
         {data.messages.map((message) => (
           <div
-            className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
+            className={`chat ${
+              message.sender === 'bot' ? 'chat-start' : 'chat-end'
+            }`}
             key={message.id}
           >
             <div className="chat-header">
@@ -83,7 +96,10 @@ const ChatRoute = () => {
           </div>
         ))}
       </section>
-      <LangchainChatForm sessionId={data.sessionId} />
+      <LangchainChatForm
+        sessionId={data.sessionId}
+        retrievalFlow={retrievalFlow}
+      />
     </div>
   )
 }

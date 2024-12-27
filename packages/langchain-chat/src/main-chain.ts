@@ -8,7 +8,9 @@ import {
 import {
   localPrompt,
   webPrompt,
-  apologyPrompt,
+  apologyPromptOnlyLocal,
+  apologyPromptOnlyWeb,
+  apologyPromptLocalAndWeb,
   searchQueryPrompt,
 } from './prompts'
 import { getMessageHistory } from './message-history'
@@ -65,7 +67,11 @@ const webChain = RunnableSequence.from([
     const historyContent = messageHistory.map((m) => m.content).join('\n')
     const combinedQuery =
       historyContent.trim().length > 0
-        ? `Relevant conversation history:\n${historyContent}\n\nUser's current question:\n${input.question}`
+        ? `Relevant conversation history:
+${historyContent}
+
+User's current question:
+${input.question}`
         : input.question
 
     const context = await getWebContent({ question: combinedQuery })
@@ -75,24 +81,75 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const apologyChain = RunnableSequence.from([
-  apologyPrompt,
+const apologyChainOnlyLocal = RunnableSequence.from([
+  apologyPromptOnlyLocal,
+  model.withStructuredOutput(outputSchema, { strict: true }),
+])
+
+const apologyChainOnlyWeb = RunnableSequence.from([
+  apologyPromptOnlyWeb,
+  model.withStructuredOutput(outputSchema, { strict: true }),
+])
+
+const apologyChainLocalAndWeb = RunnableSequence.from([
+  apologyPromptLocalAndWeb,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 const branchChain = RunnableLambda.from(
-  async (input: { question: string }, options) => {
-    const localResponse = await pdfChain.invoke(input, options)
-    if (!localResponse.notEnoughInformation) {
-      return localResponse
-    }
+  async (input: { question: string; retrievalFlow?: string }, options) => {
+    switch (input.retrievalFlow) {
+      case 'onlyLocal': {
+        const localResponse = await pdfChain.invoke(input, options)
+        if (!localResponse.notEnoughInformation) {
+          return localResponse
+        }
 
-    const webResponse = await webChain.invoke(input, options)
-    if (!webResponse.notEnoughInformation) {
-      return webResponse
-    }
+        return apologyChainOnlyLocal.invoke(input, options)
+      }
 
-    return await apologyChain.invoke(input, options)
+      case 'onlyWeb': {
+        const webResponse = await webChain.invoke(input, options)
+        if (!webResponse.notEnoughInformation) {
+          return webResponse
+        }
+
+        return apologyChainOnlyWeb.invoke(input, options)
+      }
+
+      case 'sequential': {
+        const localResponse = await pdfChain.invoke(input, options)
+        if (!localResponse.notEnoughInformation) {
+          return localResponse
+        }
+        const webResponse = await webChain.invoke(input, options)
+        if (!webResponse.notEnoughInformation) {
+          return webResponse
+        }
+
+        return apologyChainLocalAndWeb.invoke(input, options)
+      }
+
+      case 'parallel': {
+        const [localResponse, webResponse] = await Promise.all([
+          pdfChain.invoke(input, options),
+          webChain.invoke(input, options),
+        ])
+
+        if (!localResponse.notEnoughInformation) {
+          return localResponse
+        }
+
+        if (!webResponse.notEnoughInformation) {
+          return webResponse
+        }
+
+        return apologyChainLocalAndWeb.invoke(input, options)
+      }
+      default: {
+        return apologyChainLocalAndWeb.invoke(input, options)
+      }
+    }
   },
 )
 

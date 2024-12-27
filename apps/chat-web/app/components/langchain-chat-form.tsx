@@ -7,18 +7,25 @@ const handleTextareaKeyDown = (
 ) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
-
     event.currentTarget.form?.dispatchEvent(
       new Event('submit', { bubbles: true, cancelable: true }),
     )
   }
 }
 
-export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
+export const LangchainChatForm = ({
+  sessionId,
+  retrievalFlow,
+}: {
+  sessionId: string
+  retrievalFlow: 'sequential' | 'parallel' | 'onlyLocal' | 'onlyWeb'
+}) => {
   const queryClient = useQueryClient()
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) =>
-      sendChatMessage({ data: { message, sessionId } }),
+      sendChatMessage({
+        data: { message, sessionId, retrievalFlow },
+      }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions(sessionId))
 
@@ -79,7 +86,6 @@ export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
     const message = formData.get('message') as string
 
     form.reset()
-
     mutate(message)
   }
 
@@ -97,7 +103,7 @@ export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
       >
         Send
       </button>
-      {error && <div>{error.message}</div>}
+      {error && <div>{(error as Error).message}</div>}
     </form>
   )
 }

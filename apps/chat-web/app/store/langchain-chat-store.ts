@@ -1,5 +1,7 @@
 import { ask } from '@george-ai/langchain-chat'
 
+export type RetrievalFlow = 'sequential' | 'parallel' | 'onlyLocal' | 'onlyWeb'
+
 export interface LangchainChatMessage {
   id: string
   sessionId: string
@@ -29,33 +31,37 @@ const getChat = (sessionId: string): LangchainChatMessage[] => {
 const sendChatMessage = async (
   message: string,
   sessionId: string,
+  retrievalFlow: RetrievalFlow,
 ): Promise<LangchainChatMessage[]> => {
   const oldChat = getChat(sessionId)
+
   const langchainResult = await ask({
     question: message,
     sessionId,
+    retrievalFlow,
   })
 
-  const newMessages = [
-    {
-      id: Math.random().toString(),
-      sessionId,
-      sender: 'user',
-      text: message,
-      source: 'User',
-      time: new Date(Date.now()),
-    },
-    {
-      id: Math.random().toString(),
-      sessionId,
-      sender: 'bot',
-      text: langchainResult.answer,
-      source: langchainResult.source,
-      time: new Date(Date.now()),
-    },
-  ] satisfies LangchainChatMessage[]
+  const userMessage: LangchainChatMessage = {
+    id: Math.random().toString(),
+    sessionId,
+    sender: 'user',
+    text: message,
+    source: 'User',
+    time: new Date(),
+  }
 
+  const botMessage: LangchainChatMessage = {
+    id: Math.random().toString(),
+    sessionId,
+    sender: 'bot',
+    text: langchainResult.answer,
+    source: langchainResult.source,
+    time: new Date(),
+  }
+
+  const newMessages = [userMessage, botMessage]
   const newChat = [...oldChat, ...newMessages]
+
   chatItems = [
     ...chatItems.filter((item) => item.sessionId !== sessionId),
     ...newChat,
