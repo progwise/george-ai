@@ -2,6 +2,8 @@ name: Deploy Caddy to docker swarm
 
 on:
   push:
+    tags:
+      - v*
   workflow_dispatch:
 
 env:

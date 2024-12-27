@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   gai-chatweb:
-    image: ghcr.io/progwise/george-ai/chat-web:deploy-swarm
+    image: ghcr.io/progwise/george-ai/chat-web:latest
     networks:
       - caddy
     deploy:
@@ -51,7 +51,7 @@ services:
         caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-pocketbase:
-    image: ghcr.io/progwise/george-ai/pocketbase:deploy-swarm
+    image: ghcr.io/progwise/george-ai/pocketbase:latest
     environment:
       - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
     networks:

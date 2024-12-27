@@ -2,6 +2,8 @@ name: Deploy George-AI to docker swarm
 
 on:
   push:
+    tags:
+      - v*
   workflow_dispatch:
 
 env:

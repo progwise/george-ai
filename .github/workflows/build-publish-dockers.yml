@@ -1,9 +1,12 @@
 name: Build and publish Docker images
 
 on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
   workflow_dispatch:
-  release:
-    types: [published]
 
 env:
   REGISTRY: ghcr.io
@@ -40,6 +43,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+            type=raw,value=latest
 
       # https://github.com/docker/build-push-action#usage
       - name: Build and push chat-web
@@ -52,6 +56,7 @@ jobs:
           secrets: |
             TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            POCKETBASE_TOKEN=${{ secrets.POCKETBASE_TOKEN }}
           tags: ${{ steps.meta-chat-web.outputs.tags }}
           labels: ${{ steps.meta-chat-web.outputs.labels }}
 
@@ -94,6 +99,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha
+            type=raw,value=latest
       # https://github.com/docker/build-push-action#usage
       - name: Build and push pocketbase
         id: push-pocketbase
