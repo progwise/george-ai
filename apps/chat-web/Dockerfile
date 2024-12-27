@@ -24,7 +24,7 @@ RUN --mount=type=secret,id=OPENAI_API_KEY \
     --mount=type=secret,id=POCKETBASE_TOKEN \
     export OPENAI_API_KEY=$(cat /run/secrets/OPENAI_API_KEY) \
     && export TAVILY_API_KEY=$(cat /run/secrets/TAVILY_API_KEY) \
-    && export POCKETBASE_TOKEN=$(cat /run/secrets/POKETBASE_TOKEN) \
+    && export POCKETBASE_TOKEN=$(cat /run/secrets/POCKETBASE_TOKEN) \
     && pnpm i --frozen-lockfile \
     && pnpm run build \
     && echo "#!/usr/bin/env bash\n" > ./entrypoint.sh \

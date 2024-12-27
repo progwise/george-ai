@@ -12,7 +12,7 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "bierner.markdown-mermaid",
-        "redhat.vscode-yaml"
+        "github.vscode-github-actions"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
