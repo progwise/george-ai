@@ -1,20 +1,19 @@
-name: Build and publish Docker images for ghcr.io/progwise/george-ai
+name: Build and publish Docker images
 
 on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
   workflow_dispatch:
-    environment:
-      description: 'Environment to run tests against'
-      type: environment
-      required: true
-  release:
-    types: [published]
 
 env:
   REGISTRY: ghcr.io
   REGISTRY_PATH: ghcr.io/progwise/george-ai
 
 jobs:
-  build-and-push-docker:
+  chat-web:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -26,25 +25,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # https://github.com/docker/metadata-action#about
       - name: Extract metadata (tags, labels) for chat-web
         id: meta-chat-web
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY_PATH }}/chat-web
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest
 
       # https://github.com/docker/build-push-action#usage
       - name: Build and push chat-web
         id: push-chat-web
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        uses: docker/build-push-action@v6
         with:
           file: ./apps/chat-web/Dockerfile
           context: .
@@ -52,6 +56,7 @@ jobs:
           secrets: |
             TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            POCKETBASE_TOKEN=${{ secrets.POCKETBASE_TOKEN }}
           tags: ${{ steps.meta-chat-web.outputs.tags }}
           labels: ${{ steps.meta-chat-web.outputs.labels }}
 
@@ -62,4 +67,55 @@ jobs:
         with:
           subject-name: ${{ env.REGISTRY_PATH }}/chat-web
           subject-digest: ${{ steps.push-chat-web.outputs.digest }}
+          push-to-registry: true
+  pocketbase:
+    runs-on: ubuntu-22.04
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # https://github.com/docker/metadata-action#about
+      - name: Extract metadata (tags, labels) for pocketbase
+        id: meta-pocketbase
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_PATH }}/pocketbase
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest
+      # https://github.com/docker/build-push-action#usage
+      - name: Build and push pocketbase
+        id: push-pocketbase
+        uses: docker/build-push-action@v6
+        with:
+          file: ./apps/pocketbase/Dockerfile.production
+          context: ./apps/pocketbase
+          push: true
+          tags: ${{ steps.meta-pocketbase.outputs.tags }}
+          labels: ${{ steps.meta-pocketbase.outputs.labels }}
+
+      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
+      # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
+      - name: Generate artifact attestation for pocketbase
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY_PATH }}/pocketbase
+          subject-digest: ${{ steps.push-pocketbase.outputs.digest }}
           push-to-registry: true

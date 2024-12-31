@@ -19,19 +19,33 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 
-RUN pnpm i --frozen-lockfile
 RUN --mount=type=secret,id=OPENAI_API_KEY \
     --mount=type=secret,id=TAVILY_API_KEY \
-    pnpm run build
-RUN ls -al ./apps/chat-web
-
+    --mount=type=secret,id=POCKETBASE_TOKEN \
+    export OPENAI_API_KEY=$(cat /run/secrets/OPENAI_API_KEY) \
+    && export TAVILY_API_KEY=$(cat /run/secrets/TAVILY_API_KEY) \
+    && export POCKETBASE_TOKEN=$(cat /run/secrets/POCKETBASE_TOKEN) \
+    && pnpm i --frozen-lockfile \
+    && pnpm run build \
+    && echo "#!/usr/bin/env bash\n" > ./entrypoint.sh \
+    && chmod +x ./entrypoint.sh \
+    && echo "export OPENAI_API_KEY=$OPENAI_API_KEY" >>./entrypoint.sh \
+    && echo "export TAVILY_API_KEY=$TAVILY_API_KEY" >> ./entrypoint.sh \
+    && echo "export POCKETBASE_TOKEN=$POCKETBASE_TOKEN" >> ./entrypoint.sh \
+    && echo "\$@\n" >> ./entrypoint.sh
+  
 
 FROM base AS runner
-LABEL org.opencontainers.image.source https://github.com/progwise/george-ai
+LABEL org.opencontainers.image.source=https://github.com/progwise/george-ai/apps/chat-web
 WORKDIR /app
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 vinxi
+
+RUN addgroup --system --gid 1001 nodejs \
+     && adduser --system --uid 1001 vinxi
+
 USER vinxi
- 
+
 COPY --from=builder --chown=vinxi:nodejs /app/apps/chat-web/.output .
-CMD ["node", "/app/server/index.mjs"]
+COPY --from=builder --chown=vinxi:nodejs /app/entrypoint.sh .
+
+ENTRYPOINT [ "/app/entrypoint.sh" ]
+CMD [ "node", "/app/server/index.mjs" ]

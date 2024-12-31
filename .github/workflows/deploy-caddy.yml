@@ -1,0 +1,35 @@
+name: Deploy Caddy to docker swarm
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+env:
+  HOST: 82.165.141.156
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: SSH prerequisites for target server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
+          chmod 600 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa.pub
+          ssh-keyscan -H ${{ env.HOST }} >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo SSH connection established"
+      - name: Copy swarm stack file
+        run: |
+          echo "Copy stack file"
+          scp -i ~/.ssh/id_rsa ./.deploy/caddy-stack.yml swarm@${{ env.HOST }}:/home/swarm/caddy-stack.yml
+      - name: Run deployment script
+        run: |
+          echo "Deploying to production server"
+          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
+            docker stack deploy --compose-file /home/swarm/caddy-stack.yml caddy
+          EOF

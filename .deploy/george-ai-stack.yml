@@ -1,0 +1,88 @@
+version: '3.7'
+
+services:
+  gai-chatweb:
+    image: ghcr.io/progwise/george-ai/chat-web:latest
+    networks:
+      - caddy
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+      labels:
+        caddy: chat.george-ai.net
+        caddy.reverse_proxy: '{{upstreams 3000}}'
+        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+
+  gai-typesense:
+    image: typesense/typesense:27.1
+    environment:
+      - TYPESENSE_API_HOST=gai-typesense
+      - TYPESENSE_API_PORT=8108
+      - TYPESENSE_API_PROTOCOL=http
+      - TYPESENSE_API_KEY=xyz
+    networks:
+      - caddy
+    volumes:
+      - /home/swarm/data/typesense:/typesensedata
+    command: '--data-dir /typesensedata --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+      labels:
+        caddy: typesense.george-ai.net
+        caddy.reverse_proxy: '{{upstreams 8108}}'
+        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+
+  gai-pocketbase:
+    image: ghcr.io/progwise/george-ai/pocketbase:latest
+    environment:
+      - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
+    networks:
+      - caddy
+    volumes:
+      - /home/swarm/data/pocketbase/pb_data:/pb/pb_data
+      - /home/swarm/data/pocketbase/pb_public:/pb/pb_public
+    # https://github.com/progwise/george-ai/issues/210
+    #healthcheck: # optional, recommended since v0.10.0
+    #  test: wget --no-verbose --tries=1 --spider http://gai-pocketbase:8090/api/health || exit 1
+    #  interval: 5s
+    #  timeout: 5s
+    #  retries: 5
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        # max_attempts: 3
+        window: 120s
+      labels:
+        caddy: pocketbase.george-ai.net
+        caddy.reverse_proxy: '{{upstreams 8090}}'
+        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+
+networks:
+  caddy:
+    external: true
