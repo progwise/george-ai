@@ -17,7 +17,7 @@ const getDefaultChat = (): LangchainChatMessage[] => [
     sender: 'bot',
     text: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
     source: 'George AI',
-    time: new Date(),
+    time: new Date(Date.now()),
   },
 ]
 
@@ -44,7 +44,7 @@ const sendChatMessage = async (
     sender: 'user',
     text: message,
     source: 'User',
-    time: new Date(),
+    time: new Date(Date.now()),
   }
 
   const botMessage: LangchainChatMessage = {
@@ -53,7 +53,7 @@ const sendChatMessage = async (
     sender: 'bot',
     text: langchainResult.answer,
     source: langchainResult.source,
-    time: new Date(),
+    time: new Date(Date.now()),
   }
 
   const newChat = [...oldChat, userMessage, botMessage]
