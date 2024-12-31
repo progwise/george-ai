@@ -17,24 +17,18 @@ import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
+import { getRetrievalFlow } from './session-flow-store'
+
 import * as z from 'zod'
 
 const outputSchema = z.object({
-  answer: z
-    .string()
-    .describe(
-      'The answer to the human question without any hidden special characters.',
-    ),
+  answer: z.string().describe('The answer to the human question ...'),
   source: z
     .string()
-    .describe(
-      'One of "local", "web", or "model", indicating the origin of the final answer.',
-    ),
+    .describe('One of "local", "web", or "model", indicating the origin.'),
   notEnoughInformation: z
     .boolean()
-    .describe(
-      'Set to true only if the given context does not contain relevant info. Otherwise, false.',
-    ),
+    .describe('True only if the given context lacks relevant info.'),
 })
 
 const model = new ChatOpenAI({
@@ -97,23 +91,25 @@ const apologyChainLocalAndWeb = RunnableSequence.from([
 ])
 
 const branchChain = RunnableLambda.from(
-  async (input: { question: string; retrievalFlow?: string }, options) => {
-    switch (input.retrievalFlow) {
-      case 'Only Local': {
+  async (input: { question: string }, options) => {
+    const sessionId = options?.configurable?.sessionId
+
+    const retrievalFlow = sessionId ? getRetrievalFlow(sessionId) : 'Sequential'
+
+    switch (retrievalFlow) {
+      case 'onlyLocal': {
         const localResponse = await pdfChain.invoke(input, options)
         if (!localResponse.notEnoughInformation) {
           return localResponse
         }
-
         return apologyChainOnlyLocal.invoke(input, options)
       }
 
-      case 'Only Web': {
+      case 'onlyWeb': {
         const webResponse = await webChain.invoke(input, options)
         if (!webResponse.notEnoughInformation) {
           return webResponse
         }
-
         return apologyChainOnlyWeb.invoke(input, options)
       }
 
@@ -126,7 +122,6 @@ const branchChain = RunnableLambda.from(
         if (!webResponse.notEnoughInformation) {
           return webResponse
         }
-
         return apologyChainLocalAndWeb.invoke(input, options)
       }
 
@@ -139,13 +134,12 @@ const branchChain = RunnableLambda.from(
         if (!localResponse.notEnoughInformation) {
           return localResponse
         }
-
         if (!webResponse.notEnoughInformation) {
           return webResponse
         }
-
         return apologyChainLocalAndWeb.invoke(input, options)
       }
+
       default: {
         return apologyChainLocalAndWeb.invoke(input, options)
       }
@@ -153,6 +147,7 @@ const branchChain = RunnableLambda.from(
   },
 )
 
+// Main chain
 const mainChain = RunnableSequence.from([
   async (input) => {
     const searchQuery = await historyToQueryChain.invoke({
@@ -161,10 +156,12 @@ const mainChain = RunnableSequence.from([
     })
     return { ...input, searchQuery }
   },
+
   async (input) => ({
     ...input,
     context: await getPDFContentForQuestion(input.searchQuery),
   }),
+
   branchChain,
 ])
 

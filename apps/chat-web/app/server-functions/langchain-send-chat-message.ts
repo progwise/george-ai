@@ -8,19 +8,9 @@ export const sendChatMessage = createServerFn({ method: 'POST' })
       .object({
         message: z.string().max(200),
         sessionId: z.string().max(10),
-        retrievalFlow: z.enum([
-          'Sequential',
-          'Parallel',
-          'Only Local',
-          'Only Web',
-        ]),
       })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    return chatStore.sendChatMessage(
-      data.message,
-      data.sessionId,
-      data.retrievalFlow,
-    )
+    return chatStore.sendChatMessage(data.message, data.sessionId)
   })

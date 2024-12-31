@@ -29,7 +29,6 @@ export const Dropdown = (props: DropdownProps): JSX.Element => {
           className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
         >
           {props.options.map((option, index) => (
-            // eslint-disable-next-line @eslint-react/no-array-index-key
             <li key={index}>
               <div onClick={() => handleOptionClick(option.action)}>
                 {option.title}
