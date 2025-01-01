@@ -1,11 +1,17 @@
 import { useState } from 'react'
 
-interface DropdownProps {
+interface DropdownOption {
   title: string
-  options: Array<{ title: string; action: () => void }>
+  action: () => void
+  key?: string
 }
 
-export const Dropdown = (props: DropdownProps): JSX.Element => {
+interface DropdownProps {
+  title: string
+  options: DropdownOption[]
+}
+
+export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleOptionClick = (action: () => void) => {
@@ -15,26 +21,33 @@ export const Dropdown = (props: DropdownProps): JSX.Element => {
 
   return (
     <div className="dropdown">
-      <div
+      <button
+        type="button"
         tabIndex={0}
-        role="button"
         className="btn m-1"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {props.title}
-      </div>
+        {title}
+      </button>
       {isOpen && (
         <ul
           tabIndex={0}
           className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
         >
-          {props.options.map((option, index) => (
-            <li key={index}>
-              <div onClick={() => handleOptionClick(option.action)}>
-                {option.title}
-              </div>
-            </li>
-          ))}
+          {options.map((option) => {
+            const itemKey = option.key ?? option.title
+            return (
+              <li key={itemKey}>
+                <button
+                  type="button"
+                  className="text-left"
+                  onClick={() => handleOptionClick(option.action)}
+                >
+                  {option.title}
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
