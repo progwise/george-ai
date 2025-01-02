@@ -1,8 +1,8 @@
 export const retrievalFlowValues = [
   'Sequential',
   'Parallel',
-  'onlyLocal',
-  'onlyWeb',
+  'Only Local',
+  'Only Web',
 ] as const
 
 export type RetrievalFlow = (typeof retrievalFlowValues)[number]

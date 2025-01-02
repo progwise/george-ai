@@ -22,13 +22,21 @@ import { getRetrievalFlow } from './session-flow-store'
 import * as z from 'zod'
 
 const outputSchema = z.object({
-  answer: z.string().describe('The answer to the human question ...'),
+  answer: z
+    .string()
+    .describe(
+      'The answer to the human question without any hidden special characters.',
+    ),
   source: z
     .string()
-    .describe('One of "local", "web", or "model", indicating the origin.'),
+    .describe(
+      'One of "local", "web", or "model", indicating the origin of the final answer.',
+    ),
   notEnoughInformation: z
     .boolean()
-    .describe('True only if the given context lacks relevant info.'),
+    .describe(
+      'Set to true only if the given context does not contain relevant info. Otherwise, false.',
+    ),
 })
 
 const model = new ChatOpenAI({
@@ -61,11 +69,7 @@ const webChain = RunnableSequence.from([
     const historyContent = messageHistory.map((m) => m.content).join('\n')
     const combinedQuery =
       historyContent.trim().length > 0
-        ? `Relevant conversation history:
-${historyContent}
-
-User's current question:
-${input.question}`
+        ? `Relevant conversation history:\n${historyContent}\n\nUser's current question:\n${input.question}`
         : input.question
 
     const context = await getWebContent({ question: combinedQuery })
@@ -97,7 +101,7 @@ const branchChain = RunnableLambda.from(
     const retrievalFlow = sessionId ? getRetrievalFlow(sessionId) : 'Sequential'
 
     switch (retrievalFlow) {
-      case 'onlyLocal': {
+      case 'Only Local': {
         const localResponse = await pdfChain.invoke(input, options)
         if (!localResponse.notEnoughInformation) {
           return localResponse
@@ -105,7 +109,7 @@ const branchChain = RunnableLambda.from(
         return apologyChainOnlyLocal.invoke(input, options)
       }
 
-      case 'onlyWeb': {
+      case 'Only Web': {
         const webResponse = await webChain.invoke(input, options)
         if (!webResponse.notEnoughInformation) {
           return webResponse
@@ -147,7 +151,6 @@ const branchChain = RunnableLambda.from(
   },
 )
 
-// Main chain
 const mainChain = RunnableSequence.from([
   async (input) => {
     const searchQuery = await historyToQueryChain.invoke({

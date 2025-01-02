@@ -1,30 +1,36 @@
-import React from 'react'
-import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendChatMessage } from '../server-functions/langchain-send-chat-message'
+import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
 
-type LangchainChatFormProps = {
-  sessionId: string
+const handleTextareaKeyDown = (
+  event: React.KeyboardEvent<HTMLTextAreaElement>,
+) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault()
+
+    event.currentTarget.form?.dispatchEvent(
+      new Event('submit', { bubbles: true, cancelable: true }),
+    )
+  }
 }
 
-export const LangchainChatForm = ({ sessionId }: LangchainChatFormProps) => {
+export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
   const queryClient = useQueryClient()
-
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) =>
       sendChatMessage({ data: { message, sessionId } }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions(sessionId))
 
-      const previousData = queryClient.getQueryData(
+      const previousMessages = queryClient.getQueryData(
         chatMessagesQueryOptions(sessionId).queryKey,
       )
 
-      if (previousData) {
+      if (previousMessages) {
         queryClient.setQueryData(chatMessagesQueryOptions(sessionId).queryKey, {
           sessionId,
           messages: [
-            ...previousData.messages,
+            ...previousMessages.messages,
             {
               id: Math.random().toString(),
               sessionId,
@@ -37,7 +43,7 @@ export const LangchainChatForm = ({ sessionId }: LangchainChatFormProps) => {
               id: Math.random().toString(),
               sessionId,
               sender: 'bot',
-              text: '...',
+              text: '.........',
               source: '',
               time: new Date(Date.now()),
             },
@@ -45,13 +51,13 @@ export const LangchainChatForm = ({ sessionId }: LangchainChatFormProps) => {
         })
       }
 
-      return { previousData }
+      return { previousMessages }
     },
     onError: (_error, _variables, context) => {
-      if (context?.previousData) {
+      if (context?.previousMessages) {
         queryClient.setQueryData(
           chatMessagesQueryOptions(sessionId).queryKey,
-          context.previousData,
+          context.previousMessages,
         )
       }
     },
@@ -71,7 +77,9 @@ export const LangchainChatForm = ({ sessionId }: LangchainChatFormProps) => {
     const form = event.currentTarget
     const formData = new FormData(form)
     const message = formData.get('message') as string
+
     form.reset()
+
     mutate(message)
   }
 
@@ -80,7 +88,7 @@ export const LangchainChatForm = ({ sessionId }: LangchainChatFormProps) => {
       <textarea
         className="textarea textarea-bordered flex-grow"
         name="message"
-        placeholder="Type your question..."
+        onKeyDown={handleTextareaKeyDown}
       />
       <button
         type="submit"
@@ -89,7 +97,7 @@ export const LangchainChatForm = ({ sessionId }: LangchainChatFormProps) => {
       >
         Send
       </button>
-      {error && <div className="text-red-500">{(error as Error).message}</div>}
+      {error && <div>{error.message}</div>}
     </form>
   )
 }

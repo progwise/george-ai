@@ -1,4 +1,3 @@
-// File: apps/chat-web/app/store/langchain-chat-store.ts
 import { ask } from '@george-ai/langchain-chat'
 
 export interface LangchainChatMessage {

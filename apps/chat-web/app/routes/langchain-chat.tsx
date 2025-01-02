@@ -1,40 +1,34 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
-
 import {
   chatMessagesQueryOptions,
   reset,
 } from '../server-functions/langchain-chat-history'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { setFlowForSession } from '../server-functions/langchain-set-flow'
 import { Dropdown } from '../components/dropdown'
 
 import { LangchainChatForm } from '../components/langchain-chat-form'
+import { useState, useEffect } from 'react'
+import { RetrievalFlow } from '@george-ai/langchain-chat/src/retrievalFlow'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
 
-  const [selectedFlow, setSelectedFlow] = useState<
-    'Sequential' | 'Parallel' | 'onlyLocal' | 'onlyWeb'
-  >('Sequential')
+  const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
 
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
   )
 
-  useEffect(() => {
-    if (isSuccess && data.sessionId !== sessionId) {
-      setSessionId(data.sessionId)
-    }
-  }, [isSuccess, data, sessionId])
+  if (isSuccess && data.sessionId !== sessionId) {
+    setSessionId(data.sessionId)
+  }
 
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight)
   }, [data])
 
-  async function handleFlowChange(
-    flow: 'Sequential' | 'Parallel' | 'onlyLocal' | 'onlyWeb',
-  ) {
+  const handleFlowChange = async (flow: RetrievalFlow) => {
     setSelectedFlow(flow)
     if (sessionId) {
       await setFlowForSession({
@@ -64,11 +58,11 @@ const ChatRoute = () => {
                 },
                 {
                   title: 'Only Local',
-                  action: () => handleFlowChange('onlyLocal'),
+                  action: () => handleFlowChange('Only Local'),
                 },
                 {
                   title: 'Only Web',
-                  action: () => handleFlowChange('onlyWeb'),
+                  action: () => handleFlowChange('Only Web'),
                 },
               ]}
             />
