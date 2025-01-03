@@ -1,14 +1,12 @@
 import { useState } from 'react'
 
-interface DropdownOption {
-  title: string
-  action: () => void
-  key?: string
-}
-
 interface DropdownProps {
   title: string
-  options: DropdownOption[]
+  options: Array<{
+    title: string
+    action: () => void
+    key?: string
+  }>
 }
 
 export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
@@ -35,9 +33,8 @@ export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
           className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
         >
           {options.map((option) => {
-            const itemKey = option.key ?? option.title
             return (
-              <li key={itemKey}>
+              <li key={option.key ?? option.title}>
                 <button
                   type="button"
                   className="text-left"
