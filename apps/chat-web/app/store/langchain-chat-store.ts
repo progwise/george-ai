@@ -16,7 +16,7 @@ const getDefaultChat = (): LangchainChatMessage[] => [
     sender: 'bot',
     text: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
     source: 'George AI',
-    time: new Date(Date.now()),
+    time: new Date(),
   },
 ]
 

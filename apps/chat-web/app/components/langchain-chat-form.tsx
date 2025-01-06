@@ -37,7 +37,7 @@ export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
               sender: 'user',
               text: message,
               source: '',
-              time: new Date(Date.now()),
+              time: new Date(),
             },
             {
               id: Math.random().toString(),
@@ -45,7 +45,7 @@ export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
               sender: 'bot',
               text: '.........',
               source: '',
-              time: new Date(Date.now()),
+              time: new Date(),
             },
           ],
         })
