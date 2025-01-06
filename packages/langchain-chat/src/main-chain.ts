@@ -17,7 +17,6 @@ import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
-import { getRetrievalFlow } from '../../../apps/chat-web/app/server-functions/langchain-set-flow'
 
 import * as z from 'zod'
 
@@ -96,9 +95,7 @@ const apologyChainLocalAndWeb = RunnableSequence.from([
 
 const branchChain = RunnableLambda.from(
   async (input: { question: string }, options) => {
-    const sessionId = options?.configurable?.sessionId
-
-    const retrievalFlow = sessionId ? getRetrievalFlow(sessionId) : 'Sequential'
+    const retrievalFlow = options?.configurable?.retrievalFlow ?? 'Sequential'
 
     switch (retrievalFlow) {
       case 'Only Local': {

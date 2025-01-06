@@ -1,4 +1,4 @@
-import { ask } from '@george-ai/langchain-chat'
+import { ask, RetrievalFlow } from '@george-ai/langchain-chat'
 
 export interface LangchainChatMessage {
   id: string
@@ -29,12 +29,14 @@ const getChat = (sessionId: string): LangchainChatMessage[] => {
 const sendChatMessage = async (
   message: string,
   sessionId: string,
+  retrievalFlow: RetrievalFlow,
 ): Promise<LangchainChatMessage[]> => {
   const oldChat = getChat(sessionId)
 
   const langchainResult = await ask({
     question: message,
     sessionId,
+    retrievalFlow,
   })
 
   const userMessage: LangchainChatMessage = {

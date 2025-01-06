@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendChatMessage } from '../server-functions/langchain-send-chat-message'
 import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
+import { RetrievalFlow } from '@george-ai/langchain-chat'
 
 const handleTextareaKeyDown = (
   event: React.KeyboardEvent<HTMLTextAreaElement>,
@@ -14,11 +15,17 @@ const handleTextareaKeyDown = (
   }
 }
 
-export const LangchainChatForm = ({ sessionId }: { sessionId: string }) => {
+export const LangchainChatForm = ({
+  sessionId,
+  retrievalFlow,
+}: {
+  sessionId: string
+  retrievalFlow: RetrievalFlow
+}) => {
   const queryClient = useQueryClient()
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) =>
-      sendChatMessage({ data: { message, sessionId } }),
+      sendChatMessage({ data: { message, sessionId, retrievalFlow } }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions(sessionId))
 
