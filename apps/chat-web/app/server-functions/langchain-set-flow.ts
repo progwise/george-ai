@@ -1,9 +1,13 @@
+import {
+  RetrievalFlow,
+  retrievalFlowValues,
+} from '@george-ai/langchain-chat/src/retrievalFlow'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
-import { setRetrievalFlow } from '@george-ai/langchain-chat/src/session-flow-store'
-import { retrievalFlowValues } from '@george-ai/langchain-chat/src/retrievalFlow'
 
-export const setFlowForSession = createServerFn({ method: 'POST' })
+const sessionFlows = new Map<string, RetrievalFlow>()
+
+export const setRetrievalFlow = createServerFn({ method: 'POST' })
   .validator((data: unknown) =>
     z
       .object({
@@ -13,6 +17,10 @@ export const setFlowForSession = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    setRetrievalFlow(data.sessionId, data.retrievalFlow)
+    sessionFlows.set(data.sessionId, data.retrievalFlow)
     return { success: true }
   })
+
+export const getRetrievalFlow = (sessionId: string): RetrievalFlow => {
+  return sessionFlows.get(sessionId) ?? 'Sequential'
+}

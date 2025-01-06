@@ -4,7 +4,7 @@ import {
   reset,
 } from '../server-functions/langchain-chat-history'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { setFlowForSession } from '../server-functions/langchain-set-flow'
+import { setRetrievalFlow } from '../server-functions/langchain-set-flow'
 import { Dropdown } from '../components/dropdown'
 
 import { LangchainChatForm } from '../components/langchain-chat-form'
@@ -31,7 +31,7 @@ const ChatRoute = () => {
   const handleFlowChange = async (flow: RetrievalFlow) => {
     setSelectedFlow(flow)
     if (sessionId) {
-      await setFlowForSession({
+      await setRetrievalFlow({
         data: {
           sessionId,
           retrievalFlow: flow,
