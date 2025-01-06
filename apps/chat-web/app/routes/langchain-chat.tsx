@@ -89,7 +89,7 @@ const ChatRoute = () => {
       </div>
 
       <section>
-        {data?.messages.map((message) => (
+        {data.messages.map((message) => (
           <div
             className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
             key={message.id}

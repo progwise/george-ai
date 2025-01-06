@@ -16,10 +16,16 @@ export const setRetrievalFlow = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler(async ({ data }) => {
-    sessionFlows.set(data.sessionId, data.retrievalFlow)
-    return { success: true }
-  })
+  .handler(
+    async ({
+      data,
+    }: {
+      data: { sessionId: string; retrievalFlow: RetrievalFlow }
+    }) => {
+      sessionFlows.set(data.sessionId, data.retrievalFlow)
+      return { success: true }
+    },
+  )
 
 export const getRetrievalFlow = (sessionId: string): RetrievalFlow => {
   return sessionFlows.get(sessionId) ?? 'Sequential'
