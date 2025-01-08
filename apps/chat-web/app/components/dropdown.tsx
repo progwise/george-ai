@@ -21,17 +21,13 @@ export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
     <div className="dropdown">
       <button
         type="button"
-        tabIndex={0}
         className="btn m-1"
         onClick={() => setIsOpen(!isOpen)}
       >
         {title}
       </button>
       {isOpen && (
-        <ul
-          tabIndex={0}
-          className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
-        >
+        <ul className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
           {options.map((option) => {
             return (
               <li key={option.key ?? option.title}>
