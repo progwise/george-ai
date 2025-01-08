@@ -41,27 +41,28 @@ const sendChatMessage = async (
     retrievalFlow,
   })
 
-  const userMessage: LangchainChatMessage = {
-    id: Math.random().toString(),
-    sessionId,
-    sender: 'user',
-    text: message,
-    source: 'User',
-    time: new Date(Date.now()),
-    retrievalFlow,
-  }
+  const newMessages = [
+    {
+      id: Math.random().toString(),
+      sessionId,
+      sender: 'user',
+      text: message,
+      source: 'User',
+      time: new Date(Date.now()),
+      retrievalFlow,
+    },
+    {
+      id: Math.random().toString(),
+      sessionId,
+      sender: 'bot',
+      text: langchainResult.answer,
+      source: langchainResult.source,
+      time: new Date(Date.now()),
+      retrievalFlow,
+    },
+  ] satisfies LangchainChatMessage[]
 
-  const botMessage: LangchainChatMessage = {
-    id: Math.random().toString(),
-    sessionId,
-    sender: 'bot',
-    text: langchainResult.answer,
-    source: langchainResult.source,
-    time: new Date(Date.now()),
-    retrievalFlow,
-  }
-
-  const newChat = [...oldChat, userMessage, botMessage]
+  const newChat = [...oldChat, ...newMessages]
   chatItems = [
     ...chatItems.filter((item) => item.sessionId !== sessionId),
     ...newChat,
