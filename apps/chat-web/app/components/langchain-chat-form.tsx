@@ -3,6 +3,11 @@ import { sendChatMessage } from '../server-functions/langchain-send-chat-message
 import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 
+type LangchainChatFormProps = {
+  sessionId: string
+  retrievalFlow: RetrievalFlow
+}
+
 const handleTextareaKeyDown = (
   event: React.KeyboardEvent<HTMLTextAreaElement>,
 ) => {
@@ -18,10 +23,7 @@ const handleTextareaKeyDown = (
 export const LangchainChatForm = ({
   sessionId,
   retrievalFlow,
-}: {
-  sessionId: string
-  retrievalFlow: RetrievalFlow
-}) => {
+}: LangchainChatFormProps) => {
   const queryClient = useQueryClient()
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) =>
