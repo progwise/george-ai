@@ -7,6 +7,7 @@ export interface LangchainChatMessage {
   text: string
   source: string
   time: Date
+  retrievalFlow: RetrievalFlow
 }
 
 const getDefaultChat = (): LangchainChatMessage[] => [
@@ -17,6 +18,7 @@ const getDefaultChat = (): LangchainChatMessage[] => [
     text: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
     source: 'George AI',
     time: new Date(),
+    retrievalFlow: 'Sequential',
   },
 ]
 
@@ -46,6 +48,7 @@ const sendChatMessage = async (
     text: message,
     source: 'User',
     time: new Date(Date.now()),
+    retrievalFlow,
   }
 
   const botMessage: LangchainChatMessage = {
@@ -55,6 +58,7 @@ const sendChatMessage = async (
     text: langchainResult.answer,
     source: langchainResult.source,
     time: new Date(Date.now()),
+    retrievalFlow,
   }
 
   const newChat = [...oldChat, userMessage, botMessage]

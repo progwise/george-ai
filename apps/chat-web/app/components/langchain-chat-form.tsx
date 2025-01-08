@@ -47,6 +47,7 @@ export const LangchainChatForm = ({
               text: message,
               source: '',
               time: new Date(),
+              retrievalFlow,
             },
             {
               id: Math.random().toString(),
@@ -55,6 +56,7 @@ export const LangchainChatForm = ({
               text: '.........',
               source: '',
               time: new Date(),
+              retrievalFlow,
             },
           ],
         })

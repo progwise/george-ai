@@ -8,7 +8,7 @@ import { Dropdown } from '../components/dropdown'
 
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
-import { RetrievalFlow } from '@george-ai/langchain-chat/'
+import { RetrievalFlow } from '@george-ai/langchain-chat'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
