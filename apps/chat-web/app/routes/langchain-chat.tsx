@@ -27,10 +27,6 @@ const ChatRoute = () => {
     window.scrollTo(0, document.body.scrollHeight)
   }, [data])
 
-  const handleFlowChange = async (flow: RetrievalFlow) => {
-    setSelectedFlow(flow)
-  }
-
   return (
     <div className="flex flex-col gap-4 prose mb-10">
       <div className="card bg-base-100 shadow-xl">
@@ -41,19 +37,19 @@ const ChatRoute = () => {
               options={[
                 {
                   title: 'Sequential',
-                  action: () => handleFlowChange('Sequential'),
+                  action: () => setSelectedFlow('Sequential'),
                 },
                 {
                   title: 'Parallel',
-                  action: () => handleFlowChange('Parallel'),
+                  action: () => setSelectedFlow('Parallel'),
                 },
                 {
                   title: 'Only Local',
-                  action: () => handleFlowChange('Only Local'),
+                  action: () => setSelectedFlow('Only Local'),
                 },
                 {
                   title: 'Only Web',
-                  action: () => handleFlowChange('Only Web'),
+                  action: () => setSelectedFlow('Only Web'),
                 },
               ]}
             />
@@ -74,7 +70,7 @@ const ChatRoute = () => {
             </button>
           </div>
           <div className="mt-2">
-            Current Retrieval Flow: <b>{selectedFlow}</b>
+            Current: <b>{selectedFlow}</b>
           </div>
         </div>
       </div>
