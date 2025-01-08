@@ -1,5 +1,6 @@
 import { builder } from '../builder'
 import { ask } from '@george-ai/langchain-chat'
+import { RetrievalFlow } from '@george-ai/langchain-chat'
 
 const ChatAnswer = builder.simpleObject('ChatAnswer', {
   fields: (t) => ({
@@ -20,15 +21,18 @@ builder.mutationField('chat', (t) =>
       sessionId: t.arg.string({
         required: false,
       }),
+      retrievalFlow: t.arg.string({
+        required: false,
+      }),
     },
-    resolve: async (_root, { question, sessionId }) => {
+    resolve: async (_root, { question, sessionId, retrievalFlow }) => {
       if (!sessionId) {
         sessionId = 'default'
       }
       const result = await ask({
         question,
         sessionId,
-        retrievalFlow: 'Sequential',
+        retrievalFlow: retrievalFlow as RetrievalFlow,
       })
       return {
         answer: result.answer,
