@@ -33,7 +33,7 @@ const ChatRoute = () => {
         <div className="card-body">
           <div className="flex justify-between">
             <Dropdown
-              title="Retrieval Flow"
+              title={selectedFlow}
               options={[
                 {
                   title: 'Sequential',
@@ -68,9 +68,6 @@ const ChatRoute = () => {
             >
               Reset
             </button>
-          </div>
-          <div className="mt-2">
-            Current: <b>{selectedFlow}</b>
           </div>
         </div>
       </div>

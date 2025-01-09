@@ -21,7 +21,7 @@ export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
     <div className="dropdown">
       <button
         type="button"
-        className="btn m-1"
+        className="btn m-1 w-52"
         onClick={() => setIsOpen(!isOpen)}
       >
         {title}
