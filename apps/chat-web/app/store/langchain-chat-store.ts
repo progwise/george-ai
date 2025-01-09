@@ -10,7 +10,9 @@ export interface LangchainChatMessage {
   retrievalFlow: RetrievalFlow
 }
 
-const getDefaultChat = (): LangchainChatMessage[] => [
+const getDefaultChat = (
+  retrievalFlow: RetrievalFlow = 'Sequential',
+): LangchainChatMessage[] => [
   {
     id: '0',
     sessionId: (Math.random() + 1).toString(36).slice(7),
@@ -18,7 +20,7 @@ const getDefaultChat = (): LangchainChatMessage[] => [
     text: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
     source: 'George AI',
     time: new Date(),
-    retrievalFlow: 'Sequential',
+    retrievalFlow,
   },
 ]
 
@@ -71,7 +73,13 @@ const sendChatMessage = async (
 }
 
 const reset = (sessionId: string) => {
-  const newChat = getDefaultChat()
+  const oldChat = getChat(sessionId)
+
+  const lastFlow = oldChat.length
+    ? oldChat[oldChat.length - 1].retrievalFlow
+    : 'Sequential'
+
+  const newChat = getDefaultChat(lastFlow)
   chatItems = [
     ...chatItems.filter((item) => item.sessionId !== sessionId),
     ...newChat,
