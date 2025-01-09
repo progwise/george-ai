@@ -2,6 +2,9 @@ import { builder } from '../builder'
 import { ask } from '@george-ai/langchain-chat'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 
+const RetrievalFlowEnum = builder.enumType('RetrievalFlow', {
+  values: ['Sequential', 'Parallel', 'Only Local', 'Only Web'] as const,
+})
 const ChatAnswer = builder.simpleObject('ChatAnswer', {
   fields: (t) => ({
     answer: t.string({ nullable: true }),
@@ -21,7 +24,8 @@ builder.mutationField('chat', (t) =>
       sessionId: t.arg.string({
         required: false,
       }),
-      retrievalFlow: t.arg.string({
+      retrievalFlow: t.arg({
+        type: RetrievalFlowEnum,
         required: false,
       }),
     },
@@ -29,10 +33,11 @@ builder.mutationField('chat', (t) =>
       if (!sessionId) {
         sessionId = 'default'
       }
+      const selectedFlow = (retrievalFlow ?? 'Sequential') as RetrievalFlow
       const result = await ask({
         question,
         sessionId,
-        retrievalFlow: retrievalFlow as RetrievalFlow,
+        retrievalFlow: selectedFlow,
       })
       return {
         answer: result.answer,
