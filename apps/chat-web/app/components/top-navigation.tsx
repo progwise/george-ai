@@ -7,7 +7,7 @@ import { useAuth } from '../auth'
 
 const TopNavigation = () => {
   const authContext = useAuth()
-  const { isAuthenticated, login, logout, user } = authContext ?? {}
+  const { isAuthenticated, login, logout, user, profileUrl } = authContext ?? {}
   return (
     <nav className="navbar  bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
       <div className="navbar-start">
@@ -28,18 +28,24 @@ const TopNavigation = () => {
       </div>
       <div className="navbar-end">
         {!isAuthenticated && (
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={() => login?.()}
-          >
-            <UserIcon className="size-6" />
-            Sign in
-          </button>
+          <>
+            <Link className="btn btn-ghost" to="/profile">
+              {user}
+            </Link>
+
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => login?.()}
+            >
+              <UserIcon className="size-6" />
+              Sign in
+            </button>
+          </>
         )}
         {isAuthenticated && (
           <>
-            <Link className="btn btn-ghost" to="/profile">
+            <Link className="btn btn-ghost" to={profileUrl}>
               {user}
             </Link>
             <button

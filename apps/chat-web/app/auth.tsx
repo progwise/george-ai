@@ -11,7 +11,7 @@ function initKeycloak({ keycloakUrl, realm, clientId }) {
   })
 
   keycloak.init({
-    // onLoad: 'login-required',
+    onLoad: 'check-sso',
   })
 
   return keycloak
@@ -22,6 +22,7 @@ export interface AuthContext {
   login: () => Promise<void>
   logout: () => Promise<void>
   user: string | null
+  profileUrl?: string
 }
 
 const AuthContext = createContext<AuthContext | null>({
@@ -45,6 +46,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         realm: config.KEYCLOAK_REALM,
         clientId: config.KEYCLOAK_CLIENT_ID,
       })
+      keycloak.createRegisterUrl().then((url) => {
+        setAuthContext((oldContext) => ({
+          ...oldContext,
+          registerUrl: url,
+        }))
+      })
       keycloak.onAuthSuccess = () => {
         setAuthContext({
           isAuthenticated: true,
@@ -55,21 +62,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             keycloak.logout()
           },
           user: keycloak.tokenParsed?.preferred_username,
-        })
-        console.log('parsed token', keycloak.tokenParsed)
-        keycloak.loadUserInfo().then((userInfo) => {
-          console.log('userInfo', userInfo)
-        })
-        keycloak.loadUserProfile().then((profile) => {
-          console.log('profile', profile)
+          profileUrl: `${config.KEYCLOAK_URL}/realms/${config.KEYCLOAK_REALM}/account?referrer=${config.KEYCLOAK_CLIENT_ID}&referrer_uri=${window.location.href}`,
         })
       }
-      setAuthContext({
+      console.log('keycloak', keycloak)
+      setAuthContext((oldContext) => ({
+        ...oldContext,
         login: keycloak.login,
         logout: keycloak.logout,
         isAuthenticated: keycloak.authenticated || false,
         user: keycloak.tokenParsed?.preferred_username,
-      })
+      }))
     })
   }, [])
 
