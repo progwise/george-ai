@@ -1,4 +1,4 @@
-import { ask } from '@george-ai/langchain-chat'
+import { ask, RetrievalFlow } from '@george-ai/langchain-chat'
 
 export interface LangchainChatMessage {
   id: string
@@ -7,9 +7,12 @@ export interface LangchainChatMessage {
   text: string
   source: string
   time: Date
+  retrievalFlow: RetrievalFlow
 }
 
-const getDefaultChat = (): LangchainChatMessage[] => [
+const getDefaultChat = (
+  retrievalFlow: RetrievalFlow = 'Sequential',
+): LangchainChatMessage[] => [
   {
     id: '0',
     sessionId: (Math.random() + 1).toString(36).slice(7),
@@ -17,6 +20,7 @@ const getDefaultChat = (): LangchainChatMessage[] => [
     text: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
     source: 'George AI',
     time: new Date(),
+    retrievalFlow,
   },
 ]
 
@@ -29,11 +33,14 @@ const getChat = (sessionId: string): LangchainChatMessage[] => {
 const sendChatMessage = async (
   message: string,
   sessionId: string,
+  retrievalFlow: RetrievalFlow,
 ): Promise<LangchainChatMessage[]> => {
   const oldChat = getChat(sessionId)
+
   const langchainResult = await ask({
     question: message,
     sessionId,
+    retrievalFlow,
   })
 
   const newMessages = [
@@ -44,6 +51,7 @@ const sendChatMessage = async (
       text: message,
       source: 'User',
       time: new Date(Date.now()),
+      retrievalFlow,
     },
     {
       id: Math.random().toString(),
@@ -52,6 +60,7 @@ const sendChatMessage = async (
       text: langchainResult.answer,
       source: langchainResult.source,
       time: new Date(Date.now()),
+      retrievalFlow,
     },
   ] satisfies LangchainChatMessage[]
 
@@ -60,12 +69,17 @@ const sendChatMessage = async (
     ...chatItems.filter((item) => item.sessionId !== sessionId),
     ...newChat,
   ]
-
   return newChat
 }
 
 const reset = (sessionId: string) => {
-  const newChat = getDefaultChat()
+  const oldChat = getChat(sessionId)
+
+  const lastFlow = oldChat.length
+    ? oldChat[oldChat.length - 1].retrievalFlow
+    : 'Sequential'
+
+  const newChat = getDefaultChat(lastFlow)
   chatItems = [
     ...chatItems.filter((item) => item.sessionId !== sessionId),
     ...newChat,
