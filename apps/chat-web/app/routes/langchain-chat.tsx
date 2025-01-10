@@ -4,11 +4,17 @@ import {
   reset,
 } from '../server-functions/langchain-chat-history'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { Dropdown } from '../components/dropdown'
+
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
+import { RetrievalFlow } from '@george-ai/langchain-chat'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
+
+  const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
+
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
   )
@@ -22,18 +28,50 @@ const ChatRoute = () => {
   }, [data])
 
   return (
-    <div className="flex flex-col gap-2 prose mb-10">
-      <h1>Langchain Chat</h1>
-      <button
-        type="button"
-        onClick={async () => {
-          const { sessionId } = await reset({ data: data.sessionId })
-          setSessionId(sessionId)
-          refetch()
-        }}
-      >
-        Reset
-      </button>
+    <div className="flex flex-col gap-4 prose mb-10">
+      <div className="card bg-base-100 shadow-xl">
+        <div className="card-body">
+          <div className="flex justify-between">
+            <Dropdown
+              title={`Flow: ${selectedFlow}`}
+              options={[
+                {
+                  title: 'Flow: Sequential',
+                  action: () => setSelectedFlow('Sequential'),
+                },
+                {
+                  title: 'Flow: Parallel',
+                  action: () => setSelectedFlow('Parallel'),
+                },
+                {
+                  title: 'Flow: Only Local',
+                  action: () => setSelectedFlow('Only Local'),
+                },
+                {
+                  title: 'Flow: Only Web',
+                  action: () => setSelectedFlow('Only Web'),
+                },
+              ]}
+            />
+
+            <button
+              type="button"
+              className="btn mb-1"
+              onClick={async () => {
+                if (!data?.sessionId) return
+                const { sessionId: newId } = await reset({
+                  data: data.sessionId,
+                })
+                setSessionId(newId)
+                refetch()
+              }}
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
       <section>
         {data.messages.map((message) => (
           <div
@@ -51,7 +89,13 @@ const ChatRoute = () => {
           </div>
         ))}
       </section>
-      <LangchainChatForm sessionId={data.sessionId} />
+
+      {data?.sessionId && (
+        <LangchainChatForm
+          sessionId={data.sessionId}
+          retrievalFlow={selectedFlow}
+        />
+      )}
     </div>
   )
 }

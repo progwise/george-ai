@@ -8,13 +8,16 @@ import {
 import {
   localPrompt,
   webPrompt,
-  apologyPrompt,
+  apologyPromptOnlyLocal,
+  apologyPromptOnlyWeb,
+  apologyPromptLocalAndWeb,
   searchQueryPrompt,
 } from './prompts'
 import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
+
 import * as z from 'zod'
 
 const outputSchema = z.object({
@@ -75,24 +78,73 @@ const webChain = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const apologyChain = RunnableSequence.from([
-  apologyPrompt,
+const apologyChainOnlyLocal = RunnableSequence.from([
+  apologyPromptOnlyLocal,
+  model.withStructuredOutput(outputSchema, { strict: true }),
+])
+
+const apologyChainOnlyWeb = RunnableSequence.from([
+  apologyPromptOnlyWeb,
+  model.withStructuredOutput(outputSchema, { strict: true }),
+])
+
+const apologyChainLocalAndWeb = RunnableSequence.from([
+  apologyPromptLocalAndWeb,
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
 const branchChain = RunnableLambda.from(
   async (input: { question: string }, options) => {
-    const localResponse = await pdfChain.invoke(input, options)
-    if (!localResponse.notEnoughInformation) {
-      return localResponse
-    }
+    const retrievalFlow = options?.configurable?.retrievalFlow ?? 'Sequential'
 
-    const webResponse = await webChain.invoke(input, options)
-    if (!webResponse.notEnoughInformation) {
-      return webResponse
-    }
+    switch (retrievalFlow) {
+      case 'Only Local': {
+        const localResponse = await pdfChain.invoke(input, options)
+        if (!localResponse.notEnoughInformation) {
+          return localResponse
+        }
+        return apologyChainOnlyLocal.invoke(input, options)
+      }
 
-    return await apologyChain.invoke(input, options)
+      case 'Only Web': {
+        const webResponse = await webChain.invoke(input, options)
+        if (!webResponse.notEnoughInformation) {
+          return webResponse
+        }
+        return apologyChainOnlyWeb.invoke(input, options)
+      }
+
+      case 'Sequential': {
+        const localResponse = await pdfChain.invoke(input, options)
+        if (!localResponse.notEnoughInformation) {
+          return localResponse
+        }
+        const webResponse = await webChain.invoke(input, options)
+        if (!webResponse.notEnoughInformation) {
+          return webResponse
+        }
+        return apologyChainLocalAndWeb.invoke(input, options)
+      }
+
+      case 'Parallel': {
+        const [localResponse, webResponse] = await Promise.all([
+          pdfChain.invoke(input, options),
+          webChain.invoke(input, options),
+        ])
+
+        if (!localResponse.notEnoughInformation) {
+          return localResponse
+        }
+        if (!webResponse.notEnoughInformation) {
+          return webResponse
+        }
+        return apologyChainLocalAndWeb.invoke(input, options)
+      }
+
+      default: {
+        return apologyChainLocalAndWeb.invoke(input, options)
+      }
+    }
   },
 )
 
@@ -104,10 +156,12 @@ const mainChain = RunnableSequence.from([
     })
     return { ...input, searchQuery }
   },
+
   async (input) => ({
     ...input,
     context: await getPDFContentForQuestion(input.searchQuery),
   }),
+
   branchChain,
 ])
 
