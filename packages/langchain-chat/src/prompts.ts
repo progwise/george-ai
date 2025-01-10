@@ -43,39 +43,26 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
   ['human', '{question}'],
 ])
 
-export const apologyPromptOnlyLocal = ChatPromptTemplate.fromMessages([
-  [
-    'system',
-    `Your name is George-AI, a travel assistant.
-No relevant information was found in the local PDF source to answer the user's question.
+const apologyPrompt = (source: string) =>
+  ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `Your name is George-AI, a travel assistant.
+No relevant information was found in the ${source} source to answer the user's question.
 Instructions:
 - Apologize explicitly and politely.
-- Clearly state that no relevant information was found in the local source.
+- Clearly state that no relevant information was found in the ${source} source.
 - Keep the response concise, honest, and natural.
 - Set "source" to "model" and "notEnoughInformation" to true, but do not mention these terms or output JSON in your final answer.
 - Adapt your language and style to the context provided in the conversation history.
     `,
-  ],
-  new MessagesPlaceholder('chat_history'),
-  ['human', '{question}'],
-])
+    ],
+    new MessagesPlaceholder('chat_history'),
+    ['human', '{question}'],
+  ])
 
-export const apologyPromptOnlyWeb = ChatPromptTemplate.fromMessages([
-  [
-    'system',
-    `Your name is George-AI, a travel assistant.
-No relevant information was found in the web source to answer the user's question.
-Instructions:
-- Apologize explicitly and politely.
-- Clearly state that no relevant information was found in the web source.
-- Keep the response concise, honest, and natural.
-- Set "source" to "model" and "notEnoughInformation" to true, but do not mention these terms or output JSON in your final answer.
-- Adapt your language and style to the context provided in the conversation history.
-    `,
-  ],
-  new MessagesPlaceholder('chat_history'),
-  ['human', '{question}'],
-])
+export const apologyPromptOnlyLocal = apologyPrompt('local PDF')
+export const apologyPromptOnlyWeb = apologyPrompt('web')
 
 export const apologyPromptLocalAndWeb = ChatPromptTemplate.fromMessages([
   [
