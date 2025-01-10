@@ -33,22 +33,22 @@ const ChatRoute = () => {
         <div className="card-body">
           <div className="flex justify-between">
             <Dropdown
-              title={selectedFlow}
+              title={`Flow: ${selectedFlow}`}
               options={[
                 {
-                  title: 'Sequential',
+                  title: 'Flow: Sequential',
                   action: () => setSelectedFlow('Sequential'),
                 },
                 {
-                  title: 'Parallel',
+                  title: 'Flow: Parallel',
                   action: () => setSelectedFlow('Parallel'),
                 },
                 {
-                  title: 'Only Local',
+                  title: 'Flow: Only Local',
                   action: () => setSelectedFlow('Only Local'),
                 },
                 {
-                  title: 'Only Web',
+                  title: 'Flow: Only Web',
                   action: () => setSelectedFlow('Only Web'),
                 },
               ]}

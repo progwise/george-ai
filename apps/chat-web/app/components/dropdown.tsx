@@ -10,6 +10,7 @@ interface DropdownProps {
 export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
   const handleOptionClick = (action: () => void) => {
     action()
+    // blur the active element to prevent the dropdown from staying open
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur()
     }
@@ -17,7 +18,7 @@ export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
 
   return (
     <div className="dropdown">
-      <button type="button" className="btn m-1 w-52" tabIndex={0}>
+      <button type="button" className="btn m-1 w-52 no-animation" tabIndex={0}>
         {title}
       </button>
       <ul
