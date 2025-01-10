@@ -1,39 +1,20 @@
 import { QueryClient } from '@tanstack/react-query'
 import {
   createRootRouteWithContext,
-  Link,
   Outlet,
   ScrollRestoration,
 } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
-import React, { ReactNode, Suspense } from 'react'
+import React, { Suspense } from 'react'
 
 import appCss from '../index.css?url'
+import TopNavigation from '../components/top-navigation'
+import { AuthContext, AuthProvider } from '../auth'
 
-const RootComponent = () => (
-  <RootDocument>
-    <Outlet />
-  </RootDocument>
-)
-
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
-  {
-    head: () => ({
-      meta: [
-        { charSet: 'utf8' },
-        {
-          name: 'viewport',
-          content: 'width=device-width, initial-scale=1',
-        },
-        {
-          title: 'GeorgeAI Chats',
-        },
-      ],
-      links: [{ rel: 'stylesheet', href: appCss }],
-    }),
-    component: RootComponent,
-  },
-)
+interface RouterContext {
+  queryClient: QueryClient
+  auth: AuthContext
+}
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === 'production'
@@ -59,29 +40,56 @@ const TanStackQueryDevtools =
         })),
       )
 
-const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => (
+const RootDocument = () => (
   <html>
     <head>
       <Meta />
     </head>
     <body className="container mx-auto">
-      <nav className="navbar bg-primary/10">
-        <Link className="btn btn-ghost" to="/">
-          Home
-        </Link>
-        <Link className="btn btn-ghost" to="/langchain-chat">
-          Langchain Chat
-        </Link>
-      </nav>
-      {children}
-      <ScrollRestoration />
-      <Scripts />
-      <Suspense>
-        <TanStackRouterDevtools />
-      </Suspense>
-      <Suspense>
-        <TanStackQueryDevtools />
-      </Suspense>
+      <AuthProvider>
+        <TopNavigation />
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <Suspense>
+          <TanStackRouterDevtools />
+        </Suspense>
+        <Suspense>
+          <TanStackQueryDevtools />
+        </Suspense>
+      </AuthProvider>
     </body>
   </html>
 )
+
+export const Route = createRootRouteWithContext<RouterContext>()({
+  head: () => ({
+    meta: [
+      { charSet: 'utf8' },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      {
+        title: 'George-AI',
+      },
+    ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    scripts: [
+      // fixes HMR not working issues, see https://github.com/TanStack/router/issues/1992
+      !import.meta.env.DEV
+        ? undefined
+        : {
+            type: 'module',
+            children: `import RefreshRuntime from "/_build/@react-refresh";
+RefreshRuntime.injectIntoGlobalHook(window)
+window.$RefreshReg$ = () => {}
+window.$RefreshSig$ = () => (type) => type`,
+          },
+    ],
+  }),
+  component: RootDocument,
+})

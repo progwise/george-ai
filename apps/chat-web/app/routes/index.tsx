@@ -21,15 +21,18 @@ const Home = () => {
   const state = Route.useLoaderData()
 
   return (
-    <button
-      type="button"
-      onClick={() => {
-        updateCount({ data: 1 }).then(() => router.invalidate())
-      }}
-      className="btn btn-primary"
-    >
-      Add 1 to {state}
-    </button>
+    <>
+      <h1>Welcome to George-AI </h1>
+      <button
+        type="button"
+        onClick={() => {
+          updateCount({ data: 1 }).then(() => router.invalidate())
+        }}
+        className="btn btn-primary"
+      >
+        Add 1 to {state}
+      </button>
+    </>
   )
 }
 
