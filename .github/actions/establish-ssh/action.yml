@@ -14,9 +14,9 @@ inputs:
     description: 'The SSH public key for the /.ssh/id_rsa.pub file'
     required: true
 outputs:
-  remote-shell-command:
+  ssh-command: # id of output
     description: 'Command to execute on the target server'
-    value: ${{ steps.random-number-generator.outputs.random-number }}
+    value: ${{ steps.ssh-command.outputs.cmd }}
 runs:
   using: 'composite'
   steps:
@@ -45,7 +45,7 @@ runs:
 
     - name: Generate output SSH command
       id: ssh-command
-      run: echo "ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }}"  >> $GITHUB_OUTPUT
+      run: echo "cmd='ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }}'"  >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Set GitHub Path
