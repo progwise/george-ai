@@ -28,48 +28,45 @@ const ChatRoute = () => {
   }, [data])
 
   return (
-    <div className="flex flex-col gap-4 prose mb-10">
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <div className="flex justify-between">
-            <Dropdown
-              title={`Flow: ${selectedFlow}`}
-              options={[
-                {
-                  title: 'Flow: Sequential',
-                  action: () => setSelectedFlow('Sequential'),
-                },
-                {
-                  title: 'Flow: Parallel',
-                  action: () => setSelectedFlow('Parallel'),
-                },
-                {
-                  title: 'Flow: Only Local',
-                  action: () => setSelectedFlow('Only Local'),
-                },
-                {
-                  title: 'Flow: Only Web',
-                  action: () => setSelectedFlow('Only Web'),
-                },
-              ]}
-            />
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-end gap-4">
+        <Dropdown
+          className="w-52"
+          title={`Flow: ${selectedFlow}`}
+          options={[
+            {
+              title: 'Flow: Sequential',
+              action: () => setSelectedFlow('Sequential'),
+            },
+            {
+              title: 'Flow: Parallel',
+              action: () => setSelectedFlow('Parallel'),
+            },
+            {
+              title: 'Flow: Only Local',
+              action: () => setSelectedFlow('Only Local'),
+            },
+            {
+              title: 'Flow: Only Web',
+              action: () => setSelectedFlow('Only Web'),
+            },
+          ]}
+        />
 
-            <button
-              type="button"
-              className="btn mb-1"
-              onClick={async () => {
-                if (!data?.sessionId) return
-                const { sessionId: newId } = await reset({
-                  data: data.sessionId,
-                })
-                setSessionId(newId)
-                refetch()
-              }}
-            >
-              Reset
-            </button>
-          </div>
-        </div>
+        <button
+          type="button"
+          className="btn btn-accent"
+          onClick={async () => {
+            if (!data?.sessionId) return
+            const { sessionId: newId } = await reset({
+              data: data.sessionId,
+            })
+            setSessionId(newId)
+            refetch()
+          }}
+        >
+          Reset conversation
+        </button>
       </div>
 
       <section>

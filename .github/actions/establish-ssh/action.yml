@@ -1,0 +1,55 @@
+name: 'Establish SSH connection'
+description: 'Uses secrets to establish SSH connection to target server'
+inputs:
+  target-host: # id of input
+    description: 'The IP address or FQDN of the target server'
+    required: true
+  target-user: # id of input
+    description: 'The user to connect to the target server'
+    required: true
+  ssh-private-key: # id of input
+    description: 'The SSH private key for the /.ssh/id_rsa file'
+    required: true
+  ssh-public-key: # id of input
+    description: 'The SSH public key for the /.ssh/id_rsa.pub file'
+    required: true
+outputs:
+  remote-shell-command:
+    description: 'Command to execute on the target server'
+    value: ${{ steps.random-number-generator.outputs.random-number }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup SSH keys
+      id: ssh-keys
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ inputs.ssh-private-key }}" > ~/.ssh/id_rsa
+        echo "${{ inputs.ssh-public-keyY }}" > ~/.ssh/id_rsa.pub
+        chmod 600 ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa.pub
+      shell: bash
+      env:
+        SSH_PRIVATE_KEY: ${{ inputs.ssh-private-key }}
+        SSH_PUBLIC_KEY: ${{ inputs.ssh-public-key }}
+
+    - name: Setup known hosts
+      id: known-hosts
+      run: ssh-keyscan -H ${{ inputs.target-host }} >> ~/.ssh/known_hosts
+      shell: bash
+
+    - name: Test SSH connection
+      id: ssh-test
+      run: ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }} "echo SSH connection established"
+      shell: bash
+
+    - name: Generate output SSH command
+      id: ssh-command
+      run: echo "ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }}"  >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Set GitHub Path
+      run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}

@@ -22,6 +22,68 @@ services:
         # to avoid rate limiting during testing you can use the staging environment of letsencrypt
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
+  gai-keycloak-db:
+    image: postgres:16
+    networks:
+      - caddy
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5433:5432'
+    volumes:
+      - ../.postgres-data-keycloak:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+
+  gai-keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: gai-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    depends_on:
+      - gai-keycloak-db
+    ports:
+      - 8180:8080
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+    labels:
+      caddy: keycloak.george-ai.net
+      caddy.reverse_proxy: '{{upstreams 8180}}'
+
   gai-typesense:
     image: typesense/typesense:27.1
     environment:

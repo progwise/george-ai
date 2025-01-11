@@ -71,7 +71,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'George-AI',
+        title: 'George-Ai',
       },
     ],
     links: [

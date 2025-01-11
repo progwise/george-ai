@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
 import BowlerHatIcon from './icons/bowler-hat-icon'
 import ChatBubbleIcon from './icons/chat-bubble-icon'
-import PhoneIcon from './icons/phone-icon'
 import UserIcon from './icons/user-icon'
 import { useAuth } from '../auth'
+import AcademicCapIcon from './icons/academic-cap-icon'
 
 const TopNavigation = () => {
   const authContext = useAuth()
@@ -13,17 +13,17 @@ const TopNavigation = () => {
       <div className="navbar-start">
         <Link className="btn btn-ghost" to="/">
           <BowlerHatIcon className="size-8" />
-          George AI
+          George Ai
         </Link>
       </div>
       <div className="navbar-center">
         <Link className="btn btn-ghost" to="/langchain-chat">
           <ChatBubbleIcon className="size-6" />
-          Chat playground
+          Chat
         </Link>
-        <Link className="btn btn-ghost" to="/contact">
-          <PhoneIcon className="size-6" />
-          Contact
+        <Link className="btn btn-ghost" to="/knowledge">
+          <AcademicCapIcon className="size-6" />
+          Ken
         </Link>
       </div>
       <div className="navbar-end">
