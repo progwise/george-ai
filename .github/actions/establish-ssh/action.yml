@@ -14,7 +14,7 @@ inputs:
     description: 'The SSH public key for the /.ssh/id_rsa.pub file'
     required: true
 outputs:
-  ssh-command: # id of output
+  cmd: # id of output
     description: 'Command to execute on the target server'
     value: ${{ steps.ssh-command.outputs.cmd }}
 runs:
