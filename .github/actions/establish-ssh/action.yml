@@ -13,13 +13,6 @@ inputs:
   ssh-public-key: # id of input
     description: 'The SSH public key for the /.ssh/id_rsa.pub file'
     required: true
-outputs:
-  ssh: # id of output
-    description: 'Command to execute on the target server'
-    value: ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }}
-  scp: # id of output
-    description: 'Command to execute on the target server'
-    value: ${{ steps.ssh-command.outputs.cmd }}
 runs:
   using: 'composite'
   steps:
@@ -44,11 +37,6 @@ runs:
     - name: Test SSH connection
       id: ssh-test
       run: ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }} "echo SSH connection established"
-      shell: bash
-
-    - name: Generate output SSH command
-      id: ssh-command
-      run: echo "cmd='ssh -i ~/.ssh/id_rsa ${{ inputs.target-user }}@${{ inputs.target-host }}'"  >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Set GitHub Path
