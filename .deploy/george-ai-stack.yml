@@ -35,7 +35,7 @@ services:
     ports:
       - '5433:5432'
     volumes:
-      - ../.postgres-data-keycloak:/var/lib/postgresql/data
+      - /home/swarm/data/keycloak-db:/var/lib/postgresql/data
     deploy:
       replicas: 1
       resources:
@@ -50,7 +50,6 @@ services:
 
   gai-keycloak:
     image: quay.io/keycloak/keycloak:26.0.7
-    container_name: gai-keycloak
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
