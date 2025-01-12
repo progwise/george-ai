@@ -3,6 +3,11 @@ version: '3.7'
 services:
   gai-chatweb:
     image: ghcr.io/progwise/george-ai/chat-web:latest
+    environment:
+      KEYCLOAK_REDIRECT_URL=https://chat.george-ai.net
+      KEYCLOAK_REALM=george-ai
+      KEYCLOAK_URL=https://keycloak.george-ai.net
+      KEYCLOAK_CLIENT_ID=george-ai-web
     networks:
       - caddy
     deploy:

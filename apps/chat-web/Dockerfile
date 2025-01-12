@@ -19,12 +19,19 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 
+ENV KEYCLOAK_REDIRECT_URL=https://chat.george-ai.net
+ENV KEYCLOAK_REALM=george-ai
+ENV KEYCLOAK_URL=https://keycloak.george-ai.net
+ENV KEYCLOAK_CLIENT_ID=george-ai-web
+
 RUN --mount=type=secret,id=OPENAI_API_KEY \
     --mount=type=secret,id=TAVILY_API_KEY \
     --mount=type=secret,id=POCKETBASE_TOKEN \
+    --mount=type=secret,id=TYPESENSE_API_KEY \
     export OPENAI_API_KEY=$(cat /run/secrets/OPENAI_API_KEY) \
     && export TAVILY_API_KEY=$(cat /run/secrets/TAVILY_API_KEY) \
     && export POCKETBASE_TOKEN=$(cat /run/secrets/POCKETBASE_TOKEN) \
+    && export TYPESENSE_API_KEY=$(cat /run/secrets/TYPESENSE_API_KEY) \
     && pnpm i --frozen-lockfile \
     && pnpm run build \
     && echo "#!/usr/bin/env bash\n" > ./entrypoint.sh \
@@ -32,6 +39,7 @@ RUN --mount=type=secret,id=OPENAI_API_KEY \
     && echo "export OPENAI_API_KEY=$OPENAI_API_KEY" >>./entrypoint.sh \
     && echo "export TAVILY_API_KEY=$TAVILY_API_KEY" >> ./entrypoint.sh \
     && echo "export POCKETBASE_TOKEN=$POCKETBASE_TOKEN" >> ./entrypoint.sh \
+    && echo "export TYPESENSE_API_KEY=$TYPESENSE_API_KEY" >> ./entrypoint.sh \
     && echo "\$@\n" >> ./entrypoint.sh
   
 
