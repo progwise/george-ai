@@ -89,9 +89,9 @@ services:
   gai-typesense:
     image: typesense/typesense:27.1
     environment:
-      TYPESENSE_API_HOST=gai-typesense
-      TYPESENSE_API_PORT=8108
-      TYPESENSE_API_PROTOCOL=http
+      TYPESENSE_API_HOST: gai-typesense
+      TYPESENSE_API_PORT: 8108
+      TYPESENSE_API_PROTOCOL: http
       # TYPESENSE_API_KEY=xyz
     env-file:
       - gai-typesense.env
