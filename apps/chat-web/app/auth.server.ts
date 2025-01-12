@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/start'
-import { z } from 'vinxi'
+import { z } from 'zod'
 
 const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM
 const KEYCLOAK_CLIENT_ID = process.env.KEYCLOAK_CLIENT_ID

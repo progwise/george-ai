@@ -15,7 +15,6 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
-import { Route as SignInIndexImport } from './routes/sign-in/index'
 import { Route as KnowledgeIndexImport } from './routes/knowledge/index'
 
 // Create/Update Routes
@@ -41,12 +40,6 @@ const ContactRoute = ContactImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const SignInIndexRoute = SignInIndexImport.update({
-  id: '/sign-in/',
-  path: '/sign-in/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,13 +88,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KnowledgeIndexImport
       parentRoute: typeof rootRoute
     }
-    '/sign-in/': {
-      id: '/sign-in/'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInIndexImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -113,7 +99,6 @@ export interface FileRoutesByFullPath {
   '/langchain-chat': typeof LangchainChatRoute
   '/profile': typeof ProfileRoute
   '/knowledge': typeof KnowledgeIndexRoute
-  '/sign-in': typeof SignInIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -122,7 +107,6 @@ export interface FileRoutesByTo {
   '/langchain-chat': typeof LangchainChatRoute
   '/profile': typeof ProfileRoute
   '/knowledge': typeof KnowledgeIndexRoute
-  '/sign-in': typeof SignInIndexRoute
 }
 
 export interface FileRoutesById {
@@ -132,26 +116,13 @@ export interface FileRoutesById {
   '/langchain-chat': typeof LangchainChatRoute
   '/profile': typeof ProfileRoute
   '/knowledge/': typeof KnowledgeIndexRoute
-  '/sign-in/': typeof SignInIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/contact'
-    | '/langchain-chat'
-    | '/profile'
-    | '/knowledge'
-    | '/sign-in'
+  fullPaths: '/' | '/contact' | '/langchain-chat' | '/profile' | '/knowledge'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/contact'
-    | '/langchain-chat'
-    | '/profile'
-    | '/knowledge'
-    | '/sign-in'
+  to: '/' | '/contact' | '/langchain-chat' | '/profile' | '/knowledge'
   id:
     | '__root__'
     | '/'
@@ -159,7 +130,6 @@ export interface FileRouteTypes {
     | '/langchain-chat'
     | '/profile'
     | '/knowledge/'
-    | '/sign-in/'
   fileRoutesById: FileRoutesById
 }
 
@@ -169,7 +139,6 @@ export interface RootRouteChildren {
   LangchainChatRoute: typeof LangchainChatRoute
   ProfileRoute: typeof ProfileRoute
   KnowledgeIndexRoute: typeof KnowledgeIndexRoute
-  SignInIndexRoute: typeof SignInIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -178,7 +147,6 @@ const rootRouteChildren: RootRouteChildren = {
   LangchainChatRoute: LangchainChatRoute,
   ProfileRoute: ProfileRoute,
   KnowledgeIndexRoute: KnowledgeIndexRoute,
-  SignInIndexRoute: SignInIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -195,8 +163,7 @@ export const routeTree = rootRoute
         "/contact",
         "/langchain-chat",
         "/profile",
-        "/knowledge/",
-        "/sign-in/"
+        "/knowledge/"
       ]
     },
     "/": {
@@ -213,9 +180,6 @@ export const routeTree = rootRoute
     },
     "/knowledge/": {
       "filePath": "knowledge/index.tsx"
-    },
-    "/sign-in/": {
-      "filePath": "sign-in/index.tsx"
     }
   }
 }
