@@ -29,7 +29,9 @@ services:
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      # POSTGRES_PASSWORD: keycloak
+    env-file:
+      - gai-keycloak-db.env
     ports:
       - '5433:5432'
     volumes:
@@ -53,17 +55,17 @@ services:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
       KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: password
-
+      # KC_DB_PASSWORD: password
       KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
-
       KC_LOG_LEVEL: info
       KC_METRICS_ENABLED: true
       KC_HEALTH_ENABLED: true
       KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      # KEYCLOAK_ADMIN_PASSWORD: admin
+    env-file:
+      - gai-keycloak.env
     command: start-dev
     depends_on:
       - gai-keycloak-db
@@ -87,10 +89,12 @@ services:
   gai-typesense:
     image: typesense/typesense:27.1
     environment:
-      - TYPESENSE_API_HOST=gai-typesense
-      - TYPESENSE_API_PORT=8108
-      - TYPESENSE_API_PROTOCOL=http
-      - TYPESENSE_API_KEY=xyz
+      TYPESENSE_API_HOST=gai-typesense
+      TYPESENSE_API_PORT=8108
+      TYPESENSE_API_PROTOCOL=http
+      # TYPESENSE_API_KEY=xyz
+    env-file:
+      - gai-typesense.env
     networks:
       - caddy
     volumes:
