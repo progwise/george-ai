@@ -61,13 +61,14 @@ services:
       KC_DB_USERNAME: keycloak
       # KC_DB_PASSWORD: password
       KC_HOSTNAME: keycloak.george-ai.net
-      KC_HOSTNAME_STRICT: 'false'
-      KC_HOSTNAME_STRICT_HTTPS: 'false'
+      KC_HOSTNAME_STRICT: 'true'
+      KC_HOSTNAME_STRICT_HTTPS: 'true'
       KC_LOG_LEVEL: info
       KC_METRICS_ENABLED: 'true'
       KC_HEALTH_ENABLED: 'true'
       KEYCLOAK_ADMIN: admin
       # KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_PROXY_HEADERS: xforwarded
     env_file:
       - gai-keycloak.env
     command: start-dev
