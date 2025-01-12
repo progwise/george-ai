@@ -33,7 +33,7 @@ services:
     env_file:
       - gai-keycloak-db.env
     ports:
-      - '5433:5432'
+      - '5432:5432'
     volumes:
       - /home/swarm/data/keycloak-db:/var/lib/postgresql/data
     deploy:
@@ -47,12 +47,15 @@ services:
         delay: 5s
         #max_attempts: 3
         window: 120s
+    labels:
+      caddy: keycloak-db.george-ai.net
+      caddy.reverse_proxy: '{{upstreams 5432}}'
 
   gai-keycloak:
     image: quay.io/keycloak/keycloak:26.0.7
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
+      KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5433/keycloak
       KC_DB_USERNAME: keycloak
       # KC_DB_PASSWORD: password
       KC_HOSTNAME: keycloak.george-ai.net
@@ -83,7 +86,7 @@ services:
         window: 120s
     labels:
       caddy: keycloak.george-ai.net
-      caddy.reverse_proxy: '{{upstreams 8180}}'
+      caddy.reverse_proxy: '{{upstreams 8080}}'
 
   gai-typesense:
     image: typesense/typesense:27.1
