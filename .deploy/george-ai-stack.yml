@@ -30,7 +30,7 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       # POSTGRES_PASSWORD: keycloak
-    env-file:
+    env_file:
       - gai-keycloak-db.env
     ports:
       - '5433:5432'
@@ -64,7 +64,7 @@ services:
       KC_HEALTH_ENABLED: 'true'
       KEYCLOAK_ADMIN: admin
       # KEYCLOAK_ADMIN_PASSWORD: admin
-    env-file:
+    env_file:
       - gai-keycloak.env
     command: start-dev
     depends_on:
@@ -93,7 +93,7 @@ services:
       TYPESENSE_API_PORT: 8108
       TYPESENSE_API_PROTOCOL: http
       # TYPESENSE_API_KEY=xyz
-    env-file:
+    env_file:
       - gai-typesense.env
     networks:
       - caddy
