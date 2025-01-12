@@ -32,8 +32,6 @@ services:
       # POSTGRES_PASSWORD: keycloak
     env_file:
       - gai-keycloak-db.env
-    ports:
-      - '5432:5432'
     volumes:
       - /home/swarm/data/keycloak-db:/var/lib/postgresql/data
     deploy:
@@ -71,8 +69,6 @@ services:
     command: start-dev
     depends_on:
       - gai-keycloak-db
-    ports:
-      - 8180:8080
     deploy:
       replicas: 1
       resources:
