@@ -34,6 +34,8 @@ services:
       - gai-keycloak-db.env
     volumes:
       - /home/swarm/data/keycloak-db:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
     deploy:
       replicas: 1
       resources:
@@ -53,7 +55,7 @@ services:
     image: quay.io/keycloak/keycloak:26.0.7
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db.george-ai.net:5432/keycloak
+      KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
       KC_DB_USERNAME: keycloak
       # KC_DB_PASSWORD: password
       KC_HOSTNAME: keycloak.george-ai.net
@@ -69,6 +71,8 @@ services:
     command: start-dev
     depends_on:
       - gai-keycloak-db
+    ports:
+      - '8080:8080'
     deploy:
       replicas: 1
       resources:
