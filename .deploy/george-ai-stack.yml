@@ -36,6 +36,8 @@ services:
       - /home/swarm/data/keycloak-db:/var/lib/postgresql/data
     ports:
       - '5432:5432'
+    networks:
+      - caddy
     deploy:
       replicas: 1
       resources:
@@ -73,6 +75,8 @@ services:
       - gai-keycloak-db
     ports:
       - '8080:8080'
+    networks:
+      - caddy
     deploy:
       replicas: 1
       resources:
