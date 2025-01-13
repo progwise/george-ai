@@ -27,12 +27,8 @@ const TopNavigation = () => {
         </Link>
       </div>
       <div className="navbar-end">
-        {!isAuthenticated && (
+        {!isAuthenticated ? (
           <>
-            <Link className="btn btn-ghost" to="/profile">
-              {user}
-            </Link>
-
             <button
               type="button"
               className="btn btn-ghost"
@@ -42,8 +38,7 @@ const TopNavigation = () => {
               Sign in
             </button>
           </>
-        )}
-        {isAuthenticated && (
+        ) : (
           <>
             <Link className="btn btn-ghost" to={profileUrl}>
               {user}
