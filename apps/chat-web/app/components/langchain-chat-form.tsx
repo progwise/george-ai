@@ -112,9 +112,17 @@ export const LangchainChatForm = ({
         <button type="submit" className="btn btn-primary" disabled={disabled}>
           Send
         </button>
-        {error && <Alert message={error} type="error" />}
+        {error && <Alert message={error.message} type="error" />}
         {!auth?.isAuthenticated && (
-          <Alert message="Sign in to chat" type="warning" />
+          <Alert message="Sign in to chat" type="warning">
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => auth?.login()}
+            >
+              Sign in
+            </button>
+          </Alert>
         )}
       </div>
     </form>

@@ -5,8 +5,9 @@ import ErrorIcon from './icons/error-icon'
 export interface AlertProps {
   message: string
   type: 'warning' | 'error'
+  children?: JSX.Element
 }
-const Alert = ({ message, type }) => {
+const Alert = ({ message, type, children }: AlertProps) => {
   return (
     <div
       role="alert"
@@ -19,6 +20,7 @@ const Alert = ({ message, type }) => {
       {type === 'warning' && <WarnIcon className="h-5" />}
       {type === 'error' && <ErrorIcon className="h-5" />}
       <span>{message}</span>
+      {children}
     </div>
   )
 }
