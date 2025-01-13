@@ -65,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           profileUrl: `${config.KEYCLOAK_URL}/realms/${config.KEYCLOAK_REALM}/account?referrer=${config.KEYCLOAK_CLIENT_ID}&referrer_uri=${window.location.href}`,
         })
       }
-      console.log('keycloak', keycloak)
       setAuthContext((oldContext) => ({
         ...oldContext,
         login: keycloak.login,
@@ -83,8 +82,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext)
-  //   if (!context) {
-  //     throw new Error('useAuth must be used within an AuthProvider')
-  //   }
   return context
 }
