@@ -1,39 +1,29 @@
-import * as fs from 'node:fs'
-import { createServerFn } from '@tanstack/start'
-import { createFileRoute, useRouter } from '@tanstack/react-router'
-
-const filePath = 'count.txt'
-
-const readCount = async () =>
-  Number.parseInt(await fs.promises.readFile(filePath, 'utf8').catch(() => '0'))
-
-const getCount = createServerFn({ method: 'GET' }).handler(() => readCount())
-
-const updateCount = createServerFn({ method: 'POST' })
-  .validator((d: number) => d)
-  .handler(async ({ data }) => {
-    const count = await readCount()
-    await fs.promises.writeFile(filePath, `${count + data}`)
-  })
+import { createFileRoute } from '@tanstack/react-router'
 
 const Home = () => {
-  const router = useRouter()
-  const state = Route.useLoaderData()
-
   return (
-    <button
-      type="button"
-      onClick={() => {
-        updateCount({ data: 1 }).then(() => router.invalidate())
-      }}
-      className="btn btn-primary"
-    >
-      Add 1 to {state}
-    </button>
+    <div className="flex flex-row gap-4">
+      <article className="prose prose-xl my-auto">
+        <h1>Your AI. Your Data. Your Rules.</h1>
+        <p>
+          Meet George-AI: a custom-trained AI assistant tailored to your
+          business needs. Create unique content, handle customer interactions,
+          and streamline workflows — all powered by your own data sources and
+          fully compliant with European data protection standards.
+        </p>
+        <button type="button" className="btn btn-primary">
+          Start Training Your AI
+        </button>
+      </article>
+      <img
+        src="george-portrait.jpg"
+        alt="George AI"
+        className="max-w-96 block object-scale-down"
+      />
+    </div>
   )
 }
 
 export const Route = createFileRoute('/')({
   component: Home,
-  loader: async () => await getCount(),
 })

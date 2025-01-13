@@ -11,10 +11,19 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ProfileImport } from './routes/profile'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
+import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
+import { Route as KnowledgeIndexImport } from './routes/knowledge/index'
 
 // Create/Update Routes
+
+const ProfileRoute = ProfileImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const LangchainChatRoute = LangchainChatImport.update({
   id: '/langchain-chat',
@@ -22,9 +31,21 @@ const LangchainChatRoute = LangchainChatImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ContactRoute = ContactImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const KnowledgeIndexRoute = KnowledgeIndexImport.update({
+  id: '/knowledge/',
+  path: '/knowledge/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,11 +60,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactImport
+      parentRoute: typeof rootRoute
+    }
     '/langchain-chat': {
       id: '/langchain-chat'
       path: '/langchain-chat'
       fullPath: '/langchain-chat'
       preLoaderRoute: typeof LangchainChatImport
+      parentRoute: typeof rootRoute
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileImport
+      parentRoute: typeof rootRoute
+    }
+    '/knowledge/': {
+      id: '/knowledge/'
+      path: '/knowledge'
+      fullPath: '/knowledge'
+      preLoaderRoute: typeof KnowledgeIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -53,37 +95,58 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
+  '/profile': typeof ProfileRoute
+  '/knowledge': typeof KnowledgeIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
+  '/profile': typeof ProfileRoute
+  '/knowledge': typeof KnowledgeIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
+  '/profile': typeof ProfileRoute
+  '/knowledge/': typeof KnowledgeIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/langchain-chat'
+  fullPaths: '/' | '/contact' | '/langchain-chat' | '/profile' | '/knowledge'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/langchain-chat'
-  id: '__root__' | '/' | '/langchain-chat'
+  to: '/' | '/contact' | '/langchain-chat' | '/profile' | '/knowledge'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/langchain-chat'
+    | '/profile'
+    | '/knowledge/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContactRoute: typeof ContactRoute
   LangchainChatRoute: typeof LangchainChatRoute
+  ProfileRoute: typeof ProfileRoute
+  KnowledgeIndexRoute: typeof KnowledgeIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContactRoute: ContactRoute,
   LangchainChatRoute: LangchainChatRoute,
+  ProfileRoute: ProfileRoute,
+  KnowledgeIndexRoute: KnowledgeIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,14 +160,26 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/langchain-chat"
+        "/contact",
+        "/langchain-chat",
+        "/profile",
+        "/knowledge/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/contact": {
+      "filePath": "contact.tsx"
+    },
     "/langchain-chat": {
       "filePath": "langchain-chat.tsx"
+    },
+    "/profile": {
+      "filePath": "profile.tsx"
+    },
+    "/knowledge/": {
+      "filePath": "knowledge/index.tsx"
     }
   }
 }

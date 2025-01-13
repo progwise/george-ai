@@ -8,21 +8,20 @@ on:
 
 env:
   HOST: 82.165.141.156
+  SSH_USER: swarm
 
 jobs:
   deploy:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: SSH prerequisites for target server
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          echo "${{ secrets.SERVER_SSH_PUBLIC_KEY }}" > ~/.ssh/id_rsa.pub
-          chmod 600 ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa.pub
-          ssh-keyscan -H ${{ env.HOST }} >> ~/.ssh/known_hosts
-          ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} "echo SSH connection established"
+      - uses: ./.github/actions/establish-ssh
+        id: ssh
+        with:
+          target-host: ${{ env.HOST }}
+          target-user: ${{ env.SSH_USER }}
+          ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
+          ssh-public-key: ${{ secrets.SERVER_SSH_PUBLIC_KEY }}
       - name: Copy swarm stack file
         run: |
           echo "Copy stack file"

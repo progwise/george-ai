@@ -5,7 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-
     volumes:
       - ../..:/workspaces:cached
 
@@ -50,3 +49,53 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  gai-chatweb-db:
+    image: postgres:16
+    container_name: gai-chatweb-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chatweb
+      POSTGRES_USER: chatweb
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5434:5432'
+    volumes:
+      - ../.postgres-data-chatweb:/var/lib/postgresql/data
+
+  gai-keycloak-db:
+    image: postgres:16
+    container_name: gai-keycloak-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5433:5432'
+    volumes:
+      - ../.postgres-data-keycloak:/var/lib/postgresql/data
+
+  gai-keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: gai-keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    depends_on:
+      - gai-keycloak-db
+    ports:
+      - 8180:8080

@@ -3,6 +3,11 @@ version: '3.7'
 services:
   gai-chatweb:
     image: ghcr.io/progwise/george-ai/chat-web:latest
+    environment:
+      KEYCLOAK_REDIRECT_URL: https://chat.george-ai.net
+      KEYCLOAK_REALM: george-ai
+      KEYCLOAK_URL: https://keycloak.george-ai.net
+      KEYCLOAK_CLIENT_ID: george-ai-web
     networks:
       - caddy
     deploy:
@@ -22,13 +27,86 @@ services:
         # to avoid rate limiting during testing you can use the staging environment of letsencrypt
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
+  gai-keycloak-db:
+    image: postgres:16
+    networks:
+      - caddy
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      # POSTGRES_PASSWORD: keycloak
+    env_file:
+      - gai-keycloak-db.env
+    volumes:
+      - /home/swarm/data/keycloak-db:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - caddy
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+    labels:
+      caddy: keycloak-db.george-ai.net
+      caddy.reverse_proxy: '{{upstreams 5432}}'
+
+  gai-keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      # KC_DB_PASSWORD: password
+      KC_HOSTNAME: keycloak.george-ai.net
+      KC_HOSTNAME_STRICT: 'true'
+      KC_HOSTNAME_STRICT_HTTPS: 'true'
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: 'true'
+      KC_HEALTH_ENABLED: 'true'
+      KEYCLOAK_ADMIN: admin
+      # KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_PROXY_HEADERS: xforwarded
+    env_file:
+      - gai-keycloak.env
+    command: start-dev
+    depends_on:
+      - gai-keycloak-db
+    ports:
+      - '8080:8080'
+    networks:
+      - caddy
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+    labels:
+      caddy: keycloak.george-ai.net
+      caddy.reverse_proxy: '{{upstreams 8080}}'
+
   gai-typesense:
     image: typesense/typesense:27.1
     environment:
-      - TYPESENSE_API_HOST=gai-typesense
-      - TYPESENSE_API_PORT=8108
-      - TYPESENSE_API_PROTOCOL=http
-      - TYPESENSE_API_KEY=xyz
+      TYPESENSE_API_HOST: gai-typesense
+      TYPESENSE_API_PORT: 8108
+      TYPESENSE_API_PROTOCOL: http
+      # TYPESENSE_API_KEY=xyz
+    env_file:
+      - gai-typesense.env
     networks:
       - caddy
     volumes:

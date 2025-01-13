@@ -1,5 +1,8 @@
+import { twMerge } from 'tailwind-merge'
+
 interface DropdownProps {
   title: string
+  className?: string
   options: Array<{
     title: string
     action: () => void
@@ -7,7 +10,11 @@ interface DropdownProps {
   }>
 }
 
-export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
+export const Dropdown = ({
+  title,
+  options,
+  className,
+}: DropdownProps): JSX.Element => {
   const handleOptionClick = (action: () => void) => {
     action()
     // blur the active element to prevent the dropdown from staying open
@@ -17,8 +24,8 @@ export const Dropdown = ({ title, options }: DropdownProps): JSX.Element => {
   }
 
   return (
-    <div className="dropdown">
-      <button type="button" className="btn m-1 w-52 no-animation" tabIndex={0}>
+    <div className={twMerge('dropdown', className)}>
+      <button type="button" className="btn no-animation w-full" tabIndex={0}>
         {title}
       </button>
       <ul

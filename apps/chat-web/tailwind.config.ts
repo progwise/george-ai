@@ -4,8 +4,8 @@ import { type Config } from 'tailwindcss'
 
 export default {
   content: ['./app/**/*.{ts,tsx}'],
-  theme: {
-    extend: {},
+  daisyui: {
+    themes: ['light'],
   },
   plugins: [typography, daisyui],
 } satisfies Config

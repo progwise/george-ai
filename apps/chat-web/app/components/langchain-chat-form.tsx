@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendChatMessage } from '../server-functions/langchain-send-chat-message'
 import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
+import { useAuth } from '../auth'
+import Alert from './alert'
 
 type LangchainChatFormProps = {
   sessionId: string
@@ -24,6 +26,7 @@ export const LangchainChatForm = ({
   sessionId,
   retrievalFlow,
 }: LangchainChatFormProps) => {
+  const auth = useAuth()
   const queryClient = useQueryClient()
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) =>
@@ -94,21 +97,34 @@ export const LangchainChatForm = ({
     mutate(message)
   }
 
+  const disabled = !auth?.isAuthenticated || status === 'pending'
+
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
       <textarea
-        className="textarea textarea-bordered flex-grow"
+        className="textarea textarea-bordered flex-grow w-full"
         name="message"
         onKeyDown={handleTextareaKeyDown}
+        disabled={disabled}
       />
-      <button
-        type="submit"
-        className="btn btn-primary"
-        disabled={status === 'pending'}
-      >
-        Send
-      </button>
-      {error && <div>{error.message}</div>}
+
+      <div className="flex flex-col gap-2 align-middle">
+        <button type="submit" className="btn btn-primary" disabled={disabled}>
+          Send
+        </button>
+        {error && <Alert message={error.message} type="error" />}
+        {!auth?.isAuthenticated && (
+          <Alert message="Sign in to chat" type="warning">
+            <button
+              type="button"
+              className="btn btn-sm btn-ghost"
+              onClick={() => auth?.login()}
+            >
+              Sign in
+            </button>
+          </Alert>
+        )}
+      </div>
     </form>
   )
 }

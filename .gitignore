@@ -10,3 +10,4 @@ gaidata
 build
 .pnp.*
 .typesense-data
+.postgres-data*
