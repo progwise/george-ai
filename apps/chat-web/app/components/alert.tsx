@@ -12,7 +12,7 @@ const Alert = ({ message, type, children }: AlertProps) => {
     <div
       role="alert"
       className={twMerge(
-        'alert',
+        'alert py-2',
         type === 'warning' && 'alert-warning',
         type === 'error' && 'alert-error',
       )}
