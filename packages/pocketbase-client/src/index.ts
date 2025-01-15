@@ -22,19 +22,26 @@ export const getUnprocessedDocuments = async () => {
       })
       const fileToken = await pb.files.getToken()
       const fileUrl = `${POCKETBASE_URL}/api/files/${document.collectionId}/${content.id}/${content.file}?token=${fileToken}`
-      const fileResponse = await fetch(fileUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/pdf',
-        },
-      })
+
+      const fileResponse = await fetch(fileUrl, { method: 'GET' })
+      if (!fileResponse.ok) {
+        throw new Error(
+          `Error fetching file for doc ID ${document.id}: ${fileResponse.statusText}`,
+        )
+      }
       const fileBlob = await fileResponse.blob()
+      const fileName = content.file
+      const fileExtension = fileName.split('.').pop()?.toLowerCase()
+      if (!fileExtension) {
+        throw new Error(`No extension found for file: ${fileName}`)
+      }
       return {
         collectionId: document.collectionId,
         documentId: document.id,
         fileName: content.file,
         url: fileUrl,
         blob: fileBlob,
+        docType: fileExtension,
       }
     }),
   )

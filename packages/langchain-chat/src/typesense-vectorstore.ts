@@ -10,15 +10,11 @@ import {
   getUnprocessedDocuments,
   setDocumentProcessed,
 } from '@george-ai/pocketbase-client'
-
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
-import { CSVLoader } from '@langchain/community/document_loaders/fs/csv'
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory'
-import { JSONLoader, JSONLinesLoader } from 'langchain/document_loaders/fs/json'
-
 import { ImportError } from 'typesense/lib/Typesense/Errors'
+// import { CSVLoader } from '@langchain/community/document_loaders/fs/csv'
 
 const CHUNK_SIZE = 1000 // Increased for better context
 const CHUNK_OVERLAP = 100
@@ -114,6 +110,18 @@ const ensureVectorStore = async () => {
   }
 }
 
+const detectExtension = (fileName: string, docType?: string): string => {
+  if (docType?.toLowerCase()) {
+    return docType.toLowerCase()
+  }
+  const splitted = fileName.split('.')
+  if (splitted.length > 1) {
+    const ext = splitted.pop()!.toLowerCase()
+    if (ext) return ext
+  }
+  throw new Error('Missing extension')
+}
+
 const loadDocument = async (document: {
   fileName: string
   url: string
@@ -122,7 +130,12 @@ const loadDocument = async (document: {
   docType?: string
 }) => {
   console.log('loading document:', document.fileName)
-  const extension = document.docType?.toLowerCase() || 'pdf' // default to pdf if missing
+
+  const extension = detectExtension(document.fileName, document.docType)
+
+  console.log(
+    `Detected extension "${extension}" for file "${document.fileName}"`,
+  )
 
   let loader
   switch (extension) {
@@ -139,15 +152,16 @@ const loadDocument = async (document: {
       loader = new TextLoader(document.blob)
       break
     case 'csv':
-      throw new Error(
-        `CSV loading from a blob isn't directly supported without a file path. Convert or skip.`,
-      )
+      loader = new TextLoader(document.blob)
+      break
+    // throw new Error(
+    //   `CSV loading from a blob isn't directly supported without a file path. "https://js.langchain.com/docs/integrations/document_loaders/file_loaders/csv/"`,
+    // )
     default:
-      throw new Error(`Unsupported docType: ${document.docType}`)
+      throw new Error(`Unsupported extension: "${extension}"`)
   }
 
   const rawDocuments = await loader.load()
-
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
@@ -164,64 +178,6 @@ const loadDocument = async (document: {
     })),
   )
   return splitDocuments
-}
-
-const loadDirectory = async (directoryPath: string) => {
-  console.log('loading directory:', directoryPath)
-  const loader = new DirectoryLoader(directoryPath, {
-    '.json': (path) => new JSONLoader(path, '/texts'),
-    '.jsonl': (path) => new JSONLinesLoader(path, '/html'),
-    '.txt': (path) => new TextLoader(path),
-    '.csv': (path) => new CSVLoader(path, 'text'),
-    '.docx': (path) => new DocxLoader(path),
-    '.doc': (path) => new DocxLoader(path),
-    '.pdf': (path) => new PDFLoader(path),
-  })
-
-  const rawDocs = await loader.load()
-  console.log(`DirectoryLoader loaded ${rawDocs.length} docs total.`)
-
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: CHUNK_SIZE,
-    chunkOverlap: CHUNK_OVERLAP,
-  })
-  const splitDocs = await splitter.splitDocuments(rawDocs)
-
-  return splitDocs
-}
-
-async function loadLocalDirectoryToVectorStore(directoryPath: string) {
-  await ensureVectorStore()
-
-  const splitDocs = await loadDirectory(directoryPath)
-
-  const docIds = [...new Set(splitDocs.map((d) => d.metadata.source as string))]
-
-  console.log('removing old local files from store:', docIds)
-  for (const docId of docIds) {
-    await typesenseVectorStoreConfig.typesenseClient
-      .collections('gai-documents')
-      .documents()
-      .delete({ filter_by: `docId:=${docId}` })
-  }
-
-  try {
-    await Typesense.fromDocuments(
-      splitDocs,
-      embeddings,
-      typesenseVectorStoreConfig,
-    )
-    console.log('Local directory docs loaded into vector store.')
-  } catch (error) {
-    if (error instanceof ImportError) {
-      console.error(
-        'Error loading docs:',
-        JSON.stringify(error.importResults, undefined, 2),
-      )
-    } else {
-      console.error('Error loading docs:', error)
-    }
-  }
 }
 
 const removeFilesByDocumentIds = async (documentIds: string[]) => {
@@ -285,7 +241,7 @@ const loadDocuments = async (
 let processing = 0
 
 export const loadUprocessedDocumentsIntoVectorStore = async () => {
-  console.log('processing iteration:', processing++)
+  console.log('processing:', processing++)
   await ensureVectorStore()
 
   const documents = await getUnprocessedDocuments()
@@ -300,6 +256,7 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
       url: d.url,
       blob: d.blob,
       documentId: d.documentId,
+      docType: d.docType,
     })),
   )
 }
@@ -314,9 +271,7 @@ export const getFileContentForQuestion = async (question: string) => {
     const content = docs.map((doc) => doc.pageContent).join('\n\n')
     return content
   } catch (error) {
-    console.error('Error retrieving PDF content:', error)
+    console.error('Error retrieving content:', error)
     return ''
   }
 }
-
-export { loadLocalDirectoryToVectorStore }
