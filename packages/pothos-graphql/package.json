@@ -5,6 +5,7 @@
   "packageManager": "pnpm@9.15.0",
   "author": "progwise.net",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsc --noEmit",
     "lint": "eslint .",
@@ -12,12 +13,14 @@
   },
   "dependencies": {
     "@george-ai/langchain-chat": "workspace:*",
-    "@pothos/core": "^3.32.1",
+    "@pothos/core": "^4.3.0",
     "@pothos/plugin-prisma": "^4.4.0",
-    "@pothos/plugin-simple-objects": "^3.7.0",
+    "@pothos/plugin-simple-objects": "^4.1.0",
     "@prisma/client": "6.2.1",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
+    "graphql-scalars": "^1.24.0",
+    "graphql-yoga": "^5.10.2",
     "typesense": "^1.7.1"
   },
   "devDependencies": {

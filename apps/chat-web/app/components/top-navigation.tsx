@@ -21,7 +21,7 @@ const TopNavigation = () => {
           <ChatBubbleIcon className="size-6" />
           Chat
         </Link>
-        <Link className="btn btn-ghost" to="/knowledge">
+        <Link className="btn btn-ghost" to="/ken">
           <AcademicCapIcon className="size-6" />
           Ken
         </Link>
@@ -41,7 +41,7 @@ const TopNavigation = () => {
         ) : (
           <>
             <Link className="btn btn-ghost" to={profileUrl}>
-              {user}
+              {user?.name}
             </Link>
             <button
               type="button"

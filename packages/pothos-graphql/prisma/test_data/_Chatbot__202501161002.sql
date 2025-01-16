@@ -1,0 +1,3 @@
+INSERT INTO public."Chatbot" (id,"createdAt","updatedAt",name,description,url,icon,"ownerId") VALUES
+	 ('cm5wpwt3f0000pkeb5y8bbm5c','2025-01-14 16:59:20.524','2025-01-14 17:13:27.429','Reisebot','Test um die Kunden Hilfestellungen beim Reisen mit großen Wohnmobilen zu geben',NULL,'https://landyachting.de/wp-content/uploads/2024/08/Slider-San-Servolo.jpg','cm5v311fy0000mwtv7lv614vy'),
+	 ('cm5v3kjrf0001mw4hmiyvdugn','2025-01-13 13:46:10.828','2025-01-14 17:15:16.762','Testbot1','Grundfunktionen Test',NULL,'https://www.medizin.uni-greifswald.de/fileadmin/_processed_/5/f/csm_startbild_umg4230_9abb2f7fcf.jpg','cm5v311fy0000mwtv7lv614vy');

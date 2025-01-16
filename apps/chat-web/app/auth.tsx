@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import { createContext, useState } from 'react'
 import Keycloak from 'keycloak-js'
-import { getKeycloakConfig } from './auth.server'
+import { getKeycloakConfig, getUserInformation } from './auth.server'
 
 function initKeycloak({ keycloakUrl, realm, clientId }) {
   const keycloak = new Keycloak({
@@ -21,7 +21,11 @@ export interface AuthContext {
   isAuthenticated: boolean
   login: () => Promise<void>
   logout: () => Promise<void>
-  user: string | null
+  user: {
+    id: string
+    email: string
+    name: string
+  } | null
   profileUrl?: string
 }
 
@@ -52,7 +56,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           registerUrl: url,
         }))
       })
-      keycloak.onAuthSuccess = () => {
+      keycloak.onAuthSuccess = async () => {
+        if (!keycloak.token) {
+          throw new Error('Got no token')
+        }
+
+        const { login } = await getUserInformation({ data: keycloak.token })
+
         setAuthContext({
           isAuthenticated: true,
           login: async () => {
@@ -61,7 +71,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           logout: async () => {
             keycloak.logout()
           },
-          user: keycloak.tokenParsed?.preferred_username,
+          user: {
+            id: login!.id!,
+            email: login!.email!,
+            name: login!.name!,
+          },
           profileUrl: `${config.KEYCLOAK_URL}/realms/${config.KEYCLOAK_REALM}/account?referrer=${config.KEYCLOAK_CLIENT_ID}&referrer_uri=${window.location.href}`,
         })
       }

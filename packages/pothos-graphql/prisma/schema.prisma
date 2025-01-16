@@ -18,12 +18,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  name      String
-  chatbots     Chatbot[]
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLogin   DateTime?
+  email       String    @unique
+  username    String    @unique
+  name        String?
+  given_name  String?
+  family_name String?
+  chatbots    Chatbot[]
 }
 
 model Chatbot {
@@ -32,8 +36,8 @@ model Chatbot {
   updatedAt DateTime @updatedAt
   name      String
   description String
-  url       String
-  icon      String
+  url       String?
+  icon      String?
   owner     User     @relation(fields: [ownerId], references: [id])
   ownerId   String
 }
