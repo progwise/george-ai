@@ -110,18 +110,6 @@ const ensureVectorStore = async () => {
   }
 }
 
-const detectExtension = (fileName: string, docType?: string): string => {
-  if (docType?.toLowerCase()) {
-    return docType.toLowerCase()
-  }
-  const splitted = fileName.split('.')
-  if (splitted.length > 1) {
-    const ext = splitted.pop()!.toLowerCase()
-    if (ext) return ext
-  }
-  throw new Error('Missing extension')
-}
-
 const loadDocument = async (document: {
   fileName: string
   url: string
@@ -131,11 +119,7 @@ const loadDocument = async (document: {
 }) => {
   console.log('loading document:', document.fileName)
 
-  const extension = detectExtension(document.fileName, document.docType)
-
-  console.log(
-    `Detected extension "${extension}" for file "${document.fileName}"`,
-  )
+  const extension = document.docType?.toLowerCase() || 'pdf'
 
   let loader
   switch (extension) {
@@ -154,9 +138,6 @@ const loadDocument = async (document: {
     case 'csv':
       loader = new TextLoader(document.blob)
       break
-    // throw new Error(
-    //   `CSV loading from a blob isn't directly supported without a file path. "https://js.langchain.com/docs/integrations/document_loaders/file_loaders/csv/"`,
-    // )
     default:
       throw new Error(`Unsupported extension: "${extension}"`)
   }
@@ -167,8 +148,8 @@ const loadDocument = async (document: {
     chunkOverlap: CHUNK_OVERLAP,
   })
   const splitDocuments = await splitter.splitDocuments(
-    rawDocuments.map((d) => ({
-      ...d,
+    rawDocuments.map((rawDocument) => ({
+      ...rawDocument,
       metadata: {
         docType: extension,
         docName: document.fileName,
@@ -182,8 +163,7 @@ const loadDocument = async (document: {
 
 const removeFilesByDocumentIds = async (documentIds: string[]) => {
   const promises = documentIds.map((documentId) => {
-    console.log('removing file:', documentId)
-    return typesenseVectorStoreConfig.typesenseClient
+    return vectorTypesenseClient
       .collections('gai-documents')
       .documents()
       .delete({ filter_by: `docId:=${documentId}` })
@@ -192,38 +172,36 @@ const removeFilesByDocumentIds = async (documentIds: string[]) => {
 }
 
 const loadDocuments = async (
-  documents: Array<{
+  documents: {
+    collectionId: string
+    documentId: string
     fileName: string
     url: string
     blob: Blob
-    documentId: string
     docType?: string
-  }>,
+  }[],
 ) => {
-  const splittedDocmentsArrays = await Promise.all(
-    documents.map((d) => loadDocument(d)),
-  )
+  const splittedDocmentsArrays = await Promise.all(documents.map(loadDocument))
 
-  for (const splittedDocuments of splittedDocmentsArrays) {
+  for (const splitDocument of splittedDocmentsArrays) {
     const documentIds = [
-      ...new Set(splittedDocuments.map((d) => d.metadata.docId as string)),
+      ...new Set(splitDocument.map((document) => document.metadata.docId)),
     ]
-    console.log('removing files from store:', documentIds)
+    console.log('removing files:', documentIds)
     await removeFilesByDocumentIds(documentIds)
-
     console.log(
       'loading documents:',
-      JSON.stringify(splittedDocuments, null, 2),
+      JSON.stringify(splitDocument, undefined, 2),
     )
     try {
       await Typesense.fromDocuments(
-        splittedDocuments,
+        splitDocument,
         embeddings,
         typesenseVectorStoreConfig,
       )
       console.log('setting documents as processed:', documentIds)
       await Promise.all(
-        documentIds.map((id) => setDocumentProcessed({ documentId: id })),
+        documentIds.map((documentId) => setDocumentProcessed({ documentId })),
       )
     } catch (error) {
       if (error instanceof ImportError) {
@@ -250,25 +228,20 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
     documents.map((d) => d.fileName),
   )
 
-  await loadDocuments(
-    documents.map((d) => ({
-      fileName: d.fileName,
-      url: d.url,
-      blob: d.blob,
-      documentId: d.documentId,
-      docType: d.docType,
-    })),
-  )
+  await loadDocuments(documents)
 }
 
+// retrieves content from the vector store similar to the question
 export const getFileContentForQuestion = async (question: string) => {
   await ensureVectorStore()
   try {
     console.log('searching for:', question)
-    const docs = await typesenseVectorStore.similaritySearch(question)
-    console.log('retrieved documents:', docs)
+    const documents = await typesenseVectorStore.similaritySearch(question)
+    console.log('retrieved documents:', documents)
+    const content = documents
+      .map((document) => document.pageContent)
+      .join('\n\n')
 
-    const content = docs.map((doc) => doc.pageContent).join('\n\n')
     return content
   } catch (error) {
     console.error('Error retrieving content:', error)

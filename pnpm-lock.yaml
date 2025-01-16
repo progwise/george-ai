@@ -162,18 +162,12 @@ importers:
       langchain:
         specifier: ^0.3.7
         version: 0.3.7(@langchain/core@0.3.23(openai@4.76.1(zod@3.24.1)))(axios@1.7.4)(openai@4.76.1(zod@3.24.1))
-      mammoth:
-        specifier: ^1.9.0
-        version: 1.9.0
       pdf-parse:
         specifier: ^1.1.1
         version: 1.1.1
       typesense:
         specifier: ^1.8.2
         version: 1.8.2(@babel/runtime@7.26.0)
-      word-extractor:
-        specifier: ^1.0.4
-        version: 1.0.4
       zod:
         specifier: ^3.23.8
         version: 3.24.1
@@ -2734,9 +2728,6 @@ packages:
   bser@2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
 
-  buffer-crc32@0.2.13:
-    resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
-
   buffer-crc32@1.0.0:
     resolution: {integrity: sha512-Db1SbgBS/fg/392AblrMJk97KggmvYhr4pB5ZIMTWtaivCPMWLkmb7m21cJvpvgK+J3nsU2CmmixNBZx4vFj/w==}
     engines: {node: '>=8.0.0'}
@@ -3418,9 +3409,6 @@ packages:
 
   fbjs@3.0.5:
     resolution: {integrity: sha512-ztsSx77JBtkuMrEypfhgc3cI0+0h+svqeie7xHbh1k/IKdcydnvadp/mUaGgjAOXQmQSxsqgaRhS3q9fy+1kxg==}
-
-  fd-slicer@1.1.0:
-    resolution: {integrity: sha512-cE1qsB/VwyQozZ+q1dGxR8LBYNZeofhEdUNGSMbQD3Gw2lAzX9Zb3uIU6Ebc/Fmyjo9AWWfnn0AUCHqtevs/8g==}
 
   fdir@6.4.2:
     resolution: {integrity: sha512-KnhMXsKSPZlAhp7+IjUkRZKPb4fUyccpDrdFXbi4QL1qkmFh9kVY09Yox+n4MaOb3lHZ1Tv829C3oaaXoMYPDQ==}
@@ -4555,9 +4543,6 @@ packages:
     resolution: {integrity: sha512-ZI3LnwUv5nOGbQzD9c2iDG6toheuXSZP5esSHBjopsXH4dg19soufvpUGA3uohi5anFtGb2lhAVdHzH6R/Evvg==}
     engines: {node: '>=8'}
 
-  pend@1.2.0:
-    resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
-
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
@@ -4856,10 +4841,6 @@ packages:
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
-
-  saxes@5.0.1:
-    resolution: {integrity: sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==}
-    engines: {node: '>=10'}
 
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
@@ -5476,9 +5457,6 @@ packages:
     resolution: {integrity: sha512-o0cyEG0e8GPzT4iGHphIOh0cJOV8fivsXxddQasHPHfoZf1ZexrfeA21w2NaEN1RHE+fXlfISmOE8R9N3u3Qig==}
     engines: {node: '>=12'}
 
-  word-extractor@1.0.4:
-    resolution: {integrity: sha512-PyAGZQ2gjnVA5kcZAOAxoYciCMaAvu0dbVlw/zxHphhy+3be8cDeYKHJPO8iedIM3Sx0arA/ugKTJyXhZNgo6g==}
-
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
@@ -5513,9 +5491,6 @@ packages:
   xmlbuilder@10.1.1:
     resolution: {integrity: sha512-OyzrcFLL/nb6fMGHbiRDuPup9ljBycsdCypwuyg5AAHvyWzGfChJpCXMG88AGTIMFhGZ9RccFN1e6lhg3hkwKg==}
     engines: {node: '>=4.0'}
-
-  xmlchars@2.2.0:
-    resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
   y18n@4.0.3:
     resolution: {integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==}
@@ -5557,9 +5532,6 @@ packages:
   yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
-
-  yauzl@2.10.0:
-    resolution: {integrity: sha512-p4a9I6X6nu6IhoGmBqAcbJy1mlC4j27vEPZX9F4L4/vZT3Lyq1VkFHw/V/PUcB9Buo+DG3iHkT0x3Qya58zc3g==}
 
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
@@ -7840,7 +7812,8 @@ snapshots:
       '@whatwg-node/fetch': 0.10.1
       tslib: 2.8.1
 
-  '@xmldom/xmldom@0.8.10': {}
+  '@xmldom/xmldom@0.8.10':
+    optional: true
 
   abbrev@2.0.0: {}
 
@@ -7938,6 +7911,7 @@ snapshots:
   argparse@1.0.10:
     dependencies:
       sprintf-js: 1.0.3
+    optional: true
 
   argparse@2.0.1: {}
 
@@ -8054,7 +8028,8 @@ snapshots:
       inherits: 2.0.4
       readable-stream: 3.6.2
 
-  bluebird@3.4.7: {}
+  bluebird@3.4.7:
+    optional: true
 
   boxen@7.1.1:
     dependencies:
@@ -8090,8 +8065,6 @@ snapshots:
   bser@2.1.1:
     dependencies:
       node-int64: 0.4.0
-
-  buffer-crc32@0.2.13: {}
 
   buffer-crc32@1.0.0: {}
 
@@ -8438,7 +8411,8 @@ snapshots:
 
   didyoumean@1.2.2: {}
 
-  dingbat-to-unicode@1.0.1: {}
+  dingbat-to-unicode@1.0.1:
+    optional: true
 
   dir-glob@3.0.1:
     dependencies:
@@ -8462,6 +8436,7 @@ snapshots:
   duck@0.1.12:
     dependencies:
       underscore: 1.13.7
+    optional: true
 
   duplexer@0.1.2: {}
 
@@ -8869,10 +8844,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  fd-slicer@1.1.0:
-    dependencies:
-      pend: 1.2.0
-
   fdir@6.4.2(picomatch@4.0.2):
     optionalDependencies:
       picomatch: 4.0.2
@@ -9200,7 +9171,8 @@ snapshots:
 
   ignore@5.3.2: {}
 
-  immediate@3.0.6: {}
+  immediate@3.0.6:
+    optional: true
 
   immutable@3.7.6: {}
 
@@ -9439,6 +9411,7 @@ snapshots:
       pako: 1.0.11
       readable-stream: 2.3.8
       setimmediate: 1.0.5
+    optional: true
 
   jwa@1.4.1:
     dependencies:
@@ -9505,6 +9478,7 @@ snapshots:
   lie@3.3.0:
     dependencies:
       immediate: 3.0.6
+    optional: true
 
   lilconfig@3.1.3: {}
 
@@ -9608,6 +9582,7 @@ snapshots:
       duck: 0.1.12
       option: 0.2.4
       underscore: 1.13.7
+    optional: true
 
   lower-case-first@2.0.2:
     dependencies:
@@ -9651,6 +9626,7 @@ snapshots:
       path-is-absolute: 1.0.1
       underscore: 1.13.7
       xmlbuilder: 10.1.1
+    optional: true
 
   map-cache@0.2.2: {}
 
@@ -9954,7 +9930,8 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  option@0.2.4: {}
+  option@0.2.4:
+    optional: true
 
   optionator@0.9.4:
     dependencies:
@@ -10019,7 +9996,8 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
-  pako@1.0.11: {}
+  pako@1.0.11:
+    optional: true
 
   param-case@3.0.4:
     dependencies:
@@ -10098,8 +10076,6 @@ snapshots:
       - supports-color
 
   peek-readable@4.1.0: {}
-
-  pend@1.2.0: {}
 
   perfect-debounce@1.0.0: {}
 
@@ -10387,10 +10363,6 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  saxes@5.0.1:
-    dependencies:
-      xmlchars: 2.2.0
-
   scheduler@0.23.2:
     dependencies:
       loose-envify: 1.4.0
@@ -10534,7 +10506,8 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  sprintf-js@1.0.3: {}
+  sprintf-js@1.0.3:
+    optional: true
 
   standard-as-callback@2.1.0: {}
 
@@ -10829,7 +10802,8 @@ snapshots:
       magic-string: 0.30.15
       unplugin: 2.1.0
 
-  underscore@1.13.7: {}
+  underscore@1.13.7:
+    optional: true
 
   undici-types@5.26.5: {}
 
@@ -11081,11 +11055,6 @@ snapshots:
     dependencies:
       string-width: 5.1.2
 
-  word-extractor@1.0.4:
-    dependencies:
-      saxes: 5.0.1
-      yauzl: 2.10.0
-
   word-wrap@1.2.5: {}
 
   wrap-ansi@6.2.0:
@@ -11110,9 +11079,8 @@ snapshots:
 
   ws@8.18.0: {}
 
-  xmlbuilder@10.1.1: {}
-
-  xmlchars@2.2.0: {}
+  xmlbuilder@10.1.1:
+    optional: true
 
   y18n@4.0.3: {}
 
@@ -11158,11 +11126,6 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
-
-  yauzl@2.10.0:
-    dependencies:
-      buffer-crc32: 0.2.13
-      fd-slicer: 1.1.0
 
   yocto-queue@0.1.0: {}
 

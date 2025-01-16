@@ -15,10 +15,8 @@
     "@langchain/core": "^0.3.19",
     "@langchain/openai": "^0.3.14",
     "langchain": "^0.3.7",
-    "mammoth": "^1.9.0",
     "pdf-parse": "^1.1.1",
     "typesense": "^1.8.2",
-    "word-extractor": "^1.0.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
