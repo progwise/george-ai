@@ -14,7 +14,6 @@ import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
-// import { CSVLoader } from '@langchain/community/document_loaders/fs/csv'
 
 const CHUNK_SIZE = 1000 // Increased for better context
 const CHUNK_OVERLAP = 100
