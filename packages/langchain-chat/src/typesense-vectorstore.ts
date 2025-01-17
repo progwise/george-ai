@@ -163,6 +163,7 @@ const loadDocument = async (document: {
 
 const removeFilesByDocumentIds = async (documentIds: string[]) => {
   const promises = documentIds.map((documentId) => {
+    console.log('removing file:', documentId)
     return vectorTypesenseClient
       .collections('gai-documents')
       .documents()
@@ -178,12 +179,22 @@ const loadDocuments = async (
     fileName: string
     url: string
     blob: Blob
-    docType?: string
+    docType: string
   }[],
 ) => {
-  const splittedDocmentsArrays = await Promise.all(documents.map(loadDocument))
-
-  for (const splitDocument of splittedDocmentsArrays) {
+  const splitDocuments = await Promise.all(
+    documents.map(async (document) => {
+      const loadedDocument = await loadDocument({
+        fileName: document.fileName,
+        url: document.url,
+        blob: document.blob,
+        documentId: document.documentId,
+        docType: document.docType,
+      })
+      return loadedDocument
+    }),
+  )
+  splitDocuments.map(async (splitDocument) => {
     const documentIds = [
       ...new Set(splitDocument.map((document) => document.metadata.docId)),
     ]
@@ -199,7 +210,13 @@ const loadDocuments = async (
         embeddings,
         typesenseVectorStoreConfig,
       )
+
+      const documentIds = [
+        ...new Set(splitDocument.map((document) => document.metadata.docId)),
+      ]
+
       console.log('setting documents as processed:', documentIds)
+
       await Promise.all(
         documentIds.map((documentId) => setDocumentProcessed({ documentId })),
       )
@@ -213,7 +230,7 @@ const loadDocuments = async (
         console.error('Error loading documents:', error)
       }
     }
-  }
+  })
 }
 
 let processing = 0
@@ -221,13 +238,11 @@ let processing = 0
 export const loadUprocessedDocumentsIntoVectorStore = async () => {
   console.log('processing:', processing++)
   await ensureVectorStore()
-
   const documents = await getUnprocessedDocuments()
   console.log(
     'unprocessed documents:',
     documents.map((d) => d.fileName),
   )
-
   await loadDocuments(documents)
 }
 
