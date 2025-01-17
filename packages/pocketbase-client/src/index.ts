@@ -20,36 +20,20 @@ export const getUnprocessedDocuments = async () => {
       const content = await documentsCollection.getOne(document.id, {
         expand: 'id, file, processed, lastProcessed',
       })
-
-      const fileName =
-        Array.isArray(content.file) && content.file.length > 0
-          ? content.file[0]
-          : typeof content.file === 'string'
-            ? content.file
-            : (() => {
-                throw new Error(
-                  `No file found in content.file for doc ID: ${document.id}`,
-                )
-              })()
-
       const fileToken = await pb.files.getToken()
-      const fileUrl = `${POCKETBASE_URL}/api/files/${document.collectionId}/${content.id}/${fileName}?token=${fileToken}`
-
-      const fileResponse = await fetch(fileUrl, { method: 'GET' })
-      if (!fileResponse.ok) {
-        throw new Error(
-          `Error fetching file for doc ID ${document.id}: ${fileResponse.statusText}`,
-        )
-      }
+      const fileUrl = `${POCKETBASE_URL}/api/files/${document.collectionId}/${content.id}/${content.file}?token=${fileToken}`
+      const fileResponse = await fetch(fileUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/docType',
+        },
+      })
       const fileBlob = await fileResponse.blob()
-      const fileExtension = fileName.split('.').pop()?.toLowerCase()
-      if (!fileExtension) {
-        throw new Error(`No extension found for file: ${fileName}`)
-      }
+      const fileExtension = content.file.split('.').pop()?.toLowerCase()
       return {
         collectionId: document.collectionId,
         documentId: document.id,
-        fileName,
+        fileName: content.file,
         url: fileUrl,
         blob: fileBlob,
         docType: fileExtension,
