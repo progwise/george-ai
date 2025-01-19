@@ -12,7 +12,8 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "bierner.markdown-mermaid",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "prisma.prisma"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",

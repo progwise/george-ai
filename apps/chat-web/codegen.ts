@@ -7,6 +7,19 @@ const config: CodegenConfig = {
     './app/gql/': {
       preset: 'client',
     },
+    './app/gql/validation.ts': {
+      config: {
+        schema: 'zod',
+        importFrom: './graphql',
+      },
+      plugins: ['typescript-validation-schema'],
+    },
+    './app/gql/schema.graphql': {
+      plugins: ['schema-ast'],
+      config: {
+        includeDirectives: true,
+      },
+    },
   },
 }
 export default config

@@ -15,7 +15,9 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
-import { Route as KenIndexImport } from './routes/ken/index'
+import { Route as AssistantsIndexImport } from './routes/assistants/index'
+import { Route as AssistantsNewImport } from './routes/assistants/new'
+import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 
 // Create/Update Routes
 
@@ -43,9 +45,21 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const KenIndexRoute = KenIndexImport.update({
-  id: '/ken/',
-  path: '/ken/',
+const AssistantsIndexRoute = AssistantsIndexImport.update({
+  id: '/assistants/',
+  path: '/assistants/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AssistantsNewRoute = AssistantsNewImport.update({
+  id: '/assistants/new',
+  path: '/assistants/new',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AssistantsAssistantIdRoute = AssistantsAssistantIdImport.update({
+  id: '/assistants/$assistantId',
+  path: '/assistants/$assistantId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -81,11 +95,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileImport
       parentRoute: typeof rootRoute
     }
-    '/ken/': {
-      id: '/ken/'
-      path: '/ken'
-      fullPath: '/ken'
-      preLoaderRoute: typeof KenIndexImport
+    '/assistants/$assistantId': {
+      id: '/assistants/$assistantId'
+      path: '/assistants/$assistantId'
+      fullPath: '/assistants/$assistantId'
+      preLoaderRoute: typeof AssistantsAssistantIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/assistants/new': {
+      id: '/assistants/new'
+      path: '/assistants/new'
+      fullPath: '/assistants/new'
+      preLoaderRoute: typeof AssistantsNewImport
+      parentRoute: typeof rootRoute
+    }
+    '/assistants/': {
+      id: '/assistants/'
+      path: '/assistants'
+      fullPath: '/assistants'
+      preLoaderRoute: typeof AssistantsIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -98,7 +126,9 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
   '/profile': typeof ProfileRoute
-  '/ken': typeof KenIndexRoute
+  '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
+  '/assistants/new': typeof AssistantsNewRoute
+  '/assistants': typeof AssistantsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -106,7 +136,9 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
   '/profile': typeof ProfileRoute
-  '/ken': typeof KenIndexRoute
+  '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
+  '/assistants/new': typeof AssistantsNewRoute
+  '/assistants': typeof AssistantsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -115,15 +147,39 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
   '/profile': typeof ProfileRoute
-  '/ken/': typeof KenIndexRoute
+  '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
+  '/assistants/new': typeof AssistantsNewRoute
+  '/assistants/': typeof AssistantsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contact' | '/langchain-chat' | '/profile' | '/ken'
+  fullPaths:
+    | '/'
+    | '/contact'
+    | '/langchain-chat'
+    | '/profile'
+    | '/assistants/$assistantId'
+    | '/assistants/new'
+    | '/assistants'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact' | '/langchain-chat' | '/profile' | '/ken'
-  id: '__root__' | '/' | '/contact' | '/langchain-chat' | '/profile' | '/ken/'
+  to:
+    | '/'
+    | '/contact'
+    | '/langchain-chat'
+    | '/profile'
+    | '/assistants/$assistantId'
+    | '/assistants/new'
+    | '/assistants'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/langchain-chat'
+    | '/profile'
+    | '/assistants/$assistantId'
+    | '/assistants/new'
+    | '/assistants/'
   fileRoutesById: FileRoutesById
 }
 
@@ -132,7 +188,9 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   LangchainChatRoute: typeof LangchainChatRoute
   ProfileRoute: typeof ProfileRoute
-  KenIndexRoute: typeof KenIndexRoute
+  AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
+  AssistantsNewRoute: typeof AssistantsNewRoute
+  AssistantsIndexRoute: typeof AssistantsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -140,7 +198,9 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   LangchainChatRoute: LangchainChatRoute,
   ProfileRoute: ProfileRoute,
-  KenIndexRoute: KenIndexRoute,
+  AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
+  AssistantsNewRoute: AssistantsNewRoute,
+  AssistantsIndexRoute: AssistantsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -157,7 +217,9 @@ export const routeTree = rootRoute
         "/contact",
         "/langchain-chat",
         "/profile",
-        "/ken/"
+        "/assistants/$assistantId",
+        "/assistants/new",
+        "/assistants/"
       ]
     },
     "/": {
@@ -172,8 +234,14 @@ export const routeTree = rootRoute
     "/profile": {
       "filePath": "profile.tsx"
     },
-    "/ken/": {
-      "filePath": "ken/index.tsx"
+    "/assistants/$assistantId": {
+      "filePath": "assistants/$assistantId.tsx"
+    },
+    "/assistants/new": {
+      "filePath": "assistants/new.tsx"
+    },
+    "/assistants/": {
+      "filePath": "assistants/index.tsx"
     }
   }
 }

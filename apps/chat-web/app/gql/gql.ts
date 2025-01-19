@@ -14,8 +14,12 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 const documents = {
-    "\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      email\n      name\n      given_name\n      family_name\n    }\n  }\n": types.LoginDocument,
-    "\n  query Chatbots($ownerId: String!) {\n    chatbots(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n    }\n  }\n": types.ChatbotsDocument,
+    "\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n    }\n  }\n": types.LoginDocument,
+    "\n  mutation deleteAiAssistant($id: String!) {\n    deleteAiAssistant(assistantId: $id) {\n      id\n    }\n  }\n": types.DeleteAiAssistantDocument,
+    "\n  query aiAssistantEdit($id: String!) {\n    aiAssistant(id: $id) {\n      id\n      name\n      description\n      icon\n      createdAt\n      ownerId\n      aiAssistantType\n      url\n    }\n  }\n": types.AiAssistantEditDocument,
+    "\n  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {\n    updateAiAssistant(id: $id, input: $assistant) {\n      id\n      name\n    }\n  }\n": types.ChangeAiAssistantDocument,
+    "\n  query aiAssistantCards($ownerId: String!) {\n    aiAssistants(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n      aiAssistantType\n      createdAt\n      ownerId\n    }\n  }\n": types.AiAssistantCardsDocument,
+    "\n  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, input: $assistant) {\n      id\n      name\n    }\n  }\n": types.CreateAiAssistantDocument,
 };
 
 /**
@@ -35,11 +39,27 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      email\n      name\n      given_name\n      family_name\n    }\n  }\n"): (typeof documents)["\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      email\n      name\n      given_name\n      family_name\n    }\n  }\n"];
+export function graphql(source: "\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n    }\n  }\n"): (typeof documents)["\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query Chatbots($ownerId: String!) {\n    chatbots(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n    }\n  }\n"): (typeof documents)["\n  query Chatbots($ownerId: String!) {\n    chatbots(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n    }\n  }\n"];
+export function graphql(source: "\n  mutation deleteAiAssistant($id: String!) {\n    deleteAiAssistant(assistantId: $id) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation deleteAiAssistant($id: String!) {\n    deleteAiAssistant(assistantId: $id) {\n      id\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query aiAssistantEdit($id: String!) {\n    aiAssistant(id: $id) {\n      id\n      name\n      description\n      icon\n      createdAt\n      ownerId\n      aiAssistantType\n      url\n    }\n  }\n"): (typeof documents)["\n  query aiAssistantEdit($id: String!) {\n    aiAssistant(id: $id) {\n      id\n      name\n      description\n      icon\n      createdAt\n      ownerId\n      aiAssistantType\n      url\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {\n    updateAiAssistant(id: $id, input: $assistant) {\n      id\n      name\n    }\n  }\n"): (typeof documents)["\n  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {\n    updateAiAssistant(id: $id, input: $assistant) {\n      id\n      name\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query aiAssistantCards($ownerId: String!) {\n    aiAssistants(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n      aiAssistantType\n      createdAt\n      ownerId\n    }\n  }\n"): (typeof documents)["\n  query aiAssistantCards($ownerId: String!) {\n    aiAssistants(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n      aiAssistantType\n      createdAt\n      ownerId\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, input: $assistant) {\n      id\n      name\n    }\n  }\n"): (typeof documents)["\n  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, input: $assistant) {\n      id\n      name\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

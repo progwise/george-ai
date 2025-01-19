@@ -4,7 +4,7 @@ import { builder } from './builder'
 import './scalars'
 import './chat'
 import './user'
-import './chatbot'
+import './ai-assistant'
 
 console.log('after import')
 const schema = builder.toSchema()

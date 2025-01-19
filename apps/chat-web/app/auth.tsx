@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react'
 import { createContext, useState } from 'react'
 import Keycloak from 'keycloak-js'
 import { getKeycloakConfig, getUserInformation } from './auth.server'
+import { User } from './gql/graphql'
 
 function initKeycloak({ keycloakUrl, realm, clientId }) {
   const keycloak = new Keycloak({
@@ -21,11 +22,7 @@ export interface AuthContext {
   isAuthenticated: boolean
   login: () => Promise<void>
   logout: () => Promise<void>
-  user: {
-    id: string
-    email: string
-    name: string
-  } | null
+  user: User | null
   profileUrl?: string
 }
 
@@ -56,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           registerUrl: url,
         }))
       })
+
       keycloak.onAuthSuccess = async () => {
         if (!keycloak.token) {
           throw new Error('Got no token')
@@ -71,20 +69,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           logout: async () => {
             keycloak.logout()
           },
-          user: {
-            id: login!.id!,
-            email: login!.email!,
-            name: login!.name!,
-          },
+          user: login || null,
           profileUrl: `${config.KEYCLOAK_URL}/realms/${config.KEYCLOAK_REALM}/account?referrer=${config.KEYCLOAK_CLIENT_ID}&referrer_uri=${window.location.href}`,
         })
       }
       setAuthContext((oldContext) => ({
         ...oldContext,
-        login: keycloak.login,
-        logout: keycloak.logout,
-        isAuthenticated: keycloak.authenticated || false,
-        user: keycloak.tokenParsed?.preferred_username,
+        login: async () => {
+          keycloak.login()
+        },
+        logout: async () => {
+          keycloak.logout()
+        },
       }))
     })
   }, [])

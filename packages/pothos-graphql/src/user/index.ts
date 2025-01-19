@@ -1,5 +1,4 @@
 import { builder } from '../builder'
-import { Chatbot } from '../chatbot'
 import { prisma } from '../prisma'
 
 console.log('Setting up: User')
@@ -7,16 +6,15 @@ console.log('Setting up: User')
 builder.prismaObject('User', {
   name: 'User',
   fields: (t) => ({
-    id: t.exposeID('id'),
-    username: t.exposeString('username'),
-    email: t.exposeString('email'),
+    id: t.exposeID('id', { nullable: false }),
+    username: t.exposeString('username', { nullable: false }),
+    email: t.exposeString('email', { nullable: false }),
     name: t.exposeString('name', { nullable: true }),
     given_name: t.exposeString('given_name', { nullable: true }),
     family_name: t.exposeString('family_name', { nullable: true }),
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
-    createdAt: t.expose('createdAt', { type: 'DateTime' }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    chatbots: t.relation('chatbots', { type: Chatbot }),
   }),
 })
 

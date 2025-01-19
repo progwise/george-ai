@@ -1,0 +1,90 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type AiAssistant {
+  aiAssistantType: AiAssistantType!
+  createdAt: DateTime!
+  description: String
+  icon: String
+  id: ID!
+  name: String!
+  ownerId: ID!
+  updatedAt: DateTime
+  url: String
+}
+
+input AiAssistantInput {
+  aiAssistantType: AiAssistantType!
+  description: String
+  icon: String
+  name: String!
+  url: String
+}
+
+"""Type of the AiAssistant"""
+enum AiAssistantType {
+  CHATBOT
+  DOCUMENT_GENERATOR
+}
+
+type ChatAnswer {
+  answer: String
+  notEnoughInformation: Boolean
+  sessionId: String
+  source: String
+}
+
+"""
+A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar Date
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+scalar Decimal
+
+type Mutation {
+  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
+  createAiAssistant(input: AiAssistantInput!, ownerId: String!): AiAssistant
+  createUser(input: UserInput!, username: String!): User
+  deleteAiAssistant(assistantId: String!): AiAssistant
+  login(jwtToken: String!): User
+  updateAiAssistant(id: String!, input: AiAssistantInput!): AiAssistant
+}
+
+type Query {
+  aiAssistant(id: String!): AiAssistant
+  aiAssistants(ownerId: String!): [AiAssistant!]
+  user(email: String!): User
+}
+
+enum RetrievalFlow {
+  OnlyLocal
+  OnlyWeb
+  Parallel
+  Sequential
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  family_name: String
+  given_name: String
+  id: ID!
+  lastLogin: DateTime
+  name: String
+  updatedAt: DateTime
+  username: String!
+}
+
+input UserInput {
+  email: String!
+  family_name: String
+  given_name: String
+  name: String!
+}
