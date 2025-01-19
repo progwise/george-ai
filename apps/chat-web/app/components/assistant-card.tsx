@@ -90,7 +90,11 @@ export const AssistantCard = ({
             </button>
           </div>
           <img
-            src={assistant.icon ?? '/george-portrait.jpg'}
+            src={
+              !assistant.icon || assistant.icon?.length < 2
+                ? '/george-portrait.jpg'
+                : assistant.icon
+            }
             alt={assistant.name ?? 'Assistant icon'}
           />
         </figure>
