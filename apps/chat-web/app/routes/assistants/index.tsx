@@ -6,6 +6,7 @@ import { useAuth } from '../../auth'
 import { AssistantCard } from '../../components/assistant-card'
 import { queryKeys } from '../../query-keys'
 import { BACKEND_GRAPHQL_URL } from '../../constants'
+import Alert from '../../components/alert'
 
 const myAssistantsDocument = graphql(/* GraphQL */ `
   query aiAssistantCards($ownerId: String!) {
@@ -27,7 +28,7 @@ export const Route = createFileRoute('/assistants/')({
 
 function RouteComponent() {
   const authContext = useAuth()
-  const { data, status } = useQuery({
+  const { data, status, error } = useQuery({
     queryKey: [queryKeys.AiAssistants, authContext?.user?.id],
     enabled: !!authContext?.user,
     queryFn: async () =>
@@ -39,6 +40,9 @@ function RouteComponent() {
       ),
   })
   const isLoggendIn = !!authContext?.user
+  if (error) {
+    console.error(error)
+  }
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -70,6 +74,7 @@ function RouteComponent() {
           <AssistantCard key={assistant.id} assistant={assistant} />
         ))}
       </div>
+      {error?.message && <Alert message={error.message} type={'error'} />}
     </article>
   )
 }
