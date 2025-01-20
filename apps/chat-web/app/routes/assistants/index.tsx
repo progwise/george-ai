@@ -37,7 +37,7 @@ export const Route = createFileRoute('/assistants/')({
 
 function RouteComponent() {
   const authContext = useAuth()
-  const { data, status, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: [queryKeys.AiAssistants, authContext?.user?.id],
     enabled: !!authContext?.user,
     queryFn: async () => {
@@ -66,14 +66,16 @@ function RouteComponent() {
             'My Assistants'
           )}
         </h3>
-        <div className="badge badge-secondary badge-outline">{status}</div>
-        <Link
-          type="button"
-          className="btn btn-primary btn-sm"
-          to="/assistants/new"
-        >
-          Add new
-        </Link>
+        {isLoading && <span className="loading loading-ring loading-md"></span>}
+        {isLoggendIn && (
+          <Link
+            type="button"
+            className="btn btn-primary btn-sm"
+            to="/assistants/new"
+          >
+            Add new
+          </Link>
+        )}
       </div>
 
       <div className="flex gap-4 flex-wrap">
