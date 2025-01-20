@@ -84,7 +84,7 @@ services:
         window: 120s
     labels:
       caddy: backend-db.george-ai.net
-      caddy.reverse_proxy: '{{upstreams 5432}}'
+      caddy.reverse_proxy: '{{upstreams 5434}}'
 
   gai-keycloak-db:
     image: postgres:16
