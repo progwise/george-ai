@@ -68,7 +68,7 @@ services:
     volumes:
       - /home/swarm/data/backend-db:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - '5434:5432'
     networks:
       - caddy
     deploy:
