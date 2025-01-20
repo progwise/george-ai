@@ -11,7 +11,6 @@ export default defineConfig({
     VitePluginNode({
       adapter: 'express',
       appPath: './src/server.ts',
-      tsCompiler: 'esbuild',
     }),
   ],
   ssr: {
@@ -21,8 +20,8 @@ export default defineConfig({
     //   '@pothos/plugin-simple-objects',
     //   '@pothos/plugin-prisma',
     // ],
-    // target: 'node',
-    // noExternal: true,
+    target: 'node',
+    noExternal: true,
     // optimizeDeps: {
     //   exclude: [
     //     '@george-ai/pothos-graphql',

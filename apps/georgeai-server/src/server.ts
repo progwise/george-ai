@@ -1,9 +1,8 @@
 /// <reference types="vite/types/importMeta.d.ts" />
+import 'dotenv/config'
 import { createYoga } from 'graphql-yoga'
 import express from 'express'
 import { schema } from '@george-ai/pothos-graphql'
-
-console.log('app starting...')
 
 const yoga = createYoga({
   schema,
@@ -17,8 +16,8 @@ const app = express()
 app.use(yoga.graphqlEndpoint, yogaRouter)
 
 if (!import.meta.env.DEV) {
-  app.listen(3011, () => {
-    console.log('Express graphql server on 3011')
+  app.listen(3003, () => {
+    console.log('Express graphql server on 3003')
   })
 }
 

@@ -5,9 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite  --host",
+    "dev": "vite --config vite.config.ts",
     "start": "node ./dist/server.cjs",
-    "build": "vite build",
+    "build": "vite build --config vite.build.config.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
@@ -21,13 +21,13 @@
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@types/express": "^5.0.0",
+    "dotenv": "^16.4.5",
     "eslint": "^9.17.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.0",
-    "vite": "^6.0.7",
+    "vite": "^6.0.10",
     "vite-plugin-mix": "^0.4.0",
     "vite-plugin-node": "^4.0.0",
-    "vite3-plugin-express": "^0.1.10",
-    "dotenv": "^16.4.5"
+    "vite3-plugin-express": "^0.1.10"
   }
 }
