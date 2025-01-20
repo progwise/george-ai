@@ -8,8 +8,11 @@ services:
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_URL: https://keycloak.george-ai.net
       KEYCLOAK_CLIENT_ID: george-ai-web
+      BACKEND_GRAPHQL_URL: http://gai-backend:3011/
     networks:
       - caddy
+    depends_on:
+      - gai-backend
     deploy:
       replicas: 1
       resources:
@@ -26,6 +29,62 @@ services:
         caddy.reverse_proxy: '{{upstreams 3000}}'
         # to avoid rate limiting during testing you can use the staging environment of letsencrypt
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+
+  gai-backend:
+    image: ghcr.io/progwise/george-ai/backend:latest
+    env_file:
+      - gai-backend.env
+    networks:
+      - caddy
+    depends_on:
+      - gai-db
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+      labels:
+        caddy: backend.george-ai.net
+        caddy.reverse_proxy: '{{upstreams 3011}}'
+        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+
+  gai-db:
+    image: postgres:16
+    networks:
+      - caddy
+    environment:
+      POSTGRES_DB: chatweb
+      POSTGRES_USER: chatweb
+      # POSTGRES_PASSWORD: chatweb
+    env_file:
+      - gai-db.env
+    volumes:
+      - /home/swarm/data/backend-db:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - caddy
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: any
+        delay: 5s
+        #max_attempts: 3
+        window: 120s
+    labels:
+      caddy: backend-db.george-ai.net
+      caddy.reverse_proxy: '{{upstreams 5432}}'
 
   gai-keycloak-db:
     image: postgres:16

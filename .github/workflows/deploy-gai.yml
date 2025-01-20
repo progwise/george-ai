@@ -24,13 +24,17 @@ jobs:
           target-user: ${{ env.SSH_USER }}
           ssh-private-key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
           ssh-public-key: ${{ secrets.SERVER_SSH_PUBLIC_KEY }}
-      - name: gai-keycloak-db environment variables
+      - name: generate george-ai container env files
         run: |
           ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
             echo "POSTGRES_PASSWORD=${{ secrets.KEYCLOAK_POSTGRES_PASSWORD}}" >./gai-keycloak-db.env
             echo "KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD}}" >./gai-keycloak.env
             echo "KC_DB_PASSWORD=${{ secrets.KEYCLOAK_POSTGRES_PASSWORD}}" >>./gai-keycloak.env
             echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY}}" >./gai-typesense.env
+            echo "DATABASE_URL"=postgresql://chatweb:${{ secrets.GAI_DB_PASSWORD}}@gai-db:5432/chatweb?schema=public" >./gai-backend.env
+            echo "TAVILY_API_KEY"=${{ secrets.TAVILY_API_KEY}}" >>./gai-backend.env
+            echo "OPENAI_API_KEY"=${{ secrets.OPENAI_API_KEY}}" >>./gai-backend.env
+            echo "POSTGRES_PASSWORD"=${{ secrets.GAI_DB_PASSWORD}}" >./gai-db.env
           EOF
       - name: Copy swarm stack file
         run: |
