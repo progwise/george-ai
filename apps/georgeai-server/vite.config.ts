@@ -20,7 +20,8 @@ export default defineConfig({
     //   '@pothos/plugin-simple-objects',
     //   '@pothos/plugin-prisma',
     // ],
-    // target: 'node',
+    target: 'node',
+    noExternal: true,
     // optimizeDeps: {
     //   exclude: [
     //     '@george-ai/pothos-graphql',

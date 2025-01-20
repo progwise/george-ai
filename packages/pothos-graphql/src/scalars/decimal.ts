@@ -1,4 +1,4 @@
-import { Prisma } from '@progwise/gai-prisma'
+import { Prisma } from '@george-ai/prismaClient'
 
 import { builder } from '../builder'
 

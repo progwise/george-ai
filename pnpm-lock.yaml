@@ -147,15 +147,18 @@ importers:
       '@george-ai/pothos-graphql':
         specifier: workspace:*
         version: link:../../packages/pothos-graphql
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.7
       express:
         specifier: ^4.21.2
         version: 4.21.2
+      graphql:
+        specifier: ^16.7.1
+        version: 16.9.0
       graphql-yoga:
         specifier: ^5.10.2
         version: 5.10.4(graphql@16.9.0)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.19.2
     devDependencies:
       '@eslint/js':
         specifier: ^9.16.0
@@ -163,12 +166,12 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.7
       eslint:
         specifier: ^9.17.0
         version: 9.17.0(jiti@2.4.1)
-      tsx:
-        specifier: ^4.19.2
-        version: 4.19.2
       typescript:
         specifier: ^5.7.2
         version: 5.7.2
@@ -270,7 +273,7 @@ importers:
         specifier: 6.2.1
         version: 6.2.1(prisma@6.2.1)
       graphql:
-        specifier: ^16.7.1
+        specifier: ^16.9.0
         version: 16.9.0
       graphql-request:
         specifier: ^6.1.0

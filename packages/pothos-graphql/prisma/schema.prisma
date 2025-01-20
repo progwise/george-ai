@@ -6,12 +6,15 @@
 
 generator client {
   provider = "prisma-client-js"
-  output= "../../../../node_modules/@progwise/gai-prisma"
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
+  previewFeatures = []
+  output= "../node_modules/@george-ai/prismaClient"
 }
 
 generator pothos {
   provider = "prisma-pothos-types"
-  output   = "../../node_modules/.pothos/plugin-prisma/generated.ts"
+  output   = "../node_modules/.pothos/plugin-prisma/generated.ts"
+
 }
 
 datasource db {
