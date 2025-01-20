@@ -6,7 +6,8 @@ import { useAuth } from '../../auth'
 import { AssistantCard } from '../../components/assistant-card'
 import { queryKeys } from '../../query-keys'
 import { BACKEND_GRAPHQL_URL } from '../../constants'
-import Alert from '../../components/alert'
+import { createServerFn } from '@tanstack/start'
+import { z } from 'zod'
 
 const myAssistantsDocument = graphql(/* GraphQL */ `
   query aiAssistantCards($ownerId: String!) {
@@ -22,6 +23,14 @@ const myAssistantsDocument = graphql(/* GraphQL */ `
   }
 `)
 
+const getAiAssistants = createServerFn({ method: 'GET' })
+  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
+  .handler(async (ctx) =>
+    request(BACKEND_GRAPHQL_URL, myAssistantsDocument, {
+      ownerId: ctx.data,
+    }),
+  )
+
 export const Route = createFileRoute('/assistants/')({
   component: RouteComponent,
 })
@@ -31,18 +40,16 @@ function RouteComponent() {
   const { data, status, error } = useQuery({
     queryKey: [queryKeys.AiAssistants, authContext?.user?.id],
     enabled: !!authContext?.user,
-    queryFn: async () =>
-      request(
-        BACKEND_GRAPHQL_URL,
-        myAssistantsDocument,
-        // variables are type-checked too!
-        { ownerId: authContext!.user!.id },
-      ),
+    queryFn: async () => {
+      if (!authContext?.user?.id) {
+        return null
+      } else {
+        return getAiAssistants({ data: authContext.user.id })
+      }
+    },
   })
   const isLoggendIn = !!authContext?.user
-  if (error) {
-    console.error(error)
-  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -74,7 +81,6 @@ function RouteComponent() {
           <AssistantCard key={assistant.id} assistant={assistant} />
         ))}
       </div>
-      {error?.message && <Alert message={error.message} type={'error'} />}
     </article>
   )
 }
