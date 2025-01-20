@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc --noEmit",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@george-ai/langchain-chat": "workspace:*",

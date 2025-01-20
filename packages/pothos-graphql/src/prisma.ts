@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@progwise/gai-prisma'
 
 // from https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
 declare global {

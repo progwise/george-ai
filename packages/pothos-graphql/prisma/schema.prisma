@@ -6,11 +6,12 @@
 
 generator client {
   provider = "prisma-client-js"
-  output= "../../../node_modules/.prisma/client"
+  output= "../../../../node_modules/@progwise/gai-prisma"
 }
 
 generator pothos {
   provider = "prisma-pothos-types"
+  output   = "../../node_modules/.pothos/plugin-prisma/generated.ts"
 }
 
 datasource db {

@@ -1,8 +1,8 @@
 import SchemaBuilder from '@pothos/core'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@progwise/gai-prisma'
 import PrismaPlugin from '@pothos/plugin-prisma'
-import type PrismaTypes from '@pothos/plugin-prisma/generated'
+import type PrismaTypes from '.pothos/plugin-prisma/generated'
 
 const prisma = new PrismaClient({})
 
