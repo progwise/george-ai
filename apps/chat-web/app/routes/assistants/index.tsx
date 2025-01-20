@@ -5,6 +5,7 @@ import { graphql } from '../../gql/gql'
 import { useAuth } from '../../auth'
 import { AssistantCard } from '../../components/assistant-card'
 import { queryKeys } from '../../query-keys'
+import { BACKEND_GRAPHQL_URL } from '../../constants'
 
 const myAssistantsDocument = graphql(/* GraphQL */ `
   query aiAssistantCards($ownerId: String!) {
@@ -31,7 +32,7 @@ function RouteComponent() {
     enabled: !!authContext?.user,
     queryFn: async () =>
       request(
-        'http://localhost:3003',
+        BACKEND_GRAPHQL_URL,
         myAssistantsDocument,
         // variables are type-checked too!
         { ownerId: authContext!.user!.id },
