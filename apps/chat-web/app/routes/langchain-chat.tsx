@@ -8,6 +8,10 @@ import { Dropdown } from '../components/dropdown'
 
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
+
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 
 const ChatRoute = () => {
@@ -70,7 +74,7 @@ const ChatRoute = () => {
       </div>
 
       <section>
-        {data.messages.map((message) => (
+        {data?.messages.map((message) => (
           <div
             className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
             key={message.id}
@@ -81,12 +85,16 @@ const ChatRoute = () => {
                 {message.time.toString()}
               </time>
             </div>
-            <div className="chat-bubble">{message.text}</div>
+            <div className="chat-bubble">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.text}
+              </ReactMarkdown>
+            </div>
+
             <div className="chat-footer opacity-50">{message.source}</div>
           </div>
         ))}
       </section>
-
       {data?.sessionId && (
         <LangchainChatForm
           sessionId={data.sessionId}
