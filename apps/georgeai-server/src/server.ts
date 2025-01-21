@@ -13,6 +13,21 @@ const yogaRouter = express.Router()
 yogaRouter.use(yoga)
 
 const app = express()
+
+app.use((req, res, next) => {
+  const authHeader = req.headers.authorization
+  console.log('authHeader', authHeader)
+  console.log('req.method', req.method)
+  if (
+    req.method.toUpperCase() === 'POST' &&
+    authHeader !== `ApiKey ${process.env.GRAPHQL_API_KEY}`
+  ) {
+    res.status(401).send('Unauthorized')
+    return
+  }
+  next()
+})
+
 app.use(yoga.graphqlEndpoint, yogaRouter)
 
 if (!import.meta.env.DEV) {
