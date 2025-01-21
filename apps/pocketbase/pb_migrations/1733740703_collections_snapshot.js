@@ -888,32 +888,5 @@ migrate(
     ]
 
     return app.importCollections(snapshot, false)
-  },
-  (app) => {
-    const collection = app.findCollectionByNameOrId("uxm1kqsw64qq27c")
-
-    // update field
-    collection.fields.addAt(1, new Field({
-      "hidden": false,
-      "id": "semu577p",
-      "maxSelect": 99,
-      "maxSize": 52428800,
-      "mimeTypes": [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "text/csv",
-        "text/plain"
-      ],
-      "name": "file",
-      "presentable": true,
-      "protected": true,
-      "required": true,
-      "system": false,
-      "thumbs": null,
-      "type": "file"
-    }))
-
-    return app.save(collection)
-  },
+  }
 )

@@ -114,7 +114,7 @@ const loadDocument = async (document: {
   url: string
   blob: Blob
   documentId: string
-  docType?: string
+  docType: string
 }) => {
   console.log('loading document:', document.fileName)
 
