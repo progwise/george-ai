@@ -36,6 +36,7 @@ jobs:
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY}}" >>./gai-backend.env
             echo "GRAPHQL_API_KEY=${{ secrets.GRAPHQL_API_KEY}}" >>./gai-backend.env
             echo "POSTGRES_PASSWORD=${{ secrets.GAI_DB_PASSWORD}}" >./gai-db.env
+            echo "GRAPHQL_API_KEY=${{ secrets.GRAPHQL_API_KEY}}" >./gai-chatweb.env
           EOF
       - name: Copy swarm stack file
         run: |

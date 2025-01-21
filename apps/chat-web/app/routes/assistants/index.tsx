@@ -1,13 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { request } from 'graphql-request'
 import { useQuery } from '@tanstack/react-query'
 import { graphql } from '../../gql/gql'
 import { useAuth } from '../../auth'
 import { AssistantCard } from '../../components/assistant-card'
 import { queryKeys } from '../../query-keys'
-import { BACKEND_GRAPHQL_URL } from '../../constants'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
+import { backendRequest } from '../../server-functions/backend'
 
 const myAssistantsDocument = graphql(/* GraphQL */ `
   query aiAssistantCards($ownerId: String!) {
@@ -26,7 +25,7 @@ const myAssistantsDocument = graphql(/* GraphQL */ `
 const getAiAssistants = createServerFn({ method: 'GET' })
   .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
   .handler(async (ctx) =>
-    request(BACKEND_GRAPHQL_URL, myAssistantsDocument, {
+    backendRequest(myAssistantsDocument, {
       ownerId: ctx.data,
     }),
   )

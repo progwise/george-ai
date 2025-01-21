@@ -16,8 +16,6 @@ const app = express()
 
 app.use((req, res, next) => {
   const authHeader = req.headers.authorization
-  console.log('authHeader', authHeader)
-  console.log('req.method', req.method)
   if (
     req.method.toUpperCase() === 'POST' &&
     authHeader !== `ApiKey ${process.env.GRAPHQL_API_KEY}`

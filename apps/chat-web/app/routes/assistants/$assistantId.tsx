@@ -2,11 +2,10 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
-import request from 'graphql-request'
-import { BACKEND_GRAPHQL_URL } from '../../constants'
 import { useAuth } from '../../auth'
 import { AssistantForm } from '../../components/assistant-form'
 import { AiAssistantInputSchema } from '../../gql/validation'
+import { backendRequest } from '../../server-functions/backend'
 
 const aiAssistantEditQueryDocument = graphql(`
   query aiAssistantEdit($id: String!) {
@@ -27,7 +26,7 @@ const getAssistant = createServerFn({ method: 'GET' })
   .validator((assistantId: string) => z.string().nonempty().parse(assistantId))
   .handler(
     async (ctx) =>
-      await request(BACKEND_GRAPHQL_URL, aiAssistantEditQueryDocument, {
+      await backendRequest(aiAssistantEditQueryDocument, {
         id: ctx.data,
       }),
   )
@@ -64,7 +63,7 @@ const changeAssistant = createServerFn({ method: 'POST' })
     return { assistantId, assistant }
   })
   .handler(async (ctx) => {
-    return await request(BACKEND_GRAPHQL_URL, updateAssistantDocument, {
+    return await backendRequest(updateAssistantDocument, {
       assistant: ctx.data.assistant,
       id: ctx.data.assistantId,
     })
@@ -72,8 +71,9 @@ const changeAssistant = createServerFn({ method: 'POST' })
 
 export const Route = createFileRoute('/assistants/$assistantId')({
   component: RouteComponent,
-  loader: ({ params }) => {
-    return getAssistant({ data: params.assistantId })
+  loader: async ({ params }) => {
+    const assistant = await getAssistant({ data: params.assistantId })
+    return assistant
   },
   staleTime: 0,
 })

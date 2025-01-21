@@ -2,12 +2,12 @@ import React, { useRef } from 'react'
 import { AiAssistant } from '../gql/graphql'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/start'
-import { BACKEND_GRAPHQL_URL } from '../constants'
-import request from 'graphql-request'
+
 import { graphql } from '../gql'
 import { z } from 'zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '../query-keys'
+import { backendRequest } from '../server-functions/backend'
 
 const deleteAssistantDocument = graphql(`
   mutation deleteAiAssistant($id: String!) {
@@ -20,7 +20,7 @@ const deleteAssistantDocument = graphql(`
 const deleteAssistant = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await request(BACKEND_GRAPHQL_URL, deleteAssistantDocument, {
+    return await backendRequest(deleteAssistantDocument, {
       id: ctx.data,
     })
   })

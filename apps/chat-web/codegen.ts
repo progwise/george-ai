@@ -1,7 +1,13 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema: 'http://localhost:3003',
+  schema: {
+    'http://localhost:3003': {
+      headers: {
+        Authorization: `ApiKey TestKey`,
+      },
+    },
+  },
   documents: ['app/**/*.tsx', 'app/**/*.ts', '!app/gql/**/*'],
   generates: {
     './app/gql/': {

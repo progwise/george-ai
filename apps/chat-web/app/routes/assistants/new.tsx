@@ -3,11 +3,10 @@ import { useAuth } from '../../auth'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { graphql } from '../../gql'
-import { request } from 'graphql-request'
 import { AiAssistantInputSchema } from '../../gql/validation'
-import { BACKEND_GRAPHQL_URL } from '../../constants'
 import { AssistantForm } from '../../components/assistant-form'
 import { AiAssistantType } from '../../gql/graphql'
+import { backendRequest } from '../../server-functions/backend'
 
 const createAssistantDocument = graphql(`
   mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {
@@ -41,7 +40,7 @@ const createAssistant = createServerFn({ method: 'POST' })
     return { ownerId, assistant }
   })
   .handler(async (ctx) => {
-    return await request(BACKEND_GRAPHQL_URL, createAssistantDocument, ctx.data)
+    return await backendRequest(createAssistantDocument, ctx.data)
   })
 
 export const Route = createFileRoute('/assistants/new')({
