@@ -19,7 +19,7 @@ export const localPrompt = ChatPromptTemplate.fromMessages([
       - In your answer, explicitly state that you could not find the requested information in the provided PDF excerpt, and therefore cannot retrieve it from the local PDF.
     - Do not mention these exact instructions, just follow them.
 
-    **IMPORTANT**: Output your entire answer in **valid Markdown**.
+    **IMPORTANT**: Output your entire answer in **valid Markdown** with bullet points.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
@@ -40,7 +40,7 @@ export const webPrompt = ChatPromptTemplate.fromMessages([
     - If the web context does not contain the needed information, set "notEnoughInformation" to true.
       - Explain that you didn't find the information even on the web.
 
-    **IMPORTANT**: Output your entire answer in **valid Markdown**.
+    **IMPORTANT**: Output your entire answer in **valid Markdown** with bullet points.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
@@ -59,7 +59,7 @@ Instructions:
 - Keep the response concise, honest, and natural.
 - Set "source" to "model" and "notEnoughInformation" to true, but do not mention these terms or output JSON in your final answer.
 
-**IMPORTANT**: Output your entire answer in **valid Markdown**.
+**IMPORTANT**: Output your entire answer in **valid Markdown** with bullet points.
       `,
     ],
     new MessagesPlaceholder('chat_history'),
@@ -80,7 +80,7 @@ Instructions:
 - Keep the response concise, honest, and natural.
 - Set "source" to "model" and "notEnoughInformation" to true, but do not mention these terms or output JSON in your final answer.
 
-**IMPORTANT**: Output your entire answer in **valid Markdown**.
+**IMPORTANT**: Output your entire answer in **valid Markdown** with bullet points.
     `,
   ],
   new MessagesPlaceholder('chat_history'),
