@@ -23,7 +23,7 @@ migrate(
           {
             hidden: false,
             id: 'semu577p',
-            maxSelect: 99,
+            maxSelect: 1,
             maxSize: 209715200,
             mimeTypes: [
               "application/pdf",
