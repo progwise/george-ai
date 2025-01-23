@@ -20,11 +20,11 @@ const documents = {
     types.DeleteAiAssistantDocument,
   '\n  query aiAssistantEdit($id: String!) {\n    aiAssistant(id: $id) {\n      id\n      name\n      description\n      icon\n      createdAt\n      ownerId\n      aiAssistantType\n      url\n    }\n  }\n':
     types.AiAssistantEditDocument,
-  '\n  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $assistant) {\n      id\n      name\n    }\n  }\n':
+  '\n  mutation changeAiAssistant($id: String!, $data: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n':
     types.ChangeAiAssistantDocument,
   '\n  query aiAssistantCards($ownerId: String!) {\n    aiAssistants(ownerId: $ownerId) {\n      id\n      name\n      description\n      icon\n      aiAssistantType\n      createdAt\n      ownerId\n    }\n  }\n':
     types.AiAssistantCardsDocument,
-  '\n  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $assistant) {\n      id\n      name\n    }\n  }\n':
+  '\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n':
     types.CreateAiAssistantDocument,
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.IntrospectionQueryDocument,
@@ -66,8 +66,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $assistant) {\n      id\n      name\n    }\n  }\n',
-): (typeof documents)['\n  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $assistant) {\n      id\n      name\n    }\n  }\n']
+  source: '\n  mutation changeAiAssistant($id: String!, $data: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  mutation changeAiAssistant($id: String!, $data: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -78,8 +78,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $assistant) {\n      id\n      name\n    }\n  }\n',
-): (typeof documents)['\n  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $assistant) {\n      id\n      name\n    }\n  }\n']
+  source: '\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

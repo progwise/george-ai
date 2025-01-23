@@ -9,8 +9,8 @@ import { AiAssistantType } from '../../gql/graphql'
 import { backendRequest } from '../../server-functions/backend'
 
 const createAssistantDocument = graphql(`
-  mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {
-    createAiAssistant(ownerId: $ownerId, data: $assistant) {
+  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {
+    createAiAssistant(ownerId: $ownerId, data: $data) {
       id
       name
     }
@@ -37,7 +37,7 @@ const createAssistant = createServerFn({ method: 'POST' })
       aiAssistantType: data.get('aiAssistantType'),
     })
 
-    return { ownerId, assistant }
+    return { ownerId, data: assistant }
   })
   .handler(async (ctx) => {
     return await backendRequest(createAssistantDocument, ctx.data)

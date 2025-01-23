@@ -406,7 +406,7 @@ export type AiAssistantEditQuery = {
 
 export type ChangeAiAssistantMutationVariables = Exact<{
   id: Scalars['String']['input']
-  assistant: AiAssistantInput
+  data: AiAssistantInput
 }>
 
 export type ChangeAiAssistantMutation = {
@@ -438,7 +438,7 @@ export type AiAssistantCardsQuery = {
 
 export type CreateAiAssistantMutationVariables = Exact<{
   ownerId: Scalars['String']['input']
-  assistant: AiAssistantInput
+  data: AiAssistantInput
 }>
 
 export type CreateAiAssistantMutation = {
@@ -1562,10 +1562,7 @@ export const ChangeAiAssistantDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'assistant' },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
             type: {
@@ -1595,7 +1592,7 @@ export const ChangeAiAssistantDocument = {
                 name: { kind: 'Name', value: 'data' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'assistant' },
+                  name: { kind: 'Name', value: 'data' },
                 },
               },
             ],
@@ -1702,10 +1699,7 @@ export const CreateAiAssistantDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'assistant' },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
             type: {
@@ -1735,7 +1729,7 @@ export const CreateAiAssistantDocument = {
                 name: { kind: 'Name', value: 'data' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'assistant' },
+                  name: { kind: 'Name', value: 'data' },
                 },
               },
             ],

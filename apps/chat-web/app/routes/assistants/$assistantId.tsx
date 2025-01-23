@@ -32,8 +32,8 @@ const getAssistant = createServerFn({ method: 'GET' })
   )
 
 const updateAssistantDocument = graphql(/* GraphQL */ `
-  mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {
-    updateAiAssistant(id: $id, data: $assistant) {
+  mutation changeAiAssistant($id: String!, $data: AiAssistantInput!) {
+    updateAiAssistant(id: $id, data: $data) {
       id
       name
     }
@@ -64,7 +64,7 @@ const changeAssistant = createServerFn({ method: 'POST' })
   })
   .handler(async (ctx) => {
     return await backendRequest(updateAssistantDocument, {
-      assistant: ctx.data.assistant,
+      data: ctx.data.assistant,
       id: ctx.data.assistantId,
     })
   })
