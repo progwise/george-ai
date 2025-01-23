@@ -5,16 +5,18 @@ import ErrorIcon from './icons/error-icon'
 export interface AlertProps {
   message: string
   type: 'warning' | 'error'
+  className?: string
   children?: JSX.Element
 }
-const Alert = ({ message, type, children }: AlertProps) => {
+const Alert = ({ message, type, className, children }: AlertProps) => {
   return (
     <div
       role="alert"
       className={twMerge(
-        'alert py-2',
+        'alert',
         type === 'warning' && 'alert-warning',
         type === 'error' && 'alert-error',
+        className,
       )}
     >
       {type === 'warning' && <WarnIcon className="h-5" />}

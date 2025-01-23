@@ -108,13 +108,10 @@ export const LangchainChatForm = ({
         disabled={disabled}
       />
 
-      <div className="flex flex-col gap-2 align-middle">
-        <button type="submit" className="btn btn-primary" disabled={disabled}>
-          Send
-        </button>
+      <div className="flex gap-2 align-middle">
         {error && <Alert message={error.message} type="error" />}
         {!auth?.isAuthenticated && (
-          <Alert message="Sign in to chat" type="warning">
+          <Alert message="Sign in to chat" type="warning" className="py-2">
             <button
               type="button"
               className="btn btn-sm btn-ghost"
@@ -124,6 +121,9 @@ export const LangchainChatForm = ({
             </button>
           </Alert>
         )}
+        <button type="submit" className="btn btn-primary" disabled={disabled}>
+          Send
+        </button>
       </div>
     </form>
   )
