@@ -31,6 +31,14 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
+type AiKnowledgeSource {
+  createdAt: DateTime
+  id: ID
+  name: String
+  updatedAt: DateTime
+  url: String
+}
+
 type ChatAnswer {
   answer: String
   notEnoughInformation: Boolean
@@ -66,6 +74,8 @@ type Mutation {
 type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]
+  aiKnowledgeSource(id: String!): AiKnowledgeSource
+  aiKnowledgeSourceList(ownerId: String!): [AiKnowledgeSource!]
   user(email: String!): User
 }
 

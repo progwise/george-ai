@@ -14,22 +14,5 @@ export default defineConfig({
       tsCompiler: 'esbuild',
     }),
   ],
-  ssr: {
-    // noExternal: [
-    //   '@george-ai/pothos-graphql',
-    //   '@pothos/core',
-    //   '@pothos/plugin-simple-objects',
-    //   '@pothos/plugin-prisma',
-    // ],
-    // target: 'node',
-    // noExternal: true,
-    // optimizeDeps: {
-    //   exclude: [
-    //     '@george-ai/pothos-graphql',
-    //     '@pothos/core',
-    //     '@pothos/plugin-simple-objects',
-    //     '@pothos/plugin-prisma',
-    //   ],
-    // },
-  },
+  ssr: {},
 })

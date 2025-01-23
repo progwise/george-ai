@@ -61,6 +61,15 @@ export enum AiAssistantType {
   DocumentGenerator = 'DOCUMENT_GENERATOR',
 }
 
+export type AiKnowledgeSource = {
+  __typename?: 'AiKnowledgeSource'
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  id?: Maybe<Scalars['ID']['output']>
+  name?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  url?: Maybe<Scalars['String']['output']>
+}
+
 export type ChatAnswer = {
   __typename?: 'ChatAnswer'
   answer?: Maybe<Scalars['String']['output']>
@@ -112,6 +121,8 @@ export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants?: Maybe<Array<AiAssistant>>
+  aiKnowledgeSource?: Maybe<AiKnowledgeSource>
+  aiKnowledgeSourceList?: Maybe<Array<AiKnowledgeSource>>
   user?: Maybe<User>
 }
 
@@ -120,6 +131,14 @@ export type QueryAiAssistantArgs = {
 }
 
 export type QueryAiAssistantsArgs = {
+  ownerId: Scalars['String']['input']
+}
+
+export type QueryAiKnowledgeSourceArgs = {
+  id: Scalars['String']['input']
+}
+
+export type QueryAiKnowledgeSourceListArgs = {
   ownerId: Scalars['String']['input']
 }
 

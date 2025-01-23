@@ -117,7 +117,7 @@ builder.mutationField('createAiAssistant', (t) =>
       ownerId: t.arg.string({ required: true }),
       data: t.arg({ type: AiAssistantInput, required: true }),
     },
-    resolve: async (query, _source, { ownerId, data }) => {
+    resolve: async (_query, _source, { ownerId, data }) => {
       const owner = await prisma.user.findFirst({
         where: { id: ownerId },
       })
