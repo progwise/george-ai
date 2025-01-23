@@ -1,27 +1,37 @@
 import { z } from 'zod'
-import { AiAssistantInput, AiAssistantType, RetrievalFlow, UserInput } from './graphql'
+import {
+  AiAssistantInput,
+  AiAssistantType,
+  RetrievalFlow,
+  UserInput,
+} from './graphql'
 
 type Properties<T> = Required<{
-  [K in keyof T]: z.ZodType<T[K], any, T[K]>;
-}>;
+  [K in keyof T]: z.ZodType<T[K], any, T[K]>
+}>
 
-type definedNonNullAny = {};
+type definedNonNullAny = {}
 
-export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null;
+export const isDefinedNonNullAny = (v: any): v is definedNonNullAny =>
+  v !== undefined && v !== null
 
-export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v));
+export const definedNonNullAnySchema = z
+  .any()
+  .refine((v) => isDefinedNonNullAny(v))
 
-export const AiAssistantTypeSchema = z.nativeEnum(AiAssistantType);
+export const AiAssistantTypeSchema = z.nativeEnum(AiAssistantType)
 
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow);
+export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
 
-export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
+export function AiAssistantInputSchema(): z.ZodObject<
+  Properties<AiAssistantInput>
+> {
   return z.object({
     aiAssistantType: AiAssistantTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
-    url: z.string().nullish()
+    url: z.string().nullish(),
   })
 }
 
@@ -30,6 +40,6 @@ export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
     email: z.string(),
     family_name: z.string().nullish(),
     given_name: z.string().nullish(),
-    name: z.string()
+    name: z.string(),
   })
 }

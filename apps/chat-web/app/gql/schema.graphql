@@ -23,7 +23,9 @@ input AiAssistantInput {
   url: String
 }
 
-"""Type of the AiAssistant"""
+"""
+Type of the AiAssistant
+"""
 enum AiAssistantType {
   CHATBOT
   DOCUMENT_GENERATOR
@@ -49,7 +51,11 @@ scalar DateTime
 scalar Decimal
 
 type Mutation {
-  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
+  chat(
+    question: String!
+    retrievalFlow: RetrievalFlow
+    sessionId: String
+  ): ChatAnswer
   createAiAssistant(input: AiAssistantInput!, ownerId: String!): AiAssistant
   createUser(input: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant

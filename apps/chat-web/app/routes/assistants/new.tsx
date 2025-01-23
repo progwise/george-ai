@@ -55,8 +55,6 @@ function RouteComponent() {
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    //form.reset()
-
     createAssistant({
       data: formData,
     })
