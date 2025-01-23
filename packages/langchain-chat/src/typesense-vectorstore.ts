@@ -11,6 +11,8 @@ import {
   setDocumentProcessed,
 } from '@george-ai/pocketbase-client'
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
+import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
+import { TextLoader } from 'langchain/document_loaders/fs/text'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
 
 const CHUNK_SIZE = 1000 // Increased for better context
@@ -112,19 +114,43 @@ const loadDocument = async (document: {
   url: string
   blob: Blob
   documentId: string
+  docType: string
 }) => {
   console.log('loading document:', document.fileName)
-  const loader = new PDFLoader(document.blob)
+
+  const extension = document.docType?.toLowerCase() || 'pdf'
+
+  let loader
+  switch (extension) {
+    case 'pdf':
+      loader = new PDFLoader(document.blob)
+      break
+    case 'docx':
+      loader = new DocxLoader(document.blob)
+      break
+    case 'doc':
+      loader = new DocxLoader(document.blob)
+      break
+    case 'txt':
+      loader = new TextLoader(document.blob)
+      break
+    case 'csv':
+      loader = new TextLoader(document.blob)
+      break
+    default:
+      throw new Error(`Unsupported extension: "${extension}"`)
+  }
+
   const rawDocuments = await loader.load()
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
   })
   const splitDocuments = await splitter.splitDocuments(
-    rawDocuments.map((d) => ({
-      ...d,
+    rawDocuments.map((rawDocument) => ({
+      ...rawDocument,
       metadata: {
-        docType: 'pdf',
+        docType: extension,
         docName: document.fileName,
         points: 1,
         docId: document.documentId,
@@ -152,6 +178,7 @@ const loadDocuments = async (
     fileName: string
     url: string
     blob: Blob
+    docType: string
   }[],
 ) => {
   const splitDocuments = await Promise.all(
@@ -161,6 +188,7 @@ const loadDocuments = async (
         url: document.url,
         blob: document.blob,
         documentId: document.documentId,
+        docType: document.docType,
       })
       return loadedDocument
     }),
@@ -218,19 +246,19 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
 }
 
 // retrieves content from the vector store similar to the question
-export const getPDFContentForQuestion = async (question: string) => {
+export const getFileContentForQuestion = async (question: string) => {
   await ensureVectorStore()
   try {
     console.log('searching for:', question)
     const documents = await typesenseVectorStore.similaritySearch(question)
     console.log('retrieved documents:', documents)
     const content = documents
-      .map((document_) => document_.pageContent)
+      .map((document) => document.pageContent)
       .join('\n\n')
 
     return content
   } catch (error) {
-    console.error('Error retrieving PDF content:', error)
+    console.error('Error retrieving content:', error)
     return ''
   }
 }

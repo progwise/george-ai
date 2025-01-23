@@ -24,8 +24,14 @@ migrate(
             hidden: false,
             id: 'semu577p',
             maxSelect: 1,
-            maxSize: 52428800,
-            mimeTypes: ['application/pdf'],
+            maxSize: 209715200,
+            mimeTypes: [
+              "application/pdf",
+              "application/msword",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+              "text/csv",
+              "text/plain"
+            ],
             name: 'file',
             presentable: true,
             protected: true,
@@ -882,8 +888,5 @@ migrate(
     ]
 
     return app.importCollections(snapshot, false)
-  },
-  (app) => {
-    return null
-  },
+  }
 )

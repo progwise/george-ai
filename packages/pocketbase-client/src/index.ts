@@ -25,16 +25,18 @@ export const getUnprocessedDocuments = async () => {
       const fileResponse = await fetch(fileUrl, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/pdf',
+          'Content-Type': 'application/docType',
         },
       })
       const fileBlob = await fileResponse.blob()
+      const fileExtension = content.file.split('.').pop()?.toLowerCase()
       return {
         collectionId: document.collectionId,
         documentId: document.id,
         fileName: content.file,
         url: fileUrl,
         blob: fileBlob,
+        docType: fileExtension,
       }
     }),
   )
