@@ -52,6 +52,10 @@ const ChatRoute = () => {
               title: 'Flow: Only Web',
               action: () => setSelectedFlow('Only Web'),
             },
+            {
+              title: 'Flow: Model Reasoning',
+              action: () => setSelectedFlow('Model Reasoning'),
+            },
           ]}
         />
 

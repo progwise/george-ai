@@ -12,6 +12,7 @@ import {
   apologyPromptOnlyWeb,
   apologyPromptLocalAndWeb,
   searchQueryPrompt,
+  modelReasoningPrompt,
 } from './prompts'
 import { getMessageHistory } from './message-history'
 // import { getFileContentForQuestion } from './memory-vectorstore'
@@ -93,6 +94,37 @@ const apologyChainLocalAndWeb = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
+const modelReasoningChain = RunnableSequence.from([
+  async (input, options) => {
+    const sessionId = options?.configurable?.sessionId
+    const messageHistory = sessionId
+      ? await getMessageHistory(sessionId).getMessages()
+      : []
+    const historyContent = messageHistory.map((m) => m.content).join('\n')
+
+    // 1) Get local PDF content
+    const local_context = await getFileContentForQuestion(input.searchQuery)
+
+    // 2) Build a combined query for web
+    const combinedQuery =
+      historyContent.trim().length > 0
+        ? `Relevant conversation history:\n${historyContent}\n\nUser's current question:\n${input.question}`
+        : input.question
+
+    // 3) Get web content
+    const web_context = await getWebContent({ question: combinedQuery })
+
+    // Return a new input object with local_context + web_context
+    return {
+      ...input,
+      local_context,
+      web_context,
+    }
+  },
+  modelReasoningPrompt,
+  model.withStructuredOutput(outputSchema, { strict: true }),
+])
+
 const branchChain = RunnableLambda.from(
   async (input: { question: string }, options) => {
     const retrievalFlow = options?.configurable?.retrievalFlow ?? 'Sequential'
@@ -139,6 +171,10 @@ const branchChain = RunnableLambda.from(
           return webResponse
         }
         return apologyChainLocalAndWeb.invoke(input, options)
+      }
+
+      case 'Model Reasoning': {
+        return await modelReasoningChain.invoke(input, options)
       }
 
       default: {
