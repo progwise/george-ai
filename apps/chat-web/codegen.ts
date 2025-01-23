@@ -1,10 +1,11 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
+import 'dotenv/config'
 
 const config: CodegenConfig = {
   schema: {
     'http://localhost:3003': {
       headers: {
-        Authorization: `ApiKey TestKey`,
+        Authorization: `ApiKey ${process.env.GRAPHQL_API_KEY}`,
       },
     },
   },
