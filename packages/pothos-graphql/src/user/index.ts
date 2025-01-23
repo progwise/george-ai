@@ -1,8 +1,6 @@
 import { builder } from '../builder'
 import { prisma } from '../prisma'
 
-console.log('Setting up: User')
-
 builder.prismaObject('User', {
   name: 'User',
   fields: (t) => ({

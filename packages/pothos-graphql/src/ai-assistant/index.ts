@@ -1,8 +1,6 @@
 import { builder } from '../builder'
 import { prisma } from '../prisma'
 
-console.log('Setting up: AiAssistant')
-
 export enum AiAssistantType {
   CHATBOT = 'CHATBOT',
   DOCUMENT_GENERATOR = 'DOCUMENT_GENERATOR',

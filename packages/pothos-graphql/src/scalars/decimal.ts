@@ -2,8 +2,6 @@ import { Prisma } from '@george-ai/prismaClient'
 
 import { builder } from '../builder'
 
-console.log('Setting up: Decimal')
-
 export const DecimalScalar = builder.scalarType('Decimal', {
   serialize: (value) => value.toString(),
   parseValue: (value) => {

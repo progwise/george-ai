@@ -1,8 +1,6 @@
 import { builder } from '../builder'
 import { prisma } from '../prisma'
 
-console.log('Setting up: AiAssistant')
-
 export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
   name: 'AiKnowledgeSource',
   fields: (t) => ({

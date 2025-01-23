@@ -13,7 +13,7 @@ const TopNavigation = () => {
       <div className="navbar-start">
         <Link className="btn btn-ghost" to="/">
           <BowlerHatIcon className="size-8" />
-          George Ai
+          George AI
         </Link>
       </div>
       <div className="navbar-center">

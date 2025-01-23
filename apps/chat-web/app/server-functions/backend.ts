@@ -14,7 +14,6 @@ async function backendRequest<T, V extends Variables = Variables>(
 }
 
 export { backendRequest }
-// export const backendRequest = (document: RequestDocument | TypedDocumentNode<T, V>, parameters?) =>
 
 const introspectionQueryDocument = graphql(/* GraphQL */ `
   query IntrospectionQuery {

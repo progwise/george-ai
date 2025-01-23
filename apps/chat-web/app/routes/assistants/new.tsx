@@ -55,8 +55,6 @@ function RouteComponent() {
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    //form.reset()
-
     createAssistant({
       data: formData,
     })
@@ -68,8 +66,8 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">New Assistant</h3>
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
+        <div className="badge badge-secondary badge-outline h-8">
+          {disabled ? 'Disabled' : 'Enabled'}
         </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">

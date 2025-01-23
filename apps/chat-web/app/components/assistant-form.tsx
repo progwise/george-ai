@@ -29,7 +29,7 @@ export const AssistantForm = ({
         />
       </label>
       <label className="input input-bordered flex items-center gap-2">
-        Name your assistant
+        Name your assistant:
         <input
           key={assistant.name}
           name="name"
@@ -84,7 +84,7 @@ export const AssistantForm = ({
           type="submit"
           className="btn btn-primary btn-sm"
         >
-          save
+          Save
         </button>
       </div>
     </form>

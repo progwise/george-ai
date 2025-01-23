@@ -2,8 +2,6 @@ import { ask } from '@george-ai/langchain-chat'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { builder } from '../builder'
 
-console.log('Setting up: Chat')
-
 const RetrievalFlowEnum = builder.enumType('RetrievalFlow', {
   values: ['Sequential', 'Parallel', 'OnlyLocal', 'OnlyWeb'] as const,
 })

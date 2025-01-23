@@ -5,16 +5,15 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
   previewFeatures = []
-  output= "../node_modules/@george-ai/prismaClient"
+  output          = "../node_modules/@george-ai/prismaClient"
 }
 
 generator pothos {
   provider = "prisma-pothos-types"
   output   = "../node_modules/.pothos/plugin-prisma/generated.ts"
-
 }
 
 datasource db {
@@ -28,51 +27,51 @@ enum AiAssistantType {
 }
 
 model User {
-  id                  String    @id @default(cuid())
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  lastLogin           DateTime?
-  email               String    @unique
-  username            String    @unique
-  name                String?
-  given_name          String?
-  family_name         String?
-  aiAssistants        AiAssistant[]
-  aiKnowledgeSources  AiKnowledgeSource[]
+  id                 String              @id @default(cuid())
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  lastLogin          DateTime?
+  email              String              @unique
+  username           String              @unique
+  name               String?
+  given_name         String?
+  family_name        String?
+  aiAssistants       AiAssistant[]
+  aiKnowledgeSources AiKnowledgeSource[]
 }
 
 model AiAssistant {
-  id              String   @id @default(cuid())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id              String                   @id @default(cuid())
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
   name            String
   description     String?
   url             String?
   icon            String?
-  owner           User     @relation(fields: [ownerId], references: [id])
+  owner           User                     @relation(fields: [ownerId], references: [id])
   ownerId         String
   aiAssistantType AiAssistantType
   usages          AiKnowledgeSourceUsage[]
 }
 
 model AiKnowledgeSource {
-  id            String @id @default(cuid())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            String                   @id @default(cuid())
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
   name          String
   url           String?
   apiToken      String?
   lastProcessed DateTime?
-  owner         User     @relation(fields: [ownerId], references: [id])
+  owner         User                     @relation(fields: [ownerId], references: [id])
   ownerId       String
-  isPublic      Boolean @default(true)
+  isPublic      Boolean                  @default(true)
   usages        AiKnowledgeSourceUsage[]
 }
 
 model AiKnowledgeSourceUsage {
-  id                  String @id @default(cuid())
-  createdAt           DateTime @default(now())
-  aiAssistant         AiAssistant @relation(fields: [aiAssistantId], references: [id])
+  id                  String            @id @default(cuid())
+  createdAt           DateTime          @default(now())
+  aiAssistant         AiAssistant       @relation(fields: [aiAssistantId], references: [id])
   aiAssistantId       String
   aiKnowledgeSource   AiKnowledgeSource @relation(fields: [aiKnowledgeSourceId], references: [id])
   aiKnowledgeSourceId String

@@ -87,8 +87,6 @@ function RouteComponent() {
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    //form.reset()
-
     changeAssistant({
       data: formData,
     })
@@ -101,8 +99,8 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           Configure Assistant {aiAssistant?.name}
         </h3>
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
+        <div className="badge badge-secondary badge-outline h-8">
+          {disabled ? 'Disabled' : 'Enabled'}
         </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
