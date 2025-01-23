@@ -86,12 +86,12 @@ export type MutationChatArgs = {
 }
 
 export type MutationCreateAiAssistantArgs = {
-  input: AiAssistantInput
+  data: AiAssistantInput
   ownerId: Scalars['String']['input']
 }
 
 export type MutationCreateUserArgs = {
-  input: UserInput
+  data: UserInput
   username: Scalars['String']['input']
 }
 
@@ -104,8 +104,8 @@ export type MutationLoginArgs = {
 }
 
 export type MutationUpdateAiAssistantArgs = {
+  data: AiAssistantInput
   id: Scalars['String']['input']
-  input: AiAssistantInput
 }
 
 export type Query = {
@@ -1573,7 +1573,7 @@ export const ChangeAiAssistantDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'input' },
+                name: { kind: 'Name', value: 'data' },
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'assistant' },
@@ -1713,7 +1713,7 @@ export const CreateAiAssistantDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'input' },
+                name: { kind: 'Name', value: 'data' },
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'assistant' },

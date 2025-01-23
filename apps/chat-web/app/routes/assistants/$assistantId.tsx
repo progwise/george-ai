@@ -33,7 +33,7 @@ const getAssistant = createServerFn({ method: 'GET' })
 
 const updateAssistantDocument = graphql(/* GraphQL */ `
   mutation changeAiAssistant($id: String!, $assistant: AiAssistantInput!) {
-    updateAiAssistant(id: $id, input: $assistant) {
+    updateAiAssistant(id: $id, data: $assistant) {
       id
       name
     }

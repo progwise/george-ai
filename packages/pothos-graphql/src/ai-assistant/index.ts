@@ -98,13 +98,13 @@ builder.mutationField('updateAiAssistant', (t) =>
     type: 'AiAssistant',
     args: {
       id: t.arg.string({ required: true }),
-      input: t.arg({ type: AiAssistantInput, required: true }),
+      data: t.arg({ type: AiAssistantInput, required: true }),
     },
-    resolve: async (query, _source, { id, input }) => {
+    resolve: async (query, _source, { id, data }) => {
       return prisma.aiAssistant.update({
         ...query,
         where: { id },
-        data: input,
+        data,
       })
     },
   }),
@@ -115,9 +115,9 @@ builder.mutationField('createAiAssistant', (t) =>
     type: 'AiAssistant',
     args: {
       ownerId: t.arg.string({ required: true }),
-      input: t.arg({ type: AiAssistantInput, required: true }),
+      data: t.arg({ type: AiAssistantInput, required: true }),
     },
-    resolve: async (query, _source, { ownerId, input }) => {
+    resolve: async (query, _source, { ownerId, data }) => {
       const owner = await prisma.user.findFirst({
         where: { id: ownerId },
       })
@@ -125,14 +125,8 @@ builder.mutationField('createAiAssistant', (t) =>
         throw new Error(`User with id ${ownerId} not found`)
       }
 
-      const { name, description, aiAssistantType } = input
       return prisma.aiAssistant.create({
-        data: {
-          name,
-          description,
-          ownerId: owner.id,
-          aiAssistantType,
-        },
+        data: { ...data, ownerId },
       })
     },
   }),

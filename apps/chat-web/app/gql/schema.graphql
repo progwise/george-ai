@@ -56,11 +56,11 @@ type Mutation {
     retrievalFlow: RetrievalFlow
     sessionId: String
   ): ChatAnswer
-  createAiAssistant(input: AiAssistantInput!, ownerId: String!): AiAssistant
-  createUser(input: UserInput!, username: String!): User
+  createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
+  createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   login(jwtToken: String!): User
-  updateAiAssistant(id: String!, input: AiAssistantInput!): AiAssistant
+  updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
 }
 
 type Query {

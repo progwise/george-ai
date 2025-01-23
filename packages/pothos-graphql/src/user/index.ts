@@ -78,12 +78,12 @@ builder.mutationField('createUser', (t) =>
     type: 'User',
     args: {
       username: t.arg.string({ required: true }),
-      input: t.arg({ type: UserInput, required: true }),
+      data: t.arg({ type: UserInput, required: true }),
     },
-    resolve: async (_query, _source, { username, input }) => {
+    resolve: async (_query, _source, { username, data }) => {
       const user = prisma.user.create({
         data: {
-          ...input,
+          ...data,
           username,
         },
       })

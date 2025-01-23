@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "vinxi dev --port 3001",
-    "build": "vinxi build",
+    "build": "rm -rf .output & rm -rf .vinxi & vinxi build",
     "start": "vinxi start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

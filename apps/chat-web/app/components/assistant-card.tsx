@@ -37,11 +37,10 @@ export const AssistantCard = ({
   const queryClient = useQueryClient()
 
   const handleDelete = () => {
-    console.log('Delete assistant')
     dialogRef.current?.showModal()
   }
 
-  const handleDeleteConfirmed = async () => {
+  const handleDeleteConfirm = async () => {
     await deleteAssistant({ data: assistant.id })
     await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] })
     dialogRef.current?.close()
@@ -67,7 +66,7 @@ export const AssistantCard = ({
               <button
                 type="submit"
                 className="btn btn-sm btn-danger"
-                onClick={handleDeleteConfirmed}
+                onClick={handleDeleteConfirm}
               >
                 Delete Assistant {assistant.name}
               </button>

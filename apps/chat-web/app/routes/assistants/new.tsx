@@ -10,7 +10,7 @@ import { backendRequest } from '../../server-functions/backend'
 
 const createAssistantDocument = graphql(`
   mutation createAiAssistant($ownerId: String!, $assistant: AiAssistantInput!) {
-    createAiAssistant(ownerId: $ownerId, input: $assistant) {
+    createAiAssistant(ownerId: $ownerId, data: $assistant) {
       id
       name
     }
