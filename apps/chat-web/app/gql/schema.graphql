@@ -48,7 +48,9 @@ input AiKnowledgeSourceInput {
   url: String
 }
 
-"""Type of the AiKnowledgeSource"""
+"""
+Type of the AiKnowledgeSource
+"""
 enum AiKnowledgeSourceType {
   GOOGLE_DRIVE
   POCKETBASE
@@ -74,10 +76,17 @@ scalar DateTime
 scalar Decimal
 
 type Mutation {
-  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
-  createAiAssistant(input: AiAssistantInput!, ownerId: String!): AiAssistant
-  createAiKnowledgeSource(input: AiKnowledgeSourceInput!, ownerId: String!): AiKnowledgeSource
-  createUser(input: UserInput!, username: String!): User
+  chat(
+    question: String!
+    retrievalFlow: RetrievalFlow
+    sessionId: String
+  ): ChatAnswer
+  createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
+  createAiKnowledgeSource(
+    input: AiKnowledgeSourceInput!
+    ownerId: String!
+  ): AiKnowledgeSource
+  createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   login(jwtToken: String!): User
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
