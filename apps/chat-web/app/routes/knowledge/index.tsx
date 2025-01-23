@@ -53,10 +53,10 @@ function RouteComponent() {
               className="btn btn-ghost"
               onClick={() => auth?.login()}
             >
-              Log in to see your assistants
+              Log in to see your Knowledge Sources
             </button>
           ) : (
-            'My Assistants'
+            'My Knowledge Sources'
           )}
         </h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
