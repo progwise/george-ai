@@ -1,10 +1,5 @@
 import { z } from 'zod'
-import {
-  AiAssistantInput,
-  AiAssistantType,
-  RetrievalFlow,
-  UserInput,
-} from './graphql'
+import { AiAssistantInput, AiAssistantType, AiKnowledgeSourceInput, AiKnowledgeSourceType, RetrievalFlow, UserInput } from './graphql'
 
 type Properties<T> = Required<{
   [K in keyof T]: z.ZodType<T[K], any, T[K]>
@@ -21,7 +16,9 @@ export const definedNonNullAnySchema = z
 
 export const AiAssistantTypeSchema = z.nativeEnum(AiAssistantType)
 
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
+export const AiKnowledgeSourceTypeSchema = z.nativeEnum(AiKnowledgeSourceType);
+
+export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow);
 
 export function AiAssistantInputSchema(): z.ZodObject<
   Properties<AiAssistantInput>
@@ -32,6 +29,16 @@ export function AiAssistantInputSchema(): z.ZodObject<
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiKnowledgeSourceInputSchema(): z.ZodObject<Properties<AiKnowledgeSourceInput>> {
+  return z.object({
+    aiKnowledgeSourceType: AiKnowledgeSourceTypeSchema,
+    description: z.string().nullish(),
+    icon: z.string().nullish(),
+    name: z.string(),
+    url: z.string().nullish()
   })
 }
 

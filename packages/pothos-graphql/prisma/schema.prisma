@@ -26,6 +26,11 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
+enum AiKnowledgeSourceType {
+  GOOGLE_DRIVE
+  POCKETBASE
+}
+
 model User {
   id                 String              @id @default(cuid())
   createdAt          DateTime            @default(now())
@@ -55,17 +60,18 @@ model AiAssistant {
 }
 
 model AiKnowledgeSource {
-  id            String                   @id @default(cuid())
-  createdAt     DateTime                 @default(now())
-  updatedAt     DateTime                 @updatedAt
-  name          String
-  url           String?
-  apiToken      String?
-  lastProcessed DateTime?
-  owner         User                     @relation(fields: [ownerId], references: [id])
-  ownerId       String
-  isPublic      Boolean                  @default(true)
-  usages        AiKnowledgeSourceUsage[]
+  id                    String @id @default(cuid())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  name                  String
+  url                   String?
+  apiToken              String?
+  lastProcessed         DateTime?
+  owner                 User     @relation(fields: [ownerId], references: [id])
+  ownerId               String
+  isPublic              Boolean @default(true)
+  aiKnowledgeSourceType AiKnowledgeSourceType
+  usages                AiKnowledgeSourceUsage[]
 }
 
 model AiKnowledgeSourceUsage {

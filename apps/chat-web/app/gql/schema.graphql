@@ -32,11 +32,26 @@ enum AiAssistantType {
 }
 
 type AiKnowledgeSource {
+  aiKnowledgeSourceType: AiKnowledgeSourceType!
   createdAt: DateTime
   id: ID
   name: String
   updatedAt: DateTime
   url: String
+}
+
+input AiKnowledgeSourceInput {
+  aiKnowledgeSourceType: AiKnowledgeSourceType!
+  description: String
+  icon: String
+  name: String!
+  url: String
+}
+
+"""Type of the AiKnowledgeSource"""
+enum AiKnowledgeSourceType {
+  GOOGLE_DRIVE
+  POCKETBASE
 }
 
 type ChatAnswer {
@@ -59,13 +74,10 @@ scalar DateTime
 scalar Decimal
 
 type Mutation {
-  chat(
-    question: String!
-    retrievalFlow: RetrievalFlow
-    sessionId: String
-  ): ChatAnswer
-  createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
-  createUser(data: UserInput!, username: String!): User
+  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
+  createAiAssistant(input: AiAssistantInput!, ownerId: String!): AiAssistant
+  createAiKnowledgeSource(input: AiKnowledgeSourceInput!, ownerId: String!): AiKnowledgeSource
+  createUser(input: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   login(jwtToken: String!): User
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -75,7 +87,7 @@ type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]
   aiKnowledgeSource(id: String!): AiKnowledgeSource
-  aiKnowledgeSourceList(ownerId: String!): [AiKnowledgeSource!]
+  aiKnowledgeSources(ownerId: String!): [AiKnowledgeSource!]
   user(email: String!): User
 }
 
