@@ -90,7 +90,7 @@ export const AssistantCard = ({
           </div>
           <img
             src={
-              !assistant.icon || assistant.icon?.length < 2
+              !assistant.icon || assistant.icon?.length < 5000 //change if icon upload implemented
                 ? '/george-portrait.jpg'
                 : assistant.icon
             }
