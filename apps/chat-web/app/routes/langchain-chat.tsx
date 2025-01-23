@@ -9,10 +9,8 @@ import { Dropdown } from '../components/dropdown'
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
 
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-
 import { RetrievalFlow } from '@george-ai/langchain-chat'
+import { FormattedMarkdown } from '../components/formatted-markdown'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
@@ -86,9 +84,7 @@ const ChatRoute = () => {
               </time>
             </div>
             <div className="chat-bubble">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.text}
-              </ReactMarkdown>
+              <FormattedMarkdown markdown={message.text} />
             </div>
 
             <div className="chat-footer opacity-50">{message.source}</div>
