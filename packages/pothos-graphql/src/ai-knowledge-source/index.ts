@@ -21,6 +21,7 @@ export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
   fields: (t) => ({
     id: t.exposeID('id'),
     name: t.exposeString('name'),
+    description: t.exposeString('description'),
     url: t.exposeString('url'),
     aiKnowledgeSourceType: t.field({
       type: AiKnowledgeSourceTypeEnum,
@@ -83,13 +84,13 @@ builder.mutationField('createAiKnowledgeSource', (t) =>
     type: 'AiKnowledgeSource',
     args: {
       ownerId: t.arg.string(),
-      input: t.arg({ type: AiKnowledgeSourceInput, required: true }),
+      data: t.arg({ type: AiKnowledgeSourceInput, required: true }),
     },
-    resolve: (query, _source, { ownerId, input }) => {
+    resolve: (query, _source, { ownerId, data }) => {
       return prisma.aiKnowledgeSource.create({
         ...query,
         data: {
-          ...input,
+          ...data,
           ownerId,
         },
       })

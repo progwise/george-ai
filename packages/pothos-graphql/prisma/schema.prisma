@@ -64,6 +64,7 @@ model AiKnowledgeSource {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   name                  String
+  description           String?
   url                   String?
   apiToken              String?
   lastProcessed         DateTime?

@@ -17,6 +17,7 @@ import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
 import { Route as KnowledgeIndexImport } from './routes/knowledge/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
+import { Route as KnowledgeNewImport } from './routes/knowledge/new'
 import { Route as AssistantsNewImport } from './routes/assistants/new'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 
@@ -55,6 +56,12 @@ const KnowledgeIndexRoute = KnowledgeIndexImport.update({
 const AssistantsIndexRoute = AssistantsIndexImport.update({
   id: '/assistants/',
   path: '/assistants/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const KnowledgeNewRoute = KnowledgeNewImport.update({
+  id: '/knowledge/new',
+  path: '/knowledge/new',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantsNewImport
       parentRoute: typeof rootRoute
     }
+    '/knowledge/new': {
+      id: '/knowledge/new'
+      path: '/knowledge/new'
+      fullPath: '/knowledge/new'
+      preLoaderRoute: typeof KnowledgeNewImport
+      parentRoute: typeof rootRoute
+    }
     '/assistants/': {
       id: '/assistants/'
       path: '/assistants'
@@ -142,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
+  '/knowledge/new': typeof KnowledgeNewRoute
   '/assistants': typeof AssistantsIndexRoute
   '/knowledge': typeof KnowledgeIndexRoute
 }
@@ -153,6 +168,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
+  '/knowledge/new': typeof KnowledgeNewRoute
   '/assistants': typeof AssistantsIndexRoute
   '/knowledge': typeof KnowledgeIndexRoute
 }
@@ -165,6 +181,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
+  '/knowledge/new': typeof KnowledgeNewRoute
   '/assistants/': typeof AssistantsIndexRoute
   '/knowledge/': typeof KnowledgeIndexRoute
 }
@@ -178,6 +195,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
+    | '/knowledge/new'
     | '/assistants'
     | '/knowledge'
   fileRoutesByTo: FileRoutesByTo
@@ -188,6 +206,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
+    | '/knowledge/new'
     | '/assistants'
     | '/knowledge'
   id:
@@ -198,6 +217,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
+    | '/knowledge/new'
     | '/assistants/'
     | '/knowledge/'
   fileRoutesById: FileRoutesById
@@ -210,6 +230,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
+  KnowledgeNewRoute: typeof KnowledgeNewRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
   KnowledgeIndexRoute: typeof KnowledgeIndexRoute
 }
@@ -221,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
+  KnowledgeNewRoute: KnowledgeNewRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
   KnowledgeIndexRoute: KnowledgeIndexRoute,
 }
@@ -241,6 +263,7 @@ export const routeTree = rootRoute
         "/profile",
         "/assistants/$assistantId",
         "/assistants/new",
+        "/knowledge/new",
         "/assistants/",
         "/knowledge/"
       ]
@@ -262,6 +285,9 @@ export const routeTree = rootRoute
     },
     "/assistants/new": {
       "filePath": "assistants/new.tsx"
+    },
+    "/knowledge/new": {
+      "filePath": "knowledge/new.tsx"
     },
     "/assistants/": {
       "filePath": "assistants/index.tsx"

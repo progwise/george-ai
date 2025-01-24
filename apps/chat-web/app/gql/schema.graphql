@@ -34,6 +34,7 @@ enum AiAssistantType {
 type AiKnowledgeSource {
   aiKnowledgeSourceType: AiKnowledgeSourceType!
   createdAt: DateTime
+  description: String
   id: ID
   name: String
   updatedAt: DateTime
@@ -83,7 +84,7 @@ type Mutation {
   ): ChatAnswer
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
   createAiKnowledgeSource(
-    input: AiKnowledgeSourceInput!
+    data: AiKnowledgeSourceInput!
     ownerId: String!
   ): AiKnowledgeSource
   createUser(data: UserInput!, username: String!): User

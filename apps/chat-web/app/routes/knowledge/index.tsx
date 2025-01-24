@@ -3,7 +3,7 @@ import { graphql } from '../../gql'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
-import { useQuery } from '@tanstack/react-query'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
 import { useAuth } from '../../auth/auth-context'
 
@@ -12,6 +12,8 @@ const knowledgeSourcesDocument = graphql(/* GraphQL */ `
     aiKnowledgeSources(ownerId: $ownerId) {
       id
       name
+      description
+      url
     }
   }
 `)
@@ -24,33 +26,36 @@ const getKnowledgeSources = createServerFn({ method: 'GET' })
     return await backendRequest(knowledgeSourcesDocument, { ownerId: ctx.data })
   })
 
+const knowledgeSourcesQueryOptions = (ownerId?: string) =>
+  queryOptions({
+    queryKey: [queryKeys.KnowledgeSources, ownerId],
+    queryFn: async () => {
+      if (!ownerId) {
+        return null
+      } else {
+        return getKnowledgeSources({ data: ownerId })
+      }
+    },
+  })
+
 export const Route = createFileRoute('/knowledge/')({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    context.queryClient.ensureQueryData(
+      knowledgeSourcesQueryOptions(context.auth.user?.id),
+    )
+  },
 })
 
 function RouteComponent() {
   const auth = useAuth()
-  const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.KnowledgeSources, auth?.user?.id],
-    enabled: !!auth?.user,
-    queryFn: async () => {
-      if (!auth?.user?.id) {
-        return null
-      } else {
-        return getKnowledgeSources({ data: auth.user.id })
-      }
-    },
-  })
+  const { data, isLoading } = useSuspenseQuery(
+    knowledgeSourcesQueryOptions(auth.user?.id),
+  )
   const isLoggendIn = !!auth?.user
 
-  const someNumber = 1.23
   return (
     <article className="flex w-full flex-col gap-4">
-      <input
-        className="input input-sm input-bordered"
-        type="number"
-        defaultValue={someNumber}
-      />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">
           {!isLoggendIn ? (
@@ -70,7 +75,7 @@ function RouteComponent() {
           <Link
             type="button"
             className="btn btn-primary btn-sm"
-            to="/assistants/new"
+            to="/knowledge/new"
           >
             Add new
           </Link>

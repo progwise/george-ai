@@ -26,8 +26,10 @@ const documents = {
     types.AiAssistantCardsDocument,
   '\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n':
     types.CreateAiAssistantDocument,
-  '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n    }\n  }\n':
+  '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      description\n      url\n    }\n  }\n':
     types.AiKnowledgeSourcesDocument,
+  '\n  mutation createAiKnowledgeSource(\n    $ownerId: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    createAiKnowledgeSource(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n':
+    types.CreateAiKnowledgeSourceDocument,
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.IntrospectionQueryDocument,
 }
@@ -86,8 +88,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n    }\n  }\n',
-): (typeof documents)['\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n    }\n  }\n']
+  source: '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      description\n      url\n    }\n  }\n',
+): (typeof documents)['\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      description\n      url\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation createAiKnowledgeSource(\n    $ownerId: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    createAiKnowledgeSource(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  mutation createAiKnowledgeSource(\n    $ownerId: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    createAiKnowledgeSource(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

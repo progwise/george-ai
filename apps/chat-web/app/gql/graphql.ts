@@ -65,6 +65,7 @@ export type AiKnowledgeSource = {
   __typename?: 'AiKnowledgeSource'
   aiKnowledgeSourceType: AiKnowledgeSourceType
   createdAt?: Maybe<Scalars['DateTime']['output']>
+  description?: Maybe<Scalars['String']['output']>
   id?: Maybe<Scalars['ID']['output']>
   name?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
@@ -116,7 +117,7 @@ export type MutationCreateAiAssistantArgs = {
 }
 
 export type MutationCreateAiKnowledgeSourceArgs = {
-  input: AiKnowledgeSourceInput
+  data: AiKnowledgeSourceInput
   ownerId: Scalars['String']['input']
 }
 
@@ -481,7 +482,23 @@ export type AiKnowledgeSourcesQuery = {
     __typename?: 'AiKnowledgeSource'
     id?: string | null
     name?: string | null
+    description?: string | null
+    url?: string | null
   }> | null
+}
+
+export type CreateAiKnowledgeSourceMutationVariables = Exact<{
+  ownerId: Scalars['String']['input']
+  data: AiKnowledgeSourceInput
+}>
+
+export type CreateAiKnowledgeSourceMutation = {
+  __typename?: 'Mutation'
+  createAiKnowledgeSource?: {
+    __typename?: 'AiKnowledgeSource'
+    id?: string | null
+    name?: string | null
+  } | null
 }
 
 export type IntrospectionQueryQueryVariables = Exact<{ [key: string]: never }>
@@ -1827,6 +1844,8 @@ export const AiKnowledgeSourcesDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
               ],
             },
           },
@@ -1837,6 +1856,80 @@ export const AiKnowledgeSourcesDocument = {
 } as unknown as DocumentNode<
   AiKnowledgeSourcesQuery,
   AiKnowledgeSourcesQueryVariables
+>
+export const CreateAiKnowledgeSourceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAiKnowledgeSource' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiKnowledgeSourceInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiKnowledgeSource' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateAiKnowledgeSourceMutation,
+  CreateAiKnowledgeSourceMutationVariables
 >
 export const IntrospectionQueryDocument = {
   kind: 'Document',
