@@ -101,7 +101,7 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">
-          Configure Assistant {aiKnowledgeSource?.name}
+          Configure Knowledge Source {aiKnowledgeSource?.name}
         </h3>
         <div className="badge badge-secondary badge-outline">
           {disabled ? 'Disabled' : 'enabled'}

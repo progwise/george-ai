@@ -60,11 +60,11 @@ export const KnowledgeSourceForm = ({
         </div>
         <div className="form-control">
           <label className="label cursor-pointer">
-            <span className="label-text pr-4">Doc Generator</span>
+            <span className="label-text pr-4">Pocketbase</span>
             <input
               key={knowledgeSource.aiKnowledgeSourceType}
               type="radio"
-              name="aiAssistantType"
+              name="aiKnowledgeSourceType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
               defaultChecked={
