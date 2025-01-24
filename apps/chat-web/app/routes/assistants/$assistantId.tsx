@@ -2,10 +2,10 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
-import { useAuth } from '../../auth'
 import { AssistantForm } from '../../components/assistant-form'
 import { AiAssistantInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
+import { useAuth } from '../../auth/auth-context'
 
 const aiAssistantEditQueryDocument = graphql(`
   query aiAssistantEdit($id: String!) {

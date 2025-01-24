@@ -1,15 +1,15 @@
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
-import { graphql } from './gql'
-import { KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID } from './constants'
-import { backendRequest } from './server-functions/backend'
+import { graphql } from '../gql'
+import { KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID } from '../constants'
+import { backendRequest } from '../server-functions/backend'
 
 export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(
   () => {
     return {
-      KEYCLOAK_URL,
-      KEYCLOAK_REALM,
-      KEYCLOAK_CLIENT_ID,
+      url: KEYCLOAK_URL!,
+      realm: KEYCLOAK_REALM!,
+      clientId: KEYCLOAK_CLIENT_ID!,
     }
   },
 )
@@ -28,7 +28,7 @@ const loginDocument = graphql(/* GraphQL */ `
   }
 `)
 
-export const getUserInformation = createServerFn({ method: 'POST' })
+export const ensureBackendUser = createServerFn({ method: 'POST' })
   .validator((data) => {
     return z.string().nonempty().parse(data)
   })

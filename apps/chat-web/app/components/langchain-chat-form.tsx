@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendChatMessage } from '../server-functions/langchain-send-chat-message'
 import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
-import { useAuth } from '../auth'
 import Alert from './alert'
+import { useAuth } from '../auth/auth-context'
 
 type LangchainChatFormProps = {
   sessionId: string

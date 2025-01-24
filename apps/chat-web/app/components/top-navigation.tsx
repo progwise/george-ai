@@ -2,8 +2,8 @@ import { Link } from '@tanstack/react-router'
 import BowlerHatIcon from './icons/bowler-hat-icon'
 import ChatBubbleIcon from './icons/chat-bubble-icon'
 import UserIcon from './icons/user-icon'
-import { useAuth } from '../auth'
 import AcademicCapIcon from './icons/academic-cap-icon'
+import { useAuth } from '../auth/auth-context'
 
 const TopNavigationLink = ({ to, children }) => {
   return (
@@ -19,8 +19,8 @@ const TopNavigationLink = ({ to, children }) => {
 }
 
 const TopNavigation = () => {
-  const authContext = useAuth()
-  const { isAuthenticated, login, logout, user, profileUrl } = authContext ?? {}
+  const { isAuthenticated, login, logout, profileUrl, user } = useAuth()
+
   return (
     <nav className="navbar  bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
       <div className="navbar-start">

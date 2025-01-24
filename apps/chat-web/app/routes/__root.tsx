@@ -1,4 +1,3 @@
-import { QueryClient } from '@tanstack/react-query'
 import {
   createRootRouteWithContext,
   Outlet,
@@ -6,10 +5,10 @@ import {
 } from '@tanstack/react-router'
 import { Meta, Scripts } from '@tanstack/start'
 import React, { Suspense } from 'react'
-
 import appCss from '../index.css?url'
 import TopNavigation from '../components/top-navigation'
-import { AuthContext, AuthProvider } from '../auth'
+import { AuthContext } from '../auth/auth-context'
+import { QueryClient } from '@tanstack/react-query'
 
 interface RouterContext {
   queryClient: QueryClient
@@ -46,18 +45,16 @@ const RootDocument = () => (
       <Meta />
     </head>
     <body className="container mx-auto">
-      <AuthProvider>
-        <TopNavigation />
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <Suspense>
-          <TanStackRouterDevtools />
-        </Suspense>
-        <Suspense>
-          <TanStackQueryDevtools />
-        </Suspense>
-      </AuthProvider>
+      <TopNavigation />
+      <Outlet />
+      <ScrollRestoration />
+      <Scripts />
+      <Suspense>
+        <TanStackRouterDevtools />
+      </Suspense>
+      <Suspense>
+        <TanStackQueryDevtools />
+      </Suspense>
     </body>
   </html>
 )

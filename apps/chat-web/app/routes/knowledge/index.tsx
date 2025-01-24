@@ -3,9 +3,9 @@ import { graphql } from '../../gql'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
-import { useAuth } from '../../auth'
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
+import { useAuth } from '../../auth/auth-context'
 
 const knowledgeSourcesDocument = graphql(/* GraphQL */ `
   query aiKnowledgeSources($ownerId: String!) {
@@ -43,8 +43,14 @@ function RouteComponent() {
   })
   const isLoggendIn = !!auth?.user
 
+  const someNumber = 1.23
   return (
     <article className="flex w-full flex-col gap-4">
+      <input
+        className="input input-sm input-bordered"
+        type="number"
+        defaultValue={someNumber}
+      />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">
           {!isLoggendIn ? (
