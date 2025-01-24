@@ -68,6 +68,8 @@ export type AiKnowledgeSource = {
   description?: Maybe<Scalars['String']['output']>
   id?: Maybe<Scalars['ID']['output']>
   name?: Maybe<Scalars['String']['output']>
+  owner?: Maybe<User>
+  ownerId?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
 }
@@ -103,6 +105,7 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   login?: Maybe<User>
   updateAiAssistant?: Maybe<AiAssistant>
+  updateAiKnowledgeSource?: Maybe<AiKnowledgeSource>
 }
 
 export type MutationChatArgs = {
@@ -136,6 +139,11 @@ export type MutationLoginArgs = {
 
 export type MutationUpdateAiAssistantArgs = {
   data: AiAssistantInput
+  id: Scalars['String']['input']
+}
+
+export type MutationUpdateAiKnowledgeSourceArgs = {
+  data: AiKnowledgeSourceInput
   id: Scalars['String']['input']
 }
 
@@ -472,6 +480,38 @@ export type CreateAiAssistantMutation = {
   } | null
 }
 
+export type AiKnowledgeSourceEditQueryVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type AiKnowledgeSourceEditQuery = {
+  __typename?: 'Query'
+  aiKnowledgeSource?: {
+    __typename?: 'AiKnowledgeSource'
+    id?: string | null
+    name?: string | null
+    description?: string | null
+    createdAt?: any | null
+    ownerId?: string | null
+    aiKnowledgeSourceType: AiKnowledgeSourceType
+    url?: string | null
+  } | null
+}
+
+export type ChangeAiKnowledgeSourceMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiKnowledgeSourceInput
+}>
+
+export type ChangeAiKnowledgeSourceMutation = {
+  __typename?: 'Mutation'
+  updateAiKnowledgeSource?: {
+    __typename?: 'AiKnowledgeSource'
+    id?: string | null
+    name?: string | null
+  } | null
+}
+
 export type AiKnowledgeSourcesQueryVariables = Exact<{
   ownerId: Scalars['String']['input']
 }>
@@ -482,8 +522,10 @@ export type AiKnowledgeSourcesQuery = {
     __typename?: 'AiKnowledgeSource'
     id?: string | null
     name?: string | null
-    description?: string | null
-    url?: string | null
+    aiKnowledgeSourceType: AiKnowledgeSourceType
+    createdAt?: any | null
+    updatedAt?: any | null
+    owner?: { __typename?: 'User'; id: string; name?: string | null } | null
   }> | null
 }
 
@@ -1800,6 +1842,137 @@ export const CreateAiAssistantDocument = {
   CreateAiAssistantMutation,
   CreateAiAssistantMutationVariables
 >
+export const AiKnowledgeSourceEditDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiKnowledgeSourceEdit' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiKnowledgeSource' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aiKnowledgeSourceType' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AiKnowledgeSourceEditQuery,
+  AiKnowledgeSourceEditQueryVariables
+>
+export const ChangeAiKnowledgeSourceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'changeAiKnowledgeSource' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiKnowledgeSourceInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiKnowledgeSource' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ChangeAiKnowledgeSourceMutation,
+  ChangeAiKnowledgeSourceMutationVariables
+>
 export const AiKnowledgeSourcesDocument = {
   kind: 'Document',
   definitions: [
@@ -1844,8 +2017,23 @@ export const AiKnowledgeSourcesDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aiKnowledgeSourceType' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
               ],
             },
           },

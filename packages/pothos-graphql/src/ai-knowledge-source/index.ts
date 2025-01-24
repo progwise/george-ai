@@ -31,6 +31,8 @@ export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
         return AiKnowledgeSourceType[knowledgeSource.aiKnowledgeSourceType]
       },
     }),
+    owner: t.relation('owner'),
+    ownerId: t.exposeString('ownerId'),
     createdAt: t.expose('createdAt', { type: 'DateTime' }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
   }),
@@ -74,6 +76,23 @@ builder.queryField('aiKnowledgeSources', (t) =>
       return prisma.aiKnowledgeSource.findMany({
         ...query,
         where: { ownerId },
+      })
+    },
+  }),
+)
+
+builder.mutationField('updateAiKnowledgeSource', (t) =>
+  t.prismaField({
+    type: 'AiKnowledgeSource',
+    args: {
+      id: t.arg.string({ required: true }),
+      data: t.arg({ type: AiKnowledgeSourceInput, required: true }),
+    },
+    resolve: async (query, _source, { id, data }) => {
+      return prisma.aiKnowledgeSource.update({
+        ...query,
+        where: { id },
+        data,
       })
     },
   }),

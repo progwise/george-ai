@@ -20,7 +20,7 @@ export const KnowledgeSourceForm = ({
       <input type="hidden" name="url" value="wasauchimmer" />
       <input
         type="hidden"
-        name="assistantId"
+        name="knowledgeSourceId"
         value={knowledgeSource.id || ''}
       />
 

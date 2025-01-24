@@ -37,6 +37,8 @@ type AiKnowledgeSource {
   description: String
   id: ID
   name: String
+  owner: User
+  ownerId: String
   updatedAt: DateTime
   url: String
 }
@@ -91,6 +93,10 @@ type Mutation {
   deleteAiAssistant(assistantId: String!): AiAssistant
   login(jwtToken: String!): User
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
+  updateAiKnowledgeSource(
+    data: AiKnowledgeSourceInput!
+    id: String!
+  ): AiKnowledgeSource
 }
 
 type Query {

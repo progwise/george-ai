@@ -26,7 +26,11 @@ const documents = {
     types.AiAssistantCardsDocument,
   '\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n':
     types.CreateAiAssistantDocument,
-  '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      description\n      url\n    }\n  }\n':
+  '\n  query aiKnowledgeSourceEdit($id: String!) {\n    aiKnowledgeSource(id: $id) {\n      id\n      name\n      description\n      createdAt\n      ownerId\n      aiKnowledgeSourceType\n      url\n    }\n  }\n':
+    types.AiKnowledgeSourceEditDocument,
+  '\n  mutation changeAiKnowledgeSource(\n    $id: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    updateAiKnowledgeSource(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n':
+    types.ChangeAiKnowledgeSourceDocument,
+  '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      aiKnowledgeSourceType\n      owner {\n        id\n        name\n      }\n      createdAt\n      updatedAt\n    }\n  }\n':
     types.AiKnowledgeSourcesDocument,
   '\n  mutation createAiKnowledgeSource(\n    $ownerId: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    createAiKnowledgeSource(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n':
     types.CreateAiKnowledgeSourceDocument,
@@ -88,8 +92,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      description\n      url\n    }\n  }\n',
-): (typeof documents)['\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      description\n      url\n    }\n  }\n']
+  source: '\n  query aiKnowledgeSourceEdit($id: String!) {\n    aiKnowledgeSource(id: $id) {\n      id\n      name\n      description\n      createdAt\n      ownerId\n      aiKnowledgeSourceType\n      url\n    }\n  }\n',
+): (typeof documents)['\n  query aiKnowledgeSourceEdit($id: String!) {\n    aiKnowledgeSource(id: $id) {\n      id\n      name\n      description\n      createdAt\n      ownerId\n      aiKnowledgeSourceType\n      url\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation changeAiKnowledgeSource(\n    $id: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    updateAiKnowledgeSource(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  mutation changeAiKnowledgeSource(\n    $id: String!\n    $data: AiKnowledgeSourceInput!\n  ) {\n    updateAiKnowledgeSource(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      aiKnowledgeSourceType\n      owner {\n        id\n        name\n      }\n      createdAt\n      updatedAt\n    }\n  }\n',
+): (typeof documents)['\n  query aiKnowledgeSources($ownerId: String!) {\n    aiKnowledgeSources(ownerId: $ownerId) {\n      id\n      name\n      aiKnowledgeSourceType\n      owner {\n        id\n        name\n      }\n      createdAt\n      updatedAt\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -12,8 +12,13 @@ const knowledgeSourcesDocument = graphql(/* GraphQL */ `
     aiKnowledgeSources(ownerId: $ownerId) {
       id
       name
-      description
-      url
+      aiKnowledgeSourceType
+      owner {
+        id
+        name
+      }
+      createdAt
+      updatedAt
     }
   }
 `)
@@ -83,9 +88,39 @@ function RouteComponent() {
       </div>
 
       <div className="flex gap-4 flex-wrap">
-        {data?.aiKnowledgeSources?.map((knowledgeSource) => (
-          <div key={knowledgeSource.id}>{knowledgeSource.name}</div>
-        ))}
+        <table className="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>owner</th>
+              <th>Last update</th>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.aiKnowledgeSources?.map((knowledgeSource, index) => (
+              <tr key={knowledgeSource.id} className="hover:bg-gray-100">
+                <td>{index + 1}</td>
+                <td>{knowledgeSource.name}</td>
+                <td>{knowledgeSource.aiKnowledgeSourceType}</td>
+                <td>{knowledgeSource.owner?.name}</td>
+                <td>
+                  {knowledgeSource.updatedAt || knowledgeSource.createdAt}
+                </td>
+                <td>
+                  <Link
+                    className="btn btn-ghost btn-xs"
+                    to={`/knowledge/${knowledgeSource.id}`}
+                  >
+                    Edit
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </article>
   )
