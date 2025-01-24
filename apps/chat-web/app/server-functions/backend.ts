@@ -1,0 +1,134 @@
+import request, { RequestDocument, Variables } from 'graphql-request'
+import { BACKEND_GRAPHQL_URL, GRAPHQL_API_KEY } from '../constants'
+import { createServerFn } from '@tanstack/start'
+import { graphql } from '../gql'
+import { TypedDocumentNode } from '@graphql-typed-document-node/core'
+
+async function backendRequest<T, V extends Variables = Variables>(
+  document: RequestDocument | TypedDocumentNode<T, V>,
+  variables?: Variables,
+): Promise<T> {
+  return request(BACKEND_GRAPHQL_URL, document, variables, {
+    Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
+  })
+}
+
+export { backendRequest }
+
+const introspectionQueryDocument = graphql(/* GraphQL */ `
+  query IntrospectionQuery {
+    __schema {
+      description
+      queryType {
+        name
+      }
+      mutationType {
+        name
+      }
+      subscriptionType {
+        name
+      }
+      types {
+        ...FullType
+      }
+      directives {
+        name
+        description
+        locations
+        args {
+          ...InputValue
+        }
+      }
+    }
+  }
+  fragment FullType on __Type {
+    kind
+    name
+    description
+    fields(includeDeprecated: true) {
+      name
+      description
+      args {
+        ...InputValue
+      }
+      type {
+        ...TypeRef
+      }
+      isDeprecated
+      deprecationReason
+    }
+    inputFields {
+      ...InputValue
+    }
+    interfaces {
+      ...TypeRef
+    }
+    enumValues(includeDeprecated: true) {
+      name
+      description
+      isDeprecated
+      deprecationReason
+    }
+    possibleTypes {
+      ...TypeRef
+    }
+  }
+  fragment InputValue on __InputValue {
+    name
+    description
+    type {
+      ...TypeRef
+    }
+    defaultValue
+  }
+  fragment TypeRef on __Type {
+    kind
+    name
+    ofType {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                  ofType {
+                    kind
+                    name
+                    ofType {
+                      kind
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`)
+
+export const getBackendGraphQLSchema = createServerFn({
+  method: 'GET',
+}).handler(() => {
+  return backendRequest(introspectionQueryDocument)
+})
+
+export const getBackendUrl = createServerFn({ method: 'GET' }).handler(() => {
+  return BACKEND_GRAPHQL_URL
+})

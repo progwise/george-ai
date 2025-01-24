@@ -17,6 +17,7 @@ export default tseslint.config(
       '.netlify',
       '.output',
       'build/',
+      'app/gql',
     ],
   },
   {

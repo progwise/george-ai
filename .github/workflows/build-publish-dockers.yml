@@ -13,7 +13,7 @@ env:
   REGISTRY_PATH: ghcr.io/progwise/george-ai
 
 jobs:
-  chat-web:
+  george-ai:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -69,6 +69,40 @@ jobs:
           subject-name: ${{ env.REGISTRY_PATH }}/chat-web
           subject-digest: ${{ steps.push-chat-web.outputs.digest }}
           push-to-registry: true
+
+      - name: Extract metadata (tags, labels) for backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_PATH }}/backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest
+
+      # https://github.com/docker/build-push-action#usage
+      - name: Build and push backend
+        id: push-backend
+        uses: docker/build-push-action@v6
+        with:
+          file: ./apps/georgeai-server/Dockerfile
+          context: .
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+
+      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
+      # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
+      - name: Generate artifact attestation for backend
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY_PATH }}/backend
+          subject-digest: ${{ steps.push-backend.outputs.digest }}
+          push-to-registry: true
+
   pocketbase:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.

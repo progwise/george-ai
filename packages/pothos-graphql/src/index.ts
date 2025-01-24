@@ -1,4 +1,11 @@
 import { builder } from './builder'
-import './chat'
 
-export const schema = builder.toSchema()
+import './scalars'
+import './chat'
+import './user'
+import './ai-assistant'
+import './ai-knowledge-source'
+
+const schema = builder.toSchema()
+
+export { schema }
