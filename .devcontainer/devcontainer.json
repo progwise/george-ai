@@ -17,7 +17,8 @@
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "eslint.workingDirectories": [{ "mode": "auto" }]
+        "eslint.workingDirectories": [{ "mode": "auto" }],
+        "remote.autoForwardPorts": true
       }
     }
   },
