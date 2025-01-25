@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
 import { KnowledgeSourceForm } from '../../components/knowledge-source-form'
 import { createServerFn } from '@tanstack/start'
@@ -6,9 +6,10 @@ import { z } from 'zod'
 import { AiKnowledgeSourceInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
+import { KnowledgeSourceSelector } from '../../components/knowledge-source-selector'
 
 const aiKnowledgeSourceEditQueryDocument = graphql(`
-  query aiKnowledgeSourceEdit($id: String!) {
+  query aiKnowledgeSourceEdit($id: String!, $ownerId: String!) {
     aiKnowledgeSource(id: $id) {
       id
       name
@@ -18,18 +19,21 @@ const aiKnowledgeSourceEditQueryDocument = graphql(`
       aiKnowledgeSourceType
       url
     }
+    aiKnowledgeSources(ownerId: $ownerId) {
+      id
+      name
+    }
   }
 `)
 
 const getKnowledgeSource = createServerFn({ method: 'GET' })
-  .validator((knowledgeSourceId: string) =>
-    z.string().nonempty().parse(knowledgeSourceId),
-  )
+  .validator(({ knowledgeSourceId, ownerId }) => ({
+    id: z.string().nonempty().parse(knowledgeSourceId),
+    ownerId: z.string().nonempty().parse(ownerId),
+  }))
   .handler(
     async (ctx) =>
-      await backendRequest(aiKnowledgeSourceEditQueryDocument, {
-        id: ctx.data,
-      }),
+      await backendRequest(aiKnowledgeSourceEditQueryDocument, ctx.data),
   )
 
 const updateKnowledgeSourceDocument = graphql(/* GraphQL */ `
@@ -74,18 +78,27 @@ const changeKnowledgeSource = createServerFn({ method: 'POST' })
 
 export const Route = createFileRoute('/knowledge/$knowledgeSourceId')({
   component: RouteComponent,
-  loader: async ({ params }) => {
-    const assistant = await getKnowledgeSource({
-      data: params.knowledgeSourceId,
+  beforeLoad: async ({ params, context }) => {
+    if (!context.auth.user) {
+      throw redirect({ to: '/knowledge' })
+    }
+    return {
+      knowledgeSourceId: params.knowledgeSourceId,
+      ownerId: context.auth.user.id,
+    }
+  },
+  loader: async ({ context }) => {
+    const knowledgeSource = await getKnowledgeSource({
+      data: { ...context },
     })
-    return assistant
+    return knowledgeSource
   },
   staleTime: 0,
 })
 
 function RouteComponent() {
   const auth = useAuth()
-  const { aiKnowledgeSource } = Route.useLoaderData()
+  const { aiKnowledgeSource, aiKnowledgeSources } = Route.useLoaderData()
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -100,9 +113,10 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold">
-          Configure Knowledge Source {aiKnowledgeSource?.name}
-        </h3>
+        <KnowledgeSourceSelector
+          knowledgeSources={aiKnowledgeSources!}
+          selectedKnowledgeSource={aiKnowledgeSource!}
+        />
         <div className="badge badge-secondary badge-outline">
           {disabled ? 'Disabled' : 'enabled'}
         </div>

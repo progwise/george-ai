@@ -19,8 +19,8 @@ export const AiKnowledgeSourceTypeEnum = builder.enumType(
 export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
   name: 'AiKnowledgeSource',
   fields: (t) => ({
-    id: t.exposeID('id'),
-    name: t.exposeString('name'),
+    id: t.exposeID('id', { nullable: false }),
+    name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
     aiKnowledgeSourceType: t.field({
@@ -32,8 +32,8 @@ export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
       },
     }),
     owner: t.relation('owner'),
-    ownerId: t.exposeString('ownerId'),
-    createdAt: t.expose('createdAt', { type: 'DateTime' }),
+    ownerId: t.exposeString('ownerId', { nullable: false }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
   }),
 })

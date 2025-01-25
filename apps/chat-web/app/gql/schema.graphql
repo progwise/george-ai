@@ -33,12 +33,12 @@ enum AiAssistantType {
 
 type AiKnowledgeSource {
   aiKnowledgeSourceType: AiKnowledgeSourceType!
-  createdAt: DateTime
+  createdAt: DateTime!
   description: String
-  id: ID
-  name: String
+  id: ID!
+  name: String!
   owner: User
-  ownerId: String
+  ownerId: String!
   updatedAt: DateTime
   url: String
 }
