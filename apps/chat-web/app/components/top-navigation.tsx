@@ -11,7 +11,7 @@ const TopNavigation = () => {
 
   return (
     <nav className="navbar bg-base-200 rounded-box shadow-xl mt-10 mb-10 sticky top-10 z-50">
-      <div className="navbar-start">
+      <div className="navbar-start lg:hidden">
         <div className="dropdown">
           <label tabIndex={0} className="btn btn-ghost">
             <svg
@@ -68,50 +68,51 @@ const TopNavigation = () => {
           </ul>
         </div>
       </div>
-      <div className="navbar-center gap-2">
-        <Link
-          to="/langchain-chat"
-          className="hidden sm:inline-flex btn btn-ghost"
-        >
-          <ChatBubbleIcon className="size-6" />
-        </Link>
-
-        <Link to="/assistants" className="hidden md:inline-flex btn btn-ghost">
-          <AcademicCapIcon className="size-6" />
-        </Link>
-
-        {!isAuthenticated ? (
-          <button
-            type="button"
-            className="hidden lg:inline-flex btn btn-ghost"
-            onClick={() => login?.()}
-          >
-            <UserIcon className="size-6" />
-            Sign in
-          </button>
-        ) : (
-          <>
-            <Link
-              to={profileUrl}
-              className="hidden lg:inline-flex btn btn-ghost"
-            >
-              {user?.name}
-            </Link>
-            <button
-              type="button"
-              className="hidden lg:inline-flex btn btn-ghost"
-              onClick={() => logout?.()}
-            >
-              <UserIcon className="size-6" />
-              Sign out
-            </button>
-          </>
-        )}
-      </div>
-      <div className="navbar-end">
+      <div className="navbar-end lg:hidden">
         <Link className="btn btn-ghost" to="/">
           <BowlerHatIcon className="size-8" />
           George Ai
+        </Link>
+      </div>
+
+      <div className="hidden lg:flex w-full justify-evenly items-center">
+        {/* Chat with text */}
+        <Link to="/langchain-chat" className="btn btn-ghost gap-2">
+          <ChatBubbleIcon className="size-6" />
+          <span>Chat</span>
+        </Link>
+
+        <Link to="/assistants" className="btn btn-ghost gap-2">
+          <AcademicCapIcon className="size-6" />
+          <span>Assistants</span>
+        </Link>
+        {!isAuthenticated ? (
+          <button
+            type="button"
+            className="btn btn-ghost gap-2"
+            onClick={() => login?.()}
+          >
+            <UserIcon className="size-6" />
+            <span>Sign in</span>
+          </button>
+        ) : (
+          <>
+            <Link to={profileUrl} className="btn btn-ghost gap-2">
+              <span>{user?.name}</span>
+            </Link>
+            <button
+              type="button"
+              className="btn btn-ghost gap-2"
+              onClick={() => logout?.()}
+            >
+              <UserIcon className="size-6" />
+              <span>Sign out</span>
+            </button>
+          </>
+        )}
+        <Link className="btn btn-ghost gap-2" to="/">
+          <BowlerHatIcon className="size-8" />
+          <span>George Ai</span>
         </Link>
       </div>
     </nav>
