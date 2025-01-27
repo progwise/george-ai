@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   AiAssistantInput,
   AiAssistantType,
+  AiKnowledgeSourceFileInput,
   AiKnowledgeSourceInput,
   AiKnowledgeSourceType,
   RetrievalFlow,
@@ -36,6 +37,18 @@ export function AiAssistantInputSchema(): z.ZodObject<
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiKnowledgeSourceFileInputSchema(): z.ZodObject<
+  Properties<AiKnowledgeSourceFileInput>
+> {
+  return z.object({
+    aiKnowledgeSourceId: z.string(),
+    content: z.string(),
+    mimeType: z.string(),
+    name: z.string(),
+    url: z.string(),
   })
 }
 

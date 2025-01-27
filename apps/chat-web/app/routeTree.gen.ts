@@ -18,6 +18,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as KnowledgeIndexImport } from './routes/knowledge/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
 import { Route as KnowledgeNewImport } from './routes/knowledge/new'
+import { Route as KnowledgeAuthGoogleImport } from './routes/knowledge/auth-google'
 import { Route as KnowledgeKnowledgeSourceIdImport } from './routes/knowledge/$knowledgeSourceId'
 import { Route as AssistantsNewImport } from './routes/assistants/new'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
@@ -63,6 +64,12 @@ const AssistantsIndexRoute = AssistantsIndexImport.update({
 const KnowledgeNewRoute = KnowledgeNewImport.update({
   id: '/knowledge/new',
   path: '/knowledge/new',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const KnowledgeAuthGoogleRoute = KnowledgeAuthGoogleImport.update({
+  id: '/knowledge/auth-google',
+  path: '/knowledge/auth-google',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -139,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KnowledgeKnowledgeSourceIdImport
       parentRoute: typeof rootRoute
     }
+    '/knowledge/auth-google': {
+      id: '/knowledge/auth-google'
+      path: '/knowledge/auth-google'
+      fullPath: '/knowledge/auth-google'
+      preLoaderRoute: typeof KnowledgeAuthGoogleImport
+      parentRoute: typeof rootRoute
+    }
     '/knowledge/new': {
       id: '/knowledge/new'
       path: '/knowledge/new'
@@ -173,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/knowledge/$knowledgeSourceId': typeof KnowledgeKnowledgeSourceIdRoute
+  '/knowledge/auth-google': typeof KnowledgeAuthGoogleRoute
   '/knowledge/new': typeof KnowledgeNewRoute
   '/assistants': typeof AssistantsIndexRoute
   '/knowledge': typeof KnowledgeIndexRoute
@@ -186,6 +201,7 @@ export interface FileRoutesByTo {
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/knowledge/$knowledgeSourceId': typeof KnowledgeKnowledgeSourceIdRoute
+  '/knowledge/auth-google': typeof KnowledgeAuthGoogleRoute
   '/knowledge/new': typeof KnowledgeNewRoute
   '/assistants': typeof AssistantsIndexRoute
   '/knowledge': typeof KnowledgeIndexRoute
@@ -200,6 +216,7 @@ export interface FileRoutesById {
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/knowledge/$knowledgeSourceId': typeof KnowledgeKnowledgeSourceIdRoute
+  '/knowledge/auth-google': typeof KnowledgeAuthGoogleRoute
   '/knowledge/new': typeof KnowledgeNewRoute
   '/assistants/': typeof AssistantsIndexRoute
   '/knowledge/': typeof KnowledgeIndexRoute
@@ -215,6 +232,7 @@ export interface FileRouteTypes {
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/knowledge/$knowledgeSourceId'
+    | '/knowledge/auth-google'
     | '/knowledge/new'
     | '/assistants'
     | '/knowledge'
@@ -227,6 +245,7 @@ export interface FileRouteTypes {
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/knowledge/$knowledgeSourceId'
+    | '/knowledge/auth-google'
     | '/knowledge/new'
     | '/assistants'
     | '/knowledge'
@@ -239,6 +258,7 @@ export interface FileRouteTypes {
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/knowledge/$knowledgeSourceId'
+    | '/knowledge/auth-google'
     | '/knowledge/new'
     | '/assistants/'
     | '/knowledge/'
@@ -253,6 +273,7 @@ export interface RootRouteChildren {
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
   KnowledgeKnowledgeSourceIdRoute: typeof KnowledgeKnowledgeSourceIdRoute
+  KnowledgeAuthGoogleRoute: typeof KnowledgeAuthGoogleRoute
   KnowledgeNewRoute: typeof KnowledgeNewRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
   KnowledgeIndexRoute: typeof KnowledgeIndexRoute
@@ -266,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
   KnowledgeKnowledgeSourceIdRoute: KnowledgeKnowledgeSourceIdRoute,
+  KnowledgeAuthGoogleRoute: KnowledgeAuthGoogleRoute,
   KnowledgeNewRoute: KnowledgeNewRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
   KnowledgeIndexRoute: KnowledgeIndexRoute,
@@ -288,6 +310,7 @@ export const routeTree = rootRoute
         "/assistants/$assistantId",
         "/assistants/new",
         "/knowledge/$knowledgeSourceId",
+        "/knowledge/auth-google",
         "/knowledge/new",
         "/assistants/",
         "/knowledge/"
@@ -313,6 +336,9 @@ export const routeTree = rootRoute
     },
     "/knowledge/$knowledgeSourceId": {
       "filePath": "knowledge/$knowledgeSourceId.tsx"
+    },
+    "/knowledge/auth-google": {
+      "filePath": "knowledge/auth-google.tsx"
     },
     "/knowledge/new": {
       "filePath": "knowledge/new.tsx"

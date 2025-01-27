@@ -1,3 +1,4 @@
+import { dropVectorStore } from '@george-ai/langchain-chat'
 import { builder } from '../builder'
 import { prisma } from '../prisma'
 
@@ -113,6 +114,22 @@ builder.mutationField('createAiKnowledgeSource', (t) =>
           ownerId,
         },
       })
+    },
+  }),
+)
+
+builder.mutationField('clearEmbeddedFiles', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      knowledgeSourceId: t.arg.string({ required: true }),
+    },
+    resolve: async (_parent, args) => {
+      await dropVectorStore(args.knowledgeSourceId)
+      await prisma.aiKnowledgeSourceFile.deleteMany({
+        where: { aiKnowledgeSourceId: args.knowledgeSourceId },
+      })
+      return true
     },
   }),
 )

@@ -73,6 +73,7 @@ model AiKnowledgeSource {
   isPublic              Boolean @default(true)
   aiKnowledgeSourceType AiKnowledgeSourceType
   usages                AiKnowledgeSourceUsage[]
+  files                 AiKnowledgeSourceFile[]
 }
 
 model AiKnowledgeSourceUsage {
@@ -82,4 +83,17 @@ model AiKnowledgeSourceUsage {
   aiAssistantId       String
   aiKnowledgeSource   AiKnowledgeSource @relation(fields: [aiKnowledgeSourceId], references: [id])
   aiKnowledgeSourceId String
+}
+
+model AiKnowledgeSourceFile {
+  id                  String            @id @default(cuid())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  aiKnowledgeSource   AiKnowledgeSource @relation(fields: [aiKnowledgeSourceId], references: [id])
+  aiKnowledgeSourceId String
+  name                String
+  url                 String
+  mimeType            String
+  size                Int
+  chunks              Int @default(1)
 }

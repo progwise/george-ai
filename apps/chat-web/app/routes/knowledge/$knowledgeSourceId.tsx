@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useLocation,
+  useParams,
+} from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
 import { KnowledgeSourceForm } from '../../components/knowledge-source-form'
 import { createServerFn } from '@tanstack/start'
@@ -7,6 +12,11 @@ import { AiKnowledgeSourceInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { KnowledgeSourceSelector } from '../../components/knowledge-source-selector'
+import { queryKeys } from '../../query-keys'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
+import { GoogleDriveFiles } from '../../components/knowledge-source-files/google-drive-files'
+import { EmbeddingsTable } from '../../components/knowledge-source-embeddings/embeddings-table'
 
 const aiKnowledgeSourceEditQueryDocument = graphql(`
   query aiKnowledgeSourceEdit($id: String!, $ownerId: String!) {
@@ -76,30 +86,48 @@ const changeKnowledgeSource = createServerFn({ method: 'POST' })
     })
   })
 
+const knowledgeSourcesQueryOptions = (
+  ownerId?: string,
+  knowledgeSourceId?: string,
+) => ({
+  queryKey: [queryKeys.KnowledgeSources, ownerId],
+  queryFn: async () => {
+    if (!ownerId) {
+      return null
+    } else {
+      return getKnowledgeSource({ data: { ownerId, knowledgeSourceId } })
+    }
+  },
+  enabled: !!ownerId || !!knowledgeSourceId,
+})
+
 export const Route = createFileRoute('/knowledge/$knowledgeSourceId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
-    if (!context.auth.user) {
-      throw redirect({ to: '/knowledge' })
-    }
     return {
       knowledgeSourceId: params.knowledgeSourceId,
-      ownerId: context.auth.user.id,
+      ownerId: context.auth.user?.id,
     }
   },
   loader: async ({ context }) => {
-    const knowledgeSource = await getKnowledgeSource({
-      data: { ...context },
-    })
-    return knowledgeSource
+    context.queryClient.ensureQueryData(
+      knowledgeSourcesQueryOptions(
+        context.auth.user?.id,
+        context.knowledgeSourceId,
+      ),
+    )
   },
   staleTime: 0,
 })
 
 function RouteComponent() {
   const auth = useAuth()
-  const { aiKnowledgeSource, aiKnowledgeSources } = Route.useLoaderData()
-
+  const currentLocation = useLocation()
+  const { knowledgeSourceId } = useParams({ strict: false })
+  const { data, isLoading } = useSuspenseQuery(
+    knowledgeSourcesQueryOptions(auth.user?.id, knowledgeSourceId),
+  )
+  const { aiKnowledgeSource, aiKnowledgeSources } = data || {}
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -110,6 +138,13 @@ function RouteComponent() {
     })
   }
   const disabled = !auth?.isAuthenticated
+  if (isLoading) {
+    return
+  }
+  if (!aiKnowledgeSource || !aiKnowledgeSources) {
+    return <LoadingSpinner />
+  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
@@ -126,14 +161,49 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      {!!aiKnowledgeSource && !!auth?.user && (
-        <KnowledgeSourceForm
-          knowledgeSource={aiKnowledgeSource}
-          owner={auth.user}
-          handleSubmit={handleSubmit}
-          disabled={disabled}
+
+      <div role="tablist" className="tabs tabs-bordered">
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          aria-label="Rules"
         />
-      )}
+        <div role="tabpanel" className="tab-content p-10">
+          <KnowledgeSourceForm
+            knowledgeSource={aiKnowledgeSource!}
+            owner={auth.user!}
+            handleSubmit={handleSubmit}
+            disabled={disabled}
+          />
+        </div>
+
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          aria-label="Files"
+          defaultChecked
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <GoogleDriveFiles
+            knowledgeSourceId={aiKnowledgeSource.id}
+            currentLocationHref={currentLocation.href}
+          />
+        </div>
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          aria-label="Embeddings"
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <EmbeddingsTable knowledgeSourceId={aiKnowledgeSource.id} />
+        </div>
+      </div>
     </article>
   )
 }

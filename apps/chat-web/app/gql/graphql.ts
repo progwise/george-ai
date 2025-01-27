@@ -74,6 +74,27 @@ export type AiKnowledgeSource = {
   url?: Maybe<Scalars['String']['output']>
 }
 
+export type AiKnowledgeSourceFile = {
+  __typename?: 'AiKnowledgeSourceFile'
+  aiKnowledgeSourceId: Scalars['String']['output']
+  chunks: Scalars['Int']['output']
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  mimeType: Scalars['String']['output']
+  name: Scalars['String']['output']
+  size: Scalars['Int']['output']
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  url: Scalars['String']['output']
+}
+
+export type AiKnowledgeSourceFileInput = {
+  aiKnowledgeSourceId: Scalars['String']['input']
+  content: Scalars['String']['input']
+  mimeType: Scalars['String']['input']
+  name: Scalars['String']['input']
+  url: Scalars['String']['input']
+}
+
 export type AiKnowledgeSourceInput = {
   aiKnowledgeSourceType: AiKnowledgeSourceType
   description?: InputMaybe<Scalars['String']['input']>
@@ -99,10 +120,13 @@ export type ChatAnswer = {
 export type Mutation = {
   __typename?: 'Mutation'
   chat?: Maybe<ChatAnswer>
+  clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   createAiAssistant?: Maybe<AiAssistant>
   createAiKnowledgeSource?: Maybe<AiKnowledgeSource>
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
+  dropFile?: Maybe<AiKnowledgeSourceFile>
+  embedFile?: Maybe<AiKnowledgeSourceFile>
   login?: Maybe<User>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiKnowledgeSource?: Maybe<AiKnowledgeSource>
@@ -112,6 +136,10 @@ export type MutationChatArgs = {
   question: Scalars['String']['input']
   retrievalFlow?: InputMaybe<RetrievalFlow>
   sessionId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type MutationClearEmbeddedFilesArgs = {
+  knowledgeSourceId: Scalars['String']['input']
 }
 
 export type MutationCreateAiAssistantArgs = {
@@ -133,6 +161,14 @@ export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
 
+export type MutationDropFileArgs = {
+  fileId: Scalars['String']['input']
+}
+
+export type MutationEmbedFileArgs = {
+  data: AiKnowledgeSourceFileInput
+}
+
 export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
 }
@@ -152,6 +188,7 @@ export type Query = {
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants?: Maybe<Array<AiAssistant>>
   aiKnowledgeSource?: Maybe<AiKnowledgeSource>
+  aiKnowledgeSourceFiles?: Maybe<Array<AiKnowledgeSourceFile>>
   aiKnowledgeSources?: Maybe<Array<AiKnowledgeSource>>
   user?: Maybe<User>
 }
@@ -166,6 +203,10 @@ export type QueryAiAssistantsArgs = {
 
 export type QueryAiKnowledgeSourceArgs = {
   id: Scalars['String']['input']
+}
+
+export type QueryAiKnowledgeSourceFilesArgs = {
+  knowledgeSourceId: Scalars['String']['input']
 }
 
 export type QueryAiKnowledgeSourcesArgs = {
@@ -413,6 +454,50 @@ export type DeleteAiAssistantMutationVariables = Exact<{
 export type DeleteAiAssistantMutation = {
   __typename?: 'Mutation'
   deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string } | null
+}
+
+export type ClearEmbeddingsMutationVariables = Exact<{
+  knowledgeSourceId: Scalars['String']['input']
+}>
+
+export type ClearEmbeddingsMutation = {
+  __typename?: 'Mutation'
+  clearEmbeddedFiles?: boolean | null
+}
+
+export type DropFileMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DropFileMutation = {
+  __typename?: 'Mutation'
+  dropFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
+}
+
+export type EmbeddingsTableQueryVariables = Exact<{
+  knowledgeSourceId: Scalars['String']['input']
+}>
+
+export type EmbeddingsTableQuery = {
+  __typename?: 'Query'
+  aiKnowledgeSourceFiles?: Array<{
+    __typename?: 'AiKnowledgeSourceFile'
+    id: string
+    name: string
+    url: string
+    mimeType: string
+    size: number
+    chunks: number
+  }> | null
+}
+
+export type EmbedFileMutationVariables = Exact<{
+  file: AiKnowledgeSourceFileInput
+}>
+
+export type EmbedFileMutation = {
+  __typename?: 'Mutation'
+  embedFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
 }
 
 export type AiAssistantEditQueryVariables = Exact<{
@@ -1579,6 +1664,209 @@ export const DeleteAiAssistantDocument = {
   DeleteAiAssistantMutation,
   DeleteAiAssistantMutationVariables
 >
+export const ClearEmbeddingsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'clearEmbeddings' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'knowledgeSourceId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'knowledgeSourceId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'knowledgeSourceId' },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ClearEmbeddingsMutation,
+  ClearEmbeddingsMutationVariables
+>
+export const DropFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
+export const EmbeddingsTableDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'EmbeddingsTable' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'knowledgeSourceId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiKnowledgeSourceFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'knowledgeSourceId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'knowledgeSourceId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  EmbeddingsTableQuery,
+  EmbeddingsTableQueryVariables
+>
+export const EmbedFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'embedFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiKnowledgeSourceFileInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'embedFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'file' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EmbedFileMutation, EmbedFileMutationVariables>
 export const AiAssistantEditDocument = {
   kind: 'Document',
   definitions: [

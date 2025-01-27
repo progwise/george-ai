@@ -11,8 +11,8 @@ export const KnowledgeSourceSelector = (
 ) => {
   const { knowledgeSources, selectedKnowledgeSource } = props
   return (
-    <div className="dropdown">
-      <div tabIndex={0} role="button" className="btn m-1">
+    <div className="dropdown dropdown-sm">
+      <div tabIndex={0} role="button" className="btn btn-sm">
         {selectedKnowledgeSource.name}
       </div>
       <ul

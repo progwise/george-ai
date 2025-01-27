@@ -77,6 +77,10 @@ function RouteComponent() {
       {user && (
         <KnowledgeSourceForm
           knowledgeSource={{
+            id: '',
+            createdAt: new Date().toISOString(),
+            url: '',
+            ownerId: user.id,
             name: '',
             description: '',
             aiKnowledgeSourceType: AiKnowledgeSourceType.GoogleDrive,

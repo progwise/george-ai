@@ -43,6 +43,26 @@ type AiKnowledgeSource {
   url: String
 }
 
+type AiKnowledgeSourceFile {
+  aiKnowledgeSourceId: String!
+  chunks: Int!
+  createdAt: DateTime!
+  id: ID!
+  mimeType: String!
+  name: String!
+  size: Int!
+  updatedAt: DateTime
+  url: String!
+}
+
+input AiKnowledgeSourceFileInput {
+  aiKnowledgeSourceId: String!
+  content: String!
+  mimeType: String!
+  name: String!
+  url: String!
+}
+
 input AiKnowledgeSourceInput {
   aiKnowledgeSourceType: AiKnowledgeSourceType!
   description: String
@@ -84,6 +104,7 @@ type Mutation {
     retrievalFlow: RetrievalFlow
     sessionId: String
   ): ChatAnswer
+  clearEmbeddedFiles(knowledgeSourceId: String!): Boolean
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
   createAiKnowledgeSource(
     data: AiKnowledgeSourceInput!
@@ -91,6 +112,8 @@ type Mutation {
   ): AiKnowledgeSource
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
+  dropFile(fileId: String!): AiKnowledgeSourceFile
+  embedFile(data: AiKnowledgeSourceFileInput!): AiKnowledgeSourceFile
   login(jwtToken: String!): User
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiKnowledgeSource(
@@ -103,6 +126,7 @@ type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]
   aiKnowledgeSource(id: String!): AiKnowledgeSource
+  aiKnowledgeSourceFiles(knowledgeSourceId: String!): [AiKnowledgeSourceFile!]
   aiKnowledgeSources(ownerId: String!): [AiKnowledgeSource!]
   user(email: String!): User
 }

@@ -41,6 +41,7 @@ const knowledgeSourcesQueryOptions = (ownerId?: string) =>
         return getKnowledgeSources({ data: ownerId })
       }
     },
+    enabled: !!ownerId,
   })
 
 export const Route = createFileRoute('/knowledge/')({
@@ -112,7 +113,8 @@ function RouteComponent() {
                 <td>
                   <Link
                     className="btn btn-ghost btn-xs"
-                    to={`/knowledge/${knowledgeSource.id}`}
+                    to={'/knowledge/$knowledgeSourceId'}
+                    params={{ knowledgeSourceId: knowledgeSource.id }}
                   >
                     Edit
                   </Link>

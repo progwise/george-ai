@@ -21,6 +21,10 @@ const builder = new SchemaBuilder<{
       Input: Prisma.Decimal
       Output: Prisma.Decimal
     }
+    Bytes: {
+      Input: Blob
+      Output: Blob
+    }
   }
 }>({
   defaultInputFieldRequiredness: true,
