@@ -14,8 +14,8 @@ import {
   searchQueryPrompt,
 } from './prompts'
 import { getMessageHistory } from './message-history'
-// import { getFileContentForQuestion } from './memory-vectorstore'
-import { getFileContentForQuestion } from './typesense-vectorstore'
+// import { getPDFContentForQuestion } from './memory-vectorstore'
+import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 
 import * as z from 'zod'
@@ -159,7 +159,7 @@ const mainChain = RunnableSequence.from([
 
   async (input) => ({
     ...input,
-    context: await getFileContentForQuestion(input.searchQuery),
+    context: await getPDFContentForQuestion(input.searchQuery),
   }),
 
   branchChain,

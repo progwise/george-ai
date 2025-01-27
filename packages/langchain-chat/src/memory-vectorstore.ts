@@ -38,7 +38,7 @@ const getPDFVectorStore = async () => {
   return memoryVectorStore
 }
 
-export const getFileContentForQuestion = async (question: string) => {
+export const getPDFContentForQuestion = async (question: string) => {
   try {
     const vectorStore = await getPDFVectorStore()
     const retrieverLocal = vectorStore.asRetriever(LOCAL_RETRIEVAL_K)

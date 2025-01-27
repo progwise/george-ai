@@ -8,7 +8,6 @@ import { Dropdown } from '../components/dropdown'
 
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
-
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { FormattedMarkdown } from '../components/formatted-markdown'
 
