@@ -4,8 +4,8 @@ you should start developing on it using VSCode devcontainers.
 
 To start the george-web app you need to
 
-- `cd apps/chat-web`
-- create and edit the .env file there
+- re-open in dev container
+- create .env files in the root, `apps/chat-web`, `apps/georgeai-server` and `packages/pothos-graphql` following `env.example` files
 - `pnpm dev`
 
 Enjoy.
