@@ -4,6 +4,8 @@
 
 ### 1. Re-open the repository in a **DevContainer**.
 
+- DevContainers likely to have issues on Windows machines.
+
 ---
 
 ### 2. Create `.env` Files in:
