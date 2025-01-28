@@ -2,9 +2,7 @@
 
 ## Getting Started
 
-### 1. Open the Repo in a Dev Container
-
-Re-open the repository in a **DevContainer**.
+### 1. Re-open the repository in a **DevContainer**.
 
 ---
 
@@ -44,6 +42,8 @@ Navigate to `packages/pothos-graphql` and run:
 pnpm prisma db push
 ```
 
+---
+
 ### 6. Create PocketBase Token
 
 Under `gai-pocketbase` container within the `george-ai_devcontainer`, replace `0.0.0.0` with `localhost` in the link and paste it into the browser.
@@ -51,6 +51,8 @@ Log in to PocketBase at `http://localhost:8090/_`, navigate to System > \_superu
 
 - Click the three dots → Choose Impersonate → Generate a token.
 - Copy the token and add it to your .env file.
+
+---
 
 ### 7. Start Development
 
