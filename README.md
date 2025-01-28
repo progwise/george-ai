@@ -1,23 +1,64 @@
 # George AI Project
 
-you should start developing on it using VSCode devcontainers.
+## Getting Started
 
-To start the george-web app you need to
+### 1. Open the Repo in a Dev Container
 
-- re-open in dev container
-- create .env files in the root, `apps/chat-web`, `apps/georgeai-server` and `packages/pothos-graphql` following `env.example` files
-- we have a bash script, if you are new just ask for it to setup env files
-- port 3003 is a GraphQL backend
-- port 3001 for the front end
-- steps for creating keycloak: go to 8180, admin admin, keycloak/master > create realm > info is in .env of chat-web (george-ai realm name, create), go to clients, create client, clientid in env (george-ai-web), next, next, valid redirect uri's, from env (http://localhost:3001 and http://localhost:3001/\*), save, same links for Valid post logout redirect URIs and Web Origins, create new user, create credentials
-- cd packages/pothos-graphql, pnpm prisma db push
-- download georgesetenv
-- create pocketbase token
-- http://localhost:8090/\_
-- create user by going into the gai-pocketbase docker container
-- Launch the URL below in the browser if it hasn't been open already to create your first superuser account:
-- system, superusers, impersonate to create an auth token
-- `pnpm dev`
+Re-open the repository in a **DevContainer**.
+
+---
+
+### 2. Create `.env` Files in:
+
+- **Root directory**
+- `apps/chat-web`
+- `apps/georgeai-server`
+- `packages/pothos-graphql`
+
+Use `env.example` files as references.
+
+---
+
+### 3. Ports Overview
+
+- **Port 3003**: GraphQL backend
+- **Port 3001**: Frontend
+
+---
+
+### 4. Set Up Keycloak
+
+1. Navigate to `http://localhost:8180` and log in with the credentials `admin` and `admin`.
+2. Create a Realm using `KEYCLOAK_REALM` from `.env` file.
+3. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
+4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
+5. Go to the **Users** section and create a user and set a password under the **Credentials** tab in the user view.
+
+---
+
+### 5. Push Prisma Schema
+
+Navigate to `packages/pothos-graphql` and run:
+
+```bash
+pnpm prisma db push
+```
+
+### 6. Create PocketBase Token
+
+Under `gai-pocketbase` container within the `george-ai_devcontainer`, replace `0.0.0.0` with `localhost` in the link and paste it into the browser.
+Log in to PocketBase at `http://localhost:8090/_`, navigate to System > \_superusers, click on your user, and:
+
+- Click the three dots → Choose Impersonate → Generate a token.
+- Copy the token and add it to your .env file.
+
+### 7. Start Development
+
+Run the development server:
+
+```bash
+pnpm dev
+```
 
 Enjoy.
 
