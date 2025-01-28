@@ -6,6 +6,17 @@ To start the george-web app you need to
 
 - re-open in dev container
 - create .env files in the root, `apps/chat-web`, `apps/georgeai-server` and `packages/pothos-graphql` following `env.example` files
+- we have a bash script, if you are new just ask for it to setup env files
+- port 3003 is a GraphQL backend
+- port 3001 for the front end
+- steps for creating keycloak: go to 8180, admin admin, keycloak/master > create realm > info is in .env of chat-web (george-ai realm name, create), go to clients, create client, clientid in env (george-ai-web), next, next, valid redirect uri's, from env (http://localhost:3001 and http://localhost:3001/\*), save, same links for Valid post logout redirect URIs and Web Origins, create new user, create credentials
+- cd packages/pothos-graphql, pnpm prisma db push
+- download georgesetenv
+- create pocketbase token
+- http://localhost:8090/\_
+- create user by going into the gai-pocketbase docker container
+- Launch the URL below in the browser if it hasn't been open already to create your first superuser account:
+- system, superusers, impersonate to create an auth token
 - `pnpm dev`
 
 Enjoy.
