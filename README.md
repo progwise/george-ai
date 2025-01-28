@@ -56,7 +56,7 @@ Log in to PocketBase at `http://localhost:8090/_`, navigate to System > \_superu
 
 ### 7. Start Development
 
-Run the development server:
+Open two separate terminal windows for `apps/georgeai-server` and `apps/chat-web` and run the following command in each:
 
 ```bash
 pnpm dev
