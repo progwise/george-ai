@@ -5,18 +5,19 @@ import {
   useParams,
 } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
-import { KnowledgeSourceForm } from '../../components/knowledge-source-form'
+import { KnowledgeSourceForm } from '../../components/knowledge-source/knowledge-source-form'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { AiKnowledgeSourceInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
-import { KnowledgeSourceSelector } from '../../components/knowledge-source-selector'
+import { KnowledgeSourceSelector } from '../../components/knowledge-source/knowledge-source-selector'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../../components/loading-spinner'
-import { GoogleDriveFiles } from '../../components/knowledge-source-files/google-drive-files'
-import { EmbeddingsTable } from '../../components/knowledge-source-embeddings/embeddings-table'
+import { GoogleDriveFiles } from '../../components/knowledge-source/google-drive-files'
+import { EmbeddingsTable } from '../../components/knowledge-source/embeddings-table'
+import { KnowledgeSourceQuery } from '../../components/knowledge-source/knowledge-source-query'
 
 const aiKnowledgeSourceEditQueryDocument = graphql(`
   query aiKnowledgeSourceEdit($id: String!, $ownerId: String!) {
@@ -90,7 +91,7 @@ const knowledgeSourcesQueryOptions = (
   ownerId?: string,
   knowledgeSourceId?: string,
 ) => ({
-  queryKey: [queryKeys.KnowledgeSources, ownerId],
+  queryKey: [queryKeys.KnowledgeSources, knowledgeSourceId, ownerId],
   queryFn: async () => {
     if (!ownerId) {
       return null
@@ -202,6 +203,16 @@ function RouteComponent() {
         />
         <div role="tabpanel" className="tab-content p-10">
           <EmbeddingsTable knowledgeSourceId={aiKnowledgeSource.id} />
+        </div>
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          aria-label="Query"
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <KnowledgeSourceQuery knowledgeSourceId={aiKnowledgeSource.id} />
         </div>
       </div>
     </article>

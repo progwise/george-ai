@@ -1,75 +1,78 @@
 import React from 'react'
-import { AiKnowledgeSource, User } from '../gql/graphql'
+import { AiAssistant, User } from '../../gql/graphql'
 
-export interface KnowledgeSourceEditFormProps {
-  knowledgeSource: AiKnowledgeSource
+export interface AssistantEditFormProps {
+  assistant: AiAssistant
   owner: User
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
-export const KnowledgeSourceForm = ({
-  knowledgeSource,
+export const AssistantForm = ({
+  assistant,
   owner,
   handleSubmit,
   disabled,
-}: KnowledgeSourceEditFormProps): React.ReactElement => {
+}: AssistantEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <input type="hidden" name="ownerId" value={owner.id} />
       <input type="hidden" name="url" value="wasauchimmer" />
-      <input
-        type="hidden"
-        name="knowledgeSourceId"
-        value={knowledgeSource.id || ''}
-      />
+      <input type="hidden" name="assistantId" value={assistant.id} />
 
-      <label className="input input-bordered flex items-center gap-2">
-        Name your Knowledge Source:
+      <label className="form-control w-full max-w-xs">
         <input
-          key={knowledgeSource.name}
+          type="file"
+          accept="image/*"
+          name="icon"
+          className="file-input file-input-bordered w-full max-w-xs"
+        />
+      </label>
+      <label className="input input-bordered flex items-center gap-2">
+        Name your assistant:
+        <input
+          key={assistant.name}
           name="name"
           type="text"
-          defaultValue={knowledgeSource.name || ''}
+          defaultValue={assistant.name}
           className="grow"
-          placeholder="Ancient Library of Alexandria"
+          placeholder="George II"
         />
       </label>
       <textarea
-        key={knowledgeSource.description}
+        key={assistant.description}
         name="description"
         className="textarea textarea-bordered flex-grow w-full"
-        placeholder="The Alexandrian Library was one of the largest and most significant libraries of the ancient world."
-        defaultValue={knowledgeSource.description || ''}
+        placeholder="Born and brought up in northern Germany, George is the most recent British monarch born outside Great Britain."
+        defaultValue={assistant.description || ''}
       ></textarea>
       <div className="flex gap-2">
         <div className="form-control">
           <label className="label cursor-pointer">
-            <span className="label-text pr-4">Google Drive</span>
+            <span className="label-text pr-4">Chatbot</span>
             <input
-              key={knowledgeSource.aiKnowledgeSourceType}
+              key={assistant.aiAssistantType}
               type="radio"
-              name="aiKnowledgeSourceType"
-              value="GOOGLE_DRIVE"
+              name="aiAssistantType"
+              value="CHATBOT"
               className="radio checked:bg-green-500"
-              defaultChecked={
-                knowledgeSource.aiKnowledgeSourceType === 'GOOGLE_DRIVE'
-              }
+              defaultChecked={assistant.aiAssistantType === 'CHATBOT'}
             />
           </label>
         </div>
         <div className="form-control">
           <label className="label cursor-pointer">
-            <span className="label-text pr-4">Pocketbase</span>
+            <span className="label-text pr-4">Doc Generator</span>
             <input
-              key={knowledgeSource.aiKnowledgeSourceType}
+              key={assistant.aiAssistantType}
               type="radio"
-              name="aiKnowledgeSourceType"
+              name="aiAssistantType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
               defaultChecked={
-                knowledgeSource.aiKnowledgeSourceType === 'POCKETBASE'
+                assistant.aiAssistantType === 'DOCUMENT_GENERATOR'
               }
+              disabled
             />
           </label>
         </div>

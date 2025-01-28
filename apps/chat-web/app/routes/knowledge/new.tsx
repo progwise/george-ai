@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
-import { KnowledgeSourceForm } from '../../components/knowledge-source-form'
+import { KnowledgeSourceForm } from '../../components/knowledge-source/knowledge-source-form'
 import { AiKnowledgeSourceType } from '../../gql/graphql'
 import { createServerFn } from '@tanstack/start'
 import { AiKnowledgeSourceInputSchema } from '../../gql/validation'

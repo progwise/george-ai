@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { graphql } from '../../gql/gql'
-import { AssistantCard } from '../../components/assistant-card'
+import { AssistantCard } from '../../components/assistant/assistant-card'
 import { queryKeys } from '../../query-keys'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'

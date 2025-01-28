@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { AiKnowledgeSource } from '../gql/graphql'
+import { AiKnowledgeSource } from '../../gql/graphql'
 
 interface KnowledgeSourceSelectorProps {
   knowledgeSources: Pick<AiKnowledgeSource, 'id' | 'name'>[]
