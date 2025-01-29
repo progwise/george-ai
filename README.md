@@ -8,14 +8,13 @@
 
 ---
 
-### 2. Create `.env` Files in:
+### 2. `.env` files:
 
-- **Root directory**
-- `apps/chat-web`
-- `apps/georgeai-server`
-- `packages/pothos-graphql`
+- you need `.env` files in the directory you start the app from. If you start from **root**, setup `.env` file in the **root**, `pnpm dev` will start **george-ai** server on port `3003` and **chat-web** on `3001`. You can also start two of them separately, in this case you'd need to setup `.env` files in `apps/georgeai-server` and `apps/chat-web`.
 
-Use `env.example` files as references.
+- if you run prisma scripts in `packages/pothos-graphql` (ex. `pnpm prisma generate`), you need to setup `.env` file in it as well.
+
+Use `env.example` files as the references.
 
 ---
 
@@ -23,6 +22,8 @@ Use `env.example` files as references.
 
 - **Port 3003**: GraphQL backend
 - **Port 3001**: Frontend
+
+**Vite** provides HMR. To efficiently track changes and update UI without a full reload, it establishes a WebSocket connection between browser and dev server. **Vite** dev server automatically starts **HTTP server** and creates a **WS server** on the same host but with different (dynamic) port.
 
 ---
 
@@ -33,6 +34,7 @@ Use `env.example` files as references.
 3. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
 4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
 5. Go to the **Users** section and create a user and set a password under the **Credentials** tab in the user view.
+6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
 
 ---
 
@@ -48,21 +50,25 @@ pnpm prisma db push
 
 ### 6. Create PocketBase Token
 
+In order to upload files for George-AI to work with, you will need to setup **PocketBase**.
+
 Under `gai-pocketbase` container within the `george-ai_devcontainer`, replace `0.0.0.0` with `localhost` in the link and paste it into the browser.
 Log in to PocketBase at `http://localhost:8090/_`, navigate to System > \_superusers, click on your user, and:
 
 - Click the three dots → Choose Impersonate → Generate a token.
-- Copy the token and add it to your .env file.
+- Copy **Impersonate auth token** and add it to your .env file as `POCKETBASE_TOKEN`.
 
 ---
 
 ### 7. Start Development
 
-Open two separate terminal windows for `apps/georgeai-server` and `apps/chat-web` and run the following command in each:
+You can run the app from root using following command
 
 ```bash
 pnpm dev
 ```
+
+However, `georgeai-server` is not stable and breaks on file changes in Vite dev mode, so you would need to restart the backend server often. This will change in the future. As a temporary solution, open two separate terminal windows for `apps/georgeai-server` and `apps/chat-web` and run the command above in each.
 
 Enjoy.
 
