@@ -10,7 +10,7 @@ const TopNavigation = () => {
   const { isAuthenticated, login, logout, user, profileUrl } = authContext ?? {}
 
   return (
-    <nav className="navbar bg-base-200 rounded-box shadow-xl mt-10 mb-10 sticky top-10 z-50">
+    <nav className="navbar bg-base-200 rounded-box shadow-xl gap-2 z-50 sticky mb-10"> 
       <div className="navbar-start lg:hidden">
         <div className="dropdown">
           <label tabIndex={0} className="btn btn-ghost">
@@ -76,7 +76,6 @@ const TopNavigation = () => {
       </div>
 
       <div className="hidden lg:flex w-full justify-evenly items-center">
-        {/* Chat with text */}
         <Link to="/langchain-chat" className="btn btn-ghost gap-2">
           <ChatBubbleIcon className="size-6" />
           <span>Chat</span>
@@ -97,8 +96,8 @@ const TopNavigation = () => {
           </button>
         ) : (
           <>
-            <Link to={profileUrl} className="btn btn-ghost gap-2">
-              <span>{user?.name}</span>
+            <Link to={profileUrl} className="btn btn-ghost">
+            {user?.name}
             </Link>
             <button
               type="button"
