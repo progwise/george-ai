@@ -9,6 +9,7 @@ import { Dropdown } from '../components/dropdown'
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
+import { FormattedMarkdown } from '../components/formatted-markdown'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
@@ -70,7 +71,7 @@ const ChatRoute = () => {
       </div>
 
       <section>
-        {data.messages.map((message) => (
+        {data?.messages.map((message) => (
           <div
             className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
             key={message.id}
@@ -81,12 +82,14 @@ const ChatRoute = () => {
                 {message.time.toString()}
               </time>
             </div>
-            <div className="chat-bubble">{message.text}</div>
+            <div className="chat-bubble">
+              <FormattedMarkdown markdown={message.text} />
+            </div>
+
             <div className="chat-footer opacity-50">{message.source}</div>
           </div>
         ))}
       </section>
-
       {data?.sessionId && (
         <LangchainChatForm
           sessionId={data.sessionId}
