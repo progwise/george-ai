@@ -34,17 +34,7 @@ const ChatRoute = () => {
       <div className="flex justify-end gap-4">
         <Dropdown
           className="w-52"
-          title={
-            selectedFlow === 'Sequential'
-              ? translation('flowSequential')
-              : selectedFlow === 'Parallel'
-                ? translation('flowParallel')
-                : selectedFlow === 'Only Local'
-                  ? translation('flowLocal')
-                  : selectedFlow === 'Only Web'
-                    ? translation('flowWeb')
-                    : selectedFlow
-          }
+          title={translation(`flow${selectedFlow}`)}
           options={[
             {
               title: translation('flowSequential'),

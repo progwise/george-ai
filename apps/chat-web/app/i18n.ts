@@ -5,7 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 const resources = {
   en: {
     translation: {
-      brand: 'George Ai',
+      brand: 'George-Ai',
       chat: 'Chat',
       assistants: 'Assistants',
       signIn: 'Sign in',
@@ -15,11 +15,22 @@ const resources = {
       flowLocal: 'Flow: Only Local',
       flowWeb: 'Flow: Only Web',
       resetConversation: 'Reset conversation',
+      greeting: 'Hello, I am your travel assistant. How can I help you?',
+
+      home: {
+        title: 'Your AI. Your Data. Your Rules.',
+        paragraph: `Meet George-AI: a custom-trained AI assistant tailored to your 
+        business needs. Create unique content, handle customer interactions, 
+        and streamline workflows — all powered by your own data sources and 
+        fully compliant with European data protection standards.`,
+        btnText: 'Start Training Your AI',
+        altImage: 'George AI',
+      },
     },
   },
   de: {
     translation: {
-      brand: 'George Ai',
+      brand: 'George-Ai',
       chat: 'Chat',
       assistants: 'Assistenten',
       signIn: 'Anmelden',
@@ -29,6 +40,18 @@ const resources = {
       flowLocal: 'Ablauf: Nur Lokal',
       flowWeb: 'Ablauf: Nur Web',
       resetConversation: 'Konversation zurücksetzen',
+      greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
+
+      home: {
+        title: 'Ihre KI. Ihre Daten. Ihre Regeln.',
+        paragraph: `Lernen Sie George-AI kennen: Ein maßgeschneiderter KI-Assistent, 
+            zugeschnitten auf Ihre Geschäftsanforderungen. Erstellen Sie einzigartige 
+            Inhalte, verwalten Sie Kundeninteraktionen und optimieren Sie Workflows — 
+            alles basierend auf Ihren eigenen Datenquellen und vollständig konform mit 
+            europäischen Datenschutzbestimmungen.`,
+        btnText: 'KI-Training starten',
+        altImage: 'George KI',
+      },
     },
   },
 }
@@ -38,7 +61,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'de',
+    fallbackLng: 'en',
     interpolation: {
       escapeValue: false, // React already does XSS protection
     },
