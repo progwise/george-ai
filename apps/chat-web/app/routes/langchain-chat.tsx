@@ -5,15 +5,16 @@ import {
 } from '../server-functions/langchain-chat-history'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Dropdown } from '../components/dropdown'
-
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { FormattedMarkdown } from '../components/formatted-markdown'
+import { useTranslation } from 'react-i18next'
 
 const ChatRoute = () => {
-  const [sessionId, setSessionId] = useState<string | undefined>(undefined)
+  const { t: translation } = useTranslation()
 
+  const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
 
   const { data, refetch, isSuccess } = useSuspenseQuery(
@@ -33,22 +34,32 @@ const ChatRoute = () => {
       <div className="flex justify-end gap-4">
         <Dropdown
           className="w-52"
-          title={`Flow: ${selectedFlow}`}
+          title={
+            selectedFlow === 'Sequential'
+              ? translation('flowSequential')
+              : selectedFlow === 'Parallel'
+                ? translation('flowParallel')
+                : selectedFlow === 'Only Local'
+                  ? translation('flowLocal')
+                  : selectedFlow === 'Only Web'
+                    ? translation('flowWeb')
+                    : selectedFlow
+          }
           options={[
             {
-              title: 'Flow: Sequential',
+              title: translation('flowSequential'),
               action: () => setSelectedFlow('Sequential'),
             },
             {
-              title: 'Flow: Parallel',
+              title: translation('flowParallel'),
               action: () => setSelectedFlow('Parallel'),
             },
             {
-              title: 'Flow: Only Local',
+              title: translation('flowLocal'),
               action: () => setSelectedFlow('Only Local'),
             },
             {
-              title: 'Flow: Only Web',
+              title: translation('flowWeb'),
               action: () => setSelectedFlow('Only Web'),
             },
           ]}
@@ -66,14 +77,16 @@ const ChatRoute = () => {
             refetch()
           }}
         >
-          Reset conversation
+          {translation('resetConversation')}
         </button>
       </div>
 
       <section>
         {data?.messages.map((message) => (
           <div
-            className={`chat ${message.sender === 'bot' ? 'chat-start' : 'chat-end'}`}
+            className={`chat ${
+              message.sender === 'bot' ? 'chat-start' : 'chat-end'
+            }`}
             key={message.id}
           >
             <div className="chat-header">
@@ -85,7 +98,6 @@ const ChatRoute = () => {
             <div className="chat-bubble">
               <FormattedMarkdown markdown={message.text} />
             </div>
-
             <div className="chat-footer opacity-50">{message.source}</div>
           </div>
         ))}
