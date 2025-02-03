@@ -23,7 +23,7 @@ Use `env.example` files as the references.
 - **Port 3003**: GraphQL backend
 - **Port 3001**: Frontend
 
-**Vite** provides HMR. To efficiently track changes and update UI without a full reload, it establishes a WebSocket connection between browser and dev server. **Vite** dev server automatically starts **HTTP server** and creates a **WS server** on the same host but with different (dynamic) port.
+**Vite** provides Hot Module Replacement (HMR) by establishing a WebSocket connection between the browser and the dev server. The **Vite** dev server automatically starts an HTTP server and creates a **WebSocket (WS)** server on the same host but with a dynamically assigned port. We enhance this setup with a custom **Vite** plugin that extracts the HMR WebSocket port and writes it to **app.config.ts** and an automatic port opening based on VSCode settings.
 
 ---
 
@@ -35,6 +35,12 @@ Use `env.example` files as the references.
 4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
 5. Go to the **Users** section and create a user and set a password under the **Credentials** tab in the user view.
 6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
+
+Docs for setting up an OAuth app in:
+
+- Google: https://support.google.com/cloud/answer/6158849?hl=en
+- GitHub: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
+- LinkedIn: https://techdocs.akamai.com/identity-cloud/docs/the-linkedin-oauth-20-social-login-configuration-guide
 
 ---
 
