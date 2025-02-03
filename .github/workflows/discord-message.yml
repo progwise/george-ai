@@ -1,3 +1,5 @@
+name: Discord Notification
+
 on:
   push:
     # branches:
@@ -5,8 +7,7 @@ on:
 
 jobs:
   discord:
-    name: Discord Notification
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: 'send message'
         env:
