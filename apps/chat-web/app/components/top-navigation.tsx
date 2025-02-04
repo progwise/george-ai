@@ -10,7 +10,7 @@ const TopNavigation = () => {
   const authContext = useAuth()
   const { isAuthenticated, login, logout, user, profileUrl } = authContext ?? {}
 
-  const { t: translation } = useTranslation()
+  const { t } = useTranslation()
 
   return (
     <nav className="navbar bg-base-200 rounded-box shadow-xl gap-2 z-50 sticky mb-10">
@@ -39,20 +39,20 @@ const TopNavigation = () => {
             <li>
               <Link to="/langchain-chat">
                 <ChatBubbleIcon className="size-6" />
-                {translation('chat')}
+                {t('chat')}
               </Link>
             </li>
             <li>
               <Link to="/assistants">
                 <AcademicCapIcon className="size-6" />
-                {translation('assistants')}
+                {t('assistants')}
               </Link>
             </li>
             {!isAuthenticated ? (
               <li>
                 <button type="button" onClick={() => login?.()}>
                   <UserIcon className="size-6" />
-                  {translation('signIn')}
+                  {t('signIn')}
                 </button>
               </li>
             ) : (
@@ -63,7 +63,7 @@ const TopNavigation = () => {
                 <li>
                   <button type="button" onClick={() => logout?.()}>
                     <UserIcon className="size-6" />
-                    {translation('signOut')}
+                    {t('signOut')}
                   </button>
                 </li>
               </>
@@ -75,19 +75,19 @@ const TopNavigation = () => {
       <div className="navbar-end lg:hidden">
         <Link className="btn btn-ghost" to="/">
           <BowlerHatIcon className="size-8" />
-          {translation('brand')}
+          {t('brand')}
         </Link>
       </div>
 
       <div className="hidden lg:flex w-full justify-evenly items-center">
         <Link to="/langchain-chat" className="btn btn-ghost gap-2">
           <ChatBubbleIcon className="size-6" />
-          <span>{translation('chat')}</span>
+          <span>{t('chat')}</span>
         </Link>
 
         <Link to="/assistants" className="btn btn-ghost gap-2">
           <AcademicCapIcon className="size-6" />
-          <span>{translation('assistants')}</span>
+          <span>{t('assistants')}</span>
         </Link>
 
         {!isAuthenticated ? (
@@ -97,7 +97,7 @@ const TopNavigation = () => {
             onClick={() => login?.()}
           >
             <UserIcon className="size-6" />
-            <span>{translation('signIn')}</span>
+            <span>{t('signIn')}</span>
           </button>
         ) : (
           <>
@@ -110,13 +110,13 @@ const TopNavigation = () => {
               onClick={() => logout?.()}
             >
               <UserIcon className="size-6" />
-              <span>{translation('signOut')}</span>
+              <span>{t('signOut')}</span>
             </button>
           </>
         )}
         <Link className="btn btn-ghost gap-2" to="/">
           <BowlerHatIcon className="size-8" />
-          <span>{translation('brand')}</span>
+          <span>{t('brand')}</span>
         </Link>
       </div>
     </nav>

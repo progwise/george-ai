@@ -12,7 +12,7 @@ import { FormattedMarkdown } from '../components/formatted-markdown'
 import { useTranslation } from 'react-i18next'
 
 const ChatRoute = () => {
-  const { t: translation } = useTranslation()
+  const { t } = useTranslation()
 
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
@@ -34,22 +34,22 @@ const ChatRoute = () => {
       <div className="flex justify-end gap-4">
         <Dropdown
           className="w-52"
-          title={translation(`flow${selectedFlow}`)}
+          title={t(`flow${selectedFlow}`)}
           options={[
             {
-              title: translation('flowSequential'),
+              title: t('flowSequential'),
               action: () => setSelectedFlow('Sequential'),
             },
             {
-              title: translation('flowParallel'),
+              title: t('flowParallel'),
               action: () => setSelectedFlow('Parallel'),
             },
             {
-              title: translation('flowLocal'),
+              title: t('flowLocal'),
               action: () => setSelectedFlow('Only Local'),
             },
             {
-              title: translation('flowWeb'),
+              title: t('flowWeb'),
               action: () => setSelectedFlow('Only Web'),
             },
           ]}
@@ -67,7 +67,7 @@ const ChatRoute = () => {
             refetch()
           }}
         >
-          {translation('resetConversation')}
+          {t('resetConversation')}
         </button>
       </div>
 
