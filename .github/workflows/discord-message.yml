@@ -14,4 +14,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: '**{{ EVENT_PAYLOAD.sender.login }}** has deployed **${{ github.event.head_commit.message }}** on production 🎉'
+          args: 'George-Ai: **{{ EVENT_PAYLOAD.sender.login }}** has merged **${{ github.event.head_commit.message }}** to main 🎉'
