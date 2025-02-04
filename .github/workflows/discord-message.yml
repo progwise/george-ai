@@ -1,0 +1,17 @@
+name: Discord Notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  discord:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 'send message'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'George-Ai: **{{ EVENT_PAYLOAD.sender.login }}** has merged **${{ github.event.head_commit.message }}** to main 🎉'
