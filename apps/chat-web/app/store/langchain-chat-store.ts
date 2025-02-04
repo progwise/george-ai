@@ -1,4 +1,5 @@
 import { ask, RetrievalFlow } from '@george-ai/langchain-chat'
+import i18n from '../i18n'
 
 export interface LangchainChatMessage {
   id: string
@@ -17,7 +18,7 @@ const getDefaultChat = (
     id: '0',
     sessionId: (Math.random() + 1).toString(36).slice(7),
     sender: 'bot',
-    text: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
+    text: i18n.t('greeting'),
     source: 'George AI',
     time: new Date(),
     retrievalFlow,
