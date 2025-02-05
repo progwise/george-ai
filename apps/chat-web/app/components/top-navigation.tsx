@@ -4,6 +4,7 @@ import ChatBubbleIcon from './icons/chat-bubble-icon'
 import UserIcon from './icons/user-icon'
 import AcademicCapIcon from './icons/academic-cap-icon'
 import { useAuth } from '../auth/auth-context'
+import { t } from 'i18next'
 
 const TopNavigationLink = ({ to, children }) => {
   return (
@@ -26,47 +27,45 @@ const TopNavigation = () => {
       <div className="navbar-start">
         <TopNavigationLink to="/">
           <BowlerHatIcon className="size-8" />
-          George Ai
+          {t('brand')}
         </TopNavigationLink>
       </div>
       <div className="navbar-center">
         <TopNavigationLink to="/assistants">
           <ChatBubbleIcon className="size-6" />
-          Assistants
+          {t('assistants')}
         </TopNavigationLink>
         <TopNavigationLink to="/knowledge">
           <AcademicCapIcon className="size-6" />
-          Knowledge Sources
+          {t('library')}
         </TopNavigationLink>
         <TopNavigationLink to="/langchain-chat">
           <ChatBubbleIcon className="size-6" />
-          Chat
+          {t('chat')}
         </TopNavigationLink>
       </div>
       <div className="navbar-end">
         {!isAuthenticated ? (
-          <>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => login?.()}
-            >
-              <UserIcon className="size-6" />
-              Sign in
-            </button>
-          </>
+          <button
+            type="button"
+            className="btn btn-ghost gap-2"
+            onClick={() => login?.()}
+          >
+            <UserIcon className="size-6" />
+            <span>{t('signIn')}</span>
+          </button>
         ) : (
           <>
-            <Link className="btn btn-ghost" to={profileUrl}>
+            <Link to={profileUrl} className="btn btn-ghost gap-2">
               {user?.name}
             </Link>
             <button
               type="button"
-              className="btn btn-ghost"
+              className="btn btn-ghost gap-2"
               onClick={() => logout?.()}
             >
               <UserIcon className="size-6" />
-              Sign out
+              <span>{t('signOut')}</span>
             </button>
           </>
         )}
