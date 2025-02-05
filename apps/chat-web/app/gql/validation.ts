@@ -45,10 +45,9 @@ export function AiKnowledgeSourceFileInputSchema(): z.ZodObject<
 > {
   return z.object({
     aiKnowledgeSourceId: z.string(),
-    content: z.string(),
     mimeType: z.string(),
     name: z.string(),
-    url: z.string(),
+    originUri: z.string(),
   })
 }
 

@@ -22,10 +22,14 @@ const documents = {
     types.ClearEmbeddingsDocument,
   '\n  mutation dropFile($id: String!) {\n    dropFile(fileId: $id) {\n      id\n    }\n  }\n':
     types.DropFileDocument,
-  '\n  query EmbeddingsTable($knowledgeSourceId: String!) {\n    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {\n      id\n      name\n      url\n      mimeType\n      size\n      chunks\n    }\n  }\n':
+  '\n  mutation reProcessFile($id: String!) {\n    processFile(fileId: $id) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n':
+    types.ReProcessFileDocument,
+  '\n  query EmbeddingsTable($knowledgeSourceId: String!) {\n    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {\n      id\n      name\n      originUri\n      mimeType\n      size\n      chunks\n      uploadedAt\n      processedAt\n    }\n  }\n':
     types.EmbeddingsTableDocument,
-  '\n  mutation embedFile($file: AiKnowledgeSourceFileInput!) {\n    embedFile(data: $file) {\n      id\n    }\n  }\n':
-    types.EmbedFileDocument,
+  '\n  mutation prepareFile($file: AiKnowledgeSourceFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
+    types.PrepareFileDocument,
+  '\n  mutation processFile($fileId: String!) {\n    processFile(fileId: $fileId) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n':
+    types.ProcessFileDocument,
   '\n  query aiAssistantEdit($id: String!) {\n    aiAssistant(id: $id) {\n      id\n      name\n      description\n      icon\n      createdAt\n      ownerId\n      aiAssistantType\n      url\n    }\n  }\n':
     types.AiAssistantEditDocument,
   '\n  mutation changeAiAssistant($id: String!, $data: AiAssistantInput!) {\n    updateAiAssistant(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n':
@@ -88,14 +92,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query EmbeddingsTable($knowledgeSourceId: String!) {\n    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {\n      id\n      name\n      url\n      mimeType\n      size\n      chunks\n    }\n  }\n',
-): (typeof documents)['\n  query EmbeddingsTable($knowledgeSourceId: String!) {\n    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {\n      id\n      name\n      url\n      mimeType\n      size\n      chunks\n    }\n  }\n']
+  source: '\n  mutation reProcessFile($id: String!) {\n    processFile(fileId: $id) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n',
+): (typeof documents)['\n  mutation reProcessFile($id: String!) {\n    processFile(fileId: $id) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation embedFile($file: AiKnowledgeSourceFileInput!) {\n    embedFile(data: $file) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation embedFile($file: AiKnowledgeSourceFileInput!) {\n    embedFile(data: $file) {\n      id\n    }\n  }\n']
+  source: '\n  query EmbeddingsTable($knowledgeSourceId: String!) {\n    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {\n      id\n      name\n      originUri\n      mimeType\n      size\n      chunks\n      uploadedAt\n      processedAt\n    }\n  }\n',
+): (typeof documents)['\n  query EmbeddingsTable($knowledgeSourceId: String!) {\n    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {\n      id\n      name\n      originUri\n      mimeType\n      size\n      chunks\n      uploadedAt\n      processedAt\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation prepareFile($file: AiKnowledgeSourceFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation prepareFile($file: AiKnowledgeSourceFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation processFile($fileId: String!) {\n    processFile(fileId: $fileId) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n',
+): (typeof documents)['\n  mutation processFile($fileId: String!) {\n    processFile(fileId: $fileId) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

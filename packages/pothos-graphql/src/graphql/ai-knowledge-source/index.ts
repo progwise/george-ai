@@ -1,6 +1,8 @@
 import { dropVectorStore } from '@george-ai/langchain-chat'
+import * as fs from 'fs'
 import { builder } from '../builder'
-import { prisma } from '../prisma'
+import { prisma } from '../../prisma'
+import { getFilePath } from '../../file-upload'
 
 console.log('Setting up: AiKnowledgeSource')
 
@@ -126,9 +128,26 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
     },
     resolve: async (_parent, args) => {
       await dropVectorStore(args.knowledgeSourceId)
+      const files = await prisma.aiKnowledgeSourceFile.findMany({
+        select: { id: true },
+        where: { aiKnowledgeSourceId: args.knowledgeSourceId },
+      })
       await prisma.aiKnowledgeSourceFile.deleteMany({
         where: { aiKnowledgeSourceId: args.knowledgeSourceId },
       })
+
+      const deleteFilePromises = files.map((file) => {
+        const filePath = getFilePath(file.id)
+        return new Promise((resolve) => {
+          fs.rm(filePath, (err) => {
+            if (err) {
+              resolve(`Error deleting file: ${filePath}: ${err.message}`)
+            }
+            resolve(`Deleted file: ${filePath}`)
+          })
+        })
+      })
+      await Promise.all(deleteFilePromises)
       return true
     },
   }),

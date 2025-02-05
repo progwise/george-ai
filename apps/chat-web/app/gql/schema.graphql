@@ -45,22 +45,23 @@ type AiKnowledgeSource {
 
 type AiKnowledgeSourceFile {
   aiKnowledgeSourceId: String!
-  chunks: Int!
+  chunks: Int
   createdAt: DateTime!
   id: ID!
   mimeType: String!
   name: String!
-  size: Int!
+  originUri: String
+  processedAt: DateTime
+  size: Int
   updatedAt: DateTime
-  url: String!
+  uploadedAt: DateTime
 }
 
 input AiKnowledgeSourceFileInput {
   aiKnowledgeSourceId: String!
-  content: String!
   mimeType: String!
   name: String!
-  url: String!
+  originUri: String!
 }
 
 input AiKnowledgeSourceInput {
@@ -113,8 +114,9 @@ type Mutation {
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   dropFile(fileId: String!): AiKnowledgeSourceFile
-  embedFile(data: AiKnowledgeSourceFileInput!): AiKnowledgeSourceFile
   login(jwtToken: String!): User
+  prepareFile(data: AiKnowledgeSourceFileInput!): AiKnowledgeSourceFile
+  processFile(fileId: String!): AiKnowledgeSourceFile
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiKnowledgeSource(
     data: AiKnowledgeSourceInput!

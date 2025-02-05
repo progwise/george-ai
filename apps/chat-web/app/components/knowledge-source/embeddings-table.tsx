@@ -16,10 +16,22 @@ const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
   }
 `)
 
-const DropFileFocument = graphql(/* GraphQL */ `
+const DropFileDocument = graphql(/* GraphQL */ `
   mutation dropFile($id: String!) {
     dropFile(fileId: $id) {
       id
+    }
+  }
+`)
+
+const ReprocessFileDocument = graphql(/* GraphQL */ `
+  mutation reProcessFile($id: String!) {
+    processFile(fileId: $id) {
+      id
+      chunks
+      size
+      uploadedAt
+      processedAt
     }
   }
 `)
@@ -35,18 +47,26 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
 const dropFile = createServerFn({ method: 'GET' })
   .validator((data) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(DropFileFocument, { id: ctx.data })
+    return await backendRequest(DropFileDocument, { id: ctx.data })
   })
 
-const EmbeddingsTableDocument = graphql(/* GraphQL */ `
+const reProcessFile = createServerFn({ method: 'GET' })
+  .validator((data) => z.string().nonempty().parse(data))
+  .handler(async (ctx) => {
+    return await backendRequest(ReprocessFileDocument, { id: ctx.data })
+  })
+
+const EmbeddingsTableDocument = graphql(`
   query EmbeddingsTable($knowledgeSourceId: String!) {
     aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {
       id
       name
-      url
+      originUri
       mimeType
       size
       chunks
+      uploadedAt
+      processedAt
     }
   }
 `)
@@ -76,7 +96,7 @@ const knowledgeFilesQueryOptions = (knowledgeSourceId?: string) => ({
 export const EmbeddingsTable = ({
   knowledgeSourceId,
 }: EmbeddingsTableProps) => {
-  const { data, isLoading } = useSuspenseQuery(
+  const { data, isLoading, refetch } = useSuspenseQuery(
     knowledgeFilesQueryOptions(knowledgeSourceId),
   )
   if (isLoading) {
@@ -89,7 +109,10 @@ export const EmbeddingsTable = ({
           <button
             type="button"
             className="btn btn-xs"
-            onClick={() => clearEmbeddings({ data: knowledgeSourceId })}
+            onClick={async () => {
+              await clearEmbeddings({ data: knowledgeSourceId })
+              await refetch()
+            }}
           >
             Clear
           </button>
@@ -103,6 +126,7 @@ export const EmbeddingsTable = ({
             <th>Name</th>
             <th>#Size</th>
             <th>#Chunks</th>
+            <th>Processed</th>
             <th></th>
           </tr>
         </thead>
@@ -114,16 +138,27 @@ export const EmbeddingsTable = ({
               <td>{file.name}</td>
               <td>{file.size}</td>
               <td>{file.chunks}</td>
+              <td>{file.processedAt}</td>
               <td className="flex gap-2">
                 <button
                   type="button"
                   className="btn btn-xs"
-                  onClick={async () => await dropFile({ data: file.id })}
+                  onClick={async () => {
+                    await dropFile({ data: file.id })
+                    await refetch()
+                  }}
                 >
                   Drop
                 </button>
-                <button type="button" className="btn btn-xs">
-                  Rebuild
+                <button
+                  type="button"
+                  className="btn btn-xs"
+                  onClick={async () => {
+                    await reProcessFile({ data: file.id })
+                    await refetch()
+                  }}
+                >
+                  Re-Process
                 </button>
               </td>
             </tr>

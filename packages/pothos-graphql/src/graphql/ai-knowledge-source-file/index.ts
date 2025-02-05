@@ -1,28 +1,10 @@
-import { dropFile, embedFiles } from '@george-ai/langchain-chat'
+import { dropFile, embedFile } from '@george-ai/langchain-chat'
 import { builder } from '../builder'
-import { prisma } from '../prisma'
+import { prisma } from '../../prisma'
+import { getFilePath } from '../../file-upload'
+import * as fs from 'fs'
 
 console.log('Setting up: AiKnowledgeSourceFile')
-
-function base64toBlob(base64Data: string, contentType: string) {
-  const sliceSize = 1024
-  const byteCharacters = atob(base64Data)
-  const bytesLength = byteCharacters.length
-  const slicesCount = Math.ceil(bytesLength / sliceSize)
-  const byteArrays = new Array<Uint8Array>(slicesCount)
-
-  for (let sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-    const begin = sliceIndex * sliceSize
-    const end = Math.min(begin + sliceSize, bytesLength)
-
-    const bytes = new Array(end - begin)
-    for (let offset = begin, i = 0; offset < end; ++i, ++offset) {
-      bytes[i] = byteCharacters[offset].charCodeAt(0)
-    }
-    byteArrays[sliceIndex] = new Uint8Array(bytes)
-  }
-  return new Blob(byteArrays, { type: contentType })
-}
 
 export const AiKnowledgeSourceFile = builder.prismaObject(
   'AiKnowledgeSourceFile',
@@ -33,10 +15,15 @@ export const AiKnowledgeSourceFile = builder.prismaObject(
       createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
       updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
       name: t.exposeString('name', { nullable: false }),
-      url: t.exposeString('url', { nullable: false }),
+      originUri: t.exposeString('originUri', { nullable: true }),
       mimeType: t.exposeString('mimeType', { nullable: false }),
-      size: t.exposeInt('size', { nullable: false }),
-      chunks: t.exposeInt('chunks', { nullable: false }),
+      size: t.exposeInt('size', { nullable: true }),
+      chunks: t.exposeInt('chunks', { nullable: true }),
+      uploadedAt: t.expose('uploadedAt', { type: 'DateTime', nullable: true }),
+      processedAt: t.expose('processedAt', {
+        type: 'DateTime',
+        nullable: true,
+      }),
       aiKnowledgeSourceId: t.exposeString('aiKnowledgeSourceId', {
         nullable: false,
       }),
@@ -49,50 +36,70 @@ export const AiKnowledgeSourceFileInput = builder.inputType(
   {
     fields: (t) => ({
       name: t.string({ required: true }),
-      url: t.string({ required: true }),
+      originUri: t.string({ required: true }),
       mimeType: t.string({ required: true }),
-      content: t.string({ required: true }),
+      // content: t.string({ required: true }),
       aiKnowledgeSourceId: t.string({ required: true }),
     }),
   },
 )
 
-builder.mutationField('embedFile', (t) =>
+builder.mutationField('prepareFile', (t) =>
   t.prismaField({
     type: 'AiKnowledgeSourceFile',
     args: {
       data: t.arg({ type: AiKnowledgeSourceFileInput, required: true }),
     },
     resolve: async (query, _source, { data }) => {
-      const contentBlob = base64toBlob(data.content, data.mimeType)
-      const dbContent = await prisma.aiKnowledgeSourceFile.create({
+      const knowledgeSource = await prisma.aiKnowledgeSource.findUnique({
+        where: { id: data.aiKnowledgeSourceId },
+      })
+      if (!knowledgeSource) {
+        throw new Error(
+          `Knowledge source not found: ${data.aiKnowledgeSourceId}`,
+        )
+      }
+      return await prisma.aiKnowledgeSourceFile.create({
         ...query,
+        data,
+      })
+    },
+  }),
+)
+
+builder.mutationField('processFile', (t) =>
+  t.prismaField({
+    type: 'AiKnowledgeSourceFile',
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { fileId }) => {
+      const file = await prisma.aiKnowledgeSourceFile.findUnique({
+        ...query,
+        where: { id: fileId },
+      })
+      if (!file) {
+        throw new Error(`File not found: ${fileId}`)
+      }
+
+      const embeddedFile = await embedFile(file.aiKnowledgeSourceId, {
+        id: file.id,
+        name: file.name,
+        originUri: file.originUri!,
+        mimeType: file.mimeType,
+        path: getFilePath(file.id),
+      })
+
+      return await prisma.aiKnowledgeSourceFile.update({
+        ...query,
+        where: { id: fileId },
         data: {
-          mimeType: data.mimeType,
-          size: contentBlob.size,
-          name: data.name,
-          aiKnowledgeSourceId: data.aiKnowledgeSourceId,
-          url: data.url,
+          ...embeddedFile,
+          processedAt: new Date(),
         },
       })
 
-      const loadedFiles = await embedFiles(data.aiKnowledgeSourceId, [
-        {
-          id: dbContent.id,
-          name: data.name,
-          url: data.url,
-          mimeType: data.mimeType,
-          content: contentBlob,
-        },
-      ])
-
-      const dbContent2 = await prisma.aiKnowledgeSourceFile.update({
-        ...query,
-        where: { id: dbContent.id },
-        data: { chunks: loadedFiles[0].content.length },
-      })
-
-      return dbContent2
+      return file
     },
   }),
 )
@@ -130,6 +137,16 @@ builder.mutationField('dropFile', (t) =>
 
       const deleteResult = await prisma.aiKnowledgeSourceFile.delete({
         where: { id: fileId },
+      })
+
+      await new Promise((resolve) => {
+        fs.rm(getFilePath(file.id), (err) => {
+          if (err) {
+            resolve(`Error deleting file ${file.id}: ${err.message}`)
+          } else {
+            resolve(`File ${file.id} deleted`)
+          }
+        })
       })
 
       console.log('dropped file', deleteResult)

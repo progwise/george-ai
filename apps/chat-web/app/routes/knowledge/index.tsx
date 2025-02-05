@@ -116,7 +116,7 @@ function RouteComponent() {
                     to={'/knowledge/$knowledgeSourceId'}
                     params={{ knowledgeSourceId: knowledgeSource.id }}
                   >
-                    Edit
+                    Details
                   </Link>
                 </td>
               </tr>

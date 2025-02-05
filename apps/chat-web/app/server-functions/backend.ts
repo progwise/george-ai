@@ -1,5 +1,5 @@
 import request, { RequestDocument, Variables } from 'graphql-request'
-import { BACKEND_GRAPHQL_URL, GRAPHQL_API_KEY } from '../constants'
+import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { createServerFn } from '@tanstack/start'
 import { graphql } from '../gql'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
@@ -8,12 +8,25 @@ async function backendRequest<T, V extends Variables = Variables>(
   document: RequestDocument | TypedDocumentNode<T, V>,
   variables?: Variables,
 ): Promise<T> {
-  return request(BACKEND_GRAPHQL_URL, document, variables, {
+  return request(BACKEND_URL + '/graphql', document, variables, {
     Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
   })
 }
 
-export { backendRequest }
+async function backendUpload(content: Blob, fileId: string) {
+  const data = await content.arrayBuffer()
+  const buffer = Buffer.from(data)
+  return fetch(BACKEND_URL + '/upload', {
+    method: 'POST',
+    headers: {
+      Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
+      'x-upload-token': fileId,
+    },
+    body: buffer,
+  })
+}
+
+export { backendRequest, backendUpload }
 
 const introspectionQueryDocument = graphql(/* GraphQL */ `
   query IntrospectionQuery {
@@ -127,8 +140,4 @@ export const getBackendGraphQLSchema = createServerFn({
   method: 'GET',
 }).handler(() => {
   return backendRequest(introspectionQueryDocument)
-})
-
-export const getBackendUrl = createServerFn({ method: 'GET' }).handler(() => {
-  return BACKEND_GRAPHQL_URL
 })

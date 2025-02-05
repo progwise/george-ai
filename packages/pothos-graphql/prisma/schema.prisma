@@ -60,17 +60,17 @@ model AiAssistant {
 }
 
 model AiKnowledgeSource {
-  id                    String @id @default(cuid())
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                    String                   @id @default(cuid())
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
   name                  String
   description           String?
   url                   String?
   apiToken              String?
   lastProcessed         DateTime?
-  owner                 User     @relation(fields: [ownerId], references: [id])
+  owner                 User                     @relation(fields: [ownerId], references: [id])
   ownerId               String
-  isPublic              Boolean @default(true)
+  isPublic              Boolean                  @default(true)
   aiKnowledgeSourceType AiKnowledgeSourceType
   usages                AiKnowledgeSourceUsage[]
   files                 AiKnowledgeSourceFile[]
@@ -87,13 +87,15 @@ model AiKnowledgeSourceUsage {
 
 model AiKnowledgeSourceFile {
   id                  String            @id @default(cuid())
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
   aiKnowledgeSource   AiKnowledgeSource @relation(fields: [aiKnowledgeSourceId], references: [id])
   aiKnowledgeSourceId String
   name                String
-  url                 String
+  originUri           String?
   mimeType            String
-  size                Int
-  chunks              Int @default(1)
+  size                Int?
+  chunks              Int?
+  uploadedAt          DateTime?
+  processedAt         DateTime?
 }

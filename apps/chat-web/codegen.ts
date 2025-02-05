@@ -3,7 +3,7 @@ import 'dotenv/config'
 
 const config: CodegenConfig = {
   schema: {
-    'http://localhost:3003': {
+    'http://localhost:3003/graphql': {
       headers: {
         Authorization: `ApiKey ${process.env.GRAPHQL_API_KEY}`,
       },

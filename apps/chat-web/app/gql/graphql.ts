@@ -77,22 +77,23 @@ export type AiKnowledgeSource = {
 export type AiKnowledgeSourceFile = {
   __typename?: 'AiKnowledgeSourceFile'
   aiKnowledgeSourceId: Scalars['String']['output']
-  chunks: Scalars['Int']['output']
+  chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
-  size: Scalars['Int']['output']
+  originUri?: Maybe<Scalars['String']['output']>
+  processedAt?: Maybe<Scalars['DateTime']['output']>
+  size?: Maybe<Scalars['Int']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-  url: Scalars['String']['output']
+  uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 export type AiKnowledgeSourceFileInput = {
   aiKnowledgeSourceId: Scalars['String']['input']
-  content: Scalars['String']['input']
   mimeType: Scalars['String']['input']
   name: Scalars['String']['input']
-  url: Scalars['String']['input']
+  originUri: Scalars['String']['input']
 }
 
 export type AiKnowledgeSourceInput = {
@@ -126,8 +127,9 @@ export type Mutation = {
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
   dropFile?: Maybe<AiKnowledgeSourceFile>
-  embedFile?: Maybe<AiKnowledgeSourceFile>
   login?: Maybe<User>
+  prepareFile?: Maybe<AiKnowledgeSourceFile>
+  processFile?: Maybe<AiKnowledgeSourceFile>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiKnowledgeSource?: Maybe<AiKnowledgeSource>
 }
@@ -165,12 +167,16 @@ export type MutationDropFileArgs = {
   fileId: Scalars['String']['input']
 }
 
-export type MutationEmbedFileArgs = {
+export type MutationLoginArgs = {
+  jwtToken: Scalars['String']['input']
+}
+
+export type MutationPrepareFileArgs = {
   data: AiKnowledgeSourceFileInput
 }
 
-export type MutationLoginArgs = {
-  jwtToken: Scalars['String']['input']
+export type MutationProcessFileArgs = {
+  fileId: Scalars['String']['input']
 }
 
 export type MutationUpdateAiAssistantArgs = {
@@ -474,6 +480,22 @@ export type DropFileMutation = {
   dropFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
 }
 
+export type ReProcessFileMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type ReProcessFileMutation = {
+  __typename?: 'Mutation'
+  processFile?: {
+    __typename?: 'AiKnowledgeSourceFile'
+    id: string
+    chunks?: number | null
+    size?: number | null
+    uploadedAt?: any | null
+    processedAt?: any | null
+  } | null
+}
+
 export type EmbeddingsTableQueryVariables = Exact<{
   knowledgeSourceId: Scalars['String']['input']
 }>
@@ -484,20 +506,38 @@ export type EmbeddingsTableQuery = {
     __typename?: 'AiKnowledgeSourceFile'
     id: string
     name: string
-    url: string
+    originUri?: string | null
     mimeType: string
-    size: number
-    chunks: number
+    size?: number | null
+    chunks?: number | null
+    uploadedAt?: any | null
+    processedAt?: any | null
   }> | null
 }
 
-export type EmbedFileMutationVariables = Exact<{
+export type PrepareFileMutationVariables = Exact<{
   file: AiKnowledgeSourceFileInput
 }>
 
-export type EmbedFileMutation = {
+export type PrepareFileMutation = {
   __typename?: 'Mutation'
-  embedFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
+  prepareFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
+}
+
+export type ProcessFileMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type ProcessFileMutation = {
+  __typename?: 'Mutation'
+  processFile?: {
+    __typename?: 'AiKnowledgeSourceFile'
+    id: string
+    chunks?: number | null
+    size?: number | null
+    uploadedAt?: any | null
+    processedAt?: any | null
+  } | null
 }
 
 export type AiAssistantEditQueryVariables = Exact<{
@@ -1760,6 +1800,61 @@ export const DropFileDocument = {
     },
   ],
 } as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
+export const ReProcessFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'reProcessFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ReProcessFileMutation,
+  ReProcessFileMutationVariables
+>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [
@@ -1804,10 +1899,12 @@ export const EmbeddingsTableDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
               ],
             },
           },
@@ -1819,13 +1916,13 @@ export const EmbeddingsTableDocument = {
   EmbeddingsTableQuery,
   EmbeddingsTableQueryVariables
 >
-export const EmbedFileDocument = {
+export const PrepareFileDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'embedFile' },
+      name: { kind: 'Name', value: 'prepareFile' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -1844,7 +1941,7 @@ export const EmbedFileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'embedFile' },
+            name: { kind: 'Name', value: 'prepareFile' },
             arguments: [
               {
                 kind: 'Argument',
@@ -1866,7 +1963,62 @@ export const EmbedFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<EmbedFileMutation, EmbedFileMutationVariables>
+} as unknown as DocumentNode<PrepareFileMutation, PrepareFileMutationVariables>
+export const ProcessFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'processFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'fileId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'fileId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
 export const AiAssistantEditDocument = {
   kind: 'Document',
   definitions: [

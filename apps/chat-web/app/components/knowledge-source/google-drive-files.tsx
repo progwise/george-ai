@@ -8,8 +8,10 @@ import {
 } from './files-table'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
-import { backendRequest } from '../../server-functions/backend'
+import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { graphql } from '../../gql'
+import { useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '../../query-keys'
 
 export interface GoogleDriveFilesProps {
   currentLocationHref: string
@@ -20,10 +22,22 @@ interface GoogleDriveResponse {
   files: [{ id: string; kind: string; name: string }]
 }
 
-const EmbedFileDocument = graphql(`
-  mutation embedFile($file: AiKnowledgeSourceFileInput!) {
-    embedFile(data: $file) {
+const PrepareFileDocument = graphql(`
+  mutation prepareFile($file: AiKnowledgeSourceFileInput!) {
+    prepareFile(data: $file) {
       id
+    }
+  }
+`)
+
+const ProcessFileDocument = graphql(`
+  mutation processFile($fileId: String!) {
+    processFile(fileId: $fileId) {
+      id
+      chunks
+      size
+      uploadedAt
+      processedAt
     }
   }
 `)
@@ -39,8 +53,21 @@ const embedFiles = createServerFn({ method: 'GET' })
       .parse(data),
   )
   .handler(async (ctx) => {
-    const downloads = ctx.data.files.map((file) =>
-      fetch(
+    const processFiles = ctx.data.files.map(async (file) => {
+      const preparedFile = await backendRequest(PrepareFileDocument, {
+        file: {
+          name: file.name,
+          originUri: `https://drive.google.com/file/d/${file.id}/view`,
+          mimeType: 'application/pdf',
+          aiKnowledgeSourceId: ctx.data.knowledgeSourceId,
+        },
+      })
+
+      if (!preparedFile?.prepareFile?.id) {
+        throw new Error('Failed to prepare file')
+      }
+
+      const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
         {
           headers: {
@@ -48,34 +75,35 @@ const embedFiles = createServerFn({ method: 'GET' })
           },
         },
       )
-        .then((response) => response.arrayBuffer()) // Todo: handle response.status !== 200
-        .then((buffer) => ({
-          base64: Buffer.from(buffer).toString('base64'),
-          file,
-        })),
-    )
 
-    const results = await Promise.all(downloads)
-    return await Promise.all(
-      results.map((result) => {
-        backendRequest(EmbedFileDocument, {
-          id: result.file.id,
-          file: {
-            name: result.file.name,
-            url: `https://drive.google.com/file/d/${result.file.id}/view`,
-            mimeType: 'application/pdf',
-            content: result.base64,
-            aiKnowledgeSourceId: ctx.data.knowledgeSourceId,
-          },
-        })
-      }),
-    )
+      if (!googleDownloadResponse.body) {
+        throw new Error(`Failed to download file from Google Drive: ${file.id}`)
+      }
+
+      const blob = await googleDownloadResponse.blob()
+
+      const uploadResponse = await backendUpload(
+        blob,
+        preparedFile?.prepareFile?.id,
+      )
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload file')
+      }
+
+      return await backendRequest(ProcessFileDocument, {
+        fileId: preparedFile.prepareFile.id,
+      })
+    })
+
+    await Promise.all(processFiles)
   })
 
 export const GoogleDriveFiles = ({
   knowledgeSourceId,
   currentLocationHref,
 }: GoogleDriveFilesProps) => {
+  const queryClient = useQueryClient()
   const [googleDriveResponse, setGoogleDriveResponse] = useState<
     GoogleDriveResponse | undefined
   >(undefined)
@@ -100,13 +128,15 @@ export const GoogleDriveFiles = ({
   }
 
   const handleEmbedFiles = async (files: KnowledgeSourceFile[]) => {
-    console.log('embedFiles', files)
     await embedFiles({
       data: {
         knowledgeSourceId,
         files,
         access_token: googleDriveAccessToken.access_token!,
       },
+    })
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.KnowledgeSourceFiles, knowledgeSourceId],
     })
   }
 

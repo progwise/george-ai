@@ -129,60 +129,45 @@ export const dropFile = async (knowledgeSourceId: string, fileId: string) => {
   await removeFileById(knowledgeSourceId, fileId)
 }
 
-export const embedFiles = async (
+export const embedFile = async (
   knowledgeSourceId: string,
-  files: [
-    {
-      id: string
-      name: string
-      url: string
-      mimeType: string
-      content: Blob
-    },
-  ],
+  file: {
+    id: string
+    name: string
+    originUri: string
+    mimeType: string
+    path: string
+  },
 ) => {
   await ensureVectorStore(knowledgeSourceId)
+
+  const typesenseVectorStoreConfig =
+    getTypesenseVectorStoreConfig(knowledgeSourceId)
+
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
   })
 
-  const loadedFiles = await Promise.all(
-    files.map(async (file) => ({
-      fileName: file.name,
-      url: file.url,
-      mimeType: file.mimeType,
-      content: await loadFile({
-        mimeType: file.mimeType,
-        name: file.name,
-        id: file.id,
-        blob: file.content,
-      }),
-    })),
+  await removeFileByName(knowledgeSourceId, file.name)
+  const fileParts = await loadFile(file)
+
+  const splitDocument = await splitter.splitDocuments(fileParts)
+
+  await Typesense.fromDocuments(
+    splitDocument,
+    embeddings,
+    typesenseVectorStoreConfig,
   )
 
-  const typesenseVectorStoreConfig =
-    getTypesenseVectorStoreConfig(knowledgeSourceId)
-
-  await Promise.all(
-    loadedFiles.map(async (loadedFile) => {
-      await removeFileByName(knowledgeSourceId, loadedFile.fileName)
-    }),
-  )
-
-  await Promise.all(
-    loadedFiles.map(async (loadedFile) => {
-      const splitDocument = await splitter.splitDocuments(loadedFile.content)
-
-      console.log('split document:', splitDocument)
-      return await Typesense.fromDocuments(
-        splitDocument,
-        embeddings,
-        typesenseVectorStoreConfig,
-      )
-    }),
-  )
-  return loadedFiles
+  return {
+    id: file.id,
+    name: file.name,
+    originUri: file.originUri,
+    mimeType: file.mimeType,
+    chunks: fileParts.length,
+    size: fileParts.reduce((acc, part) => acc + part.pageContent.length, 0),
+  }
 }
 
 /**
