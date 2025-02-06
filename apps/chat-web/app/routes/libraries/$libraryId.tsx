@@ -2,6 +2,7 @@ import {
   createFileRoute,
   Link,
   useLocation,
+  useNavigate,
   useParams,
 } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
@@ -13,7 +14,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { LibrarySelector } from '../../components/library/library-selector'
 import { queryKeys } from '../../query-keys'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { GoogleDriveFiles } from '../../components/library/google-drive-files'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
@@ -120,15 +121,22 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(
     librariesQueryOptions(auth.user?.id, libraryId),
   )
+
+  const navigate = useNavigate()
+  const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
+    mutationFn: (data: FormData) => changeLibrary({ data }),
+    onSettled: () => {
+      console.log('library updated')
+      navigate({ to: '..' })
+    },
+  })
   const { aiLibrary, aiLibraries } = data || {}
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    changeLibrary({
-      data: formData,
-    })
+    saveLibrary(formData)
   }
   const disabled = !auth?.isAuthenticated
   if (isLoading) {
@@ -140,6 +148,7 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={saveIsPending} />
       <div className="flex justify-between items-center">
         <LibrarySelector
           libraries={aiLibraries!}

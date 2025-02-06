@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
@@ -6,6 +6,8 @@ import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { useAuth } from '../../auth/auth-context'
+import { useMutation } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const aiAssistantEditQueryDocument = graphql(`
   query aiAssistantEdit($id: String!) {
@@ -82,19 +84,31 @@ function RouteComponent() {
   const auth = useAuth()
   const { aiAssistant } = Route.useLoaderData()
 
+  const navigate = useNavigate()
+  const { mutate: saveAssistant, isPending: saveIsPending } = useMutation({
+    mutationFn: (data: FormData) => changeAssistant({ data }),
+    onSettled: () => {
+      console.log('Assistant saved')
+      navigate({ to: '..' })
+    },
+  })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    changeAssistant({
-      data: formData,
-    })
+    saveAssistant(formData)
+  }
+
+  if (!aiAssistant) {
+    return <LoadingSpinner />
   }
 
   const disabled = !auth?.isAuthenticated
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={saveIsPending} />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">
           Configure Assistant {aiAssistant?.name}
