@@ -1,4 +1,9 @@
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useParams,
+  useNavigate,
+} from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
@@ -9,8 +14,9 @@ import { useAuth } from '../../auth/auth-context'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { LoadingSpinner } from '../../components/loading-spinner'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
+import { useMutation } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const aiAssistantEditQueryDocument = graphql(`
   query aiAssistantEdit($id: String!, $ownerId: String!) {
@@ -121,14 +127,25 @@ function RouteComponent() {
 
   const { aiAssistant, aiAssistants } = data || {}
 
+  const navigate = useNavigate()
+  const { mutate: saveAssistant, isPending: saveIsPending } = useMutation({
+    mutationFn: (data: FormData) => changeAssistant({ data }),
+    onSettled: () => {
+      console.log('Assistant saved')
+      navigate({ to: '..' })
+    },
+  })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    changeAssistant({
-      data: formData,
-    })
+    saveAssistant(formData)
+  }
+
+  if (!aiAssistant) {
+    return <LoadingSpinner />
   }
   if (!auth.user?.id || !aiAssistant || !aiAssistants || isLoading) {
     return <LoadingSpinner />
@@ -136,6 +153,7 @@ function RouteComponent() {
   const disabled = !auth?.isAuthenticated
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={saveIsPending} />
       <div className="flex justify-between items-center">
         <AssistantSelector
           assistants={aiAssistants!}

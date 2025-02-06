@@ -29,6 +29,7 @@ export const LibraryForm = ({
           defaultValue={library.name || ''}
           className="grow"
           placeholder="Ancient Library of Alexandria"
+          required
         />
       </label>
       <textarea

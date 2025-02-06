@@ -44,13 +44,13 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
     })
   })
 
-const dropFile = createServerFn({ method: 'GET' })
+const dropFile = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(DropFileDocument, { id: ctx.data })
   })
 
-const reProcessFile = createServerFn({ method: 'GET' })
+const reProcessFile = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(ReprocessFileDocument, { id: ctx.data })

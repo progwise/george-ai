@@ -37,6 +37,7 @@ export const AssistantForm = ({
           defaultValue={assistant.name}
           className="grow"
           placeholder="George II"
+          required
         />
       </label>
       <textarea
