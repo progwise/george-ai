@@ -6,11 +6,21 @@ import { backendRequest } from '../server-functions/backend'
 
 export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(
   () => {
-    return {
+    const keycloakConfig = {
       url: KEYCLOAK_URL!,
       realm: KEYCLOAK_REALM!,
       clientId: KEYCLOAK_CLIENT_ID!,
     }
+    if (
+      !keycloakConfig.url ||
+      !keycloakConfig.realm ||
+      !keycloakConfig.clientId
+    ) {
+      throw new Error(
+        'Keycloak config is not complete: ' + JSON.stringify(keycloakConfig),
+      )
+    }
+    return keycloakConfig
   },
 )
 
@@ -29,7 +39,7 @@ const loginDocument = graphql(/* GraphQL */ `
 `)
 
 export const ensureBackendUser = createServerFn({ method: 'POST' })
-  .validator((data) => {
+  .validator((data: string) => {
     return z.string().nonempty().parse(data)
   })
   .handler(async (ctx) => {

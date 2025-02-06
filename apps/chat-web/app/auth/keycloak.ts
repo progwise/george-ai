@@ -22,6 +22,12 @@ const registerAuthEvents = (
 ) => {
   keycloak.onAuthSuccess = async () => {
     auth.isAuthenticated = true
+    if (!keycloak.token) {
+      console.error(
+        'No token found in keycloak but onAuthSuccess event was triggered',
+      )
+      return
+    }
     const { login } = await ensureBackendUser({ data: keycloak.token })
     auth.user = login || null
     router.invalidate()
