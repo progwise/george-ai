@@ -69,14 +69,6 @@ export const getGoogleAccessToken = createServerFn({
     const token = GoogleAccessTokenSchema.parse(json)
 
     return token
-
-    // {
-    //   access_token: token.access_token,
-    //   token_type: token.token_type,
-    //   id_token: token.id_token,
-    //   // expires_in: token.expires_in,
-    //   scope: token.scope,
-    // }
   })
 
 export const getGoogleUserData = createServerFn({
@@ -95,7 +87,7 @@ export const getGoogleUserData = createServerFn({
       'https://www.googleapis.com/oauth2/v1/userinfo?alt=json',
       {
         headers: {
-          Authorization: data.token_type + ' ' + data.access_token,
+          Authorization: `${data.token_type} ${data.access_token}`,
         },
       },
     )

@@ -47,7 +47,7 @@ export const FilesTable = ({
                     })
                   }}
                   name="selectedFiles"
-                  checked={!!selectedFiles.includes(file)}
+                  checked={selectedFiles.includes(file)}
                 />
               </label>
             </td>

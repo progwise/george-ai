@@ -6,7 +6,7 @@ import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { graphql } from '../../gql'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
 import { LoadingSpinner } from '../loading-spinner'
 
@@ -106,9 +106,33 @@ export const GoogleDriveFiles = ({
   currentLocationHref,
 }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
-  const [googleDriveResponse, setGoogleDriveResponse] = useState<
-    GoogleDriveResponse | undefined
-  >(undefined)
+
+  const googleDriveAccessTokenString = localStorage.getItem(
+    'google_drive_access_token',
+  )
+  const googleDriveAccessToken = GoogleAccessTokenSchema.parse(
+    JSON.parse(googleDriveAccessTokenString || '{}'),
+  )
+  const { data: googleDriveFilesData, isLoading: googleDriveFilesIsLoading } =
+    useQuery({
+      queryKey: [
+        queryKeys.GoogleDriveFiles,
+        googleDriveAccessToken.access_token!,
+      ],
+      enabled: !!googleDriveAccessToken?.access_token,
+      queryFn: async () => {
+        const response = await fetch(
+          `https://www.googleapis.com/drive/v3/files`,
+          {
+            headers: {
+              Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
+            },
+          },
+        )
+        const responseJson = await response.json()
+        return responseJson as GoogleDriveResponse
+      },
+    })
 
   const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } =
@@ -120,25 +144,8 @@ export const GoogleDriveFiles = ({
       },
     })
 
-  const googleDriveAccessTokenString = localStorage.getItem(
-    'google_drive_access_token',
-  )
-  const googleDriveAccessToken = GoogleAccessTokenSchema.parse(
-    JSON.parse(googleDriveAccessTokenString || '{}'),
-  )
-
-  const getGoogleDriveFiles = async (accessToken: string) => {
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-    const responseJson = await response.json()
-    setGoogleDriveResponse(responseJson as GoogleDriveResponse)
-  }
-
   const handleEmbedFiles = async (files: LibraryFile[]) => {
-    await embedFilesMutation({
+    embedFilesMutation({
       data: {
         aiLibraryId,
         files,
@@ -152,7 +159,9 @@ export const GoogleDriveFiles = ({
 
   return (
     <>
-      <LoadingSpinner isLoading={embedFilesIsPending} />
+      <LoadingSpinner
+        isLoading={embedFilesIsPending || googleDriveFilesIsLoading}
+      />
       <nav className="flex gap-4 justify-between items-center">
         <div className="flex gap-4">
           <Link
@@ -162,16 +171,6 @@ export const GoogleDriveFiles = ({
           >
             Login with Google
           </Link>
-          <button
-            type="button"
-            disabled={!googleDriveAccessToken?.access_token}
-            className="btn btn-xs"
-            onClick={() =>
-              getGoogleDriveFiles(googleDriveAccessToken.access_token!)
-            }
-          >
-            Get Google Drive Files
-          </button>
         </div>
         <button
           type="button"
@@ -184,9 +183,9 @@ export const GoogleDriveFiles = ({
           Add {selectedFiles.length} files into the Library
         </button>
       </nav>
-      {googleDriveResponse?.files && (
+      {googleDriveFilesData?.files && (
         <FilesTable
-          files={googleDriveResponse.files}
+          files={googleDriveFilesData.files}
           selectedFiles={selectedFiles}
           setSelectedFiles={setSelectedFiles}
         />
