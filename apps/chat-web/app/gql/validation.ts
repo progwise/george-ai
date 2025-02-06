@@ -5,6 +5,7 @@ import {
   AiLibraryFileInput,
   AiLibraryInput,
   AiLibraryType,
+  AiLibraryUsageInput,
   RetrievalFlow,
   UserInput,
 } from './graphql'
@@ -60,6 +61,16 @@ export function AiLibraryInputSchema(): z.ZodObject<
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiLibraryUsageInputSchema(): z.ZodObject<
+  Properties<AiLibraryUsageInput>
+> {
+  return z.object({
+    assistantId: z.string(),
+    libraryId: z.string(),
+    use: z.boolean(),
   })
 }
 

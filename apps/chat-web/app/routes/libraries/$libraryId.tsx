@@ -131,10 +131,8 @@ function RouteComponent() {
     })
   }
   const disabled = !auth?.isAuthenticated
-  if (isLoading) {
-    return
-  }
-  if (!aiLibrary || !aiLibraries) {
+
+  if (!aiLibrary || !aiLibraries || isLoading) {
     return <LoadingSpinner />
   }
 
