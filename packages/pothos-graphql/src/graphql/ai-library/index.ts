@@ -26,7 +26,7 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     aiLibraryType: t.field({
       type: AiLibraryTypeEnum,
       nullable: false,
-      select: { assistantType: true },
+      select: { aiLibraryType: true },
       resolve: (aiLibrary) => {
         return AiLibraryType[aiLibrary.aiLibraryType]
       },

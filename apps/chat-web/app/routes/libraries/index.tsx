@@ -58,13 +58,13 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(
     librariesQueryOptions(auth.user?.id),
   )
-  const isLoggendIn = !!auth?.user
+  const isLoggedIn = !!auth?.user
 
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">
-          {!isLoggendIn ? (
+          {!isLoggedIn ? (
             <button
               type="button"
               className="btn btn-ghost"
@@ -77,7 +77,7 @@ function RouteComponent() {
           )}
         </h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
-        {isLoggendIn && (
+        {isLoggedIn && (
           <Link
             type="button"
             className="btn btn-primary btn-sm"
@@ -110,7 +110,7 @@ function RouteComponent() {
                 <td>{library.updatedAt || library.createdAt}</td>
                 <td>
                   <Link
-                    className="btn btn-ghost btn-xs"
+                    className="btn btn-outline btn-xs"
                     to={'/libraries/$libraryId'}
                     params={{ libraryId: library.id }}
                   >

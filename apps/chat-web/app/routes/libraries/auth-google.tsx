@@ -20,15 +20,6 @@ export const Route = createFileRoute('/libraries/auth-google')({
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
-/*
-http://localhost:3001/libraries/auth-google?
-//  code=4%2F0ASVgi3LXMRCIw1mCkazRoaS9F09HK6FVvbUYyk6lzVZnM6GosksduxFcq7OA3XjniLytZg
-// &scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email
-// &authuser=0
-// &hd=progwise.net
-// &prompt=consent
-*/
-
 function RouteComponent() {
   const search = Route.useSearch()
   const fullPath = Route.fullPath
@@ -74,18 +65,10 @@ function RouteComponent() {
   return (
     <div>
       ...Authenticating
-      <button
-        className="btn"
-        type="button"
-        onClick={() => redirectForAccessCode()}
-      >
+      <button className="btn" type="button" onClick={redirectForAccessCode}>
         Step 1
       </button>
-      <button
-        className="btn"
-        type="button"
-        onClick={async () => await getAccessToken()}
-      >
+      <button className="btn" type="button" onClick={getAccessToken}>
         Step 2
       </button>
     </div>

@@ -89,8 +89,6 @@ builder.mutationField('processFile', (t) =>
           processedAt: new Date(),
         },
       })
-
-      return file
     },
   }),
 )
