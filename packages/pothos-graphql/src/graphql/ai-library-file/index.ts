@@ -6,7 +6,7 @@ import * as fs from 'fs'
 
 console.log('Setting up: AiLibraryFile')
 
-export const AiKnowledgeSourceFile = builder.prismaObject('AiLibraryFile', {
+export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -22,7 +22,7 @@ export const AiKnowledgeSourceFile = builder.prismaObject('AiLibraryFile', {
       type: 'DateTime',
       nullable: true,
     }),
-    aiKnowledgeSourceId: t.exposeString('aiLibraryId', {
+    aiLibraryId: t.exposeString('aiLibraryId', {
       nullable: false,
     }),
   }),
@@ -44,11 +44,11 @@ builder.mutationField('prepareFile', (t) =>
       data: t.arg({ type: AiLibraryFileInput, required: true }),
     },
     resolve: async (query, _source, { data }) => {
-      const knowledgeSource = await prisma.aiLibrary.findUnique({
+      const library = await prisma.aiLibrary.findUnique({
         where: { id: data.aiLibraryId },
       })
-      if (!knowledgeSource) {
-        throw new Error(`Knowledge source not found: ${data.aiLibraryId}`)
+      if (!library) {
+        throw new Error(`Library not found: ${data.aiLibraryId}`)
       }
       return await prisma.aiLibraryFile.create({
         ...query,

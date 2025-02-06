@@ -21,7 +21,7 @@ export const Route = createFileRoute('/library/auth-google')({
 })
 
 /*
-http://localhost:3001/knowledge/auth-google?
+http://localhost:3001/library/auth-google?
 //  code=4%2F0ASVgi3LXMRCIw1mCkazRoaS9F09HK6FVvbUYyk6lzVZnM6GosksduxFcq7OA3XjniLytZg
 // &scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email
 // &authuser=0

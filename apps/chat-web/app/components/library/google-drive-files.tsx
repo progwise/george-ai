@@ -166,7 +166,7 @@ export const GoogleDriveFiles = ({
             handleEmbedFiles(selectedFiles)
           }}
         >
-          Embed {selectedFiles.length} files into Knowledge Source
+          Embed {selectedFiles.length} files into Library
         </button>
       </nav>
       {googleDriveResponse?.files && (

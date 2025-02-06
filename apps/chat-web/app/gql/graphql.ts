@@ -76,7 +76,7 @@ export type AiLibrary = {
 
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
-  aiKnowledgeSourceId: Scalars['String']['output']
+  aiLibraryId: Scalars['String']['output']
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']

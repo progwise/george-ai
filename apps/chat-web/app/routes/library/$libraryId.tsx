@@ -72,7 +72,7 @@ const changeLibrary = createServerFn({ method: 'POST' })
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiKnowledgeSourceType: data.get('aiLibraryType'),
+      aiLibraryType: data.get('aiLibraryType'),
     })
     return { libraryId, library }
   })
