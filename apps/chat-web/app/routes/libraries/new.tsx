@@ -40,7 +40,7 @@ const createLibrary = createServerFn({ method: 'POST' })
     return await backendRequest(createLibraryDocument, ctx.data)
   })
 
-export const Route = createFileRoute('/library/new')({
+export const Route = createFileRoute('/libraries/new')({
   component: RouteComponent,
 })
 

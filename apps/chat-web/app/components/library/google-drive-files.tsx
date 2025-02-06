@@ -157,7 +157,7 @@ export const GoogleDriveFiles = ({
         <div className="flex gap-4">
           <Link
             className="btn btn-xs"
-            to="/library/auth-google"
+            to="/libraries/auth-google"
             search={{ redirectAfterAuth: currentLocationHref }}
           >
             Login with Google

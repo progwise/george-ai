@@ -15,13 +15,13 @@ export const authGoogleSearchSchema = z.object({
   prompt: z.string().optional(),
 })
 
-export const Route = createFileRoute('/library/auth-google')({
+export const Route = createFileRoute('/libraries/auth-google')({
   component: RouteComponent,
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
 /*
-http://localhost:3001/library/auth-google?
+http://localhost:3001/libraries/auth-google?
 //  code=4%2F0ASVgi3LXMRCIw1mCkazRoaS9F09HK6FVvbUYyk6lzVZnM6GosksduxFcq7OA3XjniLytZg
 // &scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email
 // &authuser=0
@@ -32,6 +32,7 @@ http://localhost:3001/library/auth-google?
 function RouteComponent() {
   const search = Route.useSearch()
   const fullPath = Route.fullPath
+  console.log(fullPath)
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {

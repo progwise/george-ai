@@ -97,7 +97,7 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
   enabled: !!ownerId || !!libraryId,
 })
 
-export const Route = createFileRoute('/library/$libraryId')({
+export const Route = createFileRoute('/libraries/$libraryId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
     return {

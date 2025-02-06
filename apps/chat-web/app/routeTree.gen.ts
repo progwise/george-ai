@@ -15,11 +15,11 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
-import { Route as LibraryIndexImport } from './routes/library/index'
+import { Route as LibrariesIndexImport } from './routes/libraries/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
-import { Route as LibraryNewImport } from './routes/library/new'
-import { Route as LibraryAuthGoogleImport } from './routes/library/auth-google'
-import { Route as LibraryLibraryIdImport } from './routes/library/$libraryId'
+import { Route as LibrariesNewImport } from './routes/libraries/new'
+import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
+import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
 import { Route as AssistantsNewImport } from './routes/assistants/new'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 
@@ -49,9 +49,9 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LibraryIndexRoute = LibraryIndexImport.update({
-  id: '/library/',
-  path: '/library/',
+const LibrariesIndexRoute = LibrariesIndexImport.update({
+  id: '/libraries/',
+  path: '/libraries/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -61,21 +61,21 @@ const AssistantsIndexRoute = AssistantsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LibraryNewRoute = LibraryNewImport.update({
-  id: '/library/new',
-  path: '/library/new',
+const LibrariesNewRoute = LibrariesNewImport.update({
+  id: '/libraries/new',
+  path: '/libraries/new',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LibraryAuthGoogleRoute = LibraryAuthGoogleImport.update({
-  id: '/library/auth-google',
-  path: '/library/auth-google',
+const LibrariesAuthGoogleRoute = LibrariesAuthGoogleImport.update({
+  id: '/libraries/auth-google',
+  path: '/libraries/auth-google',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LibraryLibraryIdRoute = LibraryLibraryIdImport.update({
-  id: '/library/$libraryId',
-  path: '/library/$libraryId',
+const LibrariesLibraryIdRoute = LibrariesLibraryIdImport.update({
+  id: '/libraries/$libraryId',
+  path: '/libraries/$libraryId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -137,25 +137,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantsNewImport
       parentRoute: typeof rootRoute
     }
-    '/library/$libraryId': {
-      id: '/library/$libraryId'
-      path: '/library/$libraryId'
-      fullPath: '/library/$libraryId'
-      preLoaderRoute: typeof LibraryLibraryIdImport
+    '/libraries/$libraryId': {
+      id: '/libraries/$libraryId'
+      path: '/libraries/$libraryId'
+      fullPath: '/libraries/$libraryId'
+      preLoaderRoute: typeof LibrariesLibraryIdImport
       parentRoute: typeof rootRoute
     }
-    '/library/auth-google': {
-      id: '/library/auth-google'
-      path: '/library/auth-google'
-      fullPath: '/library/auth-google'
-      preLoaderRoute: typeof LibraryAuthGoogleImport
+    '/libraries/auth-google': {
+      id: '/libraries/auth-google'
+      path: '/libraries/auth-google'
+      fullPath: '/libraries/auth-google'
+      preLoaderRoute: typeof LibrariesAuthGoogleImport
       parentRoute: typeof rootRoute
     }
-    '/library/new': {
-      id: '/library/new'
-      path: '/library/new'
-      fullPath: '/library/new'
-      preLoaderRoute: typeof LibraryNewImport
+    '/libraries/new': {
+      id: '/libraries/new'
+      path: '/libraries/new'
+      fullPath: '/libraries/new'
+      preLoaderRoute: typeof LibrariesNewImport
       parentRoute: typeof rootRoute
     }
     '/assistants/': {
@@ -165,11 +165,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/library/': {
-      id: '/library/'
-      path: '/library'
-      fullPath: '/library'
-      preLoaderRoute: typeof LibraryIndexImport
+    '/libraries/': {
+      id: '/libraries/'
+      path: '/libraries'
+      fullPath: '/libraries'
+      preLoaderRoute: typeof LibrariesIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -184,11 +184,11 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
-  '/library/$libraryId': typeof LibraryLibraryIdRoute
-  '/library/auth-google': typeof LibraryAuthGoogleRoute
-  '/library/new': typeof LibraryNewRoute
+  '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
+  '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
+  '/libraries/new': typeof LibrariesNewRoute
   '/assistants': typeof AssistantsIndexRoute
-  '/library': typeof LibraryIndexRoute
+  '/libraries': typeof LibrariesIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -198,11 +198,11 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
-  '/library/$libraryId': typeof LibraryLibraryIdRoute
-  '/library/auth-google': typeof LibraryAuthGoogleRoute
-  '/library/new': typeof LibraryNewRoute
+  '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
+  '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
+  '/libraries/new': typeof LibrariesNewRoute
   '/assistants': typeof AssistantsIndexRoute
-  '/library': typeof LibraryIndexRoute
+  '/libraries': typeof LibrariesIndexRoute
 }
 
 export interface FileRoutesById {
@@ -213,11 +213,11 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
-  '/library/$libraryId': typeof LibraryLibraryIdRoute
-  '/library/auth-google': typeof LibraryAuthGoogleRoute
-  '/library/new': typeof LibraryNewRoute
+  '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
+  '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
+  '/libraries/new': typeof LibrariesNewRoute
   '/assistants/': typeof AssistantsIndexRoute
-  '/library/': typeof LibraryIndexRoute
+  '/libraries/': typeof LibrariesIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -229,11 +229,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
-    | '/library/$libraryId'
-    | '/library/auth-google'
-    | '/library/new'
+    | '/libraries/$libraryId'
+    | '/libraries/auth-google'
+    | '/libraries/new'
     | '/assistants'
-    | '/library'
+    | '/libraries'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -242,11 +242,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
-    | '/library/$libraryId'
-    | '/library/auth-google'
-    | '/library/new'
+    | '/libraries/$libraryId'
+    | '/libraries/auth-google'
+    | '/libraries/new'
     | '/assistants'
-    | '/library'
+    | '/libraries'
   id:
     | '__root__'
     | '/'
@@ -255,11 +255,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
-    | '/library/$libraryId'
-    | '/library/auth-google'
-    | '/library/new'
+    | '/libraries/$libraryId'
+    | '/libraries/auth-google'
+    | '/libraries/new'
     | '/assistants/'
-    | '/library/'
+    | '/libraries/'
   fileRoutesById: FileRoutesById
 }
 
@@ -270,11 +270,11 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
-  LibraryLibraryIdRoute: typeof LibraryLibraryIdRoute
-  LibraryAuthGoogleRoute: typeof LibraryAuthGoogleRoute
-  LibraryNewRoute: typeof LibraryNewRoute
+  LibrariesLibraryIdRoute: typeof LibrariesLibraryIdRoute
+  LibrariesAuthGoogleRoute: typeof LibrariesAuthGoogleRoute
+  LibrariesNewRoute: typeof LibrariesNewRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
-  LibraryIndexRoute: typeof LibraryIndexRoute
+  LibrariesIndexRoute: typeof LibrariesIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -284,11 +284,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
-  LibraryLibraryIdRoute: LibraryLibraryIdRoute,
-  LibraryAuthGoogleRoute: LibraryAuthGoogleRoute,
-  LibraryNewRoute: LibraryNewRoute,
+  LibrariesLibraryIdRoute: LibrariesLibraryIdRoute,
+  LibrariesAuthGoogleRoute: LibrariesAuthGoogleRoute,
+  LibrariesNewRoute: LibrariesNewRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
-  LibraryIndexRoute: LibraryIndexRoute,
+  LibrariesIndexRoute: LibrariesIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -307,11 +307,11 @@ export const routeTree = rootRoute
         "/profile",
         "/assistants/$assistantId",
         "/assistants/new",
-        "/library/$libraryId",
-        "/library/auth-google",
-        "/library/new",
+        "/libraries/$libraryId",
+        "/libraries/auth-google",
+        "/libraries/new",
         "/assistants/",
-        "/library/"
+        "/libraries/"
       ]
     },
     "/": {
@@ -332,20 +332,20 @@ export const routeTree = rootRoute
     "/assistants/new": {
       "filePath": "assistants/new.tsx"
     },
-    "/library/$libraryId": {
-      "filePath": "library/$libraryId.tsx"
+    "/libraries/$libraryId": {
+      "filePath": "libraries/$libraryId.tsx"
     },
-    "/library/auth-google": {
-      "filePath": "library/auth-google.tsx"
+    "/libraries/auth-google": {
+      "filePath": "libraries/auth-google.tsx"
     },
-    "/library/new": {
-      "filePath": "library/new.tsx"
+    "/libraries/new": {
+      "filePath": "libraries/new.tsx"
     },
     "/assistants/": {
       "filePath": "assistants/index.tsx"
     },
-    "/library/": {
-      "filePath": "library/index.tsx"
+    "/libraries/": {
+      "filePath": "libraries/index.tsx"
     }
   }
 }

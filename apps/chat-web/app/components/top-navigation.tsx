@@ -42,7 +42,7 @@ const TopNavigation = () => {
           <ChatBubbleIcon className="size-6" />
           {t('assistants')}
         </TopNavigationLink>
-        <TopNavigationLink to="/library">
+        <TopNavigationLink to="/libraries">
           <AcademicCapIcon className="size-6" />
           {t('library')}
         </TopNavigationLink>

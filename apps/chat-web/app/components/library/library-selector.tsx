@@ -20,7 +20,7 @@ export const LibrarySelector = (props: LibrarySelectorProps) => {
         {libraries.map((library) => (
           <li key={library.id}>
             <Link
-              to={'/library/$libraryId'}
+              to={'/libraries/$libraryId'}
               params={{ libraryId: library.id }}
               onClick={(event) => {
                 event.currentTarget.blur()

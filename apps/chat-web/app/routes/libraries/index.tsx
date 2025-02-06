@@ -44,7 +44,7 @@ const librariesQueryOptions = (ownerId?: string) =>
     enabled: !!ownerId,
   })
 
-export const Route = createFileRoute('/library/')({
+export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(
@@ -81,7 +81,7 @@ function RouteComponent() {
           <Link
             type="button"
             className="btn btn-primary btn-sm"
-            to="/library/new"
+            to="/libraries/new"
           >
             Add new
           </Link>
@@ -111,7 +111,7 @@ function RouteComponent() {
                 <td>
                   <Link
                     className="btn btn-ghost btn-xs"
-                    to={'/library/$libraryId'}
+                    to={'/libraries/$libraryId'}
                     params={{ libraryId: library.id }}
                   >
                     Details
