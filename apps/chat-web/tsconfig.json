@@ -7,6 +7,7 @@
     "target": "ES2022",
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "noImplicitAny": true,
     "plugins": [
       {
         "name": "@0no-co/graphqlsp",

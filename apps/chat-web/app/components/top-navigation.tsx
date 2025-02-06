@@ -5,8 +5,15 @@ import UserIcon from './icons/user-icon'
 import AcademicCapIcon from './icons/academic-cap-icon'
 import { useAuth } from '../auth/auth-context'
 import { t } from 'i18next'
+import { FileRoutesByTo } from '../routeTree.gen'
 
-const TopNavigationLink = ({ to, children }) => {
+const TopNavigationLink = ({
+  to,
+  children,
+}: {
+  to: keyof FileRoutesByTo
+  children: Array<JSX.Element | string>
+}) => {
   return (
     <Link
       to={to}

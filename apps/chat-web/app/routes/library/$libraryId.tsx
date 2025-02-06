@@ -38,10 +38,12 @@ const aiLibraryEditQueryDocument = graphql(`
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
-  .validator(({ libraryId, ownerId }) => ({
-    id: z.string().nonempty().parse(libraryId),
-    ownerId: z.string().nonempty().parse(ownerId),
-  }))
+  .validator(
+    ({ libraryId, ownerId }: { libraryId: string; ownerId: string }) => ({
+      id: z.string().nonempty().parse(libraryId),
+      ownerId: z.string().nonempty().parse(ownerId),
+    }),
+  )
   .handler(
     async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data),
   )
@@ -86,7 +88,7 @@ const changeLibrary = createServerFn({ method: 'POST' })
 const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
   queryKey: [queryKeys.AiLibraries, libraryId, ownerId],
   queryFn: async () => {
-    if (!ownerId) {
+    if (!ownerId || !libraryId) {
       return null
     } else {
       return getLibrary({ data: { ownerId, libraryId } })

@@ -37,7 +37,7 @@ const ReprocessFileDocument = graphql(/* GraphQL */ `
 `)
 
 const clearEmbeddings = createServerFn({ method: 'GET' })
-  .validator((data) => z.string().nonempty().parse(data))
+  .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(ClearEmbeddingsDocument, {
       aiLibraryId: ctx.data,
@@ -45,13 +45,13 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
   })
 
 const dropFile = createServerFn({ method: 'GET' })
-  .validator((data) => z.string().nonempty().parse(data))
+  .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(DropFileDocument, { id: ctx.data })
   })
 
 const reProcessFile = createServerFn({ method: 'GET' })
-  .validator((data) => z.string().nonempty().parse(data))
+  .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(ReprocessFileDocument, { id: ctx.data })
   })
@@ -72,7 +72,9 @@ const EmbeddingsTableDocument = graphql(`
 `)
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
-  .validator(({ aiLibraryId }) => z.string().nonempty().parse(aiLibraryId))
+  .validator(({ aiLibraryId }: { aiLibraryId: string }) =>
+    z.string().nonempty().parse(aiLibraryId),
+  )
   .handler(async (ctx) => {
     return await backendRequest(EmbeddingsTableDocument, {
       aiLibraryId: ctx.data,

@@ -39,7 +39,7 @@ export type GoogleAccessToken = z.infer<typeof GoogleAccessTokenSchema>
 export const getGoogleAccessToken = createServerFn({
   method: 'POST',
 })
-  .validator((data) => {
+  .validator((data: { access_code?: string; redirect_url?: string }) => {
     return z
       .object({
         access_code: z.string().nonempty(),

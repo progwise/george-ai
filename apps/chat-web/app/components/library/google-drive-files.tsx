@@ -40,14 +40,19 @@ const ProcessFileDocument = graphql(`
 `)
 
 const embedFiles = createServerFn({ method: 'GET' })
-  .validator((data) =>
-    z
-      .object({
-        aiLibraryId: z.string().nonempty(),
-        files: z.array(LibraryFileSchema),
-        access_token: z.string().nonempty(),
-      })
-      .parse(data),
+  .validator(
+    (data: {
+      aiLibraryId: string
+      files: Array<LibraryFile>
+      access_token: string
+    }) =>
+      z
+        .object({
+          aiLibraryId: z.string().nonempty(),
+          files: z.array(LibraryFileSchema),
+          access_token: z.string().nonempty(),
+        })
+        .parse(data),
   )
   .handler(async (ctx) => {
     const processFiles = ctx.data.files.map(async (file) => {
