@@ -16,7 +16,7 @@ When the user clicks a menu icon, the **drawer opens**, showing all their past c
 ------------------------------------------------
 | (Drawer open)                                 |
 |  "Your Conversations"                         |
-|   1) ✏️ [Trip Planning]                       |
+|   1) ✏️ [Trip Planning]                        |
 |   2) 🏖️ [Vacation Ideas]                      |
 |   3) 🗺️ [Itinerary for Paris]                 |
 |---------------------------------------------- |
@@ -24,7 +24,7 @@ When the user clicks a menu icon, the **drawer opens**, showing all their past c
 ------------------------------------------------
 ```
 
-📌 **Mermaid Diagram - How the Drawer Works**
+**How the Drawer Works**
 
 ```mermaid
 sequenceDiagram
@@ -38,7 +38,7 @@ sequenceDiagram
     UI->>User: Display drawer with all conversations
 ```
 
-📌 **Example Code**
+**Example Code**
 
 ```tsx
 <div className="drawer">
@@ -270,16 +270,3 @@ Example UI (inspiration from ChatGPT):
 |     👍 [Good] 👎 [Bad] ✏️ [Comment]                |
 +---------------------------------------------------+
 ```
-
----
-
-## ✅ **Final Checklist**
-
-- [ ] User can list conversations.
-- [ ] User can reload conversations, including Q&A.
-- [ ] Bookmark messages & panel UI.
-- [ ] Prisma schema for conversation storage.
-- [ ] GraphQL schema for interactions.
-- [ ] Users can branch conversations.
-- [ ] UI suggestions for branching.
-- [ ] RetrievalFlow feedback mechanism.
