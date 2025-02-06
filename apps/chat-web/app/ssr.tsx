@@ -4,6 +4,7 @@ import {
   defaultStreamHandler,
 } from '@tanstack/start/server'
 import { getRouterManifest } from '@tanstack/start/router-manifest'
+import './i18n'
 
 import { createRouter } from './router'
 

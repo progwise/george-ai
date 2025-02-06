@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 export const checkFileUpload = async (fileUploadId: string) => {
   const fileUpload = await prisma?.aiLibraryFile.findUnique({
     where: { id: fileUploadId },
@@ -13,5 +15,12 @@ export const completeFileUpload = async (fileUploadId: string) => {
   return fileUpload
 }
 
-export const getFilePath = (fileId: string) =>
-  `${process.env.UPLOADS_PATH}/${fileId}`
+export const getFilePath = (fileId: string) => {
+  const path = `${process.env.UPLOADS_PATH}`
+
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path, { recursive: true })
+  }
+
+  return `${path}/${fileId}`
+}
