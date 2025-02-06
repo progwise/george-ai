@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useAuth } from '../../auth'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { graphql } from '../../gql'
 import { AiAssistantInputSchema } from '../../gql/validation'
-import { AssistantForm } from '../../components/assistant-form'
+import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantType } from '../../gql/graphql'
 import { backendRequest } from '../../server-functions/backend'
+import { useAuth } from '../../auth/auth-context'
 
 const createAssistantDocument = graphql(`
   mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {

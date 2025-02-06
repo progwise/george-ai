@@ -1,13 +1,13 @@
 import React, { useRef } from 'react'
-import { AiAssistant } from '../gql/graphql'
+import { AiAssistant } from '../../gql/graphql'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/start'
 
-import { graphql } from '../gql'
+import { graphql } from '../../gql'
 import { z } from 'zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { queryKeys } from '../query-keys'
-import { backendRequest } from '../server-functions/backend'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const deleteAssistantDocument = graphql(`
   mutation deleteAiAssistant($id: String!) {

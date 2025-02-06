@@ -3,13 +3,14 @@ import 'dotenv/config'
 import { createYoga } from 'graphql-yoga'
 import express from 'express'
 import { schema } from '@george-ai/pothos-graphql'
+import { dataUploadMiddleware } from './upload'
 
 const yoga = createYoga({
   schema,
-  graphqlEndpoint: '/',
+  graphqlEndpoint: '/graphql',
 })
 
-const yogaRouter = express.Router()
+const yogaRouter = express.Router({})
 yogaRouter.use(yoga)
 
 const app = express()
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 })
 
 app.use(yoga.graphqlEndpoint, yogaRouter)
+app.use('/upload', dataUploadMiddleware)
 
 if (!import.meta.env.DEV) {
   app.listen(3003, () => {

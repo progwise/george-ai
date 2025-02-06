@@ -31,12 +31,53 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
-type AiKnowledgeSource {
-  createdAt: DateTime
-  id: ID
-  name: String
+type AiLibrary {
+  aiLibraryType: AiLibraryType!
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  name: String!
+  owner: User
+  ownerId: String!
   updatedAt: DateTime
   url: String
+}
+
+type AiLibraryFile {
+  aiLibraryId: String!
+  chunks: Int
+  createdAt: DateTime!
+  id: ID!
+  mimeType: String!
+  name: String!
+  originUri: String
+  processedAt: DateTime
+  size: Int
+  updatedAt: DateTime
+  uploadedAt: DateTime
+}
+
+input AiLibraryFileInput {
+  aiLibraryId: String!
+  mimeType: String!
+  name: String!
+  originUri: String!
+}
+
+input AiLibraryInput {
+  aiLibraryType: AiLibraryType!
+  description: String
+  icon: String
+  name: String!
+  url: String
+}
+
+"""
+Type of the AiLibrary
+"""
+enum AiLibraryType {
+  GOOGLE_DRIVE
+  POCKETBASE
 }
 
 type ChatAnswer {
@@ -64,18 +105,25 @@ type Mutation {
     retrievalFlow: RetrievalFlow
     sessionId: String
   ): ChatAnswer
+  clearEmbeddedFiles(aiLibraryId: String!): Boolean
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
+  createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
+  dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
+  prepareFile(data: AiLibraryFileInput!): AiLibraryFile
+  processFile(fileId: String!): AiLibraryFile
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
+  updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
 }
 
 type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]
-  aiKnowledgeSource(id: String!): AiKnowledgeSource
-  aiKnowledgeSourceList(ownerId: String!): [AiKnowledgeSource!]
+  aiLibraries(ownerId: String!): [AiLibrary!]
+  aiLibrary(id: String!): AiLibrary
+  aiLibraryFiles(aiLibraryId: String!): [AiLibraryFile!]
   user(email: String!): User
 }
 

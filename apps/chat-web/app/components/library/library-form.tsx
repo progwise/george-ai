@@ -1,78 +1,68 @@
 import React from 'react'
-import { AiAssistant, User } from '../gql/graphql'
+import { AiLibrary, User } from '../../gql/graphql'
 
-export interface AssistantEditFormProps {
-  assistant: AiAssistant
+export interface LibraryEditFormProps {
+  library: AiLibrary
   owner: User
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
-export const AssistantForm = ({
-  assistant,
+export const LibraryForm = ({
+  library,
   owner,
   handleSubmit,
   disabled,
-}: AssistantEditFormProps): React.ReactElement => {
+}: LibraryEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <input type="hidden" name="ownerId" value={owner.id} />
       <input type="hidden" name="url" value="wasauchimmer" />
-      <input type="hidden" name="assistantId" value={assistant.id} />
+      <input type="hidden" name="libraryId" value={library.id || ''} />
 
-      <label className="form-control w-full max-w-xs">
-        <input
-          type="file"
-          accept="image/*"
-          name="icon"
-          className="file-input file-input-bordered w-full max-w-xs"
-        />
-      </label>
       <label className="input input-bordered flex items-center gap-2">
-        Name your assistant:
+        Name your Library:
         <input
-          key={assistant.name}
+          key={library.name}
           name="name"
           type="text"
-          defaultValue={assistant.name}
+          defaultValue={library.name || ''}
           className="grow"
-          placeholder="George II"
+          placeholder="Ancient Library of Alexandria"
+          required
         />
       </label>
       <textarea
-        key={assistant.description}
+        key={library.description}
         name="description"
         className="textarea textarea-bordered flex-grow w-full"
-        placeholder="Born and brought up in northern Germany, George is the most recent British monarch born outside Great Britain."
-        defaultValue={assistant.description || ''}
+        placeholder="The Alexandrian Library was one of the largest and most significant libraries of the ancient world."
+        defaultValue={library.description || ''}
       ></textarea>
       <div className="flex gap-2">
         <div className="form-control">
           <label className="label cursor-pointer">
-            <span className="label-text pr-4">Chatbot</span>
+            <span className="label-text pr-4">Google Drive</span>
             <input
-              key={assistant.aiAssistantType}
+              key={library.aiLibraryType}
               type="radio"
-              name="aiAssistantType"
-              value="CHATBOT"
+              name="aiLibraryType"
+              value="GOOGLE_DRIVE"
               className="radio checked:bg-green-500"
-              defaultChecked={assistant.aiAssistantType === 'CHATBOT'}
+              defaultChecked={library.aiLibraryType === 'GOOGLE_DRIVE'}
             />
           </label>
         </div>
         <div className="form-control">
           <label className="label cursor-pointer">
-            <span className="label-text pr-4">Doc Generator</span>
+            <span className="label-text pr-4">Pocketbase</span>
             <input
-              key={assistant.aiAssistantType}
+              key={library.aiLibraryType}
               type="radio"
-              name="aiAssistantType"
+              name="aiLibraryType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
-              defaultChecked={
-                assistant.aiAssistantType === 'DOCUMENT_GENERATOR'
-              }
-              disabled
+              defaultChecked={library.aiLibraryType === 'POCKETBASE'}
             />
           </label>
         </div>

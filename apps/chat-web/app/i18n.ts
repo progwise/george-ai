@@ -16,6 +16,7 @@ const resources = {
       flowWeb: 'Flow: Only Web',
       resetConversation: 'Reset conversation',
       greeting: 'Hello, I am your travel assistant. How can I help you?',
+      library: 'Library',
 
       home: {
         title: 'Your AI. Your Data. Your Rules.',
@@ -41,6 +42,7 @@ const resources = {
       flowWeb: 'Ablauf: Nur Web',
       resetConversation: 'Konversation zurücksetzen',
       greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
+      library: 'Bibliothek',
 
       home: {
         title: 'Ihre KI. Ihre Daten. Ihre Regeln.',
@@ -56,7 +58,7 @@ const resources = {
   },
 }
 
-i18n
+await i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({

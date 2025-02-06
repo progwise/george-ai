@@ -61,13 +61,53 @@ export enum AiAssistantType {
   DocumentGenerator = 'DOCUMENT_GENERATOR',
 }
 
-export type AiKnowledgeSource = {
-  __typename?: 'AiKnowledgeSource'
-  createdAt?: Maybe<Scalars['DateTime']['output']>
-  id?: Maybe<Scalars['ID']['output']>
-  name?: Maybe<Scalars['String']['output']>
+export type AiLibrary = {
+  __typename?: 'AiLibrary'
+  aiLibraryType: AiLibraryType
+  createdAt: Scalars['DateTime']['output']
+  description?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  owner?: Maybe<User>
+  ownerId: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+}
+
+export type AiLibraryFile = {
+  __typename?: 'AiLibraryFile'
+  aiLibraryId: Scalars['String']['output']
+  chunks?: Maybe<Scalars['Int']['output']>
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  mimeType: Scalars['String']['output']
+  name: Scalars['String']['output']
+  originUri?: Maybe<Scalars['String']['output']>
+  processedAt?: Maybe<Scalars['DateTime']['output']>
+  size?: Maybe<Scalars['Int']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  uploadedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type AiLibraryFileInput = {
+  aiLibraryId: Scalars['String']['input']
+  mimeType: Scalars['String']['input']
+  name: Scalars['String']['input']
+  originUri: Scalars['String']['input']
+}
+
+export type AiLibraryInput = {
+  aiLibraryType: AiLibraryType
+  description?: InputMaybe<Scalars['String']['input']>
+  icon?: InputMaybe<Scalars['String']['input']>
+  name: Scalars['String']['input']
+  url?: InputMaybe<Scalars['String']['input']>
+}
+
+/** Type of the AiLibrary */
+export enum AiLibraryType {
+  GoogleDrive = 'GOOGLE_DRIVE',
+  Pocketbase = 'POCKETBASE',
 }
 
 export type ChatAnswer = {
@@ -81,11 +121,17 @@ export type ChatAnswer = {
 export type Mutation = {
   __typename?: 'Mutation'
   chat?: Maybe<ChatAnswer>
+  clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   createAiAssistant?: Maybe<AiAssistant>
+  createAiLibrary?: Maybe<AiLibrary>
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
+  dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
+  prepareFile?: Maybe<AiLibraryFile>
+  processFile?: Maybe<AiLibraryFile>
   updateAiAssistant?: Maybe<AiAssistant>
+  updateAiLibrary?: Maybe<AiLibrary>
 }
 
 export type MutationChatArgs = {
@@ -94,8 +140,17 @@ export type MutationChatArgs = {
   sessionId?: InputMaybe<Scalars['String']['input']>
 }
 
+export type MutationClearEmbeddedFilesArgs = {
+  aiLibraryId: Scalars['String']['input']
+}
+
 export type MutationCreateAiAssistantArgs = {
   data: AiAssistantInput
+  ownerId: Scalars['String']['input']
+}
+
+export type MutationCreateAiLibraryArgs = {
+  data: AiLibraryInput
   ownerId: Scalars['String']['input']
 }
 
@@ -108,8 +163,20 @@ export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
 
+export type MutationDropFileArgs = {
+  fileId: Scalars['String']['input']
+}
+
 export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
+}
+
+export type MutationPrepareFileArgs = {
+  data: AiLibraryFileInput
+}
+
+export type MutationProcessFileArgs = {
+  fileId: Scalars['String']['input']
 }
 
 export type MutationUpdateAiAssistantArgs = {
@@ -117,12 +184,18 @@ export type MutationUpdateAiAssistantArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationUpdateAiLibraryArgs = {
+  data: AiLibraryInput
+  id: Scalars['String']['input']
+}
+
 export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants?: Maybe<Array<AiAssistant>>
-  aiKnowledgeSource?: Maybe<AiKnowledgeSource>
-  aiKnowledgeSourceList?: Maybe<Array<AiKnowledgeSource>>
+  aiLibraries?: Maybe<Array<AiLibrary>>
+  aiLibrary?: Maybe<AiLibrary>
+  aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
   user?: Maybe<User>
 }
 
@@ -134,12 +207,16 @@ export type QueryAiAssistantsArgs = {
   ownerId: Scalars['String']['input']
 }
 
-export type QueryAiKnowledgeSourceArgs = {
+export type QueryAiLibrariesArgs = {
+  ownerId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryArgs = {
   id: Scalars['String']['input']
 }
 
-export type QueryAiKnowledgeSourceListArgs = {
-  ownerId: Scalars['String']['input']
+export type QueryAiLibraryFilesArgs = {
+  aiLibraryId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -385,6 +462,84 @@ export type DeleteAiAssistantMutation = {
   deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string } | null
 }
 
+export type ClearEmbeddingsMutationVariables = Exact<{
+  aiLibraryId: Scalars['String']['input']
+}>
+
+export type ClearEmbeddingsMutation = {
+  __typename?: 'Mutation'
+  clearEmbeddedFiles?: boolean | null
+}
+
+export type DropFileMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DropFileMutation = {
+  __typename?: 'Mutation'
+  dropFile?: { __typename?: 'AiLibraryFile'; id: string } | null
+}
+
+export type ReProcessFileMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type ReProcessFileMutation = {
+  __typename?: 'Mutation'
+  processFile?: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    chunks?: number | null
+    size?: number | null
+    uploadedAt?: any | null
+    processedAt?: any | null
+  } | null
+}
+
+export type EmbeddingsTableQueryVariables = Exact<{
+  aiLibraryId: Scalars['String']['input']
+}>
+
+export type EmbeddingsTableQuery = {
+  __typename?: 'Query'
+  aiLibraryFiles?: Array<{
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    originUri?: string | null
+    mimeType: string
+    size?: number | null
+    chunks?: number | null
+    uploadedAt?: any | null
+    processedAt?: any | null
+  }> | null
+}
+
+export type PrepareFileMutationVariables = Exact<{
+  file: AiLibraryFileInput
+}>
+
+export type PrepareFileMutation = {
+  __typename?: 'Mutation'
+  prepareFile?: { __typename?: 'AiLibraryFile'; id: string } | null
+}
+
+export type ProcessFileMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type ProcessFileMutation = {
+  __typename?: 'Mutation'
+  processFile?: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    chunks?: number | null
+    size?: number | null
+    uploadedAt?: any | null
+    processedAt?: any | null
+  } | null
+}
+
 export type AiAssistantEditQueryVariables = Exact<{
   id: Scalars['String']['input']
 }>
@@ -445,6 +600,75 @@ export type CreateAiAssistantMutation = {
   __typename?: 'Mutation'
   createAiAssistant?: {
     __typename?: 'AiAssistant'
+    id: string
+    name: string
+  } | null
+}
+
+export type AiLibraryEditQueryVariables = Exact<{
+  id: Scalars['String']['input']
+  ownerId: Scalars['String']['input']
+}>
+
+export type AiLibraryEditQuery = {
+  __typename?: 'Query'
+  aiLibrary?: {
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+    description?: string | null
+    createdAt: any
+    ownerId: string
+    aiLibraryType: AiLibraryType
+    url?: string | null
+  } | null
+  aiLibraries?: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+  }> | null
+}
+
+export type ChangeAiLibraryMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiLibraryInput
+}>
+
+export type ChangeAiLibraryMutation = {
+  __typename?: 'Mutation'
+  updateAiLibrary?: {
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+  } | null
+}
+
+export type AiLibrariesQueryVariables = Exact<{
+  ownerId: Scalars['String']['input']
+}>
+
+export type AiLibrariesQuery = {
+  __typename?: 'Query'
+  aiLibraries?: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+    aiLibraryType: AiLibraryType
+    createdAt: any
+    updatedAt?: any | null
+    owner?: { __typename?: 'User'; id: string; name?: string | null } | null
+  }> | null
+}
+
+export type CreateAiLibraryMutationVariables = Exact<{
+  ownerId: Scalars['String']['input']
+  data: AiLibraryInput
+}>
+
+export type CreateAiLibraryMutation = {
+  __typename?: 'Mutation'
+  createAiLibrary?: {
+    __typename?: 'AiLibrary'
     id: string
     name: string
   } | null
@@ -1480,6 +1704,321 @@ export const DeleteAiAssistantDocument = {
   DeleteAiAssistantMutation,
   DeleteAiAssistantMutationVariables
 >
+export const ClearEmbeddingsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'clearEmbeddings' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'aiLibraryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'aiLibraryId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'aiLibraryId' },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ClearEmbeddingsMutation,
+  ClearEmbeddingsMutationVariables
+>
+export const DropFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
+export const ReProcessFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'reProcessFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ReProcessFileMutation,
+  ReProcessFileMutationVariables
+>
+export const EmbeddingsTableDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'EmbeddingsTable' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'aiLibraryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'aiLibraryId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'aiLibraryId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  EmbeddingsTableQuery,
+  EmbeddingsTableQueryVariables
+>
+export const PrepareFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'prepareFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiLibraryFileInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'prepareFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'file' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PrepareFileMutation, PrepareFileMutationVariables>
+export const ProcessFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'processFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'fileId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'fileId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
 export const AiAssistantEditDocument = {
   kind: 'Document',
   definitions: [
@@ -1748,6 +2287,312 @@ export const CreateAiAssistantDocument = {
 } as unknown as DocumentNode<
   CreateAiAssistantMutation,
   CreateAiAssistantMutationVariables
+>
+export const AiLibraryEditDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLibraryEdit' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aiLibraryType' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibraryEditQuery, AiLibraryEditQueryVariables>
+export const ChangeAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'changeAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiLibraryInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ChangeAiLibraryMutation,
+  ChangeAiLibraryMutationVariables
+>
+export const AiLibrariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLibraries' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'aiLibraryType' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibrariesQuery, AiLibrariesQueryVariables>
+export const CreateAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiLibraryInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateAiLibraryMutation,
+  CreateAiLibraryMutationVariables
 >
 export const IntrospectionQueryDocument = {
   kind: 'Document',

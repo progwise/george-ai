@@ -15,6 +15,7 @@
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true,
+    "noImplicitAny": true,
     "module": "ESNext",
     "target": "ES2022"
   },

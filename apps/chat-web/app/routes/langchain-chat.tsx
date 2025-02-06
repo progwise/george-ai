@@ -9,11 +9,9 @@ import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { FormattedMarkdown } from '../components/formatted-markdown'
-import { useTranslation } from 'react-i18next'
+import { t } from 'i18next'
 
 const ChatRoute = () => {
-  const { t } = useTranslation()
-
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
 
@@ -81,8 +79,11 @@ const ChatRoute = () => {
           >
             <div className="chat-header">
               <span>{message.sender}</span>
-              <time className="text-xs opacity-50 ml-2">
-                {message.time.toString()}
+              <time
+                className="text-xs opacity-50 ml-2"
+                suppressHydrationWarning
+              >
+                {`${message.time.toLocaleDateString()} ${message.time.toLocaleTimeString()}`}
               </time>
             </div>
             <div className="chat-bubble">

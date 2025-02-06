@@ -22,3 +22,5 @@ export const ask = (parameters: {
 export const processUnprocessedDocuments = async () => {
   await vectorStore.loadUprocessedDocumentsIntoVectorStore()
 }
+
+export * from './typesense-vectorstore'

@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { graphql } from '../../gql/gql'
-import { useAuth } from '../../auth'
-import { AssistantCard } from '../../components/assistant-card'
+import { AssistantCard } from '../../components/assistant/assistant-card'
 import { queryKeys } from '../../query-keys'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
+import { useAuth } from '../../auth/auth-context'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const myAssistantsDocument = graphql(/* GraphQL */ `
   query aiAssistantCards($ownerId: String!) {
@@ -65,7 +66,7 @@ function RouteComponent() {
             'My Assistants'
           )}
         </h3>
-        {isLoading && <span className="loading loading-ring loading-md"></span>}
+        <LoadingSpinner isLoading={isLoading} />
         {isLoggendIn && (
           <Link
             type="button"

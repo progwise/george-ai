@@ -26,53 +26,76 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
+enum AiLibraryType {
+  GOOGLE_DRIVE
+  POCKETBASE
+}
+
 model User {
-  id                 String              @id @default(cuid())
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  lastLogin          DateTime?
-  email              String              @unique
-  username           String              @unique
-  name               String?
-  given_name         String?
-  family_name        String?
-  aiAssistants       AiAssistant[]
-  aiKnowledgeSources AiKnowledgeSource[]
+  id           String        @id @default(cuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  lastLogin    DateTime?
+  email        String        @unique
+  username     String        @unique
+  name         String?
+  given_name   String?
+  family_name  String?
+  aiAssistants AiAssistant[]
+  aiLibraries  AiLibrary[]
 }
 
 model AiAssistant {
-  id              String                   @id @default(cuid())
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  id              String           @id @default(cuid())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   name            String
   description     String?
   url             String?
   icon            String?
-  owner           User                     @relation(fields: [ownerId], references: [id])
+  owner           User             @relation(fields: [ownerId], references: [id])
   ownerId         String
   aiAssistantType AiAssistantType
-  usages          AiKnowledgeSourceUsage[]
+  usages          AiLibraryUsage[]
 }
 
-model AiKnowledgeSource {
-  id            String                   @id @default(cuid())
-  createdAt     DateTime                 @default(now())
-  updatedAt     DateTime                 @updatedAt
+model AiLibrary {
+  id            String           @id @default(cuid())
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   name          String
+  description   String?
   url           String?
   apiToken      String?
   lastProcessed DateTime?
-  owner         User                     @relation(fields: [ownerId], references: [id])
+  owner         User             @relation(fields: [ownerId], references: [id])
   ownerId       String
-  isPublic      Boolean                  @default(true)
-  usages        AiKnowledgeSourceUsage[]
+  isPublic      Boolean          @default(true)
+  aiLibraryType AiLibraryType
+  usages        AiLibraryUsage[]
+  files         AiLibraryFile[]
 }
 
-model AiKnowledgeSourceUsage {
-  id                  String            @id @default(cuid())
-  createdAt           DateTime          @default(now())
-  aiAssistant         AiAssistant       @relation(fields: [aiAssistantId], references: [id])
-  aiAssistantId       String
-  aiKnowledgeSource   AiKnowledgeSource @relation(fields: [aiKnowledgeSourceId], references: [id])
-  aiKnowledgeSourceId String
+model AiLibraryUsage {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  aiAssistant   AiAssistant @relation(fields: [aiAssistantId], references: [id])
+  aiAssistantId String
+  aiLibrary     AiLibrary   @relation(fields: [aiLibraryId], references: [id])
+  aiLibraryId   String
+}
+
+model AiLibraryFile {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  aiLibrary   AiLibrary @relation(fields: [aiLibraryId], references: [id])
+  aiLibraryId String
+  name        String
+  originUri   String?
+  mimeType    String
+  size        Int?
+  chunks      Int?
+  uploadedAt  DateTime?
+  processedAt DateTime?
 }
