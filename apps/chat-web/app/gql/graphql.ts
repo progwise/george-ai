@@ -61,9 +61,9 @@ export enum AiAssistantType {
   DocumentGenerator = 'DOCUMENT_GENERATOR',
 }
 
-export type AiKnowledgeSource = {
-  __typename?: 'AiKnowledgeSource'
-  aiKnowledgeSourceType: AiKnowledgeSourceType
+export type AiLibrary = {
+  __typename?: 'AiLibrary'
+  aiLibraryType: AiLibraryType
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
@@ -74,8 +74,8 @@ export type AiKnowledgeSource = {
   url?: Maybe<Scalars['String']['output']>
 }
 
-export type AiKnowledgeSourceFile = {
-  __typename?: 'AiKnowledgeSourceFile'
+export type AiLibraryFile = {
+  __typename?: 'AiLibraryFile'
   aiKnowledgeSourceId: Scalars['String']['output']
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
@@ -89,23 +89,23 @@ export type AiKnowledgeSourceFile = {
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
-export type AiKnowledgeSourceFileInput = {
-  aiKnowledgeSourceId: Scalars['String']['input']
+export type AiLibraryFileInput = {
+  aiLibraryId: Scalars['String']['input']
   mimeType: Scalars['String']['input']
   name: Scalars['String']['input']
   originUri: Scalars['String']['input']
 }
 
-export type AiKnowledgeSourceInput = {
-  aiKnowledgeSourceType: AiKnowledgeSourceType
+export type AiLibraryInput = {
+  aiLibraryType: AiLibraryType
   description?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
 }
 
-/** Type of the AiKnowledgeSource */
-export enum AiKnowledgeSourceType {
+/** Type of the AiLibrary */
+export enum AiLibraryType {
   GoogleDrive = 'GOOGLE_DRIVE',
   Pocketbase = 'POCKETBASE',
 }
@@ -123,15 +123,15 @@ export type Mutation = {
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   createAiAssistant?: Maybe<AiAssistant>
-  createAiKnowledgeSource?: Maybe<AiKnowledgeSource>
+  createAiLibrary?: Maybe<AiLibrary>
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
-  dropFile?: Maybe<AiKnowledgeSourceFile>
+  dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
-  prepareFile?: Maybe<AiKnowledgeSourceFile>
-  processFile?: Maybe<AiKnowledgeSourceFile>
+  prepareFile?: Maybe<AiLibraryFile>
+  processFile?: Maybe<AiLibraryFile>
   updateAiAssistant?: Maybe<AiAssistant>
-  updateAiKnowledgeSource?: Maybe<AiKnowledgeSource>
+  updateAiLibrary?: Maybe<AiLibrary>
 }
 
 export type MutationChatArgs = {
@@ -141,7 +141,7 @@ export type MutationChatArgs = {
 }
 
 export type MutationClearEmbeddedFilesArgs = {
-  knowledgeSourceId: Scalars['String']['input']
+  aiLibraryId: Scalars['String']['input']
 }
 
 export type MutationCreateAiAssistantArgs = {
@@ -149,8 +149,8 @@ export type MutationCreateAiAssistantArgs = {
   ownerId: Scalars['String']['input']
 }
 
-export type MutationCreateAiKnowledgeSourceArgs = {
-  data: AiKnowledgeSourceInput
+export type MutationCreateAiLibraryArgs = {
+  data: AiLibraryInput
   ownerId: Scalars['String']['input']
 }
 
@@ -172,7 +172,7 @@ export type MutationLoginArgs = {
 }
 
 export type MutationPrepareFileArgs = {
-  data: AiKnowledgeSourceFileInput
+  data: AiLibraryFileInput
 }
 
 export type MutationProcessFileArgs = {
@@ -184,8 +184,8 @@ export type MutationUpdateAiAssistantArgs = {
   id: Scalars['String']['input']
 }
 
-export type MutationUpdateAiKnowledgeSourceArgs = {
-  data: AiKnowledgeSourceInput
+export type MutationUpdateAiLibraryArgs = {
+  data: AiLibraryInput
   id: Scalars['String']['input']
 }
 
@@ -193,9 +193,9 @@ export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants?: Maybe<Array<AiAssistant>>
-  aiKnowledgeSource?: Maybe<AiKnowledgeSource>
-  aiKnowledgeSourceFiles?: Maybe<Array<AiKnowledgeSourceFile>>
-  aiKnowledgeSources?: Maybe<Array<AiKnowledgeSource>>
+  aiLibraries?: Maybe<Array<AiLibrary>>
+  aiLibrary?: Maybe<AiLibrary>
+  aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
   user?: Maybe<User>
 }
 
@@ -207,16 +207,16 @@ export type QueryAiAssistantsArgs = {
   ownerId: Scalars['String']['input']
 }
 
-export type QueryAiKnowledgeSourceArgs = {
+export type QueryAiLibrariesArgs = {
+  ownerId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryArgs = {
   id: Scalars['String']['input']
 }
 
-export type QueryAiKnowledgeSourceFilesArgs = {
-  knowledgeSourceId: Scalars['String']['input']
-}
-
-export type QueryAiKnowledgeSourcesArgs = {
-  ownerId: Scalars['String']['input']
+export type QueryAiLibraryFilesArgs = {
+  aiLibraryId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -463,7 +463,7 @@ export type DeleteAiAssistantMutation = {
 }
 
 export type ClearEmbeddingsMutationVariables = Exact<{
-  knowledgeSourceId: Scalars['String']['input']
+  aiLibraryId: Scalars['String']['input']
 }>
 
 export type ClearEmbeddingsMutation = {
@@ -477,7 +477,7 @@ export type DropFileMutationVariables = Exact<{
 
 export type DropFileMutation = {
   __typename?: 'Mutation'
-  dropFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
+  dropFile?: { __typename?: 'AiLibraryFile'; id: string } | null
 }
 
 export type ReProcessFileMutationVariables = Exact<{
@@ -487,7 +487,7 @@ export type ReProcessFileMutationVariables = Exact<{
 export type ReProcessFileMutation = {
   __typename?: 'Mutation'
   processFile?: {
-    __typename?: 'AiKnowledgeSourceFile'
+    __typename?: 'AiLibraryFile'
     id: string
     chunks?: number | null
     size?: number | null
@@ -497,13 +497,13 @@ export type ReProcessFileMutation = {
 }
 
 export type EmbeddingsTableQueryVariables = Exact<{
-  knowledgeSourceId: Scalars['String']['input']
+  aiLibraryId: Scalars['String']['input']
 }>
 
 export type EmbeddingsTableQuery = {
   __typename?: 'Query'
-  aiKnowledgeSourceFiles?: Array<{
-    __typename?: 'AiKnowledgeSourceFile'
+  aiLibraryFiles?: Array<{
+    __typename?: 'AiLibraryFile'
     id: string
     name: string
     originUri?: string | null
@@ -516,12 +516,12 @@ export type EmbeddingsTableQuery = {
 }
 
 export type PrepareFileMutationVariables = Exact<{
-  file: AiKnowledgeSourceFileInput
+  file: AiLibraryFileInput
 }>
 
 export type PrepareFileMutation = {
   __typename?: 'Mutation'
-  prepareFile?: { __typename?: 'AiKnowledgeSourceFile'; id: string } | null
+  prepareFile?: { __typename?: 'AiLibraryFile'; id: string } | null
 }
 
 export type ProcessFileMutationVariables = Exact<{
@@ -531,7 +531,7 @@ export type ProcessFileMutationVariables = Exact<{
 export type ProcessFileMutation = {
   __typename?: 'Mutation'
   processFile?: {
-    __typename?: 'AiKnowledgeSourceFile'
+    __typename?: 'AiLibraryFile'
     id: string
     chunks?: number | null
     size?: number | null
@@ -605,70 +605,70 @@ export type CreateAiAssistantMutation = {
   } | null
 }
 
-export type AiKnowledgeSourceEditQueryVariables = Exact<{
+export type AiLibraryEditQueryVariables = Exact<{
   id: Scalars['String']['input']
   ownerId: Scalars['String']['input']
 }>
 
-export type AiKnowledgeSourceEditQuery = {
+export type AiLibraryEditQuery = {
   __typename?: 'Query'
-  aiKnowledgeSource?: {
-    __typename?: 'AiKnowledgeSource'
+  aiLibrary?: {
+    __typename?: 'AiLibrary'
     id: string
     name: string
     description?: string | null
     createdAt: any
     ownerId: string
-    aiKnowledgeSourceType: AiKnowledgeSourceType
+    aiLibraryType: AiLibraryType
     url?: string | null
   } | null
-  aiKnowledgeSources?: Array<{
-    __typename?: 'AiKnowledgeSource'
+  aiLibraries?: Array<{
+    __typename?: 'AiLibrary'
     id: string
     name: string
   }> | null
 }
 
-export type ChangeAiKnowledgeSourceMutationVariables = Exact<{
+export type ChangeAiLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
-  data: AiKnowledgeSourceInput
+  data: AiLibraryInput
 }>
 
-export type ChangeAiKnowledgeSourceMutation = {
+export type ChangeAiLibraryMutation = {
   __typename?: 'Mutation'
-  updateAiKnowledgeSource?: {
-    __typename?: 'AiKnowledgeSource'
+  updateAiLibrary?: {
+    __typename?: 'AiLibrary'
     id: string
     name: string
   } | null
 }
 
-export type AiKnowledgeSourcesQueryVariables = Exact<{
+export type AiLibrariesQueryVariables = Exact<{
   ownerId: Scalars['String']['input']
 }>
 
-export type AiKnowledgeSourcesQuery = {
+export type AiLibrariesQuery = {
   __typename?: 'Query'
-  aiKnowledgeSources?: Array<{
-    __typename?: 'AiKnowledgeSource'
+  aiLibraries?: Array<{
+    __typename?: 'AiLibrary'
     id: string
     name: string
-    aiKnowledgeSourceType: AiKnowledgeSourceType
+    aiLibraryType: AiLibraryType
     createdAt: any
     updatedAt?: any | null
     owner?: { __typename?: 'User'; id: string; name?: string | null } | null
   }> | null
 }
 
-export type CreateAiKnowledgeSourceMutationVariables = Exact<{
+export type CreateAiLibraryMutationVariables = Exact<{
   ownerId: Scalars['String']['input']
-  data: AiKnowledgeSourceInput
+  data: AiLibraryInput
 }>
 
-export type CreateAiKnowledgeSourceMutation = {
+export type CreateAiLibraryMutation = {
   __typename?: 'Mutation'
-  createAiKnowledgeSource?: {
-    __typename?: 'AiKnowledgeSource'
+  createAiLibrary?: {
+    __typename?: 'AiLibrary'
     id: string
     name: string
   } | null
@@ -1716,7 +1716,7 @@ export const ClearEmbeddingsDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'knowledgeSourceId' },
+            name: { kind: 'Name', value: 'aiLibraryId' },
           },
           type: {
             kind: 'NonNullType',
@@ -1736,10 +1736,10 @@ export const ClearEmbeddingsDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'knowledgeSourceId' },
+                name: { kind: 'Name', value: 'aiLibraryId' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'knowledgeSourceId' },
+                  name: { kind: 'Name', value: 'aiLibraryId' },
                 },
               },
             ],
@@ -1867,7 +1867,7 @@ export const EmbeddingsTableDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'knowledgeSourceId' },
+            name: { kind: 'Name', value: 'aiLibraryId' },
           },
           type: {
             kind: 'NonNullType',
@@ -1883,14 +1883,14 @@ export const EmbeddingsTableDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiKnowledgeSourceFiles' },
+            name: { kind: 'Name', value: 'aiLibraryFiles' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'knowledgeSourceId' },
+                name: { kind: 'Name', value: 'aiLibraryId' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'knowledgeSourceId' },
+                  name: { kind: 'Name', value: 'aiLibraryId' },
                 },
               },
             ],
@@ -1931,7 +1931,7 @@ export const PrepareFileDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiKnowledgeSourceFileInput' },
+              name: { kind: 'Name', value: 'AiLibraryFileInput' },
             },
           },
         },
@@ -2288,13 +2288,13 @@ export const CreateAiAssistantDocument = {
   CreateAiAssistantMutation,
   CreateAiAssistantMutationVariables
 >
-export const AiKnowledgeSourceEditDocument = {
+export const AiLibraryEditDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiKnowledgeSourceEdit' },
+      name: { kind: 'Name', value: 'aiLibraryEdit' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -2327,7 +2327,7 @@ export const AiKnowledgeSourceEditDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiKnowledgeSource' },
+            name: { kind: 'Name', value: 'aiLibrary' },
             arguments: [
               {
                 kind: 'Argument',
@@ -2348,7 +2348,7 @@ export const AiKnowledgeSourceEditDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'aiKnowledgeSourceType' },
+                  name: { kind: 'Name', value: 'aiLibraryType' },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
               ],
@@ -2356,7 +2356,7 @@ export const AiKnowledgeSourceEditDocument = {
           },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiKnowledgeSources' },
+            name: { kind: 'Name', value: 'aiLibraries' },
             arguments: [
               {
                 kind: 'Argument',
@@ -2379,17 +2379,14 @@ export const AiKnowledgeSourceEditDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  AiKnowledgeSourceEditQuery,
-  AiKnowledgeSourceEditQueryVariables
->
-export const ChangeAiKnowledgeSourceDocument = {
+} as unknown as DocumentNode<AiLibraryEditQuery, AiLibraryEditQueryVariables>
+export const ChangeAiLibraryDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'changeAiKnowledgeSource' },
+      name: { kind: 'Name', value: 'changeAiLibrary' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -2409,7 +2406,7 @@ export const ChangeAiKnowledgeSourceDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiKnowledgeSourceInput' },
+              name: { kind: 'Name', value: 'AiLibraryInput' },
             },
           },
         },
@@ -2419,7 +2416,7 @@ export const ChangeAiKnowledgeSourceDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'updateAiKnowledgeSource' },
+            name: { kind: 'Name', value: 'updateAiLibrary' },
             arguments: [
               {
                 kind: 'Argument',
@@ -2451,16 +2448,16 @@ export const ChangeAiKnowledgeSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  ChangeAiKnowledgeSourceMutation,
-  ChangeAiKnowledgeSourceMutationVariables
+  ChangeAiLibraryMutation,
+  ChangeAiLibraryMutationVariables
 >
-export const AiKnowledgeSourcesDocument = {
+export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiKnowledgeSources' },
+      name: { kind: 'Name', value: 'aiLibraries' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -2482,7 +2479,7 @@ export const AiKnowledgeSourcesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiKnowledgeSources' },
+            name: { kind: 'Name', value: 'aiLibraries' },
             arguments: [
               {
                 kind: 'Argument',
@@ -2500,7 +2497,7 @@ export const AiKnowledgeSourcesDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'aiKnowledgeSourceType' },
+                  name: { kind: 'Name', value: 'aiLibraryType' },
                 },
                 {
                   kind: 'Field',
@@ -2522,17 +2519,14 @@ export const AiKnowledgeSourcesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  AiKnowledgeSourcesQuery,
-  AiKnowledgeSourcesQueryVariables
->
-export const CreateAiKnowledgeSourceDocument = {
+} as unknown as DocumentNode<AiLibrariesQuery, AiLibrariesQueryVariables>
+export const CreateAiLibraryDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'createAiKnowledgeSource' },
+      name: { kind: 'Name', value: 'createAiLibrary' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -2555,7 +2549,7 @@ export const CreateAiKnowledgeSourceDocument = {
             kind: 'NonNullType',
             type: {
               kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiKnowledgeSourceInput' },
+              name: { kind: 'Name', value: 'AiLibraryInput' },
             },
           },
         },
@@ -2565,7 +2559,7 @@ export const CreateAiKnowledgeSourceDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createAiKnowledgeSource' },
+            name: { kind: 'Name', value: 'createAiLibrary' },
             arguments: [
               {
                 kind: 'Argument',
@@ -2597,8 +2591,8 @@ export const CreateAiKnowledgeSourceDocument = {
     },
   ],
 } as unknown as DocumentNode<
-  CreateAiKnowledgeSourceMutation,
-  CreateAiKnowledgeSourceMutationVariables
+  CreateAiLibraryMutation,
+  CreateAiLibraryMutationVariables
 >
 export const IntrospectionQueryDocument = {
   kind: 'Document',

@@ -30,13 +30,10 @@ const vectorTypesenseClient = new Client({
   connectionTimeoutSeconds: 60,
 })
 
-const getTypesenseSchemaName = (knowledgeSourceId: string) =>
-  `gai-knowledge-source-${knowledgeSourceId}`
+const getTypesenseSchemaName = (libraryId: string) => `gai-library-${libraryId}`
 
-const getTypesenseSchema = (
-  knowledgeSourceId: string,
-): CollectionCreateSchema => ({
-  name: getTypesenseSchemaName(knowledgeSourceId),
+const getTypesenseSchema = (aiLibraryId: string): CollectionCreateSchema => ({
+  name: getTypesenseSchemaName(aiLibraryId),
   fields: [
     { name: 'points', type: 'int32' },
     { name: 'vec', type: 'float[]', num_dim: 3072 },
@@ -72,10 +69,10 @@ curl --location 'http://localhost:8108/collections' \
 */
 
 const getTypesenseVectorStoreConfig = (
-  knowledgeSourceId: string,
+  aiLibraryId: string,
 ): TypesenseConfig => ({
   typesenseClient: vectorTypesenseClient,
-  schemaName: getTypesenseSchemaName(knowledgeSourceId),
+  schemaName: getTypesenseSchemaName(aiLibraryId),
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
@@ -106,31 +103,31 @@ const typesenseVectorStore = new Typesense(
   getTypesenseVectorStoreConfig('gai-documents'),
 )
 
-export const ensureVectorStore = async (knowledgeSourceId: string) => {
-  const schemaName = getTypesenseSchemaName(knowledgeSourceId)
+export const ensureVectorStore = async (aiLibraryId: string) => {
+  const schemaName = getTypesenseSchemaName(aiLibraryId)
   const exists = await vectorTypesenseClient.collections(schemaName).exists()
   if (!exists) {
     await vectorTypesenseClient
       .collections()
-      .create(getTypesenseSchema(knowledgeSourceId))
+      .create(getTypesenseSchema(aiLibraryId))
   }
 }
 
-export const dropVectorStore = async (knowledgeSourceId: string) => {
-  const schemaName = getTypesenseSchemaName(knowledgeSourceId)
+export const dropVectorStore = async (libraryId: string) => {
+  const schemaName = getTypesenseSchemaName(libraryId)
   const exists = await vectorTypesenseClient.collections(schemaName).exists()
   if (exists) {
     await vectorTypesenseClient.collections(schemaName).delete()
   }
 }
 
-export const dropFile = async (knowledgeSourceId: string, fileId: string) => {
-  await ensureVectorStore(knowledgeSourceId)
-  await removeFileById(knowledgeSourceId, fileId)
+export const dropFile = async (aiLibraryId: string, fileId: string) => {
+  await ensureVectorStore(aiLibraryId)
+  await removeFileById(aiLibraryId, fileId)
 }
 
 export const embedFile = async (
-  knowledgeSourceId: string,
+  aiLibraryId: string,
   file: {
     id: string
     name: string
@@ -139,17 +136,16 @@ export const embedFile = async (
     path: string
   },
 ) => {
-  await ensureVectorStore(knowledgeSourceId)
+  await ensureVectorStore(aiLibraryId)
 
-  const typesenseVectorStoreConfig =
-    getTypesenseVectorStoreConfig(knowledgeSourceId)
+  const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(aiLibraryId)
 
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
   })
 
-  await removeFileByName(knowledgeSourceId, file.name)
+  await removeFileByName(aiLibraryId, file.name)
   const fileParts = await loadFile(file)
 
   const splitDocument = await splitter.splitDocuments(fileParts)
@@ -200,22 +196,19 @@ const loadDocument = async (document: {
   return splitDocuments
 }
 
-export const removeFileById = async (
-  knowledgeSourceId: string,
-  fileId: string,
-) => {
+export const removeFileById = async (aiLibraryId: string, fileId: string) => {
   return await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(knowledgeSourceId))
+    .collections(getTypesenseSchemaName(aiLibraryId))
     .documents()
     .delete({ filter_by: `docId:=${fileId}` })
 }
 
 export const removeFileByName = async (
-  knowledgeSourceId: string,
+  aiLibraryId: string,
   fileName: string,
 ) => {
   return await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(knowledgeSourceId))
+    .collections(getTypesenseSchemaName(aiLibraryId))
     .documents()
     .delete({ filter_by: `docName:=${fileName}` })
 }

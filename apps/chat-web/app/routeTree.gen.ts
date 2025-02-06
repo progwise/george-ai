@@ -15,11 +15,11 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
-import { Route as KnowledgeIndexImport } from './routes/knowledge/index'
+import { Route as LibraryIndexImport } from './routes/library/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
-import { Route as KnowledgeNewImport } from './routes/knowledge/new'
-import { Route as KnowledgeAuthGoogleImport } from './routes/knowledge/auth-google'
-import { Route as KnowledgeKnowledgeSourceIdImport } from './routes/knowledge/$knowledgeSourceId'
+import { Route as LibraryNewImport } from './routes/library/new'
+import { Route as LibraryAuthGoogleImport } from './routes/library/auth-google'
+import { Route as LibraryLibraryIdImport } from './routes/library/$libraryId'
 import { Route as AssistantsNewImport } from './routes/assistants/new'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 
@@ -49,9 +49,9 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const KnowledgeIndexRoute = KnowledgeIndexImport.update({
-  id: '/knowledge/',
-  path: '/knowledge/',
+const LibraryIndexRoute = LibraryIndexImport.update({
+  id: '/library/',
+  path: '/library/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -61,25 +61,23 @@ const AssistantsIndexRoute = AssistantsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const KnowledgeNewRoute = KnowledgeNewImport.update({
-  id: '/knowledge/new',
-  path: '/knowledge/new',
+const LibraryNewRoute = LibraryNewImport.update({
+  id: '/library/new',
+  path: '/library/new',
   getParentRoute: () => rootRoute,
 } as any)
 
-const KnowledgeAuthGoogleRoute = KnowledgeAuthGoogleImport.update({
-  id: '/knowledge/auth-google',
-  path: '/knowledge/auth-google',
+const LibraryAuthGoogleRoute = LibraryAuthGoogleImport.update({
+  id: '/library/auth-google',
+  path: '/library/auth-google',
   getParentRoute: () => rootRoute,
 } as any)
 
-const KnowledgeKnowledgeSourceIdRoute = KnowledgeKnowledgeSourceIdImport.update(
-  {
-    id: '/knowledge/$knowledgeSourceId',
-    path: '/knowledge/$knowledgeSourceId',
-    getParentRoute: () => rootRoute,
-  } as any,
-)
+const LibraryLibraryIdRoute = LibraryLibraryIdImport.update({
+  id: '/library/$libraryId',
+  path: '/library/$libraryId',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AssistantsNewRoute = AssistantsNewImport.update({
   id: '/assistants/new',
@@ -139,25 +137,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantsNewImport
       parentRoute: typeof rootRoute
     }
-    '/knowledge/$knowledgeSourceId': {
-      id: '/knowledge/$knowledgeSourceId'
-      path: '/knowledge/$knowledgeSourceId'
-      fullPath: '/knowledge/$knowledgeSourceId'
-      preLoaderRoute: typeof KnowledgeKnowledgeSourceIdImport
+    '/library/$libraryId': {
+      id: '/library/$libraryId'
+      path: '/library/$libraryId'
+      fullPath: '/library/$libraryId'
+      preLoaderRoute: typeof LibraryLibraryIdImport
       parentRoute: typeof rootRoute
     }
-    '/knowledge/auth-google': {
-      id: '/knowledge/auth-google'
-      path: '/knowledge/auth-google'
-      fullPath: '/knowledge/auth-google'
-      preLoaderRoute: typeof KnowledgeAuthGoogleImport
+    '/library/auth-google': {
+      id: '/library/auth-google'
+      path: '/library/auth-google'
+      fullPath: '/library/auth-google'
+      preLoaderRoute: typeof LibraryAuthGoogleImport
       parentRoute: typeof rootRoute
     }
-    '/knowledge/new': {
-      id: '/knowledge/new'
-      path: '/knowledge/new'
-      fullPath: '/knowledge/new'
-      preLoaderRoute: typeof KnowledgeNewImport
+    '/library/new': {
+      id: '/library/new'
+      path: '/library/new'
+      fullPath: '/library/new'
+      preLoaderRoute: typeof LibraryNewImport
       parentRoute: typeof rootRoute
     }
     '/assistants/': {
@@ -167,11 +165,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantsIndexImport
       parentRoute: typeof rootRoute
     }
-    '/knowledge/': {
-      id: '/knowledge/'
-      path: '/knowledge'
-      fullPath: '/knowledge'
-      preLoaderRoute: typeof KnowledgeIndexImport
+    '/library/': {
+      id: '/library/'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -186,11 +184,11 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
-  '/knowledge/$knowledgeSourceId': typeof KnowledgeKnowledgeSourceIdRoute
-  '/knowledge/auth-google': typeof KnowledgeAuthGoogleRoute
-  '/knowledge/new': typeof KnowledgeNewRoute
+  '/library/$libraryId': typeof LibraryLibraryIdRoute
+  '/library/auth-google': typeof LibraryAuthGoogleRoute
+  '/library/new': typeof LibraryNewRoute
   '/assistants': typeof AssistantsIndexRoute
-  '/knowledge': typeof KnowledgeIndexRoute
+  '/library': typeof LibraryIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -200,11 +198,11 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
-  '/knowledge/$knowledgeSourceId': typeof KnowledgeKnowledgeSourceIdRoute
-  '/knowledge/auth-google': typeof KnowledgeAuthGoogleRoute
-  '/knowledge/new': typeof KnowledgeNewRoute
+  '/library/$libraryId': typeof LibraryLibraryIdRoute
+  '/library/auth-google': typeof LibraryAuthGoogleRoute
+  '/library/new': typeof LibraryNewRoute
   '/assistants': typeof AssistantsIndexRoute
-  '/knowledge': typeof KnowledgeIndexRoute
+  '/library': typeof LibraryIndexRoute
 }
 
 export interface FileRoutesById {
@@ -215,11 +213,11 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
-  '/knowledge/$knowledgeSourceId': typeof KnowledgeKnowledgeSourceIdRoute
-  '/knowledge/auth-google': typeof KnowledgeAuthGoogleRoute
-  '/knowledge/new': typeof KnowledgeNewRoute
+  '/library/$libraryId': typeof LibraryLibraryIdRoute
+  '/library/auth-google': typeof LibraryAuthGoogleRoute
+  '/library/new': typeof LibraryNewRoute
   '/assistants/': typeof AssistantsIndexRoute
-  '/knowledge/': typeof KnowledgeIndexRoute
+  '/library/': typeof LibraryIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -231,11 +229,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
-    | '/knowledge/$knowledgeSourceId'
-    | '/knowledge/auth-google'
-    | '/knowledge/new'
+    | '/library/$libraryId'
+    | '/library/auth-google'
+    | '/library/new'
     | '/assistants'
-    | '/knowledge'
+    | '/library'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -244,11 +242,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
-    | '/knowledge/$knowledgeSourceId'
-    | '/knowledge/auth-google'
-    | '/knowledge/new'
+    | '/library/$libraryId'
+    | '/library/auth-google'
+    | '/library/new'
     | '/assistants'
-    | '/knowledge'
+    | '/library'
   id:
     | '__root__'
     | '/'
@@ -257,11 +255,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
-    | '/knowledge/$knowledgeSourceId'
-    | '/knowledge/auth-google'
-    | '/knowledge/new'
+    | '/library/$libraryId'
+    | '/library/auth-google'
+    | '/library/new'
     | '/assistants/'
-    | '/knowledge/'
+    | '/library/'
   fileRoutesById: FileRoutesById
 }
 
@@ -272,11 +270,11 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
-  KnowledgeKnowledgeSourceIdRoute: typeof KnowledgeKnowledgeSourceIdRoute
-  KnowledgeAuthGoogleRoute: typeof KnowledgeAuthGoogleRoute
-  KnowledgeNewRoute: typeof KnowledgeNewRoute
+  LibraryLibraryIdRoute: typeof LibraryLibraryIdRoute
+  LibraryAuthGoogleRoute: typeof LibraryAuthGoogleRoute
+  LibraryNewRoute: typeof LibraryNewRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
-  KnowledgeIndexRoute: typeof KnowledgeIndexRoute
+  LibraryIndexRoute: typeof LibraryIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -286,11 +284,11 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
-  KnowledgeKnowledgeSourceIdRoute: KnowledgeKnowledgeSourceIdRoute,
-  KnowledgeAuthGoogleRoute: KnowledgeAuthGoogleRoute,
-  KnowledgeNewRoute: KnowledgeNewRoute,
+  LibraryLibraryIdRoute: LibraryLibraryIdRoute,
+  LibraryAuthGoogleRoute: LibraryAuthGoogleRoute,
+  LibraryNewRoute: LibraryNewRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
-  KnowledgeIndexRoute: KnowledgeIndexRoute,
+  LibraryIndexRoute: LibraryIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -309,11 +307,11 @@ export const routeTree = rootRoute
         "/profile",
         "/assistants/$assistantId",
         "/assistants/new",
-        "/knowledge/$knowledgeSourceId",
-        "/knowledge/auth-google",
-        "/knowledge/new",
+        "/library/$libraryId",
+        "/library/auth-google",
+        "/library/new",
         "/assistants/",
-        "/knowledge/"
+        "/library/"
       ]
     },
     "/": {
@@ -334,20 +332,20 @@ export const routeTree = rootRoute
     "/assistants/new": {
       "filePath": "assistants/new.tsx"
     },
-    "/knowledge/$knowledgeSourceId": {
-      "filePath": "knowledge/$knowledgeSourceId.tsx"
+    "/library/$libraryId": {
+      "filePath": "library/$libraryId.tsx"
     },
-    "/knowledge/auth-google": {
-      "filePath": "knowledge/auth-google.tsx"
+    "/library/auth-google": {
+      "filePath": "library/auth-google.tsx"
     },
-    "/knowledge/new": {
-      "filePath": "knowledge/new.tsx"
+    "/library/new": {
+      "filePath": "library/new.tsx"
     },
     "/assistants/": {
       "filePath": "assistants/index.tsx"
     },
-    "/knowledge/": {
-      "filePath": "knowledge/index.tsx"
+    "/library/": {
+      "filePath": "library/index.tsx"
     }
   }
 }

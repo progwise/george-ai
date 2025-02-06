@@ -4,34 +4,31 @@ import { builder } from '../builder'
 import { prisma } from '../../prisma'
 import { getFilePath } from '../../file-upload'
 
-console.log('Setting up: AiKnowledgeSource')
+console.log('Setting up: AiLibrary')
 
-export enum AiKnowledgeSourceType {
+export enum AiLibraryType {
   GOOGLE_DRIVE = 'GOOGLE_DRIVE',
   POCKETBASE = 'POCKETBASE',
 }
 
-export const AiKnowledgeSourceTypeEnum = builder.enumType(
-  AiKnowledgeSourceType,
-  {
-    name: 'AiKnowledgeSourceType',
-    description: 'Type of the AiKnowledgeSource',
-  },
-)
+export const AiLibraryTypeEnum = builder.enumType(AiLibraryType, {
+  name: 'AiLibraryType',
+  description: 'Type of the AiLibrary',
+})
 
-export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
-  name: 'AiKnowledgeSource',
+export const AiLibrary = builder.prismaObject('AiLibrary', {
+  name: 'AiLibrary',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
-    aiKnowledgeSourceType: t.field({
-      type: AiKnowledgeSourceTypeEnum,
+    aiLibraryType: t.field({
+      type: AiLibraryTypeEnum,
       nullable: false,
       select: { assistantType: true },
-      resolve: (knowledgeSource) => {
-        return AiKnowledgeSourceType[knowledgeSource.aiKnowledgeSourceType]
+      resolve: (aiLibrary) => {
+        return AiLibraryType[aiLibrary.aiLibraryType]
       },
     }),
     owner: t.relation('owner'),
@@ -41,27 +38,27 @@ export const AiKnowledgeSource = builder.prismaObject('AiKnowledgeSource', {
   }),
 })
 
-const AiKnowledgeSourceInput = builder.inputType('AiKnowledgeSourceInput', {
+const AiLibraryInput = builder.inputType('AiLibraryInput', {
   fields: (t) => ({
     name: t.string({ required: true }),
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    aiKnowledgeSourceType: t.field({
-      type: AiKnowledgeSourceTypeEnum,
+    aiLibraryType: t.field({
+      type: AiLibraryTypeEnum,
       required: true,
     }),
   }),
 })
 
-builder.queryField('aiKnowledgeSource', (t) =>
+builder.queryField('aiLibrary', (t) =>
   t.prismaField({
-    type: 'AiKnowledgeSource',
+    type: 'AiLibrary',
     args: {
       id: t.arg.string(),
     },
     resolve: (query, _source, { id }) => {
-      return prisma.aiKnowledgeSource.findUnique({
+      return prisma.aiLibrary.findUnique({
         ...query,
         where: { id },
       })
@@ -69,14 +66,14 @@ builder.queryField('aiKnowledgeSource', (t) =>
   }),
 )
 
-builder.queryField('aiKnowledgeSources', (t) =>
+builder.queryField('aiLibraries', (t) =>
   t.prismaField({
-    type: ['AiKnowledgeSource'],
+    type: ['AiLibrary'],
     args: {
       ownerId: t.arg.string(),
     },
     resolve: (query, _source, { ownerId }) => {
-      return prisma.aiKnowledgeSource.findMany({
+      return prisma.aiLibrary.findMany({
         ...query,
         where: { ownerId },
       })
@@ -84,15 +81,15 @@ builder.queryField('aiKnowledgeSources', (t) =>
   }),
 )
 
-builder.mutationField('updateAiKnowledgeSource', (t) =>
+builder.mutationField('updateAiLibrary', (t) =>
   t.prismaField({
-    type: 'AiKnowledgeSource',
+    type: 'AiLibrary',
     args: {
       id: t.arg.string({ required: true }),
-      data: t.arg({ type: AiKnowledgeSourceInput, required: true }),
+      data: t.arg({ type: AiLibraryInput, required: true }),
     },
     resolve: async (query, _source, { id, data }) => {
-      return prisma.aiKnowledgeSource.update({
+      return prisma.aiLibrary.update({
         ...query,
         where: { id },
         data,
@@ -101,15 +98,15 @@ builder.mutationField('updateAiKnowledgeSource', (t) =>
   }),
 )
 
-builder.mutationField('createAiKnowledgeSource', (t) =>
+builder.mutationField('createAiLibrary', (t) =>
   t.prismaField({
-    type: 'AiKnowledgeSource',
+    type: 'AiLibrary',
     args: {
       ownerId: t.arg.string(),
-      data: t.arg({ type: AiKnowledgeSourceInput, required: true }),
+      data: t.arg({ type: AiLibraryInput, required: true }),
     },
     resolve: (query, _source, { ownerId, data }) => {
-      return prisma.aiKnowledgeSource.create({
+      return prisma.aiLibrary.create({
         ...query,
         data: {
           ...data,
@@ -124,16 +121,16 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
   t.field({
     type: 'Boolean',
     args: {
-      knowledgeSourceId: t.arg.string({ required: true }),
+      aiLibraryId: t.arg.string({ required: true }),
     },
     resolve: async (_parent, args) => {
-      await dropVectorStore(args.knowledgeSourceId)
-      const files = await prisma.aiKnowledgeSourceFile.findMany({
+      await dropVectorStore(args.aiLibraryId)
+      const files = await prisma.aiLibraryFile.findMany({
         select: { id: true },
-        where: { aiKnowledgeSourceId: args.knowledgeSourceId },
+        where: { aiLibraryId: args.aiLibraryId },
       })
-      await prisma.aiKnowledgeSourceFile.deleteMany({
-        where: { aiKnowledgeSourceId: args.knowledgeSourceId },
+      await prisma.aiLibraryFile.deleteMany({
+        where: { aiLibraryId: args.aiLibraryId },
       })
 
       const deleteFilePromises = files.map((file) => {

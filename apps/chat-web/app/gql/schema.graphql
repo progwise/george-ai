@@ -31,8 +31,8 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
-type AiKnowledgeSource {
-  aiKnowledgeSourceType: AiKnowledgeSourceType!
+type AiLibrary {
+  aiLibraryType: AiLibraryType!
   createdAt: DateTime!
   description: String
   id: ID!
@@ -43,7 +43,7 @@ type AiKnowledgeSource {
   url: String
 }
 
-type AiKnowledgeSourceFile {
+type AiLibraryFile {
   aiKnowledgeSourceId: String!
   chunks: Int
   createdAt: DateTime!
@@ -57,15 +57,15 @@ type AiKnowledgeSourceFile {
   uploadedAt: DateTime
 }
 
-input AiKnowledgeSourceFileInput {
-  aiKnowledgeSourceId: String!
+input AiLibraryFileInput {
+  aiLibraryId: String!
   mimeType: String!
   name: String!
   originUri: String!
 }
 
-input AiKnowledgeSourceInput {
-  aiKnowledgeSourceType: AiKnowledgeSourceType!
+input AiLibraryInput {
+  aiLibraryType: AiLibraryType!
   description: String
   icon: String
   name: String!
@@ -73,9 +73,9 @@ input AiKnowledgeSourceInput {
 }
 
 """
-Type of the AiKnowledgeSource
+Type of the AiLibrary
 """
-enum AiKnowledgeSourceType {
+enum AiLibraryType {
   GOOGLE_DRIVE
   POCKETBASE
 }
@@ -105,31 +105,25 @@ type Mutation {
     retrievalFlow: RetrievalFlow
     sessionId: String
   ): ChatAnswer
-  clearEmbeddedFiles(knowledgeSourceId: String!): Boolean
+  clearEmbeddedFiles(aiLibraryId: String!): Boolean
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
-  createAiKnowledgeSource(
-    data: AiKnowledgeSourceInput!
-    ownerId: String!
-  ): AiKnowledgeSource
+  createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
-  dropFile(fileId: String!): AiKnowledgeSourceFile
+  dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
-  prepareFile(data: AiKnowledgeSourceFileInput!): AiKnowledgeSourceFile
-  processFile(fileId: String!): AiKnowledgeSourceFile
+  prepareFile(data: AiLibraryFileInput!): AiLibraryFile
+  processFile(fileId: String!): AiLibraryFile
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
-  updateAiKnowledgeSource(
-    data: AiKnowledgeSourceInput!
-    id: String!
-  ): AiKnowledgeSource
+  updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
 }
 
 type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]
-  aiKnowledgeSource(id: String!): AiKnowledgeSource
-  aiKnowledgeSourceFiles(knowledgeSourceId: String!): [AiKnowledgeSourceFile!]
-  aiKnowledgeSources(ownerId: String!): [AiKnowledgeSource!]
+  aiLibraries(ownerId: String!): [AiLibrary!]
+  aiLibrary(id: String!): AiLibrary
+  aiLibraryFiles(aiLibraryId: String!): [AiLibraryFile!]
   user(email: String!): User
 }
 

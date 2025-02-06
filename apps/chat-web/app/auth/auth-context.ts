@@ -29,6 +29,5 @@ export const getInitialAuthContext = (keycloak: {
 export const useAuth = () => {
   const matches = useMatches()
   const auth = matches[0].context.auth as AuthContext
-
   return auth
 }

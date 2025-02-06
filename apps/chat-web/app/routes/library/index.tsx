@@ -7,12 +7,12 @@ import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
 import { useAuth } from '../../auth/auth-context'
 
-const knowledgeSourcesDocument = graphql(/* GraphQL */ `
-  query aiKnowledgeSources($ownerId: String!) {
-    aiKnowledgeSources(ownerId: $ownerId) {
+const librariesDocument = graphql(/* GraphQL */ `
+  query aiLibraries($ownerId: String!) {
+    aiLibraries(ownerId: $ownerId) {
       id
       name
-      aiKnowledgeSourceType
+      aiLibraryType
       owner {
         id
         name
@@ -23,32 +23,32 @@ const knowledgeSourcesDocument = graphql(/* GraphQL */ `
   }
 `)
 
-const getKnowledgeSources = createServerFn({ method: 'GET' })
+const getLibraries = createServerFn({ method: 'GET' })
   .validator((ownerId: string) => {
     return z.string().nonempty().parse(ownerId)
   })
   .handler(async (ctx) => {
-    return await backendRequest(knowledgeSourcesDocument, { ownerId: ctx.data })
+    return await backendRequest(librariesDocument, { ownerId: ctx.data })
   })
 
-const knowledgeSourcesQueryOptions = (ownerId?: string) =>
+const librariesQueryOptions = (ownerId?: string) =>
   queryOptions({
-    queryKey: [queryKeys.KnowledgeSources, ownerId],
+    queryKey: [queryKeys.AiLibraries, ownerId],
     queryFn: async () => {
       if (!ownerId) {
         return null
       } else {
-        return getKnowledgeSources({ data: ownerId })
+        return getLibraries({ data: ownerId })
       }
     },
     enabled: !!ownerId,
   })
 
-export const Route = createFileRoute('/knowledge/')({
+export const Route = createFileRoute('/library/')({
   component: RouteComponent,
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(
-      knowledgeSourcesQueryOptions(context.auth.user?.id),
+      librariesQueryOptions(context.auth.user?.id),
     )
   },
 })
@@ -56,7 +56,7 @@ export const Route = createFileRoute('/knowledge/')({
 function RouteComponent() {
   const auth = useAuth()
   const { data, isLoading } = useSuspenseQuery(
-    knowledgeSourcesQueryOptions(auth.user?.id),
+    librariesQueryOptions(auth.user?.id),
   )
   const isLoggendIn = !!auth?.user
 
@@ -70,10 +70,10 @@ function RouteComponent() {
               className="btn btn-ghost"
               onClick={() => auth?.login()}
             >
-              Log in to see your Knowledge Sources
+              Log in to see your Libraries
             </button>
           ) : (
-            'My Knowledge Sources'
+            'My Libraries'
           )}
         </h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
@@ -81,7 +81,7 @@ function RouteComponent() {
           <Link
             type="button"
             className="btn btn-primary btn-sm"
-            to="/knowledge/new"
+            to="/library/new"
           >
             Add new
           </Link>
@@ -101,20 +101,18 @@ function RouteComponent() {
             </tr>
           </thead>
           <tbody>
-            {data?.aiKnowledgeSources?.map((knowledgeSource, index) => (
-              <tr key={knowledgeSource.id} className="hover:bg-gray-100">
+            {data?.aiLibraries?.map((library, index) => (
+              <tr key={library.id} className="hover:bg-gray-100">
                 <td>{index + 1}</td>
-                <td>{knowledgeSource.name}</td>
-                <td>{knowledgeSource.aiKnowledgeSourceType}</td>
-                <td>{knowledgeSource.owner?.name}</td>
-                <td>
-                  {knowledgeSource.updatedAt || knowledgeSource.createdAt}
-                </td>
+                <td>{library.name}</td>
+                <td>{library.aiLibraryType}</td>
+                <td>{library.owner?.name}</td>
+                <td>{library.updatedAt || library.createdAt}</td>
                 <td>
                   <Link
                     className="btn btn-ghost btn-xs"
-                    to={'/knowledge/$knowledgeSourceId'}
-                    params={{ knowledgeSourceId: knowledgeSource.id }}
+                    to={'/library/$libraryId'}
+                    params={{ libraryId: library.id }}
                   >
                     Details
                   </Link>

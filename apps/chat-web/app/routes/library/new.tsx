@@ -1,26 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
-import { KnowledgeSourceForm } from '../../components/knowledge-source/knowledge-source-form'
-import { AiKnowledgeSourceType } from '../../gql/graphql'
+import { LibraryForm } from '../../components/library/library-form'
+import { AiLibraryType } from '../../gql/graphql'
 import { createServerFn } from '@tanstack/start'
-import { AiKnowledgeSourceInputSchema } from '../../gql/validation'
+import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { z } from 'zod'
 
-const createKnowledgeSourceDocument = graphql(`
-  mutation createAiKnowledgeSource(
-    $ownerId: String!
-    $data: AiKnowledgeSourceInput!
-  ) {
-    createAiKnowledgeSource(ownerId: $ownerId, data: $data) {
+const createLibraryDocument = graphql(`
+  mutation createAiLibrary($ownerId: String!, $data: AiLibraryInput!) {
+    createAiLibrary(ownerId: $ownerId, data: $data) {
       id
       name
     }
   }
 `)
 
-const createKnowledgeSource = createServerFn({ method: 'POST' })
+const createLibrary = createServerFn({ method: 'POST' })
   .validator((data: FormData) => {
     if (!(data instanceof FormData)) {
       throw new Error('Invalid form data')
@@ -30,20 +27,20 @@ const createKnowledgeSource = createServerFn({ method: 'POST' })
       .nonempty()
       .parse(data.get('ownerId') as string)
 
-    const assistant = AiKnowledgeSourceInputSchema().parse({
+    const assistant = AiLibraryInputSchema().parse({
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiKnowledgeSourceType: data.get('aiKnowledgeSourceType'),
+      aiLibraryType: data.get('aiLibraryType'),
     })
 
     return { ownerId, data: assistant }
   })
   .handler(async (ctx) => {
-    return await backendRequest(createKnowledgeSourceDocument, ctx.data)
+    return await backendRequest(createLibraryDocument, ctx.data)
   })
 
-export const Route = createFileRoute('/knowledge/new')({
+export const Route = createFileRoute('/library/new')({
   component: RouteComponent,
 })
 
@@ -56,7 +53,7 @@ function RouteComponent() {
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    createKnowledgeSource({
+    createLibrary({
       data: formData,
     })
   }
@@ -64,7 +61,7 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold">Create your Knowlege Source</h3>
+        <h3 className="text-base font-semibold">Create your Library</h3>
         <div className="badge badge-secondary badge-outline">
           {disabled ? 'Disabled' : 'enabled'}
         </div>
@@ -75,15 +72,15 @@ function RouteComponent() {
         </div>
       </div>
       {user && (
-        <KnowledgeSourceForm
-          knowledgeSource={{
+        <LibraryForm
+          library={{
             id: '',
             createdAt: new Date().toISOString(),
             url: '',
             ownerId: user.id,
             name: '',
             description: '',
-            aiKnowledgeSourceType: AiKnowledgeSourceType.GoogleDrive,
+            aiLibraryType: AiLibraryType.GoogleDrive,
           }}
           owner={user}
           handleSubmit={handleSubmit}

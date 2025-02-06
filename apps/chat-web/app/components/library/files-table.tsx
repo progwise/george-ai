@@ -1,17 +1,17 @@
 import { z } from 'zod'
 
-export const KnowledgeSourceFileSchema = z.object({
+export const LibraryFileSchema = z.object({
   id: z.string(),
   kind: z.string(),
   name: z.string(),
 })
 
-export type KnowledgeSourceFile = z.infer<typeof KnowledgeSourceFileSchema>
+export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
 export interface FilesTableProps {
-  files: KnowledgeSourceFile[]
-  selectedFiles: KnowledgeSourceFile[]
-  setSelectedFiles: React.Dispatch<React.SetStateAction<KnowledgeSourceFile[]>>
+  files: LibraryFile[]
+  selectedFiles: LibraryFile[]
+  setSelectedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
 }
 
 export const FilesTable = ({

@@ -7,12 +7,12 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../loading-spinner'
 
 interface EmbeddingsTableProps {
-  knowledgeSourceId: string
+  aiLibraryId: string
 }
 
 const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
-  mutation clearEmbeddings($knowledgeSourceId: String!) {
-    clearEmbeddedFiles(knowledgeSourceId: $knowledgeSourceId)
+  mutation clearEmbeddings($aiLibraryId: String!) {
+    clearEmbeddedFiles(aiLibraryId: $aiLibraryId)
   }
 `)
 
@@ -40,7 +40,7 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
   .validator((data) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(ClearEmbeddingsDocument, {
-      knowledgeSourceId: ctx.data,
+      aiLibraryId: ctx.data,
     })
   })
 
@@ -57,8 +57,8 @@ const reProcessFile = createServerFn({ method: 'GET' })
   })
 
 const EmbeddingsTableDocument = graphql(`
-  query EmbeddingsTable($knowledgeSourceId: String!) {
-    aiKnowledgeSourceFiles(knowledgeSourceId: $knowledgeSourceId) {
+  query EmbeddingsTable($aiLibraryId: String!) {
+    aiLibraryFiles(aiLibraryId: $aiLibraryId) {
       id
       name
       originUri
@@ -71,33 +71,29 @@ const EmbeddingsTableDocument = graphql(`
   }
 `)
 
-const getKnowledgeSourceFiles = createServerFn({ method: 'GET' })
-  .validator(({ knowledgeSourceId }) =>
-    z.string().nonempty().parse(knowledgeSourceId),
-  )
+const getLibraryFiles = createServerFn({ method: 'GET' })
+  .validator(({ aiLibraryId }) => z.string().nonempty().parse(aiLibraryId))
   .handler(async (ctx) => {
     return await backendRequest(EmbeddingsTableDocument, {
-      knowledgeSourceId: ctx.data,
+      aiLibraryId: ctx.data,
     })
   })
 
-const knowledgeFilesQueryOptions = (knowledgeSourceId?: string) => ({
-  queryKey: [queryKeys.KnowledgeSourceFiles, knowledgeSourceId],
+const aiLibraryFilesQueryOptions = (aiLibraryId?: string) => ({
+  queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
   queryFn: async () => {
-    if (!knowledgeSourceId) {
+    if (!aiLibraryId) {
       return null
     } else {
-      return getKnowledgeSourceFiles({ data: { knowledgeSourceId } })
+      return getLibraryFiles({ data: { aiLibraryId } })
     }
   },
-  enabled: !!knowledgeSourceId,
+  enabled: !!aiLibraryId,
 })
 
-export const EmbeddingsTable = ({
-  knowledgeSourceId,
-}: EmbeddingsTableProps) => {
+export const EmbeddingsTable = ({ aiLibraryId }: EmbeddingsTableProps) => {
   const { data, isLoading, refetch } = useSuspenseQuery(
-    knowledgeFilesQueryOptions(knowledgeSourceId),
+    aiLibraryFilesQueryOptions(aiLibraryId),
   )
   if (isLoading) {
     return <LoadingSpinner />
@@ -110,7 +106,7 @@ export const EmbeddingsTable = ({
             type="button"
             className="btn btn-xs"
             onClick={async () => {
-              await clearEmbeddings({ data: knowledgeSourceId })
+              await clearEmbeddings({ data: aiLibraryId })
               await refetch()
             }}
           >
@@ -131,7 +127,7 @@ export const EmbeddingsTable = ({
           </tr>
         </thead>
         <tbody>
-          {data?.aiKnowledgeSourceFiles?.map((file, index) => (
+          {data?.aiLibraryFiles?.map((file, index) => (
             <tr key={file.id}>
               <td>{index + 1}</td>
               <td>{file.id}</td>

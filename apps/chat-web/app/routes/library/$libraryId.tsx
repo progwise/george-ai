@@ -5,61 +5,57 @@ import {
   useParams,
 } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
-import { KnowledgeSourceForm } from '../../components/knowledge-source/knowledge-source-form'
+import { LibraryForm } from '../../components/library/library-form'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
-import { AiKnowledgeSourceInputSchema } from '../../gql/validation'
+import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
-import { KnowledgeSourceSelector } from '../../components/knowledge-source/knowledge-source-selector'
+import { LibrarySelector } from '../../components/library/library-selector'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../../components/loading-spinner'
-import { GoogleDriveFiles } from '../../components/knowledge-source/google-drive-files'
-import { EmbeddingsTable } from '../../components/knowledge-source/embeddings-table'
-import { KnowledgeSourceQuery } from '../../components/knowledge-source/knowledge-source-query'
+import { GoogleDriveFiles } from '../../components/library/google-drive-files'
+import { EmbeddingsTable } from '../../components/library/embeddings-table'
+import { LibraryQuery } from '../../components/library/library-query'
 
-const aiKnowledgeSourceEditQueryDocument = graphql(`
-  query aiKnowledgeSourceEdit($id: String!, $ownerId: String!) {
-    aiKnowledgeSource(id: $id) {
+const aiLibraryEditQueryDocument = graphql(`
+  query aiLibraryEdit($id: String!, $ownerId: String!) {
+    aiLibrary(id: $id) {
       id
       name
       description
       createdAt
       ownerId
-      aiKnowledgeSourceType
+      aiLibraryType
       url
     }
-    aiKnowledgeSources(ownerId: $ownerId) {
+    aiLibraries(ownerId: $ownerId) {
       id
       name
     }
   }
 `)
 
-const getKnowledgeSource = createServerFn({ method: 'GET' })
-  .validator(({ knowledgeSourceId, ownerId }) => ({
-    id: z.string().nonempty().parse(knowledgeSourceId),
+const getLibrary = createServerFn({ method: 'GET' })
+  .validator(({ libraryId, ownerId }) => ({
+    id: z.string().nonempty().parse(libraryId),
     ownerId: z.string().nonempty().parse(ownerId),
   }))
   .handler(
-    async (ctx) =>
-      await backendRequest(aiKnowledgeSourceEditQueryDocument, ctx.data),
+    async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data),
   )
 
-const updateKnowledgeSourceDocument = graphql(/* GraphQL */ `
-  mutation changeAiKnowledgeSource(
-    $id: String!
-    $data: AiKnowledgeSourceInput!
-  ) {
-    updateAiKnowledgeSource(id: $id, data: $data) {
+const updateLibraryDocument = graphql(/* GraphQL */ `
+  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
+    updateAiLibrary(id: $id, data: $data) {
       id
       name
     }
   }
 `)
 
-const changeKnowledgeSource = createServerFn({ method: 'POST' })
+const changeLibrary = createServerFn({ method: 'POST' })
   .validator((data: FormData) => {
     if (!(data instanceof FormData)) {
       throw new Error('Invalid form data')
@@ -67,55 +63,49 @@ const changeKnowledgeSource = createServerFn({ method: 'POST' })
 
     console.log('form data', data.get('name'))
 
-    const knowledgeSourceId = z
+    const libraryId = z
       .string()
       .nonempty()
-      .parse(data.get('knowledgeSourceId') as string)
+      .parse(data.get('libraryId') as string)
 
-    const knowledgeSource = AiKnowledgeSourceInputSchema().parse({
+    const library = AiLibraryInputSchema().parse({
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiKnowledgeSourceType: data.get('aiKnowledgeSourceType'),
+      aiKnowledgeSourceType: data.get('aiLibraryType'),
     })
-    return { knowledgeSourceId, knowledgeSource }
+    return { libraryId, library }
   })
   .handler(async (ctx) => {
-    return await backendRequest(updateKnowledgeSourceDocument, {
-      data: ctx.data.knowledgeSource,
-      id: ctx.data.knowledgeSourceId,
+    return await backendRequest(updateLibraryDocument, {
+      data: ctx.data.library,
+      id: ctx.data.libraryId,
     })
   })
 
-const knowledgeSourcesQueryOptions = (
-  ownerId?: string,
-  knowledgeSourceId?: string,
-) => ({
-  queryKey: [queryKeys.KnowledgeSources, knowledgeSourceId, ownerId],
+const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
+  queryKey: [queryKeys.AiLibraries, libraryId, ownerId],
   queryFn: async () => {
     if (!ownerId) {
       return null
     } else {
-      return getKnowledgeSource({ data: { ownerId, knowledgeSourceId } })
+      return getLibrary({ data: { ownerId, libraryId } })
     }
   },
-  enabled: !!ownerId || !!knowledgeSourceId,
+  enabled: !!ownerId || !!libraryId,
 })
 
-export const Route = createFileRoute('/knowledge/$knowledgeSourceId')({
+export const Route = createFileRoute('/library/$libraryId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
     return {
-      knowledgeSourceId: params.knowledgeSourceId,
+      libraryId: params.libraryId,
       ownerId: context.auth.user?.id,
     }
   },
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(
-      knowledgeSourcesQueryOptions(
-        context.auth.user?.id,
-        context.knowledgeSourceId,
-      ),
+      librariesQueryOptions(context.auth.user?.id, context.libraryId),
     )
   },
   staleTime: 0,
@@ -124,17 +114,17 @@ export const Route = createFileRoute('/knowledge/$knowledgeSourceId')({
 function RouteComponent() {
   const auth = useAuth()
   const currentLocation = useLocation()
-  const { knowledgeSourceId } = useParams({ strict: false })
+  const { libraryId } = useParams({ strict: false })
   const { data, isLoading } = useSuspenseQuery(
-    knowledgeSourcesQueryOptions(auth.user?.id, knowledgeSourceId),
+    librariesQueryOptions(auth.user?.id, libraryId),
   )
-  const { aiKnowledgeSource, aiKnowledgeSources } = data || {}
+  const { aiLibrary, aiLibraries } = data || {}
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    changeKnowledgeSource({
+    changeLibrary({
       data: formData,
     })
   }
@@ -142,16 +132,16 @@ function RouteComponent() {
   if (isLoading) {
     return
   }
-  if (!aiKnowledgeSource || !aiKnowledgeSources) {
+  if (!aiLibrary || !aiLibraries) {
     return <LoadingSpinner />
   }
 
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between items-center">
-        <KnowledgeSourceSelector
-          knowledgeSources={aiKnowledgeSources!}
-          selectedKnowledgeSource={aiKnowledgeSource!}
+        <LibrarySelector
+          libraries={aiLibraries!}
+          selectedLibrary={aiLibrary!}
         />
         <div className="badge badge-secondary badge-outline">
           {disabled ? 'Disabled' : 'enabled'}
@@ -172,8 +162,8 @@ function RouteComponent() {
           aria-label="Rules"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <KnowledgeSourceForm
-            knowledgeSource={aiKnowledgeSource!}
+          <LibraryForm
+            library={aiLibrary!}
             owner={auth.user!}
             handleSubmit={handleSubmit}
             disabled={disabled}
@@ -190,7 +180,7 @@ function RouteComponent() {
         />
         <div role="tabpanel" className="tab-content p-10">
           <GoogleDriveFiles
-            knowledgeSourceId={aiKnowledgeSource.id}
+            aiLibraryId={aiLibrary.id}
             currentLocationHref={currentLocation.href}
           />
         </div>
@@ -202,7 +192,7 @@ function RouteComponent() {
           aria-label="Embeddings"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <EmbeddingsTable knowledgeSourceId={aiKnowledgeSource.id} />
+          <EmbeddingsTable aiLibraryId={aiLibrary.id} />
         </div>
         <input
           type="radio"
@@ -212,7 +202,7 @@ function RouteComponent() {
           aria-label="Query"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <KnowledgeSourceQuery knowledgeSourceId={aiKnowledgeSource.id} />
+          <LibraryQuery aiLibraryId={aiLibrary.id} />
         </div>
       </div>
     </article>

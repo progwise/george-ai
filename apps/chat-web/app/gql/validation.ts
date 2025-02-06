@@ -2,9 +2,9 @@ import { z } from 'zod'
 import {
   AiAssistantInput,
   AiAssistantType,
-  AiKnowledgeSourceFileInput,
-  AiKnowledgeSourceInput,
-  AiKnowledgeSourceType,
+  AiLibraryFileInput,
+  AiLibraryInput,
+  AiLibraryType,
   RetrievalFlow,
   UserInput,
 } from './graphql'
@@ -24,7 +24,7 @@ export const definedNonNullAnySchema = z
 
 export const AiAssistantTypeSchema = z.nativeEnum(AiAssistantType)
 
-export const AiKnowledgeSourceTypeSchema = z.nativeEnum(AiKnowledgeSourceType)
+export const AiLibraryTypeSchema = z.nativeEnum(AiLibraryType)
 
 export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
 
@@ -40,22 +40,22 @@ export function AiAssistantInputSchema(): z.ZodObject<
   })
 }
 
-export function AiKnowledgeSourceFileInputSchema(): z.ZodObject<
-  Properties<AiKnowledgeSourceFileInput>
+export function AiLibraryFileInputSchema(): z.ZodObject<
+  Properties<AiLibraryFileInput>
 > {
   return z.object({
-    aiKnowledgeSourceId: z.string(),
+    aiLibraryId: z.string(),
     mimeType: z.string(),
     name: z.string(),
     originUri: z.string(),
   })
 }
 
-export function AiKnowledgeSourceInputSchema(): z.ZodObject<
-  Properties<AiKnowledgeSourceInput>
+export function AiLibraryInputSchema(): z.ZodObject<
+  Properties<AiLibraryInput>
 > {
   return z.object({
-    aiKnowledgeSourceType: AiKnowledgeSourceTypeSchema,
+    aiLibraryType: AiLibraryTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),

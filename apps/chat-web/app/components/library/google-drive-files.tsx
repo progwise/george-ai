@@ -1,11 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
 import { useState } from 'react'
-import {
-  FilesTable,
-  KnowledgeSourceFile,
-  KnowledgeSourceFileSchema,
-} from './files-table'
+import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
@@ -15,7 +11,7 @@ import { queryKeys } from '../../query-keys'
 
 export interface GoogleDriveFilesProps {
   currentLocationHref: string
-  knowledgeSourceId: string
+  aiLibraryId: string
 }
 
 interface GoogleDriveResponse {
@@ -23,7 +19,7 @@ interface GoogleDriveResponse {
 }
 
 const PrepareFileDocument = graphql(`
-  mutation prepareFile($file: AiKnowledgeSourceFileInput!) {
+  mutation prepareFile($file: AiLibraryFileInput!) {
     prepareFile(data: $file) {
       id
     }
@@ -46,8 +42,8 @@ const embedFiles = createServerFn({ method: 'GET' })
   .validator((data) =>
     z
       .object({
-        knowledgeSourceId: z.string().nonempty(),
-        files: z.array(KnowledgeSourceFileSchema),
+        aiLibraryId: z.string().nonempty(),
+        files: z.array(LibraryFileSchema),
         access_token: z.string().nonempty(),
       })
       .parse(data),
@@ -59,7 +55,7 @@ const embedFiles = createServerFn({ method: 'GET' })
           name: file.name,
           originUri: `https://drive.google.com/file/d/${file.id}/view`,
           mimeType: 'application/pdf',
-          aiKnowledgeSourceId: ctx.data.knowledgeSourceId,
+          aiLibraryId: ctx.data.aiLibraryId,
         },
       })
 
@@ -100,7 +96,7 @@ const embedFiles = createServerFn({ method: 'GET' })
   })
 
 export const GoogleDriveFiles = ({
-  knowledgeSourceId,
+  aiLibraryId,
   currentLocationHref,
 }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
@@ -108,7 +104,7 @@ export const GoogleDriveFiles = ({
     GoogleDriveResponse | undefined
   >(undefined)
 
-  const [selectedFiles, setSelectedFiles] = useState<KnowledgeSourceFile[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
 
   const googleDriveAccessTokenString = localStorage.getItem(
     'google_drive_access_token',
@@ -127,16 +123,16 @@ export const GoogleDriveFiles = ({
     setGoogleDriveResponse(responseJson as GoogleDriveResponse)
   }
 
-  const handleEmbedFiles = async (files: KnowledgeSourceFile[]) => {
+  const handleEmbedFiles = async (files: LibraryFile[]) => {
     await embedFiles({
       data: {
-        knowledgeSourceId,
+        aiLibraryId,
         files,
         access_token: googleDriveAccessToken.access_token!,
       },
     })
     queryClient.invalidateQueries({
-      queryKey: [queryKeys.KnowledgeSourceFiles, knowledgeSourceId],
+      queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
     })
   }
 
@@ -146,7 +142,7 @@ export const GoogleDriveFiles = ({
         <div className="flex gap-4">
           <Link
             className="btn btn-xs"
-            to="/knowledge/auth-google"
+            to="/library/auth-google"
             search={{ redirectAfterAuth: currentLocationHref }}
           >
             Login with Google

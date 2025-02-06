@@ -1,5 +1,5 @@
 export const queryKeys = {
   AiAssistants: 'AiAssistants',
-  KnowledgeSources: 'KnowledgeSources',
-  KnowledgeSourceFiles: 'KnowledgeSourceFiles',
+  AiLibraries: 'AiLibraries',
+  AiLibraryFiles: 'AiLibraryFiles',
 }

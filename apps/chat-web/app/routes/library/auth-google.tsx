@@ -15,7 +15,7 @@ export const authGoogleSearchSchema = z.object({
   prompt: z.string().optional(),
 })
 
-export const Route = createFileRoute('/knowledge/auth-google')({
+export const Route = createFileRoute('/library/auth-google')({
   component: RouteComponent,
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
