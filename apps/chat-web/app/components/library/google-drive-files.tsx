@@ -6,8 +6,9 @@ import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { graphql } from '../../gql'
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
+import { LoadingSpinner } from '../loading-spinner'
 
 export interface GoogleDriveFilesProps {
   currentLocationHref: string
@@ -105,6 +106,14 @@ export const GoogleDriveFiles = ({
   >(undefined)
 
   const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
+  const { mutate: embedFilesMutation, isPending: embedFilesIsPending } =
+    useMutation({
+      mutationFn: embedFiles,
+      onSuccess: () => {
+        alert('Files embedded successfully')
+        setSelectedFiles([])
+      },
+    })
 
   const googleDriveAccessTokenString = localStorage.getItem(
     'google_drive_access_token',
@@ -124,7 +133,7 @@ export const GoogleDriveFiles = ({
   }
 
   const handleEmbedFiles = async (files: LibraryFile[]) => {
-    await embedFiles({
+    await embedFilesMutation({
       data: {
         aiLibraryId,
         files,
@@ -138,6 +147,7 @@ export const GoogleDriveFiles = ({
 
   return (
     <>
+      <LoadingSpinner isLoading={embedFilesIsPending} />
       <nav className="flex gap-4 justify-between items-center">
         <div className="flex gap-4">
           <Link
@@ -160,13 +170,13 @@ export const GoogleDriveFiles = ({
         </div>
         <button
           type="button"
-          disabled={!selectedFiles.length}
+          disabled={!selectedFiles.length || embedFilesIsPending}
           className="btn btn-xs"
-          onClick={() => {
-            handleEmbedFiles(selectedFiles)
+          onClick={async () => {
+            await handleEmbedFiles(selectedFiles)
           }}
         >
-          Embed {selectedFiles.length} files into Library
+          Add {selectedFiles.length} files into the Library
         </button>
       </nav>
       {googleDriveResponse?.files && (

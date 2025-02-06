@@ -6,7 +6,7 @@ import {
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Dropdown } from '../components/dropdown'
 import { LangchainChatForm } from '../components/langchain-chat-form'
-import { useState, useEffect, lazy, Suspense, startTransition } from 'react'
+import { useState, useEffect } from 'react'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { FormattedMarkdown } from '../components/formatted-markdown'
 import { t } from 'i18next'
