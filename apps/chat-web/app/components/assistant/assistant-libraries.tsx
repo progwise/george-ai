@@ -89,52 +89,60 @@ export const AssistantLibraries = ({
     assistantLibrariesQueryOptions(assistantId, ownerId),
   )
 
-  const { mutate: updateUsage } = useMutation({
+  const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: updateLibraryUsage,
+    onSettled: () => refetch(),
   })
-  if (isLoading || !data || !data.aiLibraries || !data.aiLibraryUsage) {
-    return <LoadingSpinner />
-  }
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th></th>
-          <th></th>
-          <th>Library</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.aiLibraries.map((library, index) => (
-          <tr key={library.id}>
-            <td>
-              <label>
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  onChange={async (event) => {
-                    await updateUsage({
-                      data: {
-                        assistantId,
-                        libraryId: library.id,
-                        use: event.target.checked,
-                      },
-                    })
-                    await refetch()
-                  }}
-                  name="selectedFiles"
-                  checked={data.aiLibraryUsage?.some(
-                    (usage) => usage.libraryId === library.id,
-                  )}
-                />
-              </label>
-            </td>
-            <td>{index + 1}</td>
-            <td>{library.name}</td>
+    <>
+      <LoadingSpinner
+        isLoading={
+          isLoading ||
+          !data ||
+          !data.aiLibraries ||
+          !data.aiLibraryUsage ||
+          updateUsageIsPending
+        }
+      />
+      <table className="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th></th>
+            <th>Library</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {data?.aiLibraries?.map((library, index) => (
+            <tr key={library.id}>
+              <td>
+                <label>
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    onChange={async (event) => {
+                      updateUsage({
+                        data: {
+                          assistantId,
+                          libraryId: library.id,
+                          use: event.target.checked,
+                        },
+                      })
+                    }}
+                    name="selectedFiles"
+                    checked={data.aiLibraryUsage?.some(
+                      (usage) => usage.libraryId === library.id,
+                    )}
+                  />
+                </label>
+              </td>
+              <td>{index + 1}</td>
+              <td>{library.name}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   )
 }
