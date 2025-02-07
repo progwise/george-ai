@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
 import { LibraryForm } from '../../components/library/library-form'
 import { AiLibraryType } from '../../gql/graphql'
@@ -7,6 +7,8 @@ import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { z } from 'zod'
+import { useMutation } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const createLibraryDocument = graphql(`
   mutation createAiLibrary($ownerId: String!, $data: AiLibraryInput!) {
@@ -48,18 +50,27 @@ function RouteComponent() {
   const { isAuthenticated, user } = useAuth()
   const disabled = !isAuthenticated || !user
 
+  const navigate = useNavigate()
+  const { mutate: createLibraryMuation, isPending: createIsPending } =
+    useMutation({
+      mutationFn: (data: FormData) => createLibrary({ data }),
+      onSettled: () => {
+        console.log('library updated')
+        navigate({ to: '..' })
+      },
+    })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    createLibrary({
-      data: formData,
-    })
+    createLibraryMuation(formData)
   }
 
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={createIsPending} />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">Create your Library</h3>
         <div className="badge badge-secondary badge-outline">
