@@ -38,6 +38,10 @@ const TopNavigation = () => {
         </TopNavigationLink>
       </div>
       <div className="navbar-center">
+        <TopNavigationLink to="/conversations">
+          <ChatBubbleIcon className="size-6" />
+          {t('conversations')}
+        </TopNavigationLink>
         <TopNavigationLink to="/assistants">
           <ChatBubbleIcon className="size-6" />
           {t('assistants')}

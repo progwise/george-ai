@@ -42,6 +42,8 @@ const documents = {
     types.AiAssistantCardsDocument,
   '\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n':
     types.CreateAiAssistantDocument,
+  '\n  query getConversations($ownerId: String!) {\n    aiConversations(ownerId: $ownerId) {\n      id\n      createdAt\n      updatedAt\n      participants {\n        id\n      }\n      messages {\n        id\n        createdAt\n        updatedAt\n        content\n        sender {\n          id\n        }\n      }\n    }\n  }\n':
+    types.GetConversationsDocument,
   '\n  query aiLibraryEdit($id: String!, $ownerId: String!) {\n    aiLibrary(id: $id) {\n      id\n      name\n      description\n      createdAt\n      ownerId\n      aiLibraryType\n      url\n    }\n    aiLibraries(ownerId: $ownerId) {\n      id\n      name\n    }\n  }\n':
     types.AiLibraryEditDocument,
   '\n  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {\n    updateAiLibrary(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n':
@@ -152,6 +154,12 @@ export function graphql(
 export function graphql(
   source: '\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n',
 ): (typeof documents)['\n  mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {\n    createAiAssistant(ownerId: $ownerId, data: $data) {\n      id\n      name\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query getConversations($ownerId: String!) {\n    aiConversations(ownerId: $ownerId) {\n      id\n      createdAt\n      updatedAt\n      participants {\n        id\n      }\n      messages {\n        id\n        createdAt\n        updatedAt\n        content\n        sender {\n          id\n        }\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query getConversations($ownerId: String!) {\n    aiConversations(ownerId: $ownerId) {\n      id\n      createdAt\n      updatedAt\n      participants {\n        id\n      }\n      messages {\n        id\n        createdAt\n        updatedAt\n        content\n        sender {\n          id\n        }\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

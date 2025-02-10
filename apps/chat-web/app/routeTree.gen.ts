@@ -16,6 +16,7 @@ import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
 import { Route as LibrariesIndexImport } from './routes/libraries/index'
+import { Route as ConversationsIndexImport } from './routes/conversations/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
 import { Route as LibrariesNewImport } from './routes/libraries/new'
 import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
@@ -52,6 +53,12 @@ const IndexRoute = IndexImport.update({
 const LibrariesIndexRoute = LibrariesIndexImport.update({
   id: '/libraries/',
   path: '/libraries/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ConversationsIndexRoute = ConversationsIndexImport.update({
+  id: '/conversations/',
+  path: '/conversations/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -165,6 +172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssistantsIndexImport
       parentRoute: typeof rootRoute
     }
+    '/conversations/': {
+      id: '/conversations/'
+      path: '/conversations'
+      fullPath: '/conversations'
+      preLoaderRoute: typeof ConversationsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/libraries/': {
       id: '/libraries/'
       path: '/libraries'
@@ -188,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
   '/assistants': typeof AssistantsIndexRoute
+  '/conversations': typeof ConversationsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
 }
 
@@ -202,6 +217,7 @@ export interface FileRoutesByTo {
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
   '/assistants': typeof AssistantsIndexRoute
+  '/conversations': typeof ConversationsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
 }
 
@@ -217,6 +233,7 @@ export interface FileRoutesById {
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
   '/assistants/': typeof AssistantsIndexRoute
+  '/conversations/': typeof ConversationsIndexRoute
   '/libraries/': typeof LibrariesIndexRoute
 }
 
@@ -233,6 +250,7 @@ export interface FileRouteTypes {
     | '/libraries/auth-google'
     | '/libraries/new'
     | '/assistants'
+    | '/conversations'
     | '/libraries'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -246,6 +264,7 @@ export interface FileRouteTypes {
     | '/libraries/auth-google'
     | '/libraries/new'
     | '/assistants'
+    | '/conversations'
     | '/libraries'
   id:
     | '__root__'
@@ -259,6 +278,7 @@ export interface FileRouteTypes {
     | '/libraries/auth-google'
     | '/libraries/new'
     | '/assistants/'
+    | '/conversations/'
     | '/libraries/'
   fileRoutesById: FileRoutesById
 }
@@ -274,6 +294,7 @@ export interface RootRouteChildren {
   LibrariesAuthGoogleRoute: typeof LibrariesAuthGoogleRoute
   LibrariesNewRoute: typeof LibrariesNewRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
+  ConversationsIndexRoute: typeof ConversationsIndexRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
 }
 
@@ -288,6 +309,7 @@ const rootRouteChildren: RootRouteChildren = {
   LibrariesAuthGoogleRoute: LibrariesAuthGoogleRoute,
   LibrariesNewRoute: LibrariesNewRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
+  ConversationsIndexRoute: ConversationsIndexRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
 }
 
@@ -311,6 +333,7 @@ export const routeTree = rootRoute
         "/libraries/auth-google",
         "/libraries/new",
         "/assistants/",
+        "/conversations/",
         "/libraries/"
       ]
     },
@@ -343,6 +366,9 @@ export const routeTree = rootRoute
     },
     "/assistants/": {
       "filePath": "assistants/index.tsx"
+    },
+    "/conversations/": {
+      "filePath": "conversations/index.tsx"
     },
     "/libraries/": {
       "filePath": "libraries/index.tsx"

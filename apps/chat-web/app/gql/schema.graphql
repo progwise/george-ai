@@ -31,6 +31,35 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
+type AiConversation {
+  createdAt: DateTime
+  id: ID!
+  messages: [AiConversationMessage!]
+  participants: [AiConversationParticipant!]
+  updatedAt: DateTime
+}
+
+type AiConversationMessage {
+  content: String
+  conversation: AiConversation
+  conversationId: ID!
+  createdAt: DateTime
+  id: ID!
+  sender: AiConversationParticipant
+  senderId: ID!
+  updatedAt: DateTime
+}
+
+type AiConversationParticipant {
+  assistant: AiAssistant
+  assistantId: ID
+  conversation: AiConversation
+  conversationId: ID!
+  id: ID!
+  user: User
+  userId: ID
+}
+
 type AiLibrary {
   aiLibraryType: AiLibraryType!
   createdAt: DateTime!
@@ -142,6 +171,8 @@ type Mutation {
 type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]
+  aiConversation(conversationId: String!): AiConversation
+  aiConversations(ownerId: String!): [AiConversation!]
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(aiLibraryId: String!): [AiLibraryFile!]

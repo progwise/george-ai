@@ -32,31 +32,33 @@ enum AiLibraryType {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  lastLogin    DateTime?
-  email        String        @unique
-  username     String        @unique
-  name         String?
-  given_name   String?
-  family_name  String?
-  aiAssistants AiAssistant[]
-  aiLibraries  AiLibrary[]
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  lastLogin                  DateTime?
+  email                      String                      @unique
+  username                   String                      @unique
+  name                       String?
+  given_name                 String?
+  family_name                String?
+  aiAssistants               AiAssistant[]
+  aiLibraries                AiLibrary[]
+  conversationParticipations AiConversationParticipant[]
 }
 
 model AiAssistant {
-  id              String           @id @default(cuid())
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  name            String
-  description     String?
-  url             String?
-  icon            String?
-  owner           User             @relation(fields: [ownerId], references: [id])
-  ownerId         String
-  aiAssistantType AiAssistantType
-  usages          AiLibraryUsage[]
+  id                        String                      @id @default(cuid())
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @updatedAt
+  name                      String
+  description               String?
+  url                       String?
+  icon                      String?
+  owner                     User                        @relation(fields: [ownerId], references: [id])
+  ownerId                   String
+  aiAssistantType           AiAssistantType
+  usages                    AiLibraryUsage[]
+  AiConversationParticipant AiConversationParticipant[]
 }
 
 model AiLibrary {
@@ -98,4 +100,35 @@ model AiLibraryFile {
   chunks      Int?
   uploadedAt  DateTime?
   processedAt DateTime?
+}
+
+model AiConversation {
+  id           String                      @id @default(cuid())
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+  messages     AiConversationMessage[]
+  participants AiConversationParticipant[]
+}
+
+model AiConversationParticipant {
+  id                    String                  @id @default(cuid())
+  createdAt             DateTime                @default(now())
+  aiConversation        AiConversation          @relation(fields: [aiConversationId], references: [id])
+  aiConversationId      String
+  user                  User?                   @relation(fields: [userId], references: [id])
+  userId                String?
+  assistant             AiAssistant?            @relation(fields: [assistantId], references: [id])
+  assistantId           String?
+  AiConversationMessage AiConversationMessage[]
+}
+
+model AiConversationMessage {
+  id               String                    @id @default(cuid())
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  sender           AiConversationParticipant @relation(fields: [senderId], references: [id])
+  senderId         String
+  content          String
+  AiConversation   AiConversation            @relation(fields: [aiConversationId], references: [id])
+  aiConversationId String
 }

@@ -7,6 +7,7 @@ import './graphql/ai-assistant'
 import './graphql/ai-library'
 import './graphql/ai-library-file'
 import './graphql/ai-library-usage'
+import './graphql/ai-conversation'
 
 const schema = builder.toSchema()
 
