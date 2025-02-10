@@ -131,7 +131,6 @@ function RouteComponent() {
   const { mutate: saveAssistant, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeAssistant({ data }),
     onSettled: () => {
-      console.log('Assistant saved')
       navigate({ to: '..' })
     },
   })
@@ -181,7 +180,7 @@ function RouteComponent() {
         <div role="tabpanel" className="tab-content p-10">
           <AssistantForm
             assistant={aiAssistant}
-            owner={auth.user!}
+            owner={auth.user}
             handleSubmit={handleSubmit}
             disabled={disabled}
           />

@@ -57,7 +57,6 @@ function RouteComponent() {
     useMutation({
       mutationFn: (data: FormData) => createAssistant({ data }),
       onSettled: () => {
-        console.log('Assistant created')
         navigate({ to: '..' })
       },
     })
