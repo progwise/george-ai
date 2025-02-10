@@ -55,7 +55,6 @@ function RouteComponent() {
     useMutation({
       mutationFn: (data: FormData) => createLibrary({ data }),
       onSettled: () => {
-        console.log('library updated')
         navigate({ to: '..' })
       },
     })

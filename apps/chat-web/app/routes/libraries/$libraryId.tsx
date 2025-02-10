@@ -126,7 +126,6 @@ function RouteComponent() {
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
     onSettled: () => {
-      console.log('library updated')
       navigate({ to: '..' })
     },
   })

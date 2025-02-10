@@ -29,18 +29,16 @@ builder.queryField('aiLibraryUsage', (t) =>
       aiLibraryId: t.arg.string({ required: false }),
     },
     resolve: (query, _source, { aiAssistantId, aiLibraryId }) => {
-      if (!!aiAssistantId && !aiLibraryId) {
-        return prisma.aiLibraryUsage.findMany({
-          ...query,
-          where: { aiAssistantId },
-        })
-      } else if (!aiAssistantId && !!aiLibraryId) {
-        return prisma.aiLibraryUsage.findMany({
-          ...query,
-          where: { aiLibraryId },
-        })
+      if (!aiAssistantId && !aiLibraryId) {
+        throw new Error('aiAssistantId or aiLibraryId must be provided')
       }
-      throw new Error('aiAssistantId or aiLibraryId must be provided')
+      return prisma.aiLibraryUsage.findMany({
+        ...query,
+        where: {
+          ...(aiAssistantId && { aiAssistantId }),
+          ...(aiLibraryId && { aiLibraryId }),
+        },
+      })
     },
   }),
 )
