@@ -126,7 +126,6 @@ function RouteComponent() {
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
     onSettled: () => {
-      console.log('library updated')
       navigate({ to: '..' })
     },
   })
@@ -139,10 +138,8 @@ function RouteComponent() {
     saveLibrary(formData)
   }
   const disabled = !auth?.isAuthenticated
-  if (isLoading) {
-    return
-  }
-  if (!aiLibrary || !aiLibraries) {
+
+  if (!aiLibrary || !aiLibraries || isLoading) {
     return <LoadingSpinner />
   }
 

@@ -79,10 +79,12 @@ model AiLibrary {
 model AiLibraryUsage {
   id            String      @id @default(cuid())
   createdAt     DateTime    @default(now())
-  aiAssistant   AiAssistant @relation(fields: [aiAssistantId], references: [id])
+  aiAssistant   AiAssistant @relation(fields: [aiAssistantId], references: [id], onDelete: Cascade)
   aiAssistantId String
-  aiLibrary     AiLibrary   @relation(fields: [aiLibraryId], references: [id])
+  aiLibrary     AiLibrary   @relation(fields: [aiLibraryId], references: [id], onDelete: Cascade)
   aiLibraryId   String
+
+  @@unique([aiAssistantId, aiLibraryId])
 }
 
 model AiLibraryFile {

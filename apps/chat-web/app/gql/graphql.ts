@@ -110,6 +110,28 @@ export enum AiLibraryType {
   Pocketbase = 'POCKETBASE',
 }
 
+export type AiLibraryUsage = {
+  __typename?: 'AiLibraryUsage'
+  assistant?: Maybe<AiAssistant>
+  assistantId: Scalars['ID']['output']
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  library?: Maybe<AiLibrary>
+  libraryId: Scalars['ID']['output']
+}
+
+export type AiLibraryUsageInput = {
+  assistantId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  use: Scalars['Boolean']['input']
+}
+
+export type AiLibraryUsageResult = {
+  __typename?: 'AiLibraryUsageResult'
+  deletedCount?: Maybe<Scalars['Int']['output']>
+  usageId?: Maybe<Scalars['String']['output']>
+}
+
 export type ChatAnswer = {
   __typename?: 'ChatAnswer'
   answer?: Maybe<Scalars['String']['output']>
@@ -132,6 +154,7 @@ export type Mutation = {
   processFile?: Maybe<AiLibraryFile>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
+  updateLibraryUsage?: Maybe<AiLibraryUsageResult>
 }
 
 export type MutationChatArgs = {
@@ -189,6 +212,10 @@ export type MutationUpdateAiLibraryArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationUpdateLibraryUsageArgs = {
+  data: AiLibraryUsageInput
+}
+
 export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
@@ -196,6 +223,7 @@ export type Query = {
   aiLibraries?: Maybe<Array<AiLibrary>>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
+  aiLibraryUsage?: Maybe<Array<AiLibraryUsage>>
   user?: Maybe<User>
 }
 
@@ -217,6 +245,11 @@ export type QueryAiLibraryArgs = {
 
 export type QueryAiLibraryFilesArgs = {
   aiLibraryId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryUsageArgs = {
+  aiAssistantId?: InputMaybe<Scalars['String']['input']>
+  aiLibraryId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type QueryUserArgs = {
@@ -462,6 +495,40 @@ export type DeleteAiAssistantMutation = {
   deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string } | null
 }
 
+export type AssistantLibrariesQueryVariables = Exact<{
+  assistantId: Scalars['String']['input']
+  ownerId: Scalars['String']['input']
+}>
+
+export type AssistantLibrariesQuery = {
+  __typename?: 'Query'
+  aiLibraryUsage?: Array<{
+    __typename?: 'AiLibraryUsage'
+    id: string
+    libraryId: string
+  }> | null
+  aiLibraries?: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+  }> | null
+}
+
+export type UpdateLibraryUsageMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  use: Scalars['Boolean']['input']
+}>
+
+export type UpdateLibraryUsageMutation = {
+  __typename?: 'Mutation'
+  updateLibraryUsage?: {
+    __typename?: 'AiLibraryUsageResult'
+    usageId?: string | null
+    deletedCount?: number | null
+  } | null
+}
+
 export type ClearEmbeddingsMutationVariables = Exact<{
   aiLibraryId: Scalars['String']['input']
 }>
@@ -542,6 +609,7 @@ export type ProcessFileMutation = {
 
 export type AiAssistantEditQueryVariables = Exact<{
   id: Scalars['String']['input']
+  ownerId: Scalars['String']['input']
 }>
 
 export type AiAssistantEditQuery = {
@@ -557,6 +625,11 @@ export type AiAssistantEditQuery = {
     aiAssistantType: AiAssistantType
     url?: string | null
   } | null
+  aiAssistants?: Array<{
+    __typename?: 'AiAssistant'
+    id: string
+    name: string
+  }> | null
 }
 
 export type ChangeAiAssistantMutationVariables = Exact<{
@@ -1704,6 +1777,204 @@ export const DeleteAiAssistantDocument = {
   DeleteAiAssistantMutation,
   DeleteAiAssistantMutationVariables
 >
+export const AssistantLibrariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'assistantLibraries' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'assistantId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryUsage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'aiAssistantId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'assistantId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AssistantLibrariesQuery,
+  AssistantLibrariesQueryVariables
+>
+export const UpdateLibraryUsageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateLibraryUsage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'assistantId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'libraryId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'use' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'Boolean' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateLibraryUsage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'assistantId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'assistantId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'libraryId' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'libraryId' },
+                      },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'use' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'use' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'usageId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'deletedCount' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  UpdateLibraryUsageMutation,
+  UpdateLibraryUsageMutationVariables
+>
 export const ClearEmbeddingsDocument = {
   kind: 'Document',
   definitions: [
@@ -2038,6 +2309,20 @@ export const AiAssistantEditDocument = {
             },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -2069,6 +2354,27 @@ export const AiAssistantEditDocument = {
                   name: { kind: 'Name', value: 'aiAssistantType' },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiAssistants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
               ],
             },
           },

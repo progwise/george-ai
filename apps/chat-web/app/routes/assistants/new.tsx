@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { graphql } from '../../gql'
@@ -7,6 +7,8 @@ import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantType } from '../../gql/graphql'
 import { backendRequest } from '../../server-functions/backend'
 import { useAuth } from '../../auth/auth-context'
+import { useMutation } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const createAssistantDocument = graphql(`
   mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {
@@ -50,20 +52,28 @@ export const Route = createFileRoute('/assistants/new')({
 function RouteComponent() {
   const auth = useAuth()
 
+  const navigate = useNavigate()
+  const { mutate: createAssistantMutation, isPending: createIsPending } =
+    useMutation({
+      mutationFn: (data: FormData) => createAssistant({ data }),
+      onSettled: () => {
+        navigate({ to: '..' })
+      },
+    })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    createAssistant({
-      data: formData,
-    })
+    createAssistantMutation(formData)
   }
 
   const disabled = !auth?.isAuthenticated
 
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={createIsPending} />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">New Assistant</h3>
         <div className="badge badge-secondary badge-outline">

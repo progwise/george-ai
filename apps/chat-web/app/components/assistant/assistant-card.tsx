@@ -58,17 +58,19 @@ export const AssistantCard = ({
               ✕
             </button>
           </form>
-          <h3 className="text-lg font-bold">Confirm</h3>
-          <p className="py-4">Press ESC key or click on ✕ button to close.</p>
+          <h3 className="text-lg font-bold">Confirm to delete assistant</h3>
+          <p>
+            <q>{assistant.name}</q> will be deleted.
+          </p>
           <div className="modal-action">
             <form method="dialog">
               {/* if there is a button in form, it will close the modal */}
               <button
                 type="submit"
-                className="btn btn-sm btn-danger"
+                className="btn btn-error"
                 onClick={handleDeleteConfirm}
               >
-                Delete Assistant {assistant.name}
+                Delete Assistant
               </button>
             </form>
           </div>

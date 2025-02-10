@@ -80,6 +80,26 @@ enum AiLibraryType {
   POCKETBASE
 }
 
+type AiLibraryUsage {
+  assistant: AiAssistant
+  assistantId: ID!
+  createdAt: DateTime!
+  id: ID!
+  library: AiLibrary
+  libraryId: ID!
+}
+
+input AiLibraryUsageInput {
+  assistantId: String!
+  libraryId: String!
+  use: Boolean!
+}
+
+type AiLibraryUsageResult {
+  deletedCount: Int
+  usageId: String
+}
+
 type ChatAnswer {
   answer: String
   notEnoughInformation: Boolean
@@ -116,6 +136,7 @@ type Mutation {
   processFile(fileId: String!): AiLibraryFile
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
+  updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
 }
 
 type Query {
@@ -124,6 +145,7 @@ type Query {
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(aiLibraryId: String!): [AiLibraryFile!]
+  aiLibraryUsage(aiAssistantId: String, aiLibraryId: String): [AiLibraryUsage!]
   user(email: String!): User
 }
 
