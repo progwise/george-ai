@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ProfileImport } from './routes/profile'
+import { Route as LangchainNewUiImport } from './routes/langchain-new-ui'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
@@ -28,6 +29,12 @@ import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assis
 const ProfileRoute = ProfileImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LangchainNewUiRoute = LangchainNewUiImport.update({
+  id: '/langchain-new-ui',
+  path: '/langchain-new-ui',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -116,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangchainChatImport
       parentRoute: typeof rootRoute
     }
+    '/langchain-new-ui': {
+      id: '/langchain-new-ui'
+      path: '/langchain-new-ui'
+      fullPath: '/langchain-new-ui'
+      preLoaderRoute: typeof LangchainNewUiImport
+      parentRoute: typeof rootRoute
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -181,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
+  '/langchain-new-ui': typeof LangchainNewUiRoute
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
@@ -195,6 +210,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
+  '/langchain-new-ui': typeof LangchainNewUiRoute
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
@@ -210,6 +226,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
+  '/langchain-new-ui': typeof LangchainNewUiRoute
   '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
@@ -226,6 +243,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/langchain-chat'
+    | '/langchain-new-ui'
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
@@ -239,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/langchain-chat'
+    | '/langchain-new-ui'
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
@@ -252,6 +271,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/langchain-chat'
+    | '/langchain-new-ui'
     | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
@@ -267,6 +287,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   LangchainChatRoute: typeof LangchainChatRoute
+  LangchainNewUiRoute: typeof LangchainNewUiRoute
   ProfileRoute: typeof ProfileRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
@@ -281,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   LangchainChatRoute: LangchainChatRoute,
+  LangchainNewUiRoute: LangchainNewUiRoute,
   ProfileRoute: ProfileRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
@@ -304,6 +326,7 @@ export const routeTree = rootRoute
         "/",
         "/contact",
         "/langchain-chat",
+        "/langchain-new-ui",
         "/profile",
         "/assistants/$assistantId",
         "/assistants/new",
@@ -322,6 +345,9 @@ export const routeTree = rootRoute
     },
     "/langchain-chat": {
       "filePath": "langchain-chat.tsx"
+    },
+    "/langchain-new-ui": {
+      "filePath": "langchain-new-ui.tsx"
     },
     "/profile": {
       "filePath": "profile.tsx"
