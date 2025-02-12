@@ -56,7 +56,7 @@ export const LangchainChatForm = ({
               id: Math.random().toString(),
               sessionId,
               sender: 'bot',
-              text: '.........',
+              text: 'LOADING_INDICATOR',
               source: '',
               time: new Date(),
               retrievalFlow,

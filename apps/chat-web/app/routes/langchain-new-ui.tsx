@@ -9,7 +9,10 @@ import { RetrievalFlow } from '@george-ai/langchain-chat'
 
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { Dropdown } from '../components/dropdown'
-import { FormattedMarkdown } from '../components/formatted-markdown'
+import {
+  FormattedMarkdown,
+  LoadingIndicator,
+} from '../components/formatted-markdown'
 
 export const Route = createFileRoute('/langchain-new-ui')({
   component: RouteComponent,
@@ -101,9 +104,12 @@ function RouteComponent() {
             </div>
 
             <div className="border-t border-base-200 pt-3">
-              <FormattedMarkdown markdown={message.text} />
+              {message.text === 'LOADING_INDICATOR' ? (
+                <LoadingIndicator />
+              ) : (
+                <FormattedMarkdown markdown={message.text} />
+              )}
             </div>
-
             <div className="mt-2 text-xs opacity-70">
               Source: {message.source}
             </div>
