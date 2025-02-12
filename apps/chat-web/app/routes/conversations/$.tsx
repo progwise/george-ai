@@ -48,10 +48,6 @@ function RouteComponent() {
   const { data: conversations, isLoading: conversationIsLoading } =
     useSuspenseQuery(myConversationsQueryOptions(auth.user?.id))
 
-  const currentConversation = conversations?.aiConversations?.find(
-    (conversation) => conversation.id === selectedConversationId,
-  )
-
   const { data: assistants, isLoading: assistantsIsLoading } = useSuspenseQuery(
     myAiAssistantsQueryOptions(auth.user?.id),
   )
@@ -68,7 +64,9 @@ function RouteComponent() {
   return (
     <div className="flex gap-4">
       <LoadingSpinner
-        isLoading={conversationIsLoading || assistantsIsLoading}
+        isLoading={
+          conversationIsLoading || assistantsIsLoading || messagesLoading
+        }
       />
       <nav className="card bg-base-100 w-60 shadow-xl">
         <div className="flex justify-between items-center p-4">
