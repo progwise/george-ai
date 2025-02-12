@@ -75,10 +75,9 @@ function RouteComponent() {
         {data?.messages.map((message) => (
           <div
             key={message.id}
-            className="card bg-base-content text-base-content shadow-md border border-base-300 p-4"
+            className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4"
           >
             <div className="flex items-center gap-3 mb-2">
-              {/* Simple avatar */}
               <div className="w-8 h-8 rounded-full bg-slate-500 text-neutral-content flex items-center justify-center">
                 {message.sender === 'bot' ? 'AI' : 'U'}
               </div>

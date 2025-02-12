@@ -3,7 +3,7 @@ import remarkGfm from 'remark-gfm'
 
 export const FormattedMarkdown = ({ markdown }: { markdown: string }) => {
   return (
-    <div className="prose marker:text-base-100 [&_*]:text-base-100">
+    <div className="prose marker:text-base-100 [&_*]:text-base-content">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
     </div>
   )
