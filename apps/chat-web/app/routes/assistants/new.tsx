@@ -36,7 +36,7 @@ const createAssistant = createServerFn({ method: 'POST' })
       description: data.get('description') as string,
       url: data.get('url') as string,
       icon: icon.name as string,
-      aiAssistantType: data.get('aiAssistantType'),
+      assistantType: data.get('assistantType'),
     })
 
     return { ownerId, data: assistant }
@@ -65,7 +65,6 @@ function RouteComponent() {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
-
     createAssistantMutation(formData)
   }
 
@@ -91,7 +90,7 @@ function RouteComponent() {
             createdAt: undefined,
             id: '',
             name: '',
-            aiAssistantType: AiAssistantType.Chatbot,
+            assistantType: AiAssistantType.Chatbot,
             ownerId: auth?.user.id || '',
           }}
           owner={auth.user}

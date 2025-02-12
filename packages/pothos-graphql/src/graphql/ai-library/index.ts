@@ -23,12 +23,12 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
-    aiLibraryType: t.field({
+    libraryType: t.field({
       type: AiLibraryTypeEnum,
       nullable: false,
-      select: { aiLibraryType: true },
+      select: { libraryType: true },
       resolve: (aiLibrary) => {
-        return AiLibraryType[aiLibrary.aiLibraryType]
+        return AiLibraryType[aiLibrary.libraryType]
       },
     }),
     owner: t.relation('owner'),
@@ -44,7 +44,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    aiLibraryType: t.field({
+    libraryType: t.field({
       type: AiLibraryTypeEnum,
       required: true,
     }),
@@ -121,16 +121,16 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
   t.field({
     type: 'Boolean',
     args: {
-      aiLibraryId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (_parent, args) => {
-      await dropVectorStore(args.aiLibraryId)
+    resolve: async (_parent, { libraryId }) => {
+      await dropVectorStore(libraryId)
       const files = await prisma.aiLibraryFile.findMany({
         select: { id: true },
-        where: { aiLibraryId: args.aiLibraryId },
+        where: { libraryId },
       })
       await prisma.aiLibraryFile.deleteMany({
-        where: { aiLibraryId: args.aiLibraryId },
+        where: { libraryId },
       })
 
       const deleteFilePromises = files.map((file) => {

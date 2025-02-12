@@ -5,4 +5,6 @@ export const queryKeys = {
   AiLibraryFiles: 'AiLibraryFiles',
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',
+  Conversation: 'Conversation',
+  ConversationMessages: 'ConversationMessages',
 }

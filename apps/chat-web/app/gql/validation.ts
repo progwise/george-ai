@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   AiAssistantInput,
   AiAssistantType,
+  AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
   AiLibraryType,
@@ -33,7 +34,7 @@ export function AiAssistantInputSchema(): z.ZodObject<
   Properties<AiAssistantInput>
 > {
   return z.object({
-    aiAssistantType: AiAssistantTypeSchema,
+    assistantType: AiAssistantTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
@@ -41,11 +42,20 @@ export function AiAssistantInputSchema(): z.ZodObject<
   })
 }
 
+export function AiConversationMessageInputSchema(): z.ZodObject<
+  Properties<AiConversationMessageInput>
+> {
+  return z.object({
+    content: z.string(),
+    conversationId: z.string(),
+  })
+}
+
 export function AiLibraryFileInputSchema(): z.ZodObject<
   Properties<AiLibraryFileInput>
 > {
   return z.object({
-    aiLibraryId: z.string(),
+    libraryId: z.string(),
     mimeType: z.string(),
     name: z.string(),
     originUri: z.string(),
@@ -56,9 +66,9 @@ export function AiLibraryInputSchema(): z.ZodObject<
   Properties<AiLibraryInput>
 > {
   return z.object({
-    aiLibraryType: AiLibraryTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
+    libraryType: AiLibraryTypeSchema,
     name: z.string(),
     url: z.string().nullish(),
   })

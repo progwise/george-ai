@@ -12,7 +12,7 @@ const librariesDocument = graphql(/* GraphQL */ `
     aiLibraries(ownerId: $ownerId) {
       id
       name
-      aiLibraryType
+      libraryType
       owner {
         id
         name
@@ -105,7 +105,7 @@ function RouteComponent() {
               <tr key={library.id} className="hover:bg-gray-100">
                 <td>{index + 1}</td>
                 <td>{library.name}</td>
-                <td>{library.aiLibraryType}</td>
+                <td>{library.libraryType}</td>
                 <td>{library.owner?.name}</td>
                 <td>{library.updatedAt || library.createdAt}</td>
                 <td>

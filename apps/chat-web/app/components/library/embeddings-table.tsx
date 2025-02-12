@@ -11,8 +11,8 @@ interface EmbeddingsTableProps {
 }
 
 const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
-  mutation clearEmbeddings($aiLibraryId: String!) {
-    clearEmbeddedFiles(aiLibraryId: $aiLibraryId)
+  mutation clearEmbeddings($libraryId: String!) {
+    clearEmbeddedFiles(libraryId: $libraryId)
   }
 `)
 
@@ -40,7 +40,7 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(ClearEmbeddingsDocument, {
-      aiLibraryId: ctx.data,
+      libraryId: ctx.data,
     })
   })
 
@@ -57,8 +57,8 @@ const reProcessFile = createServerFn({ method: 'POST' })
   })
 
 const EmbeddingsTableDocument = graphql(`
-  query EmbeddingsTable($aiLibraryId: String!) {
-    aiLibraryFiles(aiLibraryId: $aiLibraryId) {
+  query EmbeddingsTable($libraryId: String!) {
+    aiLibraryFiles(libraryId: $libraryId) {
       id
       name
       originUri
@@ -72,25 +72,25 @@ const EmbeddingsTableDocument = graphql(`
 `)
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
-  .validator(({ aiLibraryId }: { aiLibraryId: string }) =>
-    z.string().nonempty().parse(aiLibraryId),
+  .validator(({ libraryId }: { libraryId: string }) =>
+    z.string().nonempty().parse(libraryId),
   )
   .handler(async (ctx) => {
     return await backendRequest(EmbeddingsTableDocument, {
-      aiLibraryId: ctx.data,
+      libraryId: ctx.data,
     })
   })
 
-const aiLibraryFilesQueryOptions = (aiLibraryId?: string) => ({
-  queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
+const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
+  queryKey: [queryKeys.AiLibraryFiles, libraryId],
   queryFn: async () => {
-    if (!aiLibraryId) {
+    if (!libraryId) {
       return null
     } else {
-      return getLibraryFiles({ data: { aiLibraryId } })
+      return getLibraryFiles({ data: { libraryId } })
     }
   },
-  enabled: !!aiLibraryId,
+  enabled: !!libraryId,
 })
 
 export const EmbeddingsTable = ({ aiLibraryId }: EmbeddingsTableProps) => {

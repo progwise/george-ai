@@ -1,17 +1,19 @@
 import { AiAssistant } from '../../gql/graphql'
 
-interface ChatAssistantSelectorProps {
+interface ConversationAssistantSelectorProps {
   assistants: Pick<AiAssistant, 'id' | 'name'>[]
-  selectedAssistant: Pick<AiAssistant, 'id' | 'name'>
+  selectedAssistant?: Pick<AiAssistant, 'id' | 'name'>
   onChange: (assistant: Pick<AiAssistant, 'id' | 'name'>) => void
 }
 
-export const ChatAssistantSelector = (props: ChatAssistantSelectorProps) => {
+export const ConversationAssistantSelector = (
+  props: ConversationAssistantSelectorProps,
+) => {
   const { assistants, selectedAssistant } = props
   return (
     <div className="dropdown dropdown-sm">
       <div tabIndex={0} role="button" className="btn btn-sm">
-        {selectedAssistant.name}
+        {selectedAssistant?.name || 'Select Assistant'}
       </div>
       <ul
         tabIndex={0}
@@ -19,7 +21,13 @@ export const ChatAssistantSelector = (props: ChatAssistantSelectorProps) => {
       >
         {assistants.map((assistant) => (
           <li key={assistant.id}>
-            <button type="button" onClick={() => props.onChange(assistant)}>
+            <button
+              type="button"
+              onClick={(event) => {
+                props.onChange(assistant)
+                event.currentTarget.blur()
+              }}
+            >
               {assistant.name}
             </button>
           </li>

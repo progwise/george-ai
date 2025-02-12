@@ -8,7 +8,7 @@ import { LoadingSpinner } from '../loading-spinner'
 
 const AssistantLibrariesDocument = graphql(/* GraphQL */ `
   query assistantLibraries($assistantId: String!, $ownerId: String!) {
-    aiLibraryUsage(aiAssistantId: $assistantId) {
+    aiLibraryUsage(assistantId: $assistantId) {
       id
       libraryId
     }

@@ -52,12 +52,12 @@ export const AssistantForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Chatbot</span>
             <input
-              key={assistant.aiAssistantType}
+              key={assistant.assistantType}
               type="radio"
-              name="aiAssistantType"
+              name="assistantType"
               value="CHATBOT"
               className="radio checked:bg-green-500"
-              defaultChecked={assistant.aiAssistantType === 'CHATBOT'}
+              defaultChecked={assistant.assistantType === 'CHATBOT'}
             />
           </label>
         </div>
@@ -65,14 +65,12 @@ export const AssistantForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Doc Generator</span>
             <input
-              key={assistant.aiAssistantType}
+              key={assistant.assistantType}
               type="radio"
-              name="aiAssistantType"
+              name="assistantType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
-              defaultChecked={
-                assistant.aiAssistantType === 'DOCUMENT_GENERATOR'
-              }
+              defaultChecked={assistant.assistantType === 'DOCUMENT_GENERATOR'}
               disabled
             />
           </label>

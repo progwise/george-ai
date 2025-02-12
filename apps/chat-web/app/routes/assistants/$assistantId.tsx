@@ -27,7 +27,7 @@ const aiAssistantEditQueryDocument = graphql(`
       icon
       createdAt
       ownerId
-      aiAssistantType
+      assistantType
       url
     }
     aiAssistants(ownerId: $ownerId) {
@@ -79,7 +79,7 @@ const changeAssistant = createServerFn({ method: 'POST' })
       description: data.get('description') as string,
       url: data.get('url') as string,
       icon: icon.name as string,
-      aiAssistantType: data.get('aiAssistantType'),
+      assistantType: data.get('assistantType'),
     })
     return { assistantId, assistant }
   })

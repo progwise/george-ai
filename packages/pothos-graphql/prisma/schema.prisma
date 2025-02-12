@@ -41,24 +41,24 @@ model User {
   name                       String?
   given_name                 String?
   family_name                String?
-  aiAssistants               AiAssistant[]
-  aiLibraries                AiLibrary[]
+  assistants                 AiAssistant[]
+  libraries                  AiLibrary[]
   conversationParticipations AiConversationParticipant[]
 }
 
 model AiAssistant {
-  id                        String                      @id @default(cuid())
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  name                      String
-  description               String?
-  url                       String?
-  icon                      String?
-  owner                     User                        @relation(fields: [ownerId], references: [id])
-  ownerId                   String
-  aiAssistantType           AiAssistantType
-  usages                    AiLibraryUsage[]
-  AiConversationParticipant AiConversationParticipant[]
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  name                       String
+  description                String?
+  url                        String?
+  icon                       String?
+  owner                      User                        @relation(fields: [ownerId], references: [id])
+  ownerId                    String
+  assistantType              AiAssistantType
+  usages                     AiLibraryUsage[]
+  conversationParticipations AiConversationParticipant[]
 }
 
 model AiLibrary {
@@ -73,28 +73,28 @@ model AiLibrary {
   owner         User             @relation(fields: [ownerId], references: [id])
   ownerId       String
   isPublic      Boolean          @default(true)
-  aiLibraryType AiLibraryType
+  libraryType   AiLibraryType
   usages        AiLibraryUsage[]
   files         AiLibraryFile[]
 }
 
 model AiLibraryUsage {
-  id            String      @id @default(cuid())
-  createdAt     DateTime    @default(now())
-  aiAssistant   AiAssistant @relation(fields: [aiAssistantId], references: [id], onDelete: Cascade)
-  aiAssistantId String
-  aiLibrary     AiLibrary   @relation(fields: [aiLibraryId], references: [id], onDelete: Cascade)
-  aiLibraryId   String
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  assistantId String
+  library     AiLibrary   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  libraryId   String
 
-  @@unique([aiAssistantId, aiLibraryId])
+  @@unique([assistantId, libraryId])
 }
 
 model AiLibraryFile {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  aiLibrary   AiLibrary @relation(fields: [aiLibraryId], references: [id])
-  aiLibraryId String
+  library     AiLibrary @relation(fields: [libraryId], references: [id])
+  libraryId   String
   name        String
   originUri   String?
   mimeType    String
@@ -113,24 +113,24 @@ model AiConversation {
 }
 
 model AiConversationParticipant {
-  id                    String                  @id @default(cuid())
-  createdAt             DateTime                @default(now())
-  aiConversation        AiConversation          @relation(fields: [aiConversationId], references: [id])
-  aiConversationId      String
-  user                  User?                   @relation(fields: [userId], references: [id])
-  userId                String?
-  assistant             AiAssistant?            @relation(fields: [assistantId], references: [id])
-  assistantId           String?
-  AiConversationMessage AiConversationMessage[]
+  id                  String                  @id @default(cuid())
+  createdAt           DateTime                @default(now())
+  conversation        AiConversation          @relation(fields: [conversationId], references: [id])
+  conversationId      String
+  user                User?                   @relation(fields: [userId], references: [id])
+  userId              String?
+  assistant           AiAssistant?            @relation(fields: [assistantId], references: [id])
+  assistantId         String?
+  conversationMessage AiConversationMessage[]
 }
 
 model AiConversationMessage {
-  id               String                    @id @default(cuid())
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
-  sender           AiConversationParticipant @relation(fields: [senderId], references: [id])
-  senderId         String
-  content          String
-  AiConversation   AiConversation            @relation(fields: [aiConversationId], references: [id])
-  aiConversationId String
+  id             String                    @id @default(cuid())
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  sender         AiConversationParticipant @relation(fields: [senderId], references: [id])
+  senderId       String
+  content        String
+  conversation   AiConversation            @relation(fields: [conversationId], references: [id])
+  conversationId String
 }

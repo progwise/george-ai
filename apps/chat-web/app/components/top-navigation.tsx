@@ -1,11 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import BowlerHatIcon from './icons/bowler-hat-icon'
-import ChatBubbleIcon from './icons/chat-bubble-icon'
-import UserIcon from './icons/user-icon'
-import AcademicCapIcon from './icons/academic-cap-icon'
+import BowlerHatIcon from '../icons/bowler-hat-icon'
+import ChatBubbleIcon from '../icons/chat-bubble-icon'
+import UserIcon from '../icons/user-icon'
+import AcademicCapIcon from '../icons/academic-cap-icon'
 import { useAuth } from '../auth/auth-context'
 import { t } from 'i18next'
 import { FileRoutesByTo } from '../routeTree.gen'
+import { ConversationIcon } from '../icons/conversation-icon'
 
 const TopNavigationLink = ({
   to,
@@ -38,12 +39,12 @@ const TopNavigation = () => {
         </TopNavigationLink>
       </div>
       <div className="navbar-center">
-        <TopNavigationLink to="/conversations">
-          <ChatBubbleIcon className="size-6" />
+        <TopNavigationLink to="/conversations/$">
+          <ConversationIcon className="size-6" />
           {t('conversations')}
         </TopNavigationLink>
         <TopNavigationLink to="/assistants">
-          <ChatBubbleIcon className="size-6" />
+          <BowlerHatIcon className="size-6" />
           {t('assistants')}
         </TopNavigationLink>
         <TopNavigationLink to="/libraries">
