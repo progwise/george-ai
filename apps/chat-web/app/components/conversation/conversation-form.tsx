@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { User } from '../../gql/graphql'
+import { AiConversation, User } from '../../gql/graphql'
 import {
   GetMessagesQueryOptions,
   sendMessage,
@@ -7,10 +7,10 @@ import {
 
 interface ConversationFormProps {
   user: User
-  conversationId: string
+  conversation: Partial<AiConversation>
 }
 export const ConversationForm = ({
-  conversationId,
+  conversation,
   user,
 }: ConversationFormProps) => {
   const queryClient = useQueryClient()
@@ -23,7 +23,7 @@ export const ConversationForm = ({
       const result = await sendMessage({
         data: {
           userId: user.id,
-          conversationId,
+          conversationId: conversation.id!,
           content,
         },
       })
@@ -32,7 +32,7 @@ export const ConversationForm = ({
     onSettled: async () => {
       console.log('Message sent')
       await queryClient.invalidateQueries(
-        GetMessagesQueryOptions(conversationId, user.id),
+        GetMessagesQueryOptions(conversation.id, user.id),
       )
     },
   })
@@ -41,6 +41,9 @@ export const ConversationForm = ({
     const form = event.currentTarget
     const formData = new FormData(form)
     const content = formData.get('message') as string
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1])
+    }
 
     form.reset()
 
@@ -58,9 +61,26 @@ export const ConversationForm = ({
             rows={2}
             name="message"
           ></textarea>
-          <button type="submit" className="btn">
-            Send
-          </button>
+          <div className="flex gap-2">
+            {conversation.assistants?.map((assistant) => (
+              <label key={assistant.id} className="cursor-pointer label gap-2">
+                <input
+                  name="assistants"
+                  value={assistant.id}
+                  type="checkbox"
+                  defaultChecked
+                  className="checkbox checkbox-info"
+                />
+                <span className="label-text text-gray-200 ">
+                  Ask {assistant.name}
+                </span>
+              </label>
+            ))}
+
+            <button name="send" type="submit" className="btn">
+              Send
+            </button>
+          </div>
         </form>
       </div>
     </div>

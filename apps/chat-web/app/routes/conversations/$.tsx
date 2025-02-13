@@ -2,12 +2,6 @@ import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useAuth } from '../../auth/auth-context'
 import { LoadingSpinner } from '../../components/loading-spinner'
-import { ConversationAssistantSelector } from '../../components/conversation/conversation-assistant-selector'
-import {
-  AiAssistant,
-  AiAssistantType,
-  AiConversationMessage,
-} from '../../gql/graphql'
 import {
   GetMessagesQueryOptions,
   myConversationsQueryOptions,
@@ -15,8 +9,12 @@ import {
 import { myAiAssistantsQueryOptions } from '../../server-functions/assistants'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationForm } from '../../components/conversation/conversation-form'
-import { useState } from 'react'
+import { useRef } from 'react'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
+import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
+import { myConversationUsersQueryOptions } from '../../server-functions/users'
+import { AiConversation } from '../../gql/graphql'
+import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 
 export const Route = createFileRoute('/conversations/$')({
   component: RouteComponent,
@@ -34,22 +32,15 @@ function RouteComponent() {
     GetMessagesQueryOptions(selectedConversationId, auth.user?.id),
   )
 
-  const [selectedAssistant, setSelectedAssistant] = useState<AiAssistant>({
-    id: '',
-    name: '',
-    description: '',
-    icon: '',
-    createdAt: '',
-    ownerId: '',
-    assistantType: AiAssistantType.Chatbot,
-    url: '',
-  })
-
   const { data: conversations, isLoading: conversationIsLoading } =
     useSuspenseQuery(myConversationsQueryOptions(auth.user?.id))
 
   const { data: assistants, isLoading: assistantsIsLoading } = useSuspenseQuery(
     myAiAssistantsQueryOptions(auth.user?.id),
+  )
+
+  const { data: users, isLoading: usersIsLoading } = useSuspenseQuery(
+    myConversationUsersQueryOptions(auth.user?.id),
   )
 
   if (
@@ -59,13 +50,36 @@ function RouteComponent() {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
   }
 
-  const handleNewConversation = () => {}
+  const newDialogRef = useRef<HTMLDialogElement>(null)
 
+  const handleNewConversation = () => {
+    newDialogRef.current?.showModal()
+  }
+
+  const userId = auth?.user?.id
+  const loadedAssistants = assistants?.aiAssistants
+  const loadedUsers = users?.myConversationUsers
+  const selectedConversation = conversations?.aiConversations?.find(
+    (conversation) => conversation.id === selectedConversationId,
+  ) as AiConversation
+  console.log({ selectedConversation })
   return (
     <div className="flex gap-4">
+      {userId && loadedAssistants && loadedUsers && (
+        <NewConversationDialog
+          ref={newDialogRef}
+          userId={userId}
+          users={loadedUsers}
+          assistants={loadedAssistants}
+        />
+      )}
+
       <LoadingSpinner
         isLoading={
-          conversationIsLoading || assistantsIsLoading || messagesLoading
+          conversationIsLoading ||
+          assistantsIsLoading ||
+          usersIsLoading ||
+          messagesLoading
         }
       />
       <nav className="card">
@@ -85,22 +99,19 @@ function RouteComponent() {
         />
       </nav>
       <article className="flex flex-col gap-4 w-full">
-        <ConversationAssistantSelector
-          assistants={assistants?.aiAssistants || []}
-          selectedAssistant={selectedAssistant}
-          onChange={(assistant: AiAssistant) => {
-            setSelectedAssistant(assistant)
-          }}
-        />
-        <ConversationHistory
-          messages={
-            messagesData?.aiConversationMessages as AiConversationMessage[]
-          }
-        />
-        <ConversationForm
-          user={auth.user!}
+        <ConversationParticipants
           conversationId={selectedConversationId}
+          participants={selectedConversation?.participants}
+          assistants={loadedAssistants}
+          users={loadedUsers}
         />
+        <ConversationHistory messages={messagesData?.aiConversationMessages} />
+        {selectedConversation && (
+          <ConversationForm
+            user={auth.user!}
+            conversation={selectedConversation}
+          />
+        )}
       </article>
     </div>
   )

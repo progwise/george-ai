@@ -7,4 +7,5 @@ export const queryKeys = {
   Conversations: 'Conversations',
   Conversation: 'Conversation',
   ConversationMessages: 'ConversationMessages',
+  ConversationUsers: 'ConversationUsers',
 }

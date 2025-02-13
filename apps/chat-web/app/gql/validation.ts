@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   AiAssistantInput,
   AiAssistantType,
+  AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
@@ -39,6 +40,15 @@ export function AiAssistantInputSchema(): z.ZodObject<
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiConversationCreateInputSchema(): z.ZodObject<
+  Properties<AiConversationCreateInput>
+> {
+  return z.object({
+    assistantIds: z.array(z.string()),
+    userIds: z.array(z.string()),
   })
 }
 

@@ -1,3 +1,4 @@
+import { JSX } from 'react'
 import { Link } from '@tanstack/react-router'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import ChatBubbleIcon from '../icons/chat-bubble-icon'

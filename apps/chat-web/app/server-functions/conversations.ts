@@ -17,6 +17,12 @@ const ConversationsQueryDocument = graphql(`
         id
         name
       }
+      participants {
+        id
+        name
+        userId
+        assistantId
+      }
     }
   }
 `)
@@ -42,6 +48,7 @@ const GetConversationQueryDocument = graphql(`
       assistants {
         id
         name
+        assistantType
       }
       humans {
         id
@@ -68,12 +75,15 @@ const GetConversationMessagesQueryDocument = graphql(`
   query getConversationMessages($conversationId: String!, $userId: String!) {
     aiConversationMessages(conversationId: $conversationId, userId: $userId) {
       id
+      conversationId
+      senderId
       createdAt
       updatedAt
       content
       sender {
         id
         name
+        conversationId
       }
     }
   }
@@ -116,6 +126,25 @@ export const sendMessage = createServerFn({ method: 'POST' })
       data: {
         conversationId: ctx.data.conversationId,
         content: ctx.data.content,
+      },
+    }),
+  )
+
+const CreateConversationDocument = graphql(`
+  mutation createConversation($data: AiConversationCreateInput!) {
+    createAiConversation(data: $data) {
+      id
+    }
+  }
+`)
+
+export const createConversation = createServerFn({ method: 'POST' })
+  .validator((data: { userIds: string[]; assistantIds: string[] }) => data)
+  .handler(async (ctx) =>
+    backendRequest(CreateConversationDocument, {
+      data: {
+        assistantIds: ctx.data.assistantIds,
+        userIds: ctx.data.userIds,
       },
     }),
   )

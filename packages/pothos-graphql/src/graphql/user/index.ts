@@ -91,3 +91,20 @@ builder.mutationField('createUser', (t) =>
     },
   }),
 )
+
+builder.queryField('myConversationUsers', (t) =>
+  t.prismaField({
+    type: ['User'],
+    args: {
+      userId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { userId }) => {
+      return prisma.user.findMany({
+        ...query,
+        where: {
+          id: { not: userId },
+        },
+      })
+    },
+  }),
+)

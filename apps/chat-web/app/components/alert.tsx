@@ -1,6 +1,7 @@
 import { twMerge } from 'tailwind-merge'
 import WarnIcon from '../icons/warn-icon'
 import ErrorIcon from '../icons/error-icon'
+import { JSX } from 'react'
 
 export interface AlertProps {
   message: string

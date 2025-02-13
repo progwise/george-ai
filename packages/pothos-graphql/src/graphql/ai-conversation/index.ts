@@ -1,63 +1,7 @@
 import { builder } from '../builder'
 import { prisma } from '../../prisma'
 
-const participantInterface = builder.prismaInterface(
-  'AiConversationParticipant',
-  {
-    name: 'AiConversationParticipant',
-    fields: (t) => ({
-      id: t.exposeID('id', { nullable: false }),
-      userId: t.exposeID('userId', { nullable: true }),
-      user: t.relation('user'),
-      conversationId: t.exposeID('conversationId', { nullable: false }),
-      conversation: t.relation('conversation'),
-      assistantId: t.exposeID('assistantId', { nullable: true }),
-      assistant: t.relation('assistant'),
-      name: t.field({
-        type: 'String',
-        resolve: async (source) => {
-          if (source.userId) {
-            const user = await prisma.user.findUniqueOrThrow({
-              where: { id: source.userId! },
-            })
-            return user?.name
-          }
-          if (source.assistantId) {
-            const assistant = await prisma.aiAssistant.findUniqueOrThrow({
-              where: { id: source.assistantId! },
-            })
-            return assistant?.name
-          }
-          throw new Error('Participant unknown: ' + source.id)
-        },
-      }),
-    }),
-    resolveType: (source) => {
-      if (source.userId) {
-        return 'HumanParticipant'
-      }
-      return 'AssistantParticipant'
-    },
-  },
-)
-
-builder.prismaObject('AiConversationParticipant', {
-  variant: 'HumanParticipant',
-  interfaces: [participantInterface],
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    user: t.relation('user'),
-  }),
-})
-
-builder.prismaObject('AiConversationParticipant', {
-  variant: 'AssistantParticipant',
-  interfaces: [participantInterface],
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    assistant: t.relation('assistant'),
-  }),
-})
+console.log('Setting up: AiConversation')
 
 builder.prismaObject('AiConversationMessage', {
   fields: (t) => ({
@@ -155,7 +99,7 @@ builder.queryField('aiConversationMessages', (t) =>
       return prisma.aiConversationMessage.findMany({
         ...query,
         where: { conversationId },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: 'asc' },
       })
     },
   }),
@@ -187,6 +131,37 @@ builder.mutationField('sendMessage', (t) =>
           senderId: participant.id,
         },
       })
+    },
+  }),
+)
+
+const conversationCreateInput = builder.inputType('AiConversationCreateInput', {
+  fields: (t) => ({
+    assistantIds: t.stringList({ required: true }),
+    userIds: t.stringList({ required: true }),
+  }),
+})
+
+builder.mutationField('createAiConversation', (t) =>
+  t.prismaField({
+    type: 'AiConversation',
+    args: {
+      data: t.arg({ type: conversationCreateInput, required: true }),
+    },
+    resolve: async (_query, _source, { data }) => {
+      const conversation = prisma.aiConversation.create({
+        data: {
+          participants: {
+            create: [
+              ...data.assistantIds.map((assistantId) => ({
+                assistantId,
+              })),
+              ...data.userIds.map((userId) => ({ userId })),
+            ],
+          },
+        },
+      })
+      return conversation
     },
   }),
 )

@@ -52,14 +52,22 @@ const documents = {
     types.AiAssistantCardsDocument,
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.IntrospectionQueryDocument,
-  '\n  query getUserConversations($userId: String!) {\n    aiConversations(userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n':
+  '\n  query getUserConversations($userId: String!) {\n    aiConversations(userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n      participants {\n        id\n        name\n        userId\n        assistantId\n      }\n    }\n  }\n':
     types.GetUserConversationsDocument,
-  '\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n':
+  '\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n        assistantType\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n':
     types.GetConversationDocument,
-  '\n  query getConversationMessages($conversationId: String!, $userId: String!) {\n    aiConversationMessages(conversationId: $conversationId, userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      content\n      sender {\n        id\n        name\n      }\n    }\n  }\n':
+  '\n  query getConversationMessages($conversationId: String!, $userId: String!) {\n    aiConversationMessages(conversationId: $conversationId, userId: $userId) {\n      id\n      conversationId\n      senderId\n      createdAt\n      updatedAt\n      content\n      sender {\n        id\n        name\n        conversationId\n      }\n    }\n  }\n':
     types.GetConversationMessagesDocument,
   '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n':
     types.SendMessageDocument,
+  '\n  mutation createConversation($data: AiConversationCreateInput!) {\n    createAiConversation(data: $data) {\n      id\n    }\n  }\n':
+    types.CreateConversationDocument,
+  '\n  mutation addParticipant(\n    $conversationId: String!\n    $userIds: [String!]\n    $assistantIds: [String!]\n  ) {\n    addConversationParticipants(\n      conversationId: $conversationId\n      userIds: $userIds\n      assistantIds: $assistantIds\n    ) {\n      id\n    }\n  }\n':
+    types.AddParticipantDocument,
+  '\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n':
+    types.RemoveParticipantDocument,
+  '\n  query myConversationUsers($userId: String!) {\n    myConversationUsers(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n    }\n  }\n':
+    types.MyConversationUsersDocument,
 }
 
 /**
@@ -194,26 +202,50 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query getUserConversations($userId: String!) {\n    aiConversations(userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query getUserConversations($userId: String!) {\n    aiConversations(userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n']
+  source: '\n  query getUserConversations($userId: String!) {\n    aiConversations(userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n      participants {\n        id\n        name\n        userId\n        assistantId\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query getUserConversations($userId: String!) {\n    aiConversations(userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n      participants {\n        id\n        name\n        userId\n        assistantId\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n']
+  source: '\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n        assistantType\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      id\n      createdAt\n      updatedAt\n      assistants {\n        id\n        name\n        assistantType\n      }\n      humans {\n        id\n        name\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query getConversationMessages($conversationId: String!, $userId: String!) {\n    aiConversationMessages(conversationId: $conversationId, userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      content\n      sender {\n        id\n        name\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query getConversationMessages($conversationId: String!, $userId: String!) {\n    aiConversationMessages(conversationId: $conversationId, userId: $userId) {\n      id\n      createdAt\n      updatedAt\n      content\n      sender {\n        id\n        name\n      }\n    }\n  }\n']
+  source: '\n  query getConversationMessages($conversationId: String!, $userId: String!) {\n    aiConversationMessages(conversationId: $conversationId, userId: $userId) {\n      id\n      conversationId\n      senderId\n      createdAt\n      updatedAt\n      content\n      sender {\n        id\n        name\n        conversationId\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query getConversationMessages($conversationId: String!, $userId: String!) {\n    aiConversationMessages(conversationId: $conversationId, userId: $userId) {\n      id\n      conversationId\n      senderId\n      createdAt\n      updatedAt\n      content\n      sender {\n        id\n        name\n        conversationId\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
   source: '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n',
 ): (typeof documents)['\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation createConversation($data: AiConversationCreateInput!) {\n    createAiConversation(data: $data) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation createConversation($data: AiConversationCreateInput!) {\n    createAiConversation(data: $data) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation addParticipant(\n    $conversationId: String!\n    $userIds: [String!]\n    $assistantIds: [String!]\n  ) {\n    addConversationParticipants(\n      conversationId: $conversationId\n      userIds: $userIds\n      assistantIds: $assistantIds\n    ) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation addParticipant(\n    $conversationId: String!\n    $userIds: [String!]\n    $assistantIds: [String!]\n  ) {\n    addConversationParticipants(\n      conversationId: $conversationId\n      userIds: $userIds\n      assistantIds: $assistantIds\n    ) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query myConversationUsers($userId: String!) {\n    myConversationUsers(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n    }\n  }\n',
+): (typeof documents)['\n  query myConversationUsers($userId: String!) {\n    myConversationUsers(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n    }\n  }\n']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}
