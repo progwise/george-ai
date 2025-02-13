@@ -137,7 +137,11 @@ export const GoogleDriveFiles = ({
   const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } =
     useMutation({
-      mutationFn: embedFiles,
+      mutationFn: (data: {
+        aiLibraryId: string
+        files: LibraryFile[]
+        access_token: string
+      }) => embedFiles({ data }),
       onSuccess: () => {
         alert('Files embedded successfully')
         setSelectedFiles([])
@@ -146,12 +150,11 @@ export const GoogleDriveFiles = ({
 
   const handleEmbedFiles = async (files: LibraryFile[]) => {
     embedFilesMutation({
-      data: {
-        aiLibraryId,
-        files,
-        access_token: googleDriveAccessToken.access_token!,
-      },
+      aiLibraryId,
+      files,
+      access_token: googleDriveAccessToken.access_token!,
     })
+
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
     })

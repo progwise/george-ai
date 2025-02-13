@@ -12,7 +12,7 @@ interface NewConversationDialogProps {
   userId: string
   assistants: AiAssistant[]
   users: User[]
-  ref: RefObject<HTMLDialogElement>
+  ref: RefObject<HTMLDialogElement | null>
 }
 
 export const NewConversationDialog = ({
