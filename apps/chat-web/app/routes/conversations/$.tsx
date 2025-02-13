@@ -15,6 +15,7 @@ import { NewConversationDialog } from '../../components/conversation/new-convers
 import { myConversationUsersQueryOptions } from '../../server-functions/users'
 import { AiConversation } from '../../gql/graphql'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
+import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
 
 export const Route = createFileRoute('/conversations/$')({
   component: RouteComponent,
@@ -56,13 +57,19 @@ function RouteComponent() {
     newDialogRef.current?.showModal()
   }
 
+  const deleteDialogRef = useRef<HTMLDialogElement>(null)
+
+  const handleDeleteConversation = () => {
+    deleteDialogRef.current?.showModal()
+  }
+
   const userId = auth?.user?.id
   const loadedAssistants = assistants?.aiAssistants
   const loadedUsers = users?.myConversationUsers
   const selectedConversation = conversations?.aiConversations?.find(
     (conversation) => conversation.id === selectedConversationId,
   ) as AiConversation
-  console.log({ selectedConversation })
+
   return (
     <div className="flex gap-4">
       {userId && loadedAssistants && loadedUsers && (
@@ -73,6 +80,11 @@ function RouteComponent() {
           assistants={loadedAssistants}
         />
       )}
+
+      <DeleteConversationDialog
+        ref={deleteDialogRef}
+        conversation={selectedConversation}
+      />
 
       <LoadingSpinner
         isLoading={
@@ -99,12 +111,21 @@ function RouteComponent() {
         />
       </nav>
       <article className="flex flex-col gap-4 w-full">
-        <ConversationParticipants
-          conversationId={selectedConversationId}
-          participants={selectedConversation?.participants}
-          assistants={loadedAssistants}
-          users={loadedUsers}
-        />
+        <div className="flex justify-between items-center">
+          <ConversationParticipants
+            conversationId={selectedConversationId}
+            participants={selectedConversation?.participants}
+            assistants={loadedAssistants}
+            users={loadedUsers}
+          />
+          <button
+            type="button"
+            className="btn btn-cicle btn-sm btn-primary"
+            onClick={handleDeleteConversation}
+          >
+            Delete conversation
+          </button>
+        </div>
         <ConversationHistory messages={messagesData?.aiConversationMessages} />
         {selectedConversation && (
           <ConversationForm

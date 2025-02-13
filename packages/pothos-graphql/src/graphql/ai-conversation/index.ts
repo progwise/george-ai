@@ -165,3 +165,17 @@ builder.mutationField('createAiConversation', (t) =>
     },
   }),
 )
+
+builder.mutationField('deleteAiConversation', (t) =>
+  t.prismaField({
+    type: 'AiConversation',
+    args: {
+      conversationId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { conversationId }) => {
+      return prisma.aiConversation.delete({
+        where: { id: conversationId },
+      })
+    },
+  }),
+)

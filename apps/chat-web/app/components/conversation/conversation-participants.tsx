@@ -87,7 +87,7 @@ export const ConversationParticipants = ({
     mutateAdd({ assistantIds, userIds })
   }
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-center">
       <LoadingSpinner
         isLoading={removeParticipantIsPending || addParticipantIsPending}
       />
@@ -150,14 +150,14 @@ export const ConversationParticipants = ({
         <div
           key={participant.id}
           className={twMerge(
-            'badge',
+            'badge badge-lg',
             participant.assistantId && 'badge-secondary',
             participant.userId && 'badge-primary',
           )}
         >
           <button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-ghost btn-xs btn-circle"
             onClick={(event) =>
               handleRemoveParticipant(event, { conversationId, participant })
             }
@@ -181,10 +181,10 @@ export const ConversationParticipants = ({
       ))}
       <button
         type="button"
-        className="btn btn-sm"
+        className="btn btn-xs btn-success"
         onClick={() => dialogRef.current?.showModal()}
       >
-        Add
+        Add participants...
       </button>
     </div>
   )

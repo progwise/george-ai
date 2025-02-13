@@ -148,3 +148,19 @@ export const createConversation = createServerFn({ method: 'POST' })
       },
     }),
   )
+
+const DeleteConversationDocument = graphql(`
+  mutation deleteConversation($conversationId: String!) {
+    deleteAiConversation(conversationId: $conversationId) {
+      id
+    }
+  }
+`)
+
+export const deleteConversation = createServerFn({ method: 'POST' })
+  .validator((data: { conversationId: string }) => data)
+  .handler(async (ctx) =>
+    backendRequest(DeleteConversationDocument, {
+      conversationId: ctx.data.conversationId,
+    }),
+  )

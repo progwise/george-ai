@@ -14,11 +14,14 @@ export const ConversationSelector = ({
   selectedConversationId,
 }: ConversationSelectorProps) => {
   return (
-    <ul className="menu bg-base-200 rounded-box w-56">
+    <ul className="menu bg-base-200 rounded-box w-72">
       {/* Sidebar content here */}
 
       {conversations?.map((conversation) => (
-        <li key={conversation.id}>
+        <li
+          key={conversation.id}
+          className="flex flex-row flex-nowrap justify-between"
+        >
           <Link
             className={twMerge(
               'link ',

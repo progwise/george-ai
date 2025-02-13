@@ -199,6 +199,7 @@ type Mutation {
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
+  deleteAiConversation(conversationId: String!): AiConversation
   dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile

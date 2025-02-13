@@ -115,11 +115,11 @@ model AiConversation {
 model AiConversationParticipant {
   id                  String                  @id @default(cuid())
   createdAt           DateTime                @default(now())
-  conversation        AiConversation          @relation(fields: [conversationId], references: [id])
+  conversation        AiConversation          @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId      String
-  user                User?                   @relation(fields: [userId], references: [id])
+  user                User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId              String?
-  assistant           AiAssistant?            @relation(fields: [assistantId], references: [id])
+  assistant           AiAssistant?            @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   assistantId         String?
   conversationMessage AiConversationMessage[]
 }
@@ -128,9 +128,9 @@ model AiConversationMessage {
   id             String                    @id @default(cuid())
   createdAt      DateTime                  @default(now())
   updatedAt      DateTime                  @updatedAt
-  sender         AiConversationParticipant @relation(fields: [senderId], references: [id])
+  sender         AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId       String
   content        String
-  conversation   AiConversation            @relation(fields: [conversationId], references: [id])
+  conversation   AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId String
 }
