@@ -88,14 +88,7 @@ function RouteComponent() {
               <div className="w-8 h-8 rounded-full bg-accent text-neutral-900 flex items-center justify-center">
                 {message.sender === 'bot'
                   ? 'AI'
-                  : (user?.name
-                      ?.split(' ')
-                      .filter(
-                        (_, index, arr) =>
-                          index === 0 || index === arr.length - 1,
-                      )
-                      .map((part) => part.charAt(0).toUpperCase())
-                      .join('') ?? '')}
+                  : (user?.name?.charAt(0).toUpperCase() ?? 'U')}
               </div>
 
               <div className="flex flex-col">
