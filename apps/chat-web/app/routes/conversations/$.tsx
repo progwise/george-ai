@@ -68,7 +68,7 @@ function RouteComponent() {
           conversationIsLoading || assistantsIsLoading || messagesLoading
         }
       />
-      <nav className="card bg-base-100 w-60 shadow-xl">
+      <nav className="card">
         <div className="flex justify-between items-center p-4">
           <h3>Recent</h3>
           <button
@@ -84,7 +84,7 @@ function RouteComponent() {
           selectedConversationId={selectedConversationId}
         />
       </nav>
-      <article>
+      <article className="flex flex-col gap-4 w-full">
         <ConversationAssistantSelector
           assistants={assistants?.aiAssistants || []}
           selectedAssistant={selectedAssistant}

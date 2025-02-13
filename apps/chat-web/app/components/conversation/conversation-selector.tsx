@@ -14,27 +14,28 @@ export const ConversationSelector = ({
   selectedConversationId,
 }: ConversationSelectorProps) => {
   return (
-    <ul className="menutext-base-content menu gap-2">
+    <ul className="menu bg-base-200 rounded-box w-56">
       {/* Sidebar content here */}
 
       {conversations?.map((conversation) => (
         <li key={conversation.id}>
           <Link
             className={twMerge(
-              'btn btn-sm',
+              'link ',
               conversation.id === selectedConversationId
-                ? 'btn-secondary'
-                : 'btn-ghost',
+                ? 'link-primary'
+                : 'link-neutral',
             )}
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
             to={`/conversations/${conversation.id}`}
           >
-            {' '}
-            {conversation.assistants
-              ?.map((assistant) => assistant.name)
-              .join(',')}{' '}
-            -{conversation.createdAt}
+            <time>{new Date(conversation.createdAt).toLocaleString()}</time>
+            <span>
+              {conversation.assistants
+                ?.map((assistant) => assistant.name)
+                .join(',') || 'Unknown'}
+            </span>
           </Link>
         </li>
       ))}

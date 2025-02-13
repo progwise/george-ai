@@ -132,6 +132,7 @@ builder.queryField('aiConversations', (t) =>
       return prisma.aiConversation.findMany({
         ...query,
         where: { participants: { some: { userId } } },
+        orderBy: { createdAt: 'desc' },
       })
     },
   }),
@@ -154,6 +155,7 @@ builder.queryField('aiConversationMessages', (t) =>
       return prisma.aiConversationMessage.findMany({
         ...query,
         where: { conversationId },
+        orderBy: { createdAt: 'desc' },
       })
     },
   }),

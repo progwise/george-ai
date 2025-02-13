@@ -50,16 +50,16 @@ export const ConversationForm = ({
   return (
     <div className="chat chat-end gap-2">
       <div className="chat-image avatar">{user?.name || 'Unknown'}</div>
-      <div className="chat-bubble">
-        <form onSubmit={handleSubmit}>
+      <div className="chat-bubble w-full">
+        <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
           <textarea
-            className="w-full bg-slate-950"
+            className="textarea textarea-bordered flex-grow w-full"
             placeholder="Type a message"
             rows={2}
             name="message"
           ></textarea>
           <button type="submit" className="btn">
-            Send conversationId: {conversationId}
+            Send
           </button>
         </form>
       </div>
