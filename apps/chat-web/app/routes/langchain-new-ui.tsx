@@ -14,6 +14,8 @@ import {
   LoadingIndicator,
 } from '../components/formatted-markdown'
 
+import { useAuth } from '../auth/auth-context'
+
 export const Route = createFileRoute('/langchain-new-ui')({
   component: RouteComponent,
   loader: async ({ context }) => {
@@ -28,6 +30,8 @@ function RouteComponent() {
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
   )
+  const { user } = useAuth()
+  console.log(user?.name)
 
   if (isSuccess && data.sessionId !== sessionId) {
     setSessionId(data.sessionId)
@@ -45,7 +49,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 max-w-3xl mx-auto">
+    <div className="flex flex-col gap-6 p-4 max-w-2xl mx-auto">
       <header className="flex justify-end items-center gap-4 mb-2">
         <Dropdown
           className="w-52"
@@ -69,7 +73,7 @@ function RouteComponent() {
             },
           ]}
         />
-        <button type="button" className="btn btn-accent" onClick={handleReset}>
+        <button type="button" className="btn btn-accent " onClick={handleReset}>
           Reset conversation
         </button>
       </header>
@@ -81,8 +85,17 @@ function RouteComponent() {
             className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4"
           >
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-slate-500 text-neutral-content flex items-center justify-center">
-                {message.sender === 'bot' ? 'AI' : 'U'}
+              <div className="w-8 h-8 rounded-full bg-accent text-neutral-900 flex items-center justify-center">
+                {message.sender === 'bot'
+                  ? 'AI'
+                  : (user?.name
+                      ?.split(' ')
+                      .filter(
+                        (_, index, arr) =>
+                          index === 0 || index === arr.length - 1,
+                      )
+                      .map((part) => part.charAt(0).toUpperCase())
+                      .join('') ?? '')}
               </div>
 
               <div className="flex flex-col">
