@@ -7,7 +7,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../loading-spinner'
 
 interface EmbeddingsTableProps {
-  aiLibraryId: string
+  libraryId: string
 }
 
 const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
@@ -93,9 +93,9 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
   enabled: !!libraryId,
 })
 
-export const EmbeddingsTable = ({ aiLibraryId }: EmbeddingsTableProps) => {
+export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { data, isLoading, refetch } = useSuspenseQuery(
-    aiLibraryFilesQueryOptions(aiLibraryId),
+    aiLibraryFilesQueryOptions(libraryId),
   )
   if (isLoading) {
     return <LoadingSpinner />
@@ -108,7 +108,7 @@ export const EmbeddingsTable = ({ aiLibraryId }: EmbeddingsTableProps) => {
             type="button"
             className="btn btn-xs"
             onClick={async () => {
-              await clearEmbeddings({ data: aiLibraryId })
+              await clearEmbeddings({ data: libraryId })
               await refetch()
             }}
           >

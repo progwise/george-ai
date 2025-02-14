@@ -16,15 +16,18 @@ export const ConversationForm = ({
   const queryClient = useQueryClient()
 
   const { mutate } = useMutation({
-    mutationFn: async (content: string) => {
-      if (!content || content.trim().length < 3) {
+    mutationFn: async (data: {
+      content: string
+      recipientAssistantIds: string[]
+    }) => {
+      if (!data.content || data.content.trim().length < 3) {
         throw new Error('Message must be at least 3 characters')
       }
       const result = await sendMessage({
         data: {
           userId: user.id,
           conversationId: conversation.id!,
-          content,
+          ...data,
         },
       })
       return result
@@ -41,13 +44,15 @@ export const ConversationForm = ({
     const form = event.currentTarget
     const formData = new FormData(form)
     const content = formData.get('message') as string
-    for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1])
-    }
+    const recipientAssistantIds = Array.from(formData.getAll('assistants')).map(
+      (formData) => formData.toString(),
+    )
+
+    console.log('recipientAssistantIds', recipientAssistantIds)
 
     form.reset()
 
-    mutate(content)
+    mutate({ content, recipientAssistantIds })
   }
 
   return (

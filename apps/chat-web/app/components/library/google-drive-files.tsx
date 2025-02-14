@@ -12,7 +12,7 @@ import { LoadingSpinner } from '../loading-spinner'
 
 export interface GoogleDriveFilesProps {
   currentLocationHref: string
-  aiLibraryId: string
+  libraryId: string
 }
 
 interface GoogleDriveResponse {
@@ -42,13 +42,13 @@ const ProcessFileDocument = graphql(`
 const embedFiles = createServerFn({ method: 'GET' })
   .validator(
     (data: {
-      aiLibraryId: string
+      libraryId: string
       files: Array<LibraryFile>
       access_token: string
     }) =>
       z
         .object({
-          aiLibraryId: z.string().nonempty(),
+          libraryId: z.string().nonempty(),
           files: z.array(LibraryFileSchema),
           access_token: z.string().nonempty(),
         })
@@ -61,7 +61,7 @@ const embedFiles = createServerFn({ method: 'GET' })
           name: file.name,
           originUri: `https://drive.google.com/file/d/${file.id}/view`,
           mimeType: 'application/pdf',
-          aiLibraryId: ctx.data.aiLibraryId,
+          libraryId: ctx.data.libraryId,
         },
       })
 
@@ -102,7 +102,7 @@ const embedFiles = createServerFn({ method: 'GET' })
   })
 
 export const GoogleDriveFiles = ({
-  aiLibraryId,
+  libraryId,
   currentLocationHref,
 }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
@@ -138,7 +138,7 @@ export const GoogleDriveFiles = ({
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } =
     useMutation({
       mutationFn: (data: {
-        aiLibraryId: string
+        libraryId: string
         files: LibraryFile[]
         access_token: string
       }) => embedFiles({ data }),
@@ -150,13 +150,13 @@ export const GoogleDriveFiles = ({
 
   const handleEmbedFiles = async (files: LibraryFile[]) => {
     embedFilesMutation({
-      aiLibraryId,
+      libraryId,
       files,
       access_token: googleDriveAccessToken.access_token!,
     })
 
     queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
+      queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
   }
 

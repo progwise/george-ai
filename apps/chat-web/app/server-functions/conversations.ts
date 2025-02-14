@@ -118,7 +118,12 @@ const CreateMessageDocument = graphql(`
 
 export const sendMessage = createServerFn({ method: 'POST' })
   .validator(
-    (data: { content: string; conversationId: string; userId: string }) => data,
+    (data: {
+      content: string
+      conversationId: string
+      userId: string
+      recipientAssistantIds: string[]
+    }) => data,
   )
   .handler(async (ctx) =>
     backendRequest(CreateMessageDocument, {
@@ -126,6 +131,7 @@ export const sendMessage = createServerFn({ method: 'POST' })
       data: {
         conversationId: ctx.data.conversationId,
         content: ctx.data.content,
+        recipientAssistantIds: ctx.data.recipientAssistantIds,
       },
     }),
   )

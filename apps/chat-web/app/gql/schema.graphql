@@ -59,6 +59,7 @@ type AiConversationMessage {
 input AiConversationMessageInput {
   content: String!
   conversationId: String!
+  recipientAssistantIds: [String!]!
 }
 
 interface AiConversationParticipant {
@@ -85,10 +86,10 @@ type AiLibrary {
 }
 
 type AiLibraryFile {
-  aiLibraryId: String!
   chunks: Int
   createdAt: DateTime!
   id: ID!
+  libraryId: String!
   mimeType: String!
   name: String!
   originUri: String

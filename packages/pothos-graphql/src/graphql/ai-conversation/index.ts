@@ -1,5 +1,6 @@
 import { builder } from '../builder'
 import { prisma } from '../../prisma'
+import { askAssistantChain } from '@george-ai/langchain-chat'
 
 console.log('Setting up: AiConversation')
 
@@ -109,6 +110,7 @@ const messageInput = builder.inputType('AiConversationMessageInput', {
   fields: (t) => ({
     conversationId: t.string({ required: true }),
     content: t.string({ required: true }),
+    recipientAssistantIds: t.stringList({ required: true }),
   }),
 })
 
@@ -122,15 +124,118 @@ builder.mutationField('sendMessage', (t) =>
     resolve: async (_query, _source, { userId, data }) => {
       const participant =
         await prisma.aiConversationParticipant.findFirstOrThrow({
+          select: { id: true, user: true, assistant: true },
           where: { conversationId: data.conversationId, userId },
         })
+      const assistants = await prisma.aiAssistant.findMany({
+        select: { id: true, name: true, usages: true },
+        where: {
+          conversationParticipations: {
+            some: { conversationId: data.conversationId },
+          },
+        },
+      })
+      const assistantsToQuery = assistants.filter((assistant) =>
+        data.recipientAssistantIds.includes(assistant.id),
+      )
 
-      return prisma.aiConversationMessage.create({
+      const librariesToQuery = await prisma.aiLibrary.findMany({
+        where: {
+          usages: {
+            some: {
+              assistantId: {
+                in: assistantsToQuery.map((assistant) => assistant.id),
+              },
+            },
+          },
+        },
+      })
+
+      const users = await prisma.user.findMany({
+        select: { id: true, name: true },
+        where: {
+          conversationParticipations: {
+            some: { conversationId: data.conversationId },
+          },
+        },
+      })
+
+      const history = await prisma.aiConversationMessage.findMany({
+        select: { id: true, content: true, senderId: true, sender: true },
+        where: { conversationId: data.conversationId },
+      })
+
+      const historyMessages = history.map((message) => ({
+        id: message.id,
+        content: message.content,
+        isBot: message.sender.assistantId !== null,
+        author: message.sender.assistantId
+          ? assistants[
+              assistants.findIndex(
+                (assistant) => assistant.id === message.sender.assistantId,
+              )
+            ]
+          : users[users.findIndex((user) => user.id === message.sender.userId)],
+      }))
+
+      const newMessage = await prisma.aiConversationMessage.create({
         data: {
-          ...data,
+          content: data.content,
+          conversationId: data.conversationId,
           senderId: participant.id,
         },
       })
+
+      const assistantAnswersPromises = assistantsToQuery.map(
+        async (assistant) => {
+          const message = {
+            id: newMessage.id,
+            content: newMessage.content,
+            author: {
+              id: participant.id,
+              name: participant.user?.name || participant.assistant?.name,
+            },
+            isBot: participant.assistant !== null,
+          }
+          const history = historyMessages
+          const answerFromAssistant = await askAssistantChain({
+            message,
+            history,
+            assistant,
+            libraries: assistant.usages.map((usage) => ({
+              id: usage.libraryId,
+              name:
+                librariesToQuery.find(
+                  (library) => library.id === usage.libraryId,
+                )?.name || '',
+            })),
+          })
+          return { assistant, answer: answerFromAssistant }
+        },
+      )
+
+      const assistantAnswers = await Promise.all(assistantAnswersPromises)
+      const createAnswerEntries = assistantAnswers.map(
+        async ({ assistant, answer }) => {
+          const participant = await prisma.aiConversationParticipant.findFirst({
+            where: {
+              conversationId: data.conversationId,
+              assistantId: assistant.id,
+            },
+          })
+          return await prisma.aiConversationMessage.create({
+            data: {
+              content: answer.response,
+              senderId: participant!.id,
+              conversationId: data.conversationId,
+            },
+          })
+        },
+      )
+
+      await Promise.all(createAnswerEntries)
+
+      return newMessage
     },
   }),
 )

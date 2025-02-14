@@ -4,6 +4,8 @@ import * as vectorStore from './typesense-vectorstore'
 
 export * from './retrieval-flow'
 
+export * from './assistant-chain'
+
 export const ask = (parameters: {
   question: string
   sessionId: string
