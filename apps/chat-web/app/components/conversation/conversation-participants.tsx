@@ -81,7 +81,7 @@ export const ConversationParticipants = ({
     mutateAdd({ assistantIds, userIds })
   }
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex gap-2 items-center flex-wrap">
       <LoadingSpinner
         isLoading={removeParticipantIsPending || addParticipantIsPending}
       />
