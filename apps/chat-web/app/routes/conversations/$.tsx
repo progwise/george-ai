@@ -16,6 +16,7 @@ import { myConversationUsersQueryOptions } from '../../server-functions/users'
 import { AiConversation } from '../../gql/graphql'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
+import { CircleCrossIcon } from '../../icons/circle-cross-icon'
 
 export const Route = createFileRoute('/conversations/$')({
   component: RouteComponent,
@@ -94,7 +95,7 @@ function RouteComponent() {
           messagesLoading
         }
       />
-      <nav className="card">
+      <nav>
         <div className="flex justify-between items-center p-4">
           <h3>Recent</h3>
           <button
@@ -111,7 +112,7 @@ function RouteComponent() {
         />
       </nav>
       <article className="flex flex-col gap-4 w-full">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center border-b-2">
           <ConversationParticipants
             conversationId={selectedConversationId}
             participants={selectedConversation?.participants}
@@ -120,10 +121,10 @@ function RouteComponent() {
           />
           <button
             type="button"
-            className="btn btn-cicle btn-sm btn-primary"
+            className="btn btn-cicle btn-sm btn-ghost text-red-500"
             onClick={handleDeleteConversation}
           >
-            Delete conversation
+            <CircleCrossIcon /> Conversation
           </button>
         </div>
         <ConversationHistory messages={messagesData?.aiConversationMessages} />

@@ -9,6 +9,7 @@ import { LoadingSpinner } from '../loading-spinner'
 import { useRef } from 'react'
 import { myConversationsQueryOptions } from '../../server-functions/conversations'
 import { useAuth } from '../../auth/auth-context'
+import { PlusIcon } from '../../icons/plus-icon'
 
 interface ConversationParticipantsProps {
   conversationId: string
@@ -154,19 +155,7 @@ export const ConversationParticipants = ({
             className="btn btn-ghost btn-xs btn-circle"
             onClick={(event) => handleRemoveParticipant(event, { participant })}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="inline-block h-4 w-4 stroke-current"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
+            <PlusIcon />
           </button>
           {participant.name}
         </div>
