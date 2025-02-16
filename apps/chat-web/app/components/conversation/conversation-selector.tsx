@@ -18,13 +18,10 @@ export const ConversationSelector = ({
       {/* Sidebar content here */}
 
       {conversations?.map((conversation) => (
-        <li
-          key={conversation.id}
-          className="flex flex-row flex-nowrap justify-between"
-        >
+        <li key={conversation.id} className="grid center grid-cols-1">
           <Link
             className={twMerge(
-              'link ',
+              'button',
               conversation.id === selectedConversationId
                 ? 'link-primary'
                 : 'link-neutral',
@@ -33,7 +30,11 @@ export const ConversationSelector = ({
             // @ts-expect-error
             to={`/conversations/${conversation.id}`}
           >
-            <time>{new Date(conversation.createdAt).toLocaleString()}</time>
+            <time className="text-nowrap">
+              {new Date(conversation.createdAt)
+                .toLocaleString()
+                .replace(',', '')}
+            </time>
             <span>
               {conversation.assistants
                 ?.map((assistant) => assistant.name)
