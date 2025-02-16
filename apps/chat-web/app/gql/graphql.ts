@@ -119,10 +119,10 @@ export type AiLibrary = {
 
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
-  aiLibraryId: Scalars['String']['output']
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
+  libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
   originUri?: Maybe<Scalars['String']['output']>

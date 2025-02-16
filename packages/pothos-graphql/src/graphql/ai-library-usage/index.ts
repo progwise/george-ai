@@ -30,7 +30,7 @@ builder.queryField('aiLibraryUsage', (t) =>
     },
     resolve: (query, _source, { assistantId, libraryId }) => {
       if (!assistantId && !libraryId) {
-        throw new Error('aiAssistantId or aiLibraryId must be provided')
+        throw new Error('assistantId or libraryId must be provided')
       }
       return prisma.aiLibraryUsage.findMany({
         ...query,

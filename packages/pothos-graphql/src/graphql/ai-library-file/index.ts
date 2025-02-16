@@ -22,7 +22,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       type: 'DateTime',
       nullable: true,
     }),
-    aiLibraryId: t.exposeString('libraryId', {
+    libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
   }),
