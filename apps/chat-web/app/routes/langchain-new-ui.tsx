@@ -7,12 +7,9 @@ import {
 import { useState, useEffect } from 'react'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 
-import { LangchainChatForm } from '../components/langchain-chat-form'
 import { Dropdown } from '../components/dropdown'
-import {
-  FormattedMarkdown,
-  LoadingIndicator,
-} from '../components/formatted-markdown'
+import { FormattedMarkdown } from '../components/formatted-markdown'
+import { LangchainChatFormSpinner } from '../components/langchain-chat-form-spinner'
 
 import { useAuth } from '../auth/auth-context'
 
@@ -31,7 +28,6 @@ function RouteComponent() {
     chatMessagesQueryOptions(sessionId),
   )
   const { user } = useAuth()
-  console.log(user?.name)
 
   if (isSuccess && data.sessionId !== sessionId) {
     setSessionId(data.sessionId)
@@ -73,7 +69,7 @@ function RouteComponent() {
             },
           ]}
         />
-        <button type="button" className="btn btn-accent " onClick={handleReset}>
+        <button type="button" className="btn btn-accent" onClick={handleReset}>
           Reset conversation
         </button>
       </header>
@@ -86,9 +82,14 @@ function RouteComponent() {
           >
             <div className="flex items-center gap-3 mb-2">
               <div className="w-8 h-8 rounded-full bg-accent text-neutral-900 flex items-center justify-center">
-                {message.sender === 'bot'
-                  ? 'AI'
-                  : (user?.name?.charAt(0).toUpperCase() ?? 'U')}
+                {message.sender === 'bot' &&
+                message.text === 'LOADING_INDICATOR' ? (
+                  <span className="loading loading-dots loading-xs"></span>
+                ) : message.sender === 'bot' ? (
+                  'AI'
+                ) : (
+                  (user?.name?.charAt(0).toUpperCase() ?? 'U')
+                )}
               </div>
 
               <div className="flex flex-col">
@@ -111,11 +112,14 @@ function RouteComponent() {
 
             <div className="border-t border-base-200 pt-3">
               {message.text === 'LOADING_INDICATOR' ? (
-                <LoadingIndicator />
+                <span className="text-sm opacity-70">
+                  Waiting for George AI to respond...
+                </span>
               ) : (
                 <FormattedMarkdown markdown={message.text} />
               )}
             </div>
+
             <div className="mt-2 text-xs opacity-70">
               Source: {message.source}
             </div>
@@ -125,7 +129,7 @@ function RouteComponent() {
 
       {data?.sessionId && (
         <div className="mt-4">
-          <LangchainChatForm
+          <LangchainChatFormSpinner
             sessionId={data.sessionId}
             retrievalFlow={selectedFlow}
           />

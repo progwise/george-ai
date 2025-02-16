@@ -9,6 +9,10 @@ export const FormattedMarkdown = ({ markdown }: { markdown: string }) => {
   )
 }
 
-export const LoadingIndicator = () => (
-  <span className="loading loading-dots loading-xs"></span>
-)
+export const LoadingIndicator = () => {
+  return (
+    <div className="chat-bubble opacity-50 text-center">
+      <span className={`loading loading-dots loading-xs {className}`}></span>
+    </div>
+  )
+}
