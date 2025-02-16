@@ -43,7 +43,18 @@ export const DeleteConversationDialog = ({
   return (
     <dialog ref={ref} className="modal">
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Delete {conversation.id}</h3>
+        <h3 className="font-bold text-lg">
+          <span>Delete conversation</span> <br />
+          <time className="text-nowrap">
+            {new Date(conversation.createdAt).toLocaleString().replace(',', '')}
+          </time>
+          {' with '}
+          <span>
+            {conversation.assistants
+              ?.map((assistant) => assistant.name)
+              .join(',') || 'Unknown'}
+          </span>
+        </h3>
         <p className="py-4">
           You are about to delete this conversation. It cannot be restored.
           Please confirm.
@@ -51,18 +62,18 @@ export const DeleteConversationDialog = ({
         <form method="dialog" onSubmit={handleSubmit}>
           <div className="modal-action">
             <button
-              type="submit"
-              className="btn btn-error"
-              disabled={isPending}
-            >
-              Delete
-            </button>
-            <button
               type="button"
               className="btn"
               onClick={() => ref.current?.close()}
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-error"
+              disabled={isPending}
+            >
+              Delete
             </button>
           </div>
         </form>
