@@ -56,19 +56,7 @@ const embedFiles = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     const processFiles = ctx.data.files.map(async (file) => {
-      const preparedFile = await backendRequest(PrepareFileDocument, {
-        file: {
-          name: file.name,
-          originUri: `https://drive.google.com/file/d/${file.id}/view`,
-          mimeType: 'application/pdf',
-          libraryId: ctx.data.libraryId,
-        },
-      })
-
-      if (!preparedFile?.prepareFile?.id) {
-        throw new Error('Failed to prepare file')
-      }
-
+      let isPdfExport = true
       const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
         {
@@ -77,33 +65,48 @@ const embedFiles = createServerFn({ method: 'GET' })
           },
         },
       ).then(async (response) => {
-        if (!response.ok) {
-          console.log(
-            'Failed to download file from Google Drive, trying another method',
-            `${ctx.data.access_token}`,
-            file,
-          )
-          return await fetch(
-            `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`,
-            {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${ctx.data.access_token}`,
-              },
-            },
-          )
+        if (response.ok) {
+          return response
         }
-        return response
+
+        console.warn(
+          'Failed to download file from Google Drive, trying another method',
+          `${ctx.data.access_token}`,
+          file,
+        )
+        isPdfExport = false
+        return await fetch(
+          `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${ctx.data.access_token}`,
+            },
+          },
+        )
       })
 
       if (!googleDownloadResponse.ok) {
-        console.log('Failed to download file from Google Drive', file)
+        console.error('Failed to download file from Google Drive', file)
         const body = await googleDownloadResponse.text()
-        console.log('Response', body)
+        console.error('Response', body)
         throw new Error(`Failed to download file from Google Drive: ${file.id}`)
       }
 
       const blob = await googleDownloadResponse.blob()
+
+      const preparedFile = await backendRequest(PrepareFileDocument, {
+        file: {
+          name: file.name,
+          originUri: `https://drive.google.com/file/d/${file.id}/view`,
+          mimeType: isPdfExport ? 'application/pdf' : 'text/plain',
+          libraryId: ctx.data.libraryId,
+        },
+      })
+
+      if (!preparedFile?.prepareFile?.id) {
+        throw new Error('Failed to prepare file')
+      }
 
       const uploadResponse = await backendUpload(
         blob,
