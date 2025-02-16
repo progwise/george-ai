@@ -6,16 +6,24 @@ export const PlusIcon = ({ className }: IconProps) => {
     <div className={twMerge('icon size-4', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        fill="none"
+        width="24"
+        height="24"
         viewBox="0 0 24 24"
+        fill="none"
         className="inline-block h-4 w-4 stroke-current"
       >
         <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="2"
-          d="M6 18L18 6M6 6l12 12"
-        ></path>
+          d="M13 6V20"
+          stroke="currentcolor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        <path
+          d="M6 13H20"
+          stroke="currentcolor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
       </svg>
     </div>
   )

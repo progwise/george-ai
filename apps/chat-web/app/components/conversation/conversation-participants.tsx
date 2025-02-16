@@ -10,6 +10,7 @@ import { useRef } from 'react'
 import { myConversationsQueryOptions } from '../../server-functions/conversations'
 import { useAuth } from '../../auth/auth-context'
 import { PlusIcon } from '../../icons/plus-icon'
+import { CrossIcon } from '../../icons/cross-icon'
 
 interface ConversationParticipantsProps {
   conversationId: string
@@ -155,7 +156,7 @@ export const ConversationParticipants = ({
             className="btn btn-ghost btn-xs btn-circle"
             onClick={(event) => handleRemoveParticipant(event, { participant })}
           >
-            <PlusIcon />
+            <CrossIcon />
           </button>
           {participant.name}
         </div>
@@ -165,27 +166,7 @@ export const ConversationParticipants = ({
         className="btn btn-xs btn-neutral flex flex-row "
         onClick={() => dialogRef.current?.showModal()}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          className="inline-block h-4 w-4 stroke-current"
-        >
-          <path
-            d="M13 6V20"
-            stroke="currentcolor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-          <path
-            d="M6 13H20"
-            stroke="currentcolor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
+        <PlusIcon />
         Add...
       </button>
     </div>
