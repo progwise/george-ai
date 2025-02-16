@@ -30,7 +30,6 @@ export const ConversationForm = ({
       return result
     },
     onSettled: async () => {
-      console.log('Message sent')
       await queryClient.invalidateQueries(
         GetMessagesQueryOptions(conversation.id, user.id),
       )
@@ -41,9 +40,6 @@ export const ConversationForm = ({
     const form = event.currentTarget
     const formData = new FormData(form)
     const content = formData.get('message') as string
-    for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1])
-    }
 
     form.reset()
 

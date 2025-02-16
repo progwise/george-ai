@@ -62,13 +62,9 @@ export const ConversationParticipants = ({
 
   const handleRemoveParticipant = (
     event: React.MouseEvent<HTMLButtonElement>,
-    {
-      conversationId,
-      participant,
-    }: { conversationId: string; participant: AiConversationParticipant },
+    { participant }: { participant: AiConversationParticipant },
   ) => {
     event.preventDefault()
-    console.log({ conversationId, participant })
     mutateRemove({ participantId: participant.id })
   }
 
@@ -81,8 +77,6 @@ export const ConversationParticipants = ({
       .getAll('assistants')
       .map((id) => id.toString())
     const userIds = formData.getAll('users').map((id) => id.toString())
-
-    console.log({ assistantIds, userIds })
 
     mutateAdd({ assistantIds, userIds })
   }
@@ -150,7 +144,7 @@ export const ConversationParticipants = ({
         <div
           key={participant.id}
           className={twMerge(
-            'badge badge-lg',
+            'badge badge-lg text-nowrap text-xs',
             participant.assistantId && 'badge-secondary',
             participant.userId && 'badge-primary',
           )}
@@ -158,9 +152,7 @@ export const ConversationParticipants = ({
           <button
             type="button"
             className="btn btn-ghost btn-xs btn-circle"
-            onClick={(event) =>
-              handleRemoveParticipant(event, { conversationId, participant })
-            }
+            onClick={(event) => handleRemoveParticipant(event, { participant })}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -181,10 +173,31 @@ export const ConversationParticipants = ({
       ))}
       <button
         type="button"
-        className="btn btn-xs btn-success"
+        className="btn btn-xs btn-neutral flex flex-row "
         onClick={() => dialogRef.current?.showModal()}
       >
-        Add participants...
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="inline-block h-4 w-4 stroke-current"
+        >
+          <path
+            d="M13 6V20"
+            stroke="currentcolor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <path
+            d="M6 13H20"
+            stroke="currentcolor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+        Add...
       </button>
     </div>
   )
