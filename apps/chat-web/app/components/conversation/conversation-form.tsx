@@ -52,8 +52,8 @@ export const ConversationForm = ({
       <div className="chat-bubble w-full">
         <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
           <textarea
-            className="textarea textarea-bordered flex-grow w-full"
-            placeholder="Type a message"
+            className="textarea textarea-bordered flex-grow w-full text-black"
+            placeholder="Type your message"
             rows={2}
             name="message"
           ></textarea>
