@@ -33,7 +33,6 @@ export const ConversationForm = ({
       return result
     },
     onSettled: async () => {
-      console.log('Message sent')
       await queryClient.invalidateQueries(
         GetMessagesQueryOptions(conversation.id, user.id),
       )
@@ -48,8 +47,6 @@ export const ConversationForm = ({
       (formData) => formData.toString(),
     )
 
-    console.log('recipientAssistantIds', recipientAssistantIds)
-
     form.reset()
 
     mutate({ content, recipientAssistantIds })
@@ -61,8 +58,8 @@ export const ConversationForm = ({
       <div className="chat-bubble w-full">
         <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
           <textarea
-            className="textarea textarea-bordered flex-grow w-full"
-            placeholder="Type a message"
+            className="textarea textarea-bordered flex-grow w-full text-black"
+            placeholder="Type your message"
             rows={2}
             name="message"
           ></textarea>

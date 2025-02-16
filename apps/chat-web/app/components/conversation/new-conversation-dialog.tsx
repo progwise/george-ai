@@ -65,9 +65,16 @@ export const NewConversationDialog = ({
     <dialog className="modal" ref={ref}>
       <LoadingSpinner isLoading={isPending} />
       <div className="modal-box">
+        <h3 className="font-bold text-lg">Create a new conversation</h3>
+        <p className="py-0">
+          You are about to start a new conversation with the selected users and
+          assistants.
+        </p>
+        <p className="py-4">You can change these participants any time.</p>
         <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row gap-2 justify-items-stretch">
             <div>
+              <h4 className="underline">Assistants</h4>
               {assistants.map((assistant) => (
                 <label
                   key={assistant.id}
@@ -85,6 +92,7 @@ export const NewConversationDialog = ({
               ))}
             </div>
             <div>
+              <h4 className="underline">Users</h4>
               {users.map((user) => (
                 <label key={user.id} className="cursor-pointer label gap-2">
                   <input
@@ -101,18 +109,18 @@ export const NewConversationDialog = ({
           </div>
           <div className="modal-action">
             <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isPending || !assistants}
-            >
-              Create
-            </button>
-            <button
               type="button"
               className="btn"
               onClick={() => ref.current?.close()}
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isPending || !assistants}
+            >
+              Create
             </button>
           </div>
         </form>
