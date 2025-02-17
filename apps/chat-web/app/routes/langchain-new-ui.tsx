@@ -75,56 +75,68 @@ function RouteComponent() {
       </header>
 
       <section className="flex flex-col gap-4">
-        {data?.messages.map((message) => (
-          <div
-            key={message.id}
-            className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-full bg-accent text-neutral-900 flex items-center justify-center">
-                {message.sender === 'bot' &&
-                message.text === 'LOADING_INDICATOR' ? (
-                  <span className="loading loading-dots loading-xs"></span>
-                ) : message.sender === 'bot' ? (
-                  'AI'
+        {data?.messages.map((message) => {
+          const isAssistantLoading =
+            message.sender === 'bot' && message.text === 'LOADING_INDICATOR'
+
+          let avatarClass = 'w-8 h-8 flex items-center justify-center'
+          if (message.sender === 'user') {
+            avatarClass += ' bg-primary text-primary-content rounded-full'
+          } else if (isAssistantLoading) {
+            avatarClass += ' bg-accent text-neutral-900 rounded-md w-8 h-4'
+          } else {
+            avatarClass += ' bg-accent text-neutral-900 rounded-full'
+          }
+          return (
+            <div
+              key={message.id}
+              className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className={avatarClass}>
+                  {isAssistantLoading ? (
+                    <span className="loading loading-dots loading-xs"></span>
+                  ) : message.sender === 'bot' ? (
+                    'AI'
+                  ) : (
+                    (user?.name?.charAt(0).toUpperCase() ?? 'U')
+                  )}
+                </div>
+
+                <div className="flex flex-col">
+                  <span className="font-semibold text-sm">
+                    {message.sender === 'bot' ? 'George AI' : 'You'}
+                  </span>
+                  <span className="text-xs opacity-60">
+                    {message.time.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}{' '}
+                    ·{' '}
+                    {message.time.toLocaleDateString([], {
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-base-200 pt-3">
+                {isAssistantLoading ? (
+                  <span className="text-sm opacity-70">
+                    Waiting for George AI to respond...
+                  </span>
                 ) : (
-                  (user?.name?.charAt(0).toUpperCase() ?? 'U')
+                  <FormattedMarkdown markdown={message.text} />
                 )}
               </div>
 
-              <div className="flex flex-col">
-                <span className="font-semibold text-sm">
-                  {message.sender === 'bot' ? 'George AI' : 'You'}
-                </span>
-                <span className="text-xs opacity-60">
-                  {message.time.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}{' '}
-                  ·{' '}
-                  {message.time.toLocaleDateString([], {
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </span>
+              <div className="mt-2 text-xs opacity-70">
+                Source: {message.source}
               </div>
             </div>
-
-            <div className="border-t border-base-200 pt-3">
-              {message.text === 'LOADING_INDICATOR' ? (
-                <span className="text-sm opacity-70">
-                  Waiting for George AI to respond...
-                </span>
-              ) : (
-                <FormattedMarkdown markdown={message.text} />
-              )}
-            </div>
-
-            <div className="mt-2 text-xs opacity-70">
-              Source: {message.source}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </section>
 
       {data?.sessionId && (
