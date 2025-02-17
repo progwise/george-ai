@@ -6,7 +6,6 @@ import {
 } from '../../server-functions/conversations'
 import { useAuth } from '../../auth/auth-context'
 import { useNavigate } from '@tanstack/react-router'
-import { AiConversation } from '../../gql/graphql'
 
 interface DeleteConversationDialogProps {
   conversation: {
