@@ -1,5 +1,4 @@
 import { twMerge } from 'tailwind-merge'
-import { AiAssistant, AiConversationParticipant, User } from '../../gql/graphql'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   addConversationParticipants,
@@ -14,9 +13,16 @@ import { CrossIcon } from '../../icons/cross-icon'
 
 interface ConversationParticipantsProps {
   conversationId: string
-  participants?: AiConversationParticipant[] | null
-  assistants?: AiAssistant[] | null
-  users?: User[] | null
+  participants?:
+    | {
+        id: string
+        name?: string | null
+        userId?: string | null
+        assistantId?: string | null
+      }[]
+    | null
+  assistants?: { id: string; name: string }[] | null
+  users?: { id: string; name?: string | null; username: string }[] | null
 }
 
 export const ConversationParticipants = ({
@@ -64,10 +70,10 @@ export const ConversationParticipants = ({
 
   const handleRemoveParticipant = (
     event: React.MouseEvent<HTMLButtonElement>,
-    { participant }: { participant: AiConversationParticipant },
+    participantId: string,
   ) => {
     event.preventDefault()
-    mutateRemove({ participantId: participant.id })
+    mutateRemove({ participantId: participantId })
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -118,7 +124,9 @@ export const ConversationParticipants = ({
                       defaultChecked
                       className="checkbox checkbox-info"
                     />
-                    <span className="label-text">{user.name}</span>
+                    <span className="label-text">
+                      {user.name || user.username}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -154,7 +162,7 @@ export const ConversationParticipants = ({
           <button
             type="button"
             className="btn btn-ghost btn-xs btn-circle"
-            onClick={(event) => handleRemoveParticipant(event, { participant })}
+            onClick={(event) => handleRemoveParticipant(event, participant.id)}
           >
             <CrossIcon />
           </button>

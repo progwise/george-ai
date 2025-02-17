@@ -28,10 +28,10 @@ export type Scalars = {
   Int: { input: number; output: number }
   Float: { input: number; output: number }
   /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  Date: { input: any; output: any }
+  Date: { input: string; output: string }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  DateTime: { input: any; output: any }
-  Decimal: { input: any; output: any }
+  DateTime: { input: string; output: string }
+  Decimal: { input: number; output: number }
 }
 
 export type AiAssistant = {
@@ -63,8 +63,8 @@ export enum AiAssistantType {
 
 export type AiConversation = {
   __typename?: 'AiConversation'
-  assistants?: Maybe<Array<AiAssistant>>
-  createdAt?: Maybe<Scalars['DateTime']['output']>
+  assistants: Array<AiAssistant>
+  createdAt: Scalars['DateTime']['output']
   humans?: Maybe<Array<User>>
   id: Scalars['ID']['output']
   participants?: Maybe<Array<AiConversationParticipant>>
@@ -322,7 +322,7 @@ export type Query = {
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
   aiLibraryUsage?: Maybe<Array<AiLibraryUsage>>
-  myConversationUsers?: Maybe<Array<User>>
+  myConversationUsers: Array<User>
   user?: Maybe<User>
 }
 
@@ -598,7 +598,7 @@ export type LoginMutation = {
     name?: string | null
     given_name?: string | null
     family_name?: string | null
-    createdAt: any
+    createdAt: string
   } | null
 }
 
@@ -674,8 +674,8 @@ export type ReProcessFileMutation = {
     id: string
     chunks?: number | null
     size?: number | null
-    uploadedAt?: any | null
-    processedAt?: any | null
+    uploadedAt?: string | null
+    processedAt?: string | null
   } | null
 }
 
@@ -693,8 +693,8 @@ export type EmbeddingsTableQuery = {
     mimeType: string
     size?: number | null
     chunks?: number | null
-    uploadedAt?: any | null
-    processedAt?: any | null
+    uploadedAt?: string | null
+    processedAt?: string | null
   }> | null
 }
 
@@ -718,8 +718,8 @@ export type ProcessFileMutation = {
     id: string
     chunks?: number | null
     size?: number | null
-    uploadedAt?: any | null
-    processedAt?: any | null
+    uploadedAt?: string | null
+    processedAt?: string | null
   } | null
 }
 
@@ -736,7 +736,7 @@ export type AiAssistantEditQuery = {
     name: string
     description?: string | null
     icon?: string | null
-    createdAt: any
+    createdAt: string
     ownerId: string
     assistantType: AiAssistantType
     url?: string | null
@@ -788,7 +788,7 @@ export type AiLibraryEditQuery = {
     id: string
     name: string
     description?: string | null
-    createdAt: any
+    createdAt: string
     ownerId: string
     libraryType: AiLibraryType
     url?: string | null
@@ -825,8 +825,8 @@ export type AiLibrariesQuery = {
     id: string
     name: string
     libraryType: AiLibraryType
-    createdAt: any
-    updatedAt?: any | null
+    createdAt: string
+    updatedAt?: string | null
     owner?: { __typename?: 'User'; id: string; name?: string | null } | null
   }> | null
 }
@@ -858,7 +858,7 @@ export type AiAssistantCardsQuery = {
     description?: string | null
     icon?: string | null
     assistantType: AiAssistantType
-    createdAt: any
+    createdAt: string
     ownerId: string
   }> | null
 }
@@ -1006,13 +1006,9 @@ export type GetUserConversationsQuery = {
   aiConversations?: Array<{
     __typename?: 'AiConversation'
     id: string
-    createdAt?: any | null
-    updatedAt?: any | null
-    assistants?: Array<{
-      __typename?: 'AiAssistant'
-      id: string
-      name: string
-    }> | null
+    createdAt: string
+    updatedAt?: string | null
+    assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
     humans?: Array<{
       __typename?: 'User'
       id: string
@@ -1046,14 +1042,14 @@ export type GetConversationQuery = {
   aiConversation?: {
     __typename?: 'AiConversation'
     id: string
-    createdAt?: any | null
-    updatedAt?: any | null
-    assistants?: Array<{
+    createdAt: string
+    updatedAt?: string | null
+    assistants: Array<{
       __typename?: 'AiAssistant'
       id: string
       name: string
       assistantType: AiAssistantType
-    }> | null
+    }>
     humans?: Array<{
       __typename?: 'User'
       id: string
@@ -1074,8 +1070,8 @@ export type GetConversationMessagesQuery = {
     id: string
     conversationId: string
     senderId: string
-    createdAt?: any | null
-    updatedAt?: any | null
+    createdAt?: string | null
+    updatedAt?: string | null
     content?: string | null
     sender?:
       | {
@@ -1104,7 +1100,7 @@ export type SendMessageMutation = {
   sendMessage?: {
     __typename?: 'AiConversationMessage'
     id: string
-    createdAt?: any | null
+    createdAt?: string | null
   } | null
 }
 
@@ -1162,14 +1158,14 @@ export type MyConversationUsersQueryVariables = Exact<{
 
 export type MyConversationUsersQuery = {
   __typename?: 'Query'
-  myConversationUsers?: Array<{
+  myConversationUsers: Array<{
     __typename?: 'User'
     id: string
     username: string
     name?: string | null
-    createdAt: any
+    createdAt: string
     email: string
-  }> | null
+  }>
 }
 
 export const TypeRefFragmentDoc = {

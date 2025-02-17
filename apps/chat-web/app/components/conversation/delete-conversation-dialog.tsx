@@ -1,5 +1,4 @@
 import { RefObject } from 'react'
-import { AiConversation } from '../../gql/graphql'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteConversation,
@@ -7,9 +6,14 @@ import {
 } from '../../server-functions/conversations'
 import { useAuth } from '../../auth/auth-context'
 import { useNavigate } from '@tanstack/react-router'
+import { AiConversation } from '../../gql/graphql'
 
 interface DeleteConversationDialogProps {
-  conversation: AiConversation
+  conversation: {
+    id: string
+    createdAt: string
+    assistants: { name: string }[]
+  }
   ref: RefObject<HTMLDialogElement | null>
 }
 

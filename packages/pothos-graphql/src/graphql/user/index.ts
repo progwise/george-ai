@@ -95,6 +95,7 @@ builder.mutationField('createUser', (t) =>
 builder.queryField('myConversationUsers', (t) =>
   t.prismaField({
     type: ['User'],
+    nullable: { list: false, items: false },
     args: {
       userId: t.arg.string({ required: true }),
     },

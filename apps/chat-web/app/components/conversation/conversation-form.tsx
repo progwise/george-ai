@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AiConversation, User } from '../../gql/graphql'
 import {
   GetMessagesQueryOptions,
   sendMessage,
 } from '../../server-functions/conversations'
 
 interface ConversationFormProps {
-  user: User
-  conversation: Partial<AiConversation>
+  user: { id: string; name: string }
+  conversation: { id: string; assistants: { id: string; name: string }[] }
 }
 export const ConversationForm = ({
   conversation,

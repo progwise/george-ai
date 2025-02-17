@@ -13,7 +13,6 @@ import { useRef } from 'react'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { myConversationUsersQueryOptions } from '../../server-functions/users'
-import { AiConversation } from '../../gql/graphql'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
 import { CircleCrossIcon } from '../../icons/circle-cross-icon'
@@ -69,7 +68,7 @@ function RouteComponent() {
   const loadedUsers = users?.myConversationUsers
   const selectedConversation = conversations?.aiConversations?.find(
     (conversation) => conversation.id === selectedConversationId,
-  ) as AiConversation
+  )
 
   return (
     <div className="flex gap-4">
@@ -82,10 +81,12 @@ function RouteComponent() {
         />
       )}
 
-      <DeleteConversationDialog
-        ref={deleteDialogRef}
-        conversation={selectedConversation}
-      />
+      {selectedConversation && (
+        <DeleteConversationDialog
+          ref={deleteDialogRef}
+          conversation={selectedConversation}
+        />
+      )}
 
       <LoadingSpinner
         isLoading={
@@ -95,45 +96,62 @@ function RouteComponent() {
           messagesLoading
         }
       />
-      <nav>
-        <div className="flex justify-between items-center p-4">
-          <h3>Recent</h3>
-          <button
-            type="button"
-            className="btn btn-sm"
-            onClick={handleNewConversation}
-          >
-            New
-          </button>
-        </div>
-        <ConversationSelector
-          conversations={conversations?.aiConversations || []}
-          selectedConversationId={selectedConversationId}
-        />
-      </nav>
+      {userId && (
+        <nav>
+          <div className="flex justify-between items-center p-4">
+            <>
+              {' '}
+              <h3>Recent</h3>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={handleNewConversation}
+              >
+                New
+              </button>
+            </>
+          </div>
+          <ConversationSelector
+            conversations={conversations?.aiConversations || []}
+            selectedConversationId={selectedConversationId}
+          />
+        </nav>
+      )}
+      {!userId && <h3>Login to see and create conversations!</h3>}
       <article className="flex flex-col gap-4 w-full">
-        <div className="flex justify-between items-center border-b-2">
-          <ConversationParticipants
-            conversationId={selectedConversationId}
-            participants={selectedConversation?.participants}
-            assistants={loadedAssistants}
-            users={loadedUsers}
-          />
-          <button
-            type="button"
-            className="btn btn-cicle btn-sm btn-ghost text-red-500"
-            onClick={handleDeleteConversation}
-          >
-            <CircleCrossIcon /> Conversation
-          </button>
-        </div>
-        <ConversationHistory messages={messagesData?.aiConversationMessages} />
-        {selectedConversation && (
-          <ConversationForm
-            user={auth.user!}
-            conversation={selectedConversation}
-          />
-        )}
+        {selectedConversation &&
+          selectedConversation?.participants &&
+          loadedUsers &&
+          loadedAssistants && (
+            <>
+              <div className="flex justify-between items-center border-b-2">
+                <ConversationParticipants
+                  conversationId={selectedConversationId}
+                  participants={selectedConversation.participants}
+                  assistants={loadedAssistants}
+                  users={loadedUsers}
+                />
+                <button
+                  type="button"
+                  className="btn btn-cicle btn-sm btn-ghost text-red-500"
+                  onClick={handleDeleteConversation}
+                >
+                  <CircleCrossIcon /> Conversation
+                </button>
+              </div>
+              <ConversationHistory
+                messages={messagesData?.aiConversationMessages}
+              />
+
+              <ConversationForm
+                user={{
+                  id: auth.user!.id,
+                  name: auth.user!.name || auth.user!.username,
+                }}
+                conversation={selectedConversation}
+              />
+            </>
+          )}
       </article>
     </div>
   )
