@@ -7,13 +7,17 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Dropdown } from '../components/dropdown'
 import { LangchainChatForm } from '../components/langchain-chat-form'
 import { useState, useEffect } from 'react'
-import { RetrievalFlow } from '@george-ai/langchain-chat'
+import {
+  RetrievalFlow,
+  processUnprocessedDocuments,
+} from '@george-ai/langchain-chat'
 import { FormattedMarkdown } from '../components/formatted-markdown'
 import { t } from 'i18next'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
+  const [modelChoice, setModelChoice] = useState<'openai' | 'gemini'>('openai')
 
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
@@ -26,10 +30,20 @@ const ChatRoute = () => {
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight)
   }, [data])
+  const handleReset = async () => {
+    if (!data?.sessionId) return
+    const { sessionId: newId } = await reset({ data: data.sessionId })
+    setSessionId(newId)
+    refetch()
+  }
+  const handleProcessDocuments = async () => {
+    await processUnprocessedDocuments(modelChoice)
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end gap-4">
+        {/* Existing flow dropdown */}
         <Dropdown
           className="w-52"
           title={t(`flow${selectedFlow}`)}
@@ -53,19 +67,33 @@ const ChatRoute = () => {
           ]}
         />
 
+        {/* New dropdown for model choice */}
+        <Dropdown
+          className="w-52"
+          title={`Model: ${modelChoice}`}
+          options={[
+            {
+              title: 'OpenAI Embeddings',
+              action: () => setModelChoice('openai'),
+            },
+            {
+              title: 'Gemini Embeddings',
+              action: () => setModelChoice('gemini'),
+            },
+          ]}
+        />
+
+        <button type="button" className="btn btn-accent" onClick={handleReset}>
+          {t('resetConversation')}
+        </button>
+
+        {/* Button to process unprocessed docs with chosen embedding model */}
         <button
           type="button"
-          className="btn btn-accent"
-          onClick={async () => {
-            if (!data?.sessionId) return
-            const { sessionId: newId } = await reset({
-              data: data.sessionId,
-            })
-            setSessionId(newId)
-            refetch()
-          }}
+          className="btn btn-secondary"
+          onClick={handleProcessDocuments}
         >
-          {t('resetConversation')}
+          Process Docs
         </button>
       </div>
 

@@ -1,3 +1,5 @@
+// packages/langchain-chat/src/index.ts
+
 import * as mainChain from './main-chain'
 import { RetrievalFlow } from './retrieval-flow'
 import * as vectorStore from './typesense-vectorstore'
@@ -23,4 +25,11 @@ export const processUnprocessedDocuments = async () => {
   await vectorStore.loadUprocessedDocumentsIntoVectorStore()
 }
 
-export * from './typesense-vectorstore'
+// re-export from 'typesense-vectorstore.ts'
+export {
+  dropVectorStore,
+  dropFile,
+  embedFile,
+  loadUprocessedDocumentsIntoVectorStore,
+  getPDFContentForQuestion,
+} from './typesense-vectorstore'

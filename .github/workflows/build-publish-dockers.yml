@@ -56,6 +56,7 @@ jobs:
           secrets: |
             TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY }}
             OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             POCKETBASE_TOKEN=${{ secrets.POCKETBASE_TOKEN }}
             TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}
           tags: ${{ steps.meta-chat-web.outputs.tags }}
