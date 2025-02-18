@@ -10,6 +10,7 @@ export const ask = (parameters: {
   question: string
   sessionId: string
   retrievalFlow: RetrievalFlow
+  modelType: 'OpenAI' | 'Google'
 }) =>
   mainChain.historyChain.invoke(
     { question: parameters.question },
@@ -17,6 +18,7 @@ export const ask = (parameters: {
       configurable: {
         sessionId: parameters.sessionId,
         retrievalFlow: parameters.retrievalFlow,
+        modelType: parameters.modelType,
       },
     },
   )

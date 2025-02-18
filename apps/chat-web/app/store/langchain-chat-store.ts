@@ -9,6 +9,7 @@ export interface LangchainChatMessage {
   source: string
   time: Date
   retrievalFlow: RetrievalFlow
+  model: 'OpenAI' | 'Google'
 }
 
 const getDefaultChat = (
@@ -22,6 +23,7 @@ const getDefaultChat = (
     source: 'George AI',
     time: new Date(),
     retrievalFlow,
+    model: 'OpenAI',
   },
 ]
 
@@ -35,6 +37,7 @@ const sendChatMessage = async (
   message: string,
   sessionId: string,
   retrievalFlow: RetrievalFlow,
+  model: 'OpenAI' | 'Google',
 ): Promise<LangchainChatMessage[]> => {
   const oldChat = getChat(sessionId)
 
@@ -42,6 +45,7 @@ const sendChatMessage = async (
     question: message,
     sessionId,
     retrievalFlow,
+    modelType: model === 'Google' ? 'Google' : 'OpenAI',
   })
 
   const newMessages = [
@@ -53,6 +57,7 @@ const sendChatMessage = async (
       source: 'User',
       time: new Date(Date.now()),
       retrievalFlow,
+      model,
     },
     {
       id: Math.random().toString(),
@@ -62,6 +67,7 @@ const sendChatMessage = async (
       source: langchainResult.source,
       time: new Date(Date.now()),
       retrievalFlow,
+      model,
     },
   ] satisfies LangchainChatMessage[]
 

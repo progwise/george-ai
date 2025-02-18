@@ -1,4 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai'
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import {
   RunnableSequence,
   RunnableLambda,
@@ -14,8 +15,8 @@ import {
   searchQueryPrompt,
 } from './prompts'
 import { getMessageHistory } from './message-history'
-// import { getPDFContentForQuestion } from './memory-vectorstore'
-import { getPDFContentForQuestion } from './typesense-vectorstore'
+import { getPDFContentForQuestion } from './memory-vectorstore'
+// import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 
 import * as z from 'zod'
@@ -38,11 +39,27 @@ const outputSchema = z.object({
     ),
 })
 
-const model = new ChatOpenAI({
+const modelOpenAI = new ChatOpenAI({
   modelName: 'gpt-4',
   temperature: 0.7,
   maxTokens: 500,
 })
+
+const modelGoogle = new ChatGoogleGenerativeAI({
+  model: 'gemini-pro',
+  maxOutputTokens: 2048,
+})
+
+interface ModelOptions {
+  configurable?: {
+    modelType?: 'OpenAI' | 'Google'
+  }
+}
+
+const getModel = (options: ModelOptions) => {
+  const modelType = options?.configurable?.modelType ?? 'OpenAI'
+  return modelType === 'Google' ? modelGoogle : modelOpenAI
+}
 
 const historyToQueryChain = RunnableSequence.from([
   (input) => ({
@@ -50,13 +67,16 @@ const historyToQueryChain = RunnableSequence.from([
     question: input.question,
   }),
   searchQueryPrompt,
-  model,
+  (input, options) => getModel(options).invoke(input),
   (modelResponse) => modelResponse.text,
 ])
 
 const pdfChain = RunnableSequence.from([
   localPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
+  (input, options) =>
+    getModel(options)
+      .withStructuredOutput(outputSchema, { strict: true })
+      .invoke(input),
 ])
 
 const webChain = RunnableSequence.from([
@@ -75,22 +95,34 @@ const webChain = RunnableSequence.from([
     return { ...input, context }
   },
   webPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
+  (input, options) =>
+    getModel(options)
+      .withStructuredOutput(outputSchema, { strict: true })
+      .invoke(input),
 ])
 
 const apologyChainOnlyLocal = RunnableSequence.from([
   apologyPromptOnlyLocal,
-  model.withStructuredOutput(outputSchema, { strict: true }),
+  (input, options) =>
+    getModel(options)
+      .withStructuredOutput(outputSchema, { strict: true })
+      .invoke(input),
 ])
 
 const apologyChainOnlyWeb = RunnableSequence.from([
   apologyPromptOnlyWeb,
-  model.withStructuredOutput(outputSchema, { strict: true }),
+  (input, options) =>
+    getModel(options)
+      .withStructuredOutput(outputSchema, { strict: true })
+      .invoke(input),
 ])
 
 const apologyChainLocalAndWeb = RunnableSequence.from([
   apologyPromptLocalAndWeb,
-  model.withStructuredOutput(outputSchema, { strict: true }),
+  (input, options) =>
+    getModel(options)
+      .withStructuredOutput(outputSchema, { strict: true })
+      .invoke(input),
 ])
 
 const branchChain = RunnableLambda.from(

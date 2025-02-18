@@ -1,12 +1,9 @@
-// packages/langchain-chat/src/typesense-vectorstore.ts
-
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import {
   Typesense,
   TypesenseConfig,
 } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
-import { generateGeminiEmbeddings } from './gemini-embeddings'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import {
@@ -15,9 +12,9 @@ import {
 } from '@george-ai/pocketbase-client'
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
+import { loadFile } from './langchain-file'
 
-// Adjust chunk size/overlap as needed
-const CHUNK_SIZE = 1000
+const CHUNK_SIZE = 1000 // Increased for better context
 const CHUNK_OVERLAP = 100
 
 const vectorTypesenseClient = new Client({
@@ -33,9 +30,10 @@ const vectorTypesenseClient = new Client({
   connectionTimeoutSeconds: 60,
 })
 
-// We'll store everything in "gai-documents"
-const typesenseSchema: CollectionCreateSchema = {
-  name: 'gai-documents',
+const getTypesenseSchemaName = (libraryId: string) => `gai-library-${libraryId}`
+
+const getTypesenseSchema = (aiLibraryId: string): CollectionCreateSchema => ({
+  name: getTypesenseSchemaName(aiLibraryId),
   fields: [
     { name: 'points', type: 'int32' },
     { name: 'vec', type: 'float[]', num_dim: 3072 },
@@ -43,26 +41,45 @@ const typesenseSchema: CollectionCreateSchema = {
     { name: 'docName', type: 'string' },
     { name: 'docType', type: 'string' },
     { name: 'docId', type: 'string' },
-    // Track which embedding model was used
-    { name: 'embeddingModel', type: 'string' },
   ],
   default_sorting_field: 'points',
-}
+})
 
-const typesenseVectorStoreConfig: TypesenseConfig = {
+/*
+curl --location 'http://localhost:8108/collections' \
+--header 'Content-Type: application/json' \
+--header 'X-TYPESENSE-API-KEY: xyz' \
+--data '{
+         "name": "gai-documents",
+         "fields": [
+            { "name": "points", "type": "int32"},
+           {"name": "vec", "type": "float[]", "num_dim": 3072 },
+           {"name": "text", "type": "string" },
+           {"name": "docName", "type": "string" },
+					 {"name": "docType", "type": "string" },
+           { name: 'docId', type: 'string' },
+         ],
+         "default_sorting_field": "points"
+       }'
+*/
+
+/*
+  curl --location --request DELETE 'http://localhost:8108/collections/gai-documents' \
+  --header 'X-TYPESENSE-API-KEY: xyz'
+*/
+
+const getTypesenseVectorStoreConfig = (
+  aiLibraryId: string,
+): TypesenseConfig => ({
   typesenseClient: vectorTypesenseClient,
-  schemaName: 'gai-documents',
+  schemaName: getTypesenseSchemaName(aiLibraryId),
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
-    metadataColumnNames: [
-      'points',
-      'docName',
-      'docType',
-      'docId',
-      'embeddingModel',
-    ],
+    metadataColumnNames: ['points', 'docName', 'docType', 'docId'],
   },
+
+  // Optional search parameters to be passed to Typesense when searching
   searchParams: {
     q: '*',
     filter_by: '',
@@ -74,7 +91,7 @@ const typesenseVectorStoreConfig: TypesenseConfig = {
       .documents()
       .import(data, { action: 'emplace', dirty_values: 'drop' })
   },
-}
+})
 
 const embeddings = new OpenAIEmbeddings({
   modelName: 'text-embedding-3-large',
@@ -83,38 +100,120 @@ const embeddings = new OpenAIEmbeddings({
 
 const typesenseVectorStore = new Typesense(
   embeddings,
-  typesenseVectorStoreConfig,
+  getTypesenseVectorStoreConfig('gai-documents'),
 )
 
-// Ensure the "gai-documents" collection is created
-const ensureVectorStore = async () => {
-  const exists = await vectorTypesenseClient
-    .collections('gai-documents')
-    .exists()
+export const ensureVectorStore = async (aiLibraryId: string) => {
+  const schemaName = getTypesenseSchemaName(aiLibraryId)
+  const exists = await vectorTypesenseClient.collections(schemaName).exists()
   if (!exists) {
-    await vectorTypesenseClient.collections().create(typesenseSchema)
-    console.log('Created Typesense collection gai-documents')
+    await vectorTypesenseClient
+      .collections()
+      .create(getTypesenseSchema(aiLibraryId))
   }
 }
 
-// Utility to fetch embeddings from either openai or gemini
-async function getEmbeddingValues(
-  text: string,
-  embeddingModel: 'openai' | 'gemini',
-): Promise<number[]> {
-  if (embeddingModel === 'gemini') {
-    return generateGeminiEmbeddings(text)
-  } else {
-    const openAIEmbed = new OpenAIEmbeddings({
-      modelName: 'text-embedding-3-large',
-      dimensions: 3072,
-    })
-    return openAIEmbed.embedQuery(text)
+export const dropVectorStore = async (libraryId: string) => {
+  const schemaName = getTypesenseSchemaName(libraryId)
+  const exists = await vectorTypesenseClient.collections(schemaName).exists()
+  if (exists) {
+    await vectorTypesenseClient.collections(schemaName).delete()
   }
 }
 
-// remove docs for given docIds
-async function removeFileByDocumentIds(documentIds: string[]) {
+export const dropFile = async (aiLibraryId: string, fileId: string) => {
+  await ensureVectorStore(aiLibraryId)
+  await removeFileById(aiLibraryId, fileId)
+}
+
+export const embedFile = async (
+  aiLibraryId: string,
+  file: {
+    id: string
+    name: string
+    originUri: string
+    mimeType: string
+    path: string
+  },
+) => {
+  await ensureVectorStore(aiLibraryId)
+
+  const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(aiLibraryId)
+
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: CHUNK_SIZE,
+    chunkOverlap: CHUNK_OVERLAP,
+  })
+
+  await removeFileByName(aiLibraryId, file.name)
+  const fileParts = await loadFile(file)
+
+  const splitDocument = await splitter.splitDocuments(fileParts)
+
+  await Typesense.fromDocuments(
+    splitDocument,
+    embeddings,
+    typesenseVectorStoreConfig,
+  )
+
+  return {
+    id: file.id,
+    name: file.name,
+    originUri: file.originUri,
+    mimeType: file.mimeType,
+    chunks: fileParts.length,
+    size: fileParts.reduce((acc, part) => acc + part.pageContent.length, 0),
+  }
+}
+
+/**
+ * @deprecated The method should not be used
+ */
+const loadDocument = async (document: {
+  fileName: string
+  url: string
+  blob: Blob
+  documentId: string
+}) => {
+  console.log('loading document:', document.fileName)
+  const loader = new PDFLoader(document.blob)
+  const rawDocuments = await loader.load()
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: CHUNK_SIZE,
+    chunkOverlap: CHUNK_OVERLAP,
+  })
+  const splitDocuments = await splitter.splitDocuments(
+    rawDocuments.map((d) => ({
+      ...d,
+      metadata: {
+        docType: 'pdf',
+        docName: document.fileName,
+        points: 1,
+        docId: document.documentId,
+      },
+    })),
+  )
+  return splitDocuments
+}
+
+export const removeFileById = async (aiLibraryId: string, fileId: string) => {
+  return await vectorTypesenseClient
+    .collections(getTypesenseSchemaName(aiLibraryId))
+    .documents()
+    .delete({ filter_by: `docId:=${fileId}` })
+}
+
+export const removeFileByName = async (
+  aiLibraryId: string,
+  fileName: string,
+) => {
+  return await vectorTypesenseClient
+    .collections(getTypesenseSchemaName(aiLibraryId))
+    .documents()
+    .delete({ filter_by: `docName:=${fileName}` })
+}
+
+const removeFilesByDocumentIds = async (documentIds: string[]) => {
   const promises = documentIds.map((documentId) => {
     console.log('removing file:', documentId)
     return vectorTypesenseClient
@@ -125,35 +224,7 @@ async function removeFileByDocumentIds(documentIds: string[]) {
   await Promise.all(promises)
 }
 
-// "deprecated" loader for PDF with Blob
-async function loadDocumentDeprecated(document: {
-  fileName: string
-  url: string
-  blob: Blob
-  documentId: string
-}) {
-  console.log('deprecated loading doc as PDF:', document.fileName)
-  const loader = new PDFLoader(document.blob)
-  const rawDocs = await loader.load()
-
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: CHUNK_SIZE,
-    chunkOverlap: CHUNK_OVERLAP,
-  })
-  const splitted = await splitter.splitDocuments(
-    rawDocs.map((d) => ({
-      ...d,
-      metadata: {
-        docType: 'pdf',
-        docName: document.fileName,
-        docId: document.documentId,
-      },
-    })),
-  )
-  return splitted
-}
-
-async function loadDocuments(
+const loadDocuments = async (
   documents: {
     collectionId: string
     documentId: string
@@ -161,140 +232,84 @@ async function loadDocuments(
     url: string
     blob: Blob
   }[],
-  embeddingModel: 'openai' | 'gemini',
-) {
-  const splittedDocuments = []
-  for (const doc of documents) {
-    const loadedDoc = await loadDocumentDeprecated(doc)
-    splittedDocuments.push(...loadedDoc)
-  }
-
-  // remove old docs from these docIds
-  const docIds = [
-    ...new Set(splittedDocuments.map((item) => item.metadata.docId)),
-  ]
-  console.log('removing files:', docIds)
-  await removeFileByDocumentIds(docIds)
-
-  console.log('embedding documents with', embeddingModel)
-
-  // embed each chunk
-  const embeddedDocs = []
-  for (const chunk of splittedDocuments) {
-    const vector = await getEmbeddingValues(chunk.pageContent, embeddingModel)
-    embeddedDocs.push({
-      pageContent: chunk.pageContent,
-      metadata: {
-        docName: chunk.metadata.docName,
-        docType: chunk.metadata.docType,
-        docId: chunk.metadata.docId,
-        points: 1,
-        embeddingModel,
-      },
-      vec: vector,
-    })
-  }
-
-  try {
-    await Typesense.fromDocuments(
-      embeddedDocs,
-      embeddings,
-      typesenseVectorStoreConfig,
+) => {
+  const splitDocuments = await Promise.all(
+    documents.map(async (document) => {
+      const loadedDocument = await loadDocument({
+        fileName: document.fileName,
+        url: document.url,
+        blob: document.blob,
+        documentId: document.documentId,
+      })
+      return loadedDocument
+    }),
+  )
+  splitDocuments.map(async (splitDocument) => {
+    const documentIds = [
+      ...new Set(splitDocument.map((document) => document.metadata.docId)),
+    ]
+    console.log('removing files:', documentIds)
+    await removeFilesByDocumentIds(documentIds)
+    console.log(
+      'loading documents:',
+      JSON.stringify(splitDocument, undefined, 2),
     )
-    console.log('setting documents as processed:', docIds)
-    await Promise.all(
-      docIds.map((documentId) => setDocumentProcessed({ documentId })),
-    )
-  } catch (error) {
-    if (error instanceof ImportError) {
-      console.error(
-        'Error loading documents:',
-        JSON.stringify(error.importResults, null, 2),
+    try {
+      await Typesense.fromDocuments(
+        splitDocument,
+        embeddings,
+        getTypesenseVectorStoreConfig('common'),
       )
-    } else {
-      console.error('Error loading documents:', error)
+
+      const documentIds = [
+        ...new Set(splitDocument.map((document) => document.metadata.docId)),
+      ]
+
+      console.log('setting documents as processed:', documentIds)
+
+      await Promise.all(
+        documentIds.map((documentId) => setDocumentProcessed({ documentId })),
+      )
+    } catch (error) {
+      if (error instanceof ImportError) {
+        console.error(
+          'Error loading documents:',
+          JSON.stringify(error.importResults, undefined, 2),
+        )
+      } else {
+        console.error('Error loading documents:', error)
+      }
     }
-  }
+  })
 }
 
-// track how many times we've processed
 let processing = 0
 
-/**
- * loadUprocessedDocumentsIntoVectorStore => used by processUnprocessedDocuments()
- * in index.ts, can pick openai or gemini
- */
-export const loadUprocessedDocumentsIntoVectorStore = async (
-  embeddingModel: 'openai' | 'gemini' = 'openai',
-) => {
-  console.log('processing iteration:', processing++)
-  await ensureVectorStore()
-
+export const loadUprocessedDocumentsIntoVectorStore = async () => {
+  console.log('processing:', processing++)
+  await ensureVectorStore('common')
   const documents = await getUnprocessedDocuments()
   console.log(
     'unprocessed documents:',
     documents.map((d) => d.fileName),
   )
-
-  await loadDocuments(documents, embeddingModel)
+  await loadDocuments(documents)
 }
 
-// Let your chain do a similaritySearch with openai embeddings
+// retrieves content from the vector store similar to the question
 export const getPDFContentForQuestion = async (question: string) => {
-  await ensureVectorStore()
+  await ensureVectorStore('common')
   try {
     console.log('searching for:', question)
-    const docs = await typesenseVectorStore.similaritySearch(question)
-    console.log('retrieved documents:', docs)
-    return docs.map((d) => d.pageContent).join('\n\n')
+    const documents = await typesenseVectorStore.similaritySearch(question)
+    console.log('retrieved documents:', documents)
+    const content = documents
+      .map((document_) => document_.pageContent)
+      .join('\n\n')
+
+    return content
   } catch (error) {
     console.error('Error retrieving PDF content:', error)
     return ''
   }
-}
-
-/**
- * EXAMPLE: Drop the entire "gai-documents" collection
- */
-export const dropVectorStore = async () => {
-  const exists = await vectorTypesenseClient
-    .collections('gai-documents')
-    .exists()
-  if (exists) {
-    await vectorTypesenseClient.collections('gai-documents').delete()
-    console.log('Dropped vector store gai-documents')
-  }
-}
-
-/**
- * EXAMPLE: remove all docs for a single file
- */
-export const dropFile = async (fileId: string) => {
-  await ensureVectorStore()
-  await vectorTypesenseClient
-    .collections('gai-documents')
-    .documents()
-    .delete({ filter_by: `docId:=${fileId}` })
-
-  console.log(`Dropped docs for file ID: ${fileId}`)
-}
-
-/**
- * EXAMPLE: embed a single file
- * (maybe you don't use it. But if your code or pothos-graphql references it, define it.)
- */
-export const embedFile = async (file: {
-  id: string
-  name: string
-  originUri: string
-  mimeType: string
-  path: string
-}) => {
-  console.log('Stub embedFile: do something or remove if not used.')
-  // Possibly replicate a logic:
-  // 1) ensureVectorStore
-  // 2) chunk the file
-  // 3) embed with openai or gemini
-  // ...
-  console.log(`embedFile called for file: ${file.name}`)
 }

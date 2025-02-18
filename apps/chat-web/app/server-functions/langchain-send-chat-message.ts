@@ -10,6 +10,7 @@ export const sendChatMessage = createServerFn({ method: 'POST' })
         message: z.string().max(200),
         sessionId: z.string().max(10),
         retrievalFlow: z.enum(retrievalFlowValues),
+        modelChoice: z.enum(['OpenAI', 'Google']),
       })
       .parse(data),
   )
@@ -19,5 +20,6 @@ export const sendChatMessage = createServerFn({ method: 'POST' })
       data.message,
       data.sessionId,
       data.retrievalFlow,
+      data.modelChoice,
     )
   })
