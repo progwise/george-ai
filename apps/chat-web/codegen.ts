@@ -28,6 +28,10 @@ const config: CodegenConfig = {
       },
     },
   },
-  hooks: { afterAllFileWrite: ['prettier --write'] },
+  hooks: { afterOneFileWrite: ['prettier --write'] },
+  config: {
+    scalars: { Date: 'string', DateTime: 'string', Decimal: 'number' },
+    dedupeFragments: true,
+  },
 }
 export default config

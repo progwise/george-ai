@@ -12,18 +12,18 @@ export const CircleCrossIcon = ({ className }: IconProps) => {
         fill="none"
         className="inline-block h-4 w-4 stroke-current"
       >
-        <circle cx="13" cy="13" r="12" stroke="currentcolor" stroke-width="2" />
+        <circle cx="13" cy="13" r="12" stroke="currentcolor" strokeWidth="2" />
         <path
           d="M17.9497 8.05026L8.05024 17.9498"
           stroke="currentcolor"
-          stroke-width="4"
-          stroke-linecap="round"
+          strokeWidth="4"
+          strokeLinecap="round"
         />
         <path
           d="M8.05026 8.05026L17.9498 17.9498"
           stroke="currentcolor"
-          stroke-width="4"
-          stroke-linecap="round"
+          strokeWidth="4"
+          strokeLinecap="round"
         />
       </svg>
     </div>

@@ -15,14 +15,14 @@ export const PlusIcon = ({ className }: IconProps) => {
         <path
           d="M13 6V20"
           stroke="currentcolor"
-          stroke-width="2"
-          stroke-linecap="round"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
         <path
           d="M6 13H20"
           stroke="currentcolor"
-          stroke-width="2"
-          stroke-linecap="round"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
       </svg>
     </div>

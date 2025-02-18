@@ -1,25 +1,38 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AiConversation, User } from '../../gql/graphql'
-import {
-  GetMessagesQueryOptions,
-  sendMessage,
-} from '../../server-functions/conversations'
+import { sendMessage } from '../../server-functions/conversations'
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { useAuth } from '../../auth/auth-context'
+import { queryKeys } from '../../query-keys'
+
+const ConversationForm_ConversationFragment = graphql(`
+  fragment ConversationForm_conversation on AiConversation {
+    id
+    assistants {
+      id
+      name
+    }
+  }
+`)
 
 interface ConversationFormProps {
-  user: User
-  conversation: Partial<AiConversation>
+  conversation: FragmentType<typeof ConversationForm_ConversationFragment>
 }
-export const ConversationForm = ({
-  conversation,
-  user,
-}: ConversationFormProps) => {
+export const ConversationForm = (props: ConversationFormProps) => {
   const queryClient = useQueryClient()
+  const conversation = useFragment(
+    ConversationForm_ConversationFragment,
+    props.conversation,
+  )
+  const { user } = useAuth()
 
   const { mutate } = useMutation({
     mutationFn: async (data: {
       content: string
       recipientAssistantIds: string[]
     }) => {
+      if (!user) {
+        throw new Error('User not set')
+      }
       if (!data.content || data.content.trim().length < 3) {
         throw new Error('Message must be at least 3 characters')
       }
@@ -33,9 +46,12 @@ export const ConversationForm = ({
       return result
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(
-        GetMessagesQueryOptions(conversation.id, user.id),
-      )
+      if (!user) {
+        throw new Error('User not set')
+      }
+      await queryClient.invalidateQueries({
+        queryKey: [queryKeys.Conversation, conversation.id],
+      })
     },
   })
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -52,9 +68,13 @@ export const ConversationForm = ({
     mutate({ content, recipientAssistantIds })
   }
 
+  if (!user) {
+    return <h3>Login to send messages</h3>
+  }
+
   return (
     <div className="chat chat-end gap-2">
-      <div className="chat-image avatar">{user?.name || 'Unknown'}</div>
+      <div className="chat-image avatar">{user.name || user.username}</div>
       <div className="chat-bubble w-full">
         <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
           <textarea

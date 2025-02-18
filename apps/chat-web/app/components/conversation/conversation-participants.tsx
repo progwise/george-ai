@@ -1,5 +1,4 @@
 import { twMerge } from 'tailwind-merge'
-import { AiAssistant, AiConversationParticipant, User } from '../../gql/graphql'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   addConversationParticipants,
@@ -7,36 +6,83 @@ import {
 } from '../../server-functions/participations'
 import { LoadingSpinner } from '../loading-spinner'
 import { useRef } from 'react'
-import { myConversationsQueryOptions } from '../../server-functions/conversations'
-import { useAuth } from '../../auth/auth-context'
 import { PlusIcon } from '../../icons/plus-icon'
 import { CrossIcon } from '../../icons/cross-icon'
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { queryKeys } from '../../query-keys'
+
+const ConversationParticipants_ConversationFragment = graphql(`
+  fragment ConversationParticipants_conversation on AiConversation {
+    id
+    participants {
+      id
+      name
+      userId
+      assistantId
+    }
+  }
+`)
+
+const ConversationParticipants_HumanParticipationCandidatesFragment = graphql(`
+  fragment ConversationParticipants_HumanParticipationCandidates on User {
+    id
+    name
+    username
+  }
+`)
+
+const ConversationParticipants_AssistantParticipationCandidatesFragment =
+  graphql(`
+    fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {
+      id
+      name
+    }
+  `)
 
 interface ConversationParticipantsProps {
-  conversationId: string
-  participants?: AiConversationParticipant[] | null
-  assistants?: AiAssistant[] | null
-  users?: User[] | null
+  conversation: FragmentType<
+    typeof ConversationParticipants_ConversationFragment
+  >
+  assistantCandidates:
+    | FragmentType<
+        typeof ConversationParticipants_AssistantParticipationCandidatesFragment
+      >[]
+    | null
+  humanCandidates:
+    | FragmentType<
+        typeof ConversationParticipants_HumanParticipationCandidatesFragment
+      >[]
+    | null
 }
 
-export const ConversationParticipants = ({
-  conversationId,
-  participants,
-  assistants,
-  users,
-}: ConversationParticipantsProps) => {
+export const ConversationParticipants = (
+  props: ConversationParticipantsProps,
+) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const auth = useAuth()
   const queryClient = useQueryClient()
+  const conversation = useFragment(
+    ConversationParticipants_ConversationFragment,
+    props.conversation,
+  )
+
+  const humanCandidates = useFragment(
+    ConversationParticipants_HumanParticipationCandidatesFragment,
+    props.humanCandidates,
+  )
+  const assistantCandidates = useFragment(
+    ConversationParticipants_AssistantParticipationCandidatesFragment,
+    props.assistantCandidates,
+  )
+
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } =
     useMutation({
       mutationFn: async ({ participantId }: { participantId: string }) => {
         return await removeConversationParticipant({ data: { participantId } })
       },
       onSettled: async () => {
-        await queryClient.invalidateQueries(
-          myConversationsQueryOptions(auth.user?.id),
-        )
+        await queryClient.invalidateQueries({
+          queryKey: [queryKeys.Conversation, conversation.id],
+        })
       },
     })
 
@@ -50,13 +96,13 @@ export const ConversationParticipants = ({
         userIds: string[]
       }) => {
         return await addConversationParticipants({
-          data: { conversationId, assistantIds, userIds },
+          data: { conversationId: conversation.id, assistantIds, userIds },
         })
       },
       onSettled: async () => {
-        await queryClient.invalidateQueries(
-          myConversationsQueryOptions(auth.user?.id),
-        )
+        await queryClient.invalidateQueries({
+          queryKey: [queryKeys.Conversation, conversation.id],
+        })
         dialogRef.current?.close()
       },
     },
@@ -64,10 +110,10 @@ export const ConversationParticipants = ({
 
   const handleRemoveParticipant = (
     event: React.MouseEvent<HTMLButtonElement>,
-    { participant }: { participant: AiConversationParticipant },
+    participantId: string,
   ) => {
     event.preventDefault()
-    mutateRemove({ participantId: participant.id })
+    mutateRemove({ participantId })
   }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -82,6 +128,7 @@ export const ConversationParticipants = ({
 
     mutateAdd({ assistantIds, userIds })
   }
+
   return (
     <div className="flex gap-2 items-center flex-wrap">
       <LoadingSpinner
@@ -92,7 +139,7 @@ export const ConversationParticipants = ({
           <form method="dialog" onSubmit={handleSubmit}>
             <div className="flex flex-row gap-2">
               <div>
-                {assistants?.map((assistant) => (
+                {assistantCandidates?.map((assistant) => (
                   <label
                     key={assistant.id}
                     className="cursor-pointer label gap-2"
@@ -109,7 +156,7 @@ export const ConversationParticipants = ({
                 ))}
               </div>
               <div>
-                {users?.map((user) => (
+                {humanCandidates?.map((user) => (
                   <label key={user.id} className="cursor-pointer label gap-2">
                     <input
                       type="checkbox"
@@ -118,7 +165,9 @@ export const ConversationParticipants = ({
                       defaultChecked
                       className="checkbox checkbox-info"
                     />
-                    <span className="label-text">{user.name}</span>
+                    <span className="label-text">
+                      {user.name || user.username}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -127,7 +176,7 @@ export const ConversationParticipants = ({
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={addParticipantIsPending || !assistants}
+                disabled={addParticipantIsPending}
               >
                 Create
               </button>
@@ -142,7 +191,7 @@ export const ConversationParticipants = ({
           </form>
         </div>
       </dialog>
-      {participants?.map((participant) => (
+      {conversation.participants.map((participant) => (
         <div
           key={participant.id}
           className={twMerge(
@@ -154,7 +203,7 @@ export const ConversationParticipants = ({
           <button
             type="button"
             className="btn btn-ghost btn-xs btn-circle"
-            onClick={(event) => handleRemoveParticipant(event, { participant })}
+            onClick={(event) => handleRemoveParticipant(event, participant.id)}
           >
             <CrossIcon />
           </button>

@@ -20,11 +20,16 @@ builder.prismaObject('AiConversationMessage', {
 builder.prismaObject('AiConversation', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
-    createdAt: t.expose('createdAt', { type: 'DateTime' }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: true }),
-    participants: t.relation('participants'),
+    participants: t.relation('participants', { nullable: false }),
+    messages: t.relation('messages'),
     humans: t.prismaField({
       type: ['User'],
+      nullable: {
+        list: false,
+        items: false,
+      },
       resolve: (query, source) => {
         return prisma.user.findMany({
           ...query,
@@ -37,7 +42,11 @@ builder.prismaObject('AiConversation', {
       },
     }),
     assistants: t.prismaField({
-      type: ['AiAssistant'],
+      type: ['AiAssistant']!,
+      nullable: {
+        list: false,
+        items: false,
+      },
       resolve: (query, source) => {
         return prisma.aiAssistant.findMany({
           ...query,
@@ -70,6 +79,10 @@ builder.queryField('aiConversation', (t) =>
 builder.queryField('aiConversations', (t) =>
   t.prismaField({
     type: ['AiConversation'],
+    nullable: {
+      list: false,
+      items: false,
+    },
     args: {
       userId: t.arg.string(),
     },
