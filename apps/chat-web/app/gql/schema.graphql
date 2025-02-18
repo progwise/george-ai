@@ -34,9 +34,10 @@ enum AiAssistantType {
 type AiConversation {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
-  humans: [User!]
+  humans: [User!]!
   id: ID!
-  participants: [AiConversationParticipant!]
+  messages: [AiConversationMessage!]
+  participants: [AiConversationParticipant!]!
   updatedAt: DateTime
 }
 
@@ -216,13 +217,13 @@ type Mutation {
 
 type Query {
   aiAssistant(id: String!): AiAssistant
-  aiAssistants(ownerId: String!): [AiAssistant!]
+  aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(
     conversationId: String!
     userId: String!
   ): [AiConversationMessage!]
-  aiConversations(userId: String!): [AiConversation!]
+  aiConversations(userId: String!): [AiConversation!]!
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]

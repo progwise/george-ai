@@ -1,37 +1,46 @@
 import { RefObject } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  deleteConversation,
-  myConversationsQueryOptions,
-} from '../../server-functions/conversations'
+import { deleteConversation } from '../../server-functions/conversations'
 import { useAuth } from '../../auth/auth-context'
 import { useNavigate } from '@tanstack/react-router'
+import { FragmentType, graphql, useFragment } from '../../gql'
+
+const ConversationDelete_ConversationFragment = graphql(`
+  fragment ConversationDelete_conversation on AiConversation {
+    id
+    createdAt
+    assistants {
+      name
+    }
+  }
+`)
 
 interface DeleteConversationDialogProps {
-  conversation: {
-    id: string
-    createdAt: string
-    assistants: { name: string }[]
-  }
+  conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
   ref: RefObject<HTMLDialogElement | null>
 }
 
-export const DeleteConversationDialog = ({
-  conversation,
-  ref,
-}: DeleteConversationDialogProps) => {
+export const DeleteConversationDialog = (
+  props: DeleteConversationDialogProps,
+) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+
+  const { ref } = props
+  const conversation = useFragment(
+    ConversationDelete_ConversationFragment,
+    props.conversation,
+  )
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       deleteConversation({ data: { conversationId: conversation.id } })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(
-        myConversationsQueryOptions(auth.user?.id),
-      )
+      await queryClient.invalidateQueries({
+        queryKey: ['conversations', auth.user?.id],
+      })
       ref.current?.close()
       navigate({ to: '..' })
     },

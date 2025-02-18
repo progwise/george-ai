@@ -1,10 +1,28 @@
 import { Fragment } from 'react/jsx-runtime'
-import { AiConversationMessage } from '../../gql/graphql'
+import { FragmentType, graphql, useFragment } from '../../gql'
+
+const ConversationHistory_ConversationFragment = graphql(`
+  fragment ConversationHistory_conversation on AiConversation {
+    messages {
+      id
+      content
+      sender {
+        id
+        name
+      }
+    }
+  }
+`)
 
 interface ConversationHistoryProps {
-  messages?: Partial<AiConversationMessage>[] | null | undefined
+  conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
 }
-export const ConversationHistory = ({ messages }: ConversationHistoryProps) => {
+export const ConversationHistory = (props: ConversationHistoryProps) => {
+  const conversation = useFragment(
+    ConversationHistory_ConversationFragment,
+    props.conversation,
+  )
+  const messages = conversation.messages
   return (
     <div className="chat chat-start gap-2">
       {messages?.map((message) => (

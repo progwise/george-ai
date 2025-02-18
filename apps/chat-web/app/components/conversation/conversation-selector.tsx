@@ -1,18 +1,31 @@
 import { twMerge } from 'tailwind-merge'
-import { AiAssistant, AiConversation } from '../../gql/graphql'
 import { Link } from '@tanstack/react-router'
+import { FragmentType, graphql, useFragment } from '../../gql'
+
+const ConversationSelector_ConversationsFragment = graphql(`
+  fragment ConversationSelector_conversations on AiConversation {
+    id
+    createdAt
+    assistants {
+      id
+      name
+    }
+  }
+`)
 
 interface ConversationSelectorProps {
-  conversations: (Pick<AiConversation, 'id' | 'createdAt'> & {
-    assistants?: Pick<AiAssistant, 'id' | 'name'>[] | null
-  })[]
+  conversations:
+    | FragmentType<typeof ConversationSelector_ConversationsFragment>[]
+    | null
   selectedConversationId?: string
 }
 
-export const ConversationSelector = ({
-  conversations,
-  selectedConversationId,
-}: ConversationSelectorProps) => {
+export const ConversationSelector = (props: ConversationSelectorProps) => {
+  const { selectedConversationId } = props
+  const conversations = useFragment(
+    ConversationSelector_ConversationsFragment,
+    props.conversations,
+  )
   return (
     <ul className="menu bg-base-200 rounded-box w-72">
       {/* Sidebar content here */}

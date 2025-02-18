@@ -1,48 +1,172 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { useAuth } from '../../auth/auth-context'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import {
-  GetMessagesQueryOptions,
-  myConversationsQueryOptions,
-} from '../../server-functions/conversations'
-import { myAiAssistantsQueryOptions } from '../../server-functions/assistants'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationForm } from '../../components/conversation/conversation-form'
 import { useRef } from 'react'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
-import { myConversationUsersQueryOptions } from '../../server-functions/users'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
 import { CircleCrossIcon } from '../../icons/circle-cross-icon'
+import { graphql } from '../../gql'
+import { createServerFn } from '@tanstack/start'
+import { backendRequest } from '../../server-functions/backend'
+import { LoadingSpinner } from '../../components/loading-spinner'
+import { queryKeys } from '../../query-keys'
+import { useSuspenseQuery } from '@tanstack/react-query'
+
+const ConversationsQueryDocument = graphql(`
+  query getUserConversations($userId: String!) {
+    aiConversations(userId: $userId) {
+      id
+      ...ConversationSelector_conversations
+    }
+  }
+`)
+
+export const getConversations = createServerFn({ method: 'GET' })
+  .validator((data: { userId: string }) => data)
+  .handler(async (ctx) => backendRequest(ConversationsQueryDocument, ctx.data))
+
+const ConversationQueryDocument = graphql(`
+  query getConversation($conversationId: String!) {
+    aiConversation(conversationId: $conversationId) {
+      ...ConversationForm_conversation
+      ...ConversationParticipants_conversation
+      ...ConversationDelete_conversation
+      ...ConversationHistory_conversation
+    }
+  }
+`)
+
+export const getConversation = createServerFn({ method: 'GET' })
+  .validator((data: { conversationId: string }) => data)
+  .handler(async (ctx) => backendRequest(ConversationQueryDocument, ctx.data))
+
+const AssignableUsersDocument = graphql(`
+  query getAssignableUsers($userId: String!) {
+    myConversationUsers(userId: $userId) {
+      ...ConversationNew_HumanParticipationCandidates
+      ...ConversationParticipants_HumanParticipationCandidates
+    }
+  }
+`)
+
+export const getAssignableHumans = createServerFn({ method: 'GET' })
+  .validator((data: { userId: string }) => data)
+  .handler(async (ctx) => backendRequest(AssignableUsersDocument, ctx.data))
+
+const AssignableAssistantsDocument = graphql(`
+  query getAssignableAssistants($ownerId: String!) {
+    aiAssistants(ownerId: $ownerId) {
+      ...ConversationNew_AssistantParticipationCandidates
+      ...ConversationParticipants_AssistantParticipationCandidates
+    }
+  }
+`)
+
+export const getAssignableAssistants = createServerFn({ method: 'GET' })
+  .validator((data: { ownerId: string }) => data)
+  .handler(async (ctx) =>
+    backendRequest(AssignableAssistantsDocument, ctx.data),
+  )
 
 export const Route = createFileRoute('/conversations/$')({
   component: RouteComponent,
+  beforeLoad: async ({ params }) => {
+    return {
+      selectedConversationId: params._splat as string,
+    }
+  },
+  loader: async ({ context }) => {
+    const { selectedConversationId, auth } = context
+    if (!auth.user?.id) {
+      return {
+        conversations: null,
+        selectedConversation: null,
+        assignableUsers: null,
+        assignableAssistants: null,
+      }
+    }
+    const userId = auth.user?.id
+    const queryClient = context.queryClient
+
+    queryClient.prefetchQuery({
+      queryKey: [queryKeys.Conversations, userId],
+      queryFn: () => getConversations({ data: { userId } }),
+    })
+    queryClient.prefetchQuery({
+      queryKey: [queryKeys.Conversation, selectedConversationId],
+      queryFn: () =>
+        getConversation({
+          data: { conversationId: selectedConversationId },
+        }),
+    })
+    queryClient.prefetchQuery({
+      queryKey: [queryKeys.ConversationAssignableUsers, userId],
+      queryFn: () => getAssignableHumans({ data: { userId } }),
+    })
+    await queryClient.prefetchQuery({
+      queryKey: [queryKeys.ConversationAssignableAssistants, userId],
+      queryFn: () => getAssignableAssistants({ data: { ownerId: userId } }),
+    })
+  },
 })
 
 function RouteComponent() {
   const auth = useAuth()
+  const userId = auth.user?.id
   const navigate = useNavigate()
 
   const { _splat } = useParams({ strict: false })
 
   const selectedConversationId = _splat as string
 
-  const { data: messagesData, isLoading: messagesLoading } = useSuspenseQuery(
-    GetMessagesQueryOptions(selectedConversationId, auth.user?.id),
-  )
+  const newDialogRef = useRef<HTMLDialogElement>(null)
 
-  const { data: conversations, isLoading: conversationIsLoading } =
-    useSuspenseQuery(myConversationsQueryOptions(auth.user?.id))
+  const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
-  const { data: assistants, isLoading: assistantsIsLoading } = useSuspenseQuery(
-    myAiAssistantsQueryOptions(auth.user?.id),
-  )
+  const { data: conversations, isLoading: conversationsLoading } =
+    useSuspenseQuery({
+      queryKey: [queryKeys.Conversations, userId],
+      queryFn: async () =>
+        userId ? await getConversations({ data: { userId } }) : null,
+    })
 
-  const { data: users, isLoading: usersIsLoading } = useSuspenseQuery(
-    myConversationUsersQueryOptions(auth.user?.id),
-  )
+  const {
+    data: selectedConversation,
+    isLoading: selectedConversationIsLoading,
+  } = useSuspenseQuery({
+    queryKey: [queryKeys.Conversation, selectedConversationId],
+    queryFn: async () =>
+      selectedConversationId
+        ? await getConversation({
+            data: { conversationId: selectedConversationId },
+          })
+        : null,
+  })
+
+  const { data: assignableUsers, isLoading: assignableUsersIsLoading } =
+    useSuspenseQuery({
+      queryKey: [queryKeys.ConversationAssignableUsers, userId],
+      queryFn: async () =>
+        userId ? await getAssignableHumans({ data: { userId } }) : null,
+    })
+
+  const {
+    data: assignableAssistants,
+    isLoading: assignableAssistantsIsLoading,
+  } = useSuspenseQuery({
+    queryKey: [queryKeys.ConversationAssignableAssistants, userId],
+    queryFn: async () =>
+      userId
+        ? await getAssignableAssistants({ data: { ownerId: userId } })
+        : null,
+  })
+
+  if (!userId) {
+    return <h3>Login to use conversations.</h3>
+  }
 
   if (
     (conversations?.aiConversations?.length || 0) > 0 &&
@@ -51,51 +175,41 @@ function RouteComponent() {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
   }
 
-  const newDialogRef = useRef<HTMLDialogElement>(null)
-
   const handleNewConversation = () => {
     newDialogRef.current?.showModal()
   }
-
-  const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const handleDeleteConversation = () => {
     deleteDialogRef.current?.showModal()
   }
 
-  const userId = auth?.user?.id
-  const loadedAssistants = assistants?.aiAssistants
-  const loadedUsers = users?.myConversationUsers
-  const selectedConversation = conversations?.aiConversations?.find(
-    (conversation) => conversation.id === selectedConversationId,
-  )
+  if (
+    conversationsLoading ||
+    selectedConversationIsLoading ||
+    assignableUsersIsLoading ||
+    assignableAssistantsIsLoading ||
+    !assignableAssistants ||
+    !assignableUsers ||
+    !conversations
+  ) {
+    return <LoadingSpinner />
+  }
 
   return (
     <div className="flex gap-4">
-      {userId && loadedAssistants && loadedUsers && (
-        <NewConversationDialog
-          ref={newDialogRef}
-          userId={userId}
-          users={loadedUsers}
-          assistants={loadedAssistants}
-        />
-      )}
+      <NewConversationDialog
+        ref={newDialogRef}
+        humans={assignableUsers.myConversationUsers}
+        assistants={assignableAssistants.aiAssistants}
+      />
 
-      {selectedConversation && (
+      {selectedConversation?.aiConversation && (
         <DeleteConversationDialog
           ref={deleteDialogRef}
-          conversation={selectedConversation}
+          conversation={selectedConversation.aiConversation}
         />
       )}
 
-      <LoadingSpinner
-        isLoading={
-          conversationIsLoading ||
-          assistantsIsLoading ||
-          usersIsLoading ||
-          messagesLoading
-        }
-      />
       {userId && (
         <nav>
           <div className="flex justify-between items-center p-4">
@@ -111,47 +225,40 @@ function RouteComponent() {
               </button>
             </>
           </div>
-          <ConversationSelector
-            conversations={conversations?.aiConversations || []}
-            selectedConversationId={selectedConversationId}
-          />
+          {conversations.aiConversations && (
+            <ConversationSelector
+              conversations={conversations.aiConversations}
+              selectedConversationId={selectedConversationId}
+            />
+          )}
         </nav>
       )}
-      {!userId && <h3>Login to see and create conversations!</h3>}
       <article className="flex flex-col gap-4 w-full">
-        {selectedConversation &&
-          selectedConversation?.participants &&
-          loadedUsers &&
-          loadedAssistants && (
-            <>
-              <div className="flex justify-between items-center border-b-2">
-                <ConversationParticipants
-                  conversationId={selectedConversationId}
-                  participants={selectedConversation.participants}
-                  assistants={loadedAssistants}
-                  users={loadedUsers}
-                />
-                <button
-                  type="button"
-                  className="btn btn-cicle btn-sm btn-ghost text-red-500"
-                  onClick={handleDeleteConversation}
-                >
-                  <CircleCrossIcon /> Conversation
-                </button>
-              </div>
-              <ConversationHistory
-                messages={messagesData?.aiConversationMessages}
+        {selectedConversation?.aiConversation && (
+          <>
+            <div className="flex justify-between items-center border-b-2">
+              <ConversationParticipants
+                conversation={selectedConversation.aiConversation}
+                assistantCandidates={assignableAssistants.aiAssistants}
+                humanCandidates={assignableUsers.myConversationUsers}
               />
+              <button
+                type="button"
+                className="btn btn-cicle btn-sm btn-ghost text-red-500"
+                onClick={handleDeleteConversation}
+              >
+                <CircleCrossIcon /> Conversation
+              </button>
+            </div>
+            <ConversationHistory
+              conversation={selectedConversation.aiConversation}
+            />
 
-              <ConversationForm
-                user={{
-                  id: auth.user!.id,
-                  name: auth.user!.name || auth.user!.username,
-                }}
-                conversation={selectedConversation}
-              />
-            </>
-          )}
+            <ConversationForm
+              conversation={selectedConversation.aiConversation}
+            />
+          </>
+        )}
       </article>
     </div>
   )

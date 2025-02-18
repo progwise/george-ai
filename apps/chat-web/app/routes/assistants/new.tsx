@@ -87,7 +87,7 @@ function RouteComponent() {
       {auth?.user && (
         <AssistantForm
           assistant={{
-            createdAt: undefined,
+            createdAt: '',
             id: '',
             name: '',
             assistantType: AiAssistantType.Chatbot,
