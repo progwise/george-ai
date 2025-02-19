@@ -18,7 +18,7 @@ const myConversationUsersDocument = graphql(`
 
 export const getMyConversationUsers = createServerFn({ method: 'GET' })
   .validator((userId: string) => z.string().nonempty().parse(userId))
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(myConversationUsersDocument, {
       userId: ctx.data,
     }),

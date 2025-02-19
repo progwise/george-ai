@@ -29,7 +29,7 @@ export const sendMessage = createServerFn({ method: 'POST' })
         })
         .parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
       data: {
@@ -57,7 +57,7 @@ export const createConversation = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(CreateConversationDocument, {
       data: {
         assistantIds: ctx.data.assistantIds,
@@ -78,7 +78,7 @@ export const deleteConversation = createServerFn({ method: 'POST' })
   .validator((data: { conversationId: string }) =>
     z.object({ conversationId: z.string() }).parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(DeleteConversationDocument, {
       conversationId: ctx.data.conversationId,
     }),

@@ -34,7 +34,7 @@ export const addConversationParticipants = createServerFn({ method: 'POST' })
         })
         .parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(AddParticipantsDocument, {
       conversationId: ctx.data.conversationId,
       userIds: ctx.data.userIds,
@@ -54,7 +54,7 @@ export const removeConversationParticipant = createServerFn({ method: 'POST' })
   .validator((data: { participantId: string }) =>
     z.object({ participantId: z.string() }).parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(RemoveParticipantDocument, {
       participantId: ctx.data.participantId,
     }),

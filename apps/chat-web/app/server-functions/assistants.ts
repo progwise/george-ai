@@ -20,7 +20,7 @@ const MyAssistantsDocument = graphql(/* GraphQL */ `
 
 export const getMyAiAssistants = createServerFn({ method: 'GET' })
   .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(MyAssistantsDocument, {
       ownerId: ctx.data,
     }),
