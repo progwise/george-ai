@@ -25,7 +25,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
   )
   const { user } = useAuth()
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data: {
       content: string
       recipientAssistantIds: string[]
@@ -82,6 +82,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
             placeholder="Type your message"
             rows={2}
             name="message"
+            disabled={isPending}
           ></textarea>
           <div className="flex gap-2">
             {conversation.assistants?.map((assistant) => (
@@ -99,7 +100,12 @@ export const ConversationForm = (props: ConversationFormProps) => {
               </label>
             ))}
 
-            <button name="send" type="submit" className="btn">
+            <button
+              name="send"
+              type="submit"
+              className="btn"
+              disabled={isPending}
+            >
               Send
             </button>
           </div>

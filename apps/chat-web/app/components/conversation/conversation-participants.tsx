@@ -136,13 +136,18 @@ export const ConversationParticipants = (
       />
       <dialog className="modal" ref={dialogRef}>
         <div className="modal-box">
+          <h3 className="font-bold text-lg">Add participants</h3>
+          <p className="py-4">
+            You can add participants to the current conversation.
+          </p>
           <form method="dialog" onSubmit={handleSubmit}>
             <div className="flex flex-row gap-2">
               <div>
+                <h4 className="underline">Assistants</h4>
                 {assistantCandidates?.map((assistant) => (
                   <label
                     key={assistant.id}
-                    className="cursor-pointer label gap-2"
+                    className="cursor-pointer label gap-2 justify-start"
                   >
                     <input
                       type="checkbox"
@@ -156,6 +161,7 @@ export const ConversationParticipants = (
                 ))}
               </div>
               <div>
+                <h4 className="underline">Users</h4>
                 {humanCandidates?.map((user) => (
                   <label key={user.id} className="cursor-pointer label gap-2">
                     <input
@@ -174,18 +180,18 @@ export const ConversationParticipants = (
             </div>
             <div className="modal-action">
               <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={addParticipantIsPending}
-              >
-                Create
-              </button>
-              <button
                 type="button"
                 className="btn"
                 onClick={() => dialogRef.current?.close()}
               >
                 Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={addParticipantIsPending}
+              >
+                Add
               </button>
             </div>
           </form>

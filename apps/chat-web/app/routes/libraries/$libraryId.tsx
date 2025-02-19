@@ -64,8 +64,6 @@ const changeLibrary = createServerFn({ method: 'POST' })
       throw new Error('Invalid form data')
     }
 
-    console.log('form data', data.get('name'))
-
     const libraryId = z
       .string()
       .nonempty()

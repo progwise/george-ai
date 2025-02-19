@@ -74,7 +74,7 @@ builder.mutationField('addConversationParticipants', (t) =>
       _source,
       { conversationId, userIds, assistantIds },
     ) => {
-      if (!userIds && !assistantIds) {
+      if (!userIds?.length && !assistantIds?.length) {
         throw new Error('Must provide userIds or assistantIds')
       }
       const existingParticipants =

@@ -28,8 +28,6 @@ export const ConversationSelector = (props: ConversationSelectorProps) => {
   )
   return (
     <ul className="menu bg-base-200 rounded-box w-72">
-      {/* Sidebar content here */}
-
       {conversations?.map((conversation) => (
         <li key={conversation.id} className="grid center grid-cols-1">
           <Link
