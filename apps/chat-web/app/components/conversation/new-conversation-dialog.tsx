@@ -1,8 +1,6 @@
 import { RefObject } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import {
-  createConversation,
-} from '../../server-functions/conversations'
+import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 import { useNavigate } from '@tanstack/react-router'
 import { FragmentType, graphql, useFragment } from '../../gql'
@@ -89,8 +87,6 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
       .map((id) => id.toString())
     const userIds = formData.getAll('users').map((id) => id.toString())
 
-    console.log({ assistantIds, userIds })
-
     mutate({ assistantIds, userIds })
   }
 
@@ -115,7 +111,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
               {assistants?.map((assistant) => (
                 <label
                   key={assistant.id}
-                  className="cursor-pointer label gap-2"
+                  className="cursor-pointer label gap-2 justify-start"
                 >
                   <input
                     type="checkbox"
@@ -124,7 +120,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
                     defaultChecked
                     className="checkbox checkbox-info"
                   />
-                  <span className="label-text">{assistant.name}</span>
+                  <span className="label-text ">{assistant.name}</span>
                 </label>
               ))}
             </div>

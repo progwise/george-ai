@@ -64,7 +64,7 @@ export const DeleteConversationDialog = (
           <span>
             {conversation.assistants
               ?.map((assistant) => assistant.name)
-              .join(',') || 'Unknown'}
+              .join(',')}
           </span>
         </h3>
         <p className="py-4">

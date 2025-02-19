@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/start'
 import { graphql } from '../gql'
 import { backendRequest } from './backend'
+import { z } from 'zod'
 
 const AddParticipantsDocument = graphql(`
   mutation addParticipant(
@@ -24,7 +25,14 @@ export const addConversationParticipants = createServerFn({ method: 'POST' })
       conversationId: string
       userIds: string[]
       assistantIds: string[]
-    }) => data,
+    }) =>
+      z
+        .object({
+          conversationId: z.string(),
+          userIds: z.array(z.string()),
+          assistantIds: z.array(z.string()),
+        })
+        .parse(data),
   )
   .handler(async (ctx) =>
     backendRequest(AddParticipantsDocument, {
@@ -43,7 +51,9 @@ const RemoveParticipantDocument = graphql(`
 `)
 
 export const removeConversationParticipant = createServerFn({ method: 'POST' })
-  .validator((data: { participantId: string }) => data)
+  .validator((data: { participantId: string }) =>
+    z.object({ participantId: z.string() }).parse(data),
+  )
   .handler(async (ctx) =>
     backendRequest(RemoveParticipantDocument, {
       participantId: ctx.data.participantId,

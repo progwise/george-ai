@@ -14,6 +14,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { z } from 'zod'
 
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
@@ -25,7 +26,9 @@ const ConversationsQueryDocument = graphql(`
 `)
 
 export const getConversations = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => data)
+  .validator((data: { userId: string }) =>
+    z.object({ userId: z.string() }).parse(data),
+  )
   .handler(async (ctx) => backendRequest(ConversationsQueryDocument, ctx.data))
 
 const ConversationQueryDocument = graphql(`
@@ -40,7 +43,9 @@ const ConversationQueryDocument = graphql(`
 `)
 
 export const getConversation = createServerFn({ method: 'GET' })
-  .validator((data: { conversationId: string }) => data)
+  .validator((data: { conversationId: string }) =>
+    z.object({ conversationId: z.string() }).parse(data),
+  )
   .handler(async (ctx) => backendRequest(ConversationQueryDocument, ctx.data))
 
 const AssignableUsersDocument = graphql(`
@@ -53,7 +58,9 @@ const AssignableUsersDocument = graphql(`
 `)
 
 export const getAssignableHumans = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => data)
+  .validator((data: { userId: string }) =>
+    z.object({ userId: z.string() }).parse(data),
+  )
   .handler(async (ctx) => backendRequest(AssignableUsersDocument, ctx.data))
 
 const AssignableAssistantsDocument = graphql(`
@@ -66,7 +73,9 @@ const AssignableAssistantsDocument = graphql(`
 `)
 
 export const getAssignableAssistants = createServerFn({ method: 'GET' })
-  .validator((data: { ownerId: string }) => data)
+  .validator((data: { ownerId: string }) =>
+    z.object({ ownerId: z.string() }).parse(data),
+  )
   .handler(async (ctx) =>
     backendRequest(AssignableAssistantsDocument, ctx.data),
   )
