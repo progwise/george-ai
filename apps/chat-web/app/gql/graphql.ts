@@ -82,10 +82,11 @@ export type AiConversationMessage = {
   content?: Maybe<Scalars['String']['output']>
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
-  createdAt?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
-  sender?: Maybe<AiConversationParticipant>
+  sender: AiConversationParticipant
   senderId: Scalars['ID']['output']
+  source?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
@@ -101,6 +102,8 @@ export type AiConversationParticipant = {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
+  isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
@@ -184,6 +187,8 @@ export type AssistantParticipant = AiConversationParticipant & {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
+  isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
@@ -204,6 +209,8 @@ export type HumanParticipant = AiConversationParticipant & {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
+  isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
@@ -659,14 +666,23 @@ export type ConversationHistory_ConversationFragment = {
     __typename?: 'AiConversationMessage'
     id: string
     content?: string | null
-    sender?:
+    source?: string | null
+    createdAt: string
+    sender:
       | {
           __typename?: 'AssistantParticipant'
           id: string
           name?: string | null
+          isAssistant?: boolean | null
+          isHuman?: boolean | null
         }
-      | { __typename?: 'HumanParticipant'; id: string; name?: string | null }
-      | null
+      | {
+          __typename?: 'HumanParticipant'
+          id: string
+          name?: string | null
+          isAssistant?: boolean | null
+          isHuman?: boolean | null
+        }
   }> | null
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
 
@@ -1159,7 +1175,7 @@ export type SendMessageMutation = {
   sendMessage?: {
     __typename?: 'AiConversationMessage'
     id: string
-    createdAt?: string | null
+    createdAt: string
   } | null
 }
 
@@ -1278,6 +1294,8 @@ export const ConversationHistory_ConversationFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'source' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'sender' },
@@ -1286,6 +1304,14 @@ export const ConversationHistory_ConversationFragmentDoc = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'isAssistant' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'isHuman' },
+                      },
                     ],
                   },
                 },
@@ -3412,6 +3438,8 @@ export const GetConversationDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'source' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'sender' },
@@ -3420,6 +3448,14 @@ export const GetConversationDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'isAssistant' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'isHuman' },
+                      },
                     ],
                   },
                 },

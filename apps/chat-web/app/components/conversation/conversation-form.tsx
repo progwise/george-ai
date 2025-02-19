@@ -68,49 +68,80 @@ export const ConversationForm = (props: ConversationFormProps) => {
     mutate({ content, recipientAssistantIds })
   }
 
+  const handleTextareaKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+
+      event.currentTarget.form?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      )
+    }
+  }
+
   if (!user) {
     return <h3>Login to send messages</h3>
   }
 
   return (
-    <div className="chat chat-end gap-2">
-      <div className="chat-image avatar">{user.name || user.username}</div>
-      <div className="chat-bubble w-full">
-        <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
-          <textarea
-            className="textarea textarea-bordered flex-grow w-full text-black"
-            placeholder="Type your message"
-            rows={2}
-            name="message"
-            disabled={isPending}
-          ></textarea>
-          <div className="flex gap-2">
-            {conversation.assistants?.map((assistant) => (
-              <label key={assistant.id} className="cursor-pointer label gap-2">
-                <input
-                  name="assistants"
-                  value={assistant.id}
-                  type="checkbox"
-                  defaultChecked
-                  className="checkbox checkbox-info"
-                />
-                <span className="label-text text-gray-200 ">
-                  Ask {assistant.name}
-                </span>
-              </label>
-            ))}
+    <div className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4">
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-8 h-8 flex items-center justify-center bg-primary text-primary-content rounded-full">
+          {' '}
+        </div>
 
-            <button
-              name="send"
-              type="submit"
-              className="btn"
-              disabled={isPending}
-            >
-              Send
-            </button>
-          </div>
-        </form>
+        <div className="flex flex-col">
+          <span className="font-semibold text-sm">
+            {user.name || user.username}
+          </span>
+          <span className="text-xs opacity-60">
+            {new Date(Date.now()).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}{' '}
+            ·{' '}
+            {new Date(Date.now()).toLocaleDateString([], {
+              month: 'short',
+              day: 'numeric',
+            })}
+          </span>
+        </div>
       </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
+        <textarea
+          className="textarea textarea-bordered w-full"
+          placeholder="Type your message"
+          rows={2}
+          name="message"
+          disabled={isPending}
+          onKeyDown={handleTextareaKeyDown}
+        ></textarea>
+        <div className="flex gap-2 items-center">
+          {conversation.assistants?.map((assistant) => (
+            <label key={assistant.id} className="cursor-pointer label gap-2">
+              <input
+                name="assistants"
+                value={assistant.id}
+                type="checkbox"
+                defaultChecked
+                className="checkbox checkbox-info checkbox-sm"
+              />
+              <span className="label-text">Ask {assistant.name}</span>
+            </label>
+          ))}
+
+          <button
+            name="send"
+            type="submit"
+            className="btn btn-primary btn-sm"
+            disabled={isPending}
+          >
+            Send
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

@@ -131,6 +131,7 @@ model AiConversationMessage {
   sender         AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId       String
   content        String
+  source         String?
   conversation   AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId String
 }

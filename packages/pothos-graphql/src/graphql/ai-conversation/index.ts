@@ -7,11 +7,12 @@ console.log('Setting up: AiConversation')
 builder.prismaObject('AiConversationMessage', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
-    createdAt: t.expose('createdAt', { type: 'DateTime' }),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: true }),
     content: t.expose('content', { type: 'String' }),
+    source: t.expose('source', { type: 'String', nullable: true }),
     senderId: t.exposeID('senderId', { nullable: false }),
-    sender: t.relation('sender'),
+    sender: t.relation('sender', { nullable: false }),
     conversationId: t.exposeID('conversationId', { nullable: false }),
     conversation: t.relation('conversation'),
   }),

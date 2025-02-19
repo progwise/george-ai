@@ -50,10 +50,11 @@ type AiConversationMessage {
   content: String
   conversation: AiConversation
   conversationId: ID!
-  createdAt: DateTime
+  createdAt: DateTime!
   id: ID!
-  sender: AiConversationParticipant
+  sender: AiConversationParticipant!
   senderId: ID!
+  source: String
   updatedAt: DateTime
 }
 
@@ -69,6 +70,8 @@ interface AiConversationParticipant {
   conversation: AiConversation
   conversationId: ID!
   id: ID!
+  isAssistant: Boolean
+  isHuman: Boolean
   name: String
   user: User
   userId: ID
@@ -149,6 +152,8 @@ type AssistantParticipant implements AiConversationParticipant {
   conversation: AiConversation
   conversationId: ID!
   id: ID!
+  isAssistant: Boolean
+  isHuman: Boolean
   name: String
   user: User
   userId: ID
@@ -179,6 +184,8 @@ type HumanParticipant implements AiConversationParticipant {
   conversation: AiConversation
   conversationId: ID!
   id: ID!
+  isAssistant: Boolean
+  isHuman: Boolean
   name: String
   user: User
   userId: ID

@@ -24,7 +24,7 @@ const documents = {
     types.UpdateLibraryUsageDocument,
   '\n  fragment ConversationForm_conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationForm_ConversationFragmentDoc,
-  '\n  fragment ConversationHistory_conversation on AiConversation {\n    messages {\n      id\n      content\n      sender {\n        id\n        name\n      }\n    }\n  }\n':
+  '\n  fragment ConversationHistory_conversation on AiConversation {\n    messages {\n      id\n      content\n      source\n      createdAt\n      sender {\n        id\n        name\n        isAssistant\n        isHuman\n      }\n    }\n  }\n':
     types.ConversationHistory_ConversationFragmentDoc,
   '\n  fragment ConversationParticipants_conversation on AiConversation {\n    id\n    participants {\n      id\n      name\n      userId\n      assistantId\n    }\n  }\n':
     types.ConversationParticipants_ConversationFragmentDoc,
@@ -140,8 +140,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ConversationHistory_conversation on AiConversation {\n    messages {\n      id\n      content\n      sender {\n        id\n        name\n      }\n    }\n  }\n',
-): (typeof documents)['\n  fragment ConversationHistory_conversation on AiConversation {\n    messages {\n      id\n      content\n      sender {\n        id\n        name\n      }\n    }\n  }\n']
+  source: '\n  fragment ConversationHistory_conversation on AiConversation {\n    messages {\n      id\n      content\n      source\n      createdAt\n      sender {\n        id\n        name\n        isAssistant\n        isHuman\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment ConversationHistory_conversation on AiConversation {\n    messages {\n      id\n      content\n      source\n      createdAt\n      sender {\n        id\n        name\n        isAssistant\n        isHuman\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
