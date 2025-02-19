@@ -21,12 +21,12 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     description: t.exposeString('description'),
     url: t.exposeString('url'),
     icon: t.exposeString('icon'),
-    aiAssistantType: t.field({
+    assistantType: t.field({
       type: AiAssistantTypeEnum,
       nullable: false,
       select: { assistantType: true },
       resolve: (assistant) => {
-        return AiAssistantType[assistant.aiAssistantType]
+        return AiAssistantType[assistant.assistantType]
       },
     }),
     ownerId: t.exposeID('ownerId', { nullable: false }),
@@ -41,7 +41,7 @@ const AiAssistantInput = builder.inputType('AiAssistantInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    aiAssistantType: t.field({
+    assistantType: t.field({
       type: AiAssistantTypeEnum,
       required: true,
     }),
@@ -68,6 +68,10 @@ builder.queryField('aiAssistants', (t) =>
     type: ['AiAssistant'],
     args: {
       ownerId: t.arg.string(),
+    },
+    nullable: {
+      list: false,
+      items: false,
     },
     resolve: (query, _source, { ownerId }) => {
       return prisma.aiAssistant.findMany({

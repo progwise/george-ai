@@ -1,11 +1,11 @@
 export interface LibraryQueryParams {
-  aiLibraryId: string
+  libraryId: string
 }
 
-export const LibraryQuery = ({ aiLibraryId }: LibraryQueryParams) => {
+export const LibraryQuery = ({ libraryId }: LibraryQueryParams) => {
   return (
     <article className="panel shadow-md">
-      <h3>Query the Library {aiLibraryId}</h3>
+      <h3>Query the Library {libraryId}</h3>
     </article>
   )
 }

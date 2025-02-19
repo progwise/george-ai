@@ -28,15 +28,15 @@ export type Scalars = {
   Int: { input: number; output: number }
   Float: { input: number; output: number }
   /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  Date: { input: any; output: any }
+  Date: { input: string; output: string }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
-  DateTime: { input: any; output: any }
-  Decimal: { input: any; output: any }
+  DateTime: { input: string; output: string }
+  Decimal: { input: number; output: number }
 }
 
 export type AiAssistant = {
   __typename?: 'AiAssistant'
-  aiAssistantType: AiAssistantType
+  assistantType: AiAssistantType
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   icon?: Maybe<Scalars['String']['output']>
@@ -48,7 +48,7 @@ export type AiAssistant = {
 }
 
 export type AiAssistantInput = {
-  aiAssistantType: AiAssistantType
+  assistantType: AiAssistantType
   description?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
@@ -61,12 +61,56 @@ export enum AiAssistantType {
   DocumentGenerator = 'DOCUMENT_GENERATOR',
 }
 
+export type AiConversation = {
+  __typename?: 'AiConversation'
+  assistants: Array<AiAssistant>
+  createdAt: Scalars['DateTime']['output']
+  humans: Array<User>
+  id: Scalars['ID']['output']
+  messages?: Maybe<Array<AiConversationMessage>>
+  participants: Array<AiConversationParticipant>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type AiConversationCreateInput = {
+  assistantIds: Array<Scalars['String']['input']>
+  userIds: Array<Scalars['String']['input']>
+}
+
+export type AiConversationMessage = {
+  __typename?: 'AiConversationMessage'
+  content?: Maybe<Scalars['String']['output']>
+  conversation?: Maybe<AiConversation>
+  conversationId: Scalars['ID']['output']
+  createdAt?: Maybe<Scalars['DateTime']['output']>
+  id: Scalars['ID']['output']
+  sender?: Maybe<AiConversationParticipant>
+  senderId: Scalars['ID']['output']
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type AiConversationMessageInput = {
+  content: Scalars['String']['input']
+  conversationId: Scalars['String']['input']
+}
+
+export type AiConversationParticipant = {
+  assistant?: Maybe<AiAssistant>
+  assistantId?: Maybe<Scalars['ID']['output']>
+  conversation?: Maybe<AiConversation>
+  conversationId: Scalars['ID']['output']
+  id: Scalars['ID']['output']
+  name?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  userId?: Maybe<Scalars['ID']['output']>
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
-  aiLibraryType: AiLibraryType
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  libraryType: AiLibraryType
   name: Scalars['String']['output']
   owner?: Maybe<User>
   ownerId: Scalars['String']['output']
@@ -76,10 +120,10 @@ export type AiLibrary = {
 
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
-  aiLibraryId: Scalars['String']['output']
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
+  libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
   originUri?: Maybe<Scalars['String']['output']>
@@ -90,16 +134,16 @@ export type AiLibraryFile = {
 }
 
 export type AiLibraryFileInput = {
-  aiLibraryId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
   mimeType: Scalars['String']['input']
   name: Scalars['String']['input']
   originUri: Scalars['String']['input']
 }
 
 export type AiLibraryInput = {
-  aiLibraryType: AiLibraryType
   description?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
+  libraryType: AiLibraryType
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -132,6 +176,18 @@ export type AiLibraryUsageResult = {
   usageId?: Maybe<Scalars['String']['output']>
 }
 
+export type AssistantParticipant = AiConversationParticipant & {
+  __typename?: 'AssistantParticipant'
+  assistant?: Maybe<AiAssistant>
+  assistantId?: Maybe<Scalars['ID']['output']>
+  conversation?: Maybe<AiConversation>
+  conversationId: Scalars['ID']['output']
+  id: Scalars['ID']['output']
+  name?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  userId?: Maybe<Scalars['ID']['output']>
+}
+
 export type ChatAnswer = {
   __typename?: 'ChatAnswer'
   answer?: Maybe<Scalars['String']['output']>
@@ -140,21 +196,44 @@ export type ChatAnswer = {
   source?: Maybe<Scalars['String']['output']>
 }
 
+export type HumanParticipant = AiConversationParticipant & {
+  __typename?: 'HumanParticipant'
+  assistant?: Maybe<AiAssistant>
+  assistantId?: Maybe<Scalars['ID']['output']>
+  conversation?: Maybe<AiConversation>
+  conversationId: Scalars['ID']['output']
+  id: Scalars['ID']['output']
+  name?: Maybe<Scalars['String']['output']>
+  user?: Maybe<User>
+  userId?: Maybe<Scalars['ID']['output']>
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
+  addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   createAiAssistant?: Maybe<AiAssistant>
+  createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
+  deleteAiConversation?: Maybe<AiConversation>
   dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
+  removeConversationParticipant?: Maybe<AiConversationParticipant>
+  sendMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
+}
+
+export type MutationAddConversationParticipantsArgs = {
+  assistantIds?: InputMaybe<Array<Scalars['String']['input']>>
+  conversationId: Scalars['String']['input']
+  userIds?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export type MutationChatArgs = {
@@ -164,12 +243,16 @@ export type MutationChatArgs = {
 }
 
 export type MutationClearEmbeddedFilesArgs = {
-  aiLibraryId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationCreateAiAssistantArgs = {
   data: AiAssistantInput
   ownerId: Scalars['String']['input']
+}
+
+export type MutationCreateAiConversationArgs = {
+  data: AiConversationCreateInput
 }
 
 export type MutationCreateAiLibraryArgs = {
@@ -186,6 +269,10 @@ export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
 
+export type MutationDeleteAiConversationArgs = {
+  conversationId: Scalars['String']['input']
+}
+
 export type MutationDropFileArgs = {
   fileId: Scalars['String']['input']
 }
@@ -200,6 +287,15 @@ export type MutationPrepareFileArgs = {
 
 export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
+}
+
+export type MutationRemoveConversationParticipantArgs = {
+  id: Scalars['String']['input']
+}
+
+export type MutationSendMessageArgs = {
+  data: AiConversationMessageInput
+  userId: Scalars['String']['input']
 }
 
 export type MutationUpdateAiAssistantArgs = {
@@ -219,11 +315,15 @@ export type MutationUpdateLibraryUsageArgs = {
 export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
-  aiAssistants?: Maybe<Array<AiAssistant>>
+  aiAssistants: Array<AiAssistant>
+  aiConversation?: Maybe<AiConversation>
+  aiConversationMessages?: Maybe<Array<AiConversationMessage>>
+  aiConversations: Array<AiConversation>
   aiLibraries?: Maybe<Array<AiLibrary>>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
   aiLibraryUsage?: Maybe<Array<AiLibraryUsage>>
+  myConversationUsers: Array<User>
   user?: Maybe<User>
 }
 
@@ -235,6 +335,19 @@ export type QueryAiAssistantsArgs = {
   ownerId: Scalars['String']['input']
 }
 
+export type QueryAiConversationArgs = {
+  conversationId: Scalars['String']['input']
+}
+
+export type QueryAiConversationMessagesArgs = {
+  conversationId: Scalars['String']['input']
+  userId: Scalars['String']['input']
+}
+
+export type QueryAiConversationsArgs = {
+  userId: Scalars['String']['input']
+}
+
 export type QueryAiLibrariesArgs = {
   ownerId: Scalars['String']['input']
 }
@@ -244,12 +357,16 @@ export type QueryAiLibraryArgs = {
 }
 
 export type QueryAiLibraryFilesArgs = {
-  aiLibraryId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryAiLibraryUsageArgs = {
-  aiAssistantId?: InputMaybe<Scalars['String']['input']>
-  aiLibraryId?: InputMaybe<Scalars['String']['input']>
+  assistantId?: InputMaybe<Scalars['String']['input']>
+  libraryId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryMyConversationUsersArgs = {
+  userId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -482,7 +599,7 @@ export type LoginMutation = {
     name?: string | null
     given_name?: string | null
     family_name?: string | null
-    createdAt: any
+    createdAt: string
   } | null
 }
 
@@ -529,8 +646,97 @@ export type UpdateLibraryUsageMutation = {
   } | null
 }
 
+export type ConversationForm_ConversationFragment = {
+  __typename?: 'AiConversation'
+  id: string
+  assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
+} & { ' $fragmentName'?: 'ConversationForm_ConversationFragment' }
+
+export type ConversationHistory_ConversationFragment = {
+  __typename?: 'AiConversation'
+  messages?: Array<{
+    __typename?: 'AiConversationMessage'
+    id: string
+    content?: string | null
+    sender?:
+      | {
+          __typename?: 'AssistantParticipant'
+          id: string
+          name?: string | null
+        }
+      | { __typename?: 'HumanParticipant'; id: string; name?: string | null }
+      | null
+  }> | null
+} & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
+
+export type ConversationParticipants_ConversationFragment = {
+  __typename?: 'AiConversation'
+  id: string
+  participants: Array<
+    | {
+        __typename?: 'AssistantParticipant'
+        id: string
+        name?: string | null
+        userId?: string | null
+        assistantId?: string | null
+      }
+    | {
+        __typename?: 'HumanParticipant'
+        id: string
+        name?: string | null
+        userId?: string | null
+        assistantId?: string | null
+      }
+  >
+} & { ' $fragmentName'?: 'ConversationParticipants_ConversationFragment' }
+
+export type ConversationParticipants_HumanParticipationCandidatesFragment = {
+  __typename?: 'User'
+  id: string
+  name?: string | null
+  username: string
+} & {
+  ' $fragmentName'?: 'ConversationParticipants_HumanParticipationCandidatesFragment'
+}
+
+export type ConversationParticipants_AssistantParticipationCandidatesFragment =
+  { __typename?: 'AiAssistant'; id: string; name: string } & {
+    ' $fragmentName'?: 'ConversationParticipants_AssistantParticipationCandidatesFragment'
+  }
+
+export type ConversationSelector_ConversationsFragment = {
+  __typename?: 'AiConversation'
+  id: string
+  createdAt: string
+  assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
+} & { ' $fragmentName'?: 'ConversationSelector_ConversationsFragment' }
+
+export type ConversationDelete_ConversationFragment = {
+  __typename?: 'AiConversation'
+  id: string
+  createdAt: string
+  assistants: Array<{ __typename?: 'AiAssistant'; name: string }>
+} & { ' $fragmentName'?: 'ConversationDelete_ConversationFragment' }
+
+export type ConversationNew_HumanParticipationCandidatesFragment = {
+  __typename?: 'User'
+  id: string
+  name?: string | null
+  username: string
+} & {
+  ' $fragmentName'?: 'ConversationNew_HumanParticipationCandidatesFragment'
+}
+
+export type ConversationNew_AssistantParticipationCandidatesFragment = {
+  __typename?: 'AiAssistant'
+  id: string
+  name: string
+} & {
+  ' $fragmentName'?: 'ConversationNew_AssistantParticipationCandidatesFragment'
+}
+
 export type ClearEmbeddingsMutationVariables = Exact<{
-  aiLibraryId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }>
 
 export type ClearEmbeddingsMutation = {
@@ -558,13 +764,13 @@ export type ReProcessFileMutation = {
     id: string
     chunks?: number | null
     size?: number | null
-    uploadedAt?: any | null
-    processedAt?: any | null
+    uploadedAt?: string | null
+    processedAt?: string | null
   } | null
 }
 
 export type EmbeddingsTableQueryVariables = Exact<{
-  aiLibraryId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }>
 
 export type EmbeddingsTableQuery = {
@@ -577,8 +783,8 @@ export type EmbeddingsTableQuery = {
     mimeType: string
     size?: number | null
     chunks?: number | null
-    uploadedAt?: any | null
-    processedAt?: any | null
+    uploadedAt?: string | null
+    processedAt?: string | null
   }> | null
 }
 
@@ -602,8 +808,8 @@ export type ProcessFileMutation = {
     id: string
     chunks?: number | null
     size?: number | null
-    uploadedAt?: any | null
-    processedAt?: any | null
+    uploadedAt?: string | null
+    processedAt?: string | null
   } | null
 }
 
@@ -620,16 +826,12 @@ export type AiAssistantEditQuery = {
     name: string
     description?: string | null
     icon?: string | null
-    createdAt: any
+    createdAt: string
     ownerId: string
-    aiAssistantType: AiAssistantType
+    assistantType: AiAssistantType
     url?: string | null
   } | null
-  aiAssistants?: Array<{
-    __typename?: 'AiAssistant'
-    id: string
-    name: string
-  }> | null
+  aiAssistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
 }
 
 export type ChangeAiAssistantMutationVariables = Exact<{
@@ -646,24 +848,6 @@ export type ChangeAiAssistantMutation = {
   } | null
 }
 
-export type AiAssistantCardsQueryVariables = Exact<{
-  ownerId: Scalars['String']['input']
-}>
-
-export type AiAssistantCardsQuery = {
-  __typename?: 'Query'
-  aiAssistants?: Array<{
-    __typename?: 'AiAssistant'
-    id: string
-    name: string
-    description?: string | null
-    icon?: string | null
-    aiAssistantType: AiAssistantType
-    createdAt: any
-    ownerId: string
-  }> | null
-}
-
 export type CreateAiAssistantMutationVariables = Exact<{
   ownerId: Scalars['String']['input']
   data: AiAssistantInput
@@ -678,6 +862,71 @@ export type CreateAiAssistantMutation = {
   } | null
 }
 
+export type GetUserConversationsQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type GetUserConversationsQuery = {
+  __typename?: 'Query'
+  aiConversations: Array<
+    { __typename?: 'AiConversation'; id: string } & {
+      ' $fragmentRefs'?: {
+        ConversationSelector_ConversationsFragment: ConversationSelector_ConversationsFragment
+      }
+    }
+  >
+}
+
+export type GetConversationQueryVariables = Exact<{
+  conversationId: Scalars['String']['input']
+}>
+
+export type GetConversationQuery = {
+  __typename?: 'Query'
+  aiConversation?:
+    | ({ __typename?: 'AiConversation' } & {
+        ' $fragmentRefs'?: {
+          ConversationForm_ConversationFragment: ConversationForm_ConversationFragment
+          ConversationParticipants_ConversationFragment: ConversationParticipants_ConversationFragment
+          ConversationDelete_ConversationFragment: ConversationDelete_ConversationFragment
+          ConversationHistory_ConversationFragment: ConversationHistory_ConversationFragment
+        }
+      })
+    | null
+}
+
+export type GetAssignableUsersQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type GetAssignableUsersQuery = {
+  __typename?: 'Query'
+  myConversationUsers: Array<
+    { __typename?: 'User' } & {
+      ' $fragmentRefs'?: {
+        ConversationNew_HumanParticipationCandidatesFragment: ConversationNew_HumanParticipationCandidatesFragment
+        ConversationParticipants_HumanParticipationCandidatesFragment: ConversationParticipants_HumanParticipationCandidatesFragment
+      }
+    }
+  >
+}
+
+export type GetAssignableAssistantsQueryVariables = Exact<{
+  ownerId: Scalars['String']['input']
+}>
+
+export type GetAssignableAssistantsQuery = {
+  __typename?: 'Query'
+  aiAssistants: Array<
+    { __typename?: 'AiAssistant' } & {
+      ' $fragmentRefs'?: {
+        ConversationNew_AssistantParticipationCandidatesFragment: ConversationNew_AssistantParticipationCandidatesFragment
+        ConversationParticipants_AssistantParticipationCandidatesFragment: ConversationParticipants_AssistantParticipationCandidatesFragment
+      }
+    }
+  >
+}
+
 export type AiLibraryEditQueryVariables = Exact<{
   id: Scalars['String']['input']
   ownerId: Scalars['String']['input']
@@ -690,9 +939,9 @@ export type AiLibraryEditQuery = {
     id: string
     name: string
     description?: string | null
-    createdAt: any
+    createdAt: string
     ownerId: string
-    aiLibraryType: AiLibraryType
+    libraryType: AiLibraryType
     url?: string | null
   } | null
   aiLibraries?: Array<{
@@ -726,9 +975,9 @@ export type AiLibrariesQuery = {
     __typename?: 'AiLibrary'
     id: string
     name: string
-    aiLibraryType: AiLibraryType
-    createdAt: any
-    updatedAt?: any | null
+    libraryType: AiLibraryType
+    createdAt: string
+    updatedAt?: string | null
     owner?: { __typename?: 'User'; id: string; name?: string | null } | null
   }> | null
 }
@@ -745,6 +994,24 @@ export type CreateAiLibraryMutation = {
     id: string
     name: string
   } | null
+}
+
+export type AiAssistantCardsQueryVariables = Exact<{
+  ownerId: Scalars['String']['input']
+}>
+
+export type AiAssistantCardsQuery = {
+  __typename?: 'Query'
+  aiAssistants: Array<{
+    __typename?: 'AiAssistant'
+    id: string
+    name: string
+    description?: string | null
+    icon?: string | null
+    assistantType: AiAssistantType
+    createdAt: string
+    ownerId: string
+  }>
 }
 
 export type IntrospectionQueryQueryVariables = Exact<{ [key: string]: never }>
@@ -881,6 +1148,361 @@ export type TypeRefFragment = {
   } | null
 } & { ' $fragmentName'?: 'TypeRefFragment' }
 
+export type SendMessageMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  data: AiConversationMessageInput
+}>
+
+export type SendMessageMutation = {
+  __typename?: 'Mutation'
+  sendMessage?: {
+    __typename?: 'AiConversationMessage'
+    id: string
+    createdAt?: string | null
+  } | null
+}
+
+export type CreateConversationMutationVariables = Exact<{
+  data: AiConversationCreateInput
+}>
+
+export type CreateConversationMutation = {
+  __typename?: 'Mutation'
+  createAiConversation?: { __typename?: 'AiConversation'; id: string } | null
+}
+
+export type DeleteConversationMutationVariables = Exact<{
+  conversationId: Scalars['String']['input']
+}>
+
+export type DeleteConversationMutation = {
+  __typename?: 'Mutation'
+  deleteAiConversation?: { __typename?: 'AiConversation'; id: string } | null
+}
+
+export type AddParticipantMutationVariables = Exact<{
+  conversationId: Scalars['String']['input']
+  userIds?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+  assistantIds?: InputMaybe<
+    Array<Scalars['String']['input']> | Scalars['String']['input']
+  >
+}>
+
+export type AddParticipantMutation = {
+  __typename?: 'Mutation'
+  addConversationParticipants?: Array<
+    | { __typename?: 'AssistantParticipant'; id: string }
+    | { __typename?: 'HumanParticipant'; id: string }
+  > | null
+}
+
+export type RemoveParticipantMutationVariables = Exact<{
+  participantId: Scalars['String']['input']
+}>
+
+export type RemoveParticipantMutation = {
+  __typename?: 'Mutation'
+  removeConversationParticipant?:
+    | { __typename?: 'AssistantParticipant'; id: string }
+    | { __typename?: 'HumanParticipant'; id: string }
+    | null
+}
+
+export type MyConversationUsersQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type MyConversationUsersQuery = {
+  __typename?: 'Query'
+  myConversationUsers: Array<{
+    __typename?: 'User'
+    id: string
+    username: string
+    name?: string | null
+    createdAt: string
+    email: string
+  }>
+}
+
+export const ConversationForm_ConversationFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationForm_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConversationForm_ConversationFragment, unknown>
+export const ConversationHistory_ConversationFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationHistory_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'messages' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sender' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConversationHistory_ConversationFragment, unknown>
+export const ConversationParticipants_ConversationFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationParticipants_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ConversationParticipants_ConversationFragment,
+  unknown
+>
+export const ConversationParticipants_HumanParticipationCandidatesFragmentDoc =
+  {
+    kind: 'Document',
+    definitions: [
+      {
+        kind: 'FragmentDefinition',
+        name: {
+          kind: 'Name',
+          value: 'ConversationParticipants_HumanParticipationCandidates',
+        },
+        typeCondition: {
+          kind: 'NamedType',
+          name: { kind: 'Name', value: 'User' },
+        },
+        selectionSet: {
+          kind: 'SelectionSet',
+          selections: [
+            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          ],
+        },
+      },
+    ],
+  } as unknown as DocumentNode<
+    ConversationParticipants_HumanParticipationCandidatesFragment,
+    unknown
+  >
+export const ConversationParticipants_AssistantParticipationCandidatesFragmentDoc =
+  {
+    kind: 'Document',
+    definitions: [
+      {
+        kind: 'FragmentDefinition',
+        name: {
+          kind: 'Name',
+          value: 'ConversationParticipants_AssistantParticipationCandidates',
+        },
+        typeCondition: {
+          kind: 'NamedType',
+          name: { kind: 'Name', value: 'AiAssistant' },
+        },
+        selectionSet: {
+          kind: 'SelectionSet',
+          selections: [
+            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          ],
+        },
+      },
+    ],
+  } as unknown as DocumentNode<
+    ConversationParticipants_AssistantParticipationCandidatesFragment,
+    unknown
+  >
+export const ConversationSelector_ConversationsFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationSelector_conversations' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ConversationSelector_ConversationsFragment,
+  unknown
+>
+export const ConversationDelete_ConversationFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationDelete_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConversationDelete_ConversationFragment, unknown>
+export const ConversationNew_HumanParticipationCandidatesFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: {
+        kind: 'Name',
+        value: 'ConversationNew_HumanParticipationCandidates',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'User' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ConversationNew_HumanParticipationCandidatesFragment,
+  unknown
+>
+export const ConversationNew_AssistantParticipationCandidatesFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: {
+        kind: 'Name',
+        value: 'ConversationNew_AssistantParticipationCandidates',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiAssistant' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ConversationNew_AssistantParticipationCandidatesFragment,
+  unknown
+>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -1823,7 +2445,7 @@ export const AssistantLibrariesDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'aiAssistantId' },
+                name: { kind: 'Name', value: 'assistantId' },
                 value: {
                   kind: 'Variable',
                   name: { kind: 'Name', value: 'assistantId' },
@@ -1987,7 +2609,7 @@ export const ClearEmbeddingsDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'aiLibraryId' },
+            name: { kind: 'Name', value: 'libraryId' },
           },
           type: {
             kind: 'NonNullType',
@@ -2007,10 +2629,10 @@ export const ClearEmbeddingsDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'aiLibraryId' },
+                name: { kind: 'Name', value: 'libraryId' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'aiLibraryId' },
+                  name: { kind: 'Name', value: 'libraryId' },
                 },
               },
             ],
@@ -2138,7 +2760,7 @@ export const EmbeddingsTableDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'aiLibraryId' },
+            name: { kind: 'Name', value: 'libraryId' },
           },
           type: {
             kind: 'NonNullType',
@@ -2158,10 +2780,10 @@ export const EmbeddingsTableDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'aiLibraryId' },
+                name: { kind: 'Name', value: 'libraryId' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'aiLibraryId' },
+                  name: { kind: 'Name', value: 'libraryId' },
                 },
               },
             ],
@@ -2351,7 +2973,7 @@ export const AiAssistantEditDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'aiAssistantType' },
+                  name: { kind: 'Name', value: 'assistantType' },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
               ],
@@ -2457,69 +3079,6 @@ export const ChangeAiAssistantDocument = {
   ChangeAiAssistantMutation,
   ChangeAiAssistantMutationVariables
 >
-export const AiAssistantCardsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiAssistantCards' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiAssistants' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'aiAssistantType' },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<
-  AiAssistantCardsQuery,
-  AiAssistantCardsQueryVariables
->
 export const CreateAiAssistantDocument = {
   kind: 'Document',
   definitions: [
@@ -2594,6 +3153,496 @@ export const CreateAiAssistantDocument = {
   CreateAiAssistantMutation,
   CreateAiAssistantMutationVariables
 >
+export const GetUserConversationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getUserConversations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'userId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiConversations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'userId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationSelector_conversations',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationSelector_conversations' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetUserConversationsQuery,
+  GetUserConversationsQueryVariables
+>
+export const GetConversationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getConversation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'conversationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiConversation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'conversationId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'conversationId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationForm_conversation',
+                  },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationParticipants_conversation',
+                  },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationDelete_conversation',
+                  },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationHistory_conversation',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationForm_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationParticipants_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationDelete_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'assistants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationHistory_conversation' },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiConversation' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'messages' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sender' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetConversationQuery,
+  GetConversationQueryVariables
+>
+export const GetAssignableUsersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getAssignableUsers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'userId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'myConversationUsers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'userId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationNew_HumanParticipationCandidates',
+                  },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value:
+                      'ConversationParticipants_HumanParticipationCandidates',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: {
+        kind: 'Name',
+        value: 'ConversationNew_HumanParticipationCandidates',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'User' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: {
+        kind: 'Name',
+        value: 'ConversationParticipants_HumanParticipationCandidates',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'User' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetAssignableUsersQuery,
+  GetAssignableUsersQueryVariables
+>
+export const GetAssignableAssistantsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getAssignableAssistants' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiAssistants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value: 'ConversationNew_AssistantParticipationCandidates',
+                  },
+                },
+                {
+                  kind: 'FragmentSpread',
+                  name: {
+                    kind: 'Name',
+                    value:
+                      'ConversationParticipants_AssistantParticipationCandidates',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: {
+        kind: 'Name',
+        value: 'ConversationNew_AssistantParticipationCandidates',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiAssistant' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: {
+        kind: 'Name',
+        value: 'ConversationParticipants_AssistantParticipationCandidates',
+      },
+      typeCondition: {
+        kind: 'NamedType',
+        name: { kind: 'Name', value: 'AiAssistant' },
+      },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  GetAssignableAssistantsQuery,
+  GetAssignableAssistantsQueryVariables
+>
 export const AiLibraryEditDocument = {
   kind: 'Document',
   definitions: [
@@ -2652,10 +3701,7 @@ export const AiLibraryEditDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'aiLibraryType' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
               ],
             },
@@ -2801,10 +3847,7 @@ export const AiLibrariesDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'aiLibraryType' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryType' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'owner' },
@@ -2899,6 +3942,69 @@ export const CreateAiLibraryDocument = {
 } as unknown as DocumentNode<
   CreateAiLibraryMutation,
   CreateAiLibraryMutationVariables
+>
+export const AiAssistantCardsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiAssistantCards' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'ownerId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiAssistants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'ownerId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'assistantType' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AiAssistantCardsQuery,
+  AiAssistantCardsQueryVariables
 >
 export const IntrospectionQueryDocument = {
   kind: 'Document',
@@ -3357,4 +4463,396 @@ export const IntrospectionQueryDocument = {
 } as unknown as DocumentNode<
   IntrospectionQueryQuery,
   IntrospectionQueryQueryVariables
+>
+export const SendMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'sendMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'userId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiConversationMessageInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sendMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'userId' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SendMessageMutation, SendMessageMutationVariables>
+export const CreateConversationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createConversation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiConversationCreateInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiConversation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'data' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CreateConversationMutation,
+  CreateConversationMutationVariables
+>
+export const DeleteConversationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteConversation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'conversationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiConversation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'conversationId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'conversationId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteConversationMutation,
+  DeleteConversationMutationVariables
+>
+export const AddParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'addParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'conversationId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'userIds' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'assistantIds' },
+          },
+          type: {
+            kind: 'ListType',
+            type: {
+              kind: 'NonNullType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addConversationParticipants' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'conversationId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'conversationId' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userIds' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'userIds' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantIds' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'assistantIds' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  AddParticipantMutation,
+  AddParticipantMutationVariables
+>
+export const RemoveParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'participantId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeConversationParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'participantId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  RemoveParticipantMutation,
+  RemoveParticipantMutationVariables
+>
+export const MyConversationUsersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'myConversationUsers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'userId' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'myConversationUsers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'userId' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  MyConversationUsersQuery,
+  MyConversationUsersQueryVariables
 >

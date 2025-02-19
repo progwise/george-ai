@@ -4,7 +4,7 @@ schema {
 }
 
 type AiAssistant {
-  aiAssistantType: AiAssistantType!
+  assistantType: AiAssistantType!
   createdAt: DateTime!
   description: String
   icon: String
@@ -16,7 +16,7 @@ type AiAssistant {
 }
 
 input AiAssistantInput {
-  aiAssistantType: AiAssistantType!
+  assistantType: AiAssistantType!
   description: String
   icon: String
   name: String!
@@ -31,11 +31,53 @@ enum AiAssistantType {
   DOCUMENT_GENERATOR
 }
 
+type AiConversation {
+  assistants: [AiAssistant!]!
+  createdAt: DateTime!
+  humans: [User!]!
+  id: ID!
+  messages: [AiConversationMessage!]
+  participants: [AiConversationParticipant!]!
+  updatedAt: DateTime
+}
+
+input AiConversationCreateInput {
+  assistantIds: [String!]!
+  userIds: [String!]!
+}
+
+type AiConversationMessage {
+  content: String
+  conversation: AiConversation
+  conversationId: ID!
+  createdAt: DateTime
+  id: ID!
+  sender: AiConversationParticipant
+  senderId: ID!
+  updatedAt: DateTime
+}
+
+input AiConversationMessageInput {
+  content: String!
+  conversationId: String!
+}
+
+interface AiConversationParticipant {
+  assistant: AiAssistant
+  assistantId: ID
+  conversation: AiConversation
+  conversationId: ID!
+  id: ID!
+  name: String
+  user: User
+  userId: ID
+}
+
 type AiLibrary {
-  aiLibraryType: AiLibraryType!
   createdAt: DateTime!
   description: String
   id: ID!
+  libraryType: AiLibraryType!
   name: String!
   owner: User
   ownerId: String!
@@ -44,10 +86,10 @@ type AiLibrary {
 }
 
 type AiLibraryFile {
-  aiLibraryId: String!
   chunks: Int
   createdAt: DateTime!
   id: ID!
+  libraryId: String!
   mimeType: String!
   name: String!
   originUri: String
@@ -58,16 +100,16 @@ type AiLibraryFile {
 }
 
 input AiLibraryFileInput {
-  aiLibraryId: String!
+  libraryId: String!
   mimeType: String!
   name: String!
   originUri: String!
 }
 
 input AiLibraryInput {
-  aiLibraryType: AiLibraryType!
   description: String
   icon: String
+  libraryType: AiLibraryType!
   name: String!
   url: String
 }
@@ -100,6 +142,17 @@ type AiLibraryUsageResult {
   usageId: String
 }
 
+type AssistantParticipant implements AiConversationParticipant {
+  assistant: AiAssistant
+  assistantId: ID
+  conversation: AiConversation
+  conversationId: ID!
+  id: ID!
+  name: String
+  user: User
+  userId: ID
+}
+
 type ChatAnswer {
   answer: String
   notEnoughInformation: Boolean
@@ -119,21 +172,44 @@ scalar DateTime
 
 scalar Decimal
 
+type HumanParticipant implements AiConversationParticipant {
+  assistant: AiAssistant
+  assistantId: ID
+  conversation: AiConversation
+  conversationId: ID!
+  id: ID!
+  name: String
+  user: User
+  userId: ID
+}
+
 type Mutation {
+  addConversationParticipants(
+    assistantIds: [String!]
+    conversationId: String!
+    userIds: [String!]
+  ): [AiConversationParticipant!]
   chat(
     question: String!
     retrievalFlow: RetrievalFlow
     sessionId: String
   ): ChatAnswer
-  clearEmbeddedFiles(aiLibraryId: String!): Boolean
+  clearEmbeddedFiles(libraryId: String!): Boolean
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
+  createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
+  deleteAiConversation(conversationId: String!): AiConversation
   dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
+  removeConversationParticipant(id: String!): AiConversationParticipant
+  sendMessage(
+    data: AiConversationMessageInput!
+    userId: String!
+  ): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
@@ -141,11 +217,18 @@ type Mutation {
 
 type Query {
   aiAssistant(id: String!): AiAssistant
-  aiAssistants(ownerId: String!): [AiAssistant!]
+  aiAssistants(ownerId: String!): [AiAssistant!]!
+  aiConversation(conversationId: String!): AiConversation
+  aiConversationMessages(
+    conversationId: String!
+    userId: String!
+  ): [AiConversationMessage!]
+  aiConversations(userId: String!): [AiConversation!]!
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
-  aiLibraryFiles(aiLibraryId: String!): [AiLibraryFile!]
-  aiLibraryUsage(aiAssistantId: String, aiLibraryId: String): [AiLibraryUsage!]
+  aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
+  aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
+  myConversationUsers(userId: String!): [User!]!
   user(email: String!): User
 }
 

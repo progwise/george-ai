@@ -8,7 +8,7 @@ import { LoadingSpinner } from '../loading-spinner'
 
 const AssistantLibrariesDocument = graphql(/* GraphQL */ `
   query assistantLibraries($assistantId: String!, $ownerId: String!) {
-    aiLibraryUsage(aiAssistantId: $assistantId) {
+    aiLibraryUsage(assistantId: $assistantId) {
       id
       libraryId
     }
@@ -90,7 +90,11 @@ export const AssistantLibraries = ({
   )
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
-    mutationFn: updateLibraryUsage,
+    mutationFn: (data: {
+      assistantId: string
+      libraryId: string
+      use: boolean
+    }) => updateLibraryUsage({ data }),
     onSettled: () => refetch(),
   })
 
@@ -123,11 +127,9 @@ export const AssistantLibraries = ({
                     className="checkbox"
                     onChange={async (event) => {
                       updateUsage({
-                        data: {
-                          assistantId,
-                          libraryId: library.id,
-                          use: event.target.checked,
-                        },
+                        assistantId,
+                        libraryId: library.id,
+                        use: event.target.checked,
                       })
                     }}
                     name="selectedFiles"

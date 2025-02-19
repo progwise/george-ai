@@ -27,6 +27,7 @@ const resources = {
         btnText: 'Start Training Your AI',
         altImage: 'George AI',
       },
+      conversations: 'Conversations',
     },
   },
   de: {
@@ -55,6 +56,7 @@ const resources = {
         altImage: 'George KI',
       },
     },
+    conversations: 'Konversationen',
   },
 }
 

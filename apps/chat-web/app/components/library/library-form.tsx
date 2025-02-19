@@ -44,12 +44,12 @@ export const LibraryForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Google Drive</span>
             <input
-              key={library.aiLibraryType}
+              key={library.libraryType}
               type="radio"
-              name="aiLibraryType"
+              name="libraryType"
               value="GOOGLE_DRIVE"
               className="radio checked:bg-green-500"
-              defaultChecked={library.aiLibraryType === 'GOOGLE_DRIVE'}
+              defaultChecked={library.libraryType === 'GOOGLE_DRIVE'}
             />
           </label>
         </div>
@@ -57,12 +57,12 @@ export const LibraryForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Pocketbase</span>
             <input
-              key={library.aiLibraryType}
+              key={library.libraryType}
               type="radio"
-              name="aiLibraryType"
+              name="libraryType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
-              defaultChecked={library.aiLibraryType === 'POCKETBASE'}
+              defaultChecked={library.libraryType === 'POCKETBASE'}
             />
           </label>
         </div>

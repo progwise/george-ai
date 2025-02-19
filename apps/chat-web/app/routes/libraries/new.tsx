@@ -33,7 +33,7 @@ const createLibrary = createServerFn({ method: 'POST' })
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiLibraryType: data.get('aiLibraryType'),
+      libraryType: data.get('libraryType'),
     })
 
     return { ownerId, data: assistant }
@@ -90,7 +90,7 @@ function RouteComponent() {
             ownerId: user.id,
             name: '',
             description: '',
-            aiLibraryType: AiLibraryType.GoogleDrive,
+            libraryType: AiLibraryType.GoogleDrive,
           }}
           owner={user}
           handleSubmit={handleSubmit}

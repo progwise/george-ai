@@ -5,11 +5,11 @@ export const AiLibraryUsage = builder.prismaObject('AiLibraryUsage', {
   name: 'AiLibraryUsage',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
-    assistantId: t.exposeID('aiAssistantId', { nullable: false }),
-    libraryId: t.exposeID('aiLibraryId', { nullable: false }),
+    assistantId: t.exposeID('assistantId', { nullable: false }),
+    libraryId: t.exposeID('libraryId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    assistant: t.relation('aiAssistant'),
-    library: t.relation('aiLibrary'),
+    assistant: t.relation('assistant'),
+    library: t.relation('library'),
   }),
 })
 
@@ -25,18 +25,18 @@ builder.queryField('aiLibraryUsage', (t) =>
   t.prismaField({
     type: ['AiLibraryUsage'],
     args: {
-      aiAssistantId: t.arg.string({ required: false }),
-      aiLibraryId: t.arg.string({ required: false }),
+      assistantId: t.arg.string({ required: false }),
+      libraryId: t.arg.string({ required: false }),
     },
-    resolve: (query, _source, { aiAssistantId, aiLibraryId }) => {
-      if (!aiAssistantId && !aiLibraryId) {
-        throw new Error('aiAssistantId or aiLibraryId must be provided')
+    resolve: (query, _source, { assistantId, libraryId }) => {
+      if (!assistantId && !libraryId) {
+        throw new Error('assistantId or libraryId must be provided')
       }
       return prisma.aiLibraryUsage.findMany({
         ...query,
         where: {
-          ...(aiAssistantId && { aiAssistantId }),
-          ...(aiLibraryId && { aiLibraryId }),
+          ...(assistantId && { assistantId }),
+          ...(libraryId && { libraryId }),
         },
       })
     },
@@ -72,13 +72,13 @@ builder.mutationField('updateLibraryUsage', (t) =>
       }
       if (!use) {
         const deleteResult = await prisma.aiLibraryUsage.deleteMany({
-          where: { aiAssistantId: assistantId, aiLibraryId: libraryId },
+          where: { assistantId, libraryId },
         })
         return { deletedCount: deleteResult.count, usageId: null }
       }
 
       const existingUsage = await prisma.aiLibraryUsage.findFirst({
-        where: { aiAssistantId: assistantId, aiLibraryId: libraryId },
+        where: { assistantId, libraryId },
       })
 
       if (existingUsage) {
@@ -86,7 +86,7 @@ builder.mutationField('updateLibraryUsage', (t) =>
       }
 
       const newUsage = await prisma.aiLibraryUsage.create({
-        data: { aiAssistantId: assistantId, aiLibraryId: libraryId },
+        data: { assistantId, libraryId },
       })
       return { usageId: newUsage.id, deletedCount: null }
     },

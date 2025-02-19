@@ -32,8 +32,8 @@ const vectorTypesenseClient = new Client({
 
 const getTypesenseSchemaName = (libraryId: string) => `gai-library-${libraryId}`
 
-const getTypesenseSchema = (aiLibraryId: string): CollectionCreateSchema => ({
-  name: getTypesenseSchemaName(aiLibraryId),
+const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
+  name: getTypesenseSchemaName(libraryId),
   fields: [
     { name: 'points', type: 'int32' },
     { name: 'vec', type: 'float[]', num_dim: 3072 },
@@ -68,11 +68,9 @@ curl --location 'http://localhost:8108/collections' \
   --header 'X-TYPESENSE-API-KEY: xyz'
 */
 
-const getTypesenseVectorStoreConfig = (
-  aiLibraryId: string,
-): TypesenseConfig => ({
+const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   typesenseClient: vectorTypesenseClient,
-  schemaName: getTypesenseSchemaName(aiLibraryId),
+  schemaName: getTypesenseSchemaName(libraryId),
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
@@ -103,13 +101,13 @@ const typesenseVectorStore = new Typesense(
   getTypesenseVectorStoreConfig('gai-documents'),
 )
 
-export const ensureVectorStore = async (aiLibraryId: string) => {
-  const schemaName = getTypesenseSchemaName(aiLibraryId)
+export const ensureVectorStore = async (libraryId: string) => {
+  const schemaName = getTypesenseSchemaName(libraryId)
   const exists = await vectorTypesenseClient.collections(schemaName).exists()
   if (!exists) {
     await vectorTypesenseClient
       .collections()
-      .create(getTypesenseSchema(aiLibraryId))
+      .create(getTypesenseSchema(libraryId))
   }
 }
 
@@ -121,13 +119,13 @@ export const dropVectorStore = async (libraryId: string) => {
   }
 }
 
-export const dropFile = async (aiLibraryId: string, fileId: string) => {
-  await ensureVectorStore(aiLibraryId)
-  await removeFileById(aiLibraryId, fileId)
+export const dropFile = async (libraryId: string, fileId: string) => {
+  await ensureVectorStore(libraryId)
+  await removeFileById(libraryId, fileId)
 }
 
 export const embedFile = async (
-  aiLibraryId: string,
+  libraryId: string,
   file: {
     id: string
     name: string
@@ -136,16 +134,16 @@ export const embedFile = async (
     path: string
   },
 ) => {
-  await ensureVectorStore(aiLibraryId)
+  await ensureVectorStore(libraryId)
 
-  const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(aiLibraryId)
+  const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
   })
 
-  await removeFileByName(aiLibraryId, file.name)
+  await removeFileByName(libraryId, file.name)
   const fileParts = await loadFile(file)
 
   const splitDocument = await splitter.splitDocuments(fileParts)
@@ -196,19 +194,16 @@ const loadDocument = async (document: {
   return splitDocuments
 }
 
-export const removeFileById = async (aiLibraryId: string, fileId: string) => {
+export const removeFileById = async (libraryId: string, fileId: string) => {
   return await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(aiLibraryId))
+    .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docId:=${fileId}` })
 }
 
-export const removeFileByName = async (
-  aiLibraryId: string,
-  fileName: string,
-) => {
+export const removeFileByName = async (libraryId: string, fileName: string) => {
   return await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(aiLibraryId))
+    .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docName:=${fileName}` })
 }

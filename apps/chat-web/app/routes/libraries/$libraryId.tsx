@@ -28,7 +28,7 @@ const aiLibraryEditQueryDocument = graphql(`
       description
       createdAt
       ownerId
-      aiLibraryType
+      libraryType
       url
     }
     aiLibraries(ownerId: $ownerId) {
@@ -64,8 +64,6 @@ const changeLibrary = createServerFn({ method: 'POST' })
       throw new Error('Invalid form data')
     }
 
-    console.log('form data', data.get('name'))
-
     const libraryId = z
       .string()
       .nonempty()
@@ -75,7 +73,7 @@ const changeLibrary = createServerFn({ method: 'POST' })
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiLibraryType: data.get('aiLibraryType'),
+      libraryType: data.get('libraryType'),
     })
     return { libraryId, library }
   })
@@ -188,7 +186,7 @@ function RouteComponent() {
         />
         <div role="tabpanel" className="tab-content p-10">
           <GoogleDriveFiles
-            aiLibraryId={aiLibrary.id}
+            libraryId={aiLibrary.id}
             currentLocationHref={currentLocation.href}
           />
         </div>
@@ -200,7 +198,7 @@ function RouteComponent() {
           aria-label="Embeddings"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <EmbeddingsTable aiLibraryId={aiLibrary.id} />
+          <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
         <input
           type="radio"
@@ -210,7 +208,7 @@ function RouteComponent() {
           aria-label="Query"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <LibraryQuery aiLibraryId={aiLibrary.id} />
+          <LibraryQuery libraryId={aiLibrary.id} />
         </div>
       </div>
     </article>
