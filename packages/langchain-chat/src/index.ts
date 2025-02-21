@@ -1,4 +1,4 @@
-import * as mainChain from './main-chain'
+import * as mainChain from './main-chain-google'
 import { RetrievalFlow } from './retrieval-flow'
 import * as vectorStore from './typesense-vectorstore'
 
