@@ -1,5 +1,6 @@
 import { ask, RetrievalFlow } from '@george-ai/langchain-chat'
 import i18n from '../i18n'
+export type ModelChoice = 'gpt-4' | 'gemini-1.5-pro'
 
 export interface LangchainChatMessage {
   id: string
@@ -9,10 +10,12 @@ export interface LangchainChatMessage {
   source: string
   time: Date
   retrievalFlow: RetrievalFlow
+  modelChoice: ModelChoice
 }
 
 const getDefaultChat = (
   retrievalFlow: RetrievalFlow = 'Sequential',
+  modelChoice: ModelChoice = 'gpt-4',
 ): LangchainChatMessage[] => [
   {
     id: '0',
@@ -22,6 +25,7 @@ const getDefaultChat = (
     source: 'George AI',
     time: new Date(),
     retrievalFlow,
+    modelChoice,
   },
 ]
 
@@ -35,6 +39,7 @@ const sendChatMessage = async (
   message: string,
   sessionId: string,
   retrievalFlow: RetrievalFlow,
+  modelChoice: ModelChoice,
 ): Promise<LangchainChatMessage[]> => {
   const oldChat = getChat(sessionId)
 
@@ -42,17 +47,21 @@ const sendChatMessage = async (
     question: message,
     sessionId,
     retrievalFlow,
+    modelChoice,
   })
 
-  const newMessages = [
+  const now = new Date()
+
+  const newMessages: LangchainChatMessage[] = [
     {
       id: Math.random().toString(),
       sessionId,
       sender: 'user',
       text: message,
       source: 'User',
-      time: new Date(Date.now()),
+      time: now,
       retrievalFlow,
+      modelChoice,
     },
     {
       id: Math.random().toString(),
@@ -60,10 +69,11 @@ const sendChatMessage = async (
       sender: 'bot',
       text: langchainResult.answer,
       source: langchainResult.source,
-      time: new Date(Date.now()),
+      time: now,
       retrievalFlow,
+      modelChoice,
     },
-  ] satisfies LangchainChatMessage[]
+  ]
 
   const newChat = [...oldChat, ...newMessages]
   chatItems = [
@@ -75,12 +85,20 @@ const sendChatMessage = async (
 
 const reset = (sessionId: string) => {
   const oldChat = getChat(sessionId)
+  if (!oldChat.length) {
+    const newChat = getDefaultChat()
+    chatItems = [
+      ...chatItems.filter((item) => item.sessionId !== sessionId),
+      ...newChat,
+    ]
+    return newChat
+  }
 
-  const lastFlow = oldChat.length
-    ? oldChat[oldChat.length - 1].retrievalFlow
-    : 'Sequential'
+  const lastMessage = oldChat[oldChat.length - 1]
+  const lastFlow = lastMessage.retrievalFlow
+  const lastModel = lastMessage.modelChoice
 
-  const newChat = getDefaultChat(lastFlow)
+  const newChat = getDefaultChat(lastFlow, lastModel)
   chatItems = [
     ...chatItems.filter((item) => item.sessionId !== sessionId),
     ...newChat,

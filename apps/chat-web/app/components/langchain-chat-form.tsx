@@ -5,9 +5,12 @@ import { RetrievalFlow } from '@george-ai/langchain-chat'
 import Alert from './alert'
 import { useAuth } from '../auth/auth-context'
 
+type ModelChoice = 'gpt-4' | 'gemini-1.5-pro'
+
 type LangchainChatFormProps = {
   sessionId: string
   retrievalFlow: RetrievalFlow
+  modelChoice: ModelChoice
 }
 
 const handleTextareaKeyDown = (
@@ -25,12 +28,16 @@ const handleTextareaKeyDown = (
 export const LangchainChatForm = ({
   sessionId,
   retrievalFlow,
+  modelChoice,
 }: LangchainChatFormProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
+
   const { mutate, error, status } = useMutation({
     mutationFn: (message: string) =>
-      sendChatMessage({ data: { message, sessionId, retrievalFlow } }),
+      sendChatMessage({
+        data: { message, sessionId, retrievalFlow, modelChoice },
+      }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions(sessionId))
 
@@ -51,6 +58,7 @@ export const LangchainChatForm = ({
               source: '',
               time: new Date(),
               retrievalFlow,
+              modelChoice,
             },
             {
               id: Math.random().toString(),
@@ -60,6 +68,7 @@ export const LangchainChatForm = ({
               source: '',
               time: new Date(),
               retrievalFlow,
+              modelChoice,
             },
           ],
         })
@@ -93,7 +102,6 @@ export const LangchainChatForm = ({
     const message = formData.get('message') as string
 
     form.reset()
-
     mutate(message)
   }
 

@@ -11,9 +11,13 @@ import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { FormattedMarkdown } from '../components/formatted-markdown'
 import { t } from 'i18next'
 
+type ModelChoice = 'gpt-4' | 'gemini-1.5-pro'
+
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
+
+  const [modelChoice, setModelChoice] = useState<ModelChoice>('gpt-4')
 
   const { data, refetch, isSuccess } = useSuspenseQuery(
     chatMessagesQueryOptions(sessionId),
@@ -49,6 +53,21 @@ const ChatRoute = () => {
             {
               title: t('flowWeb'),
               action: () => setSelectedFlow('Only Web'),
+            },
+          ]}
+        />
+
+        <Dropdown
+          className="w-52"
+          title={modelChoice}
+          options={[
+            {
+              title: 'GPT-4',
+              action: () => setModelChoice('gpt-4'),
+            },
+            {
+              title: 'Gemini 1.5 Pro',
+              action: () => setModelChoice('gemini-1.5-pro'),
             },
           ]}
         />
@@ -93,10 +112,12 @@ const ChatRoute = () => {
           </div>
         ))}
       </section>
+
       {data?.sessionId && (
         <LangchainChatForm
           sessionId={data.sessionId}
           retrievalFlow={selectedFlow}
+          modelChoice={modelChoice}
         />
       )}
     </div>
