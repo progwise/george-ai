@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { AiLibrary } from '../../gql/graphql'
+import { DropdownIcon } from '../../icons/dropdown-icon'
 
 interface LibrarySelectorProps {
   libraries: Pick<AiLibrary, 'id' | 'name'>[]
@@ -10,8 +11,13 @@ export const LibrarySelector = (props: LibrarySelectorProps) => {
   const { libraries, selectedLibrary } = props
   return (
     <div className="dropdown dropdown-sm">
-      <div tabIndex={0} role="button" className="btn btn-sm">
+      <div
+        tabIndex={0}
+        role="button"
+        className="btn btn-sm min-w-52 flex justify-between"
+      >
         {selectedLibrary.name}
+        <DropdownIcon />
       </div>
       <ul
         tabIndex={0}
