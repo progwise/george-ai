@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendMessage } from '../../server-functions/conversations'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useAuth } from '../../auth/auth-context'
@@ -21,6 +21,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     ConversationForm_ConversationFragment,
     props.conversation,
   )
+  const queryClient = useQueryClient()
   const { user } = useAuth()
 
   const { mutate, isPending } = useMutation({
@@ -42,6 +43,10 @@ export const ConversationForm = (props: ConversationFormProps) => {
         },
       })
       return result
+    },
+    onSettled: () => {
+      // refetch the conversation to get the new message
+      queryClient.invalidateQueries(['conversation', conversation.id])
     },
   })
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
