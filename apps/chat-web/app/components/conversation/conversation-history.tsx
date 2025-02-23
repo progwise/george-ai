@@ -1,9 +1,11 @@
-import { twMerge } from 'tailwind-merge'
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { FormattedMarkdown } from '../formatted-markdown'
+import { useEffect, useState } from 'react'
+import { getBackendUrl } from '../../server-functions/backend'
+import { ConversationMessage } from './conversation-message'
 
 const ConversationHistory_ConversationFragment = graphql(`
   fragment ConversationHistory_conversation on AiConversation {
+    id
     messages {
       id
       content
@@ -12,8 +14,7 @@ const ConversationHistory_ConversationFragment = graphql(`
       sender {
         id
         name
-        isAssistant
-        isHuman
+        isBot
       }
     }
   }
@@ -22,69 +23,109 @@ const ConversationHistory_ConversationFragment = graphql(`
 interface ConversationHistoryProps {
   conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
 }
+
+const backend_url = await getBackendUrl()
+
+interface IncommingMessage {
+  id: string
+  content: string
+  source: string
+  createdAt: string
+  sender: {
+    id: string
+    name: string
+    isBot: boolean
+  }
+}
+
 export const ConversationHistory = (props: ConversationHistoryProps) => {
   const conversation = useFragment(
     ConversationHistory_ConversationFragment,
     props.conversation,
   )
+  const [newMessages, setNewMessages] = useState<IncommingMessage[]>([])
   const messages = conversation.messages
   const isAssistantLoading = false
+  const selectedConversationId = conversation.id
+
+  useEffect(() => {
+    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+    setNewMessages([])
+  }, [messages])
+
+  useEffect(() => {
+    if (!selectedConversationId || !backend_url) {
+      return
+    }
+    const evtSource = new EventSource(
+      `${backend_url}/conversation-messages-sse?conversationId=${selectedConversationId}`,
+    )
+    const incommingMessages: IncommingMessage[] = []
+
+    evtSource.onmessage = (event) => {
+      const incomingMessage = JSON.parse(event.data) as IncommingMessage
+      const index = incommingMessages.findIndex(
+        (message) => message.id === incomingMessage.id,
+      )
+
+      if (index === -1) {
+        incommingMessages.push(incomingMessage)
+        setNewMessages((prev) => [...prev, incomingMessage])
+        return
+      } else {
+        incommingMessages[index].content += incomingMessage.content
+      }
+
+      const div = document.getElementById(
+        `textarea_${incomingMessage.id}`,
+      ) as HTMLDivElement
+      if (div) {
+        div.innerHTML = incommingMessages[index].content
+      }
+    }
+    evtSource.onerror = (error) => {
+      console.error('evtSource error:', error)
+    }
+    return () => {
+      evtSource.close()
+    }
+  }, [selectedConversationId])
+
   return (
     <section className="flex flex-col gap-4">
       {messages?.map((message) => (
-        <div
+        <ConversationMessage
           key={message.id}
-          className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div
-              className={twMerge(
-                'w-8 h-8 flex items-center justify-center',
-                message.sender?.isHuman &&
-                  'bg-primary text-primary-content rounded-full',
-                message.sender?.isAssistant &&
-                  'bg-accent text-neutral-900 rounded-full',
-              )}
-            >
-              {isAssistantLoading && (
-                <>
-                  <span className="loading loading-dots loading-xs"></span>
-                  {message.sender.name?.charAt(0).toUpperCase()}
-                </>
-              )}
-            </div>
-
-            <div className="flex flex-col">
-              <span className="font-semibold text-sm">
-                {message.sender.name}
-              </span>
-              <span className="text-xs opacity-60">
-                {new Date(message.createdAt).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}{' '}
-                ·{' '}
-                {new Date(message.createdAt).toLocaleDateString([], {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </span>
-            </div>
-          </div>
-          <div className="border-t border-base-200 pt-3">
-            {isAssistantLoading ? (
-              <span className="text-sm opacity-70">
-                Waiting for George AI to respond...
-              </span>
-            ) : (
-              <FormattedMarkdown markdown={message.content} />
-            )}
-          </div>
-
-          <div className="mt-2 text-xs opacity-70">
-            Source: {message.source}
-          </div>
-        </div>
+          isLoading={isAssistantLoading}
+          message={{
+            id: message.id,
+            content: message.content || '',
+            source: message.source,
+            createdAt: message.createdAt,
+            sender: {
+              id: message.sender.id,
+              name: message.sender.name || 'Unknown',
+              isBot: message.sender.isBot,
+            },
+          }}
+        />
+      ))}
+      {newMessages.map((message) => (
+        <ConversationMessage
+          key={message.id}
+          isLoading={true}
+          message={{
+            id: message.id,
+            content: message.content,
+            source: message.source,
+            createdAt: message.createdAt,
+            sender: {
+              id: message.sender.id,
+              name: message.sender.name || 'Unknown',
+              isBot: message.sender.isBot,
+            },
+          }}
+        />
       ))}
     </section>
   )

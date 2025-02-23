@@ -19,7 +19,7 @@ export interface AssistantChainMessage {
   isBot: boolean
 }
 
-export const askAssistantChain = async (input: {
+export async function* askAssistantChain(input: {
   message: AssistantChainMessage
   history: AssistantChainMessage[]
   assistant: { id: string; name: string }
@@ -27,28 +27,20 @@ export const askAssistantChain = async (input: {
     id: string
     name: string
   }[]
-}) => {
-  console.log('askAssistantChain 1:', input)
+}) {
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history)
 
   const searchPrompt = await searchVectorStorePrompt.invoke({
     chat_history: trimmedHistoryMessages,
     question: input.message.content,
   })
-
-  console.log('askAssistantChain 1.1:', searchPrompt)
-
   // what about individual prompts for individual libraries?
   const searchQuery = await model.invoke(searchPrompt, {})
-
-  console.log('askAssistantChain 2:', searchQuery)
 
   const pdfContent = await getPDFContentForQuestionAndLibraries(
     searchQuery.content.toString(),
     input.libraries,
   )
-
-  console.log('askAssistantChain 3:', pdfContent)
 
   const prompt = await assistantPrompt.invoke({
     chat_history: trimmedHistoryMessages,
@@ -56,12 +48,14 @@ export const askAssistantChain = async (input: {
     context: pdfContent,
   })
 
-  console.log('askAssistantChain 4:', prompt)
+  // TODO: Yield the prompt and the answer separately
+  // yield 'Hier kommt mein Prompt...\n\n'
+  // yield prompt.toString()
+  // yield '\n\n...und hier meine Antwort...\n\n'
 
-  const response = await model.invoke(prompt, {})
-
-  console.log('askAssistantChain 5:', response)
-  return { response: response.content.toString(), prompt }
+  for await (const chunk of await model.stream(prompt, {})) {
+    yield chunk.content.toString()
+  }
 }
 
 const searchVectorStorePrompt = ChatPromptTemplate.fromMessages([
@@ -97,6 +91,9 @@ const assistantPrompt = ChatPromptTemplate.fromMessages([
 ])
 
 const getTrimmedHistoryMessages = async (history: AssistantChainMessage[]) => {
+  if (history.length === 0) {
+    return []
+  }
   const trimmer = trimMessages({
     maxTokens: 10,
     strategy: 'last',

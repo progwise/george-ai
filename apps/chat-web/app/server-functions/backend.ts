@@ -141,3 +141,7 @@ export const getBackendGraphQLSchema = createServerFn({
 }).handler(() => {
   return backendRequest(introspectionQueryDocument)
 })
+
+export const getBackendUrl = createServerFn({ method: 'GET' }).handler(() => {
+  return BACKEND_URL
+})

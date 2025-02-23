@@ -103,6 +103,7 @@ export type AiConversationParticipant = {
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
   isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isBot: Scalars['Boolean']['output']
   isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
@@ -188,6 +189,7 @@ export type AssistantParticipant = AiConversationParticipant & {
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
   isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isBot: Scalars['Boolean']['output']
   isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
@@ -210,6 +212,7 @@ export type HumanParticipant = AiConversationParticipant & {
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
   isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isBot: Scalars['Boolean']['output']
   isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
@@ -227,15 +230,17 @@ export type Mutation = {
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
+  deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
-  sendMessage?: Maybe<AiConversationMessage>
+  sendMessage: Array<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
+  updateMessage?: Maybe<AiConversationMessage>
 }
 
 export type MutationAddConversationParticipantsArgs = {
@@ -281,6 +286,10 @@ export type MutationDeleteAiConversationArgs = {
   conversationId: Scalars['String']['input']
 }
 
+export type MutationDeleteMessageArgs = {
+  messageId: Scalars['String']['input']
+}
+
 export type MutationDropFileArgs = {
   fileId: Scalars['String']['input']
 }
@@ -318,6 +327,11 @@ export type MutationUpdateAiLibraryArgs = {
 
 export type MutationUpdateLibraryUsageArgs = {
   data: AiLibraryUsageInput
+}
+
+export type MutationUpdateMessageArgs = {
+  content: Scalars['String']['input']
+  messageId: Scalars['String']['input']
 }
 
 export type Query = {
@@ -662,6 +676,7 @@ export type ConversationForm_ConversationFragment = {
 
 export type ConversationHistory_ConversationFragment = {
   __typename?: 'AiConversation'
+  id: string
   messages?: Array<{
     __typename?: 'AiConversationMessage'
     id: string
@@ -673,15 +688,13 @@ export type ConversationHistory_ConversationFragment = {
           __typename?: 'AssistantParticipant'
           id: string
           name?: string | null
-          isAssistant?: boolean | null
-          isHuman?: boolean | null
+          isBot: boolean
         }
       | {
           __typename?: 'HumanParticipant'
           id: string
           name?: string | null
-          isAssistant?: boolean | null
-          isHuman?: boolean | null
+          isBot: boolean
         }
   }> | null
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
@@ -1172,11 +1185,11 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = {
   __typename?: 'Mutation'
-  sendMessage?: {
+  sendMessage: Array<{
     __typename?: 'AiConversationMessage'
     id: string
     createdAt: string
-  } | null
+  }>
 }
 
 export type CreateConversationMutationVariables = Exact<{
@@ -1286,6 +1299,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'messages' },
@@ -1304,14 +1318,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'isAssistant' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'isHuman' },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                     ],
                   },
                 },
@@ -3430,6 +3437,7 @@ export const GetConversationDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'messages' },
@@ -3448,14 +3456,7 @@ export const GetConversationDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'isAssistant' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'isHuman' },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                     ],
                   },
                 },

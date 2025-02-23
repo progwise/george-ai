@@ -23,6 +23,11 @@ const participantInterface = builder.prismaInterface(
         type: 'Boolean',
         resolve: async (source) => !!source.userId,
       }),
+      isBot: t.field({
+        nullable: false,
+        type: 'Boolean',
+        resolve: async (source) => !source.userId,
+      }),
       name: t.field({
         type: 'String',
         resolve: async (source) => {

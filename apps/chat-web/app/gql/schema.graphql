@@ -71,6 +71,7 @@ interface AiConversationParticipant {
   conversationId: ID!
   id: ID!
   isAssistant: Boolean
+  isBot: Boolean!
   isHuman: Boolean
   name: String
   user: User
@@ -153,6 +154,7 @@ type AssistantParticipant implements AiConversationParticipant {
   conversationId: ID!
   id: ID!
   isAssistant: Boolean
+  isBot: Boolean!
   isHuman: Boolean
   name: String
   user: User
@@ -185,6 +187,7 @@ type HumanParticipant implements AiConversationParticipant {
   conversationId: ID!
   id: ID!
   isAssistant: Boolean
+  isBot: Boolean!
   isHuman: Boolean
   name: String
   user: User
@@ -209,6 +212,7 @@ type Mutation {
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
+  deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
@@ -217,10 +221,11 @@ type Mutation {
   sendMessage(
     data: AiConversationMessageInput!
     userId: String!
-  ): AiConversationMessage
+  ): [AiConversationMessage!]!
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
+  updateMessage(content: String!, messageId: String!): AiConversationMessage
 }
 
 type Query {

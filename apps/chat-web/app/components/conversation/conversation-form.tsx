@@ -1,8 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { sendMessage } from '../../server-functions/conversations'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useAuth } from '../../auth/auth-context'
-import { queryKeys } from '../../query-keys'
 
 const ConversationForm_ConversationFragment = graphql(`
   fragment ConversationForm_conversation on AiConversation {
@@ -18,7 +17,6 @@ interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
-  const queryClient = useQueryClient()
   const conversation = useFragment(
     ConversationForm_ConversationFragment,
     props.conversation,
@@ -44,14 +42,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
         },
       })
       return result
-    },
-    onSettled: async () => {
-      if (!user) {
-        throw new Error('User not set')
-      }
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, conversation.id],
-      })
     },
   })
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
