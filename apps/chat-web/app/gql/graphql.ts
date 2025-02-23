@@ -27,6 +27,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
+  BigInt: { input: any; output: any }
   /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   Date: { input: string; output: string }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
@@ -67,7 +68,7 @@ export type AiConversation = {
   createdAt: Scalars['DateTime']['output']
   humans: Array<User>
   id: Scalars['ID']['output']
-  messages?: Maybe<Array<AiConversationMessage>>
+  messages: Array<AiConversationMessage>
   participants: Array<AiConversationParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -86,6 +87,7 @@ export type AiConversationMessage = {
   id: Scalars['ID']['output']
   sender: AiConversationParticipant
   senderId: Scalars['ID']['output']
+  sequenceNumber: Scalars['BigInt']['output']
   source?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -677,9 +679,10 @@ export type ConversationForm_ConversationFragment = {
 export type ConversationHistory_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
-  messages?: Array<{
+  messages: Array<{
     __typename?: 'AiConversationMessage'
     id: string
+    sequenceNumber: any
     content?: string | null
     source?: string | null
     createdAt: string
@@ -696,7 +699,7 @@ export type ConversationHistory_ConversationFragment = {
           name?: string | null
           isBot: boolean
         }
-  }> | null
+  }>
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
 
 export type ConversationParticipants_ConversationFragment = {
@@ -1307,6 +1310,10 @@ export const ConversationHistory_ConversationFragmentDoc = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sequenceNumber' },
+                },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
@@ -3445,6 +3452,10 @@ export const GetConversationDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sequenceNumber' },
+                },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },

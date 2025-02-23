@@ -1,5 +1,6 @@
 type callback = (message: {
   messageId: string
+  sequenceNumber: bigint
   content: string
   createdAt: Date
   updatedAt: Date
@@ -35,6 +36,7 @@ export const callConversationMessagesUpdateSubscriptions = ({
   conversationId: string
   message: {
     messageId: string
+    sequenceNumber: bigint
     content: string
     createdAt: Date
     updatedAt: Date

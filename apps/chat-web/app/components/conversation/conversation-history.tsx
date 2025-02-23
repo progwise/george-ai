@@ -8,6 +8,7 @@ const ConversationHistory_ConversationFragment = graphql(`
     id
     messages {
       id
+      sequenceNumber
       content
       source
       createdAt
@@ -28,6 +29,7 @@ const backend_url = await getBackendUrl()
 
 interface IncommingMessage {
   id: string
+  sequenceNumber: string
   content: string
   source: string
   createdAt: string
@@ -70,7 +72,13 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
 
       if (index === -1) {
         incommingMessages.push(incomingMessage)
-        setNewMessages((prev) => [...prev, incomingMessage])
+        setNewMessages((prev) =>
+          [...prev, incomingMessage].sort((a, b) => {
+            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0
+              ? 1
+              : -1
+          }),
+        )
         return
       } else {
         incommingMessages[index].content += incomingMessage.content

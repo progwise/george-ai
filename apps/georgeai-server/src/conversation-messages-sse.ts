@@ -22,14 +22,21 @@ export const conversationMessagesSSE = async (
   const conversationMessagesUpdateSubscriptionId =
     subscribeConversationMessagesUpdate(
       conversationId,
-      ({ messageId, content, createdAt, updatedAt, sender }) => {
+      ({
+        messageId,
+        sequenceNumber,
+        content,
+        createdAt,
+        updatedAt,
+        sender,
+      }) => {
         const id = eventIds.get(conversationId) || 0
         eventIds.set(conversationId, id + 1)
 
         response.write(`id: ${id}\n`)
         response.write('event: message\n')
         response.write(
-          `data: ${JSON.stringify({ id: messageId, content, createdAt, updatedAt, sender })}\n\n`,
+          `data: ${JSON.stringify({ id: messageId, sequenceNumber: sequenceNumber.toString(), content, createdAt, updatedAt, sender })}\n\n`,
         )
       },
     )

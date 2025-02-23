@@ -9,7 +9,10 @@ builder.prismaObject('AiConversation', {
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: true }),
     participants: t.relation('participants', { nullable: false }),
-    messages: t.relation('messages'),
+    messages: t.relation('messages', {
+      nullable: false,
+      query: () => ({ orderBy: [{ sequenceNumber: 'asc' }] }),
+    }),
     humans: t.prismaField({
       type: ['User'],
       nullable: {

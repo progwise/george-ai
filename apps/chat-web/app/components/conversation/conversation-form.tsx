@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendMessage } from '../../server-functions/conversations'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useAuth } from '../../auth/auth-context'
+import { queryKeys } from '../../query-keys'
 
 const ConversationForm_ConversationFragment = graphql(`
   fragment ConversationForm_conversation on AiConversation {
@@ -46,7 +47,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
     },
     onSettled: () => {
       // refetch the conversation to get the new message
-      queryClient.invalidateQueries(['conversation', conversation.id])
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.Conversation, conversation.id],
+      })
     },
   })
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

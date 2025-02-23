@@ -8,6 +8,10 @@ console.log('Setting up: AiConversationMessage')
 builder.prismaObject('AiConversationMessage', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
+    sequenceNumber: t.expose('sequenceNumber', {
+      type: 'BigInt',
+      nullable: false,
+    }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: true }),
     content: t.expose('content', { type: 'String' }),
@@ -141,6 +145,7 @@ builder.mutationField('sendMessage', (t) =>
         conversationId: data.conversationId,
         message: {
           messageId: newUserMessage.id,
+          sequenceNumber: newUserMessage.sequenceNumber,
           content: data.content,
           createdAt: newUserMessage.createdAt,
           updatedAt: newUserMessage.updatedAt,
@@ -169,6 +174,7 @@ builder.mutationField('sendMessage', (t) =>
             conversationId: data.conversationId,
             message: {
               messageId: newAssistantMessage.id,
+              sequenceNumber: newAssistantMessage.sequenceNumber,
               content: '',
               createdAt: newAssistantMessage.createdAt,
               updatedAt: newAssistantMessage.updatedAt,
@@ -215,6 +221,7 @@ builder.mutationField('sendMessage', (t) =>
               conversationId: data.conversationId,
               message: {
                 messageId: newAssistantMessage.id,
+                sequenceNumber: newAssistantMessage.sequenceNumber,
                 content,
                 createdAt: newAssistantMessage.createdAt,
                 updatedAt: newAssistantMessage.updatedAt,

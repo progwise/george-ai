@@ -126,6 +126,7 @@ model AiConversationParticipant {
 
 model AiConversationMessage {
   id             String                    @id @default(cuid())
+  sequenceNumber BigInt                    @default(autoincrement())
   createdAt      DateTime                  @default(now())
   updatedAt      DateTime                  @updatedAt
   sender         AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)

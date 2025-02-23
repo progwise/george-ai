@@ -36,7 +36,7 @@ type AiConversation {
   createdAt: DateTime!
   humans: [User!]!
   id: ID!
-  messages: [AiConversationMessage!]
+  messages: [AiConversationMessage!]!
   participants: [AiConversationParticipant!]!
   updatedAt: DateTime
 }
@@ -54,6 +54,7 @@ type AiConversationMessage {
   id: ID!
   sender: AiConversationParticipant!
   senderId: ID!
+  sequenceNumber: BigInt!
   source: String
   updatedAt: DateTime
 }
@@ -160,6 +161,8 @@ type AssistantParticipant implements AiConversationParticipant {
   user: User
   userId: ID
 }
+
+scalar BigInt
 
 type ChatAnswer {
   answer: String
