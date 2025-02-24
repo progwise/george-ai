@@ -153,6 +153,7 @@ builder.mutationField('sendMessage', (t) =>
             id: userId,
             name: participant.user?.name || 'Unknown',
             isBot: false,
+            assistantId: undefined,
           },
         },
       })
@@ -179,9 +180,10 @@ builder.mutationField('sendMessage', (t) =>
               createdAt: newAssistantMessage.createdAt,
               updatedAt: newAssistantMessage.updatedAt,
               sender: {
-                id: assistant.id,
+                id: participant.id,
                 name: assistant.name,
                 isBot: true,
+                assistantId: assistant.id,
               },
             },
           })
@@ -226,9 +228,10 @@ builder.mutationField('sendMessage', (t) =>
                 createdAt: newAssistantMessage.createdAt,
                 updatedAt: newAssistantMessage.updatedAt,
                 sender: {
-                  id: assistant.id,
+                  id: participant.id,
                   name: assistant.name,
                   isBot: true,
+                  assistantId: assistant.id,
                 },
               },
             })

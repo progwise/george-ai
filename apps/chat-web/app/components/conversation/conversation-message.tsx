@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge'
 import { FormattedMarkdown } from '../formatted-markdown'
+import { Link } from '@tanstack/react-router'
 
 interface ConversationMessageProps {
   isLoading: boolean
@@ -10,6 +11,7 @@ interface ConversationMessageProps {
     createdAt: string
     sender: {
       id: string
+      assistantId?: string
       name: string
       isBot: boolean
     }
@@ -33,7 +35,16 @@ export const ConversationMessage = ({
             message.sender.isBot && 'bg-accent text-accent-content',
           )}
         >
-          {message.sender.name?.[0].toUpperCase()}
+          {message.sender.isBot ? (
+            <Link
+              to="/assistants/$assistantId"
+              params={{ assistantId: message.sender.assistantId! }}
+            >
+              🤖
+            </Link>
+          ) : (
+            message.sender.name?.[0].toUpperCase()
+          )}
         </div>
 
         <div className="flex flex-col">

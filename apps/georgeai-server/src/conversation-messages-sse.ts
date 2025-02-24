@@ -10,6 +10,10 @@ export const conversationMessagesSSE = async (
   request: Request,
   response: Response,
 ) => {
+  if (!request.query['conversationId']) {
+    response.status(400).send('conversationId is required')
+    return
+  }
   response.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',

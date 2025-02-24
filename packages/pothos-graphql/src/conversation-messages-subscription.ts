@@ -1,16 +1,20 @@
-type callback = (message: {
+interface Message {
   messageId: string
   sequenceNumber: bigint
   content: string
   createdAt: Date
   updatedAt: Date
-  sender: { id: string; name: string; isBot: boolean }
-}) => void
+  sender: { id: string; name: string; isBot: boolean; assistantId?: string }
+}
+type callback = (message: Message) => void
 
-const subscriptions = new Map<
-  string,
-  { subscriptionId: string; subscribedSince: Date; callback: callback }[]
->()
+interface Subscription {
+  subscriptionId: string
+  subscribedSince: Date
+  callback: callback
+}
+
+const subscriptions = new Map<string, Subscription[]>()
 
 export const subscribeConversationMessagesUpdate = (
   conversationId: string,
@@ -34,14 +38,7 @@ export const callConversationMessagesUpdateSubscriptions = ({
   message,
 }: {
   conversationId: string
-  message: {
-    messageId: string
-    sequenceNumber: bigint
-    content: string
-    createdAt: Date
-    updatedAt: Date
-    sender: { id: string; name: string; isBot: boolean }
-  }
+  message: Message
 }) => {
   const subscribers = subscriptions.get(conversationId)
 

@@ -17,6 +17,7 @@ const ConversationHistory_ConversationFragment = graphql(`
         id
         name
         isBot
+        assistantId
       }
     }
   }
@@ -36,6 +37,7 @@ interface IncomingMessage {
   createdAt: string
   sender: {
     id: string
+    assistantId?: string
     name: string
     isBot: boolean
   }
@@ -113,6 +115,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
             createdAt: message.createdAt,
             sender: {
               id: message.sender.id,
+              assistantId: message.sender.assistantId || undefined,
               name: message.sender.name || 'Unknown',
               isBot: message.sender.isBot,
             },
@@ -132,6 +135,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
               id: message.sender.id,
               name: message.sender.name,
               isBot: message.sender.isBot,
+              assistantId: message.sender.assistantId,
             },
           }}
         />
