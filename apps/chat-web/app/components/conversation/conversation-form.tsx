@@ -86,7 +86,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     <div className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4">
       <div className="flex items-center gap-3 mb-2">
         <div className="w-8 h-8 flex items-center justify-center bg-primary text-primary-content rounded-full">
-          {' '}
+          {user.name?.[0] || user.username[0]}
         </div>
 
         <div className="flex flex-col">

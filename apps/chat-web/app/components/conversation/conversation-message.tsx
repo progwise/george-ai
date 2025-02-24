@@ -29,10 +29,12 @@ export const ConversationMessage = ({
         <div
           className={twMerge(
             'w-8 h-8 flex items-center justify-center rounded-full',
-            !message.sender.isBot && 'bg-primary',
-            message.sender.isBot && 'bg-accent',
+            !message.sender.isBot && 'bg-primary text-primary-content',
+            message.sender.isBot && 'bg-accent text-accent-content',
           )}
-        ></div>
+        >
+          {message.sender.name?.[0].toUpperCase()}
+        </div>
 
         <div className="flex flex-col">
           <span className="font-semibold text-sm">{message.sender.name}</span>
@@ -55,16 +57,14 @@ export const ConversationMessage = ({
         )}
       </div>
       <div className="border-t border-base-200 pt-3">
-        {!isLoading ? (
-          <FormattedMarkdown markdown={message.content} />
-        ) : (
-          <>
-            <div id={`textarea_${message.id}`}>{message.content}</div>
-          </>
-        )}
+        <FormattedMarkdown
+          id={`textarea_${message.id}`}
+          markdown={message.content}
+        />
       </div>
-
-      <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>
+      {message.source && (
+        <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>
+      )}
     </div>
   )
 }
