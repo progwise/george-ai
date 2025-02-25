@@ -5,6 +5,7 @@ import express from 'express'
 import { schema } from '@george-ai/pothos-graphql'
 import { dataUploadMiddleware } from './upload'
 import { conversationMessagesSSE } from './conversation-messages-sse'
+import cors from 'cors'
 
 const yoga = createYoga({
   schema,
@@ -16,7 +17,11 @@ yogaRouter.use(yoga)
 
 const app = express()
 
+app.use(cors())
+
 app.use((req, res, next) => {
+  res.setHeader('access-control-allow-origin', '*')
+
   const authHeader = req.headers.authorization
   if (
     req.method.toUpperCase() === 'POST' &&

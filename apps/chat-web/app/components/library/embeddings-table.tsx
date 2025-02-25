@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
@@ -5,6 +6,7 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../loading-spinner'
+import { DesktopFiles } from './desktop-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
@@ -97,6 +99,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { data, isLoading, refetch } = useSuspenseQuery(
     aiLibraryFilesQueryOptions(libraryId),
   )
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   if (isLoading) {
     return <LoadingSpinner />
   }
@@ -114,6 +118,17 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Clear
           </button>
+          <button
+            type="button"
+            className="btn btn-xs"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Upload
+          </button>
+          <DesktopFiles
+            libraryId={libraryId}
+            fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
+          />
         </div>
       </nav>
       <table className="table">

@@ -185,21 +185,23 @@ function RouteComponent() {
           defaultChecked
         />
         <div role="tabpanel" className="tab-content p-10">
-          <GoogleDriveFiles
-            libraryId={aiLibrary.id}
-            currentLocationHref={currentLocation.href}
-          />
+          <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
+
         <input
           type="radio"
           name="my_tabs_1"
           role="tab"
           className="tab"
-          aria-label="Embeddings"
+          aria-label="Google Drive"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <EmbeddingsTable libraryId={aiLibrary.id} />
+          <GoogleDriveFiles
+            libraryId={aiLibrary.id}
+            currentLocationHref={currentLocation.href}
+          />
         </div>
+
         <input
           type="radio"
           name="my_tabs_1"
