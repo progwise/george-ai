@@ -54,8 +54,16 @@ export const callConversationMessagesUpdateSubscriptions = ({
   return Promise.all(allPromises)
 }
 
-export const unsubscribeConversationMessagesUpdates = (
-  subscriptionId: string,
-) => {
-  subscriptions.delete(subscriptionId)
+export const unsubscribeConversationMessagesUpdates = ({
+  conversationId,
+  subscriptionId,
+}: {
+  conversationId: string
+  subscriptionId: string
+}) => {
+  const subscribers = subscriptions.get(conversationId)
+  subscriptions.set(
+    conversationId,
+    subscribers?.filter((s) => s.subscriptionId !== subscriptionId) || [],
+  )
 }

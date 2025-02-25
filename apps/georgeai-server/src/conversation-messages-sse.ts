@@ -48,9 +48,10 @@ export const conversationMessagesSSE = async (
   request.on('close', () => {
     console.log('SSE connection closed by client', conversationId)
     console.log('Cancel Subscription', conversationMessagesUpdateSubscriptionId)
-    unsubscribeConversationMessagesUpdates(
-      conversationMessagesUpdateSubscriptionId,
-    )
+    unsubscribeConversationMessagesUpdates({
+      conversationId,
+      subscriptionId: conversationMessagesUpdateSubscriptionId,
+    })
     response.end()
   })
 }
