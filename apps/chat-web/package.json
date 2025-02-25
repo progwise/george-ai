@@ -28,8 +28,11 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-i18next": "^15.4.0",
-    "react-markdown": "^9.0.3",
+    "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.1",
+    "unified": "^11.0.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {

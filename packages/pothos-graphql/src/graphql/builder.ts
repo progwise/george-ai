@@ -27,6 +27,10 @@ const builder = new SchemaBuilder<{
       Input: Prisma.Decimal
       Output: Prisma.Decimal
     }
+    BigInt: {
+      Input: bigint
+      Output: bigint
+    }
   }
 }>({
   defaultInputFieldRequiredness: true,

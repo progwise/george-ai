@@ -10,6 +10,7 @@ import { PlusIcon } from '../../icons/plus-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { queryKeys } from '../../query-keys'
+import { useAuth } from '../../auth/auth-context'
 
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_conversation on AiConversation {
@@ -60,6 +61,7 @@ export const ConversationParticipants = (
 ) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
+  const auth = useAuth()
   const conversation = useFragment(
     ConversationParticipants_ConversationFragment,
     props.conversation,
@@ -127,6 +129,10 @@ export const ConversationParticipants = (
     const userIds = formData.getAll('users').map((id) => id.toString())
 
     mutateAdd({ assistantIds, userIds })
+  }
+
+  if (auth.user == null || !auth.user?.id) {
+    return <></>
   }
 
   return (
@@ -206,13 +212,17 @@ export const ConversationParticipants = (
             participant.userId && 'badge-primary',
           )}
         >
-          <button
-            type="button"
-            className="btn btn-ghost btn-xs btn-circle"
-            onClick={(event) => handleRemoveParticipant(event, participant.id)}
-          >
-            <CrossIcon />
-          </button>
+          {participant.userId !== auth.user?.id && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs btn-circle"
+              onClick={(event) =>
+                handleRemoveParticipant(event, participant.id)
+              }
+            >
+              <CrossIcon />
+            </button>
+          )}
           {participant.name}
         </div>
       ))}

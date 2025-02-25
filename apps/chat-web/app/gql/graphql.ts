@@ -27,6 +27,7 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
+  BigInt: { input: any; output: any }
   /** A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   Date: { input: string; output: string }
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
@@ -67,7 +68,7 @@ export type AiConversation = {
   createdAt: Scalars['DateTime']['output']
   humans: Array<User>
   id: Scalars['ID']['output']
-  messages?: Maybe<Array<AiConversationMessage>>
+  messages: Array<AiConversationMessage>
   participants: Array<AiConversationParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -82,16 +83,19 @@ export type AiConversationMessage = {
   content?: Maybe<Scalars['String']['output']>
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
-  createdAt?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
-  sender?: Maybe<AiConversationParticipant>
+  sender: AiConversationParticipant
   senderId: Scalars['ID']['output']
+  sequenceNumber: Scalars['BigInt']['output']
+  source?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 export type AiConversationMessageInput = {
   content: Scalars['String']['input']
   conversationId: Scalars['String']['input']
+  recipientAssistantIds: Array<Scalars['String']['input']>
 }
 
 export type AiConversationParticipant = {
@@ -100,6 +104,9 @@ export type AiConversationParticipant = {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
+  isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isBot: Scalars['Boolean']['output']
+  isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
@@ -183,6 +190,9 @@ export type AssistantParticipant = AiConversationParticipant & {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
+  isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isBot: Scalars['Boolean']['output']
+  isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
@@ -203,6 +213,9 @@ export type HumanParticipant = AiConversationParticipant & {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   id: Scalars['ID']['output']
+  isAssistant?: Maybe<Scalars['Boolean']['output']>
+  isBot: Scalars['Boolean']['output']
+  isHuman?: Maybe<Scalars['Boolean']['output']>
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
@@ -219,15 +232,17 @@ export type Mutation = {
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
+  deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
-  sendMessage?: Maybe<AiConversationMessage>
+  sendMessage: Array<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
+  updateMessage?: Maybe<AiConversationMessage>
 }
 
 export type MutationAddConversationParticipantsArgs = {
@@ -273,6 +288,10 @@ export type MutationDeleteAiConversationArgs = {
   conversationId: Scalars['String']['input']
 }
 
+export type MutationDeleteMessageArgs = {
+  messageId: Scalars['String']['input']
+}
+
 export type MutationDropFileArgs = {
   fileId: Scalars['String']['input']
 }
@@ -310,6 +329,11 @@ export type MutationUpdateAiLibraryArgs = {
 
 export type MutationUpdateLibraryUsageArgs = {
   data: AiLibraryUsageInput
+}
+
+export type MutationUpdateMessageArgs = {
+  content: Scalars['String']['input']
+  messageId: Scalars['String']['input']
 }
 
 export type Query = {
@@ -654,19 +678,30 @@ export type ConversationForm_ConversationFragment = {
 
 export type ConversationHistory_ConversationFragment = {
   __typename?: 'AiConversation'
-  messages?: Array<{
+  id: string
+  messages: Array<{
     __typename?: 'AiConversationMessage'
     id: string
+    sequenceNumber: any
     content?: string | null
-    sender?:
+    source?: string | null
+    createdAt: string
+    sender:
       | {
           __typename?: 'AssistantParticipant'
           id: string
           name?: string | null
+          isBot: boolean
+          assistantId?: string | null
         }
-      | { __typename?: 'HumanParticipant'; id: string; name?: string | null }
-      | null
-  }> | null
+      | {
+          __typename?: 'HumanParticipant'
+          id: string
+          name?: string | null
+          isBot: boolean
+          assistantId?: string | null
+        }
+  }>
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
 
 export type ConversationParticipants_ConversationFragment = {
@@ -1155,11 +1190,11 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = {
   __typename?: 'Mutation'
-  sendMessage?: {
+  sendMessage: Array<{
     __typename?: 'AiConversationMessage'
     id: string
-    createdAt?: string | null
-  } | null
+    createdAt: string
+  }>
 }
 
 export type CreateConversationMutationVariables = Exact<{
@@ -1269,6 +1304,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'messages' },
@@ -1276,7 +1312,13 @@ export const ConversationHistory_ConversationFragmentDoc = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sequenceNumber' },
+                },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'source' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'sender' },
@@ -1285,6 +1327,11 @@ export const ConversationHistory_ConversationFragmentDoc = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistantId' },
+                      },
                     ],
                   },
                 },
@@ -3403,6 +3450,7 @@ export const GetConversationDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'messages' },
@@ -3410,7 +3458,13 @@ export const GetConversationDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'sequenceNumber' },
+                },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'source' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'sender' },
@@ -3419,6 +3473,11 @@ export const GetConversationDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistantId' },
+                      },
                     ],
                   },
                 },

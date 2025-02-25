@@ -36,7 +36,7 @@ type AiConversation {
   createdAt: DateTime!
   humans: [User!]!
   id: ID!
-  messages: [AiConversationMessage!]
+  messages: [AiConversationMessage!]!
   participants: [AiConversationParticipant!]!
   updatedAt: DateTime
 }
@@ -50,16 +50,19 @@ type AiConversationMessage {
   content: String
   conversation: AiConversation
   conversationId: ID!
-  createdAt: DateTime
+  createdAt: DateTime!
   id: ID!
-  sender: AiConversationParticipant
+  sender: AiConversationParticipant!
   senderId: ID!
+  sequenceNumber: BigInt!
+  source: String
   updatedAt: DateTime
 }
 
 input AiConversationMessageInput {
   content: String!
   conversationId: String!
+  recipientAssistantIds: [String!]!
 }
 
 interface AiConversationParticipant {
@@ -68,6 +71,9 @@ interface AiConversationParticipant {
   conversation: AiConversation
   conversationId: ID!
   id: ID!
+  isAssistant: Boolean
+  isBot: Boolean!
+  isHuman: Boolean
   name: String
   user: User
   userId: ID
@@ -148,10 +154,15 @@ type AssistantParticipant implements AiConversationParticipant {
   conversation: AiConversation
   conversationId: ID!
   id: ID!
+  isAssistant: Boolean
+  isBot: Boolean!
+  isHuman: Boolean
   name: String
   user: User
   userId: ID
 }
+
+scalar BigInt
 
 type ChatAnswer {
   answer: String
@@ -178,6 +189,9 @@ type HumanParticipant implements AiConversationParticipant {
   conversation: AiConversation
   conversationId: ID!
   id: ID!
+  isAssistant: Boolean
+  isBot: Boolean!
+  isHuman: Boolean
   name: String
   user: User
   userId: ID
@@ -201,6 +215,7 @@ type Mutation {
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
+  deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
@@ -209,10 +224,11 @@ type Mutation {
   sendMessage(
     data: AiConversationMessageInput!
     userId: String!
-  ): AiConversationMessage
+  ): [AiConversationMessage!]!
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
+  updateMessage(content: String!, messageId: String!): AiConversationMessage
 }
 
 type Query {

@@ -4,6 +4,7 @@ import { createYoga } from 'graphql-yoga'
 import express from 'express'
 import { schema } from '@george-ai/pothos-graphql'
 import { dataUploadMiddleware } from './upload'
+import { conversationMessagesSSE } from './conversation-messages-sse'
 
 const yoga = createYoga({
   schema,
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 
 app.use(yoga.graphqlEndpoint, yogaRouter)
 app.use('/upload', dataUploadMiddleware)
+app.get('/conversation-messages-sse', conversationMessagesSSE)
 
 if (!import.meta.env.DEV) {
   app.listen(3003, () => {
