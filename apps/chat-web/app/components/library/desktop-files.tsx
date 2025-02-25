@@ -10,25 +10,13 @@ import { BACKEND_URL, GRAPHQL_API_KEY } from '../../constants'
 
 export interface DesktopFilesProps {
   libraryId: string
-  fileInputRef: React.RefObject<HTMLInputElement>
+  fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
 const PrepareFileDocument = graphql(`
   mutation prepareFile($file: AiLibraryFileInput!) {
     prepareFile(data: $file) {
       id
-    }
-  }
-`)
-
-const ProcessFileDocument = graphql(`
-  mutation processFile($fileId: String!) {
-    processFile(fileId: $fileId) {
-      id
-      chunks
-      size
-      uploadedAt
-      processedAt
     }
   }
 `)
@@ -72,7 +60,6 @@ export const DesktopFiles = ({
   fileInputRef,
 }: DesktopFilesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
-  const [isUploading, setIsUploading] = useState(false)
   const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } =
     useMutation({
       mutationFn: (data: { libraryId: string; selectedFiles: LibraryFile[] }) =>
@@ -80,21 +67,17 @@ export const DesktopFiles = ({
       onSettled: async (data, error) => {
         if (error) {
           console.error('Error preparing files:', error)
-          setIsUploading(false)
           return
         }
         const files = Array.from(selectedFiles!)
         data?.forEach(async (file) => {
           const blob = files.find((f) => f.name === file.fileName)
-          console.log('Uploading file:', file.fileName)
           await fetch(file.uploadUrl, {
             method: file.method,
             headers: file.headers,
             body: blob,
           })
-          await backendRequest(ProcessFileDocument, { fileId: file.fileId })
         })
-        setIsUploading(false)
       },
     })
 
@@ -104,7 +87,6 @@ export const DesktopFiles = ({
     const files = event.target.files
     if (files) {
       setSelectedFiles(files)
-      setIsUploading(true)
       prepareFilesMutation({
         libraryId,
         selectedFiles: Array.from(files).map((file) => ({
@@ -118,7 +100,7 @@ export const DesktopFiles = ({
 
   return (
     <>
-      <LoadingSpinner isLoading={prepareFilesIsPending || isUploading} />
+      <LoadingSpinner isLoading={prepareFilesIsPending} />
       <nav className="flex gap-4 justify-between items-center">
         <input
           type="file"

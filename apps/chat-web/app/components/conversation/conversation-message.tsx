@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge'
 import { FormattedMarkdown } from '../formatted-markdown'
+import { Link } from '@tanstack/react-router'
 
 interface ConversationMessageProps {
   isLoading: boolean
@@ -10,6 +11,7 @@ interface ConversationMessageProps {
     createdAt: string
     sender: {
       id: string
+      assistantId?: string
       name: string
       isBot: boolean
     }
@@ -29,10 +31,21 @@ export const ConversationMessage = ({
         <div
           className={twMerge(
             'w-8 h-8 flex items-center justify-center rounded-full',
-            !message.sender.isBot && 'bg-primary',
-            message.sender.isBot && 'bg-accent',
+            !message.sender.isBot && 'bg-primary text-primary-content',
+            message.sender.isBot && 'bg-accent text-accent-content',
           )}
-        ></div>
+        >
+          {message.sender.isBot ? (
+            <Link
+              to="/assistants/$assistantId"
+              params={{ assistantId: message.sender.assistantId! }}
+            >
+              🤖
+            </Link>
+          ) : (
+            message.sender.name?.[0].toUpperCase()
+          )}
+        </div>
 
         <div className="flex flex-col">
           <span className="font-semibold text-sm">{message.sender.name}</span>
@@ -55,16 +68,14 @@ export const ConversationMessage = ({
         )}
       </div>
       <div className="border-t border-base-200 pt-3">
-        {!isLoading ? (
-          <FormattedMarkdown markdown={message.content} />
-        ) : (
-          <>
-            <div id={`textarea_${message.id}`}>{message.content}</div>
-          </>
-        )}
+        <FormattedMarkdown
+          id={`textarea_${message.id}`}
+          markdown={message.content}
+        />
       </div>
-
-      <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>
+      {message.source && (
+        <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>
+      )}
     </div>
   )
 }

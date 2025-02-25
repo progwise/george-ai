@@ -692,12 +692,14 @@ export type ConversationHistory_ConversationFragment = {
           id: string
           name?: string | null
           isBot: boolean
+          assistantId?: string | null
         }
       | {
           __typename?: 'HumanParticipant'
           id: string
           name?: string | null
           isBot: boolean
+          assistantId?: string | null
         }
   }>
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
@@ -1326,6 +1328,10 @@ export const ConversationHistory_ConversationFragmentDoc = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistantId' },
+                      },
                     ],
                   },
                 },
@@ -3468,6 +3474,10 @@ export const GetConversationDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistantId' },
+                      },
                     ],
                   },
                 },

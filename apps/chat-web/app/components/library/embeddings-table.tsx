@@ -99,7 +99,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { data, isLoading, refetch } = useSuspenseQuery(
     aiLibraryFilesQueryOptions(libraryId),
   )
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -125,10 +125,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Upload
           </button>
-          <DesktopFiles
-            libraryId={libraryId}
-            fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
-          />
+          <DesktopFiles libraryId={libraryId} fileInputRef={fileInputRef} />
         </div>
       </nav>
       <table className="table">
