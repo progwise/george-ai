@@ -4,6 +4,9 @@ export default defineConfig({
   server: {
     preset: 'node-server',
     esbuild: { options: { target: 'esnext' } },
+    experimental: {
+      asyncContext: true,
+    },
   },
   vite: {
     plugins: [
