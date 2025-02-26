@@ -50,10 +50,14 @@ builder.mutationField('prepareFile', (t) =>
       if (!library) {
         throw new Error(`Library not found: ${data.libraryId}`)
       }
-      return await prisma.aiLibraryFile.create({
+      const preparedFile = await prisma.aiLibraryFile.create({
         ...query,
         data,
       })
+      if (!preparedFile?.id) {
+        throw new Error('Failed to prepare file')
+      }
+      return preparedFile
     },
   }),
 )
@@ -99,7 +103,7 @@ builder.queryField('aiLibraryFiles', (t) =>
     args: {
       libraryId: t.arg.string({ required: true }),
     },
-    resolve: (query, _source, { libraryId }) => {
+    resolve: (_query, _source, { libraryId }) => {
       return prisma.aiLibraryFile.findMany({
         where: { libraryId },
       })

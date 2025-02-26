@@ -10,18 +10,17 @@ import { BACKEND_URL, GRAPHQL_API_KEY } from '../../constants'
 
 export interface DesktopFilesProps {
   libraryId: string
-  fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
-const PrepareFileDocument = graphql(`
-  mutation prepareFile($file: AiLibraryFileInput!) {
+const PrepareDesktopFileDocument = graphql(`
+  mutation prepareDesktopFile($file: AiLibraryFileInput!) {
     prepareFile(data: $file) {
       id
     }
   }
 `)
 
-const prepareFiles = createServerFn({ method: 'POST' })
+const prepareDesktopFiles = createServerFn({ method: 'POST' })
   .validator((data: { libraryId: string; selectedFiles: Array<LibraryFile> }) =>
     z
       .object({
@@ -32,38 +31,40 @@ const prepareFiles = createServerFn({ method: 'POST' })
   )
   .handler(async (ctx) => {
     const processFiles = ctx.data.selectedFiles.map(async (selectedFile) => {
-      const preparedFile = await backendRequest(PrepareFileDocument, {
+      const preparedFile = await backendRequest(PrepareDesktopFileDocument, {
         file: {
           name: selectedFile.name,
-          originUri: '',
+          originUri: 'desktop',
           mimeType: selectedFile.kind || 'application/pdf',
           libraryId: ctx.data.libraryId,
         },
       })
+
+      if (!preparedFile.prepareFile?.id) {
+        throw new Error('Failed to prepare file')
+      }
+
       return {
         fileName: selectedFile.name,
         uploadUrl: BACKEND_URL + '/upload',
         method: 'POST',
         headers: {
           Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
-          'x-upload-token': preparedFile.prepareFile?.id || '',
+          'x-upload-token': preparedFile.prepareFile.id,
         },
-        fileId: preparedFile.prepareFile?.id || '',
+        fileId: preparedFile.prepareFile.id,
       }
     })
 
     return await Promise.all(processFiles)
   })
 
-export const DesktopFiles = ({
-  libraryId,
-  fileInputRef,
-}: DesktopFilesProps) => {
+export const DesktopFileUpload = ({ libraryId }: DesktopFilesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
   const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } =
     useMutation({
       mutationFn: (data: { libraryId: string; selectedFiles: LibraryFile[] }) =>
-        prepareFiles({ data }),
+        prepareDesktopFiles({ data }),
       onSettled: async (data, error) => {
         if (error) {
           console.error('Error preparing files:', error)
@@ -81,7 +82,7 @@ export const DesktopFiles = ({
       },
     })
 
-  const handleEmbedFiles = async (
+  const handleUploadFiles = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = event.target.files
@@ -102,11 +103,18 @@ export const DesktopFiles = ({
     <>
       <LoadingSpinner isLoading={prepareFilesIsPending} />
       <nav className="flex gap-4 justify-between items-center">
+        <button
+          type="button"
+          className="btn btn-xs"
+          onClick={() => document.getElementById('fileInput')?.click()}
+        >
+          Upload
+        </button>
         <input
           type="file"
           multiple
-          ref={fileInputRef}
-          onChange={handleEmbedFiles}
+          id="fileInput"
+          onChange={handleUploadFiles}
           style={{ display: 'none' }}
         />
       </nav>
