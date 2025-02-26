@@ -34,6 +34,8 @@ services:
 
   gai-backend:
     image: ghcr.io/progwise/george-ai/backend:latest
+    environment:
+      UPLOADS_PATH: ./.uploads
     env_file:
       - gai-backend.env
     networks:
