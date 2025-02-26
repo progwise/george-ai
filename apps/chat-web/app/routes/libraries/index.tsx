@@ -95,7 +95,7 @@ function RouteComponent() {
               <th></th>
               <th>Name</th>
               <th>Type</th>
-              <th>owner</th>
+              <th>Owner</th>
               <th>Last update</th>
               <td></td>
             </tr>

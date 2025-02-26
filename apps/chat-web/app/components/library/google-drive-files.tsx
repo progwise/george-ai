@@ -110,7 +110,7 @@ const embedFiles = createServerFn({ method: 'GET' })
 
       const uploadResponse = await backendUpload(
         blob,
-        preparedFile?.prepareFile?.id,
+        preparedFile.prepareFile.id,
       )
 
       if (!uploadResponse.ok) {

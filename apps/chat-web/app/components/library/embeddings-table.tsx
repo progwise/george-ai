@@ -5,6 +5,7 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../loading-spinner'
+import { DesktopFileUpload } from './desktop-file-upload'
 
 interface EmbeddingsTableProps {
   libraryId: string
@@ -97,6 +98,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { data, isLoading, refetch } = useSuspenseQuery(
     aiLibraryFilesQueryOptions(libraryId),
   )
+
   if (isLoading) {
     return <LoadingSpinner />
   }
@@ -114,6 +116,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Clear
           </button>
+          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} />
         </div>
       </nav>
       <table className="table">
