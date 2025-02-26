@@ -40,7 +40,7 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
         },
       })
 
-      if (!preparedFile.prepareFile?.id) {
+      if (!preparedFile.prepareFile) {
         throw new Error('Failed to prepare file')
       }
 

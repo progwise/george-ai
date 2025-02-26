@@ -50,14 +50,10 @@ builder.mutationField('prepareFile', (t) =>
       if (!library) {
         throw new Error(`Library not found: ${data.libraryId}`)
       }
-      const preparedFile = await prisma.aiLibraryFile.create({
+      return await prisma.aiLibraryFile.create({
         ...query,
         data,
       })
-      if (!preparedFile?.id) {
-        throw new Error('Failed to prepare file')
-      }
-      return preparedFile
     },
   }),
 )
