@@ -9,9 +9,9 @@ RUN apt-get update \
         libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-ENV PNPM_VERSION=9.15.0
-
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION}
+RUN npm install -g corepack@0.31.0 && \
+    corepack enable && \
+    corepack prepare pnpm@9.15.4 --activate
 
 
 FROM base AS builder
