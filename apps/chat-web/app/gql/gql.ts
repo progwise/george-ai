@@ -40,6 +40,8 @@ const documents = {
     types.ConversationNew_HumanParticipationCandidatesFragmentDoc,
   '\n  fragment ConversationNew_AssistantParticipationCandidates on AiAssistant {\n    id\n    name\n  }\n':
     types.ConversationNew_AssistantParticipationCandidatesFragmentDoc,
+  '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
+    types.PrepareDesktopFileDocument,
   '\n  mutation clearEmbeddings($libraryId: String!) {\n    clearEmbeddedFiles(libraryId: $libraryId)\n  }\n':
     types.ClearEmbeddingsDocument,
   '\n  mutation dropFile($id: String!) {\n    dropFile(fileId: $id) {\n      id\n    }\n  }\n':
@@ -184,6 +186,12 @@ export function graphql(
 export function graphql(
   source: '\n  fragment ConversationNew_AssistantParticipationCandidates on AiAssistant {\n    id\n    name\n  }\n',
 ): (typeof documents)['\n  fragment ConversationNew_AssistantParticipationCandidates on AiAssistant {\n    id\n    name\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

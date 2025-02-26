@@ -770,6 +770,15 @@ export type ConversationNew_AssistantParticipationCandidatesFragment = {
   ' $fragmentName'?: 'ConversationNew_AssistantParticipationCandidatesFragment'
 }
 
+export type PrepareDesktopFileMutationVariables = Exact<{
+  file: AiLibraryFileInput
+}>
+
+export type PrepareDesktopFileMutation = {
+  __typename?: 'Mutation'
+  prepareFile?: { __typename?: 'AiLibraryFile'; id: string } | null
+}
+
 export type ClearEmbeddingsMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
@@ -2643,6 +2652,57 @@ export const UpdateLibraryUsageDocument = {
 } as unknown as DocumentNode<
   UpdateLibraryUsageMutation,
   UpdateLibraryUsageMutationVariables
+>
+export const PrepareDesktopFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'prepareDesktopFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'AiLibraryFileInput' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'prepareFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'file' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  PrepareDesktopFileMutation,
+  PrepareDesktopFileMutationVariables
 >
 export const ClearEmbeddingsDocument = {
   kind: 'Document',

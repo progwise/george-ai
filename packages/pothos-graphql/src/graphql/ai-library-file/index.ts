@@ -99,7 +99,7 @@ builder.queryField('aiLibraryFiles', (t) =>
     args: {
       libraryId: t.arg.string({ required: true }),
     },
-    resolve: (query, _source, { libraryId }) => {
+    resolve: (_query, _source, { libraryId }) => {
       return prisma.aiLibraryFile.findMany({
         where: { libraryId },
       })
