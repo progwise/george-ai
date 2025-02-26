@@ -47,5 +47,8 @@ jobs:
           echo "Deploying to production server"
           ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/progwise -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/progwise/george-ai/chat-web:latest
+            docker pull ghcr.io/progwise/george-ai/backend:latest
+            docker pull ghcr.io/progwise/george-ai/pocketbase:latest
             docker stack deploy --with-registry-auth --compose-file /home/swarm/george-ai-stack.yml george-ai
           EOF
