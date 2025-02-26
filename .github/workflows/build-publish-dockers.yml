@@ -96,12 +96,12 @@ jobs:
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
       # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
-      - name: Generate artifact attestation for backend
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-name: ${{ env.REGISTRY_PATH }}/backend
-          subject-digest: ${{ steps.push-backend.outputs.digest }}
-          push-to-registry: true
+      # - name: Generate artifact attestation for backend
+      #   uses: actions/attest-build-provenance@v2
+      #   with:
+      #     subject-name: ${{ env.REGISTRY_PATH }}/backend
+      #     subject-digest: ${{ steps.push-backend.outputs.digest }}
+      #     push-to-registry: true
 
   pocketbase:
     runs-on: ubuntu-22.04
@@ -148,9 +148,9 @@ jobs:
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
       # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
-      - name: Generate artifact attestation for pocketbase
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-name: ${{ env.REGISTRY_PATH }}/pocketbase
-          subject-digest: ${{ steps.push-pocketbase.outputs.digest }}
-          push-to-registry: true
+      # - name: Generate artifact attestation for pocketbase
+      #   uses: actions/attest-build-provenance@v2
+      #   with:
+      #     subject-name: ${{ env.REGISTRY_PATH }}/pocketbase
+      #     subject-digest: ${{ steps.push-pocketbase.outputs.digest }}
+      #     push-to-registry: true
