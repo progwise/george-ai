@@ -87,7 +87,10 @@ const ChatRoute = () => {
               </time>
             </div>
             <div className="chat-bubble">
-              <FormattedMarkdown markdown={message.text} />
+              <FormattedMarkdown
+                markdown={message.text}
+                className="[&_*]:text-base-300"
+              />
             </div>
             <div className="chat-footer opacity-50">{message.source}</div>
           </div>

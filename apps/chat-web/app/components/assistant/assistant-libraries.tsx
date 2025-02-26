@@ -5,6 +5,7 @@ import { createServerFn } from '@tanstack/start'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
 import { LoadingSpinner } from '../loading-spinner'
+import { Link } from '@tanstack/react-router'
 
 const AssistantLibrariesDocument = graphql(/* GraphQL */ `
   query assistantLibraries($assistantId: String!, $ownerId: String!) {
@@ -140,7 +141,14 @@ export const AssistantLibraries = ({
                 </label>
               </td>
               <td>{index + 1}</td>
-              <td>{library.name}</td>
+              <td>
+                <Link
+                  to="/libraries/$libraryId"
+                  params={{ libraryId: library.id }}
+                >
+                  {library.name}
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>

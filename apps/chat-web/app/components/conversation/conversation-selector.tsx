@@ -49,7 +49,7 @@ export const ConversationSelector = (props: ConversationSelectorProps) => {
             <span>
               {conversation.assistants
                 ?.map((assistant) => assistant.name)
-                .join(',') || 'Unknown'}
+                .join(', ') || 'Unknown'}
             </span>
           </Link>
         </li>

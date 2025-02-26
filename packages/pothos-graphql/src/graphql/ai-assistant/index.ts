@@ -52,7 +52,7 @@ builder.queryField('aiAssistant', (t) =>
   t.prismaField({
     type: 'AiAssistant',
     args: {
-      id: t.arg.string(),
+      id: t.arg.string({ required: true }),
     },
     resolve: (query, _source, { id }) => {
       return prisma.aiAssistant.findUnique({

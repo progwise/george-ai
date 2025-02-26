@@ -14,21 +14,28 @@ const CreateMessageDocument = graphql(`
 
 export const sendMessage = createServerFn({ method: 'POST' })
   .validator(
-    (data: { content: string; conversationId: string; userId: string }) =>
+    (data: {
+      content: string
+      conversationId: string
+      userId: string
+      recipientAssistantIds: string[]
+    }) =>
       z
         .object({
-          content: z.string().min(3),
+          content: z.string(),
           conversationId: z.string(),
           userId: z.string(),
+          recipientAssistantIds: z.array(z.string()),
         })
         .parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
       data: {
         conversationId: ctx.data.conversationId,
         content: ctx.data.content,
+        recipientAssistantIds: ctx.data.recipientAssistantIds,
       },
     }),
   )
@@ -50,7 +57,7 @@ export const createConversation = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(CreateConversationDocument, {
       data: {
         assistantIds: ctx.data.assistantIds,
@@ -71,7 +78,7 @@ export const deleteConversation = createServerFn({ method: 'POST' })
   .validator((data: { conversationId: string }) =>
     z.object({ conversationId: z.string() }).parse(data),
   )
-  .handler(async (ctx) =>
+  .handler((ctx) =>
     backendRequest(DeleteConversationDocument, {
       conversationId: ctx.data.conversationId,
     }),

@@ -15,6 +15,19 @@ const participantInterface = builder.prismaInterface(
       conversation: t.relation('conversation'),
       assistantId: t.exposeID('assistantId', { nullable: true }),
       assistant: t.relation('assistant'),
+      isAssistant: t.field({
+        type: 'Boolean',
+        resolve: async (source) => !!source.assistantId,
+      }),
+      isHuman: t.field({
+        type: 'Boolean',
+        resolve: async (source) => !!source.userId,
+      }),
+      isBot: t.field({
+        nullable: false,
+        type: 'Boolean',
+        resolve: async (source) => !source.userId,
+      }),
       name: t.field({
         type: 'String',
         resolve: async (source) => {

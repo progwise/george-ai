@@ -308,3 +308,28 @@ export const getPDFContentForQuestion = async (question: string) => {
     return ''
   }
 }
+
+export const getPDFContentForQuestionAndLibraries = async (
+  question: string,
+  libraries: { id: string; name: string }[],
+) => {
+  const ensureStores = libraries.map((library) => ensureVectorStore(library.id))
+  await Promise.all(ensureStores)
+
+  const vectorStores = libraries.map(
+    (library) =>
+      new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id)),
+  )
+
+  const storeSearches = vectorStores.map((store) =>
+    store.similaritySearch(question),
+  )
+  const storeSearchResults = await Promise.all(storeSearches)
+
+  // Todo: Implement returning library name with content
+  const contents = storeSearchResults.map((documents) =>
+    documents.map((document_) => document_.pageContent).join('\n\n'),
+  )
+
+  return contents.join('\n\n')
+}
