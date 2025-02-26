@@ -10,6 +10,7 @@ import { BACKEND_URL, GRAPHQL_API_KEY } from '../../constants'
 
 export interface DesktopFilesProps {
   libraryId: string
+  onUploadComplete?: () => void
 }
 
 const PrepareDesktopFileDocument = graphql(`
@@ -59,7 +60,10 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
     return await Promise.all(processFiles)
   })
 
-export const DesktopFileUpload = ({ libraryId }: DesktopFilesProps) => {
+export const DesktopFileUpload = ({
+  libraryId,
+  onUploadComplete,
+}: DesktopFilesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
   const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } =
     useMutation({
@@ -79,6 +83,9 @@ export const DesktopFileUpload = ({ libraryId }: DesktopFilesProps) => {
             body: blob,
           })
         })
+        if (onUploadComplete) {
+          onUploadComplete()
+        }
       },
     })
 

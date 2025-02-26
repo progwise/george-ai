@@ -116,7 +116,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Clear
           </button>
-          <DesktopFileUpload libraryId={libraryId} />
+          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} />
         </div>
       </nav>
       <table className="table">
