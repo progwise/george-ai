@@ -33,119 +33,112 @@ const TopNavigation = () => {
 
   return (
     <nav className="navbar bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
-      <div className="navbar-start">
-        <div className="flex items-center gap-2 lg:hidden">
-          <div className="dropdown">
-            <label tabIndex={0} className="btn btn-ghost">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </label>
-            <ul
-              tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+      <div className="lg:hidden flex w-full items-center justify-between">
+        <Link to="/" className="btn btn-ghost">
+          <BowlerHatIcon className="size-8" />
+        </Link>
+
+        {isAuthenticated && user?.name && (
+          <span className="font-semibold">{user.name}</span>
+        )}
+
+        <div className="dropdown dropdown-end">
+          <label tabIndex={0} className="btn btn-ghost">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </label>
+          <ul
+            tabIndex={0}
+            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+          >
+            <li>
+              <Link to="/conversations/$">
+                <ConversationIcon className="size-6" />
+                {t('conversations')}
+              </Link>
+            </li>
+            <li>
+              <Link to="/assistants">
+                <BowlerHatIcon className="size-6" />
+                {t('assistants')}
+              </Link>
+            </li>
+            <li>
+              <Link to="/libraries">
+                <AcademicCapIcon className="size-6" />
+                {t('library')}
+              </Link>
+            </li>
+            <li>
+              <Link to="/langchain-chat">
+                <ChatBubbleIcon className="size-6" />
+                {t('chat')}
+              </Link>
+            </li>
+            {!isAuthenticated ? (
               <li>
-                <Link to="/conversations/$">
-                  <ConversationIcon className="size-6" />
-                  {t('conversations')}
-                </Link>
+                <button type="button" onClick={() => login?.()}>
+                  <UserIcon className="size-6" />
+                  {t('signIn')}
+                </button>
               </li>
-              <li>
-                <Link to="/assistants">
-                  <BowlerHatIcon className="size-6" />
-                  {t('assistants')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/libraries">
-                  <AcademicCapIcon className="size-6" />
-                  {t('library')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/langchain-chat">
-                  <ChatBubbleIcon className="size-6" />
-                  {t('chat')}
-                </Link>
-              </li>
-              {!isAuthenticated ? (
+            ) : (
+              <>
                 <li>
-                  <button type="button" onClick={() => login?.()}>
+                  <Link to={profileUrl} className="gap-2">
                     <UserIcon className="size-6" />
-                    {t('signIn')}
+                    {user?.name}
+                  </Link>
+                </li>
+                <li>
+                  <button type="button" onClick={() => logout?.()}>
+                    <UserIcon className="size-6" />
+                    {t('signOut')}
                   </button>
                 </li>
-              ) : (
-                <>
-                  <li>
-                    <Link to={profileUrl} className="gap-2">
-                      {user?.name}
-                    </Link>
-                  </li>
-                  <li>
-                    <button type="button" onClick={() => logout?.()}>
-                      <UserIcon className="size-6" />
-                      {t('signOut')}
-                    </button>
-                  </li>
-                </>
-              )}
-            </ul>
-          </div>
-
-          {isAuthenticated && user?.name && (
-            <span className="font-semibold">{user.name}</span>
-          )}
-        </div>
-
-        <div className="hidden lg:flex">
-          <TopNavigationLink to="/">
-            <BowlerHatIcon className="size-8" />
-            {t('brand')}
-          </TopNavigationLink>
+              </>
+            )}
+          </ul>
         </div>
       </div>
 
-      <div className="navbar-center hidden lg:flex">
-        <TopNavigationLink to="/conversations/$">
-          <ConversationIcon className="size-6" />
-          {t('conversations')}
+      <div className="hidden lg:flex w-full justify-between items-center">
+        <TopNavigationLink to="/">
+          <BowlerHatIcon className="size-8" />
+          {t('brand')}
         </TopNavigationLink>
-        <TopNavigationLink to="/assistants">
-          <BowlerHatIcon className="size-6" />
-          {t('assistants')}
-        </TopNavigationLink>
-        <TopNavigationLink to="/libraries">
-          <AcademicCapIcon className="size-6" />
-          {t('library')}
-        </TopNavigationLink>
-        <TopNavigationLink to="/langchain-chat">
-          <ChatBubbleIcon className="size-6" />
-          {t('chat')}
-        </TopNavigationLink>
-      </div>
 
-      <div className="navbar-end">
-        <div className="lg:hidden">
-          <TopNavigationLink to="/">
-            <BowlerHatIcon className="size-8" />
-            {t('brand')}
+        <div className="flex gap-4">
+          <TopNavigationLink to="/conversations/$">
+            <ConversationIcon className="size-6" />
+            {t('conversations')}
+          </TopNavigationLink>
+          <TopNavigationLink to="/assistants">
+            <BowlerHatIcon className="size-6" />
+            {t('assistants')}
+          </TopNavigationLink>
+          <TopNavigationLink to="/libraries">
+            <AcademicCapIcon className="size-6" />
+            {t('library')}
+          </TopNavigationLink>
+          <TopNavigationLink to="/langchain-chat">
+            <ChatBubbleIcon className="size-6" />
+            {t('chat')}
           </TopNavigationLink>
         </div>
-
-        <div className="hidden lg:flex">
+        <div>
           {!isAuthenticated ? (
             <button
               type="button"
@@ -153,7 +146,7 @@ const TopNavigation = () => {
               onClick={() => login?.()}
             >
               <UserIcon className="size-6" />
-              <span>{t('signIn')}</span>
+              {t('signIn')}
             </button>
           ) : (
             <>
@@ -166,7 +159,7 @@ const TopNavigation = () => {
                 onClick={() => logout?.()}
               >
                 <UserIcon className="size-6" />
-                <span>{t('signOut')}</span>
+                {t('signOut')}
               </button>
             </>
           )}
