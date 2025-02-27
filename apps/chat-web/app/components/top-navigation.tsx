@@ -32,14 +32,93 @@ const TopNavigation = () => {
   const { isAuthenticated, login, logout, profileUrl, user } = useAuth()
 
   return (
-    <nav className="navbar  bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
+    <nav className="navbar bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
       <div className="navbar-start">
-        <TopNavigationLink to="/">
-          <BowlerHatIcon className="size-8" />
-          {t('brand')}
-        </TopNavigationLink>
+        <div className="flex items-center gap-2 lg:hidden">
+          <div className="dropdown">
+            <label tabIndex={0} className="btn btn-ghost">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </label>
+            <ul
+              tabIndex={0}
+              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+            >
+              <li>
+                <Link to="/conversations/$">
+                  <ConversationIcon className="size-6" />
+                  {t('conversations')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/assistants">
+                  <BowlerHatIcon className="size-6" />
+                  {t('assistants')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/libraries">
+                  <AcademicCapIcon className="size-6" />
+                  {t('library')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/langchain-chat">
+                  <ChatBubbleIcon className="size-6" />
+                  {t('chat')}
+                </Link>
+              </li>
+              {!isAuthenticated ? (
+                <li>
+                  <button type="button" onClick={() => login?.()}>
+                    <UserIcon className="size-6" />
+                    {t('signIn')}
+                  </button>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <Link to={profileUrl} className="gap-2">
+                      {user?.name}
+                    </Link>
+                  </li>
+                  <li>
+                    <button type="button" onClick={() => logout?.()}>
+                      <UserIcon className="size-6" />
+                      {t('signOut')}
+                    </button>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+
+          {isAuthenticated && user?.name && (
+            <span className="font-semibold">{user.name}</span>
+          )}
+        </div>
+
+        <div className="hidden lg:flex">
+          <TopNavigationLink to="/">
+            <BowlerHatIcon className="size-8" />
+            {t('brand')}
+          </TopNavigationLink>
+        </div>
       </div>
-      <div className="navbar-center">
+
+      <div className="navbar-center hidden lg:flex">
         <TopNavigationLink to="/conversations/$">
           <ConversationIcon className="size-6" />
           {t('conversations')}
@@ -57,31 +136,41 @@ const TopNavigation = () => {
           {t('chat')}
         </TopNavigationLink>
       </div>
+
       <div className="navbar-end">
-        {!isAuthenticated ? (
-          <button
-            type="button"
-            className="btn btn-ghost gap-2"
-            onClick={() => login?.()}
-          >
-            <UserIcon className="size-6" />
-            <span>{t('signIn')}</span>
-          </button>
-        ) : (
-          <>
-            <Link to={profileUrl} className="btn btn-ghost gap-2">
-              {user?.name}
-            </Link>
+        <div className="lg:hidden">
+          <TopNavigationLink to="/">
+            <BowlerHatIcon className="size-8" />
+            {t('brand')}
+          </TopNavigationLink>
+        </div>
+
+        <div className="hidden lg:flex">
+          {!isAuthenticated ? (
             <button
               type="button"
               className="btn btn-ghost gap-2"
-              onClick={() => logout?.()}
+              onClick={() => login?.()}
             >
               <UserIcon className="size-6" />
-              <span>{t('signOut')}</span>
+              <span>{t('signIn')}</span>
             </button>
-          </>
-        )}
+          ) : (
+            <>
+              <Link to={profileUrl} className="btn btn-ghost gap-2">
+                {user?.name}
+              </Link>
+              <button
+                type="button"
+                className="btn btn-ghost gap-2"
+                onClick={() => logout?.()}
+              >
+                <UserIcon className="size-6" />
+                <span>{t('signOut')}</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   )
