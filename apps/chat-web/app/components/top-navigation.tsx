@@ -38,10 +38,19 @@ const TopNavigation = () => {
           <BowlerHatIcon className="size-8" />
         </Link>
 
-        {isAuthenticated && user?.name && (
+        {isAuthenticated && user?.name ? (
           <Link to={profileUrl} className="btn btn-ghost gap-2">
-            {user?.name}
+            {user.name}
           </Link>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-ghost gap-2"
+            onClick={() => login?.()}
+          >
+            <UserIcon className="size-6" />
+            {t('signIn')}
+          </button>
         )}
 
         <div className="dropdown dropdown-end">
