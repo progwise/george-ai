@@ -39,7 +39,9 @@ const TopNavigation = () => {
         </Link>
 
         {isAuthenticated && user?.name && (
-          <span className="font-semibold">{user.name}</span>
+          <Link to={profileUrl} className="btn btn-ghost gap-2">
+            {user?.name}
+          </Link>
         )}
 
         <div className="dropdown dropdown-end">
@@ -96,12 +98,6 @@ const TopNavigation = () => {
               </li>
             ) : (
               <>
-                <li>
-                  <Link to={profileUrl} className="gap-2">
-                    <UserIcon className="size-6" />
-                    {user?.name}
-                  </Link>
-                </li>
                 <li>
                   <button type="button" onClick={() => logout?.()}>
                     <UserIcon className="size-6" />
