@@ -1,11 +1,11 @@
 import { twMerge } from 'tailwind-merge'
 import { IconProps } from './icon-props'
 
-export const DropdownIcon = ({ className }: IconProps) => {
+export const CheckIcon = ({ className }: IconProps) => {
   return (
     <div className={twMerge('icon size-4', className)}>
       <svg
-        className="-mr-1 size-5 text-gray-400"
+        className="size-5"
         viewBox="0 0 20 20"
         fill="currentColor"
         aria-hidden="true"
@@ -13,7 +13,7 @@ export const DropdownIcon = ({ className }: IconProps) => {
       >
         <path
           fill-rule="evenodd"
-          d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+          d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
           clip-rule="evenodd"
         />
       </svg>
