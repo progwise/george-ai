@@ -5,7 +5,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { LoadingSpinner } from '../loading-spinner'
 import { LibraryFile, LibraryFileSchema } from './files-table'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { BACKEND_URL, GRAPHQL_API_KEY } from '../../constants'
 
 export interface DesktopFilesProps {

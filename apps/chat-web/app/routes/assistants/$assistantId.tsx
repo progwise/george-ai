@@ -5,7 +5,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantInputSchema } from '../../gql/validation'

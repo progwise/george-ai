@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
 import { LibraryForm } from '../../components/library/library-form'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'

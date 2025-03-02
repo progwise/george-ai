@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { graphql } from '../../gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'

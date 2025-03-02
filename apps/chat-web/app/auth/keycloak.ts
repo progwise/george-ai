@@ -4,7 +4,7 @@ import { AuthContext } from './auth-context'
 
 const keycloakConfig = await getKeycloakConfig()
 
-const getKeycloak = () => {
+export const getKeycloak = () => {
   const keycloak = new Keycloak(keycloakConfig)
 
   if (typeof window !== 'undefined') {
@@ -15,7 +15,7 @@ const getKeycloak = () => {
   return keycloak
 }
 
-const registerAuthEvents = (
+export const registerAuthEvents = (
   keycloak: Keycloak,
   router: { invalidate: () => void },
   auth: AuthContext,
@@ -33,5 +33,3 @@ const registerAuthEvents = (
     router.invalidate()
   }
 }
-
-export { getKeycloak, registerAuthEvents }
