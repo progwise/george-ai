@@ -3,7 +3,7 @@ import { sendChatMessage } from '../server-functions/langchain-send-chat-message
 import { chatMessagesQueryOptions } from '../server-functions/langchain-chat-history'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
 import Alert from './alert'
-import { useAuth } from '../auth/auth-context'
+import { useAuth } from '../auth/auth-hook'
 
 type LangchainChatFormProps = {
   sessionId: string

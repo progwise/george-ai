@@ -1,6 +1,6 @@
 import request, { RequestDocument, Variables } from 'graphql-request'
-import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
-import { createServerFn } from '@tanstack/start'
+import { BACKEND_PUBLIC_URL, BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
+import { createServerFn } from '@tanstack/react-start'
 import { graphql } from '../gql'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 
@@ -142,6 +142,8 @@ export const getBackendGraphQLSchema = createServerFn({
   return backendRequest(introspectionQueryDocument)
 })
 
-export const getBackendUrl = createServerFn({ method: 'GET' }).handler(() => {
-  return BACKEND_URL
-})
+export const getBackendPublicUrl = createServerFn({ method: 'GET' }).handler(
+  () => {
+    return BACKEND_PUBLIC_URL
+  },
+)

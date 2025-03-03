@@ -1,4 +1,4 @@
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { graphql } from '../gql'
 import { backendRequest } from './backend'
 import { z } from 'zod'

@@ -1,7 +1,7 @@
 import { RefObject } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deleteConversation } from '../../server-functions/conversations'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { useNavigate } from '@tanstack/react-router'
 import { FragmentType, graphql, useFragment } from '../../gql'
 

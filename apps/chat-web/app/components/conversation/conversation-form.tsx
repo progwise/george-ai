@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { sendMessage } from '../../server-functions/conversations'
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { queryKeys } from '../../query-keys'
 
 const ConversationForm_ConversationFragment = graphql(`
@@ -30,7 +30,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       content: string
       recipientAssistantIds: string[]
     }) => {
-      if (!user) {
+      if (!user?.id) {
         throw new Error('User not set')
       }
       if (!data.content || data.content.trim().length < 3) {
@@ -86,7 +86,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     <div className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4">
       <div className="flex items-center gap-3 mb-2">
         <div className="w-8 h-8 flex items-center justify-center bg-primary text-primary-content rounded-full">
-          {user.name?.[0] || user.username[0]}
+          {user.name?.[0] || user.username?.[0]}
         </div>
 
         <div className="flex flex-col">

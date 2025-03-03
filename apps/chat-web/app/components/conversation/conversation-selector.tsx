@@ -37,9 +37,8 @@ export const ConversationSelector = (props: ConversationSelectorProps) => {
                 ? 'link-primary'
                 : 'link-neutral',
             )}
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
-            to={`/conversations/${conversation.id}`}
+            to="/conversations/$"
+            params={{ _splat: conversation.id }}
           >
             <time className="text-nowrap">
               {new Date(conversation.createdAt)

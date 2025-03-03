@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { graphql } from '../../gql'
 import { backendRequest } from '../../server-functions/backend'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
 import { LoadingSpinner } from '../loading-spinner'

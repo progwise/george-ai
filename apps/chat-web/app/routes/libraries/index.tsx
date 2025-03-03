@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { graphql } from '../../gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
-import { useAuth } from '../../auth/auth-context'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 
 const librariesDocument = graphql(/* GraphQL */ `
   query aiLibraries($ownerId: String!) {
@@ -46,10 +46,16 @@ const librariesQueryOptions = (ownerId?: string) =>
 
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
+    return {
+      ownerId: currentUser?.id,
+    }
+  },
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(
-      librariesQueryOptions(context.auth.user?.id),
-    )
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId))
   },
 })
 
