@@ -1,6 +1,6 @@
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useEffect, useState } from 'react'
-import { getBackendUrl } from '../../server-functions/backend'
+import { getBackendPublicUrl } from '../../server-functions/backend'
 import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
 import { useQuery } from '@tanstack/react-query'
@@ -47,7 +47,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
     queryFn: async () => {
-      const backendUrl = await getBackendUrl()
+      const backendUrl = await getBackendPublicUrl()
       return backendUrl
     },
     staleTime: Infinity,
