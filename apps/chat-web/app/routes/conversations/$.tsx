@@ -1,20 +1,20 @@
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
-import { ConversationHistory } from '../../components/conversation/conversation-history'
-import { ConversationForm } from '../../components/conversation/conversation-form'
-import { useRef } from 'react'
-import { ConversationSelector } from '../../components/conversation/conversation-selector'
-import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
-import { ConversationParticipants } from '../../components/conversation/conversation-participants'
-import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
-import { CircleCrossIcon } from '../../icons/circle-cross-icon'
-import { graphql } from '../../gql'
-import { createServerFn } from '@tanstack/start'
-import { backendRequest } from '../../server-functions/backend'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { createFileRoute, useParams } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/start'
+import { useRef } from 'react'
 import { z } from 'zod'
+import { useAuth } from '../../auth/auth-context'
+import { ConversationForm } from '../../components/conversation/conversation-form'
+import { ConversationHistory } from '../../components/conversation/conversation-history'
+import { ConversationParticipants } from '../../components/conversation/conversation-participants'
+import { ConversationSelector } from '../../components/conversation/conversation-selector'
+import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
+import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
+import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql'
+import { CircleCrossIcon } from '../../icons/circle-cross-icon'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
@@ -125,14 +125,12 @@ export const Route = createFileRoute('/conversations/$')({
 function RouteComponent() {
   const auth = useAuth()
   const userId = auth.user?.id
-  const navigate = useNavigate()
 
   const { _splat } = useParams({ strict: false })
 
   const selectedConversationId = _splat as string
 
   const newDialogRef = useRef<HTMLDialogElement>(null)
-
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { data: conversations, isLoading: conversationsLoading } =
@@ -177,13 +175,6 @@ function RouteComponent() {
     return <h3>Login to use conversations.</h3>
   }
 
-  if (
-    (conversations?.aiConversations?.length || 0) > 0 &&
-    !selectedConversationId
-  ) {
-    navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
-  }
-
   const handleNewConversation = () => {
     newDialogRef.current?.showModal()
   }
@@ -202,6 +193,19 @@ function RouteComponent() {
     !conversations
   ) {
     return <LoadingSpinner />
+  }
+
+  if (conversations?.aiConversations?.length === 0) {
+    newDialogRef.current?.showModal()
+    return (
+      <>
+        <NewConversationDialog
+          ref={newDialogRef}
+          humans={assignableUsers.myConversationUsers}
+          assistants={assignableAssistants.aiAssistants}
+        />
+      </>
+    )
   }
 
   return (
