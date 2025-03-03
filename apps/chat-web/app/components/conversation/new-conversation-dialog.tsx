@@ -4,7 +4,7 @@ import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 import { useNavigate } from '@tanstack/react-router'
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 
 const ConversationNew_HumanParticipationCandidatesFragment = graphql(`
   fragment ConversationNew_HumanParticipationCandidates on User {
@@ -57,7 +57,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
       assistantIds: string[]
       userIds: string[]
     }) => {
-      if (!user) {
+      if (!user?.id) {
         throw new Error('User not set')
       }
       return await createConversation({

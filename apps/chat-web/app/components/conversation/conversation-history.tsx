@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { getBackendUrl } from '../../server-functions/backend'
 import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
+import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '../../query-keys'
 
 const ConversationHistory_ConversationFragment = graphql(`
   fragment ConversationHistory_conversation on AiConversation {
@@ -27,8 +29,6 @@ interface ConversationHistoryProps {
   conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
 }
 
-const backend_url = await getBackendUrl()
-
 interface IncomingMessage {
   id: string
   sequenceNumber: string
@@ -44,6 +44,11 @@ interface IncomingMessage {
 }
 
 export const ConversationHistory = (props: ConversationHistoryProps) => {
+  const { data: backend_url } = useQuery({
+    queryKey: [queryKeys.BackendUrl],
+    queryFn: getBackendUrl,
+    staleTime: Infinity,
+  })
   const conversation = useFragment(
     ConversationHistory_ConversationFragment,
     props.conversation,
@@ -100,7 +105,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     return () => {
       evtSource.close()
     }
-  }, [selectedConversationId])
+  }, [backend_url, selectedConversationId])
 
   return (
     <section className="flex flex-col gap-4">

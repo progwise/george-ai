@@ -3,12 +3,10 @@ import { HeadContent, Scripts } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 import appCss from '../index.css?url'
 import TopNavigation from '../components/top-navigation'
-import { AuthContext } from '../auth/auth-context'
 import { QueryClient } from '@tanstack/react-query'
 
 interface RouterContext {
   queryClient: QueryClient
-  auth: AuthContext
 }
 
 const TanStackRouterDevtools =

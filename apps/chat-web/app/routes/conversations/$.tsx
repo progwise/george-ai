@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationForm } from '../../components/conversation/conversation-form'
 import { useRef } from 'react'

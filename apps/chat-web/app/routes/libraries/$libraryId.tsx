@@ -5,7 +5,7 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { LibraryForm } from '../../components/library/library-form'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -99,14 +99,17 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
 export const Route = createFileRoute('/libraries/$libraryId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
     return {
       libraryId: params.libraryId,
-      ownerId: context.auth.user?.id,
+      ownerId: currentUser?.id,
     }
   },
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(
-      librariesQueryOptions(context.auth.user?.id, context.libraryId),
+      librariesQueryOptions(context.ownerId, context.libraryId),
     )
   },
   staleTime: 0,
@@ -168,12 +171,14 @@ function RouteComponent() {
           aria-label="Rules"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <LibraryForm
-            library={aiLibrary!}
-            owner={auth.user!}
-            handleSubmit={handleSubmit}
-            disabled={disabled}
-          />
+          {auth.user?.id && (
+            <LibraryForm
+              library={aiLibrary!}
+              ownerId={auth.user.id}
+              handleSubmit={handleSubmit}
+              disabled={disabled}
+            />
+          )}
         </div>
 
         <input

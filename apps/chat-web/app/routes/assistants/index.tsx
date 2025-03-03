@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { AssistantCard } from '../../components/assistant/assistant-card'
 import { queryKeys } from '../../query-keys'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { getMyAiAssistants } from '../../server-functions/assistants'
 

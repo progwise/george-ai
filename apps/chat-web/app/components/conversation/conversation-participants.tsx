@@ -10,7 +10,7 @@ import { PlusIcon } from '../../icons/plus-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { queryKeys } from '../../query-keys'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_conversation on AiConversation {

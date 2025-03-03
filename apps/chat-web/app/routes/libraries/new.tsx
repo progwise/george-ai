@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { LibraryForm } from '../../components/library/library-form'
 import { AiLibraryType } from '../../gql/graphql'
 import { createServerFn } from '@tanstack/react-start'
@@ -67,6 +67,8 @@ function RouteComponent() {
     createLibraryMuation(formData)
   }
 
+  const ownerId = user?.id
+
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={createIsPending} />
@@ -81,18 +83,18 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      {user && (
+      {ownerId && (
         <LibraryForm
           library={{
             id: '',
             createdAt: new Date().toISOString(),
             url: '',
-            ownerId: user.id,
+            ownerId,
             name: '',
             description: '',
             libraryType: AiLibraryType.GoogleDrive,
           }}
-          owner={user}
+          ownerId={ownerId}
           handleSubmit={handleSubmit}
           disabled={false}
         />
