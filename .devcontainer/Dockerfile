@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:20
+FROM mcr.microsoft.com/devcontainers/javascript-node:22
 
-ENV PNPM_VERSION=9.15.0
+ENV PNPM_VERSION=9.15.4
 
 RUN npm install -g pnpm@${PNPM_VERSION}
 # [Optional] Uncomment this section to install additional OS packages.

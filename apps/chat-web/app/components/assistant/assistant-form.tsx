@@ -1,22 +1,22 @@
 import React from 'react'
-import { AiAssistant, User } from '../../gql/graphql'
+import { AiAssistant } from '../../gql/graphql'
 
 export interface AssistantEditFormProps {
   assistant: AiAssistant
-  owner: User
+  ownerId: string
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
 export const AssistantForm = ({
   assistant,
-  owner,
+  ownerId,
   handleSubmit,
   disabled,
 }: AssistantEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <input type="hidden" name="ownerId" value={owner.id} />
+      <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="assistantId" value={assistant.id} />
 

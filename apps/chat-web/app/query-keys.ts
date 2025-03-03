@@ -10,4 +10,6 @@ export const queryKeys = {
   ConversationUsers: 'ConversationUsers',
   ConversationAssignableUsers: 'ConversationAssignableUsers',
   ConversationAssignableAssistants: 'ConversationAssignableAssistants',
+  CurrentUser: 'CurrentUser',
+  BackendUrl: 'BackendUrl',
 }

@@ -1,12 +1,12 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { graphql } from '../../gql'
 import { AiAssistantInputSchema } from '../../gql/validation'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantType } from '../../gql/graphql'
 import { backendRequest } from '../../server-functions/backend'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { useMutation } from '@tanstack/react-query'
 import { LoadingSpinner } from '../../components/loading-spinner'
 
@@ -84,7 +84,7 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      {auth?.user && (
+      {auth?.user?.id && (
         <AssistantForm
           assistant={{
             createdAt: '',
@@ -93,7 +93,7 @@ function RouteComponent() {
             assistantType: AiAssistantType.Chatbot,
             ownerId: auth?.user.id || '',
           }}
-          owner={auth.user}
+          ownerId={auth.user.id}
           handleSubmit={handleSubmit}
           disabled={disabled}
         />

@@ -1,22 +1,22 @@
 import React from 'react'
-import { AiLibrary, User } from '../../gql/graphql'
+import { AiLibrary } from '../../gql/graphql'
 
 export interface LibraryEditFormProps {
   library: AiLibrary
-  owner: User
+  ownerId: string
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
 export const LibraryForm = ({
   library,
-  owner,
+  ownerId,
   handleSubmit,
   disabled,
 }: LibraryEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <input type="hidden" name="ownerId" value={owner.id} />
+      <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="libraryId" value={library.id || ''} />
 

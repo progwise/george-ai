@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vinxi dev --port 3001",
     "build": "rm -rf .output & rm -rf .vinxi & vinxi build",
-    "start": "vinxi start",
+    "start": "vinxi start --port 3001",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "codegen": "graphql-codegen"
@@ -15,11 +15,12 @@
   "dependencies": {
     "@george-ai/langchain-chat": "workspace:*",
     "@headlessui/react": "^2.2.0",
-    "@tanstack/react-query": "5.66.0",
-    "@tanstack/react-query-devtools": "5.66.0",
-    "@tanstack/react-router": "1.102.5",
-    "@tanstack/react-router-with-query": "1.102.5",
-    "@tanstack/start": "1.102.5",
+    "@tanstack/react-query": "5.66.9",
+    "@tanstack/react-query-devtools": "5.66.9",
+    "@tanstack/react-router": "1.112.0",
+    "@tanstack/react-router-with-query": "1.112.0",
+    "@tanstack/react-start": "1.112.3",
+    "@tanstack/start": "1.112.3",
     "autoprefixer": "^10.4.20",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
@@ -28,12 +29,12 @@
     "keycloak-js": "^26.0.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-i18next": "^15.4.0",
     "rehype-stringify": "^10.0.1",
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
     "unified": "^11.0.5",
+    "vinxi": "^0.5.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -49,9 +50,9 @@
     "@tanstack/eslint-plugin-query": "^5.62.16",
     "@tanstack/eslint-plugin-router": "^1.87.3",
     "@tanstack/router-devtools": "^1.82.8",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "@vitejs/plugin-react": "^4.3.3",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
     "daisyui": "^4.12.23",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",
@@ -60,8 +61,8 @@
     "postcss": "^8.4.49",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^8.18.0",
-    "vinxi": "^0.5.3"
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

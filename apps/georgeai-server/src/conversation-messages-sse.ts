@@ -52,6 +52,6 @@ export const conversationMessagesSSE = async (
       conversationId,
       subscriptionId: conversationMessagesUpdateSubscriptionId,
     })
-    response.end()
+    response.end('bye')
   })
 }

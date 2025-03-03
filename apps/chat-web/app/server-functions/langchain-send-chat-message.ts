@@ -1,4 +1,4 @@
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { chatStore } from '../store/langchain-chat-store'
 import { retrievalFlowValues } from '@george-ai/langchain-chat'

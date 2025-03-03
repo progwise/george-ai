@@ -5,12 +5,12 @@ import {
   useNavigate,
 } from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
-import { useAuth } from '../../auth/auth-context'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
@@ -105,24 +105,30 @@ const assistantsQueryOptions = (ownerId?: string, assistantId?: string) => ({
 export const Route = createFileRoute('/assistants/$assistantId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
     return {
       assistantId: params.assistantId,
-      ownerId: context.auth.user?.id,
+      ownerId: currentUser?.id,
     }
   },
   loader: async ({ context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
     context.queryClient.ensureQueryData(
-      assistantsQueryOptions(context.auth.user?.id, context.assistantId),
+      assistantsQueryOptions(currentUser?.id, context.assistantId),
     )
   },
   staleTime: 0,
 })
 
 function RouteComponent() {
-  const auth = useAuth()
+  const { user } = useAuth()
   const { assistantId } = useParams({ strict: false })
   const { data, isLoading } = useSuspenseQuery(
-    assistantsQueryOptions(auth.user?.id, assistantId),
+    assistantsQueryOptions(user?.id, assistantId),
   )
 
   const { aiAssistant, aiAssistants } = data || {}
@@ -146,10 +152,10 @@ function RouteComponent() {
   if (!aiAssistant) {
     return <LoadingSpinner />
   }
-  if (!auth.user?.id || !aiAssistant || !aiAssistants || isLoading) {
+  if (!user?.id || !aiAssistant || !aiAssistants || isLoading) {
     return <LoadingSpinner />
   }
-  const disabled = !auth?.isAuthenticated
+  const disabled = !user
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={saveIsPending} />
@@ -180,7 +186,7 @@ function RouteComponent() {
         <div role="tabpanel" className="tab-content p-10">
           <AssistantForm
             assistant={aiAssistant}
-            owner={auth.user}
+            ownerId={user.id}
             handleSubmit={handleSubmit}
             disabled={disabled}
           />
@@ -194,10 +200,7 @@ function RouteComponent() {
           aria-label="Used Libraries"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <AssistantLibraries
-            assistantId={aiAssistant.id}
-            ownerId={auth.user.id}
-          />
+          <AssistantLibraries assistantId={aiAssistant.id} ownerId={user.id} />
         </div>
       </div>
     </article>
