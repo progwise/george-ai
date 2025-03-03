@@ -8,6 +8,7 @@ import { useAuth } from '../auth/auth-context'
 import { t } from 'i18next'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ConversationIcon } from '../icons/conversation-icon'
+import { MenuIcon } from '../icons/menu-icon'
 
 const TopNavigationLink = ({
   to,
@@ -55,20 +56,7 @@ const TopNavigation = () => {
 
         <div className="dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-ghost">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <MenuIcon />
           </label>
           <ul
             tabIndex={0}
@@ -143,7 +131,7 @@ const TopNavigation = () => {
             {t('chat')}
           </TopNavigationLink>
         </div>
-        <div>
+        <div className="flex gap-2">
           {!isAuthenticated ? (
             <button
               type="button"
