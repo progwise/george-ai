@@ -42,6 +42,8 @@ services:
       - caddy
     depends_on:
       - gai-db
+    volumes:
+      - /home/swarm/data/uploads:/app/.uploads
     deploy:
       replicas: 1
       resources:
