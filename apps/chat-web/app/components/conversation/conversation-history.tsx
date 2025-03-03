@@ -46,7 +46,10 @@ interface IncomingMessage {
 export const ConversationHistory = (props: ConversationHistoryProps) => {
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
-    queryFn: getBackendUrl,
+    queryFn: async () => {
+      const backendUrl = await getBackendUrl()
+      return backendUrl
+    },
     staleTime: Infinity,
   })
   const conversation = useFragment(

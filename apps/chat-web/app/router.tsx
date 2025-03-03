@@ -15,9 +15,7 @@ export function createRouter() {
     defaultPendingComponent: () => <div>Loading...</div>,
   })
 
-  const finalRouter = routerWithQueryClient(router, queryClient)
-
-  return finalRouter
+  return routerWithQueryClient(router, queryClient)
 }
 
 declare module '@tanstack/react-router' {
