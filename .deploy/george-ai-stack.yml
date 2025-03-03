@@ -36,6 +36,10 @@ services:
     image: ghcr.io/progwise/george-ai/backend:latest
     environment:
       UPLOADS_PATH: ./.uploads
+      TYPESENSE_API_HOST: gai-typesense
+      TYPESENSE_API_PORT: 8108
+      TYPESENSE_API_PROTOCOL: http
+      # TYPESENSE_API_KEY=xyz
     env_file:
       - gai-backend.env
     networks:
