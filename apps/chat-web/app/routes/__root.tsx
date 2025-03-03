@@ -1,8 +1,5 @@
-import {
-  createRootRouteWithContext,
-  Outlet,
-} from '@tanstack/react-router'
-import { Meta, Scripts } from '@tanstack/react-start'
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { HeadContent, Scripts } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 import appCss from '../index.css?url'
 import TopNavigation from '../components/top-navigation'
@@ -38,26 +35,26 @@ const TanStackQueryDevtools =
         })),
       )
 
-
-const RootDocument =  () => {
+const RootDocument = () => {
   return (
-  <html>
-    <head>
-      <Meta />
-    </head>
-    <body className="container mx-auto">
-      <TopNavigation />
-      <Outlet />
-      <Scripts />
-      <Suspense>
-        <TanStackRouterDevtools />
-      </Suspense>
-      <Suspense>
-        <TanStackQueryDevtools />
-      </Suspense>
-    </body>
-  </html>
-)}
+    <html>
+      <head>
+        <HeadContent />
+      </head>
+      <body className="container mx-auto">
+        <TopNavigation />
+        <Outlet />
+        <Scripts />
+        <Suspense>
+          <TanStackRouterDevtools />
+        </Suspense>
+        <Suspense>
+          <TanStackQueryDevtools />
+        </Suspense>
+      </body>
+    </html>
+  )
+}
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
