@@ -8,7 +8,7 @@ services:
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_URL: https://keycloak.george-ai.net
       KEYCLOAK_CLIENT_ID: george-ai-web
-      BACKEND_URL: http://gai-backend:3003/
+      BACKEND_URL: http://gai-backend:3003
     env_file:
       - gai-chatweb.env
     networks:
