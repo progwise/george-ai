@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@george-ai/langchain-chat": "workspace:*",
+    "@headlessui/react": "^2.2.0",
     "@tanstack/react-query": "5.66.0",
     "@tanstack/react-query-devtools": "5.66.0",
     "@tanstack/react-router": "1.102.5",
