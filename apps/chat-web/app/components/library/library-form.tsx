@@ -1,22 +1,22 @@
 import React from 'react'
-import { AiLibrary, User } from '../../gql/graphql'
+import { AiLibrary } from '../../gql/graphql'
 
 export interface LibraryEditFormProps {
   library: AiLibrary
-  owner: User
+  ownerId: string
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
 export const LibraryForm = ({
   library,
-  owner,
+  ownerId,
   handleSubmit,
   disabled,
 }: LibraryEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <input type="hidden" name="ownerId" value={owner.id} />
+      <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="libraryId" value={library.id || ''} />
 
@@ -44,12 +44,12 @@ export const LibraryForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Google Drive</span>
             <input
-              key={library.aiLibraryType}
+              key={library.libraryType}
               type="radio"
-              name="aiLibraryType"
+              name="libraryType"
               value="GOOGLE_DRIVE"
               className="radio checked:bg-green-500"
-              defaultChecked={library.aiLibraryType === 'GOOGLE_DRIVE'}
+              defaultChecked={library.libraryType === 'GOOGLE_DRIVE'}
             />
           </label>
         </div>
@@ -57,12 +57,12 @@ export const LibraryForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Pocketbase</span>
             <input
-              key={library.aiLibraryType}
+              key={library.libraryType}
               type="radio"
-              name="aiLibraryType"
+              name="libraryType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
-              defaultChecked={library.aiLibraryType === 'POCKETBASE'}
+              defaultChecked={library.libraryType === 'POCKETBASE'}
             />
           </label>
         </div>

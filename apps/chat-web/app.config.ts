@@ -1,8 +1,18 @@
-import { defineConfig } from '@tanstack/start/config'
+import { defineConfig } from '@tanstack/react-start/config'
+import tsConfigPaths from 'vite-tsconfig-paths'
+import './app/i18n'
 
 export default defineConfig({
   server: {
     preset: 'node-server',
+    experimental: {
+      asyncContext: true,
+    },
+    esbuild: {
+      options: {
+        target: 'es2022',
+      }
+    }
   },
   vite: {
     plugins: [
@@ -17,6 +27,9 @@ export default defineConfig({
           }
         },
       },
+      tsConfigPaths({
+        projects: ['./tsconfig.json'],
+      }),
     ],
   },
 })

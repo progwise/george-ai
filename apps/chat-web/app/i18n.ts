@@ -1,5 +1,4 @@
 import i18n from 'i18next'
-import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
 const resources = {
@@ -27,6 +26,7 @@ const resources = {
         btnText: 'Start Training Your AI',
         altImage: 'George AI',
       },
+      conversations: 'Conversations',
     },
   },
   de: {
@@ -55,12 +55,12 @@ const resources = {
         altImage: 'George KI',
       },
     },
+    conversations: 'Konversationen',
   },
 }
 
 await i18n
   .use(LanguageDetector)
-  .use(initReactI18next)
   .init({
     resources,
     fallbackLng: 'en',

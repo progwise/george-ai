@@ -8,6 +8,12 @@ const prisma = new PrismaClient({})
 const builder = new SchemaBuilder<{
   DefaultInputFieldRequiredness: true
   PrismaTypes: PrismaTypes
+  Objects: {
+    AiLibraryUsageResult: {
+      usageId: string | null
+      deletedCount: number | null
+    }
+  }
   Scalars: {
     Date: {
       Input: Date
@@ -20,6 +26,10 @@ const builder = new SchemaBuilder<{
     Decimal: {
       Input: Prisma.Decimal
       Output: Prisma.Decimal
+    }
+    BigInt: {
+      Input: bigint
+      Output: bigint
     }
   }
 }>({

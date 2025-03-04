@@ -1,12 +1,14 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useAuth } from '../../auth/auth-hook'
 import { LibraryForm } from '../../components/library/library-form'
 import { AiLibraryType } from '../../gql/graphql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { z } from 'zod'
+import { useMutation } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const createLibraryDocument = graphql(`
   mutation createAiLibrary($ownerId: String!, $data: AiLibraryInput!) {
@@ -31,7 +33,7 @@ const createLibrary = createServerFn({ method: 'POST' })
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiLibraryType: data.get('aiLibraryType'),
+      libraryType: data.get('libraryType'),
     })
 
     return { ownerId, data: assistant }
@@ -48,18 +50,28 @@ function RouteComponent() {
   const { isAuthenticated, user } = useAuth()
   const disabled = !isAuthenticated || !user
 
+  const navigate = useNavigate()
+  const { mutate: createLibraryMuation, isPending: createIsPending } =
+    useMutation({
+      mutationFn: (data: FormData) => createLibrary({ data }),
+      onSettled: () => {
+        navigate({ to: '..' })
+      },
+    })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    createLibrary({
-      data: formData,
-    })
+    createLibraryMuation(formData)
   }
+
+  const ownerId = user?.id
 
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={createIsPending} />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">Create your Library</h3>
         <div className="badge badge-secondary badge-outline">
@@ -71,18 +83,18 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      {user && (
+      {ownerId && (
         <LibraryForm
           library={{
             id: '',
             createdAt: new Date().toISOString(),
             url: '',
-            ownerId: user.id,
+            ownerId,
             name: '',
             description: '',
-            aiLibraryType: AiLibraryType.GoogleDrive,
+            libraryType: AiLibraryType.GoogleDrive,
           }}
-          owner={user}
+          ownerId={ownerId}
           handleSubmit={handleSubmit}
           disabled={false}
         />

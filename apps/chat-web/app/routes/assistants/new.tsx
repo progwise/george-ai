@@ -1,12 +1,14 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { graphql } from '../../gql'
 import { AiAssistantInputSchema } from '../../gql/validation'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantType } from '../../gql/graphql'
 import { backendRequest } from '../../server-functions/backend'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
+import { useMutation } from '@tanstack/react-query'
+import { LoadingSpinner } from '../../components/loading-spinner'
 
 const createAssistantDocument = graphql(`
   mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {
@@ -34,7 +36,7 @@ const createAssistant = createServerFn({ method: 'POST' })
       description: data.get('description') as string,
       url: data.get('url') as string,
       icon: icon.name as string,
-      aiAssistantType: data.get('aiAssistantType'),
+      assistantType: data.get('assistantType'),
     })
 
     return { ownerId, data: assistant }
@@ -50,20 +52,27 @@ export const Route = createFileRoute('/assistants/new')({
 function RouteComponent() {
   const auth = useAuth()
 
+  const navigate = useNavigate()
+  const { mutate: createAssistantMutation, isPending: createIsPending } =
+    useMutation({
+      mutationFn: (data: FormData) => createAssistant({ data }),
+      onSettled: () => {
+        navigate({ to: '..' })
+      },
+    })
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
-
-    createAssistant({
-      data: formData,
-    })
+    createAssistantMutation(formData)
   }
 
   const disabled = !auth?.isAuthenticated
 
   return (
     <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={createIsPending} />
       <div className="flex justify-between items-center">
         <h3 className="text-base font-semibold">New Assistant</h3>
         <div className="badge badge-secondary badge-outline">
@@ -75,16 +84,16 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      {auth?.user && (
+      {auth?.user?.id && (
         <AssistantForm
           assistant={{
-            createdAt: undefined,
+            createdAt: '',
             id: '',
             name: '',
-            aiAssistantType: AiAssistantType.Chatbot,
+            assistantType: AiAssistantType.Chatbot,
             ownerId: auth?.user.id || '',
           }}
-          owner={auth.user}
+          ownerId={auth.user.id}
           handleSubmit={handleSubmit}
           disabled={disabled}
         />

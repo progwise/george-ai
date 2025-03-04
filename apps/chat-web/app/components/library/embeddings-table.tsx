@@ -1,18 +1,19 @@
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '../loading-spinner'
+import { DesktopFileUpload } from './desktop-file-upload'
 
 interface EmbeddingsTableProps {
-  aiLibraryId: string
+  libraryId: string
 }
 
 const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
-  mutation clearEmbeddings($aiLibraryId: String!) {
-    clearEmbeddedFiles(aiLibraryId: $aiLibraryId)
+  mutation clearEmbeddings($libraryId: String!) {
+    clearEmbeddedFiles(libraryId: $libraryId)
   }
 `)
 
@@ -40,7 +41,7 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
     return await backendRequest(ClearEmbeddingsDocument, {
-      aiLibraryId: ctx.data,
+      libraryId: ctx.data,
     })
   })
 
@@ -57,8 +58,8 @@ const reProcessFile = createServerFn({ method: 'POST' })
   })
 
 const EmbeddingsTableDocument = graphql(`
-  query EmbeddingsTable($aiLibraryId: String!) {
-    aiLibraryFiles(aiLibraryId: $aiLibraryId) {
+  query EmbeddingsTable($libraryId: String!) {
+    aiLibraryFiles(libraryId: $libraryId) {
       id
       name
       originUri
@@ -72,31 +73,32 @@ const EmbeddingsTableDocument = graphql(`
 `)
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
-  .validator(({ aiLibraryId }: { aiLibraryId: string }) =>
-    z.string().nonempty().parse(aiLibraryId),
+  .validator(({ libraryId }: { libraryId: string }) =>
+    z.string().nonempty().parse(libraryId),
   )
   .handler(async (ctx) => {
     return await backendRequest(EmbeddingsTableDocument, {
-      aiLibraryId: ctx.data,
+      libraryId: ctx.data,
     })
   })
 
-const aiLibraryFilesQueryOptions = (aiLibraryId?: string) => ({
-  queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
+const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
+  queryKey: [queryKeys.AiLibraryFiles, libraryId],
   queryFn: async () => {
-    if (!aiLibraryId) {
+    if (!libraryId) {
       return null
     } else {
-      return getLibraryFiles({ data: { aiLibraryId } })
+      return getLibraryFiles({ data: { libraryId } })
     }
   },
-  enabled: !!aiLibraryId,
+  enabled: !!libraryId,
 })
 
-export const EmbeddingsTable = ({ aiLibraryId }: EmbeddingsTableProps) => {
+export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { data, isLoading, refetch } = useSuspenseQuery(
-    aiLibraryFilesQueryOptions(aiLibraryId),
+    aiLibraryFilesQueryOptions(libraryId),
   )
+
   if (isLoading) {
     return <LoadingSpinner />
   }
@@ -108,12 +110,13 @@ export const EmbeddingsTable = ({ aiLibraryId }: EmbeddingsTableProps) => {
             type="button"
             className="btn btn-xs"
             onClick={async () => {
-              await clearEmbeddings({ data: aiLibraryId })
+              await clearEmbeddings({ data: libraryId })
               await refetch()
             }}
           >
             Clear
           </button>
+          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} />
         </div>
       </nav>
       <table className="table">

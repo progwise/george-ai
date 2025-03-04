@@ -22,7 +22,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       type: 'DateTime',
       nullable: true,
     }),
-    aiLibraryId: t.exposeString('aiLibraryId', {
+    libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
   }),
@@ -33,7 +33,7 @@ export const AiLibraryFileInput = builder.inputType('AiLibraryFileInput', {
     name: t.string({ required: true }),
     originUri: t.string({ required: true }),
     mimeType: t.string({ required: true }),
-    aiLibraryId: t.string({ required: true }),
+    libraryId: t.string({ required: true }),
   }),
 })
 
@@ -45,10 +45,10 @@ builder.mutationField('prepareFile', (t) =>
     },
     resolve: async (query, _source, { data }) => {
       const library = await prisma.aiLibrary.findUnique({
-        where: { id: data.aiLibraryId },
+        where: { id: data.libraryId },
       })
       if (!library) {
-        throw new Error(`Library not found: ${data.aiLibraryId}`)
+        throw new Error(`Library not found: ${data.libraryId}`)
       }
       return await prisma.aiLibraryFile.create({
         ...query,
@@ -73,7 +73,7 @@ builder.mutationField('processFile', (t) =>
         throw new Error(`File not found: ${fileId}`)
       }
 
-      const embeddedFile = await embedFile(file.aiLibraryId, {
+      const embeddedFile = await embedFile(file.libraryId, {
         id: file.id,
         name: file.name,
         originUri: file.originUri!,
@@ -97,11 +97,11 @@ builder.queryField('aiLibraryFiles', (t) =>
   t.prismaField({
     type: ['AiLibraryFile'],
     args: {
-      aiLibraryId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
     },
-    resolve: (query, _source, { aiLibraryId }) => {
+    resolve: (_query, _source, { libraryId }) => {
       return prisma.aiLibraryFile.findMany({
-        where: { aiLibraryId },
+        where: { libraryId },
       })
     },
   }),
@@ -122,7 +122,7 @@ builder.mutationField('dropFile', (t) =>
         throw new Error(`File not found: ${fileId}`)
       }
 
-      await dropFile(file.aiLibraryId, file.id)
+      await dropFile(file.libraryId, file.id)
 
       const deleteResult = await prisma.aiLibraryFile.delete({
         where: { id: fileId },

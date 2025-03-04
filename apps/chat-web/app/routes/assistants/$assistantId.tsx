@@ -1,16 +1,25 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  useParams,
+  useNavigate,
+} from '@tanstack/react-router'
 import { graphql } from '../../gql/gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AiAssistantInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
-import { useAuth } from '../../auth/auth-context'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { AssistantSelector } from '../../components/assistant/assistant-selector'
+import { queryKeys } from '../../query-keys'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
 import { useMutation } from '@tanstack/react-query'
 import { LoadingSpinner } from '../../components/loading-spinner'
 
 const aiAssistantEditQueryDocument = graphql(`
-  query aiAssistantEdit($id: String!) {
+  query aiAssistantEdit($id: String!, $ownerId: String!) {
     aiAssistant(id: $id) {
       id
       name
@@ -18,18 +27,28 @@ const aiAssistantEditQueryDocument = graphql(`
       icon
       createdAt
       ownerId
-      aiAssistantType
+      assistantType
       url
+    }
+    aiAssistants(ownerId: $ownerId) {
+      id
+      name
     }
   }
 `)
 
 const getAssistant = createServerFn({ method: 'GET' })
-  .validator((assistantId: string) => z.string().nonempty().parse(assistantId))
+  .validator(
+    ({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
+      assistantId: z.string().nonempty().parse(assistantId),
+      ownerId: z.string().nonempty().parse(ownerId),
+    }),
+  )
   .handler(
     async (ctx) =>
       await backendRequest(aiAssistantEditQueryDocument, {
-        id: ctx.data,
+        id: ctx.data.assistantId,
+        ownerId: ctx.data.ownerId,
       }),
   )
 
@@ -60,7 +79,7 @@ const changeAssistant = createServerFn({ method: 'POST' })
       description: data.get('description') as string,
       url: data.get('url') as string,
       icon: icon.name as string,
-      aiAssistantType: data.get('aiAssistantType'),
+      assistantType: data.get('assistantType'),
     })
     return { assistantId, assistant }
   })
@@ -71,24 +90,53 @@ const changeAssistant = createServerFn({ method: 'POST' })
     })
   })
 
+const assistantsQueryOptions = (ownerId?: string, assistantId?: string) => ({
+  queryKey: [queryKeys.AiAssistants, assistantId, ownerId],
+  queryFn: async () => {
+    if (!ownerId || !assistantId) {
+      return null
+    } else {
+      return getAssistant({ data: { ownerId, assistantId } })
+    }
+  },
+  enabled: !!ownerId || !!assistantId,
+})
+
 export const Route = createFileRoute('/assistants/$assistantId')({
   component: RouteComponent,
-  loader: async ({ params }) => {
-    const assistant = await getAssistant({ data: params.assistantId })
-    return assistant
+  beforeLoad: async ({ params, context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
+    return {
+      assistantId: params.assistantId,
+      ownerId: currentUser?.id,
+    }
+  },
+  loader: async ({ context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
+    context.queryClient.ensureQueryData(
+      assistantsQueryOptions(currentUser?.id, context.assistantId),
+    )
   },
   staleTime: 0,
 })
 
 function RouteComponent() {
-  const auth = useAuth()
-  const { aiAssistant } = Route.useLoaderData()
+  const { user } = useAuth()
+  const { assistantId } = useParams({ strict: false })
+  const { data, isLoading } = useSuspenseQuery(
+    assistantsQueryOptions(user?.id, assistantId),
+  )
+
+  const { aiAssistant, aiAssistants } = data || {}
 
   const navigate = useNavigate()
   const { mutate: saveAssistant, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeAssistant({ data }),
     onSettled: () => {
-      console.log('Assistant saved')
       navigate({ to: '..' })
     },
   })
@@ -104,15 +152,18 @@ function RouteComponent() {
   if (!aiAssistant) {
     return <LoadingSpinner />
   }
-
-  const disabled = !auth?.isAuthenticated
+  if (!user?.id || !aiAssistant || !aiAssistants || isLoading) {
+    return <LoadingSpinner />
+  }
+  const disabled = !user
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={saveIsPending} />
       <div className="flex justify-between items-center">
-        <h3 className="text-base font-semibold">
-          Configure Assistant {aiAssistant?.name}
-        </h3>
+        <AssistantSelector
+          assistants={aiAssistants!}
+          selectedAssistant={aiAssistant!}
+        />
         <div className="badge badge-secondary badge-outline">
           {disabled ? 'Disabled' : 'enabled'}
         </div>
@@ -122,14 +173,36 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      {!!aiAssistant && !!auth?.user && (
-        <AssistantForm
-          assistant={aiAssistant}
-          owner={auth.user}
-          handleSubmit={handleSubmit}
-          disabled={disabled}
+
+      <div role="tablist" className="tabs tabs-bordered">
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          aria-label="Rules"
+          defaultChecked
         />
-      )}
+        <div role="tabpanel" className="tab-content p-10">
+          <AssistantForm
+            assistant={aiAssistant}
+            ownerId={user.id}
+            handleSubmit={handleSubmit}
+            disabled={disabled}
+          />
+        </div>
+
+        <input
+          type="radio"
+          name="my_tabs_1"
+          role="tab"
+          className="tab"
+          aria-label="Used Libraries"
+        />
+        <div role="tabpanel" className="tab-content p-10">
+          <AssistantLibraries assistantId={aiAssistant.id} ownerId={user.id} />
+        </div>
+      </div>
     </article>
   )
 }

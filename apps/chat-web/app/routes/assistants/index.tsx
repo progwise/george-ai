@@ -1,35 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { graphql } from '../../gql/gql'
 import { AssistantCard } from '../../components/assistant/assistant-card'
 import { queryKeys } from '../../query-keys'
-import { createServerFn } from '@tanstack/start'
-import { z } from 'zod'
-import { backendRequest } from '../../server-functions/backend'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { LoadingSpinner } from '../../components/loading-spinner'
-
-const myAssistantsDocument = graphql(/* GraphQL */ `
-  query aiAssistantCards($ownerId: String!) {
-    aiAssistants(ownerId: $ownerId) {
-      id
-      name
-      description
-      icon
-      aiAssistantType
-      createdAt
-      ownerId
-    }
-  }
-`)
-
-const getAiAssistants = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
-  .handler(async (ctx) =>
-    backendRequest(myAssistantsDocument, {
-      ownerId: ctx.data,
-    }),
-  )
+import { getMyAiAssistants } from '../../server-functions/assistants'
 
 export const Route = createFileRoute('/assistants/')({
   component: RouteComponent,
@@ -44,7 +19,7 @@ function RouteComponent() {
       if (!authContext?.user?.id) {
         return null
       } else {
-        return getAiAssistants({ data: authContext.user.id })
+        return getMyAiAssistants({ data: authContext.user.id })
       }
     },
   })

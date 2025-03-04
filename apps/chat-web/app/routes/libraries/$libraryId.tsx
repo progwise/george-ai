@@ -5,9 +5,9 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { LibraryForm } from '../../components/library/library-form'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
@@ -28,7 +28,7 @@ const aiLibraryEditQueryDocument = graphql(`
       description
       createdAt
       ownerId
-      aiLibraryType
+      libraryType
       url
     }
     aiLibraries(ownerId: $ownerId) {
@@ -64,8 +64,6 @@ const changeLibrary = createServerFn({ method: 'POST' })
       throw new Error('Invalid form data')
     }
 
-    console.log('form data', data.get('name'))
-
     const libraryId = z
       .string()
       .nonempty()
@@ -75,7 +73,7 @@ const changeLibrary = createServerFn({ method: 'POST' })
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      aiLibraryType: data.get('aiLibraryType'),
+      libraryType: data.get('libraryType'),
     })
     return { libraryId, library }
   })
@@ -101,14 +99,17 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
 export const Route = createFileRoute('/libraries/$libraryId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
     return {
       libraryId: params.libraryId,
-      ownerId: context.auth.user?.id,
+      ownerId: currentUser?.id,
     }
   },
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(
-      librariesQueryOptions(context.auth.user?.id, context.libraryId),
+      librariesQueryOptions(context.ownerId, context.libraryId),
     )
   },
   staleTime: 0,
@@ -126,7 +127,6 @@ function RouteComponent() {
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
     onSettled: () => {
-      console.log('library updated')
       navigate({ to: '..' })
     },
   })
@@ -139,10 +139,8 @@ function RouteComponent() {
     saveLibrary(formData)
   }
   const disabled = !auth?.isAuthenticated
-  if (isLoading) {
-    return
-  }
-  if (!aiLibrary || !aiLibraries) {
+
+  if (!aiLibrary || !aiLibraries || isLoading) {
     return <LoadingSpinner />
   }
 
@@ -173,12 +171,14 @@ function RouteComponent() {
           aria-label="Rules"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <LibraryForm
-            library={aiLibrary!}
-            owner={auth.user!}
-            handleSubmit={handleSubmit}
-            disabled={disabled}
-          />
+          {auth.user?.id && (
+            <LibraryForm
+              library={aiLibrary!}
+              ownerId={auth.user.id}
+              handleSubmit={handleSubmit}
+              disabled={disabled}
+            />
+          )}
         </div>
 
         <input
@@ -190,21 +190,23 @@ function RouteComponent() {
           defaultChecked
         />
         <div role="tabpanel" className="tab-content p-10">
-          <GoogleDriveFiles
-            aiLibraryId={aiLibrary.id}
-            currentLocationHref={currentLocation.href}
-          />
+          <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
+
         <input
           type="radio"
           name="my_tabs_1"
           role="tab"
           className="tab"
-          aria-label="Embeddings"
+          aria-label="Google Drive"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <EmbeddingsTable aiLibraryId={aiLibrary.id} />
+          <GoogleDriveFiles
+            libraryId={aiLibrary.id}
+            currentLocationHref={currentLocation.href}
+          />
         </div>
+
         <input
           type="radio"
           name="my_tabs_1"
@@ -213,7 +215,7 @@ function RouteComponent() {
           aria-label="Query"
         />
         <div role="tabpanel" className="tab-content p-10">
-          <LibraryQuery aiLibraryId={aiLibrary.id} />
+          <LibraryQuery libraryId={aiLibrary.id} />
         </div>
       </div>
     </article>

@@ -1,12 +1,13 @@
+import { JSX } from 'react'
 import { Link } from '@tanstack/react-router'
-import BowlerHatIcon from './icons/bowler-hat-icon'
-import ChatBubbleIcon from './icons/chat-bubble-icon'
-import UserIcon from './icons/user-icon'
-import AcademicCapIcon from './icons/academic-cap-icon'
-import { useAuth } from '../auth/auth-context'
+import BowlerHatIcon from '../icons/bowler-hat-icon'
+import ChatBubbleIcon from '../icons/chat-bubble-icon'
+import UserIcon from '../icons/user-icon'
+import AcademicCapIcon from '../icons/academic-cap-icon'
+import { useAuth } from '../auth/auth-hook'
 import { t } from 'i18next'
 import { FileRoutesByTo } from '../routeTree.gen'
-
+import { ConversationIcon } from '../icons/conversation-icon'
 const TopNavigationLink = ({
   to,
   children,
@@ -27,7 +28,7 @@ const TopNavigationLink = ({
 }
 
 const TopNavigation = () => {
-  const { isAuthenticated, login, logout, profileUrl, user } = useAuth()
+  const { user, login, logout } = useAuth()
 
   return (
     <nav className="navbar  bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
@@ -38,8 +39,12 @@ const TopNavigation = () => {
         </TopNavigationLink>
       </div>
       <div className="navbar-center">
+        <TopNavigationLink to="/conversations/$">
+          <ConversationIcon className="size-6" />
+          {t('conversations')}
+        </TopNavigationLink>
         <TopNavigationLink to="/assistants">
-          <ChatBubbleIcon className="size-6" />
+          <BowlerHatIcon className="size-6" />
           {t('assistants')}
         </TopNavigationLink>
         <TopNavigationLink to="/libraries">
@@ -52,24 +57,24 @@ const TopNavigation = () => {
         </TopNavigationLink>
       </div>
       <div className="navbar-end">
-        {!isAuthenticated ? (
+        {!user ? (
           <button
             type="button"
             className="btn btn-ghost gap-2"
-            onClick={() => login?.()}
+            onClick={() => login()}
           >
             <UserIcon className="size-6" />
             <span>{t('signIn')}</span>
           </button>
         ) : (
           <>
-            <Link to={profileUrl} className="btn btn-ghost gap-2">
+            <Link to={user.profileUrl} className="btn btn-ghost gap-2">
               {user?.name}
             </Link>
             <button
               type="button"
               className="btn btn-ghost gap-2"
-              onClick={() => logout?.()}
+              onClick={() => logout()}
             >
               <UserIcon className="size-6" />
               <span>{t('signOut')}</span>

@@ -1,22 +1,22 @@
 import React from 'react'
-import { AiAssistant, User } from '../../gql/graphql'
+import { AiAssistant } from '../../gql/graphql'
 
 export interface AssistantEditFormProps {
   assistant: AiAssistant
-  owner: User
+  ownerId: string
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
 export const AssistantForm = ({
   assistant,
-  owner,
+  ownerId,
   handleSubmit,
   disabled,
 }: AssistantEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <input type="hidden" name="ownerId" value={owner.id} />
+      <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="assistantId" value={assistant.id} />
 
@@ -52,12 +52,12 @@ export const AssistantForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Chatbot</span>
             <input
-              key={assistant.aiAssistantType}
+              key={assistant.assistantType}
               type="radio"
-              name="aiAssistantType"
+              name="assistantType"
               value="CHATBOT"
               className="radio checked:bg-green-500"
-              defaultChecked={assistant.aiAssistantType === 'CHATBOT'}
+              defaultChecked={assistant.assistantType === 'CHATBOT'}
             />
           </label>
         </div>
@@ -65,14 +65,12 @@ export const AssistantForm = ({
           <label className="label cursor-pointer">
             <span className="label-text pr-4">Doc Generator</span>
             <input
-              key={assistant.aiAssistantType}
+              key={assistant.assistantType}
               type="radio"
-              name="aiAssistantType"
+              name="assistantType"
               value="DOCUMENT_GENERATOR"
               className="radio checked:bg-blue-500"
-              defaultChecked={
-                assistant.aiAssistantType === 'DOCUMENT_GENERATOR'
-              }
+              defaultChecked={assistant.assistantType === 'DOCUMENT_GENERATOR'}
               disabled
             />
           </label>

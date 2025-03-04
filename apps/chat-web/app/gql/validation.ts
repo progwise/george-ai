@@ -2,9 +2,12 @@ import { z } from 'zod'
 import {
   AiAssistantInput,
   AiAssistantType,
+  AiConversationCreateInput,
+  AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
   AiLibraryType,
+  AiLibraryUsageInput,
   RetrievalFlow,
   UserInput,
 } from './graphql'
@@ -32,7 +35,7 @@ export function AiAssistantInputSchema(): z.ZodObject<
   Properties<AiAssistantInput>
 > {
   return z.object({
-    aiAssistantType: AiAssistantTypeSchema,
+    assistantType: AiAssistantTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
@@ -40,11 +43,30 @@ export function AiAssistantInputSchema(): z.ZodObject<
   })
 }
 
+export function AiConversationCreateInputSchema(): z.ZodObject<
+  Properties<AiConversationCreateInput>
+> {
+  return z.object({
+    assistantIds: z.array(z.string()),
+    userIds: z.array(z.string()),
+  })
+}
+
+export function AiConversationMessageInputSchema(): z.ZodObject<
+  Properties<AiConversationMessageInput>
+> {
+  return z.object({
+    content: z.string(),
+    conversationId: z.string(),
+    recipientAssistantIds: z.array(z.string()),
+  })
+}
+
 export function AiLibraryFileInputSchema(): z.ZodObject<
   Properties<AiLibraryFileInput>
 > {
   return z.object({
-    aiLibraryId: z.string(),
+    libraryId: z.string(),
     mimeType: z.string(),
     name: z.string(),
     originUri: z.string(),
@@ -55,11 +77,21 @@ export function AiLibraryInputSchema(): z.ZodObject<
   Properties<AiLibraryInput>
 > {
   return z.object({
-    aiLibraryType: AiLibraryTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
+    libraryType: AiLibraryTypeSchema,
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiLibraryUsageInputSchema(): z.ZodObject<
+  Properties<AiLibraryUsageInput>
+> {
+  return z.object({
+    assistantId: z.string(),
+    libraryId: z.string(),
+    use: z.boolean(),
   })
 }
 

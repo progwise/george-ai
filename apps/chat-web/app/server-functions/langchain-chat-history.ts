@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { LangchainChatMessage, chatStore } from '../store/langchain-chat-store'
 
 const fetchChatHistory = createServerFn({ method: 'GET' })
@@ -33,7 +33,7 @@ export const chatMessagesQueryOptions = (sessionId?: string) =>
 
 export const reset = createServerFn({ method: 'POST' })
   .validator((sessionId: string) => sessionId)
-  .handler(async (ctx) => {
+  .handler((ctx) => {
     const messages = chatStore.reset(ctx.data)
     return { sessionId: messages[0].sessionId, messages }
   })

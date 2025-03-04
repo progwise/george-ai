@@ -1,18 +1,18 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { graphql } from '../../gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { backendRequest } from '../../server-functions/backend'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import { queryKeys } from '../../query-keys'
-import { useAuth } from '../../auth/auth-context'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 
 const librariesDocument = graphql(/* GraphQL */ `
   query aiLibraries($ownerId: String!) {
     aiLibraries(ownerId: $ownerId) {
       id
       name
-      aiLibraryType
+      libraryType
       owner {
         id
         name
@@ -46,10 +46,16 @@ const librariesQueryOptions = (ownerId?: string) =>
 
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
+    return {
+      ownerId: currentUser?.id,
+    }
+  },
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(
-      librariesQueryOptions(context.auth.user?.id),
-    )
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId))
   },
 })
 
@@ -95,7 +101,7 @@ function RouteComponent() {
               <th></th>
               <th>Name</th>
               <th>Type</th>
-              <th>owner</th>
+              <th>Owner</th>
               <th>Last update</th>
               <td></td>
             </tr>
@@ -105,7 +111,7 @@ function RouteComponent() {
               <tr key={library.id} className="hover:bg-gray-100">
                 <td>{index + 1}</td>
                 <td>{library.name}</td>
-                <td>{library.aiLibraryType}</td>
+                <td>{library.libraryType}</td>
                 <td>{library.owner?.name}</td>
                 <td>{library.updatedAt || library.createdAt}</td>
                 <td>

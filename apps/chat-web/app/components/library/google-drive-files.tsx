@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
 import { useState } from 'react'
 import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { graphql } from '../../gql'
@@ -12,7 +12,7 @@ import { LoadingSpinner } from '../loading-spinner'
 
 export interface GoogleDriveFilesProps {
   currentLocationHref: string
-  aiLibraryId: string
+  libraryId: string
 }
 
 interface GoogleDriveResponse {
@@ -42,13 +42,13 @@ const ProcessFileDocument = graphql(`
 const embedFiles = createServerFn({ method: 'GET' })
   .validator(
     (data: {
-      aiLibraryId: string
+      libraryId: string
       files: Array<LibraryFile>
       access_token: string
     }) =>
       z
         .object({
-          aiLibraryId: z.string().nonempty(),
+          libraryId: z.string().nonempty(),
           files: z.array(LibraryFileSchema),
           access_token: z.string().nonempty(),
         })
@@ -56,19 +56,7 @@ const embedFiles = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     const processFiles = ctx.data.files.map(async (file) => {
-      const preparedFile = await backendRequest(PrepareFileDocument, {
-        file: {
-          name: file.name,
-          originUri: `https://drive.google.com/file/d/${file.id}/view`,
-          mimeType: 'application/pdf',
-          aiLibraryId: ctx.data.aiLibraryId,
-        },
-      })
-
-      if (!preparedFile?.prepareFile?.id) {
-        throw new Error('Failed to prepare file')
-      }
-
+      let isPdfExport = true
       const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
         {
@@ -76,17 +64,53 @@ const embedFiles = createServerFn({ method: 'GET' })
             Authorization: `Bearer ${ctx.data.access_token}`,
           },
         },
-      )
+      ).then(async (response) => {
+        if (response.ok) {
+          return response
+        }
 
-      if (!googleDownloadResponse.body) {
+        console.warn(
+          'Failed to download file from Google Drive, trying another method',
+          `${ctx.data.access_token}`,
+          file,
+        )
+        isPdfExport = false
+        return await fetch(
+          `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${ctx.data.access_token}`,
+            },
+          },
+        )
+      })
+
+      if (!googleDownloadResponse.ok) {
+        console.error('Failed to download file from Google Drive', file)
+        const body = await googleDownloadResponse.text()
+        console.error('Response', body)
         throw new Error(`Failed to download file from Google Drive: ${file.id}`)
       }
 
       const blob = await googleDownloadResponse.blob()
 
+      const preparedFile = await backendRequest(PrepareFileDocument, {
+        file: {
+          name: file.name,
+          originUri: `https://drive.google.com/file/d/${file.id}/view`,
+          mimeType: isPdfExport ? 'application/pdf' : 'text/plain',
+          libraryId: ctx.data.libraryId,
+        },
+      })
+
+      if (!preparedFile?.prepareFile?.id) {
+        throw new Error('Failed to prepare file')
+      }
+
       const uploadResponse = await backendUpload(
         blob,
-        preparedFile?.prepareFile?.id,
+        preparedFile.prepareFile.id,
       )
 
       if (!uploadResponse.ok) {
@@ -102,7 +126,7 @@ const embedFiles = createServerFn({ method: 'GET' })
   })
 
 export const GoogleDriveFiles = ({
-  aiLibraryId,
+  libraryId,
   currentLocationHref,
 }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
@@ -137,7 +161,11 @@ export const GoogleDriveFiles = ({
   const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } =
     useMutation({
-      mutationFn: embedFiles,
+      mutationFn: (data: {
+        libraryId: string
+        files: LibraryFile[]
+        access_token: string
+      }) => embedFiles({ data }),
       onSuccess: () => {
         alert('Files embedded successfully')
         setSelectedFiles([])
@@ -146,14 +174,13 @@ export const GoogleDriveFiles = ({
 
   const handleEmbedFiles = async (files: LibraryFile[]) => {
     embedFilesMutation({
-      data: {
-        aiLibraryId,
-        files,
-        access_token: googleDriveAccessToken.access_token!,
-      },
+      libraryId,
+      files,
+      access_token: googleDriveAccessToken.access_token!,
     })
+
     queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraryFiles, aiLibraryId],
+      queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
   }
 
