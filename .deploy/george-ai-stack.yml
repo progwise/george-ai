@@ -8,7 +8,8 @@ services:
       KEYCLOAK_REALM: george-ai
       KEYCLOAK_URL: https://keycloak.george-ai.net
       KEYCLOAK_CLIENT_ID: george-ai-web
-      BACKEND_GRAPHQL_URL: http://gai-backend:3003/
+      BACKEND_URL: http://gai-backend:3003
+      BACKEND_PUBLIC_URL: https://backend.george-ai.net
     env_file:
       - gai-chatweb.env
     networks:
@@ -34,12 +35,20 @@ services:
 
   gai-backend:
     image: ghcr.io/progwise/george-ai/backend:latest
+    environment:
+      UPLOADS_PATH: ./.uploads
+      TYPESENSE_API_HOST: gai-typesense
+      TYPESENSE_API_PORT: 8108
+      TYPESENSE_API_PROTOCOL: http
+      # TYPESENSE_API_KEY=xyz
     env_file:
       - gai-backend.env
     networks:
       - caddy
     depends_on:
       - gai-db
+    volumes:
+      - /home/swarm/data/uploads:/app/.uploads
     deploy:
       replicas: 1
       resources:

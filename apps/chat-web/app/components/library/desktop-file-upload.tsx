@@ -5,8 +5,8 @@ import { backendRequest } from '../../server-functions/backend'
 import { graphql } from '../../gql'
 import { LoadingSpinner } from '../loading-spinner'
 import { LibraryFile, LibraryFileSchema } from './files-table'
-import { createServerFn } from '@tanstack/start'
-import { BACKEND_URL, GRAPHQL_API_KEY } from '../../constants'
+import { createServerFn } from '@tanstack/react-start'
+import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
 
 export interface DesktopFilesProps {
   libraryId: string
@@ -47,7 +47,7 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
 
       return {
         fileName: selectedFile.name,
-        uploadUrl: BACKEND_URL + '/upload',
+        uploadUrl: BACKEND_PUBLIC_URL + '/upload',
         method: 'POST',
         headers: {
           Authorization: `ApiKey ${GRAPHQL_API_KEY}`,

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '../../auth/auth-hook'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationForm } from '../../components/conversation/conversation-form'
 import { useEffect, useRef, useState } from 'react'
@@ -8,7 +8,7 @@ import { NewConversationDialog } from '../../components/conversation/new-convers
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
 import { graphql } from '../../gql'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { queryKeys } from '../../query-keys'
@@ -87,39 +87,6 @@ export const Route = createFileRoute('/conversations/$')({
     return {
       selectedConversationId: params._splat as string,
     }
-  },
-  loader: async ({ context }) => {
-    const { selectedConversationId, auth } = context
-    if (!auth.user?.id) {
-      return {
-        conversations: null,
-        selectedConversation: null,
-        assignableUsers: null,
-        assignableAssistants: null,
-      }
-    }
-    const userId = auth.user?.id
-    const queryClient = context.queryClient
-
-    queryClient.prefetchQuery({
-      queryKey: [queryKeys.Conversations, userId],
-      queryFn: () => getConversations({ data: { userId } }),
-    })
-    queryClient.prefetchQuery({
-      queryKey: [queryKeys.Conversation, selectedConversationId],
-      queryFn: () =>
-        getConversation({
-          data: { conversationId: selectedConversationId },
-        }),
-    })
-    queryClient.prefetchQuery({
-      queryKey: [queryKeys.ConversationAssignableUsers, userId],
-      queryFn: () => getAssignableHumans({ data: { userId } }),
-    })
-    await queryClient.prefetchQuery({
-      queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-      queryFn: () => getAssignableAssistants({ data: { ownerId: userId } }),
-    })
   },
 })
 

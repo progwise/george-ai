@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { AiAssistant } from '../../gql/graphql'
 import { Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../gql'
 import { z } from 'zod'
