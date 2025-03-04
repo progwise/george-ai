@@ -2,12 +2,11 @@ import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-context'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationForm } from '../../components/conversation/conversation-form'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
-import { CircleCrossIcon } from '../../icons/circle-cross-icon'
 import { graphql } from '../../gql'
 import { createServerFn } from '@tanstack/start'
 import { backendRequest } from '../../server-functions/backend'
@@ -15,6 +14,8 @@ import { LoadingSpinner } from '../../components/loading-spinner'
 import { queryKeys } from '../../query-keys'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { z } from 'zod'
+import { MenuIcon } from '../../icons/menu-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
@@ -135,6 +136,43 @@ function RouteComponent() {
 
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden'
+  }
+
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+    document.body.style.overflow = 'auto'
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        closeMenu()
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
+  const handleConversationClick = (conversationId: string) => {
+    navigate({ to: `/conversations/${conversationId}` })
+    setIsMenuOpen(false)
+  }
+
   const { data: conversations, isLoading: conversationsLoading } =
     useSuspenseQuery({
       queryKey: [queryKeys.Conversations, userId],
@@ -205,7 +243,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col lg:flex-row gap-4">
       <NewConversationDialog
         ref={newDialogRef}
         humans={assignableUsers.myConversationUsers}
@@ -220,27 +258,43 @@ function RouteComponent() {
       )}
 
       {userId && (
-        <nav>
-          <div className="flex justify-between items-center p-4">
-            <>
-              {' '}
-              <h3>Recent</h3>
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={handleNewConversation}
-              >
-                New
-              </button>
-            </>
+        <div className="relative">
+          <div className="flex justify-between items-center border-b py-4 lg:border-none">
+            <button
+              type="button"
+              className="btn btn-sm lg:hidden"
+              onClick={toggleMenu}
+            >
+              <MenuIcon className="size-6" />
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleNewConversation}
+            >
+              New
+            </button>
           </div>
-          {conversations.aiConversations && (
-            <ConversationSelector
-              conversations={conversations.aiConversations}
-              selectedConversationId={selectedConversationId}
-            />
+
+          {isMenuOpen && (
+            <div className="fixed inset-0 z-10 lg:hidden" onClick={closeMenu} />
           )}
-        </nav>
+
+          <div
+            ref={menuRef}
+            className={`absolute w-72 z-20 shadow-md border rounded-md ${
+              isMenuOpen ? 'block' : 'hidden'
+            } lg:block lg:static`}
+          >
+            {conversations.aiConversations && (
+              <ConversationSelector
+                conversations={conversations.aiConversations}
+                selectedConversationId={selectedConversationId}
+                onConversationClick={handleConversationClick}
+              />
+            )}
+          </div>
+        </div>
       )}
       <article className="flex flex-col gap-4 w-full">
         {selectedConversation?.aiConversation && (
@@ -253,10 +307,11 @@ function RouteComponent() {
               />
               <button
                 type="button"
-                className="btn btn-cicle btn-sm btn-ghost text-red-500"
+                className="btn btn-circle btn-sm btn-ghost lg:tooltip"
                 onClick={handleDeleteConversation}
+                data-tip="Delete Conversation"
               >
-                <CircleCrossIcon /> Conversation
+                <TrashIcon className="size-6" />
               </button>
             </div>
             <ConversationHistory
