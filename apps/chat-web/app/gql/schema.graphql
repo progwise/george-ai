@@ -82,6 +82,7 @@ interface AiConversationParticipant {
 type AiLibrary {
   createdAt: DateTime!
   description: String
+  files: [AiLibraryFile!]
   id: ID!
   libraryType: AiLibraryType!
   name: String!
@@ -215,6 +216,7 @@ type Mutation {
   createUser(data: UserInput!, username: String!): User
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
+  deleteAiLibrary(id: String!): AiLibrary
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User

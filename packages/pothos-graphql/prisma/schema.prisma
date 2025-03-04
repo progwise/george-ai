@@ -93,7 +93,7 @@ model AiLibraryFile {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  library     AiLibrary @relation(fields: [libraryId], references: [id])
+  library     AiLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
   libraryId   String
   name        String
   originUri   String?

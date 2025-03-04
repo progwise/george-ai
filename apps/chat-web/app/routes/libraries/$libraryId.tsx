@@ -1,3 +1,4 @@
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import {
   createFileRoute,
   Link,
@@ -5,20 +6,20 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { CurrentUser, useAuth } from '../../auth/auth-hook'
-import { LibraryForm } from '../../components/library/library-form'
 import { createServerFn } from '@tanstack/react-start'
+import { useRef } from 'react'
 import { z } from 'zod'
-import { AiLibraryInputSchema } from '../../gql/validation'
-import { backendRequest } from '../../server-functions/backend'
-import { graphql } from '../../gql'
-import { LibrarySelector } from '../../components/library/library-selector'
-import { queryKeys } from '../../query-keys'
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { GoogleDriveFiles } from '../../components/library/google-drive-files'
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
+import { GoogleDriveFiles } from '../../components/library/google-drive-files'
+import { LibraryForm } from '../../components/library/library-form'
 import { LibraryQuery } from '../../components/library/library-query'
+import { LibrarySelector } from '../../components/library/library-selector'
+import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql'
+import { AiLibraryInputSchema } from '../../gql/validation'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const aiLibraryEditQueryDocument = graphql(`
   query aiLibraryEdit($id: String!, $ownerId: String!) {
@@ -30,6 +31,13 @@ const aiLibraryEditQueryDocument = graphql(`
       ownerId
       libraryType
       url
+      files {
+        id
+        createdAt
+        libraryId
+        mimeType
+        name
+      }
     }
     aiLibraries(ownerId: $ownerId) {
       id
@@ -49,11 +57,19 @@ const getLibrary = createServerFn({ method: 'GET' })
     async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data),
   )
 
-const updateLibraryDocument = graphql(/* GraphQL */ `
+const updateLibraryDocument = graphql(`
   mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
     updateAiLibrary(id: $id, data: $data) {
       id
       name
+    }
+  }
+`)
+
+const deleteLibraryDocument = graphql(`
+  mutation deleteAiLibrary($id: String!) {
+    deleteAiLibrary(id: $id) {
+      id
     }
   }
 `)
@@ -82,6 +98,12 @@ const changeLibrary = createServerFn({ method: 'POST' })
       data: ctx.data.library,
       id: ctx.data.libraryId,
     })
+  })
+
+const deleteLibrary = createServerFn({ method: 'GET' })
+  .validator((data: string) => z.string().nonempty().parse(data))
+  .handler(async (ctx) => {
+    return await backendRequest(deleteLibraryDocument, { id: ctx.data })
   })
 
 const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
@@ -122,7 +144,6 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(
     librariesQueryOptions(auth.user?.id, libraryId),
   )
-
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
@@ -130,7 +151,10 @@ function RouteComponent() {
       navigate({ to: '..' })
     },
   })
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
   const { aiLibrary, aiLibraries } = data || {}
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -138,86 +162,135 @@ function RouteComponent() {
 
     saveLibrary(formData)
   }
+  const handleDelete = async () => {
+    dialogRef.current?.showModal()
+  }
+
   const disabled = !auth?.isAuthenticated
 
   if (!aiLibrary || !aiLibraries || isLoading) {
     return <LoadingSpinner />
   }
 
+  const handleDeleteConfirm = async () => {
+    await deleteLibrary({ data: aiLibrary.id })
+    await navigate({ to: '..' })
+    dialogRef.current?.close()
+  }
+
+  const fileCount = aiLibrary.files?.length
+
   return (
-    <article className="flex w-full flex-col gap-4">
-      <LoadingSpinner isLoading={saveIsPending} />
-      <div className="flex justify-between items-center">
-        <LibrarySelector
-          libraries={aiLibraries!}
-          selectedLibrary={aiLibrary!}
-        />
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
+    <>
+      <dialog ref={dialogRef} className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            <button
+              type="submit"
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            >
+              ✕
+            </button>
+          </form>
+          <h3 className="text-lg font-bold">Confirm to delete assistant</h3>
+          <p>
+            <q>{aiLibrary.name}</q> will be deleted along with {fileCount}{' '}
+            files.
+          </p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button
+                type="submit"
+                className="btn btn-error"
+                onClick={handleDeleteConfirm}
+              >
+                Delete Assistant
+              </button>
+            </form>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Link type="button" className="btn btn-primary btn-sm" to="..">
-            List
-          </Link>
-        </div>
-      </div>
-
-      <div role="tablist" className="tabs tabs-bordered">
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Rules"
-        />
-        <div role="tabpanel" className="tab-content p-10">
-          {auth.user?.id && (
-            <LibraryForm
-              library={aiLibrary!}
-              ownerId={auth.user.id}
-              handleSubmit={handleSubmit}
-              disabled={disabled}
-            />
-          )}
-        </div>
-
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Files"
-          defaultChecked
-        />
-        <div role="tabpanel" className="tab-content p-10">
-          <EmbeddingsTable libraryId={aiLibrary.id} />
-        </div>
-
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Google Drive"
-        />
-        <div role="tabpanel" className="tab-content p-10">
-          <GoogleDriveFiles
-            libraryId={aiLibrary.id}
-            currentLocationHref={currentLocation.href}
+      </dialog>
+      <article className="flex w-full flex-col gap-4">
+        <LoadingSpinner isLoading={saveIsPending} />
+        <div className="flex justify-between items-center">
+          <LibrarySelector
+            libraries={aiLibraries!}
+            selectedLibrary={aiLibrary!}
           />
+          <div className="badge badge-secondary badge-outline">
+            {disabled ? 'Disabled' : 'enabled'}
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="btn btn-sm btn-warning"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
+            <Link type="button" className="btn btn-primary btn-sm" to="..">
+              Back
+            </Link>
+          </div>
         </div>
 
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Query"
-        />
-        <div role="tabpanel" className="tab-content p-10">
-          <LibraryQuery libraryId={aiLibrary.id} />
+        <div role="tablist" className="tabs tabs-bordered">
+          <input
+            type="radio"
+            name="my_tabs_1"
+            role="tab"
+            className="tab"
+            aria-label="Rules"
+          />
+          <div role="tabpanel" className="tab-content p-10">
+            {auth.user?.id && (
+              <LibraryForm
+                library={aiLibrary!}
+                ownerId={auth.user.id}
+                handleSubmit={handleSubmit}
+                disabled={disabled}
+              />
+            )}
+          </div>
+
+          <input
+            type="radio"
+            name="my_tabs_1"
+            role="tab"
+            className="tab"
+            aria-label="Files"
+            defaultChecked
+          />
+          <div role="tabpanel" className="tab-content p-10">
+            <EmbeddingsTable libraryId={aiLibrary.id} />
+          </div>
+
+          <input
+            type="radio"
+            name="my_tabs_1"
+            role="tab"
+            className="tab whitespace-nowrap"
+            aria-label="Google Drive"
+          />
+          <div role="tabpanel" className="tab-content p-10">
+            <GoogleDriveFiles
+              libraryId={aiLibrary.id}
+              currentLocationHref={currentLocation.href}
+            />
+          </div>
+
+          <input
+            type="radio"
+            name="my_tabs_1"
+            role="tab"
+            className="tab"
+            aria-label="Query"
+          />
+          <div role="tabpanel" className="tab-content p-10">
+            <LibraryQuery libraryId={aiLibrary.id} />
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </>
   )
 }

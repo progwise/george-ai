@@ -1,8 +1,8 @@
 import { dropVectorStore } from '@george-ai/langchain-chat'
 import * as fs from 'fs'
-import { builder } from '../builder'
-import { prisma } from '../../prisma'
 import { getFilePath } from '../../file-upload'
+import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 console.log('Setting up: AiLibrary')
 
@@ -35,6 +35,7 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     ownerId: t.exposeString('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    files: t.relation('files'),
   }),
 })
 
@@ -112,6 +113,21 @@ builder.mutationField('createAiLibrary', (t) =>
           ...data,
           ownerId,
         },
+      })
+    },
+  }),
+)
+
+builder.mutationField('deleteAiLibrary', (t) =>
+  t.prismaField({
+    type: 'AiLibrary',
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: (query, _source, { id }) => {
+      return prisma.aiLibrary.delete({
+        ...query,
+        where: { id },
       })
     },
   }),

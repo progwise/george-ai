@@ -116,6 +116,7 @@ export type AiLibrary = {
   __typename?: 'AiLibrary'
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
+  files?: Maybe<Array<AiLibraryFile>>
   id: Scalars['ID']['output']
   libraryType: AiLibraryType
   name: Scalars['String']['output']
@@ -232,6 +233,7 @@ export type Mutation = {
   createUser?: Maybe<User>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
+  deleteAiLibrary?: Maybe<AiLibrary>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
@@ -286,6 +288,10 @@ export type MutationDeleteAiAssistantArgs = {
 
 export type MutationDeleteAiConversationArgs = {
   conversationId: Scalars['String']['input']
+}
+
+export type MutationDeleteAiLibraryArgs = {
+  id: Scalars['String']['input']
 }
 
 export type MutationDeleteMessageArgs = {
@@ -987,6 +993,14 @@ export type AiLibraryEditQuery = {
     ownerId: string
     libraryType: AiLibraryType
     url?: string | null
+    files?: Array<{
+      __typename?: 'AiLibraryFile'
+      id: string
+      createdAt: string
+      libraryId: string
+      mimeType: string
+      name: string
+    }> | null
   } | null
   aiLibraries?: Array<{
     __typename?: 'AiLibrary'
@@ -1007,6 +1021,15 @@ export type ChangeAiLibraryMutation = {
     id: string
     name: string
   } | null
+}
+
+export type DeleteAiLibraryMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteAiLibraryMutation = {
+  __typename?: 'Mutation'
+  deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
 }
 
 export type AiLibrariesQueryVariables = Exact<{
@@ -3822,6 +3845,29 @@ export const AiLibraryEditDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'files' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'createdAt' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'libraryId' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'mimeType' },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -3921,6 +3967,57 @@ export const ChangeAiLibraryDocument = {
 } as unknown as DocumentNode<
   ChangeAiLibraryMutation,
   ChangeAiLibraryMutationVariables
+>
+export const DeleteAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'id' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DeleteAiLibraryMutation,
+  DeleteAiLibraryMutationVariables
 >
 export const AiLibrariesDocument = {
   kind: 'Document',
