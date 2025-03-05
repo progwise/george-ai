@@ -61,7 +61,7 @@ export const ConversationSelector = (props: ConversationSelectorProps) => {
                     <span className="block mt-1">
                       {conversation.assistants
                         ?.map((assistant) => assistant.name)
-                        .join(', ')}
+                        .join(', ') || 'No assistants assigned'}
                     </span>
                   </Link>
                 </li>
