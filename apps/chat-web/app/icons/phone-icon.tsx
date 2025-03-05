@@ -3,7 +3,7 @@ import { IconProps } from './icon-props'
 
 const PhoneIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-6', className)}>
+    <div className={twMerge('size-6', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"

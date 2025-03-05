@@ -3,7 +3,7 @@ import { IconProps } from './icon-props'
 
 export const MenuIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-4', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
