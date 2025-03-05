@@ -3,11 +3,9 @@ import { IconProps } from './icon-props'
 
 export const CircleCrossIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-4', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="26"
-        height="26"
         viewBox="0 0 26 26"
         fill="none"
         className="inline-block h-4 w-4 stroke-current"

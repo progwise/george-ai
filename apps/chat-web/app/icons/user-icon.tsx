@@ -3,14 +3,13 @@ import { IconProps } from './icon-props'
 
 const UserIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-6', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        className="size-6"
       >
         <path
           strokeLinecap="round"

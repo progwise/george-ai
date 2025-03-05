@@ -9,6 +9,7 @@ import { t } from 'i18next'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ConversationIcon } from '../icons/conversation-icon'
 import { MenuIcon } from '../icons/menu-icon'
+import { useState, useRef, useEffect } from 'react'
 
 const TopNavigationLink = ({
   to,
@@ -31,6 +32,30 @@ const TopNavigationLink = ({
 
 const TopNavigation = () => {
   const { user, login, logout } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        closeMenu()
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
 
   return (
     <nav className="navbar bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
@@ -54,56 +79,74 @@ const TopNavigation = () => {
           </button>
         )}
 
-        <div className="dropdown dropdown-end">
-          <label tabIndex={0} className="btn btn-ghost">
+        <div className="dropdown dropdown-end" ref={menuRef}>
+          <label
+            tabIndex={0}
+            className="btn btn-ghost"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
             <MenuIcon className="size-6" />
           </label>
-          <ul
-            tabIndex={0}
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <Link to="/conversations/$">
-                <ConversationIcon className="size-6" />
-                {t('conversations')}
-              </Link>
-            </li>
-            <li>
-              <Link to="/assistants">
-                <BowlerHatIcon className="size-6" />
-                {t('assistants')}
-              </Link>
-            </li>
-            <li>
-              <Link to="/libraries">
-                <AcademicCapIcon className="size-6" />
-                {t('library')}
-              </Link>
-            </li>
-            <li>
-              <Link to="/langchain-chat">
-                <ChatBubbleIcon className="size-6" />
-                {t('chat')}
-              </Link>
-            </li>
-            {!user ? (
+          {isMenuOpen && (
+            <ul
+              tabIndex={0}
+              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+            >
               <li>
-                <button type="button" onClick={() => login()}>
-                  <UserIcon className="size-6" />
-                  {t('signIn')}
-                </button>
+                <Link to="/conversations/$" onClick={closeMenu}>
+                  <ConversationIcon className="size-6" />
+                  {t('conversations')}
+                </Link>
               </li>
-            ) : (
-              <>
+              <li>
+                <Link to="/assistants" onClick={closeMenu}>
+                  <BowlerHatIcon className="size-6" />
+                  {t('assistants')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/libraries" onClick={closeMenu}>
+                  <AcademicCapIcon className="size-6" />
+                  {t('library')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/langchain-chat" onClick={closeMenu}>
+                  <ChatBubbleIcon className="size-6" />
+                  {t('chat')}
+                </Link>
+              </li>
+              {!user ? (
                 <li>
-                  <button type="button" onClick={() => logout()}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      login()
+                      closeMenu()
+                    }}
+                  >
                     <UserIcon className="size-6" />
-                    {t('signOut')}
+                    {t('signIn')}
                   </button>
                 </li>
-              </>
-            )}
-          </ul>
+              ) : (
+                <>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout()
+                        closeMenu()
+                      }}
+                    >
+                      <UserIcon className="size-6" />
+                      {t('signOut')}
+                    </button>
+                  </li>
+                </>
+              )}
+            </ul>
+          )}
         </div>
       </div>
 

@@ -42,7 +42,7 @@ export const Listbox = <T extends { id: string; name: string }>({
 
         <ListboxOptions
           transition
-          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-box bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-box bg-white text-base shadow-lg ring-1 ring-black/5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
         >
           {items.map((item) => (
             <ListboxOption
