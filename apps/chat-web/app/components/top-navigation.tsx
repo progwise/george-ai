@@ -56,7 +56,7 @@ const TopNavigation = () => {
 
         <div className="dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-ghost">
-            <MenuIcon />
+            <MenuIcon className="size-6" />
           </label>
           <ul
             tabIndex={0}
