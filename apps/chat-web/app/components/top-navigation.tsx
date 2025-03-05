@@ -58,7 +58,7 @@ const TopNavigation = () => {
   }, [isMenuOpen])
 
   return (
-    <nav className="navbar bg-base-200 rounded-box shadow-xl mt-10 mb-10 z-50 sticky top-10">
+    <nav className="navbar bg-base-200 rounded-box shadow-xl top-2 mb-6 lg:mb-14 z-50 sticky lg:top-10">
       <div className="lg:hidden flex w-full items-center justify-between">
         <Link to="/" className="btn btn-ghost">
           <BowlerHatIcon className="size-8" />

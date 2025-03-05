@@ -225,8 +225,8 @@ function RouteComponent() {
       )}
 
       {userId && (
-        <div className="relative">
-          <div className="flex justify-between items-center border-b py-4 lg:border-none">
+        <div className="relative flex flex-col gap-2">
+          <div className="flex justify-between items-center">
             <button
               type="button"
               className="btn btn-sm lg:hidden"
@@ -266,7 +266,7 @@ function RouteComponent() {
       <article className="flex flex-col gap-4 w-full">
         {selectedConversation?.aiConversation && (
           <>
-            <div className="flex justify-between items-center border-b-2">
+            <div className="flex justify-between items-center">
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
                 assistantCandidates={assignableAssistants.aiAssistants}
