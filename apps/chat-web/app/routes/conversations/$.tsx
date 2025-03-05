@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 import { useAuth } from '../../auth/auth-hook'
 import { ConversationForm } from '../../components/conversation/conversation-form'
@@ -92,6 +92,7 @@ export const Route = createFileRoute('/conversations/$')({
 function RouteComponent() {
   const auth = useAuth()
   const userId = auth.user?.id
+  const navigate = useNavigate()
 
   const { _splat } = useParams({ strict: false })
 
@@ -138,8 +139,21 @@ function RouteComponent() {
         : null,
   })
 
+  useEffect(() => {
+    if (conversations?.aiConversations?.length === 0) {
+      handleNewConversation()
+    }
+  }, [conversations])
+
   if (!userId) {
     return <h3>Login to use conversations.</h3>
+  }
+
+  if (
+    (conversations?.aiConversations?.length || 0) > 0 &&
+    !selectedConversationId
+  ) {
+    navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
   }
 
   const handleNewConversation = () => {
@@ -160,19 +174,6 @@ function RouteComponent() {
     !conversations
   ) {
     return <LoadingSpinner />
-  }
-
-  if (conversations?.aiConversations?.length === 0) {
-    newDialogRef.current?.showModal()
-    return (
-      <>
-        <NewConversationDialog
-          ref={newDialogRef}
-          humans={assignableUsers.myConversationUsers}
-          assistants={assignableAssistants.aiAssistants}
-        />
-      </>
-    )
   }
 
   return (
