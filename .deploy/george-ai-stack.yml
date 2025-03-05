@@ -28,7 +28,7 @@ services:
         #max_attempts: 3
         window: 120s
       labels:
-        caddy: chat.george-ai.net
+        caddy: chat.george-ai.net www.george-ai.net george-ai.net
         caddy.reverse_proxy: '{{upstreams 3000}}'
         # to avoid rate limiting during testing you can use the staging environment of letsencrypt
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
