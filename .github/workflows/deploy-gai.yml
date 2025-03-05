@@ -67,6 +67,6 @@ jobs:
       - name: Run prisma migrations
         run: |
           echo "Run prisma migrationson gai"
-          export database_url=postgresql://chatweb:${{ secrets.GAI_DB_PASSWORD}}@backend-db.george-ai.net:5434/chatweb?schema=public
+          export DATABASE_URL=postgresql://chatweb:${{ secrets.GAI_DB_PASSWORD}}@backend-db.george-ai.net:5434/chatweb?schema=public
           cd ./packages/pothos-graphql
           pnpx prisma migrate deploy
