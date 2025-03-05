@@ -12,7 +12,6 @@ import { DeleteConversationDialog } from '../../components/conversation/delete-c
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
-import { CircleCrossIcon } from '../../icons/circle-cross-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -139,6 +138,10 @@ function RouteComponent() {
         : null,
   })
 
+  const handleNewConversation = () => {
+    newDialogRef.current?.showModal()
+  }
+
   useEffect(() => {
     if (conversations?.aiConversations?.length === 0) {
       handleNewConversation()
@@ -156,10 +159,6 @@ function RouteComponent() {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
   }
 
-  const handleNewConversation = () => {
-    newDialogRef.current?.showModal()
-  }
-
   const handleDeleteConversation = () => {
     deleteDialogRef.current?.showModal()
   }
@@ -168,12 +167,13 @@ function RouteComponent() {
     conversationsLoading ||
     selectedConversationIsLoading ||
     assignableUsersIsLoading ||
-    assignableAssistantsIsLoading ||
-    !assignableAssistants ||
-    !assignableUsers ||
-    !conversations
+    assignableAssistantsIsLoading
   ) {
     return <LoadingSpinner />
+  }
+
+  if (!assignableUsers || !assignableAssistants || !conversations) {
+    return
   }
 
   return (
@@ -199,7 +199,7 @@ function RouteComponent() {
               <h3>Recent</h3>
               <button
                 type="button"
-                className="btn btn-sm"
+                className="btn btn-sm btn-primary"
                 onClick={handleNewConversation}
               >
                 New
@@ -225,10 +225,10 @@ function RouteComponent() {
               />
               <button
                 type="button"
-                className="btn btn-cicle btn-sm btn-ghost text-red-500"
+                className="btn btn-cicle btn-xs btn-ghost text-error"
                 onClick={handleDeleteConversation}
               >
-                <CircleCrossIcon /> Conversation
+                Delete conversation
               </button>
             </div>
             <ConversationHistory

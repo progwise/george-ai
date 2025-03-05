@@ -1,9 +1,9 @@
-import { RefObject } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteConversation } from '../../server-functions/conversations'
-import { useAuth } from '../../auth/auth-hook'
 import { useNavigate } from '@tanstack/react-router'
+import { RefObject } from 'react'
+import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
   fragment ConversationDelete_conversation on AiConversation {
@@ -75,14 +75,14 @@ export const DeleteConversationDialog = (
           <div className="modal-action">
             <button
               type="button"
-              className="btn"
+              className="btn btn-sm"
               onClick={() => ref.current?.close()}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-error"
+              className="btn btn-error btn-sm"
               disabled={isPending}
             >
               Delete

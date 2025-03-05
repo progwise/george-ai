@@ -1,10 +1,10 @@
-import { RefObject } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
+import { RefObject } from 'react'
+import { useAuth } from '../../auth/auth-hook'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
-import { useNavigate } from '@tanstack/react-router'
-import { FragmentType, graphql, useFragment } from '../../gql'
-import { useAuth } from '../../auth/auth-hook'
 
 const ConversationNew_HumanParticipationCandidatesFragment = graphql(`
   fragment ConversationNew_HumanParticipationCandidates on User {
@@ -143,14 +143,14 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
           <div className="modal-action">
             <button
               type="button"
-              className="btn"
+              className="btn btn-sm"
               onClick={() => ref.current?.close()}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm"
               disabled={isPending || !assistants}
             >
               Create
