@@ -1,8 +1,10 @@
-import { dropVectorStore } from '@george-ai/langchain-chat'
 import * as fs from 'fs'
-import { builder } from '../builder'
-import { prisma } from '../../prisma'
+
+import { dropVectorStore } from '@george-ai/langchain-chat'
+
 import { getFilePath } from '../../file-upload'
+import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 console.log('Setting up: AiLibrary')
 

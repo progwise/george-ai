@@ -1,6 +1,7 @@
-import { twMerge } from 'tailwind-merge'
-import { FormattedMarkdown } from '../formatted-markdown'
 import { Link } from '@tanstack/react-router'
+import { twMerge } from 'tailwind-merge'
+
+import { FormattedMarkdown } from '../formatted-markdown'
 
 interface ConversationMessageProps {
   isLoading: boolean
@@ -18,28 +19,19 @@ interface ConversationMessageProps {
   }
 }
 
-export const ConversationMessage = ({
-  isLoading,
-  message,
-}: ConversationMessageProps) => {
+export const ConversationMessage = ({ isLoading, message }: ConversationMessageProps) => {
   return (
-    <div
-      key={message.id}
-      className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4"
-    >
-      <div className="flex items-center gap-3 mb-2">
+    <div key={message.id} className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
+      <div className="mb-2 flex items-center gap-3">
         <div
           className={twMerge(
-            'w-8 h-8 flex items-center justify-center rounded-full',
+            'flex h-8 w-8 items-center justify-center rounded-full',
             !message.sender.isBot && 'bg-primary text-primary-content',
             message.sender.isBot && 'bg-accent text-accent-content',
           )}
         >
           {message.sender.isBot ? (
-            <Link
-              to="/assistants/$assistantId"
-              params={{ assistantId: message.sender.assistantId! }}
-            >
+            <Link to="/assistants/$assistantId" params={{ assistantId: message.sender.assistantId! }}>
               🤖
             </Link>
           ) : (
@@ -48,7 +40,7 @@ export const ConversationMessage = ({
         </div>
 
         <div className="flex flex-col">
-          <span className="font-semibold text-sm">{message.sender.name}</span>
+          <span className="text-sm font-semibold">{message.sender.name}</span>
           <span className="text-xs opacity-60">
             {new Date(message.createdAt).toLocaleTimeString([], {
               hour: '2-digit',
@@ -68,14 +60,9 @@ export const ConversationMessage = ({
         )}
       </div>
       <div className="border-t border-base-200 pt-3">
-        <FormattedMarkdown
-          id={`textarea_${message.id}`}
-          markdown={message.content}
-        />
+        <FormattedMarkdown id={`textarea_${message.id}`} markdown={message.content} />
       </div>
-      {message.source && (
-        <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>
-      )}
+      {message.source && <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>}
     </div>
   )
 }

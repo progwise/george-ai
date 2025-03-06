@@ -1,8 +1,10 @@
-import { dropFile, embedFile } from '@george-ai/langchain-chat'
-import { builder } from '../builder'
-import { prisma } from '../../prisma'
-import { getFilePath } from '../../file-upload'
 import * as fs from 'fs'
+
+import { dropFile, embedFile } from '@george-ai/langchain-chat'
+
+import { getFilePath } from '../../file-upload'
+import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile')
 

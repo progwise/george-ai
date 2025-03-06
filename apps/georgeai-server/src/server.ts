@@ -1,11 +1,14 @@
 /// <reference types="vite/types/importMeta.d.ts" />
 import 'dotenv/config'
-import { createYoga } from 'graphql-yoga'
-import express from 'express'
-import { schema } from '@george-ai/pothos-graphql'
-import { dataUploadMiddleware } from './upload'
-import { conversationMessagesSSE } from './conversation-messages-sse'
+
 import cors from 'cors'
+import express from 'express'
+import { createYoga } from 'graphql-yoga'
+
+import { schema } from '@george-ai/pothos-graphql'
+
+import { conversationMessagesSSE } from './conversation-messages-sse'
+import { dataUploadMiddleware } from './upload'
 
 const yoga = createYoga({
   schema,
@@ -21,10 +24,7 @@ app.use(cors())
 
 app.use((req, res, next) => {
   const authHeader = req.headers.authorization
-  if (
-    req.method.toUpperCase() === 'POST' &&
-    authHeader !== `ApiKey ${process.env.GRAPHQL_API_KEY}`
-  ) {
+  if (req.method.toUpperCase() === 'POST' && authHeader !== `ApiKey ${process.env.GRAPHQL_API_KEY}`) {
     res.status(401).send('Unauthorized')
     return
   }

@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { AiLibrary } from '../../gql/graphql'
 
 export interface LibraryEditFormProps {
@@ -8,12 +9,7 @@ export interface LibraryEditFormProps {
   disabled: boolean
 }
 
-export const LibraryForm = ({
-  library,
-  ownerId,
-  handleSubmit,
-  disabled,
-}: LibraryEditFormProps): React.ReactElement => {
+export const LibraryForm = ({ library, ownerId, handleSubmit, disabled }: LibraryEditFormProps): React.ReactElement => {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <input type="hidden" name="ownerId" value={ownerId} />
@@ -35,7 +31,7 @@ export const LibraryForm = ({
       <textarea
         key={library.description}
         name="description"
-        className="textarea textarea-bordered flex-grow w-full"
+        className="textarea textarea-bordered w-full flex-grow"
         placeholder="The Alexandrian Library was one of the largest and most significant libraries of the ancient world."
         defaultValue={library.description || ''}
       ></textarea>
@@ -68,12 +64,8 @@ export const LibraryForm = ({
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 items-center">
-        <button
-          disabled={disabled}
-          type="submit"
-          className="btn btn-primary btn-sm"
-        >
+      <div className="flex items-center justify-end gap-4">
+        <button disabled={disabled} type="submit" className="btn btn-primary btn-sm">
           Save
         </button>
       </div>
