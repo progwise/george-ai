@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ensureBackendUser, getKeycloakConfig } from './auth.server'
 import Keycloak from 'keycloak-js'
+
 import { queryKeys } from '../query-keys'
+import { ensureBackendUser, getKeycloakConfig } from './auth.server'
 
 export interface CurrentUser {
   id: string
@@ -49,12 +50,7 @@ export const useAuth = () => {
   })
 
   const { data: currentUser } = useQuery({
-    queryKey: [
-      queryKeys.CurrentUser,
-      keycloak,
-      keycloak?.authenticated,
-      keycloak?.token,
-    ],
+    queryKey: [queryKeys.CurrentUser, keycloak, keycloak?.authenticated, keycloak?.token],
     staleTime: Infinity,
     enabled: !!keycloak && !keycloakIsLoading,
     queryFn: async () => {

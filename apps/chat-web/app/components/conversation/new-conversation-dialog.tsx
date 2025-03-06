@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
+
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { createConversation } from '../../server-functions/conversations'
@@ -22,40 +23,20 @@ const ConversationNew_AssistantParticipationCandidatesFragment = graphql(`
 `)
 
 interface NewConversationDialogProps {
-  assistants:
-    | FragmentType<
-        typeof ConversationNew_AssistantParticipationCandidatesFragment
-      >[]
-    | null
-  humans:
-    | FragmentType<
-        typeof ConversationNew_HumanParticipationCandidatesFragment
-      >[]
-    | null
+  assistants: FragmentType<typeof ConversationNew_AssistantParticipationCandidatesFragment>[] | null
+  humans: FragmentType<typeof ConversationNew_HumanParticipationCandidatesFragment>[] | null
   isOpen: boolean
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const { user } = useAuth()
-  const assistants = useFragment(
-    ConversationNew_AssistantParticipationCandidatesFragment,
-    props.assistants,
-  )
-  const humans = useFragment(
-    ConversationNew_HumanParticipationCandidatesFragment,
-    props.humans,
-  )
+  const assistants = useFragment(ConversationNew_AssistantParticipationCandidatesFragment, props.assistants)
+  const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async ({
-      assistantIds,
-      userIds,
-    }: {
-      assistantIds: string[]
-      userIds: string[]
-    }) => {
+    mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
       if (!user?.id) {
         throw new Error('User not set')
       }
@@ -91,9 +72,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
       }
       const formData = new FormData(form)
 
-      const assistantIds = formData
-        .getAll('assistants')
-        .map((id) => id.toString())
+      const assistantIds = formData.getAll('assistants').map((id) => id.toString())
       const userIds = formData.getAll('users').map((id) => id.toString())
 
       await mutate({ assistantIds, userIds })
@@ -109,51 +88,41 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-sm btn-primary"
-        onClick={() => dialogReference.current?.showModal()}
-      >
+      <button type="button" className="btn btn-primary btn-sm" onClick={() => dialogReference.current?.showModal()}>
         New
       </button>
       <dialog className="modal" ref={dialogReference}>
         <LoadingSpinner isLoading={isPending} />
         <div className="modal-box">
-          <h3 className="font-bold text-lg">Create a new conversation</h3>
-          <p className="py-0">
-            You are about to start a new conversation with the selected users
-            and assistants.
-          </p>
+          <h3 className="text-lg font-bold">Create a new conversation</h3>
+          <p className="py-0">You are about to start a new conversation with the selected users and assistants.</p>
           <p className="py-4">You can change these participants any time.</p>
-          <div className="flex flex-row gap-2 justify-items-stretch">
+          <div className="flex flex-row justify-items-stretch gap-2">
             <div>
               <h4 className="underline">Assistants</h4>
               {assistants?.map((assistant) => (
-                <label
-                  key={assistant.id}
-                  className="cursor-pointer label gap-2 justify-start"
-                >
+                <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
                   <input
                     type="checkbox"
                     name="assistants"
                     value={assistant.id}
                     defaultChecked
-                    className="checkbox checkbox-info"
+                    className="checkbox-info checkbox"
                   />
-                  <span className="label-text ">{assistant.name}</span>
+                  <span className="label-text">{assistant.name}</span>
                 </label>
               ))}
             </div>
             <div>
               <h4 className="underline">Users</h4>
               {humans?.map((user) => (
-                <label key={user.id} className="cursor-pointer label gap-2">
+                <label key={user.id} className="label cursor-pointer gap-2">
                   <input
                     type="checkbox"
                     name="users"
                     value={user.id}
                     defaultChecked
-                    className="checkbox checkbox-info"
+                    className="checkbox-info checkbox"
                   />
                   <span className="label-text">{user.name}</span>
                 </label>

@@ -203,11 +203,7 @@ type Mutation {
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
-  chat(
-    question: String!
-    retrievalFlow: RetrievalFlow
-    sessionId: String
-  ): ChatAnswer
+  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
@@ -221,10 +217,7 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
-  sendMessage(
-    data: AiConversationMessageInput!
-    userId: String!
-  ): [AiConversationMessage!]!
+  sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
@@ -235,10 +228,7 @@ type Query {
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation
-  aiConversationMessages(
-    conversationId: String!
-    userId: String!
-  ): [AiConversationMessage!]
+  aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
   aiConversations(userId: String!): [AiConversation!]!
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary

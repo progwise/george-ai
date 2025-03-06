@@ -6,11 +6,7 @@ export * from './retrieval-flow'
 
 export * from './assistant-chain'
 
-export const ask = (parameters: {
-  question: string
-  sessionId: string
-  retrievalFlow: RetrievalFlow
-}) =>
+export const ask = (parameters: { question: string; sessionId: string; retrievalFlow: RetrievalFlow }) =>
   mainChain.historyChain.invoke(
     { question: parameters.question },
     {

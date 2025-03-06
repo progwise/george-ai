@@ -1,17 +1,13 @@
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
-import {
-  Typesense,
-  TypesenseConfig,
-} from '@langchain/community/vectorstores/typesense'
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
+import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
-import {
-  getUnprocessedDocuments,
-  setDocumentProcessed,
-} from '@george-ai/pocketbase-client'
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
+
+import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
+
 import { loadFile } from './langchain-file'
 
 const CHUNK_SIZE = 1000 // Increased for better context
@@ -96,18 +92,13 @@ const embeddings = new OpenAIEmbeddings({
   dimensions: 3072,
 })
 
-const typesenseVectorStore = new Typesense(
-  embeddings,
-  getTypesenseVectorStoreConfig('gai-documents'),
-)
+const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig('gai-documents'))
 
 export const ensureVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
   const exists = await vectorTypesenseClient.collections(schemaName).exists()
   if (!exists) {
-    await vectorTypesenseClient
-      .collections()
-      .create(getTypesenseSchema(libraryId))
+    await vectorTypesenseClient.collections().create(getTypesenseSchema(libraryId))
   }
 }
 
@@ -148,11 +139,7 @@ export const embedFile = async (
 
   const splitDocument = await splitter.splitDocuments(fileParts)
 
-  await Typesense.fromDocuments(
-    splitDocument,
-    embeddings,
-    typesenseVectorStoreConfig,
-  )
+  await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
 
   return {
     id: file.id,
@@ -167,12 +154,7 @@ export const embedFile = async (
 /**
  * @deprecated The method should not be used
  */
-const loadDocument = async (document: {
-  fileName: string
-  url: string
-  blob: Blob
-  documentId: string
-}) => {
+const loadDocument = async (document: { fileName: string; url: string; blob: Blob; documentId: string }) => {
   console.log('loading document:', document.fileName)
   const loader = new PDFLoader(document.blob)
   const rawDocuments = await loader.load()
@@ -240,37 +222,21 @@ const loadDocuments = async (
     }),
   )
   splitDocuments.map(async (splitDocument) => {
-    const documentIds = [
-      ...new Set(splitDocument.map((document) => document.metadata.docId)),
-    ]
+    const documentIds = [...new Set(splitDocument.map((document) => document.metadata.docId))]
     console.log('removing files:', documentIds)
     await removeFilesByDocumentIds(documentIds)
-    console.log(
-      'loading documents:',
-      JSON.stringify(splitDocument, undefined, 2),
-    )
+    console.log('loading documents:', JSON.stringify(splitDocument, undefined, 2))
     try {
-      await Typesense.fromDocuments(
-        splitDocument,
-        embeddings,
-        getTypesenseVectorStoreConfig('common'),
-      )
+      await Typesense.fromDocuments(splitDocument, embeddings, getTypesenseVectorStoreConfig('common'))
 
-      const documentIds = [
-        ...new Set(splitDocument.map((document) => document.metadata.docId)),
-      ]
+      const documentIds = [...new Set(splitDocument.map((document) => document.metadata.docId))]
 
       console.log('setting documents as processed:', documentIds)
 
-      await Promise.all(
-        documentIds.map((documentId) => setDocumentProcessed({ documentId })),
-      )
+      await Promise.all(documentIds.map((documentId) => setDocumentProcessed({ documentId })))
     } catch (error) {
       if (error instanceof ImportError) {
-        console.error(
-          'Error loading documents:',
-          JSON.stringify(error.importResults, undefined, 2),
-        )
+        console.error('Error loading documents:', JSON.stringify(error.importResults, undefined, 2))
       } else {
         console.error('Error loading documents:', error)
       }
@@ -298,9 +264,7 @@ export const getPDFContentForQuestion = async (question: string) => {
     console.log('searching for:', question)
     const documents = await typesenseVectorStore.similaritySearch(question)
     console.log('retrieved documents:', documents)
-    const content = documents
-      .map((document_) => document_.pageContent)
-      .join('\n\n')
+    const content = documents.map((document_) => document_.pageContent).join('\n\n')
 
     return content
   } catch (error) {
@@ -316,14 +280,9 @@ export const getPDFContentForQuestionAndLibraries = async (
   const ensureStores = libraries.map((library) => ensureVectorStore(library.id))
   await Promise.all(ensureStores)
 
-  const vectorStores = libraries.map(
-    (library) =>
-      new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id)),
-  )
+  const vectorStores = libraries.map((library) => new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id)))
 
-  const storeSearches = vectorStores.map((store) =>
-    store.similaritySearch(question),
-  )
+  const storeSearches = vectorStores.map((store) => store.similaritySearch(question))
   const storeSearchResults = await Promise.all(storeSearches)
 
   // Todo: Implement returning library name with content

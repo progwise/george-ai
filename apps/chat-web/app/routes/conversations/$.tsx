@@ -1,7 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useRef, useState } from 'react'
 import { z } from 'zod'
+
 import { useAuth } from '../../auth/auth-hook'
 import { ConversationForm } from '../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
@@ -11,6 +13,7 @@ import { DeleteConversationDialog } from '../../components/conversation/delete-c
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
+import { MenuIcon } from '../../icons/menu-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -24,9 +27,7 @@ const ConversationsQueryDocument = graphql(`
 `)
 
 export const getConversations = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) =>
-    z.object({ userId: z.string() }).parse(data),
-  )
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(ConversationsQueryDocument, ctx.data))
 
 const ConversationQueryDocument = graphql(`
@@ -41,9 +42,7 @@ const ConversationQueryDocument = graphql(`
 `)
 
 export const getConversation = createServerFn({ method: 'GET' })
-  .validator((data: { conversationId: string }) =>
-    z.object({ conversationId: z.string() }).parse(data),
-  )
+  .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(ConversationQueryDocument, ctx.data))
 
 const AssignableUsersDocument = graphql(`
@@ -56,9 +55,7 @@ const AssignableUsersDocument = graphql(`
 `)
 
 export const getAssignableHumans = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) =>
-    z.object({ userId: z.string() }).parse(data),
-  )
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(AssignableUsersDocument, ctx.data))
 
 const AssignableAssistantsDocument = graphql(`
@@ -71,12 +68,8 @@ const AssignableAssistantsDocument = graphql(`
 `)
 
 export const getAssignableAssistants = createServerFn({ method: 'GET' })
-  .validator((data: { ownerId: string }) =>
-    z.object({ ownerId: z.string() }).parse(data),
-  )
-  .handler(async (ctx) =>
-    backendRequest(AssignableAssistantsDocument, ctx.data),
-  )
+  .validator((data: { ownerId: string }) => z.object({ ownerId: z.string() }).parse(data))
+  .handler(async (ctx) => backendRequest(AssignableAssistantsDocument, ctx.data))
 
 export const Route = createFileRoute('/conversations/$')({
   component: RouteComponent,
@@ -91,22 +84,31 @@ function RouteComponent() {
   const auth = useAuth()
   const userId = auth.user?.id
   const navigate = useNavigate()
-
   const { _splat } = useParams({ strict: false })
-
   const selectedConversationId = _splat as string
 
-  const { data: conversations, isLoading: conversationsLoading } =
-    useSuspenseQuery({
-      queryKey: [queryKeys.Conversations, userId],
-      queryFn: async () =>
-        userId ? await getConversations({ data: { userId } }) : null,
-    })
+  const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
+    queryKey: [queryKeys.Conversations, userId],
+    queryFn: async () => (userId ? await getConversations({ data: { userId } }) : null),
+  })
 
-  const {
-    data: selectedConversation,
-    isLoading: selectedConversationIsLoading,
-  } = useSuspenseQuery({
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const drawerCheckboxReference = useRef<HTMLInputElement>(null)
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden'
+  }
+
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+    if (drawerCheckboxReference.current) {
+      drawerCheckboxReference.current.checked = false
+    }
+  }
+
+  const { data: selectedConversation, isLoading: selectedConversationIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.Conversation, selectedConversationId],
     queryFn: async () =>
       selectedConversationId
@@ -116,32 +118,21 @@ function RouteComponent() {
         : null,
   })
 
-  const { data: assignableUsers, isLoading: assignableUsersIsLoading } =
-    useSuspenseQuery({
-      queryKey: [queryKeys.ConversationAssignableUsers, userId],
-      queryFn: async () =>
-        userId ? await getAssignableHumans({ data: { userId } }) : null,
-    })
+  const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery({
+    queryKey: [queryKeys.ConversationAssignableUsers, userId],
+    queryFn: async () => (userId ? await getAssignableHumans({ data: { userId } }) : null),
+  })
 
-  const {
-    data: assignableAssistants,
-    isLoading: assignableAssistantsIsLoading,
-  } = useSuspenseQuery({
+  const { data: assignableAssistants, isLoading: assignableAssistantsIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-    queryFn: async () =>
-      userId
-        ? await getAssignableAssistants({ data: { ownerId: userId } })
-        : null,
+    queryFn: async () => (userId ? await getAssignableAssistants({ data: { ownerId: userId } }) : null),
   })
 
   if (!userId) {
     return <h3>Login to use conversations.</h3>
   }
 
-  if (
-    (conversations?.aiConversations?.length || 0) > 0 &&
-    !selectedConversationId
-  ) {
+  if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
   }
 
@@ -158,47 +149,51 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 lg:flex-row">
       {userId && (
-        <nav>
-          <div className="flex justify-between items-center p-4">
-            <>
-              <h3>Recent</h3>
-              <NewConversationDialog
-                humans={assignableUsers.myConversationUsers}
-                assistants={assignableAssistants.aiAssistants}
-                isOpen={conversations?.aiConversations?.length === 0}
-              />
-            </>
-          </div>
-          {conversations.aiConversations && (
-            <ConversationSelector
-              conversations={conversations.aiConversations}
-              selectedConversationId={selectedConversationId}
+        <div className="relative flex flex-col gap-2">
+          <div className="flex justify-between">
+            <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
+              <MenuIcon className="size-6" />
+            </button>
+            <NewConversationDialog
+              humans={assignableUsers.myConversationUsers}
+              assistants={assignableAssistants.aiAssistants}
+              isOpen={conversations?.aiConversations?.length === 0}
             />
-          )}
-        </nav>
+          </div>
+
+          {isMenuOpen && <div className="fixed inset-0 z-10 lg:hidden" onClick={closeMenu} />}
+
+          <div
+            ref={menuRef}
+            className={`absolute z-20 w-72 rounded-md border shadow-md ${
+              isMenuOpen ? 'top-10 block' : 'hidden'
+            } lg:static lg:block`}
+          >
+            {conversations.aiConversations && (
+              <ConversationSelector
+                conversations={conversations.aiConversations}
+                selectedConversationId={selectedConversationId}
+                onClick={closeMenu}
+              />
+            )}
+          </div>
+        </div>
       )}
-      <article className="flex flex-col gap-4 w-full">
+      <article className="flex w-full flex-col gap-4">
         {selectedConversation?.aiConversation && (
           <>
-            <div className="flex justify-between items-center border-b-2">
+            <div className="flex items-center justify-between">
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
                 assistantCandidates={assignableAssistants.aiAssistants}
                 humanCandidates={assignableUsers.myConversationUsers}
               />
-              <DeleteConversationDialog
-                conversation={selectedConversation.aiConversation}
-              />
+              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
             </div>
-            <ConversationHistory
-              conversation={selectedConversation.aiConversation}
-            />
-
-            <ConversationForm
-              conversation={selectedConversation.aiConversation}
-            />
+            <ConversationHistory conversation={selectedConversation.aiConversation} />
+            <ConversationForm conversation={selectedConversation.aiConversation} />
           </>
         )}
       </article>

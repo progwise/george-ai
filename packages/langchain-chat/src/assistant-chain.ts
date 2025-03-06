@@ -1,9 +1,7 @@
-import { ChatOpenAI } from '@langchain/openai'
 import { AIMessage, HumanMessage, trimMessages } from '@langchain/core/messages'
-import {
-  ChatPromptTemplate,
-  MessagesPlaceholder,
-} from '@langchain/core/prompts'
+import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
+import { ChatOpenAI } from '@langchain/openai'
+
 import { getPDFContentForQuestionAndLibraries } from './typesense-vectorstore'
 
 const model = new ChatOpenAI({
@@ -37,10 +35,7 @@ export async function* askAssistantChain(input: {
   // what about individual prompts for individual libraries?
   const searchQuery = await model.invoke(searchPrompt, {})
 
-  const pdfContent = await getPDFContentForQuestionAndLibraries(
-    searchQuery.content.toString(),
-    input.libraries,
-  )
+  const pdfContent = await getPDFContentForQuestionAndLibraries(searchQuery.content.toString(), input.libraries)
 
   const prompt = await assistantPrompt.invoke({
     chat_history: trimmedHistoryMessages,

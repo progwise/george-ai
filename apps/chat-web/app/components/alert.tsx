@@ -1,7 +1,8 @@
-import { twMerge } from 'tailwind-merge'
-import WarnIcon from '../icons/warn-icon'
-import ErrorIcon from '../icons/error-icon'
 import { JSX } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+import ErrorIcon from '../icons/error-icon'
+import WarnIcon from '../icons/warn-icon'
 
 export interface AlertProps {
   message: string
@@ -13,15 +14,10 @@ const Alert = ({ message, type, className, children }: AlertProps) => {
   return (
     <div
       role="alert"
-      className={twMerge(
-        'alert',
-        type === 'warning' && 'alert-warning',
-        type === 'error' && 'alert-error',
-        className,
-      )}
+      className={twMerge('alert', type === 'warning' && 'alert-warning', type === 'error' && 'alert-error', className)}
     >
-      {type === 'warning' && <WarnIcon className="h-5" />}
-      {type === 'error' && <ErrorIcon className="h-5" />}
+      {type === 'warning' && <WarnIcon className="size-6" />}
+      {type === 'error' && <ErrorIcon className="size-6" />}
       <span>{message}</span>
       {children}
     </div>

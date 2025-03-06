@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
+
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { deleteConversation } from '../../server-functions/conversations'
@@ -19,17 +20,12 @@ interface DeleteConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
 }
 
-export const DeleteConversationDialog = (
-  props: DeleteConversationDialogProps,
-) => {
+export const DeleteConversationDialog = (props: DeleteConversationDialogProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const conversation = useFragment(
-    ConversationDelete_ConversationFragment,
-    props.conversation,
-  )
+  const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
@@ -56,33 +52,18 @@ export const DeleteConversationDialog = (
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-sm btn-error"
-        onClick={() => dialogReference.current?.showModal()}
-      >
+      <button type="button" className="btn btn-error btn-sm" onClick={() => dialogReference.current?.showModal()}>
         Delete conversation
       </button>
       <dialog ref={dialogReference} className="modal">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">
+          <h3 className="text-lg font-bold">
             <span>Delete conversation</span> <br />
-            <time className="text-nowrap">
-              {new Date(conversation.createdAt)
-                .toLocaleString()
-                .replace(',', '')}
-            </time>
+            <time className="text-nowrap">{new Date(conversation.createdAt).toLocaleString().replace(',', '')}</time>
             {' with '}
-            <span>
-              {conversation.assistants
-                ?.map((assistant) => assistant.name)
-                .join(',')}
-            </span>
+            <span>{conversation.assistants?.map((assistant) => assistant.name).join(',')}</span>
           </h3>
-          <p className="py-4">
-            You are about to delete this conversation. It cannot be restored.
-            Please confirm.
-          </p>
+          <p className="py-4">You are about to delete this conversation. It cannot be restored. Please confirm.</p>
           <div className="modal-action">
             <form method="dialog">
               <button type="submit" className="btn btn-sm">
