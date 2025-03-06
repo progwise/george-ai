@@ -7,4 +7,5 @@ apps/chat-web/app/routeTree.gen.ts
 .vinxi
 .posgres-data*
 .typesense-data
+apps/pocketbase/pb_data
 .node_modules

@@ -5,12 +5,7 @@ import { TextLoader } from 'langchain/document_loaders/fs/text'
 
 import { getFileExtension } from './common'
 
-export const loadFile = async (file: {
-  name: string
-  id: string
-  mimeType: string
-  path: string
-}) => {
+export const loadFile = async (file: { name: string; id: string; mimeType: string; path: string }) => {
   let documentLoader
   switch (file.mimeType) {
     case 'application/pdf':
@@ -26,9 +21,7 @@ export const loadFile = async (file: {
       documentLoader = new DocxLoader(file.path)
       break
     default:
-      throw new Error(
-        `Unsupported mime type ${file.mimeType} for file ${file.name}`,
-      )
+      throw new Error(`Unsupported mime type ${file.mimeType} for file ${file.name}`)
   }
 
   const documentParts = await documentLoader.load()

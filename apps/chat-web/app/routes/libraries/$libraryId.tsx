@@ -1,11 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import {
-  Link,
-  createFileRoute,
-  useLocation,
-  useNavigate,
-  useParams,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, useLocation, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -40,15 +34,11 @@ const aiLibraryEditQueryDocument = graphql(`
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
-  .validator(
-    ({ libraryId, ownerId }: { libraryId: string; ownerId: string }) => ({
-      id: z.string().nonempty().parse(libraryId),
-      ownerId: z.string().nonempty().parse(ownerId),
-    }),
-  )
-  .handler(
-    async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data),
-  )
+  .validator(({ libraryId, ownerId }: { libraryId: string; ownerId: string }) => ({
+    id: z.string().nonempty().parse(libraryId),
+    ownerId: z.string().nonempty().parse(ownerId),
+  }))
+  .handler(async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data))
 
 const updateLibraryDocument = graphql(/* GraphQL */ `
   mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
@@ -100,18 +90,14 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
 export const Route = createFileRoute('/libraries/$libraryId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
     return {
       libraryId: params.libraryId,
       ownerId: currentUser?.id,
     }
   },
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(
-      librariesQueryOptions(context.ownerId, context.libraryId),
-    )
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId, context.libraryId))
   },
   staleTime: 0,
 })
@@ -120,9 +106,7 @@ function RouteComponent() {
   const auth = useAuth()
   const currentLocation = useLocation()
   const { libraryId } = useParams({ strict: false })
-  const { data, isLoading } = useSuspenseQuery(
-    librariesQueryOptions(auth.user?.id, libraryId),
-  )
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
 
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
@@ -148,14 +132,9 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={saveIsPending} />
-      <div className="flex justify-between items-center">
-        <LibrarySelector
-          libraries={aiLibraries!}
-          selectedLibrary={aiLibrary!}
-        />
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
-        </div>
+      <div className="flex items-center justify-between">
+        <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
+        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
             List
@@ -164,57 +143,24 @@ function RouteComponent() {
       </div>
 
       <div role="tablist" className="tabs tabs-bordered">
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Rules"
-        />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
         <div role="tabpanel" className="tab-content p-10">
           {auth.user?.id && (
-            <LibraryForm
-              library={aiLibrary!}
-              ownerId={auth.user.id}
-              handleSubmit={handleSubmit}
-              disabled={disabled}
-            />
+            <LibraryForm library={aiLibrary!} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
           )}
         </div>
 
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Files"
-          defaultChecked
-        />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
         <div role="tabpanel" className="tab-content p-10">
           <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
 
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Google Drive"
-        />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Google Drive" />
         <div role="tabpanel" className="tab-content p-10">
-          <GoogleDriveFiles
-            libraryId={aiLibrary.id}
-            currentLocationHref={currentLocation.href}
-          />
+          <GoogleDriveFiles libraryId={aiLibrary.id} currentLocationHref={currentLocation.href} />
         </div>
 
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Query"
-        />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />
         <div role="tabpanel" className="tab-content p-10">
           <LibraryQuery libraryId={aiLibrary.id} />
         </div>

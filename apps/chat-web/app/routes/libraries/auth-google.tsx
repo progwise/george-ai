@@ -2,10 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
-import {
-  getGoogleAccessToken,
-  getGoogleLoginUrl,
-} from '../../components/data-sources/login-google-server'
+import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
 
 export const authGoogleSearchSchema = z.object({
   redirectAfterAuth: z.string().optional(),
@@ -29,10 +26,7 @@ function RouteComponent() {
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
       console.log('setting redirectAfterAuth', search.redirectAfterAuth)
-      localStorage.setItem(
-        'google_login_redirect_after',
-        search.redirectAfterAuth,
-      )
+      localStorage.setItem('google_login_redirect_after', search.redirectAfterAuth)
     }
   }, [search.redirectAfterAuth])
 
@@ -54,13 +48,9 @@ function RouteComponent() {
       data: { access_code: search.code, redirect_url },
     })
     console.log('got access token', accessToken)
-    localStorage.setItem(
-      'google_drive_access_token',
-      JSON.stringify(accessToken),
-    )
+    localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
     localStorage.removeItem('google_login_progress')
-    window.location.href =
-      localStorage.getItem('google_login_redirect_after') || '/'
+    window.location.href = localStorage.getItem('google_login_redirect_after') || '/'
   }, [search.code, fullPath])
 
   return (

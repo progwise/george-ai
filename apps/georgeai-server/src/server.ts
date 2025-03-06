@@ -24,10 +24,7 @@ app.use(cors())
 
 app.use((req, res, next) => {
   const authHeader = req.headers.authorization
-  if (
-    req.method.toUpperCase() === 'POST' &&
-    authHeader !== `ApiKey ${process.env.GRAPHQL_API_KEY}`
-  ) {
+  if (req.method.toUpperCase() === 'POST' && authHeader !== `ApiKey ${process.env.GRAPHQL_API_KEY}`) {
     res.status(401).send('Unauthorized')
     return
   }

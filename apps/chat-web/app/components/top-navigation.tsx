@@ -12,20 +12,9 @@ import { MenuIcon } from '../icons/menu-icon'
 import UserIcon from '../icons/user-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 
-const TopNavigationLink = ({
-  to,
-  children,
-}: {
-  to: keyof FileRoutesByTo
-  children: Array<JSX.Element | string>
-}) => {
+const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; children: Array<JSX.Element | string> }) => {
   return (
-    <Link
-      to={to}
-      className="btn btn-ghost"
-      activeProps={{ className: 'btn-active' }}
-      activeOptions={{ exact: false }}
-    >
+    <Link to={to} className="btn btn-ghost" activeProps={{ className: 'btn-active' }} activeOptions={{ exact: false }}>
       {children}
     </Link>
   )
@@ -45,8 +34,8 @@ const TopNavigation = () => {
   }
 
   return (
-    <nav className="navbar bg-base-200 rounded-box shadow-xl top-2 mb-6 lg:mb-14 z-50 sticky lg:top-10">
-      <div className="lg:hidden flex w-full items-center justify-between">
+    <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-10 lg:mb-14">
+      <div className="flex w-full items-center justify-between lg:hidden">
         <Link to="/" className="btn btn-ghost">
           <BowlerHatIcon className="size-8" />
         </Link>
@@ -56,28 +45,20 @@ const TopNavigation = () => {
             {user.name}
           </Link>
         ) : (
-          <button
-            type="button"
-            className="btn btn-ghost gap-2"
-            onClick={() => login()}
-          >
+          <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
             <UserIcon className="size-6" />
             {t('signIn')}
           </button>
         )}
 
         <div className="dropdown dropdown-end" ref={menuRef}>
-          <label
-            tabIndex={0}
-            className="btn btn-ghost"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
+          <label tabIndex={0} className="btn btn-ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <MenuIcon className="size-6" />
           </label>
           {isMenuOpen && (
             <ul
               tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              className="menu-compact menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
             >
               <li>
                 <Link to="/conversations/$" onClick={closeMenu}>
@@ -137,7 +118,7 @@ const TopNavigation = () => {
         </div>
       </div>
 
-      <div className="hidden lg:flex w-full justify-between items-center">
+      <div className="hidden w-full items-center justify-between lg:flex">
         <TopNavigationLink to="/">
           <BowlerHatIcon className="size-8" />
           {t('brand')}
@@ -163,11 +144,7 @@ const TopNavigation = () => {
         </div>
         <div className="flex gap-2">
           {!user ? (
-            <button
-              type="button"
-              className="btn btn-ghost gap-2"
-              onClick={() => login()}
-            >
+            <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
               <UserIcon className="size-6" />
               {t('signIn')}
             </button>
@@ -176,11 +153,7 @@ const TopNavigation = () => {
               <Link to={user.profileUrl} className="btn btn-ghost gap-2">
                 {user?.name}
               </Link>
-              <button
-                type="button"
-                className="btn btn-ghost gap-2"
-                onClick={() => logout()}
-              >
+              <button type="button" className="btn btn-ghost gap-2" onClick={() => logout()}>
                 <UserIcon className="size-6" />
                 {t('signOut')}
               </button>

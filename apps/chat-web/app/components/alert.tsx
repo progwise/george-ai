@@ -14,12 +14,7 @@ const Alert = ({ message, type, className, children }: AlertProps) => {
   return (
     <div
       role="alert"
-      className={twMerge(
-        'alert',
-        type === 'warning' && 'alert-warning',
-        type === 'error' && 'alert-error',
-        className,
-      )}
+      className={twMerge('alert', type === 'warning' && 'alert-warning', type === 'error' && 'alert-error', className)}
     >
       {type === 'warning' && <WarnIcon className="size-6" />}
       {type === 'error' && <ErrorIcon className="size-6" />}

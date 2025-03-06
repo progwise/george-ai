@@ -1,10 +1,13 @@
 {
   "semi": false,
   "singleQuote": true,
-  "printWidth": 80,
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "printWidth": 120,
+  "trailingComma": "all",
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
   "importOrder": ["^@george-ai/(.*)$", "^[./]", "^../", "^@/(.*)$"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
-  "importOrderSideEffects": false
+  "importOrderSideEffects": false,
+  "tailwindConfig": "./apps/chat-web/tailwind.config.ts",
+  "importOrderParserPlugins": ["typescript", "tsx", "jsx", "xml", "html", "md", "decorators-legacy"]
 }

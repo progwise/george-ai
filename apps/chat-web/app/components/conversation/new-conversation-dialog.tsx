@@ -23,41 +23,21 @@ const ConversationNew_AssistantParticipationCandidatesFragment = graphql(`
 `)
 
 interface NewConversationDialogProps {
-  assistants:
-    | FragmentType<
-        typeof ConversationNew_AssistantParticipationCandidatesFragment
-      >[]
-    | null
-  humans:
-    | FragmentType<
-        typeof ConversationNew_HumanParticipationCandidatesFragment
-      >[]
-    | null
+  assistants: FragmentType<typeof ConversationNew_AssistantParticipationCandidatesFragment>[] | null
+  humans: FragmentType<typeof ConversationNew_HumanParticipationCandidatesFragment>[] | null
   ref: RefObject<HTMLDialogElement | null>
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const { user } = useAuth()
   const ref = props.ref
-  const assistants = useFragment(
-    ConversationNew_AssistantParticipationCandidatesFragment,
-    props.assistants,
-  )
-  const humans = useFragment(
-    ConversationNew_HumanParticipationCandidatesFragment,
-    props.humans,
-  )
+  const assistants = useFragment(ConversationNew_AssistantParticipationCandidatesFragment, props.assistants)
+  const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async ({
-      assistantIds,
-      userIds,
-    }: {
-      assistantIds: string[]
-      userIds: string[]
-    }) => {
+    mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
       if (!user?.id) {
         throw new Error('User not set')
       }
@@ -83,9 +63,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    const assistantIds = formData
-      .getAll('assistants')
-      .map((id) => id.toString())
+    const assistantIds = formData.getAll('assistants').map((id) => id.toString())
     const userIds = formData.getAll('users').map((id) => id.toString())
 
     mutate({ assistantIds, userIds })
@@ -99,42 +77,36 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     <dialog className="modal" ref={props.ref}>
       <LoadingSpinner isLoading={isPending} />
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Create a new conversation</h3>
-        <p className="py-0">
-          You are about to start a new conversation with the selected users and
-          assistants.
-        </p>
+        <h3 className="text-lg font-bold">Create a new conversation</h3>
+        <p className="py-0">You are about to start a new conversation with the selected users and assistants.</p>
         <p className="py-4">You can change these participants any time.</p>
         <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex flex-row gap-2 justify-items-stretch">
+          <div className="flex flex-row justify-items-stretch gap-2">
             <div>
               <h4 className="underline">Assistants</h4>
               {assistants?.map((assistant) => (
-                <label
-                  key={assistant.id}
-                  className="cursor-pointer label gap-2 justify-start"
-                >
+                <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
                   <input
                     type="checkbox"
                     name="assistants"
                     value={assistant.id}
                     defaultChecked
-                    className="checkbox checkbox-info"
+                    className="checkbox-info checkbox"
                   />
-                  <span className="label-text ">{assistant.name}</span>
+                  <span className="label-text">{assistant.name}</span>
                 </label>
               ))}
             </div>
             <div>
               <h4 className="underline">Users</h4>
               {humans?.map((user) => (
-                <label key={user.id} className="cursor-pointer label gap-2">
+                <label key={user.id} className="label cursor-pointer gap-2">
                   <input
                     type="checkbox"
                     name="users"
                     value={user.id}
                     defaultChecked
-                    className="checkbox checkbox-info"
+                    className="checkbox-info checkbox"
                   />
                   <span className="label-text">{user.name}</span>
                 </label>
@@ -142,18 +114,10 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
             </div>
           </div>
           <div className="modal-action">
-            <button
-              type="button"
-              className="btn"
-              onClick={() => ref.current?.close()}
-            >
+            <button type="button" className="btn" onClick={() => ref.current?.close()}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isPending || !assistants}
-            >
+            <button type="submit" className="btn btn-primary" disabled={isPending || !assistants}>
               Create
             </button>
           </div>

@@ -50,12 +50,7 @@ export const useAuth = () => {
   })
 
   const { data: currentUser } = useQuery({
-    queryKey: [
-      queryKeys.CurrentUser,
-      keycloak,
-      keycloak?.authenticated,
-      keycloak?.token,
-    ],
+    queryKey: [queryKeys.CurrentUser, keycloak, keycloak?.authenticated, keycloak?.token],
     staleTime: Infinity,
     enabled: !!keycloak && !keycloakIsLoading,
     queryFn: async () => {

@@ -1,8 +1,4 @@
-import {
-  RunnableLambda,
-  RunnableSequence,
-  RunnableWithMessageHistory,
-} from '@langchain/core/runnables'
+import { RunnableLambda, RunnableSequence, RunnableWithMessageHistory } from '@langchain/core/runnables'
 import { ChatOpenAI } from '@langchain/openai'
 import * as z from 'zod'
 
@@ -20,21 +16,11 @@ import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 
 const outputSchema = z.object({
-  answer: z
-    .string()
-    .describe(
-      'The answer to the human question without any hidden special characters.',
-    ),
-  source: z
-    .string()
-    .describe(
-      'One of "local", "web", or "model", indicating the origin of the final answer.',
-    ),
+  answer: z.string().describe('The answer to the human question without any hidden special characters.'),
+  source: z.string().describe('One of "local", "web", or "model", indicating the origin of the final answer.'),
   notEnoughInformation: z
     .boolean()
-    .describe(
-      'Set to true only if the given context does not contain relevant info. Otherwise, false.',
-    ),
+    .describe('Set to true only if the given context does not contain relevant info. Otherwise, false.'),
 })
 
 const model = new ChatOpenAI({
@@ -53,17 +39,12 @@ const historyToQueryChain = RunnableSequence.from([
   (modelResponse) => modelResponse.text,
 ])
 
-const pdfChain = RunnableSequence.from([
-  localPrompt,
-  model.withStructuredOutput(outputSchema, { strict: true }),
-])
+const pdfChain = RunnableSequence.from([localPrompt, model.withStructuredOutput(outputSchema, { strict: true })])
 
 const webChain = RunnableSequence.from([
   async (input, options) => {
     const sessionId = options?.configurable?.sessionId
-    const messageHistory = sessionId
-      ? await getMessageHistory(sessionId).getMessages()
-      : []
+    const messageHistory = sessionId ? await getMessageHistory(sessionId).getMessages() : []
     const historyContent = messageHistory.map((m) => m.content).join('\n')
     const combinedQuery =
       historyContent.trim().length > 0
@@ -92,60 +73,58 @@ const apologyChainLocalAndWeb = RunnableSequence.from([
   model.withStructuredOutput(outputSchema, { strict: true }),
 ])
 
-const branchChain = RunnableLambda.from(
-  async (input: { question: string }, options) => {
-    const retrievalFlow = options?.configurable?.retrievalFlow ?? 'Sequential'
+const branchChain = RunnableLambda.from(async (input: { question: string }, options) => {
+  const retrievalFlow = options?.configurable?.retrievalFlow ?? 'Sequential'
 
-    switch (retrievalFlow) {
-      case 'Only Local': {
-        const localResponse = await pdfChain.invoke(input, options)
-        if (!localResponse.notEnoughInformation) {
-          return localResponse
-        }
-        return apologyChainOnlyLocal.invoke(input, options)
+  switch (retrievalFlow) {
+    case 'Only Local': {
+      const localResponse = await pdfChain.invoke(input, options)
+      if (!localResponse.notEnoughInformation) {
+        return localResponse
       }
-
-      case 'Only Web': {
-        const webResponse = await webChain.invoke(input, options)
-        if (!webResponse.notEnoughInformation) {
-          return webResponse
-        }
-        return apologyChainOnlyWeb.invoke(input, options)
-      }
-
-      case 'Sequential': {
-        const localResponse = await pdfChain.invoke(input, options)
-        if (!localResponse.notEnoughInformation) {
-          return localResponse
-        }
-        const webResponse = await webChain.invoke(input, options)
-        if (!webResponse.notEnoughInformation) {
-          return webResponse
-        }
-        return apologyChainLocalAndWeb.invoke(input, options)
-      }
-
-      case 'Parallel': {
-        const [localResponse, webResponse] = await Promise.all([
-          pdfChain.invoke(input, options),
-          webChain.invoke(input, options),
-        ])
-
-        if (!localResponse.notEnoughInformation) {
-          return localResponse
-        }
-        if (!webResponse.notEnoughInformation) {
-          return webResponse
-        }
-        return apologyChainLocalAndWeb.invoke(input, options)
-      }
-
-      default: {
-        return apologyChainLocalAndWeb.invoke(input, options)
-      }
+      return apologyChainOnlyLocal.invoke(input, options)
     }
-  },
-)
+
+    case 'Only Web': {
+      const webResponse = await webChain.invoke(input, options)
+      if (!webResponse.notEnoughInformation) {
+        return webResponse
+      }
+      return apologyChainOnlyWeb.invoke(input, options)
+    }
+
+    case 'Sequential': {
+      const localResponse = await pdfChain.invoke(input, options)
+      if (!localResponse.notEnoughInformation) {
+        return localResponse
+      }
+      const webResponse = await webChain.invoke(input, options)
+      if (!webResponse.notEnoughInformation) {
+        return webResponse
+      }
+      return apologyChainLocalAndWeb.invoke(input, options)
+    }
+
+    case 'Parallel': {
+      const [localResponse, webResponse] = await Promise.all([
+        pdfChain.invoke(input, options),
+        webChain.invoke(input, options),
+      ])
+
+      if (!localResponse.notEnoughInformation) {
+        return localResponse
+      }
+      if (!webResponse.notEnoughInformation) {
+        return webResponse
+      }
+      return apologyChainLocalAndWeb.invoke(input, options)
+    }
+
+    default: {
+      return apologyChainLocalAndWeb.invoke(input, options)
+    }
+  }
+})
 
 const mainChain = RunnableSequence.from([
   async (input) => {

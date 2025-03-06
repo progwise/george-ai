@@ -12,33 +12,23 @@ type LangchainChatFormProps = {
   retrievalFlow: RetrievalFlow
 }
 
-const handleTextareaKeyDown = (
-  event: React.KeyboardEvent<HTMLTextAreaElement>,
-) => {
+const handleTextareaKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
 
-    event.currentTarget.form?.dispatchEvent(
-      new Event('submit', { bubbles: true, cancelable: true }),
-    )
+    event.currentTarget.form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   }
 }
 
-export const LangchainChatForm = ({
-  sessionId,
-  retrievalFlow,
-}: LangchainChatFormProps) => {
+export const LangchainChatForm = ({ sessionId, retrievalFlow }: LangchainChatFormProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
   const { mutate, error, status } = useMutation({
-    mutationFn: (message: string) =>
-      sendChatMessage({ data: { message, sessionId, retrievalFlow } }),
+    mutationFn: (message: string) => sendChatMessage({ data: { message, sessionId, retrievalFlow } }),
     onMutate: async (message) => {
       await queryClient.cancelQueries(chatMessagesQueryOptions(sessionId))
 
-      const previousMessages = queryClient.getQueryData(
-        chatMessagesQueryOptions(sessionId).queryKey,
-      )
+      const previousMessages = queryClient.getQueryData(chatMessagesQueryOptions(sessionId).queryKey)
 
       if (previousMessages) {
         queryClient.setQueryData(chatMessagesQueryOptions(sessionId).queryKey, {
@@ -71,10 +61,7 @@ export const LangchainChatForm = ({
     },
     onError: (_error, _variables, context) => {
       if (context?.previousMessages) {
-        queryClient.setQueryData(
-          chatMessagesQueryOptions(sessionId).queryKey,
-          context.previousMessages,
-        )
+        queryClient.setQueryData(chatMessagesQueryOptions(sessionId).queryKey, context.previousMessages)
       }
     },
     onSuccess: (result) => {
@@ -104,7 +91,7 @@ export const LangchainChatForm = ({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
       <textarea
-        className="textarea textarea-bordered flex-grow w-full"
+        className="textarea textarea-bordered w-full flex-grow"
         name="message"
         onKeyDown={handleTextareaKeyDown}
         disabled={disabled}
@@ -114,11 +101,7 @@ export const LangchainChatForm = ({
         {error && <Alert message={error.message} type="error" />}
         {!auth?.isAuthenticated && (
           <Alert message="Sign in to chat" type="warning" className="py-2">
-            <button
-              type="button"
-              className="btn btn-sm btn-ghost"
-              onClick={() => auth?.login()}
-            >
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => auth?.login()}>
               Sign in
             </button>
           </Alert>

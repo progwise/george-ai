@@ -30,10 +30,7 @@ const getPDFVectorStore = async () => {
   const splitDocuments = await splitter.splitDocuments(rawDocuments)
   console.log(`Split into ${splitDocuments.length} chunks`)
   const embeddings = new OpenAIEmbeddings()
-  memoryVectorStore = await MemoryVectorStore.fromDocuments(
-    splitDocuments,
-    embeddings,
-  )
+  memoryVectorStore = await MemoryVectorStore.fromDocuments(splitDocuments, embeddings)
   return memoryVectorStore
 }
 
@@ -42,9 +39,7 @@ export const getPDFContentForQuestion = async (question: string) => {
     const vectorStore = await getPDFVectorStore()
     const retrieverLocal = vectorStore.asRetriever(LOCAL_RETRIEVAL_K)
     const documents = await retrieverLocal.invoke(question)
-    const content = documents
-      .map((document_) => document_.pageContent)
-      .join('\n\n')
+    const content = documents.map((document_) => document_.pageContent).join('\n\n')
     return content
   } catch (error) {
     console.error('Error retrieving PDF content:', error)

@@ -9,10 +9,7 @@ interface LibrarySelectorProps {
   selectedLibrary: Pick<AiLibrary, 'id' | 'name'>
 }
 
-export const LibrarySelector = ({
-  libraries,
-  selectedLibrary,
-}: LibrarySelectorProps) => {
+export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorProps) => {
   const navigate = useNavigate()
   const [selected, setSelected] = useState(selectedLibrary)
 

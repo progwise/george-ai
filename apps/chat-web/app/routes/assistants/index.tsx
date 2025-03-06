@@ -28,14 +28,10 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col gap-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
           {!isLoggendIn ? (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => authContext?.login()}
-            >
+            <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
               Log in to see your assistants
             </button>
           ) : (
@@ -44,20 +40,14 @@ function RouteComponent() {
         </h3>
         <LoadingSpinner isLoading={isLoading} />
         {isLoggendIn && (
-          <Link
-            type="button"
-            className="btn btn-primary btn-sm"
-            to="/assistants/new"
-          >
+          <Link type="button" className="btn btn-primary btn-sm" to="/assistants/new">
             Add new
           </Link>
         )}
       </div>
 
-      <div className="flex gap-4 flex-wrap">
-        {data?.aiAssistants?.map((assistant) => (
-          <AssistantCard key={assistant.id} assistant={assistant} />
-        ))}
+      <div className="flex flex-wrap gap-4">
+        {data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)}
       </div>
     </article>
   )

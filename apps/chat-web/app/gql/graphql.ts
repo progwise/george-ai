@@ -1,25 +1,13 @@
 /* eslint-disable */
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core'
+
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K]
-}
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>
-}
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>
-}
-export type MakeEmpty<
-  T extends { [key: string]: unknown },
-  K extends keyof T,
-> = { [_ in K]?: never }
-export type Incremental<T> =
-  | T
-  | {
-      [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never
-    }
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> }
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> }
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never }
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never }
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string }
@@ -643,16 +631,8 @@ export type AssistantLibrariesQueryVariables = Exact<{
 
 export type AssistantLibrariesQuery = {
   __typename?: 'Query'
-  aiLibraryUsage?: Array<{
-    __typename?: 'AiLibraryUsage'
-    id: string
-    libraryId: string
-  }> | null
-  aiLibraries?: Array<{
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-  }> | null
+  aiLibraryUsage?: Array<{ __typename?: 'AiLibraryUsage'; id: string; libraryId: string }> | null
+  aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
 
 export type UpdateLibraryUsageMutationVariables = Exact<{
@@ -730,14 +710,13 @@ export type ConversationParticipants_HumanParticipationCandidatesFragment = {
   id: string
   name?: string | null
   username: string
-} & {
-  ' $fragmentName'?: 'ConversationParticipants_HumanParticipationCandidatesFragment'
-}
+} & { ' $fragmentName'?: 'ConversationParticipants_HumanParticipationCandidatesFragment' }
 
-export type ConversationParticipants_AssistantParticipationCandidatesFragment =
-  { __typename?: 'AiAssistant'; id: string; name: string } & {
-    ' $fragmentName'?: 'ConversationParticipants_AssistantParticipationCandidatesFragment'
-  }
+export type ConversationParticipants_AssistantParticipationCandidatesFragment = {
+  __typename?: 'AiAssistant'
+  id: string
+  name: string
+} & { ' $fragmentName'?: 'ConversationParticipants_AssistantParticipationCandidatesFragment' }
 
 export type ConversationSelector_ConversationsFragment = {
   __typename?: 'AiConversation'
@@ -758,17 +737,13 @@ export type ConversationNew_HumanParticipationCandidatesFragment = {
   id: string
   name?: string | null
   username: string
-} & {
-  ' $fragmentName'?: 'ConversationNew_HumanParticipationCandidatesFragment'
-}
+} & { ' $fragmentName'?: 'ConversationNew_HumanParticipationCandidatesFragment' }
 
 export type ConversationNew_AssistantParticipationCandidatesFragment = {
   __typename?: 'AiAssistant'
   id: string
   name: string
-} & {
-  ' $fragmentName'?: 'ConversationNew_AssistantParticipationCandidatesFragment'
-}
+} & { ' $fragmentName'?: 'ConversationNew_AssistantParticipationCandidatesFragment' }
 
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
@@ -783,10 +758,7 @@ export type ClearEmbeddingsMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type ClearEmbeddingsMutation = {
-  __typename?: 'Mutation'
-  clearEmbeddedFiles?: boolean | null
-}
+export type ClearEmbeddingsMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
 
 export type DropFileMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -885,11 +857,7 @@ export type ChangeAiAssistantMutationVariables = Exact<{
 
 export type ChangeAiAssistantMutation = {
   __typename?: 'Mutation'
-  updateAiAssistant?: {
-    __typename?: 'AiAssistant'
-    id: string
-    name: string
-  } | null
+  updateAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
 export type CreateAiAssistantMutationVariables = Exact<{
@@ -899,11 +867,7 @@ export type CreateAiAssistantMutationVariables = Exact<{
 
 export type CreateAiAssistantMutation = {
   __typename?: 'Mutation'
-  createAiAssistant?: {
-    __typename?: 'AiAssistant'
-    id: string
-    name: string
-  } | null
+  createAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
 export type GetUserConversationsQueryVariables = Exact<{
@@ -914,9 +878,7 @@ export type GetUserConversationsQuery = {
   __typename?: 'Query'
   aiConversations: Array<
     { __typename?: 'AiConversation'; id: string } & {
-      ' $fragmentRefs'?: {
-        ConversationSelector_ConversationsFragment: ConversationSelector_ConversationsFragment
-      }
+      ' $fragmentRefs'?: { ConversationSelector_ConversationsFragment: ConversationSelector_ConversationsFragment }
     }
   >
 }
@@ -988,11 +950,7 @@ export type AiLibraryEditQuery = {
     libraryType: AiLibraryType
     url?: string | null
   } | null
-  aiLibraries?: Array<{
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-  }> | null
+  aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
 
 export type ChangeAiLibraryMutationVariables = Exact<{
@@ -1002,11 +960,7 @@ export type ChangeAiLibraryMutationVariables = Exact<{
 
 export type ChangeAiLibraryMutation = {
   __typename?: 'Mutation'
-  updateAiLibrary?: {
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-  } | null
+  updateAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
 export type AiLibrariesQueryVariables = Exact<{
@@ -1033,11 +987,7 @@ export type CreateAiLibraryMutationVariables = Exact<{
 
 export type CreateAiLibraryMutation = {
   __typename?: 'Mutation'
-  createAiLibrary?: {
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-  } | null
+  createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{
@@ -1068,21 +1018,13 @@ export type IntrospectionQueryQuery = {
     queryType: { __typename?: '__Type'; name?: string | null }
     mutationType?: { __typename?: '__Type'; name?: string | null } | null
     subscriptionType?: { __typename?: '__Type'; name?: string | null } | null
-    types: Array<
-      { __typename?: '__Type' } & {
-        ' $fragmentRefs'?: { FullTypeFragment: FullTypeFragment }
-      }
-    >
+    types: Array<{ __typename?: '__Type' } & { ' $fragmentRefs'?: { FullTypeFragment: FullTypeFragment } }>
     directives: Array<{
       __typename?: '__Directive'
       name: string
       description?: string | null
       locations: Array<__DirectiveLocation>
-      args: Array<
-        { __typename?: '__InputValue' } & {
-          ' $fragmentRefs'?: { InputValueFragment: InputValueFragment }
-        }
-      >
+      args: Array<{ __typename?: '__InputValue' } & { ' $fragmentRefs'?: { InputValueFragment: InputValueFragment } }>
     }>
   }
 }
@@ -1098,25 +1040,13 @@ export type FullTypeFragment = {
     description?: string | null
     isDeprecated: boolean
     deprecationReason?: string | null
-    args: Array<
-      { __typename?: '__InputValue' } & {
-        ' $fragmentRefs'?: { InputValueFragment: InputValueFragment }
-      }
-    >
-    type: { __typename?: '__Type' } & {
-      ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment }
-    }
+    args: Array<{ __typename?: '__InputValue' } & { ' $fragmentRefs'?: { InputValueFragment: InputValueFragment } }>
+    type: { __typename?: '__Type' } & { ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment } }
   }> | null
   inputFields?: Array<
-    { __typename?: '__InputValue' } & {
-      ' $fragmentRefs'?: { InputValueFragment: InputValueFragment }
-    }
+    { __typename?: '__InputValue' } & { ' $fragmentRefs'?: { InputValueFragment: InputValueFragment } }
   > | null
-  interfaces?: Array<
-    { __typename?: '__Type' } & {
-      ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment }
-    }
-  > | null
+  interfaces?: Array<{ __typename?: '__Type' } & { ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment } }> | null
   enumValues?: Array<{
     __typename?: '__EnumValue'
     name: string
@@ -1124,11 +1054,7 @@ export type FullTypeFragment = {
     isDeprecated: boolean
     deprecationReason?: string | null
   }> | null
-  possibleTypes?: Array<
-    { __typename?: '__Type' } & {
-      ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment }
-    }
-  > | null
+  possibleTypes?: Array<{ __typename?: '__Type' } & { ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment } }> | null
 } & { ' $fragmentName'?: 'FullTypeFragment' }
 
 export type InputValueFragment = {
@@ -1136,9 +1062,7 @@ export type InputValueFragment = {
   name: string
   description?: string | null
   defaultValue?: string | null
-  type: { __typename?: '__Type' } & {
-    ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment }
-  }
+  type: { __typename?: '__Type' } & { ' $fragmentRefs'?: { TypeRefFragment: TypeRefFragment } }
 } & { ' $fragmentName'?: 'InputValueFragment' }
 
 export type TypeRefFragment = {
@@ -1177,11 +1101,7 @@ export type TypeRefFragment = {
                   __typename?: '__Type'
                   kind: __TypeKind
                   name?: string | null
-                  ofType?: {
-                    __typename?: '__Type'
-                    kind: __TypeKind
-                    name?: string | null
-                  } | null
+                  ofType?: { __typename?: '__Type'; kind: __TypeKind; name?: string | null } | null
                 } | null
               } | null
             } | null
@@ -1199,11 +1119,7 @@ export type SendMessageMutationVariables = Exact<{
 
 export type SendMessageMutation = {
   __typename?: 'Mutation'
-  sendMessage: Array<{
-    __typename?: 'AiConversationMessage'
-    id: string
-    createdAt: string
-  }>
+  sendMessage: Array<{ __typename?: 'AiConversationMessage'; id: string; createdAt: string }>
 }
 
 export type CreateConversationMutationVariables = Exact<{
@@ -1226,19 +1142,14 @@ export type DeleteConversationMutation = {
 
 export type AddParticipantMutationVariables = Exact<{
   conversationId: Scalars['String']['input']
-  userIds?: InputMaybe<
-    Array<Scalars['String']['input']> | Scalars['String']['input']
-  >
-  assistantIds?: InputMaybe<
-    Array<Scalars['String']['input']> | Scalars['String']['input']
-  >
+  userIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
+  assistantIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>
 }>
 
 export type AddParticipantMutation = {
   __typename?: 'Mutation'
   addConversationParticipants?: Array<
-    | { __typename?: 'AssistantParticipant'; id: string }
-    | { __typename?: 'HumanParticipant'; id: string }
+    { __typename?: 'AssistantParticipant'; id: string } | { __typename?: 'HumanParticipant'; id: string }
   > | null
 }
 
@@ -1276,10 +1187,7 @@ export const ConversationForm_ConversationFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationForm_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1306,10 +1214,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationHistory_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1321,10 +1226,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'sequenceNumber' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'sequenceNumber' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
@@ -1337,10 +1239,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'assistantId' },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
                     ],
                   },
                 },
@@ -1358,10 +1257,7 @@ export const ConversationParticipants_ConversationFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationParticipants_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1383,75 +1279,49 @@ export const ConversationParticipants_ConversationFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ConversationParticipants_ConversationFragment,
-  unknown
->
-export const ConversationParticipants_HumanParticipationCandidatesFragmentDoc =
-  {
-    kind: 'Document',
-    definitions: [
-      {
-        kind: 'FragmentDefinition',
-        name: {
-          kind: 'Name',
-          value: 'ConversationParticipants_HumanParticipationCandidates',
-        },
-        typeCondition: {
-          kind: 'NamedType',
-          name: { kind: 'Name', value: 'User' },
-        },
-        selectionSet: {
-          kind: 'SelectionSet',
-          selections: [
-            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-          ],
-        },
+} as unknown as DocumentNode<ConversationParticipants_ConversationFragment, unknown>
+export const ConversationParticipants_HumanParticipationCandidatesFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationParticipants_HumanParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+        ],
       },
-    ],
-  } as unknown as DocumentNode<
-    ConversationParticipants_HumanParticipationCandidatesFragment,
-    unknown
-  >
-export const ConversationParticipants_AssistantParticipationCandidatesFragmentDoc =
-  {
-    kind: 'Document',
-    definitions: [
-      {
-        kind: 'FragmentDefinition',
-        name: {
-          kind: 'Name',
-          value: 'ConversationParticipants_AssistantParticipationCandidates',
-        },
-        typeCondition: {
-          kind: 'NamedType',
-          name: { kind: 'Name', value: 'AiAssistant' },
-        },
-        selectionSet: {
-          kind: 'SelectionSet',
-          selections: [
-            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          ],
-        },
+    },
+  ],
+} as unknown as DocumentNode<ConversationParticipants_HumanParticipationCandidatesFragment, unknown>
+export const ConversationParticipants_AssistantParticipationCandidatesFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ConversationParticipants_AssistantParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
       },
-    ],
-  } as unknown as DocumentNode<
-    ConversationParticipants_AssistantParticipationCandidatesFragment,
-    unknown
-  >
+    },
+  ],
+} as unknown as DocumentNode<ConversationParticipants_AssistantParticipationCandidatesFragment, unknown>
 export const ConversationSelector_ConversationsFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationSelector_conversations' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1472,20 +1342,14 @@ export const ConversationSelector_ConversationsFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ConversationSelector_ConversationsFragment,
-  unknown
->
+} as unknown as DocumentNode<ConversationSelector_ConversationsFragment, unknown>
 export const ConversationDelete_ConversationFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationDelete_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1496,9 +1360,7 @@ export const ConversationDelete_ConversationFragmentDoc = {
             name: { kind: 'Name', value: 'assistants' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
             },
           },
         ],
@@ -1511,14 +1373,8 @@ export const ConversationNew_HumanParticipationCandidatesFragmentDoc = {
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: {
-        kind: 'Name',
-        value: 'ConversationNew_HumanParticipationCandidates',
-      },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'User' },
-      },
+      name: { kind: 'Name', value: 'ConversationNew_HumanParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1529,23 +1385,14 @@ export const ConversationNew_HumanParticipationCandidatesFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ConversationNew_HumanParticipationCandidatesFragment,
-  unknown
->
+} as unknown as DocumentNode<ConversationNew_HumanParticipationCandidatesFragment, unknown>
 export const ConversationNew_AssistantParticipationCandidatesFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: {
-        kind: 'Name',
-        value: 'ConversationNew_AssistantParticipationCandidates',
-      },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiAssistant' },
-      },
+      name: { kind: 'Name', value: 'ConversationNew_AssistantParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1555,20 +1402,14 @@ export const ConversationNew_AssistantParticipationCandidatesFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ConversationNew_AssistantParticipationCandidatesFragment,
-  unknown
->
+} as unknown as DocumentNode<ConversationNew_AssistantParticipationCandidatesFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'TypeRef' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__Type' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__Type' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1596,135 +1437,61 @@ export const TypeRefFragmentDoc = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'kind' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'name' },
-                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'ofType' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'kind' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'name' },
-                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'ofType' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         {
                                           kind: 'Field',
-                                          name: { kind: 'Name', value: 'kind' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'name' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: {
-                                            kind: 'Name',
-                                            value: 'ofType',
-                                          },
+                                          name: { kind: 'Name', value: 'ofType' },
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                               {
                                                 kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'kind',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'name',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'ofType',
-                                                },
+                                                name: { kind: 'Name', value: 'ofType' },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                     {
                                                       kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'kind',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'name',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'ofType',
-                                                      },
+                                                      name: { kind: 'Name', value: 'ofType' },
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
                                                         selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                           {
                                                             kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'kind',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'name',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'ofType',
-                                                            },
+                                                            name: { kind: 'Name', value: 'ofType' },
                                                             selectionSet: {
                                                               kind: 'SelectionSet',
                                                               selections: [
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'kind',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'kind' },
                                                                 },
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'name',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'name' },
                                                                 },
                                                               ],
                                                             },
@@ -1764,10 +1531,7 @@ export const InputValueFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'InputValue' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__InputValue' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__InputValue' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1778,12 +1542,7 @@ export const InputValueFragmentDoc = {
             name: { kind: 'Name', value: 'type' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'defaultValue' } },
@@ -1793,10 +1552,7 @@ export const InputValueFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'TypeRef' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__Type' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__Type' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -1824,135 +1580,61 @@ export const InputValueFragmentDoc = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'kind' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'name' },
-                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'ofType' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'kind' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'name' },
-                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'ofType' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         {
                                           kind: 'Field',
-                                          name: { kind: 'Name', value: 'kind' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'name' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: {
-                                            kind: 'Name',
-                                            value: 'ofType',
-                                          },
+                                          name: { kind: 'Name', value: 'ofType' },
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                               {
                                                 kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'kind',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'name',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'ofType',
-                                                },
+                                                name: { kind: 'Name', value: 'ofType' },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                     {
                                                       kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'kind',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'name',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'ofType',
-                                                      },
+                                                      name: { kind: 'Name', value: 'ofType' },
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
                                                         selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                           {
                                                             kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'kind',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'name',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'ofType',
-                                                            },
+                                                            name: { kind: 'Name', value: 'ofType' },
                                                             selectionSet: {
                                                               kind: 'SelectionSet',
                                                               selections: [
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'kind',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'kind' },
                                                                 },
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'name',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'name' },
                                                                 },
                                                               ],
                                                             },
@@ -1992,10 +1674,7 @@ export const FullTypeFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FullType' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__Type' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__Type' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -2022,12 +1701,7 @@ export const FullTypeFragmentDoc = {
                   name: { kind: 'Name', value: 'args' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'FragmentSpread',
-                        name: { kind: 'Name', value: 'InputValue' },
-                      },
-                    ],
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'InputValue' } }],
                   },
                 },
                 {
@@ -2035,22 +1709,11 @@ export const FullTypeFragmentDoc = {
                   name: { kind: 'Name', value: 'type' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'FragmentSpread',
-                        name: { kind: 'Name', value: 'TypeRef' },
-                      },
-                    ],
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
                   },
                 },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'isDeprecated' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'deprecationReason' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDeprecated' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'deprecationReason' } },
               ],
             },
           },
@@ -2059,12 +1722,7 @@ export const FullTypeFragmentDoc = {
             name: { kind: 'Name', value: 'inputFields' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'InputValue' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'InputValue' } }],
             },
           },
           {
@@ -2072,12 +1730,7 @@ export const FullTypeFragmentDoc = {
             name: { kind: 'Name', value: 'interfaces' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
           {
@@ -2095,14 +1748,8 @@ export const FullTypeFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'isDeprecated' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'deprecationReason' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDeprecated' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'deprecationReason' } },
               ],
             },
           },
@@ -2111,12 +1758,7 @@ export const FullTypeFragmentDoc = {
             name: { kind: 'Name', value: 'possibleTypes' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
         ],
@@ -2125,10 +1767,7 @@ export const FullTypeFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'TypeRef' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__Type' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__Type' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -2156,135 +1795,61 @@ export const FullTypeFragmentDoc = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'kind' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'name' },
-                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'ofType' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'kind' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'name' },
-                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'ofType' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         {
                                           kind: 'Field',
-                                          name: { kind: 'Name', value: 'kind' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'name' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: {
-                                            kind: 'Name',
-                                            value: 'ofType',
-                                          },
+                                          name: { kind: 'Name', value: 'ofType' },
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                               {
                                                 kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'kind',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'name',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'ofType',
-                                                },
+                                                name: { kind: 'Name', value: 'ofType' },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                     {
                                                       kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'kind',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'name',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'ofType',
-                                                      },
+                                                      name: { kind: 'Name', value: 'ofType' },
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
                                                         selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                           {
                                                             kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'kind',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'name',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'ofType',
-                                                            },
+                                                            name: { kind: 'Name', value: 'ofType' },
                                                             selectionSet: {
                                                               kind: 'SelectionSet',
                                                               selections: [
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'kind',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'kind' },
                                                                 },
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'name',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'name' },
                                                                 },
                                                               ],
                                                             },
@@ -2319,10 +1884,7 @@ export const FullTypeFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'InputValue' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__InputValue' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__InputValue' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -2333,12 +1895,7 @@ export const FullTypeFragmentDoc = {
             name: { kind: 'Name', value: 'type' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'defaultValue' } },
@@ -2357,17 +1914,8 @@ export const LoginDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'jwtToken' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'jwtToken' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2380,10 +1928,7 @@ export const LoginDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'jwtToken' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'jwtToken' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'jwtToken' } },
               },
             ],
             selectionSet: {
@@ -2415,13 +1960,7 @@ export const DeleteAiAssistantDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2434,27 +1973,19 @@ export const DeleteAiAssistantDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  DeleteAiAssistantMutation,
-  DeleteAiAssistantMutationVariables
->
+} as unknown as DocumentNode<DeleteAiAssistantMutation, DeleteAiAssistantMutationVariables>
 export const AssistantLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -2465,31 +1996,13 @@ export const AssistantLibrariesDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'assistantId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2502,10 +2015,7 @@ export const AssistantLibrariesDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'assistantId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
               },
             ],
             selectionSet: {
@@ -2523,10 +2033,7 @@ export const AssistantLibrariesDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
             ],
             selectionSet: {
@@ -2541,10 +2048,7 @@ export const AssistantLibrariesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  AssistantLibrariesQuery,
-  AssistantLibrariesQueryVariables
->
+} as unknown as DocumentNode<AssistantLibrariesQuery, AssistantLibrariesQueryVariables>
 export const UpdateLibraryUsageDocument = {
   kind: 'Document',
   definitions: [
@@ -2555,42 +2059,18 @@ export const UpdateLibraryUsageDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'assistantId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'libraryId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'use' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'Boolean' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } } },
         },
       ],
       selectionSet: {
@@ -2609,26 +2089,17 @@ export const UpdateLibraryUsageDocument = {
                     {
                       kind: 'ObjectField',
                       name: { kind: 'Name', value: 'assistantId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'assistantId' },
-                      },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
                     },
                     {
                       kind: 'ObjectField',
                       name: { kind: 'Name', value: 'libraryId' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'libraryId' },
-                      },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
                     },
                     {
                       kind: 'ObjectField',
                       name: { kind: 'Name', value: 'use' },
-                      value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'use' },
-                      },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'use' } },
                     },
                   ],
                 },
@@ -2638,10 +2109,7 @@ export const UpdateLibraryUsageDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'usageId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'deletedCount' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'deletedCount' } },
               ],
             },
           },
@@ -2649,10 +2117,7 @@ export const UpdateLibraryUsageDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  UpdateLibraryUsageMutation,
-  UpdateLibraryUsageMutationVariables
->
+} as unknown as DocumentNode<UpdateLibraryUsageMutation, UpdateLibraryUsageMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -2666,10 +2131,7 @@ export const PrepareDesktopFileDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiLibraryFileInput' },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFileInput' } },
           },
         },
       ],
@@ -2683,27 +2145,19 @@ export const PrepareDesktopFileDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'file' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  PrepareDesktopFileMutation,
-  PrepareDesktopFileMutationVariables
->
+} as unknown as DocumentNode<PrepareDesktopFileMutation, PrepareDesktopFileMutationVariables>
 export const ClearEmbeddingsDocument = {
   kind: 'Document',
   definitions: [
@@ -2714,17 +2168,8 @@ export const ClearEmbeddingsDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'libraryId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2737,10 +2182,7 @@ export const ClearEmbeddingsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'libraryId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'libraryId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
           },
@@ -2748,10 +2190,7 @@ export const ClearEmbeddingsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ClearEmbeddingsMutation,
-  ClearEmbeddingsMutationVariables
->
+} as unknown as DocumentNode<ClearEmbeddingsMutation, ClearEmbeddingsMutationVariables>
 export const DropFileDocument = {
   kind: 'Document',
   definitions: [
@@ -2763,13 +2202,7 @@ export const DropFileDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2782,17 +2215,12 @@ export const DropFileDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
@@ -2811,13 +2239,7 @@ export const ReProcessFileDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2830,10 +2252,7 @@ export const ReProcessFileDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
             selectionSet: {
@@ -2851,10 +2270,7 @@ export const ReProcessFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ReProcessFileMutation,
-  ReProcessFileMutationVariables
->
+} as unknown as DocumentNode<ReProcessFileMutation, ReProcessFileMutationVariables>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [
@@ -2865,17 +2281,8 @@ export const EmbeddingsTableDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'libraryId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2888,10 +2295,7 @@ export const EmbeddingsTableDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'libraryId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'libraryId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
             selectionSet: {
@@ -2912,10 +2316,7 @@ export const EmbeddingsTableDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  EmbeddingsTableQuery,
-  EmbeddingsTableQueryVariables
->
+} as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
 export const PrepareFileDocument = {
   kind: 'Document',
   definitions: [
@@ -2929,10 +2330,7 @@ export const PrepareFileDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiLibraryFileInput' },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFileInput' } },
           },
         },
       ],
@@ -2946,17 +2344,12 @@ export const PrepareFileDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'file' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
@@ -2974,17 +2367,8 @@ export const ProcessFileDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'fileId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2997,10 +2381,7 @@ export const ProcessFileDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'fileId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'fileId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
             ],
             selectionSet: {
@@ -3030,27 +2411,12 @@ export const AiAssistantEditDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3063,10 +2429,7 @@ export const AiAssistantEditDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
             selectionSet: {
@@ -3078,10 +2441,7 @@ export const AiAssistantEditDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'assistantType' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'assistantType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
               ],
             },
@@ -3093,10 +2453,7 @@ export const AiAssistantEditDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
             ],
             selectionSet: {
@@ -3111,10 +2468,7 @@ export const AiAssistantEditDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  AiAssistantEditQuery,
-  AiAssistantEditQueryVariables
->
+} as unknown as DocumentNode<AiAssistantEditQuery, AiAssistantEditQueryVariables>
 export const ChangeAiAssistantDocument = {
   kind: 'Document',
   definitions: [
@@ -3126,24 +2480,12 @@ export const ChangeAiAssistantDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiAssistantInput' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistantInput' } } },
         },
       ],
       selectionSet: {
@@ -3156,18 +2498,12 @@ export const ChangeAiAssistantDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
@@ -3182,10 +2518,7 @@ export const ChangeAiAssistantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ChangeAiAssistantMutation,
-  ChangeAiAssistantMutationVariables
->
+} as unknown as DocumentNode<ChangeAiAssistantMutation, ChangeAiAssistantMutationVariables>
 export const CreateAiAssistantDocument = {
   kind: 'Document',
   definitions: [
@@ -3196,28 +2529,13 @@ export const CreateAiAssistantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiAssistantInput' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistantInput' } } },
         },
       ],
       selectionSet: {
@@ -3230,18 +2548,12 @@ export const CreateAiAssistantDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
@@ -3256,10 +2568,7 @@ export const CreateAiAssistantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  CreateAiAssistantMutation,
-  CreateAiAssistantMutationVariables
->
+} as unknown as DocumentNode<CreateAiAssistantMutation, CreateAiAssistantMutationVariables>
 export const GetUserConversationsDocument = {
   kind: 'Document',
   definitions: [
@@ -3270,17 +2579,8 @@ export const GetUserConversationsDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'userId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3293,23 +2593,14 @@ export const GetUserConversationsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'userId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationSelector_conversations',
-                  },
-                },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationSelector_conversations' } },
               ],
             },
           },
@@ -3319,10 +2610,7 @@ export const GetUserConversationsDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationSelector_conversations' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3343,10 +2631,7 @@ export const GetUserConversationsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  GetUserConversationsQuery,
-  GetUserConversationsQueryVariables
->
+} as unknown as DocumentNode<GetUserConversationsQuery, GetUserConversationsQueryVariables>
 export const GetConversationDocument = {
   kind: 'Document',
   definitions: [
@@ -3357,17 +2642,8 @@ export const GetConversationDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'conversationId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'conversationId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3380,43 +2656,16 @@ export const GetConversationDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'conversationId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'conversationId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'conversationId' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationForm_conversation',
-                  },
-                },
-                {
-                  kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationParticipants_conversation',
-                  },
-                },
-                {
-                  kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationDelete_conversation',
-                  },
-                },
-                {
-                  kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationHistory_conversation',
-                  },
-                },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationForm_conversation' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipants_conversation' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationDelete_conversation' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationHistory_conversation' } },
               ],
             },
           },
@@ -3426,10 +2675,7 @@ export const GetConversationDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationForm_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3451,10 +2697,7 @@ export const GetConversationDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationParticipants_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3478,10 +2721,7 @@ export const GetConversationDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationDelete_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3492,9 +2732,7 @@ export const GetConversationDocument = {
             name: { kind: 'Name', value: 'assistants' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
             },
           },
         ],
@@ -3503,10 +2741,7 @@ export const GetConversationDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ConversationHistory_conversation' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiConversation' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3518,10 +2753,7 @@ export const GetConversationDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'sequenceNumber' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'sequenceNumber' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
@@ -3534,10 +2766,7 @@ export const GetConversationDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'assistantId' },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
                     ],
                   },
                 },
@@ -3548,10 +2777,7 @@ export const GetConversationDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  GetConversationQuery,
-  GetConversationQueryVariables
->
+} as unknown as DocumentNode<GetConversationQuery, GetConversationQueryVariables>
 export const GetAssignableUsersDocument = {
   kind: 'Document',
   definitions: [
@@ -3562,17 +2788,8 @@ export const GetAssignableUsersDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'userId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3585,10 +2802,7 @@ export const GetAssignableUsersDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'userId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {
@@ -3596,18 +2810,11 @@ export const GetAssignableUsersDocument = {
               selections: [
                 {
                   kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationNew_HumanParticipationCandidates',
-                  },
+                  name: { kind: 'Name', value: 'ConversationNew_HumanParticipationCandidates' },
                 },
                 {
                   kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value:
-                      'ConversationParticipants_HumanParticipationCandidates',
-                  },
+                  name: { kind: 'Name', value: 'ConversationParticipants_HumanParticipationCandidates' },
                 },
               ],
             },
@@ -3617,14 +2824,8 @@ export const GetAssignableUsersDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: {
-        kind: 'Name',
-        value: 'ConversationNew_HumanParticipationCandidates',
-      },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'User' },
-      },
+      name: { kind: 'Name', value: 'ConversationNew_HumanParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3636,14 +2837,8 @@ export const GetAssignableUsersDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: {
-        kind: 'Name',
-        value: 'ConversationParticipants_HumanParticipationCandidates',
-      },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'User' },
-      },
+      name: { kind: 'Name', value: 'ConversationParticipants_HumanParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3654,10 +2849,7 @@ export const GetAssignableUsersDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  GetAssignableUsersQuery,
-  GetAssignableUsersQueryVariables
->
+} as unknown as DocumentNode<GetAssignableUsersQuery, GetAssignableUsersQueryVariables>
 export const GetAssignableAssistantsDocument = {
   kind: 'Document',
   definitions: [
@@ -3668,17 +2860,8 @@ export const GetAssignableAssistantsDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3691,10 +2874,7 @@ export const GetAssignableAssistantsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
             ],
             selectionSet: {
@@ -3702,18 +2882,11 @@ export const GetAssignableAssistantsDocument = {
               selections: [
                 {
                   kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value: 'ConversationNew_AssistantParticipationCandidates',
-                  },
+                  name: { kind: 'Name', value: 'ConversationNew_AssistantParticipationCandidates' },
                 },
                 {
                   kind: 'FragmentSpread',
-                  name: {
-                    kind: 'Name',
-                    value:
-                      'ConversationParticipants_AssistantParticipationCandidates',
-                  },
+                  name: { kind: 'Name', value: 'ConversationParticipants_AssistantParticipationCandidates' },
                 },
               ],
             },
@@ -3723,14 +2896,8 @@ export const GetAssignableAssistantsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: {
-        kind: 'Name',
-        value: 'ConversationNew_AssistantParticipationCandidates',
-      },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiAssistant' },
-      },
+      name: { kind: 'Name', value: 'ConversationNew_AssistantParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3741,14 +2908,8 @@ export const GetAssignableAssistantsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: {
-        kind: 'Name',
-        value: 'ConversationParticipants_AssistantParticipationCandidates',
-      },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: 'AiAssistant' },
-      },
+      name: { kind: 'Name', value: 'ConversationParticipants_AssistantParticipationCandidates' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -3758,10 +2919,7 @@ export const GetAssignableAssistantsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  GetAssignableAssistantsQuery,
-  GetAssignableAssistantsQueryVariables
->
+} as unknown as DocumentNode<GetAssignableAssistantsQuery, GetAssignableAssistantsQueryVariables>
 export const AiLibraryEditDocument = {
   kind: 'Document',
   definitions: [
@@ -3773,27 +2931,12 @@ export const AiLibraryEditDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3806,10 +2949,7 @@ export const AiLibraryEditDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
             selectionSet: {
@@ -3832,10 +2972,7 @@ export const AiLibraryEditDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
             ],
             selectionSet: {
@@ -3862,24 +2999,12 @@ export const ChangeAiLibraryDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiLibraryInput' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
         },
       ],
       selectionSet: {
@@ -3892,18 +3017,12 @@ export const ChangeAiLibraryDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'id' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
@@ -3918,10 +3037,7 @@ export const ChangeAiLibraryDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  ChangeAiLibraryMutation,
-  ChangeAiLibraryMutationVariables
->
+} as unknown as DocumentNode<ChangeAiLibraryMutation, ChangeAiLibraryMutationVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -3932,17 +3048,8 @@ export const AiLibrariesDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -3955,10 +3062,7 @@ export const AiLibrariesDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
             ],
             selectionSet: {
@@ -3998,28 +3102,13 @@ export const CreateAiLibraryDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiLibraryInput' },
-            },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
         },
       ],
       selectionSet: {
@@ -4032,18 +3121,12 @@ export const CreateAiLibraryDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
@@ -4058,10 +3141,7 @@ export const CreateAiLibraryDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  CreateAiLibraryMutation,
-  CreateAiLibraryMutationVariables
->
+} as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
 export const AiAssistantCardsDocument = {
   kind: 'Document',
   definitions: [
@@ -4072,17 +3152,8 @@ export const AiAssistantCardsDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'ownerId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -4095,10 +3166,7 @@ export const AiAssistantCardsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'ownerId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'ownerId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
               },
             ],
             selectionSet: {
@@ -4108,10 +3176,7 @@ export const AiAssistantCardsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'assistantType' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'assistantType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
               ],
@@ -4121,10 +3186,7 @@ export const AiAssistantCardsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  AiAssistantCardsQuery,
-  AiAssistantCardsQueryVariables
->
+} as unknown as DocumentNode<AiAssistantCardsQuery, AiAssistantCardsQueryVariables>
 export const IntrospectionQueryDocument = {
   kind: 'Document',
   definitions: [
@@ -4147,9 +3209,7 @@ export const IntrospectionQueryDocument = {
                   name: { kind: 'Name', value: 'queryType' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                    ],
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                   },
                 },
                 {
@@ -4157,9 +3217,7 @@ export const IntrospectionQueryDocument = {
                   name: { kind: 'Name', value: 'mutationType' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                    ],
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                   },
                 },
                 {
@@ -4167,9 +3225,7 @@ export const IntrospectionQueryDocument = {
                   name: { kind: 'Name', value: 'subscriptionType' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                    ],
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
                   },
                 },
                 {
@@ -4177,12 +3233,7 @@ export const IntrospectionQueryDocument = {
                   name: { kind: 'Name', value: 'types' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'FragmentSpread',
-                        name: { kind: 'Name', value: 'FullType' },
-                      },
-                    ],
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'FullType' } }],
                   },
                 },
                 {
@@ -4192,25 +3243,14 @@ export const IntrospectionQueryDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'description' },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'locations' },
-                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'locations' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'args' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [
-                            {
-                              kind: 'FragmentSpread',
-                              name: { kind: 'Name', value: 'InputValue' },
-                            },
-                          ],
+                          selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'InputValue' } }],
                         },
                       },
                     ],
@@ -4225,10 +3265,7 @@ export const IntrospectionQueryDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'TypeRef' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__Type' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__Type' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -4256,135 +3293,61 @@ export const IntrospectionQueryDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'kind' },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'name' },
-                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'ofType' },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'kind' },
-                                  },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'name' },
-                                  },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'ofType' },
                                     selectionSet: {
                                       kind: 'SelectionSet',
                                       selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                         {
                                           kind: 'Field',
-                                          name: { kind: 'Name', value: 'kind' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: { kind: 'Name', value: 'name' },
-                                        },
-                                        {
-                                          kind: 'Field',
-                                          name: {
-                                            kind: 'Name',
-                                            value: 'ofType',
-                                          },
+                                          name: { kind: 'Name', value: 'ofType' },
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                               {
                                                 kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'kind',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'name',
-                                                },
-                                              },
-                                              {
-                                                kind: 'Field',
-                                                name: {
-                                                  kind: 'Name',
-                                                  value: 'ofType',
-                                                },
+                                                name: { kind: 'Name', value: 'ofType' },
                                                 selectionSet: {
                                                   kind: 'SelectionSet',
                                                   selections: [
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                    { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                     {
                                                       kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'kind',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'name',
-                                                      },
-                                                    },
-                                                    {
-                                                      kind: 'Field',
-                                                      name: {
-                                                        kind: 'Name',
-                                                        value: 'ofType',
-                                                      },
+                                                      name: { kind: 'Name', value: 'ofType' },
                                                       selectionSet: {
                                                         kind: 'SelectionSet',
                                                         selections: [
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
+                                                          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                                                           {
                                                             kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'kind',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'name',
-                                                            },
-                                                          },
-                                                          {
-                                                            kind: 'Field',
-                                                            name: {
-                                                              kind: 'Name',
-                                                              value: 'ofType',
-                                                            },
+                                                            name: { kind: 'Name', value: 'ofType' },
                                                             selectionSet: {
                                                               kind: 'SelectionSet',
                                                               selections: [
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'kind',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'kind' },
                                                                 },
                                                                 {
                                                                   kind: 'Field',
-                                                                  name: {
-                                                                    kind: 'Name',
-                                                                    value:
-                                                                      'name',
-                                                                  },
+                                                                  name: { kind: 'Name', value: 'name' },
                                                                 },
                                                               ],
                                                             },
@@ -4419,10 +3382,7 @@ export const IntrospectionQueryDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'InputValue' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__InputValue' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__InputValue' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -4433,12 +3393,7 @@ export const IntrospectionQueryDocument = {
             name: { kind: 'Name', value: 'type' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
           { kind: 'Field', name: { kind: 'Name', value: 'defaultValue' } },
@@ -4448,10 +3403,7 @@ export const IntrospectionQueryDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FullType' },
-      typeCondition: {
-        kind: 'NamedType',
-        name: { kind: 'Name', value: '__Type' },
-      },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: '__Type' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -4478,12 +3430,7 @@ export const IntrospectionQueryDocument = {
                   name: { kind: 'Name', value: 'args' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'FragmentSpread',
-                        name: { kind: 'Name', value: 'InputValue' },
-                      },
-                    ],
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'InputValue' } }],
                   },
                 },
                 {
@@ -4491,22 +3438,11 @@ export const IntrospectionQueryDocument = {
                   name: { kind: 'Name', value: 'type' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'FragmentSpread',
-                        name: { kind: 'Name', value: 'TypeRef' },
-                      },
-                    ],
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
                   },
                 },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'isDeprecated' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'deprecationReason' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDeprecated' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'deprecationReason' } },
               ],
             },
           },
@@ -4515,12 +3451,7 @@ export const IntrospectionQueryDocument = {
             name: { kind: 'Name', value: 'inputFields' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'InputValue' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'InputValue' } }],
             },
           },
           {
@@ -4528,12 +3459,7 @@ export const IntrospectionQueryDocument = {
             name: { kind: 'Name', value: 'interfaces' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
           {
@@ -4551,14 +3477,8 @@ export const IntrospectionQueryDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'isDeprecated' },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'deprecationReason' },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDeprecated' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'deprecationReason' } },
               ],
             },
           },
@@ -4567,22 +3487,14 @@ export const IntrospectionQueryDocument = {
             name: { kind: 'Name', value: 'possibleTypes' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'TypeRef' },
-                },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'TypeRef' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  IntrospectionQueryQuery,
-  IntrospectionQueryQueryVariables
->
+} as unknown as DocumentNode<IntrospectionQueryQuery, IntrospectionQueryQueryVariables>
 export const SendMessageDocument = {
   kind: 'Document',
   definitions: [
@@ -4593,27 +3505,15 @@ export const SendMessageDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'userId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiConversationMessageInput' },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversationMessageInput' } },
           },
         },
       ],
@@ -4627,18 +3527,12 @@ export const SendMessageDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'userId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
@@ -4667,10 +3561,7 @@ export const CreateConversationDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'AiConversationCreateInput' },
-            },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversationCreateInput' } },
           },
         },
       ],
@@ -4684,27 +3575,19 @@ export const CreateConversationDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'data' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  CreateConversationMutation,
-  CreateConversationMutationVariables
->
+} as unknown as DocumentNode<CreateConversationMutation, CreateConversationMutationVariables>
 export const DeleteConversationDocument = {
   kind: 'Document',
   definitions: [
@@ -4715,17 +3598,8 @@ export const DeleteConversationDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'conversationId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'conversationId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -4738,27 +3612,19 @@ export const DeleteConversationDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'conversationId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'conversationId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'conversationId' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  DeleteConversationMutation,
-  DeleteConversationMutationVariables
->
+} as unknown as DocumentNode<DeleteConversationMutation, DeleteConversationMutationVariables>
 export const AddParticipantDocument = {
   kind: 'Document',
   definitions: [
@@ -4769,50 +3635,23 @@ export const AddParticipantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'conversationId' },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'conversationId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
           type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
+            kind: 'ListType',
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
           },
         },
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'userIds' },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantIds' } },
           type: {
             kind: 'ListType',
-            type: {
-              kind: 'NonNullType',
-              type: {
-                kind: 'NamedType',
-                name: { kind: 'Name', value: 'String' },
-              },
-            },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'assistantIds' },
-          },
-          type: {
-            kind: 'ListType',
-            type: {
-              kind: 'NonNullType',
-              type: {
-                kind: 'NamedType',
-                name: { kind: 'Name', value: 'String' },
-              },
-            },
+            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
           },
         },
       ],
@@ -4826,43 +3665,29 @@ export const AddParticipantDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'conversationId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'conversationId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'conversationId' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userIds' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'userIds' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
               },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantIds' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'assistantIds' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantIds' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  AddParticipantMutation,
-  AddParticipantMutationVariables
->
+} as unknown as DocumentNode<AddParticipantMutation, AddParticipantMutationVariables>
 export const RemoveParticipantDocument = {
   kind: 'Document',
   definitions: [
@@ -4873,17 +3698,8 @@ export const RemoveParticipantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'participantId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -4896,27 +3712,19 @@ export const RemoveParticipantDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'participantId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<
-  RemoveParticipantMutation,
-  RemoveParticipantMutationVariables
->
+} as unknown as DocumentNode<RemoveParticipantMutation, RemoveParticipantMutationVariables>
 export const MyConversationUsersDocument = {
   kind: 'Document',
   definitions: [
@@ -4927,17 +3735,8 @@ export const MyConversationUsersDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: {
-            kind: 'Variable',
-            name: { kind: 'Name', value: 'userId' },
-          },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'NamedType',
-              name: { kind: 'Name', value: 'String' },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -4950,10 +3749,7 @@ export const MyConversationUsersDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userId' },
-                value: {
-                  kind: 'Variable',
-                  name: { kind: 'Name', value: 'userId' },
-                },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {
@@ -4971,7 +3767,4 @@ export const MyConversationUsersDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<
-  MyConversationUsersQuery,
-  MyConversationUsersQueryVariables
->
+} as unknown as DocumentNode<MyConversationUsersQuery, MyConversationUsersQueryVariables>

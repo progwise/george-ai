@@ -9,10 +9,7 @@ interface AssistantSelectorProps {
   selectedAssistant: Pick<AiAssistant, 'id' | 'name'>
 }
 
-export const AssistantSelector = ({
-  assistants,
-  selectedAssistant,
-}: AssistantSelectorProps) => {
+export const AssistantSelector = ({ assistants, selectedAssistant }: AssistantSelectorProps) => {
   const navigate = useNavigate()
   const [selected, setSelected] = useState(selectedAssistant)
   return (

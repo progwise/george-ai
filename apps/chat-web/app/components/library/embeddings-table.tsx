@@ -74,9 +74,7 @@ const EmbeddingsTableDocument = graphql(`
 `)
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
-  .validator(({ libraryId }: { libraryId: string }) =>
-    z.string().nonempty().parse(libraryId),
-  )
+  .validator(({ libraryId }: { libraryId: string }) => z.string().nonempty().parse(libraryId))
   .handler(async (ctx) => {
     return await backendRequest(EmbeddingsTableDocument, {
       libraryId: ctx.data,
@@ -96,16 +94,14 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
 })
 
 export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
-  const { data, isLoading, refetch } = useSuspenseQuery(
-    aiLibraryFilesQueryOptions(libraryId),
-  )
+  const { data, isLoading, refetch } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
 
   if (isLoading) {
     return <LoadingSpinner />
   }
   return (
     <>
-      <nav className="flex gap-4 justify-between items-center">
+      <nav className="flex items-center justify-between gap-4">
         <div className="flex gap-4">
           <button
             type="button"

@@ -53,10 +53,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     },
     staleTime: Infinity,
   })
-  const conversation = useFragment(
-    ConversationHistory_ConversationFragment,
-    props.conversation,
-  )
+  const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
   const messages = conversation.messages
   const isAssistantLoading = false
@@ -78,17 +75,13 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
 
     evtSource.onmessage = (event) => {
       const incomingMessage = JSON.parse(event.data) as IncomingMessage
-      const index = incomingMessages.findIndex(
-        (message) => message.id === incomingMessage.id,
-      )
+      const index = incomingMessages.findIndex((message) => message.id === incomingMessage.id)
 
       if (index === -1) {
         incomingMessages.push(incomingMessage)
         setNewMessages((prev) =>
           [...prev, incomingMessage].sort((a, b) => {
-            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0
-              ? 1
-              : -1
+            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0 ? 1 : -1
           }),
         )
         return
@@ -96,9 +89,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         incomingMessages[index].content += incomingMessage.content
       }
 
-      const div = document.getElementById(
-        `textarea_${incomingMessage.id}`,
-      ) as HTMLDivElement
+      const div = document.getElementById(`textarea_${incomingMessage.id}`) as HTMLDivElement
       if (div) {
         div.innerHTML = convertMdToHtml(incomingMessages[index].content)
       }

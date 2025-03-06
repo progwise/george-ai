@@ -67,14 +67,7 @@ await i18n.use(LanguageDetector).init({
   },
   detection: {
     // optional config for i18next-browser-languagedetector
-    order: [
-      'navigator',
-      'htmlTag',
-      'cookie',
-      'localStorage',
-      'path',
-      'subdomain',
-    ],
+    order: ['navigator', 'htmlTag', 'cookie', 'localStorage', 'path', 'subdomain'],
     caches: ['cookie'],
   },
 })

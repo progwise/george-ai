@@ -21,18 +21,13 @@ interface DeleteConversationDialogProps {
   ref: RefObject<HTMLDialogElement | null>
 }
 
-export const DeleteConversationDialog = (
-  props: DeleteConversationDialogProps,
-) => {
+export const DeleteConversationDialog = (props: DeleteConversationDialogProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   const { ref } = props
-  const conversation = useFragment(
-    ConversationDelete_ConversationFragment,
-    props.conversation,
-  )
+  const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
@@ -56,36 +51,19 @@ export const DeleteConversationDialog = (
   return (
     <dialog ref={ref} className="modal">
       <div className="modal-box">
-        <h3 className="font-bold text-lg">
+        <h3 className="text-lg font-bold">
           <span>Delete conversation</span> <br />
-          <time className="text-nowrap">
-            {new Date(conversation.createdAt).toLocaleString().replace(',', '')}
-          </time>
+          <time className="text-nowrap">{new Date(conversation.createdAt).toLocaleString().replace(',', '')}</time>
           {' with '}
-          <span>
-            {conversation.assistants
-              ?.map((assistant) => assistant.name)
-              .join(',')}
-          </span>
+          <span>{conversation.assistants?.map((assistant) => assistant.name).join(',')}</span>
         </h3>
-        <p className="py-4">
-          You are about to delete this conversation. It cannot be restored.
-          Please confirm.
-        </p>
+        <p className="py-4">You are about to delete this conversation. It cannot be restored. Please confirm.</p>
         <form method="dialog" onSubmit={handleSubmit}>
           <div className="modal-action">
-            <button
-              type="button"
-              className="btn"
-              onClick={() => ref.current?.close()}
-            >
+            <button type="button" className="btn" onClick={() => ref.current?.close()}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-error"
-              disabled={isPending}
-            >
+            <button type="submit" className="btn btn-error" disabled={isPending}>
               Delete
             </button>
           </div>

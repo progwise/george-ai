@@ -41,19 +41,14 @@ const ProcessFileDocument = graphql(`
 `)
 
 const embedFiles = createServerFn({ method: 'GET' })
-  .validator(
-    (data: {
-      libraryId: string
-      files: Array<LibraryFile>
-      access_token: string
-    }) =>
-      z
-        .object({
-          libraryId: z.string().nonempty(),
-          files: z.array(LibraryFileSchema),
-          access_token: z.string().nonempty(),
-        })
-        .parse(data),
+  .validator((data: { libraryId: string; files: Array<LibraryFile>; access_token: string }) =>
+    z
+      .object({
+        libraryId: z.string().nonempty(),
+        files: z.array(LibraryFileSchema),
+        access_token: z.string().nonempty(),
+      })
+      .parse(data),
   )
   .handler(async (ctx) => {
     const processFiles = ctx.data.files.map(async (file) => {
@@ -76,15 +71,12 @@ const embedFiles = createServerFn({ method: 'GET' })
           file,
         )
         isPdfExport = false
-        return await fetch(
-          `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${ctx.data.access_token}`,
-            },
+        return await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${ctx.data.access_token}`,
           },
-        )
+        })
       })
 
       if (!googleDownloadResponse.ok) {
@@ -109,10 +101,7 @@ const embedFiles = createServerFn({ method: 'GET' })
         throw new Error('Failed to prepare file')
       }
 
-      const uploadResponse = await backendUpload(
-        blob,
-        preparedFile.prepareFile.id,
-      )
+      const uploadResponse = await backendUpload(blob, preparedFile.prepareFile.id)
 
       if (!uploadResponse.ok) {
         throw new Error('Failed to upload file')
@@ -126,52 +115,33 @@ const embedFiles = createServerFn({ method: 'GET' })
     await Promise.all(processFiles)
   })
 
-export const GoogleDriveFiles = ({
-  libraryId,
-  currentLocationHref,
-}: GoogleDriveFilesProps) => {
+export const GoogleDriveFiles = ({ libraryId, currentLocationHref }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
 
-  const googleDriveAccessTokenString = localStorage.getItem(
-    'google_drive_access_token',
-  )
-  const googleDriveAccessToken = GoogleAccessTokenSchema.parse(
-    JSON.parse(googleDriveAccessTokenString || '{}'),
-  )
-  const { data: googleDriveFilesData, isLoading: googleDriveFilesIsLoading } =
-    useQuery({
-      queryKey: [
-        queryKeys.GoogleDriveFiles,
-        googleDriveAccessToken.access_token!,
-      ],
-      enabled: !!googleDriveAccessToken?.access_token,
-      queryFn: async () => {
-        const response = await fetch(
-          `https://www.googleapis.com/drive/v3/files`,
-          {
-            headers: {
-              Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
-            },
-          },
-        )
-        const responseJson = await response.json()
-        return responseJson as GoogleDriveResponse
-      },
-    })
+  const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
+  const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(googleDriveAccessTokenString || '{}'))
+  const { data: googleDriveFilesData, isLoading: googleDriveFilesIsLoading } = useQuery({
+    queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token!],
+    enabled: !!googleDriveAccessToken?.access_token,
+    queryFn: async () => {
+      const response = await fetch(`https://www.googleapis.com/drive/v3/files`, {
+        headers: {
+          Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
+        },
+      })
+      const responseJson = await response.json()
+      return responseJson as GoogleDriveResponse
+    },
+  })
 
   const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
-  const { mutate: embedFilesMutation, isPending: embedFilesIsPending } =
-    useMutation({
-      mutationFn: (data: {
-        libraryId: string
-        files: LibraryFile[]
-        access_token: string
-      }) => embedFiles({ data }),
-      onSuccess: () => {
-        alert('Files embedded successfully')
-        setSelectedFiles([])
-      },
-    })
+  const { mutate: embedFilesMutation, isPending: embedFilesIsPending } = useMutation({
+    mutationFn: (data: { libraryId: string; files: LibraryFile[]; access_token: string }) => embedFiles({ data }),
+    onSuccess: () => {
+      alert('Files embedded successfully')
+      setSelectedFiles([])
+    },
+  })
 
   const handleEmbedFiles = async (files: LibraryFile[]) => {
     embedFilesMutation({
@@ -187,16 +157,10 @@ export const GoogleDriveFiles = ({
 
   return (
     <>
-      <LoadingSpinner
-        isLoading={embedFilesIsPending || googleDriveFilesIsLoading}
-      />
-      <nav className="flex gap-4 justify-between items-center">
+      <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
+      <nav className="flex items-center justify-between gap-4">
         <div className="flex gap-4">
-          <Link
-            className="btn btn-xs"
-            to="/libraries/auth-google"
-            search={{ redirectAfterAuth: currentLocationHref }}
-          >
+          <Link className="btn btn-xs" to="/libraries/auth-google" search={{ redirectAfterAuth: currentLocationHref }}>
             Login with Google
           </Link>
         </div>
