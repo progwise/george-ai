@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 import { useAuth } from '../../auth/auth-hook'
 import { ConversationForm } from '../../components/conversation/conversation-form'
@@ -97,9 +96,6 @@ function RouteComponent() {
 
   const selectedConversationId = _splat as string
 
-  const newDialogRef = useRef<HTMLDialogElement>(null)
-  const deleteDialogRef = useRef<HTMLDialogElement>(null)
-
   const { data: conversations, isLoading: conversationsLoading } =
     useSuspenseQuery({
       queryKey: [queryKeys.Conversations, userId],
@@ -138,16 +134,6 @@ function RouteComponent() {
         : null,
   })
 
-  const handleNewConversation = () => {
-    newDialogRef.current?.showModal()
-  }
-
-  useEffect(() => {
-    if (conversations?.aiConversations?.length === 0) {
-      handleNewConversation()
-    }
-  }, [conversations])
-
   if (!userId) {
     return <h3>Login to use conversations.</h3>
   }
@@ -159,51 +145,30 @@ function RouteComponent() {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
   }
 
-  const handleDeleteConversation = () => {
-    deleteDialogRef.current?.showModal()
-  }
-
   if (
     conversationsLoading ||
     selectedConversationIsLoading ||
     assignableUsersIsLoading ||
-    assignableAssistantsIsLoading
+    assignableAssistantsIsLoading ||
+    !assignableUsers ||
+    !assignableAssistants ||
+    !conversations
   ) {
     return <LoadingSpinner />
   }
 
-  if (!assignableUsers || !assignableAssistants || !conversations) {
-    return
-  }
-
   return (
     <div className="flex gap-4">
-      <NewConversationDialog
-        ref={newDialogRef}
-        humans={assignableUsers.myConversationUsers}
-        assistants={assignableAssistants.aiAssistants}
-      />
-
-      {selectedConversation?.aiConversation && (
-        <DeleteConversationDialog
-          ref={deleteDialogRef}
-          conversation={selectedConversation.aiConversation}
-        />
-      )}
-
       {userId && (
         <nav>
           <div className="flex justify-between items-center p-4">
             <>
-              {' '}
               <h3>Recent</h3>
-              <button
-                type="button"
-                className="btn btn-sm btn-primary"
-                onClick={handleNewConversation}
-              >
-                New
-              </button>
+              <NewConversationDialog
+                humans={assignableUsers.myConversationUsers}
+                assistants={assignableAssistants.aiAssistants}
+                isOpen={conversations?.aiConversations?.length === 0}
+              />
             </>
           </div>
           {conversations.aiConversations && (
@@ -223,13 +188,9 @@ function RouteComponent() {
                 assistantCandidates={assignableAssistants.aiAssistants}
                 humanCandidates={assignableUsers.myConversationUsers}
               />
-              <button
-                type="button"
-                className="btn btn-cicle btn-xs btn-ghost text-error"
-                onClick={handleDeleteConversation}
-              >
-                Delete conversation
-              </button>
+              <DeleteConversationDialog
+                conversation={selectedConversation.aiConversation}
+              />
             </div>
             <ConversationHistory
               conversation={selectedConversation.aiConversation}

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { RefObject } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { createConversation } from '../../server-functions/conversations'
@@ -32,12 +32,11 @@ interface NewConversationDialogProps {
         typeof ConversationNew_HumanParticipationCandidatesFragment
       >[]
     | null
-  ref: RefObject<HTMLDialogElement | null>
+  isOpen: boolean
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const { user } = useAuth()
-  const ref = props.ref
   const assistants = useFragment(
     ConversationNew_AssistantParticipationCandidatesFragment,
     props.assistants,
@@ -72,22 +71,36 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
         throw new Error('User not set')
       }
       queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
-      ref.current?.close()
       navigate({ to: `/conversations/${result.createAiConversation?.id}` })
     },
   })
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = event.currentTarget
-    const formData = new FormData(form)
+  useEffect(() => {
+    if (props.isOpen) {
+      dialogReference.current?.showModal()
+    }
+  }, [props.isOpen])
 
-    const assistantIds = formData
-      .getAll('assistants')
-      .map((id) => id.toString())
-    const userIds = formData.getAll('users').map((id) => id.toString())
+  const dialogReference = useRef<HTMLDialogElement>(null)
 
-    mutate({ assistantIds, userIds })
+  const handleCreateConversation = async () => {
+    try {
+      const form = document.querySelector('form')
+      if (!form) {
+        throw new Error('Form not found')
+      }
+      const formData = new FormData(form)
+
+      const assistantIds = formData
+        .getAll('assistants')
+        .map((id) => id.toString())
+      const userIds = formData.getAll('users').map((id) => id.toString())
+
+      await mutate({ assistantIds, userIds })
+    } catch {
+      /* empty */
+    }
+    dialogReference.current?.close()
   }
 
   if (!user) {
@@ -95,16 +108,23 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
   }
 
   return (
-    <dialog className="modal" ref={props.ref}>
-      <LoadingSpinner isLoading={isPending} />
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">Create a new conversation</h3>
-        <p className="py-0">
-          You are about to start a new conversation with the selected users and
-          assistants.
-        </p>
-        <p className="py-4">You can change these participants any time.</p>
-        <form method="dialog" onSubmit={handleSubmit}>
+    <>
+      <button
+        type="button"
+        className="btn btn-sm btn-primary"
+        onClick={() => dialogReference.current?.showModal()}
+      >
+        New
+      </button>
+      <dialog className="modal" ref={dialogReference}>
+        <LoadingSpinner isLoading={isPending} />
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Create a new conversation</h3>
+          <p className="py-0">
+            You are about to start a new conversation with the selected users
+            and assistants.
+          </p>
+          <p className="py-4">You can change these participants any time.</p>
           <div className="flex flex-row gap-2 justify-items-stretch">
             <div>
               <h4 className="underline">Assistants</h4>
@@ -141,23 +161,25 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
             </div>
           </div>
           <div className="modal-action">
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => ref.current?.close()}
-            >
-              Cancel
-            </button>
+            <form method="dialog">
+              <button type="submit" className="btn btn-sm">
+                Cancel
+              </button>
+            </form>
             <button
               type="submit"
               className="btn btn-primary btn-sm"
               disabled={isPending || !assistants}
+              onClick={handleCreateConversation}
             >
               Create
             </button>
           </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button type="submit">close</button>
         </form>
-      </div>
-    </dialog>
+      </dialog>
+    </>
   )
 }

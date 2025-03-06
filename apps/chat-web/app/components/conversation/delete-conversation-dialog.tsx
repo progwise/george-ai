@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { RefObject } from 'react'
+import { useRef } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { deleteConversation } from '../../server-functions/conversations'
@@ -17,7 +17,6 @@ const ConversationDelete_ConversationFragment = graphql(`
 
 interface DeleteConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
-  ref: RefObject<HTMLDialogElement | null>
 }
 
 export const DeleteConversationDialog = (
@@ -27,7 +26,6 @@ export const DeleteConversationDialog = (
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const { ref } = props
   const conversation = useFragment(
     ConversationDelete_ConversationFragment,
     props.conversation,
@@ -41,55 +39,70 @@ export const DeleteConversationDialog = (
       await queryClient.invalidateQueries({
         queryKey: ['conversations', auth.user?.id],
       })
-      ref.current?.close()
       navigate({ to: '..' })
     },
   })
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const dialogReference = useRef<HTMLDialogElement>(null)
 
-    mutate()
+  const handleDeleteConversation = async () => {
+    try {
+      await mutate()
+    } catch {
+      /* empty */
+    }
+    dialogReference.current?.close()
   }
 
   return (
-    <dialog ref={ref} className="modal">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">
-          <span>Delete conversation</span> <br />
-          <time className="text-nowrap">
-            {new Date(conversation.createdAt).toLocaleString().replace(',', '')}
-          </time>
-          {' with '}
-          <span>
-            {conversation.assistants
-              ?.map((assistant) => assistant.name)
-              .join(',')}
-          </span>
-        </h3>
-        <p className="py-4">
-          You are about to delete this conversation. It cannot be restored.
-          Please confirm.
-        </p>
-        <form method="dialog" onSubmit={handleSubmit}>
+    <>
+      <button
+        type="button"
+        className="btn btn-sm btn-error"
+        onClick={() => dialogReference.current?.showModal()}
+      >
+        Delete conversation
+      </button>
+      <dialog ref={dialogReference} className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">
+            <span>Delete conversation</span> <br />
+            <time className="text-nowrap">
+              {new Date(conversation.createdAt)
+                .toLocaleString()
+                .replace(',', '')}
+            </time>
+            {' with '}
+            <span>
+              {conversation.assistants
+                ?.map((assistant) => assistant.name)
+                .join(',')}
+            </span>
+          </h3>
+          <p className="py-4">
+            You are about to delete this conversation. It cannot be restored.
+            Please confirm.
+          </p>
           <div className="modal-action">
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => ref.current?.close()}
-            >
-              Cancel
-            </button>
+            <form method="dialog">
+              <button type="submit" className="btn btn-sm">
+                Cancel
+              </button>
+            </form>
             <button
               type="submit"
               className="btn btn-error btn-sm"
               disabled={isPending}
+              onClick={handleDeleteConversation}
             >
               Delete
             </button>
           </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button type="submit">cancel</button>
         </form>
-      </div>
-    </dialog>
+      </dialog>
+    </>
   )
 }
