@@ -18,24 +18,29 @@ interface ConversationSelectorProps {
     | FragmentType<typeof ConversationSelector_ConversationsFragment>[]
     | null
   selectedConversationId?: string
-  onConversationClick: (conversationId: string) => void
+  onClick?: () => void
 }
 
-export const ConversationSelector = (props: ConversationSelectorProps) => {
-  const { selectedConversationId, onConversationClick } = props
+export const ConversationSelector = ({
+  conversations: conversationsFragment,
+  selectedConversationId,
+  onClick,
+}: ConversationSelectorProps) => {
   const conversations = useFragment(
     ConversationSelector_ConversationsFragment,
-    props.conversations,
+    conversationsFragment,
   )
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<
     Record<string, typeof conversations>
-  >((acc, conversation) => {
+  >((accumulator, conversation) => {
     const date = new Date(conversation.createdAt).toISOString().split('T')[0]
-    if (!acc[date]) acc[date] = []
-    acc[date].push(conversation)
-    return acc
+    if (!accumulator[date]) {
+      accumulator[date] = []
+    }
+    accumulator[date].push(conversation)
+    return accumulator
   }, {})
 
   return (
@@ -54,7 +59,7 @@ export const ConversationSelector = (props: ConversationSelectorProps) => {
                         ? 'link-primary'
                         : 'link-neutral',
                     )}
-                    onClick={() => onConversationClick(conversation.id)}
+                    onClick={onClick}
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >

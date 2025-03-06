@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { useAuth } from '../../auth/auth-hook'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationForm } from '../../components/conversation/conversation-form'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
@@ -94,18 +94,13 @@ function RouteComponent() {
   const auth = useAuth()
   const userId = auth.user?.id
   const navigate = useNavigate()
-
   const { _splat } = useParams({ strict: false })
-
   const selectedConversationId = _splat as string
-
   const newDialogRef = useRef<HTMLDialogElement>(null)
-
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
-
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   const menuRef = useRef<HTMLDivElement>(null)
+  const drawerCheckboxReference = useRef<HTMLInputElement>(null)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -114,30 +109,9 @@ function RouteComponent() {
 
   const closeMenu = () => {
     setIsMenuOpen(false)
-    document.body.style.overflow = 'auto'
-  }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        closeMenu()
-      }
+    if (drawerCheckboxReference.current) {
+      drawerCheckboxReference.current.checked = false
     }
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMenuOpen])
-
-  const handleConversationClick = (conversationId: string) => {
-    navigate({ to: `/conversations/${conversationId}` })
-    setIsMenuOpen(false)
   }
 
   const { data: conversations, isLoading: conversationsLoading } =
@@ -250,14 +224,14 @@ function RouteComponent() {
           <div
             ref={menuRef}
             className={`absolute w-72 z-20 shadow-md border rounded-md ${
-              isMenuOpen ? 'block' : 'hidden'
+              isMenuOpen ? 'block top-10' : 'hidden'
             } lg:block lg:static`}
           >
             {conversations.aiConversations && (
               <ConversationSelector
                 conversations={conversations.aiConversations}
                 selectedConversationId={selectedConversationId}
-                onConversationClick={handleConversationClick}
+                onClick={closeMenu}
               />
             )}
           </div>
@@ -284,7 +258,6 @@ function RouteComponent() {
             <ConversationHistory
               conversation={selectedConversation.aiConversation}
             />
-
             <ConversationForm
               conversation={selectedConversation.aiConversation}
             />

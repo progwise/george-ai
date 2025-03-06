@@ -9,7 +9,7 @@ import { t } from 'i18next'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ConversationIcon } from '../icons/conversation-icon'
 import { MenuIcon } from '../icons/menu-icon'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 
 const TopNavigationLink = ({
   to,
@@ -34,28 +34,14 @@ const TopNavigation = () => {
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const drawerCheckboxReference = useRef<HTMLInputElement>(null)
 
   const closeMenu = () => {
     setIsMenuOpen(false)
+    if (drawerCheckboxReference.current) {
+      drawerCheckboxReference.current.checked = false
+    }
   }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        closeMenu()
-      }
-    }
-
-    if (isMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isMenuOpen])
 
   return (
     <nav className="navbar bg-base-200 rounded-box shadow-xl top-2 mb-6 lg:mb-14 z-50 sticky lg:top-10">
