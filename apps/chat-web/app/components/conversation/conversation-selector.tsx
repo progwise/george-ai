@@ -44,21 +44,21 @@ export const ConversationSelector = ({
     <ul className="menu w-72 rounded-lg bg-base-200">
       {groupedConversations &&
         Object.entries(groupedConversations).map(([date, conversations]) => (
-          <li key={date} className="mb-2">
-            <div className="px-3 py-1 font-semibold text-gray-600">{date}</div>
+          <li key={date}>
+            <div className="font-semibold">{date}</div>
             <ul>
               {conversations.map((conversation) => (
                 <li key={conversation.id} className="center grid grid-cols-1">
                   <Link
                     className={twMerge(
-                      'block rounded-md p-3',
+                      'mt-1 block rounded-md',
                       conversation.id === selectedConversationId ? 'link-primary' : 'link-neutral',
                     )}
                     onClick={onClick}
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >
-                    <span className="mt-1 block">
+                    <span>
                       {conversation.assistants?.map((assistant) => assistant.name).join(', ') || 'No assistant'}
                     </span>
                   </Link>
