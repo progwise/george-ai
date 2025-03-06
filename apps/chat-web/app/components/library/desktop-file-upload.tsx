@@ -1,12 +1,13 @@
-import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { createServerFn } from '@tanstack/react-start'
+import { useState } from 'react'
 import { z } from 'zod'
-import { backendRequest } from '../../server-functions/backend'
+
+import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
 import { graphql } from '../../gql'
+import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
 import { LibraryFile, LibraryFileSchema } from './files-table'
-import { createServerFn } from '@tanstack/react-start'
-import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
 
 export interface DesktopFilesProps {
   libraryId: string
@@ -60,38 +61,31 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
     return await Promise.all(processFiles)
   })
 
-export const DesktopFileUpload = ({
-  libraryId,
-  onUploadComplete,
-}: DesktopFilesProps) => {
+export const DesktopFileUpload = ({ libraryId, onUploadComplete }: DesktopFilesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
-  const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } =
-    useMutation({
-      mutationFn: (data: { libraryId: string; selectedFiles: LibraryFile[] }) =>
-        prepareDesktopFiles({ data }),
-      onSettled: async (data, error) => {
-        if (error) {
-          console.error('Error preparing files:', error)
-          return
-        }
-        const files = Array.from(selectedFiles!)
-        data?.forEach(async (file) => {
-          const blob = files.find((f) => f.name === file.fileName)
-          await fetch(file.uploadUrl, {
-            method: file.method,
-            headers: file.headers,
-            body: blob,
-          })
+  const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } = useMutation({
+    mutationFn: (data: { libraryId: string; selectedFiles: LibraryFile[] }) => prepareDesktopFiles({ data }),
+    onSettled: async (data, error) => {
+      if (error) {
+        console.error('Error preparing files:', error)
+        return
+      }
+      const files = Array.from(selectedFiles!)
+      data?.forEach(async (file) => {
+        const blob = files.find((f) => f.name === file.fileName)
+        await fetch(file.uploadUrl, {
+          method: file.method,
+          headers: file.headers,
+          body: blob,
         })
-        if (onUploadComplete) {
-          onUploadComplete()
-        }
-      },
-    })
+      })
+      if (onUploadComplete) {
+        onUploadComplete()
+      }
+    },
+  })
 
-  const handleUploadFiles = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleUploadFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (files) {
       setSelectedFiles(files)
@@ -109,21 +103,11 @@ export const DesktopFileUpload = ({
   return (
     <>
       <LoadingSpinner isLoading={prepareFilesIsPending} />
-      <nav className="flex gap-4 justify-between items-center">
-        <button
-          type="button"
-          className="btn btn-xs"
-          onClick={() => document.getElementById('fileInput')?.click()}
-        >
+      <nav className="flex items-center justify-between gap-4">
+        <button type="button" className="btn btn-xs" onClick={() => document.getElementById('fileInput')?.click()}>
           Upload
         </button>
-        <input
-          type="file"
-          multiple
-          id="fileInput"
-          onChange={handleUploadFiles}
-          style={{ display: 'none' }}
-        />
+        <input type="file" multiple id="fileInput" onChange={handleUploadFiles} style={{ display: 'none' }} />
       </nav>
     </>
   )

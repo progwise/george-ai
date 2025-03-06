@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { convertMdToHtml } from './conversation/markdown-converter'
 import { twMerge } from 'tailwind-merge'
+
+import { convertMdToHtml } from './conversation/markdown-converter'
 
 export const FormattedMarkdown = ({
   id,
@@ -20,13 +21,6 @@ export const FormattedMarkdown = ({
   }, [ref, markdown])
 
   return (
-    <div
-      ref={ref}
-      id={id}
-      className={twMerge(
-        'prose marker:text-base-100 [&_*]:text-base-content',
-        className,
-      )}
-    ></div>
+    <div ref={ref} id={id} className={twMerge('prose marker:text-base-100 [&_*]:text-base-content', className)}></div>
   )
 }

@@ -1,8 +1,8 @@
-import { unified } from 'unified'
+import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
-import rehypeStringify from 'rehype-stringify'
 import remarkRehype from 'remark-rehype'
+import { unified } from 'unified'
 
 export const convertMdToHtml = (markdown: string) => {
   const html = unified()

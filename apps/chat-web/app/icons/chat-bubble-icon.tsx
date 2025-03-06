@@ -1,19 +1,11 @@
 import { twMerge } from 'tailwind-merge'
+
 import { IconProps } from './icon-props'
 
 const ChatBubbleIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-6', className)}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="size-6"
-        width="100"
-        height="100"
-      >
+    <div className={twMerge('size-4', className)}>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"

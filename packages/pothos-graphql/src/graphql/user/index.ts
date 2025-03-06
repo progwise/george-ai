@@ -67,11 +67,8 @@ builder.mutationField('login', (t) =>
       jwtToken: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { jwtToken }) => {
-      const parsedToken = JSON.parse(
-        Buffer.from(jwtToken.split('.')[1], 'base64').toString(),
-      )
-      const { preferred_username, name, given_name, family_name, email } =
-        parsedToken
+      const parsedToken = JSON.parse(Buffer.from(jwtToken.split('.')[1], 'base64').toString())
+      const { preferred_username, name, given_name, family_name, email } = parsedToken
       const user = await prisma.user.upsert({
         ...query,
         where: { username: preferred_username },

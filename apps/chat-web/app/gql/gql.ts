@@ -62,7 +62,7 @@ const documents: Documents = {
     types.DeleteAiAssistantDocument,
   '\n  query assistantLibraries($assistantId: String!, $ownerId: String!) {\n    aiLibraryUsage(assistantId: $assistantId) {\n      id\n      libraryId\n    }\n    aiLibraries(ownerId: $ownerId) {\n      id\n      name\n    }\n  }\n':
     types.AssistantLibrariesDocument,
-  '\n  mutation updateLibraryUsage(\n    $assistantId: String!\n    $libraryId: String!\n    $use: Boolean!\n  ) {\n    updateLibraryUsage(\n      data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }\n    ) {\n      usageId\n      deletedCount\n    }\n  }\n':
+  '\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n':
     types.UpdateLibraryUsageDocument,
   '\n  fragment ConversationForm_conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationForm_ConversationFragmentDoc,
@@ -72,7 +72,7 @@ const documents: Documents = {
     types.ConversationParticipants_ConversationFragmentDoc,
   '\n  fragment ConversationParticipants_HumanParticipationCandidates on User {\n    id\n    name\n    username\n  }\n':
     types.ConversationParticipants_HumanParticipationCandidatesFragmentDoc,
-  '\n    fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {\n      id\n      name\n    }\n  ':
+  '\n  fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {\n    id\n    name\n  }\n':
     types.ConversationParticipants_AssistantParticipationCandidatesFragmentDoc,
   '\n  fragment ConversationSelector_conversations on AiConversation {\n    id\n    createdAt\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationSelector_ConversationsFragmentDoc,
@@ -127,7 +127,7 @@ const documents: Documents = {
     types.CreateConversationDocument,
   '\n  mutation deleteConversation($conversationId: String!) {\n    deleteAiConversation(conversationId: $conversationId) {\n      id\n    }\n  }\n':
     types.DeleteConversationDocument,
-  '\n  mutation addParticipant(\n    $conversationId: String!\n    $userIds: [String!]\n    $assistantIds: [String!]\n  ) {\n    addConversationParticipants(\n      conversationId: $conversationId\n      userIds: $userIds\n      assistantIds: $assistantIds\n    ) {\n      id\n    }\n  }\n':
+  '\n  mutation addParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {\n    addConversationParticipants(conversationId: $conversationId, userIds: $userIds, assistantIds: $assistantIds) {\n      id\n    }\n  }\n':
     types.AddParticipantDocument,
   '\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n':
     types.RemoveParticipantDocument,
@@ -171,8 +171,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation updateLibraryUsage(\n    $assistantId: String!\n    $libraryId: String!\n    $use: Boolean!\n  ) {\n    updateLibraryUsage(\n      data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }\n    ) {\n      usageId\n      deletedCount\n    }\n  }\n',
-): (typeof documents)['\n  mutation updateLibraryUsage(\n    $assistantId: String!\n    $libraryId: String!\n    $use: Boolean!\n  ) {\n    updateLibraryUsage(\n      data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }\n    ) {\n      usageId\n      deletedCount\n    }\n  }\n']
+  source: '\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n',
+): (typeof documents)['\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -201,8 +201,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n    fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {\n      id\n      name\n    }\n  ',
-): (typeof documents)['\n    fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {\n      id\n      name\n    }\n  ']
+  source: '\n  fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {\n    id\n    name\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -369,8 +369,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation addParticipant(\n    $conversationId: String!\n    $userIds: [String!]\n    $assistantIds: [String!]\n  ) {\n    addConversationParticipants(\n      conversationId: $conversationId\n      userIds: $userIds\n      assistantIds: $assistantIds\n    ) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation addParticipant(\n    $conversationId: String!\n    $userIds: [String!]\n    $assistantIds: [String!]\n  ) {\n    addConversationParticipants(\n      conversationId: $conversationId\n      userIds: $userIds\n      assistantIds: $assistantIds\n    ) {\n      id\n    }\n  }\n']
+  source: '\n  mutation addParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {\n    addConversationParticipants(conversationId: $conversationId, userIds: $userIds, assistantIds: $assistantIds) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation addParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {\n    addConversationParticipants(conversationId: $conversationId, userIds: $userIds, assistantIds: $assistantIds) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

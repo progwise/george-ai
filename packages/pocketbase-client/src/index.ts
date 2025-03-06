@@ -1,7 +1,6 @@
 import PocketBase from 'pocketbase'
 
-const POCKETBASE_URL =
-  process.env.POCKETBASE_URL || 'http://gai-pocketbase:8090'
+const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://gai-pocketbase:8090'
 
 const POCKETBASE_TOKEN = process.env.POCKETBASE_TOKEN || ''
 
@@ -41,11 +40,7 @@ export const getUnprocessedDocuments = async () => {
   return returnValue
 }
 
-export const setDocumentProcessed = async ({
-  documentId,
-}: {
-  documentId: string
-}) => {
+export const setDocumentProcessed = async ({ documentId }: { documentId: string }) => {
   console.log('setDocumentProcessed', { documentId })
   const documentsCollection = pb.collection('documents')
   await documentsCollection.update(documentId, {

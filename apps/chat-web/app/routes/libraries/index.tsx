@@ -1,11 +1,12 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { graphql } from '../../gql'
+import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { backendRequest } from '../../server-functions/backend'
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
-import { queryKeys } from '../../query-keys'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { graphql } from '../../gql'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const librariesDocument = graphql(/* GraphQL */ `
   query aiLibraries($ownerId: String!) {
@@ -47,9 +48,7 @@ const librariesQueryOptions = (ownerId?: string) =>
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
     return {
       ownerId: currentUser?.id,
     }
@@ -61,21 +60,15 @@ export const Route = createFileRoute('/libraries/')({
 
 function RouteComponent() {
   const auth = useAuth()
-  const { data, isLoading } = useSuspenseQuery(
-    librariesQueryOptions(auth.user?.id),
-  )
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
   const isLoggedIn = !!auth?.user
 
   return (
     <article className="flex w-full flex-col gap-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
           {!isLoggedIn ? (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => auth?.login()}
-            >
+            <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
               Log in to see your Libraries
             </button>
           ) : (
@@ -84,17 +77,13 @@ function RouteComponent() {
         </h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
         {isLoggedIn && (
-          <Link
-            type="button"
-            className="btn btn-primary btn-sm"
-            to="/libraries/new"
-          >
+          <Link type="button" className="btn btn-primary btn-sm" to="/libraries/new">
             Add new
           </Link>
         )}
       </div>
 
-      <div className="flex gap-4 flex-wrap">
+      <div className="flex flex-wrap gap-4">
         <table className="table">
           <thead>
             <tr>

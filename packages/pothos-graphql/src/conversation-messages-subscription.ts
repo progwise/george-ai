@@ -16,10 +16,7 @@ interface Subscription {
 
 const subscriptions = new Map<string, Subscription[]>()
 
-export const subscribeConversationMessagesUpdate = (
-  conversationId: string,
-  callback: callback,
-) => {
+export const subscribeConversationMessagesUpdate = (conversationId: string, callback: callback) => {
   let subscriptionId = Math.random().toString(36)
   while (subscriptions.has(subscriptionId)) {
     subscriptionId = Math.random().toString(36)
@@ -62,8 +59,5 @@ export const unsubscribeConversationMessagesUpdates = ({
   subscriptionId: string
 }) => {
   const subscribers = subscriptions.get(conversationId)
-  subscriptions.set(
-    conversationId,
-    subscribers?.filter((s) => s.subscriptionId !== subscriptionId) || [],
-  )
+  subscriptions.set(conversationId, subscribers?.filter((s) => s.subscriptionId !== subscriptionId) || [])
 }

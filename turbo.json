@@ -3,13 +3,13 @@
   "globalEnv": ["TAVILY_API_KEY", "OPENAI_API_KEY"],
   "tasks": {
     "build": {
-      "dependsOn": ["typecheck"]
+      "dependsOn": []
     },
     "deploy": {
-      "dependsOn": ["build"]
+      "dependsOn": []
     },
     "test": {
-      "dependsOn": ["build"]
+      "dependsOn": []
     },
     "lint": {
       "dependsOn": []
