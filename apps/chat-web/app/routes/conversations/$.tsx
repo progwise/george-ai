@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -13,7 +13,8 @@ import { DeleteConversationDialog } from '../../components/conversation/delete-c
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
-import { CircleCrossIcon } from '../../icons/circle-cross-icon'
+import { MenuIcon } from '../../icons/menu-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -94,14 +95,25 @@ function RouteComponent() {
   const auth = useAuth()
   const userId = auth.user?.id
   const navigate = useNavigate()
-
   const { _splat } = useParams({ strict: false })
-
   const selectedConversationId = _splat as string
-
   const newDialogRef = useRef<HTMLDialogElement>(null)
-
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const drawerCheckboxReference = useRef<HTMLInputElement>(null)
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden'
+  }
+
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+    if (drawerCheckboxReference.current) {
+      drawerCheckboxReference.current.checked = false
+    }
+  }
 
   const { data: conversations, isLoading: conversationsLoading } =
     useSuspenseQuery({
@@ -173,7 +185,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col lg:flex-row gap-4">
       <NewConversationDialog
         ref={newDialogRef}
         humans={assignableUsers.myConversationUsers}
@@ -188,32 +200,48 @@ function RouteComponent() {
       )}
 
       {userId && (
-        <nav>
-          <div className="flex justify-between items-center p-4">
-            <>
-              {' '}
-              <h3>Recent</h3>
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={handleNewConversation}
-              >
-                New
-              </button>
-            </>
+        <div className="relative flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <button
+              type="button"
+              className="btn btn-sm lg:hidden"
+              onClick={toggleMenu}
+            >
+              <MenuIcon className="size-6" />
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={handleNewConversation}
+            >
+              New
+            </button>
           </div>
-          {conversations.aiConversations && (
-            <ConversationSelector
-              conversations={conversations.aiConversations}
-              selectedConversationId={selectedConversationId}
-            />
+
+          {isMenuOpen && (
+            <div className="fixed inset-0 z-10 lg:hidden" onClick={closeMenu} />
           )}
-        </nav>
+
+          <div
+            ref={menuRef}
+            className={`absolute w-72 z-20 shadow-md border rounded-md ${
+              isMenuOpen ? 'block top-10' : 'hidden'
+            } lg:block lg:static`}
+          >
+            {conversations.aiConversations && (
+              <ConversationSelector
+                conversations={conversations.aiConversations}
+                selectedConversationId={selectedConversationId}
+                onClick={closeMenu}
+              />
+            )}
+          </div>
+        </div>
       )}
       <article className="flex flex-col gap-4 w-full">
         {selectedConversation?.aiConversation && (
           <>
-            <div className="flex justify-between items-center border-b-2">
+            <div className="flex justify-between items-center">
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
                 assistantCandidates={assignableAssistants.aiAssistants}
@@ -221,16 +249,16 @@ function RouteComponent() {
               />
               <button
                 type="button"
-                className="btn btn-cicle btn-sm btn-ghost text-red-500"
+                className="btn btn-circle btn-sm btn-ghost lg:tooltip"
                 onClick={handleDeleteConversation}
+                data-tip="Delete Conversation"
               >
-                <CircleCrossIcon /> Conversation
+                <TrashIcon className="size-6" />
               </button>
             </div>
             <ConversationHistory
               conversation={selectedConversation.aiConversation}
             />
-
             <ConversationForm
               conversation={selectedConversation.aiConversation}
             />

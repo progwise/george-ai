@@ -21,8 +21,8 @@ const Alert = ({ message, type, className, children }: AlertProps) => {
         className,
       )}
     >
-      {type === 'warning' && <WarnIcon className="h-5" />}
-      {type === 'error' && <ErrorIcon className="h-5" />}
+      {type === 'warning' && <WarnIcon className="size-6" />}
+      {type === 'error' && <ErrorIcon className="size-6" />}
       <span>{message}</span>
       {children}
     </div>

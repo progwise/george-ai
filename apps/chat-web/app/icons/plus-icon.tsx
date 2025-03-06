@@ -4,15 +4,8 @@ import { IconProps } from './icon-props'
 
 export const PlusIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-4', className)}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        className="inline-block h-4 w-4 stroke-current"
-      >
+    <div className={twMerge('size-4', className)}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
         <path
           d="M13 6V20"
           stroke="currentcolor"

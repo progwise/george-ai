@@ -4,7 +4,7 @@ import { IconProps } from './icon-props'
 
 export const ConversationIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-6', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
         <g data-name="Layer 25" id="Layer_25">
           <path

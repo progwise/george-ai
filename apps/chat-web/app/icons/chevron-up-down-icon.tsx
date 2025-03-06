@@ -4,9 +4,8 @@ import { IconProps } from './icon-props'
 
 export const ChevronUpDownIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-4', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
-        className="col-start-1 row-start-1 size-5 self-center justify-self-end text-gray-500 sm:size-4"
         viewBox="0 0 16 16"
         fill="currentColor"
         aria-hidden="true"

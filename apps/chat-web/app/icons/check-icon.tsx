@@ -4,7 +4,7 @@ import { IconProps } from './icon-props'
 
 export const CheckIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('icon size-4', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
         className="size-5"
         viewBox="0 0 20 20"
