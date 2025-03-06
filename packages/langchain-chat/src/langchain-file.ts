@@ -1,7 +1,8 @@
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
-import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
-import { TextLoader } from 'langchain/document_loaders/fs/text'
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv'
+import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
+import { TextLoader } from 'langchain/document_loaders/fs/text'
+
 import { getFileExtension } from './common'
 
 export const loadFile = async (file: {

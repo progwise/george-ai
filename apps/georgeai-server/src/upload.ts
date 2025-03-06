@@ -1,10 +1,11 @@
+import { Request, Response } from 'express'
+import * as fs from 'fs'
+
 import {
   checkFileUpload,
   completeFileUpload,
   getFilePath,
 } from '@george-ai/pothos-graphql'
-import { Request, Response } from 'express'
-import * as fs from 'fs'
 
 export const dataUploadMiddleware = async (
   httpRequest: Request,

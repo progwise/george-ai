@@ -1,6 +1,7 @@
-import { twMerge } from 'tailwind-merge'
-import { FormattedMarkdown } from '../formatted-markdown'
 import { Link } from '@tanstack/react-router'
+import { twMerge } from 'tailwind-merge'
+
+import { FormattedMarkdown } from '../formatted-markdown'
 
 interface ConversationMessageProps {
   isLoading: boolean

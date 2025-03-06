@@ -1,24 +1,23 @@
-import { ChatOpenAI } from '@langchain/openai'
 import {
-  RunnableSequence,
   RunnableLambda,
+  RunnableSequence,
   RunnableWithMessageHistory,
 } from '@langchain/core/runnables'
+import { ChatOpenAI } from '@langchain/openai'
+import * as z from 'zod'
 
+import { getMessageHistory } from './message-history'
 import {
-  localPrompt,
-  webPrompt,
+  apologyPromptLocalAndWeb,
   apologyPromptOnlyLocal,
   apologyPromptOnlyWeb,
-  apologyPromptLocalAndWeb,
+  localPrompt,
   searchQueryPrompt,
+  webPrompt,
 } from './prompts'
-import { getMessageHistory } from './message-history'
 // import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
-
-import * as z from 'zod'
 
 const outputSchema = z.object({
   answer: z

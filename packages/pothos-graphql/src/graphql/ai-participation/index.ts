@@ -1,5 +1,5 @@
-import { builder } from '../builder'
 import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 console.log('Setting up: AiParticipation')
 

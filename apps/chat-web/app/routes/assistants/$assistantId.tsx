@@ -1,22 +1,23 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import {
-  createFileRoute,
   Link,
-  useParams,
+  createFileRoute,
   useNavigate,
+  useParams,
 } from '@tanstack/react-router'
-import { graphql } from '../../gql/gql'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { AssistantForm } from '../../components/assistant/assistant-form'
-import { AiAssistantInputSchema } from '../../gql/validation'
-import { backendRequest } from '../../server-functions/backend'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
-import { AssistantSelector } from '../../components/assistant/assistant-selector'
-import { queryKeys } from '../../query-keys'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
-import { useMutation } from '@tanstack/react-query'
+import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql/gql'
+import { AiAssistantInputSchema } from '../../gql/validation'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const aiAssistantEditQueryDocument = graphql(`
   query aiAssistantEdit($id: String!, $ownerId: String!) {

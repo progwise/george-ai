@@ -1,4 +1,5 @@
 import { twMerge } from 'tailwind-merge'
+
 import { IconProps } from './icon-props'
 
 export const ChevronUpDownIcon = ({ className }: IconProps) => {

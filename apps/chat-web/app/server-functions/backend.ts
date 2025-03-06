@@ -1,8 +1,9 @@
-import request, { RequestDocument, Variables } from 'graphql-request'
-import { BACKEND_PUBLIC_URL, BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
-import { createServerFn } from '@tanstack/react-start'
-import { graphql } from '../gql'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
+import { createServerFn } from '@tanstack/react-start'
+import request, { RequestDocument, Variables } from 'graphql-request'
+
+import { BACKEND_PUBLIC_URL, BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
+import { graphql } from '../gql'
 
 async function backendRequest<T, V extends Variables = Variables>(
   document: RequestDocument | TypedDocumentNode<T, V>,

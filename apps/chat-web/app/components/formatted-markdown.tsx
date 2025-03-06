@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { convertMdToHtml } from './conversation/markdown-converter'
 import { twMerge } from 'tailwind-merge'
+
+import { convertMdToHtml } from './conversation/markdown-converter'
 
 export const FormattedMarkdown = ({
   id,

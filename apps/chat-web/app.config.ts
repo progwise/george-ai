@@ -1,5 +1,6 @@
 import { defineConfig } from '@tanstack/react-start/config'
 import tsConfigPaths from 'vite-tsconfig-paths'
+
 import './app/i18n'
 
 export default defineConfig({
@@ -11,8 +12,8 @@ export default defineConfig({
     esbuild: {
       options: {
         target: 'es2022',
-      }
-    }
+      },
+    },
   },
   vite: {
     plugins: [

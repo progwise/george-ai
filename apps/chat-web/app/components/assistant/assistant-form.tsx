@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { AiAssistant } from '../../gql/graphql'
 
 export interface AssistantEditFormProps {

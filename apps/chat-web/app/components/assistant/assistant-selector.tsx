@@ -1,7 +1,8 @@
 import { useNavigate } from '@tanstack/react-router'
+import { useState } from 'react'
+
 import { AiAssistant } from '../../gql/graphql'
 import { Listbox } from '../listbox'
-import { useState } from 'react'
 
 interface AssistantSelectorProps {
   assistants: Pick<AiAssistant, 'id' | 'name'>[]

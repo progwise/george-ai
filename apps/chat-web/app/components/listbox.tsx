@@ -1,12 +1,13 @@
-import { useState } from 'react'
 import {
   Listbox as HuListbox,
   ListboxButton,
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/react'
-import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon'
+import { useState } from 'react'
+
 import { CheckIcon } from '../icons/check-icon'
+import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon'
 
 interface ListboxProps<T> {
   items: T[]

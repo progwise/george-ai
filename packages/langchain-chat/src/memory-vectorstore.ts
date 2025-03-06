@@ -1,10 +1,9 @@
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
+import { OpenAIEmbeddings } from '@langchain/openai'
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-import { MemoryVectorStore } from 'langchain/vectorstores/memory'
-import { OpenAIEmbeddings } from '@langchain/openai'
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)

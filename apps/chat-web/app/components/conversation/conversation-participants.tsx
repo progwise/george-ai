@@ -1,16 +1,17 @@
-import { twMerge } from 'tailwind-merge'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+import { useAuth } from '../../auth/auth-hook'
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { CrossIcon } from '../../icons/cross-icon'
+import { PlusIcon } from '../../icons/plus-icon'
+import { queryKeys } from '../../query-keys'
 import {
   addConversationParticipants,
   removeConversationParticipant,
 } from '../../server-functions/participations'
 import { LoadingSpinner } from '../loading-spinner'
-import { useRef } from 'react'
-import { PlusIcon } from '../../icons/plus-icon'
-import { CrossIcon } from '../../icons/cross-icon'
-import { FragmentType, graphql, useFragment } from '../../gql'
-import { queryKeys } from '../../query-keys'
-import { useAuth } from '../../auth/auth-hook'
 
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_conversation on AiConversation {

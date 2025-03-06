@@ -1,4 +1,10 @@
 {
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "printWidth": 80,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": ["^@george-ai/(.*)$", "^[./]", "^../", "^@/(.*)$"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderSideEffects": false
 }

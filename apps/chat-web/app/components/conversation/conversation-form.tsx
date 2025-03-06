@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { sendMessage } from '../../server-functions/conversations'
-import { FragmentType, graphql, useFragment } from '../../gql'
+
 import { useAuth } from '../../auth/auth-hook'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { queryKeys } from '../../query-keys'
+import { sendMessage } from '../../server-functions/conversations'
 
 const ConversationForm_ConversationFragment = graphql(`
   fragment ConversationForm_conversation on AiConversation {

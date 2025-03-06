@@ -1,17 +1,19 @@
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import {
   Typesense,
   TypesenseConfig,
 } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
+import { ImportError } from 'typesense/lib/Typesense/Errors'
+
 import {
   getUnprocessedDocuments,
   setDocumentProcessed,
 } from '@george-ai/pocketbase-client'
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
-import { ImportError } from 'typesense/lib/Typesense/Errors'
+
 import { loadFile } from './langchain-file'
 
 const CHUNK_SIZE = 1000 // Increased for better context

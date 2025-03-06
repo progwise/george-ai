@@ -1,11 +1,11 @@
-import React, { useRef } from 'react'
-import { AiAssistant } from '../../gql/graphql'
+import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import React, { useRef } from 'react'
+import { z } from 'zod'
 
 import { graphql } from '../../gql'
-import { z } from 'zod'
-import { useQueryClient } from '@tanstack/react-query'
+import { AiAssistant } from '../../gql/graphql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 

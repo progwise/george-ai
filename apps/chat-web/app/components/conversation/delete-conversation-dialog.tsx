@@ -1,9 +1,10 @@
-import { RefObject } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteConversation } from '../../server-functions/conversations'
-import { useAuth } from '../../auth/auth-hook'
 import { useNavigate } from '@tanstack/react-router'
+import { RefObject } from 'react'
+
+import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
   fragment ConversationDelete_conversation on AiConversation {

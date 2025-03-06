@@ -1,9 +1,10 @@
-import { ChatOpenAI } from '@langchain/openai'
 import { AIMessage, HumanMessage, trimMessages } from '@langchain/core/messages'
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from '@langchain/core/prompts'
+import { ChatOpenAI } from '@langchain/openai'
+
 import { getPDFContentForQuestionAndLibraries } from './typesense-vectorstore'
 
 const model = new ChatOpenAI({

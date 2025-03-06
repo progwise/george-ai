@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+
+import { KEYCLOAK_CLIENT_ID, KEYCLOAK_REALM, KEYCLOAK_URL } from '../constants'
 import { graphql } from '../gql'
 import { backendRequest } from '../server-functions/backend'
-import { KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID } from '../constants'
 
 export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(
   () => {

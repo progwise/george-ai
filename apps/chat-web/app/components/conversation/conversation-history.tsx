@@ -1,10 +1,11 @@
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { queryKeys } from '../../query-keys'
 import { getBackendPublicUrl } from '../../server-functions/backend'
 import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
-import { useQuery } from '@tanstack/react-query'
-import { queryKeys } from '../../query-keys'
 
 const ConversationHistory_ConversationFragment = graphql(`
   fragment ConversationHistory_conversation on AiConversation {

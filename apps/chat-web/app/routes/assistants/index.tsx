@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { AssistantCard } from '../../components/assistant/assistant-card'
-import { queryKeys } from '../../query-keys'
+import { Link, createFileRoute } from '@tanstack/react-router'
+
 import { useAuth } from '../../auth/auth-hook'
+import { AssistantCard } from '../../components/assistant/assistant-card'
 import { LoadingSpinner } from '../../components/loading-spinner'
+import { queryKeys } from '../../query-keys'
 import { getMyAiAssistants } from '../../server-functions/assistants'
 
 export const Route = createFileRoute('/assistants/')({

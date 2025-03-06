@@ -1,13 +1,15 @@
-import { JSX } from 'react'
 import { Link } from '@tanstack/react-router'
+import { t } from 'i18next'
+import { JSX } from 'react'
+
+import { useAuth } from '../auth/auth-hook'
+import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import ChatBubbleIcon from '../icons/chat-bubble-icon'
-import UserIcon from '../icons/user-icon'
-import AcademicCapIcon from '../icons/academic-cap-icon'
-import { useAuth } from '../auth/auth-hook'
-import { t } from 'i18next'
-import { FileRoutesByTo } from '../routeTree.gen'
 import { ConversationIcon } from '../icons/conversation-icon'
+import UserIcon from '../icons/user-icon'
+import { FileRoutesByTo } from '../routeTree.gen'
+
 const TopNavigationLink = ({
   to,
   children,

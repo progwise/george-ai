@@ -1,24 +1,25 @@
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import {
-  createFileRoute,
   Link,
+  createFileRoute,
   useLocation,
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { CurrentUser, useAuth } from '../../auth/auth-hook'
-import { LibraryForm } from '../../components/library/library-form'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { AiLibraryInputSchema } from '../../gql/validation'
-import { backendRequest } from '../../server-functions/backend'
-import { graphql } from '../../gql'
-import { LibrarySelector } from '../../components/library/library-selector'
-import { queryKeys } from '../../query-keys'
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { GoogleDriveFiles } from '../../components/library/google-drive-files'
+
+import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
+import { GoogleDriveFiles } from '../../components/library/google-drive-files'
+import { LibraryForm } from '../../components/library/library-form'
 import { LibraryQuery } from '../../components/library/library-query'
+import { LibrarySelector } from '../../components/library/library-selector'
+import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql'
+import { AiLibraryInputSchema } from '../../gql/validation'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const aiLibraryEditQueryDocument = graphql(`
   query aiLibraryEdit($id: String!, $ownerId: String!) {

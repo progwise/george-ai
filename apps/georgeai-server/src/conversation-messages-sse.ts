@@ -1,8 +1,9 @@
+import { Request, Response } from 'express'
+
 import {
   subscribeConversationMessagesUpdate,
   unsubscribeConversationMessagesUpdates,
 } from '@george-ai/pothos-graphql/src/conversation-messages-subscription'
-import { Request, Response } from 'express'
 
 const eventIds = new Map<string, number>()
 

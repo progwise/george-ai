@@ -1,4 +1,5 @@
-import { ask, RetrievalFlow } from '@george-ai/langchain-chat'
+import { RetrievalFlow, ask } from '@george-ai/langchain-chat'
+
 import i18n from '../i18n'
 
 export interface LangchainChatMessage {

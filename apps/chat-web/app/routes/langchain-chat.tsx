@@ -1,15 +1,17 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { t } from 'i18next'
+import { useEffect, useState } from 'react'
+
+import { RetrievalFlow } from '@george-ai/langchain-chat'
+
+import { Dropdown } from '../components/dropdown'
+import { FormattedMarkdown } from '../components/formatted-markdown'
+import { LangchainChatForm } from '../components/langchain-chat-form'
 import {
   chatMessagesQueryOptions,
   reset,
 } from '../server-functions/langchain-chat-history'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { Dropdown } from '../components/dropdown'
-import { LangchainChatForm } from '../components/langchain-chat-form'
-import { useState, useEffect } from 'react'
-import { RetrievalFlow } from '@george-ai/langchain-chat'
-import { FormattedMarkdown } from '../components/formatted-markdown'
-import { t } from 'i18next'
 
 const ChatRoute = () => {
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)

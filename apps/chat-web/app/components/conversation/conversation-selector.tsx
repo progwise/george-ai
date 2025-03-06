@@ -1,5 +1,6 @@
-import { twMerge } from 'tailwind-merge'
 import { Link } from '@tanstack/react-router'
+import { twMerge } from 'tailwind-merge'
+
 import { FragmentType, graphql, useFragment } from '../../gql'
 
 const ConversationSelector_ConversationsFragment = graphql(`
