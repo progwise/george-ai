@@ -7,6 +7,7 @@
 
     <#if section = "header">
         ${msg("loginAccountTitle")}
+        <img src="${url.resourcesPath}/img/favicon.svg" width="96px" height="96px"/>
     <#elseif section = "form">
         <div id="kc-form">
           <div id="kc-form-wrapper">
@@ -14,7 +15,7 @@
                 <form id="kc-form-login" class="${properties.kcFormClass!}" onsubmit="login.disabled = true; return true;" action="${url.loginAction}" method="post" novalidate="novalidate">
                     <#if !usernameHidden??>
                         <#assign label>
-                            <#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("usernameOrEmail")}<#else>${msg("email")}</#if>
+                            <#if !realm.loginWithEmailAllowed>${msg("username")}<#elseif !realm.registrationEmailAsUsername>${msg("Username")}<#else>${msg("email")}</#if>
                         </#assign>
                         <@field.input name="username" label=label autofocus=true autocomplete="username" value=login.username!'' />
                     </#if>

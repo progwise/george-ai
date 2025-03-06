@@ -26,3 +26,50 @@ div.kc-logo-text {
 div.kc-logo-text span {
   display: none;
 }
+
+h1#kc-page-title {
+  display: flex;
+  justify-content: center;
+  margin: 1em;
+}
+
+div.pf-v5-c-form__group {
+  display: flex;
+  align-items: center;
+  gap: 2em;
+}
+
+span.pf-v5-c-form-control::before,
+span.pf-v5-c-form-control::after {
+  border: none;
+}
+
+input#username,
+input#password {
+  border: solid;
+  border-radius: 0.5em;
+}
+
+.pf-v5-c-button.pf-m-control,
+.show-password {
+  position: absolute;
+  right: 0.5em;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.pf-v5-c-button::after {
+  border: none;
+}
+
+div.pf-v5-c-form__actions {
+  width: 100%;
+}
+
+.pf-v5-c-login__container {
+  display: flex;
+}
+
+.pf-v5-c-login__main {
+  box-shadow: none;
+}
