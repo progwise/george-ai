@@ -44,6 +44,25 @@ model User {
   assistants                 AiAssistant[]
   libraries                  AiLibrary[]
   conversationParticipations AiConversationParticipant[]
+  registration               Registration?
+}
+
+model Registration {
+  id                String    @id @default(cuid())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  expiresAt         DateTime?
+  email             String
+  given_name        String?
+  family_name       String?
+  freeConversations Int       @default(3)
+  freeMessages      Int       @default(20)
+  freeStorage       Int       @default(1000000000)
+  business          String?
+  position          String?
+  user              User      @relation(fields: [userId], references: [id])
+  userId            String    @unique
+  confirmationDate  DateTime?
 }
 
 model AiAssistant {
