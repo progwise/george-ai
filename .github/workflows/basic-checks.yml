@@ -34,7 +34,7 @@ jobs:
           run_install: true
       - run: pnpm run format:check
 
-  basic-checks:
+  build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
