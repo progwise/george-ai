@@ -15,8 +15,10 @@ import { Route as ProfileImport } from './routes/profile'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
+import { Route as ProfileIndexImport } from './routes/profile/index'
 import { Route as LibrariesIndexImport } from './routes/libraries/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
+import { Route as ProfileConfirmImport } from './routes/profile/confirm'
 import { Route as LibrariesNewImport } from './routes/libraries/new'
 import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
 import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
@@ -50,6 +52,12 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProfileIndexRoute = ProfileIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ProfileRoute,
+} as any)
+
 const LibrariesIndexRoute = LibrariesIndexImport.update({
   id: '/libraries/',
   path: '/libraries/',
@@ -60,6 +68,12 @@ const AssistantsIndexRoute = AssistantsIndexImport.update({
   id: '/assistants/',
   path: '/assistants/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileConfirmRoute = ProfileConfirmImport.update({
+  id: '/confirm',
+  path: '/confirm',
+  getParentRoute: () => ProfileRoute,
 } as any)
 
 const LibrariesNewRoute = LibrariesNewImport.update({
@@ -172,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesNewImport
       parentRoute: typeof rootRoute
     }
+    '/profile/confirm': {
+      id: '/profile/confirm'
+      path: '/confirm'
+      fullPath: '/profile/confirm'
+      preLoaderRoute: typeof ProfileConfirmImport
+      parentRoute: typeof ProfileImport
+    }
     '/assistants/': {
       id: '/assistants/'
       path: '/assistants'
@@ -186,39 +207,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesIndexImport
       parentRoute: typeof rootRoute
     }
+    '/profile/': {
+      id: '/profile/'
+      path: '/'
+      fullPath: '/profile/'
+      preLoaderRoute: typeof ProfileIndexImport
+      parentRoute: typeof ProfileImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface ProfileRouteChildren {
+  ProfileConfirmRoute: typeof ProfileConfirmRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileConfirmRoute: ProfileConfirmRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
+  '/profile/confirm': typeof ProfileConfirmRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
-  '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
+  '/profile/confirm': typeof ProfileConfirmRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
+  '/profile': typeof ProfileIndexRoute
 }
 
 export interface FileRoutesById {
@@ -226,15 +270,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
+  '/profile/confirm': typeof ProfileConfirmRoute
   '/assistants/': typeof AssistantsIndexRoute
   '/libraries/': typeof LibrariesIndexRoute
+  '/profile/': typeof ProfileIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -250,22 +296,25 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/libraries/new'
+    | '/profile/confirm'
     | '/assistants'
     | '/libraries'
+    | '/profile/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/contact'
     | '/langchain-chat'
-    | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/libraries/new'
+    | '/profile/confirm'
     | '/assistants'
     | '/libraries'
+    | '/profile'
   id:
     | '__root__'
     | '/'
@@ -278,8 +327,10 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/libraries/new'
+    | '/profile/confirm'
     | '/assistants/'
     | '/libraries/'
+    | '/profile/'
   fileRoutesById: FileRoutesById
 }
 
@@ -287,7 +338,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   LangchainChatRoute: typeof LangchainChatRoute
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
   ConversationsSplatRoute: typeof ConversationsSplatRoute
@@ -302,7 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   LangchainChatRoute: LangchainChatRoute,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
   ConversationsSplatRoute: ConversationsSplatRoute,
@@ -347,7 +398,11 @@ export const routeTree = rootRoute
       "filePath": "langchain-chat.tsx"
     },
     "/profile": {
-      "filePath": "profile.tsx"
+      "filePath": "profile.tsx",
+      "children": [
+        "/profile/confirm",
+        "/profile/"
+      ]
     },
     "/assistants/$assistantId": {
       "filePath": "assistants/$assistantId.tsx"
@@ -367,11 +422,19 @@ export const routeTree = rootRoute
     "/libraries/new": {
       "filePath": "libraries/new.tsx"
     },
+    "/profile/confirm": {
+      "filePath": "profile/confirm.tsx",
+      "parent": "/profile"
+    },
     "/assistants/": {
       "filePath": "assistants/index.tsx"
     },
     "/libraries/": {
       "filePath": "libraries/index.tsx"
+    },
+    "/profile/": {
+      "filePath": "profile/index.tsx",
+      "parent": "/profile"
     }
   }
 }

@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "Registration" (
+CREATE TABLE "UserProfile" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -15,11 +15,11 @@ CREATE TABLE "Registration" (
     "userId" TEXT NOT NULL,
     "confirmationDate" TIMESTAMP(3),
 
-    CONSTRAINT "Registration_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "UserProfile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Registration_userId_key" ON "Registration"("userId");
+CREATE UNIQUE INDEX "UserProfile_userId_key" ON "UserProfile"("userId");
 
 -- AddForeignKey
-ALTER TABLE "Registration" ADD CONSTRAINT "Registration_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "UserProfile" ADD CONSTRAINT "UserProfile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

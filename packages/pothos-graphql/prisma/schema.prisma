@@ -44,10 +44,10 @@ model User {
   assistants                 AiAssistant[]
   libraries                  AiLibrary[]
   conversationParticipations AiConversationParticipant[]
-  registration               Registration?
+  profile                    UserProfile?
 }
 
-model Registration {
+model UserProfile {
   id                String    @id @default(cuid())
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

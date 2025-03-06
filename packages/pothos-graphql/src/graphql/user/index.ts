@@ -18,16 +18,16 @@ builder.prismaObject('User', {
     registered: t.field({
       type: 'Boolean',
       resolve: async (source) => {
-        const count = await prisma.registration.count({
+        const count = await prisma.userProfile.count({
           where: { userId: source.id },
         })
         return count > 0
       },
     }),
-    registration: t.prismaField({
-      type: 'Registration',
+    profile: t.prismaField({
+      type: 'UserProfile',
       resolve: async (query, source) => {
-        return prisma.registration.findFirst({
+        return prisma.userProfile.findFirst({
           ...query,
           where: { userId: source.id },
         })

@@ -1,10 +1,10 @@
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
-console.log('Setting up: Registration')
+console.log('Setting up: UserProfile')
 
-builder.prismaObject('Registration', {
-  name: 'Registration',
+builder.prismaObject('UserProfile', {
+  name: 'UserProfile',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
@@ -22,7 +22,7 @@ builder.prismaObject('Registration', {
   }),
 })
 
-const RegistrationInput = builder.inputType('RegistrationInput', {
+const RegistrationInput = builder.inputType('UserProfileInput', {
   fields: (t) => ({
     email: t.string({ required: true }),
     given_name: t.string({ required: false }),
@@ -34,19 +34,19 @@ const RegistrationInput = builder.inputType('RegistrationInput', {
 
 builder.mutationField('register', (t) =>
   t.prismaField({
-    type: 'Registration',
+    type: 'UserProfile',
     args: {
       userId: t.arg.string({ required: true }),
       input: t.arg({ type: RegistrationInput, required: true }),
     },
     resolve: async (query, _source, { userId, input }) => {
-      const previousRegistration = await prisma.registration.findFirst({
+      const previousRegistration = await prisma.userProfile.findFirst({
         where: { userId },
       })
       if (previousRegistration) {
         throw new Error('User already registered')
       }
-      return prisma.registration.create({
+      return prisma.userProfile.create({
         ...query,
         data: {
           ...input,
@@ -62,12 +62,12 @@ builder.mutationField('register', (t) =>
 
 builder.mutationField('confirmRegistration', (t) =>
   t.prismaField({
-    type: 'Registration',
+    type: 'UserProfile',
     args: {
       registrationId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { registrationId }) => {
-      return prisma.registration.update({
+      return prisma.userProfile.update({
         ...query,
         where: { id: registrationId },
         data: {
@@ -78,14 +78,14 @@ builder.mutationField('confirmRegistration', (t) =>
   }),
 )
 
-builder.mutationField('deleteRegistration', (t) =>
+builder.mutationField('deleteUserProfile', (t) =>
   t.prismaField({
-    type: 'Registration',
+    type: 'UserProfile',
     args: {
       userId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { userId }) => {
-      return prisma.registration.delete({
+      return prisma.userProfile.delete({
         ...query,
         where: { userId },
       })
