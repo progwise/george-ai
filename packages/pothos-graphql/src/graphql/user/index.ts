@@ -1,5 +1,5 @@
-import { builder } from '../builder'
 import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 console.log('Setting up: User')
 
@@ -15,6 +15,24 @@ builder.prismaObject('User', {
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    registered: t.field({
+      type: 'Boolean',
+      resolve: async (source) => {
+        const count = await prisma.registration.count({
+          where: { userId: source.id },
+        })
+        return count > 0
+      },
+    }),
+    registration: t.prismaField({
+      type: 'Registration',
+      resolve: async (query, source) => {
+        return prisma.registration.findFirst({
+          ...query,
+          where: { userId: source.id },
+        })
+      },
+    }),
   }),
 })
 
