@@ -16,6 +16,7 @@ const ConversationHistory_ConversationFragment = graphql(`
       content
       source
       createdAt
+      hidden
       sender {
         id
         name
@@ -55,14 +56,14 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   })
   const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
-  const messages = conversation.messages
+  const messages = conversation.messages.filter((message) => !message.hidden)
   const isAssistantLoading = false
   const selectedConversationId = conversation.id
 
   useEffect(() => {
     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
     setNewMessages([])
-  }, [messages])
+  }, [conversation.id])
 
   useEffect(() => {
     if (!selectedConversationId || !backend_url) {
@@ -71,27 +72,27 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     const evtSource = new EventSource(
       `${backend_url}/conversation-messages-sse?conversationId=${selectedConversationId}`,
     )
-    const incomingMessages: IncomingMessage[] = []
 
     evtSource.onmessage = (event) => {
       const incomingMessage = JSON.parse(event.data) as IncomingMessage
-      const index = incomingMessages.findIndex((message) => message.id === incomingMessage.id)
 
-      if (index === -1) {
-        incomingMessages.push(incomingMessage)
-        setNewMessages((prev) =>
-          [...prev, incomingMessage].sort((a, b) => {
-            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0 ? 1 : -1
-          }),
+      setNewMessages((previousMessages) => {
+        const existingMessage = previousMessages.find((message) => message.id === incomingMessage.id)
+        if (existingMessage) {
+          return previousMessages.map((message) =>
+            message.id === incomingMessage.id
+              ? { ...message, content: message.content + incomingMessage.content }
+              : message,
+          )
+        }
+        return [...previousMessages, incomingMessage].sort((a, b) =>
+          BigInt(a.sequenceNumber) > BigInt(b.sequenceNumber) ? 1 : -1,
         )
-        return
-      } else {
-        incomingMessages[index].content += incomingMessage.content
-      }
+      })
 
       const div = document.getElementById(`textarea_${incomingMessage.id}`) as HTMLDivElement
       if (div) {
-        div.innerHTML = convertMdToHtml(incomingMessages[index].content)
+        div.innerHTML = convertMdToHtml(incomingMessage.content)
       }
     }
     evtSource.onerror = (error) => {
@@ -113,6 +114,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
             content: message.content || '',
             source: message.source,
             createdAt: message.createdAt,
+            conversationId: selectedConversationId,
             sender: {
               id: message.sender.id,
               assistantId: message.sender.assistantId || undefined,
@@ -131,6 +133,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
             content: message.content,
             source: message.source,
             createdAt: message.createdAt,
+            conversationId: selectedConversationId,
             sender: {
               id: message.sender.id,
               name: message.sender.name,

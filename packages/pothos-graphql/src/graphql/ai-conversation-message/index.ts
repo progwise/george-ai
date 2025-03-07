@@ -18,8 +18,9 @@ builder.prismaObject('AiConversationMessage', {
     content: t.expose('content', { type: 'String' }),
     source: t.expose('source', { type: 'String', nullable: true }),
     senderId: t.exposeID('senderId', { nullable: false }),
-    sender: t.relation('sender', { nullable: false }),
     conversationId: t.exposeID('conversationId', { nullable: false }),
+    hidden: t.exposeBoolean('hidden', { nullable: true }),
+    sender: t.relation('sender', { nullable: false }),
     conversation: t.relation('conversation'),
   }),
 })
@@ -81,6 +82,22 @@ builder.mutationField('deleteMessage', (t) =>
     resolve: async (_query, _source, { messageId }) => {
       const message = await prisma.aiConversationMessage.delete({
         where: { id: messageId },
+      })
+      return message
+    },
+  }),
+)
+
+builder.mutationField('hideMessage', (t) =>
+  t.prismaField({
+    type: 'AiConversationMessage',
+    args: {
+      messageId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { messageId }) => {
+      const message = await prisma.aiConversationMessage.update({
+        where: { id: messageId },
+        data: { hidden: true },
       })
       return message
     },

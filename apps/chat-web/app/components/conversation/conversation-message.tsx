@@ -1,6 +1,10 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
+import { CrossIcon } from '../../icons/cross-icon'
+import { queryKeys } from '../../query-keys'
+import { hideMessage } from '../../server-functions/conversations'
 import { FormattedMarkdown } from '../formatted-markdown'
 
 interface ConversationMessageProps {
@@ -10,6 +14,7 @@ interface ConversationMessageProps {
     content: string
     source?: string | null
     createdAt: string
+    conversationId: string
     sender: {
       id: string
       assistantId?: string
@@ -20,6 +25,23 @@ interface ConversationMessageProps {
 }
 
 export const ConversationMessage = ({ isLoading, message }: ConversationMessageProps) => {
+  const queryClient = useQueryClient()
+
+  const { mutate: hideMessageMutate } = useMutation({
+    mutationFn: async (messageId: string) => {
+      await hideMessage({ data: { messageId } })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.Conversation, message.conversationId],
+      })
+    },
+  })
+
+  const handleHideMessage = () => {
+    hideMessageMutate(message.id)
+  }
+
   return (
     <div key={message.id} className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
       <div className="mb-2 flex items-center gap-3">
@@ -58,6 +80,9 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
             <span className="loading loading-dots loading-xs"></span>
           </div>
         )}
+        <button type="button" className="btn btn-xs ml-auto self-start" onClick={handleHideMessage}>
+          <CrossIcon />
+        </button>
       </div>
       <div className="border-t border-base-200 pt-3">
         <FormattedMarkdown id={`textarea_${message.id}`} markdown={message.content} />
