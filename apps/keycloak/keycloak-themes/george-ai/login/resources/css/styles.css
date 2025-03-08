@@ -36,7 +36,13 @@ h1#kc-page-title {
 div.pf-v5-c-form__group {
   display: flex;
   align-items: center;
-  gap: 2em;
+  gap: 1em;
+}
+
+span.pf-v5-c-form-control {
+  display: flex;
+  justify-content: end;
+  background: transparent;
 }
 
 span.pf-v5-c-form-control::before,
@@ -48,21 +54,34 @@ input#username,
 input#password {
   border: solid;
   border-radius: 0.5em;
+  width: 10em;
+  border-color: black;
 }
 
 .pf-v5-c-button.pf-m-control,
 .show-password {
   position: absolute;
-  right: 0.5em;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 0em;
+  top: 6%;
+  background-color: transparent;
+  color: black;
+}
+
+.pf-v5-c-form__helper-text {
+  position: absolute;
+  transform: translateY(140%);
+}
+
+.pf-v5-c-form-control__utilities {
+  position: absolute;
+  left: 10.5em;
 }
 
 .pf-v5-c-button::after {
   border: none;
 }
 
-div.pf-v5-c-form__actions {
+.pf-v5-c-form__actions {
   width: 100%;
 }
 
@@ -72,4 +91,17 @@ div.pf-v5-c-form__actions {
 
 .pf-v5-c-login__main {
   box-shadow: none;
+  background: white;
+}
+
+.pf-v5-c-input-group__item {
+  border: none;
+}
+
+.pf-v5-c-login__main {
+  color: black;
+}
+
+svg {
+  fill: black !important;
 }
