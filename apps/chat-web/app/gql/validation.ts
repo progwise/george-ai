@@ -9,9 +9,9 @@ import {
   AiLibraryInput,
   AiLibraryType,
   AiLibraryUsageInput,
-  RegistrationInput,
   RetrievalFlow,
   UserInput,
+  UserProfileInput,
 } from './graphql'
 
 type Properties<T> = Required<{
@@ -82,21 +82,21 @@ export function AiLibraryUsageInputSchema(): z.ZodObject<Properties<AiLibraryUsa
   })
 }
 
-export function RegistrationInputSchema(): z.ZodObject<Properties<RegistrationInput>> {
-  return z.object({
-    business: z.string().nullish(),
-    email: z.string(),
-    family_name: z.string().nullish(),
-    given_name: z.string().nullish(),
-    position: z.string().nullish(),
-  })
-}
-
 export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
   return z.object({
     email: z.string(),
     family_name: z.string().nullish(),
     given_name: z.string().nullish(),
     name: z.string(),
+  })
+}
+
+export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInput>> {
+  return z.object({
+    business: z.string().nullish(),
+    email: z.string(),
+    family_name: z.string().nullish(),
+    given_name: z.string().nullish(),
+    position: z.string().nullish(),
   })
 }

@@ -12,7 +12,13 @@ import { MenuIcon } from '../icons/menu-icon'
 import UserIcon from '../icons/user-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 
-const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; children: Array<JSX.Element | string> }) => {
+const TopNavigationLink = ({
+  to,
+  children,
+}: {
+  to: keyof FileRoutesByTo
+  children: Array<JSX.Element | string> | JSX.Element | string
+}) => {
   return (
     <Link to={to} className="btn btn-ghost" activeProps={{ className: 'btn-active' }} activeOptions={{ exact: false }}>
       {children}
@@ -150,9 +156,7 @@ const TopNavigation = () => {
             </button>
           ) : (
             <>
-              <Link to={user.profileUrl} className="btn btn-ghost gap-2">
-                {user?.name}
-              </Link>
+              <TopNavigationLink to="/profile">{user?.name || 'no name'}</TopNavigationLink>
               <button type="button" className="btn btn-ghost gap-2" onClick={() => logout()}>
                 <UserIcon className="size-6" />
                 {t('signOut')}

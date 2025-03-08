@@ -1,4 +1,4 @@
-export const LoadingSpinner = ({ isLoading }: { isLoading?: boolean }) => {
+export const LoadingSpinner = ({ isLoading, message }: { isLoading?: boolean; message?: string }) => {
   if (isLoading) {
     return (
       <div
@@ -6,6 +6,7 @@ export const LoadingSpinner = ({ isLoading }: { isLoading?: boolean }) => {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="loading loading-ring w-24 bg-green-700"></div>
+        <span>{message}</span>
       </div>
     )
   }

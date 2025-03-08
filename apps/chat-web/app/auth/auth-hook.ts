@@ -12,7 +12,6 @@ export interface CurrentUser {
   given_name: string
   family_name: string
   createdAt: string
-  profileUrl: string
 }
 
 export interface AuthContext {

@@ -205,26 +205,27 @@ type Mutation {
   ): [AiConversationParticipant!]
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
-  confirmRegistration(registrationId: String!): Registration
+  confirmUserProfile(registrationId: String!): UserProfile
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
+  createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteMessage(messageId: String!): AiConversationMessage
-  deleteRegistration(userId: String!): Registration
   dropFile(fileId: String!): AiLibraryFile
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
-  register(input: RegistrationInput!, userId: String!): Registration
   removeConversationParticipant(id: String!): AiConversationParticipant
+  removeUserProfile(userId: String!): UserProfile
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
   updateMessage(content: String!, messageId: String!): AiConversationMessage
+  updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
 }
 
 type Query {
@@ -239,30 +240,7 @@ type Query {
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
   myConversationUsers(userId: String!): [User!]!
   user(email: String!): User
-}
-
-type Registration {
-  business: String
-  confirmationDate: DateTime
-  createdAt: DateTime!
-  email: String!
-  expiresAt: DateTime
-  family_name: String
-  freeConversations: Int!
-  freeMessages: Int!
-  freeStorage: Int!
-  given_name: String
-  id: ID!
-  position: String
-  updatedAt: DateTime
-}
-
-input RegistrationInput {
-  business: String
-  email: String!
-  family_name: String
-  given_name: String
-  position: String
+  userProfile(userId: String!): UserProfile
 }
 
 enum RetrievalFlow {
@@ -280,8 +258,8 @@ type User {
   id: ID!
   lastLogin: DateTime
   name: String
+  profile: UserProfile
   registered: Boolean
-  registration: Registration
   updatedAt: DateTime
   username: String!
 }
@@ -291,4 +269,29 @@ input UserInput {
   family_name: String
   given_name: String
   name: String!
+}
+
+type UserProfile {
+  business: String
+  confirmationDate: DateTime
+  createdAt: DateTime!
+  email: String!
+  expiresAt: DateTime
+  family_name: String
+  freeConversations: Int!
+  freeMessages: Int!
+  freeStorage: Int!
+  given_name: String
+  id: ID!
+  position: String
+  updatedAt: DateTime
+  userId: ID!
+}
+
+input UserProfileInput {
+  business: String
+  email: String!
+  family_name: String
+  given_name: String
+  position: String
 }

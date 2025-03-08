@@ -32,6 +32,9 @@ importers:
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../../packages/langchain-chat
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../../packages/web-utils
       '@headlessui/react':
         specifier: ^2.2.0
         version: 2.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -307,13 +310,13 @@ importers:
         version: 4.5.0(graphql@16.10.0)
       '@pothos/plugin-prisma':
         specifier: ^4.4.0
-        version: 4.4.0(@pothos/core@4.5.0(graphql@16.10.0))(@prisma/client@6.2.1(prisma@6.4.1(typescript@5.8.2)))(graphql@16.10.0)(typescript@5.8.2)
+        version: 4.4.0(@pothos/core@4.5.0(graphql@16.10.0))(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(graphql@16.10.0)(typescript@5.8.2)
       '@pothos/plugin-simple-objects':
         specifier: ^4.1.0
         version: 4.1.0(@pothos/core@4.5.0(graphql@16.10.0))(graphql@16.10.0)
       '@prisma/client':
-        specifier: 6.2.1
-        version: 6.2.1(prisma@6.4.1(typescript@5.8.2))
+        specifier: ^6.4.1
+        version: 6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)
       graphql:
         specifier: ^16.9.0
         version: 16.10.0
@@ -337,8 +340,20 @@ importers:
         specifier: ^9.17.0
         version: 9.21.0(jiti@2.4.2)
       prisma:
-        specifier: ^6.2.1
+        specifier: ^6.4.1
         version: 6.4.1(typescript@5.8.2)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.8.2
+      typescript-eslint:
+        specifier: ^8.18.0
+        version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
+
+  packages/web-utils:
+    devDependencies:
+      eslint:
+        specifier: ^9.17.0
+        version: 9.21.0(jiti@2.4.2)
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -2117,13 +2132,16 @@ packages:
       '@pothos/core': '*'
       graphql: '>=16.6.0'
 
-  '@prisma/client@6.2.1':
-    resolution: {integrity: sha512-msKY2iRLISN8t5X0Tj7hU0UWet1u0KuxSPHWuf3IRkB4J95mCvGpyQBfQ6ufcmvKNOMQSq90O2iUmJEN2e5fiA==}
+  '@prisma/client@6.4.1':
+    resolution: {integrity: sha512-A7Mwx44+GVZVexT5e2GF/WcKkEkNNKbgr059xpr5mn+oUm2ZW1svhe+0TRNBwCdzhfIZ+q23jEgsNPvKD9u+6g==}
     engines: {node: '>=18.18'}
     peerDependencies:
       prisma: '*'
+      typescript: '>=5.1.0'
     peerDependenciesMeta:
       prisma:
+        optional: true
+      typescript:
         optional: true
 
   '@prisma/debug@6.4.1':
@@ -8203,10 +8221,10 @@ snapshots:
     dependencies:
       graphql: 16.10.0
 
-  '@pothos/plugin-prisma@4.4.0(@pothos/core@4.5.0(graphql@16.10.0))(@prisma/client@6.2.1(prisma@6.4.1(typescript@5.8.2)))(graphql@16.10.0)(typescript@5.8.2)':
+  '@pothos/plugin-prisma@4.4.0(@pothos/core@4.5.0(graphql@16.10.0))(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(graphql@16.10.0)(typescript@5.8.2)':
     dependencies:
       '@pothos/core': 4.5.0(graphql@16.10.0)
-      '@prisma/client': 6.2.1(prisma@6.4.1(typescript@5.8.2))
+      '@prisma/client': 6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)
       '@prisma/generator-helper': 6.4.1
       graphql: 16.10.0
       typescript: 5.8.2
@@ -8216,9 +8234,10 @@ snapshots:
       '@pothos/core': 4.5.0(graphql@16.10.0)
       graphql: 16.10.0
 
-  '@prisma/client@6.2.1(prisma@6.4.1(typescript@5.8.2))':
+  '@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)':
     optionalDependencies:
       prisma: 6.4.1(typescript@5.8.2)
+      typescript: 5.8.2
 
   '@prisma/debug@6.4.1': {}
 

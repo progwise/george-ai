@@ -7,6 +7,7 @@ builder.prismaObject('UserProfile', {
   name: 'UserProfile',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
+    userId: t.exposeID('userId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     expiresAt: t.expose('expiresAt', { type: 'DateTime' }),
@@ -22,7 +23,7 @@ builder.prismaObject('UserProfile', {
   }),
 })
 
-const RegistrationInput = builder.inputType('UserProfileInput', {
+const UserProfileInput = builder.inputType('UserProfileInput', {
   fields: (t) => ({
     email: t.string({ required: true }),
     given_name: t.string({ required: false }),
@@ -32,25 +33,29 @@ const RegistrationInput = builder.inputType('UserProfileInput', {
   }),
 })
 
-builder.mutationField('register', (t) =>
+builder.mutationField('createUserProfile', (t) =>
   t.prismaField({
     type: 'UserProfile',
     args: {
       userId: t.arg.string({ required: true }),
-      input: t.arg({ type: RegistrationInput, required: true }),
     },
-    resolve: async (query, _source, { userId, input }) => {
+    resolve: async (query, _source, { userId }) => {
       const previousRegistration = await prisma.userProfile.findFirst({
         where: { userId },
       })
       if (previousRegistration) {
-        throw new Error('User already registered')
+        throw new Error('User already had a profile')
       }
+      const user = await prisma.user.findFirstOrThrow({
+        where: { id: userId },
+      })
       return prisma.userProfile.create({
         ...query,
         data: {
-          ...input,
           userId,
+          email: user.email,
+          given_name: user.given_name,
+          family_name: user.family_name,
           freeConversations: 10,
           freeMessages: 100,
           freeStorage: 1000,
@@ -60,7 +65,7 @@ builder.mutationField('register', (t) =>
   }),
 )
 
-builder.mutationField('confirmRegistration', (t) =>
+builder.mutationField('confirmUserProfile', (t) =>
   t.prismaField({
     type: 'UserProfile',
     args: {
@@ -78,7 +83,7 @@ builder.mutationField('confirmRegistration', (t) =>
   }),
 )
 
-builder.mutationField('deleteUserProfile', (t) =>
+builder.mutationField('removeUserProfile', (t) =>
   t.prismaField({
     type: 'UserProfile',
     args: {
@@ -86,6 +91,38 @@ builder.mutationField('deleteUserProfile', (t) =>
     },
     resolve: async (query, _source, { userId }) => {
       return prisma.userProfile.delete({
+        ...query,
+        where: { userId },
+      })
+    },
+  }),
+)
+
+builder.mutationField('updateUserProfile', (t) =>
+  t.prismaField({
+    type: 'UserProfile',
+    args: {
+      userId: t.arg.string({ required: true }),
+      input: t.arg({ type: UserProfileInput, required: true }),
+    },
+    resolve: async (query, _source, { userId, input }) => {
+      return prisma.userProfile.update({
+        ...query,
+        where: { userId },
+        data: input,
+      })
+    },
+  }),
+)
+
+builder.queryField('userProfile', (t) =>
+  t.prismaField({
+    type: 'UserProfile',
+    args: {
+      userId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { userId }) => {
+      return prisma.userProfile.findFirst({
         ...query,
         where: { userId },
       })

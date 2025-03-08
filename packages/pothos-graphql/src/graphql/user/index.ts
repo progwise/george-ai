@@ -82,6 +82,18 @@ builder.mutationField('login', (t) =>
           family_name,
           username: preferred_username,
         },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          name: true,
+          given_name: true,
+          family_name: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          profile: true,
+        },
       })
       return user
     },

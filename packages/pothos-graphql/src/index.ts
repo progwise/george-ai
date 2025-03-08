@@ -8,9 +8,9 @@ import './graphql/ai-library-file'
 import './graphql/ai-library-usage'
 import './graphql/ai-participation'
 import './graphql/chat'
-import './graphql/user-profile'
 import './graphql/scalars'
 import './graphql/user'
+import './graphql/user-profile'
 
 const schema = builder.toSchema()
 

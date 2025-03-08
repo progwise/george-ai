@@ -214,26 +214,27 @@ export type Mutation = {
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
-  confirmRegistration?: Maybe<Registration>
+  confirmUserProfile?: Maybe<UserProfile>
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createUser?: Maybe<User>
+  createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteMessage?: Maybe<AiConversationMessage>
-  deleteRegistration?: Maybe<Registration>
   dropFile?: Maybe<AiLibraryFile>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
-  register?: Maybe<Registration>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
+  removeUserProfile?: Maybe<UserProfile>
   sendMessage: Array<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
   updateMessage?: Maybe<AiConversationMessage>
+  updateUserProfile?: Maybe<UserProfile>
 }
 
 export type MutationAddConversationParticipantsArgs = {
@@ -252,7 +253,7 @@ export type MutationClearEmbeddedFilesArgs = {
   libraryId: Scalars['String']['input']
 }
 
-export type MutationConfirmRegistrationArgs = {
+export type MutationConfirmUserProfileArgs = {
   registrationId: Scalars['String']['input']
 }
 
@@ -275,6 +276,10 @@ export type MutationCreateUserArgs = {
   username: Scalars['String']['input']
 }
 
+export type MutationCreateUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
 export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -285,10 +290,6 @@ export type MutationDeleteAiConversationArgs = {
 
 export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
-}
-
-export type MutationDeleteRegistrationArgs = {
-  userId: Scalars['String']['input']
 }
 
 export type MutationDropFileArgs = {
@@ -307,13 +308,12 @@ export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
-export type MutationRegisterArgs = {
-  input: RegistrationInput
-  userId: Scalars['String']['input']
-}
-
 export type MutationRemoveConversationParticipantArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationRemoveUserProfileArgs = {
+  userId: Scalars['String']['input']
 }
 
 export type MutationSendMessageArgs = {
@@ -340,6 +340,11 @@ export type MutationUpdateMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
+export type MutationUpdateUserProfileArgs = {
+  input: UserProfileInput
+  userId: Scalars['String']['input']
+}
+
 export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
@@ -353,6 +358,7 @@ export type Query = {
   aiLibraryUsage?: Maybe<Array<AiLibraryUsage>>
   myConversationUsers: Array<User>
   user?: Maybe<User>
+  userProfile?: Maybe<UserProfile>
 }
 
 export type QueryAiAssistantArgs = {
@@ -401,29 +407,8 @@ export type QueryUserArgs = {
   email: Scalars['String']['input']
 }
 
-export type Registration = {
-  __typename?: 'Registration'
-  business?: Maybe<Scalars['String']['output']>
-  confirmationDate?: Maybe<Scalars['DateTime']['output']>
-  createdAt: Scalars['DateTime']['output']
-  email: Scalars['String']['output']
-  expiresAt?: Maybe<Scalars['DateTime']['output']>
-  family_name?: Maybe<Scalars['String']['output']>
-  freeConversations: Scalars['Int']['output']
-  freeMessages: Scalars['Int']['output']
-  freeStorage: Scalars['Int']['output']
-  given_name?: Maybe<Scalars['String']['output']>
-  id: Scalars['ID']['output']
-  position?: Maybe<Scalars['String']['output']>
-  updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type RegistrationInput = {
-  business?: InputMaybe<Scalars['String']['input']>
-  email: Scalars['String']['input']
-  family_name?: InputMaybe<Scalars['String']['input']>
-  given_name?: InputMaybe<Scalars['String']['input']>
-  position?: InputMaybe<Scalars['String']['input']>
+export type QueryUserProfileArgs = {
+  userId: Scalars['String']['input']
 }
 
 export enum RetrievalFlow {
@@ -442,8 +427,8 @@ export type User = {
   id: Scalars['ID']['output']
   lastLogin?: Maybe<Scalars['DateTime']['output']>
   name?: Maybe<Scalars['String']['output']>
+  profile?: Maybe<UserProfile>
   registered?: Maybe<Scalars['Boolean']['output']>
-  registration?: Maybe<Registration>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   username: Scalars['String']['output']
 }
@@ -453,6 +438,32 @@ export type UserInput = {
   family_name?: InputMaybe<Scalars['String']['input']>
   given_name?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
+}
+
+export type UserProfile = {
+  __typename?: 'UserProfile'
+  business?: Maybe<Scalars['String']['output']>
+  confirmationDate?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
+  email: Scalars['String']['output']
+  expiresAt?: Maybe<Scalars['DateTime']['output']>
+  family_name?: Maybe<Scalars['String']['output']>
+  freeConversations: Scalars['Int']['output']
+  freeMessages: Scalars['Int']['output']
+  freeStorage: Scalars['Int']['output']
+  given_name?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  position?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  userId: Scalars['ID']['output']
+}
+
+export type UserProfileInput = {
+  business?: InputMaybe<Scalars['String']['input']>
+  email: Scalars['String']['input']
+  family_name?: InputMaybe<Scalars['String']['input']>
+  given_name?: InputMaybe<Scalars['String']['input']>
+  position?: InputMaybe<Scalars['String']['input']>
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -872,6 +883,24 @@ export type ProcessFileMutation = {
   } | null
 }
 
+export type UserProfileForm_UserProfileFragment = {
+  __typename?: 'UserProfile'
+  id: string
+  userId: string
+  email: string
+  given_name?: string | null
+  family_name?: string | null
+  freeConversations: number
+  freeMessages: number
+  freeStorage: number
+  createdAt: string
+  updatedAt?: string | null
+  confirmationDate?: string | null
+  expiresAt?: string | null
+  business?: string | null
+  position?: string | null
+} & { ' $fragmentName'?: 'UserProfileForm_UserProfileFragment' }
+
 export type AiAssistantEditQueryVariables = Exact<{
   id: Scalars['String']['input']
   ownerId: Scalars['String']['input']
@@ -1031,6 +1060,47 @@ export type CreateAiLibraryMutationVariables = Exact<{
 export type CreateAiLibraryMutation = {
   __typename?: 'Mutation'
   createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+}
+
+export type UserProfileQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type UserProfileQuery = {
+  __typename?: 'Query'
+  userProfile?:
+    | ({ __typename?: 'UserProfile'; id: string } & {
+        ' $fragmentRefs'?: { UserProfileForm_UserProfileFragment: UserProfileForm_UserProfileFragment }
+      })
+    | null
+}
+
+export type CreateUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type CreateUserProfileMutation = {
+  __typename?: 'Mutation'
+  createUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type RemoveUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type RemoveUserProfileMutation = {
+  __typename?: 'Mutation'
+  removeUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type SaveUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  userProfileInput: UserProfileInput
+}>
+
+export type SaveUserProfileMutation = {
+  __typename?: 'Mutation'
+  updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{
@@ -1446,6 +1516,35 @@ export const ConversationNew_AssistantParticipationCandidatesFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationNew_AssistantParticipationCandidatesFragment, unknown>
+export const UserProfileForm_UserProfileFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UserProfileForm_userProfile' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeConversations' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UserProfileForm_UserProfileFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3185,6 +3284,191 @@ export const CreateAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
+export const UserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'userProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'userProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UserProfileForm_userProfile' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UserProfileForm_userProfile' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeConversations' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>
+export const CreateUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateUserProfileMutation, CreateUserProfileMutationVariables>
+export const RemoveUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveUserProfileMutation, RemoveUserProfileMutationVariables>
+export const SaveUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'saveUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfileInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
 export const AiAssistantCardsDocument = {
   kind: 'Document',
   definitions: [
