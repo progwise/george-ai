@@ -1,5 +1,4 @@
-import { Button } from '@headlessui/react'
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
@@ -10,6 +9,7 @@ import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm } from '../../components/user/user-profile-form'
 import { graphql } from '../../gql'
 import { UserProfileInputSchema } from '../../gql/validation'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -114,9 +114,12 @@ export const Route = createFileRoute('/profile/')({
 
 function RouteComponent() {
   const auth = useAuth()
-  const queryClient = useQueryClient()
 
-  const { data: userProfile, isLoading: userProfileIsLoading } = useSuspenseQuery({
+  const {
+    data: userProfile,
+    isLoading: userProfileIsLoading,
+    refetch: refetchProfile,
+  } = useSuspenseQuery({
     queryKey: [queryKeys.UserProfile, auth.user?.id],
     queryFn: async () => {
       if (!auth.user?.id) {
@@ -133,8 +136,8 @@ function RouteComponent() {
       }
       return await createUserProfile({ data: { userId: auth.user.id } })
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile, auth.user?.id] })
+    onSettled: () => {
+      refetchProfile()
     },
   })
 
@@ -145,8 +148,8 @@ function RouteComponent() {
       }
       return await removeUserProfile({ data: { userId: auth.user.id } })
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile, auth.user?.id] })
+    onSettled: () => {
+      refetchProfile()
     },
   })
 
@@ -157,8 +160,8 @@ function RouteComponent() {
       }
       return await saveUserProfile({ data })
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile, auth.user?.id] })
+    onSettled: () => {
+      refetchProfile()
     },
   })
 
@@ -169,9 +172,9 @@ function RouteComponent() {
     return (
       <article className="flex w-full flex-col items-center gap-4">
         <p>No profile found for {auth.user?.name}</p>
-        <Button className="btn btn-primary w-48" onClick={() => create()}>
+        <button type="button" className="btn btn-primary w-48" onClick={() => create()}>
           Create Profile
-        </Button>
+        </button>
       </article>
     )
   }
@@ -182,10 +185,17 @@ function RouteComponent() {
   }
   return (
     <article className="flex w-full flex-col items-center gap-4">
-      <p>Profile found for {auth.user?.name}</p>
-      <Button className="btn btn-warning w-48" onClick={() => remove()}>
-        Delete Profile
-      </Button>
+      <p className="flex items-center gap-2">
+        Profile found for {auth.user?.name}
+        <button
+          type="button"
+          className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
+          onClick={() => remove()}
+          data-tip="Remove profile"
+        >
+          <TrashIcon className="size-6" />
+        </button>
+      </p>
       <LoadingSpinner isLoading={createIsPending} message="Generating user profile" />
       <LoadingSpinner isLoading={removeIsPending} message="Removing user profile" />
       <LoadingSpinner isLoading={saveIsPending} message="Saving user profile" />

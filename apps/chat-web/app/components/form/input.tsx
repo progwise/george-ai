@@ -16,6 +16,7 @@ export const Input = ({ name, label, value, type, placeholder, required, readOnl
     <label className={twMerge('flex w-full flex-col', className)}>
       <span className="text-sm text-slate-400">{label}</span>
       <input
+        key={value}
         name={name}
         type={type || 'text'}
         defaultValue={value || ''}

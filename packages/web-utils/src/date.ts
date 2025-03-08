@@ -3,7 +3,7 @@ export const dateString = (input: string | null | undefined) => {
     return ''
   }
   const data = new Date(input)
-  return data.toLocaleDateString() || ''
+  return data.toLocaleDateString(window.navigator.language) || ''
 }
 
 export const dateTimeString = (input: string | null | undefined) => {
@@ -11,5 +11,5 @@ export const dateTimeString = (input: string | null | undefined) => {
     return ''
   }
   const data = new Date(input)
-  return data.toLocaleString() || ''
+  return data.toLocaleString(window.navigator.language) || ''
 }

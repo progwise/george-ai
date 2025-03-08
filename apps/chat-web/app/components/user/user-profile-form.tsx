@@ -33,7 +33,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
     props.handleSubmit(event)
   }
   return (
-    <form onSubmit={handleSubmit} className="grid w-auto grid-cols-2 gap-2">
+    <form onSubmit={handleSubmit} className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2">
       <input type="hidden" name="id" value={userProfile.id} />
       <input type="hidden" name="userId" value={userProfile.userId} />
 
@@ -92,6 +92,15 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         type="number"
         readOnly
       />
+      <div className="col-span-1 flex justify-end">
+        <a
+          className="btn"
+          href={`mailto:info@george-ai.net?subject=Request for more free messages for ${userProfile.email}`}
+        >
+          Request more...
+        </a>
+      </div>
+      <hr className="col-span-2 my-2" />
       <div className="col-span-2 flex justify-end">
         <input type="submit" value="Save" className="btn btn-primary" />
       </div>
