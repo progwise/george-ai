@@ -1,3 +1,4 @@
+import { sendMail } from '../../mailer'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -65,24 +66,6 @@ builder.mutationField('createUserProfile', (t) =>
   }),
 )
 
-builder.mutationField('confirmUserProfile', (t) =>
-  t.prismaField({
-    type: 'UserProfile',
-    args: {
-      registrationId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { registrationId }) => {
-      return prisma.userProfile.update({
-        ...query,
-        where: { id: registrationId },
-        data: {
-          confirmationDate: new Date(),
-        },
-      })
-    },
-  }),
-)
-
 builder.mutationField('removeUserProfile', (t) =>
   t.prismaField({
     type: 'UserProfile',
@@ -111,6 +94,57 @@ builder.mutationField('updateUserProfile', (t) =>
         where: { userId },
         data: input,
       })
+    },
+  }),
+)
+
+builder.mutationField('confirmUserProfile', (t) =>
+  t.prismaField({
+    type: 'UserProfile',
+    args: {
+      profileId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { profileId }) => {
+      return prisma.userProfile.update({
+        ...query,
+        where: { id: profileId },
+        data: {
+          confirmationDate: new Date(),
+        },
+      })
+    },
+  }),
+)
+
+builder.mutationField('sendConfirmationMail', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      userId: t.arg.string({ required: true }),
+      confirmationUrl: t.arg.string({ required: true }),
+    },
+    resolve: async (_parent, { userId, confirmationUrl }) => {
+      // send email
+      const profile = await prisma.userProfile.findFirst({
+        where: { userId },
+      })
+      if (!profile) {
+        throw new Error('Profile not found')
+      }
+      console.log('Sending confirmation email to', profile.email)
+      const emailInfo = await sendMail(
+        profile.email,
+        'Please confirm your email',
+        'Thx for registering at george-ai.net. Enter the following URL in your browser to confirm your email: ' +
+          confirmationUrl,
+        'Thx for registering at george-ai.net. Enter the following URL in your browser to confirm your email: <a href="' +
+          confirmationUrl +
+          '">' +
+          confirmationUrl +
+          '</a>',
+      )
+      console.log('Email sent', emailInfo)
+      return true
     },
   }),
 )

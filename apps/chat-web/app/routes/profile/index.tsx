@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
@@ -12,6 +12,7 @@ import { UserProfileInputSchema } from '../../gql/validation'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { sendConfirmationMail } from '../../server-functions/users'
 
 const userProfileQueryDocument = graphql(/* GraphQL */ `
   query userProfile($userId: String!) {
@@ -129,6 +130,11 @@ function RouteComponent() {
     },
   })
 
+  const confirmationLink = useLinkProps({
+    to: '/profile/$profileId/confirm',
+    params: { profileId: userProfile?.userProfile?.id || 'no_profile_id' },
+  })
+
   const { mutate: create, isPending: createIsPending } = useMutation({
     mutationFn: async () => {
       if (!auth.user?.id) {
@@ -165,6 +171,26 @@ function RouteComponent() {
     },
   })
 
+  const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
+    mutationFn: async () => {
+      if (!auth.user?.id) {
+        throw new Error('No user id found')
+      }
+      return await sendConfirmationMail({
+        data: {
+          userId: auth.user.id,
+          confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
+        },
+      })
+    },
+    onSettled: () => {
+      refetchProfile()
+    },
+  })
+
+  if (!auth.user?.id) {
+    return <p>Login to use your profile</p>
+  }
   if (userProfileIsLoading) {
     return <LoadingSpinner />
   }
@@ -183,6 +209,11 @@ function RouteComponent() {
     const data = new FormData(event.currentTarget)
     save(data)
   }
+
+  const handleSendConfirmationMail = () => {
+    sendConfirmationMailMutation()
+  }
+
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <p className="flex items-center gap-2">
@@ -199,7 +230,12 @@ function RouteComponent() {
       <LoadingSpinner isLoading={createIsPending} message="Generating user profile" />
       <LoadingSpinner isLoading={removeIsPending} message="Removing user profile" />
       <LoadingSpinner isLoading={saveIsPending} message="Saving user profile" />
-      <UserProfileForm userProfile={userProfile.userProfile} handleSubmit={handleSubmit} />
+      <LoadingSpinner isLoading={sendConfirmationMailIsPending} message="Sending email" />
+      <UserProfileForm
+        userProfile={userProfile.userProfile}
+        handleSubmit={handleSubmit}
+        handleSendConfirmationMail={handleSendConfirmationMail}
+      />
     </article>
   )
 }

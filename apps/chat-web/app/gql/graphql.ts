@@ -229,6 +229,7 @@ export type Mutation = {
   processFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeUserProfile?: Maybe<UserProfile>
+  sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
@@ -254,7 +255,7 @@ export type MutationClearEmbeddedFilesArgs = {
 }
 
 export type MutationConfirmUserProfileArgs = {
-  registrationId: Scalars['String']['input']
+  profileId: Scalars['String']['input']
 }
 
 export type MutationCreateAiAssistantArgs = {
@@ -313,6 +314,11 @@ export type MutationRemoveConversationParticipantArgs = {
 }
 
 export type MutationRemoveUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
+export type MutationSendConfirmationMailArgs = {
+  confirmationUrl: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
 
@@ -1292,6 +1298,22 @@ export type MyConversationUsersQuery = {
     createdAt: string
     email: string
   }>
+}
+
+export type SendConfirmationMailMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  confirmationUrl: Scalars['String']['input']
+}>
+
+export type SendConfirmationMailMutation = { __typename?: 'Mutation'; sendConfirmationMail?: boolean | null }
+
+export type ConfirmUserProfileMutationVariables = Exact<{
+  profileId: Scalars['String']['input']
+}>
+
+export type ConfirmUserProfileMutation = {
+  __typename?: 'Mutation'
+  confirmUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export const ConversationForm_ConversationFragmentDoc = {
@@ -4095,3 +4117,83 @@ export const MyConversationUsersDocument = {
     },
   ],
 } as unknown as DocumentNode<MyConversationUsersQuery, MyConversationUsersQueryVariables>
+export const SendConfirmationMailDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'sendConfirmationMail' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sendConfirmationMail' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'confirmationUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SendConfirmationMailMutation, SendConfirmationMailMutationVariables>
+export const ConfirmUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'confirmUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'confirmUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'profileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConfirmUserProfileMutation, ConfirmUserProfileMutationVariables>

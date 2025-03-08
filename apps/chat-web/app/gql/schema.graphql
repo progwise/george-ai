@@ -205,7 +205,7 @@ type Mutation {
   ): [AiConversationParticipant!]
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
-  confirmUserProfile(registrationId: String!): UserProfile
+  confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
@@ -220,6 +220,7 @@ type Mutation {
   processFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeUserProfile(userId: String!): UserProfile
+  sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary

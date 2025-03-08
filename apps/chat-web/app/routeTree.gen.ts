@@ -17,13 +17,13 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ProfileIndexImport } from './routes/profile/index'
 import { Route as LibrariesIndexImport } from './routes/libraries/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
-import { Route as ProfileConfirmImport } from './routes/profile/confirm'
 import { Route as LibrariesNewImport } from './routes/libraries/new'
 import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
 import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
 import { Route as ConversationsSplatImport } from './routes/conversations/$'
 import { Route as AssistantsNewImport } from './routes/assistants/new'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
+import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
 
 // Create/Update Routes
 
@@ -63,12 +63,6 @@ const AssistantsIndexRoute = AssistantsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ProfileConfirmRoute = ProfileConfirmImport.update({
-  id: '/profile/confirm',
-  path: '/profile/confirm',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const LibrariesNewRoute = LibrariesNewImport.update({
   id: '/libraries/new',
   path: '/libraries/new',
@@ -102,6 +96,12 @@ const AssistantsNewRoute = AssistantsNewImport.update({
 const AssistantsAssistantIdRoute = AssistantsAssistantIdImport.update({
   id: '/assistants/$assistantId',
   path: '/assistants/$assistantId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileProfileIdConfirmRoute = ProfileProfileIdConfirmImport.update({
+  id: '/profile/$profileId/confirm',
+  path: '/profile/$profileId/confirm',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -172,13 +172,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesNewImport
       parentRoute: typeof rootRoute
     }
-    '/profile/confirm': {
-      id: '/profile/confirm'
-      path: '/profile/confirm'
-      fullPath: '/profile/confirm'
-      preLoaderRoute: typeof ProfileConfirmImport
-      parentRoute: typeof rootRoute
-    }
     '/assistants/': {
       id: '/assistants/'
       path: '/assistants'
@@ -200,6 +193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIndexImport
       parentRoute: typeof rootRoute
     }
+    '/profile/$profileId/confirm': {
+      id: '/profile/$profileId/confirm'
+      path: '/profile/$profileId/confirm'
+      fullPath: '/profile/$profileId/confirm'
+      preLoaderRoute: typeof ProfileProfileIdConfirmImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -215,10 +215,10 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
-  '/profile/confirm': typeof ProfileConfirmRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
+  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
 export interface FileRoutesByTo {
@@ -231,10 +231,10 @@ export interface FileRoutesByTo {
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
-  '/profile/confirm': typeof ProfileConfirmRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
+  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
 export interface FileRoutesById {
@@ -248,10 +248,10 @@ export interface FileRoutesById {
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
   '/libraries/new': typeof LibrariesNewRoute
-  '/profile/confirm': typeof ProfileConfirmRoute
   '/assistants/': typeof AssistantsIndexRoute
   '/libraries/': typeof LibrariesIndexRoute
   '/profile/': typeof ProfileIndexRoute
+  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
 export interface FileRouteTypes {
@@ -266,10 +266,10 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/libraries/new'
-    | '/profile/confirm'
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/profile/$profileId/confirm'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -281,10 +281,10 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/libraries/new'
-    | '/profile/confirm'
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/profile/$profileId/confirm'
   id:
     | '__root__'
     | '/'
@@ -296,10 +296,10 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/libraries/new'
-    | '/profile/confirm'
     | '/assistants/'
     | '/libraries/'
     | '/profile/'
+    | '/profile/$profileId/confirm'
   fileRoutesById: FileRoutesById
 }
 
@@ -313,10 +313,10 @@ export interface RootRouteChildren {
   LibrariesLibraryIdRoute: typeof LibrariesLibraryIdRoute
   LibrariesAuthGoogleRoute: typeof LibrariesAuthGoogleRoute
   LibrariesNewRoute: typeof LibrariesNewRoute
-  ProfileConfirmRoute: typeof ProfileConfirmRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
+  ProfileProfileIdConfirmRoute: typeof ProfileProfileIdConfirmRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -329,10 +329,10 @@ const rootRouteChildren: RootRouteChildren = {
   LibrariesLibraryIdRoute: LibrariesLibraryIdRoute,
   LibrariesAuthGoogleRoute: LibrariesAuthGoogleRoute,
   LibrariesNewRoute: LibrariesNewRoute,
-  ProfileConfirmRoute: ProfileConfirmRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
+  ProfileProfileIdConfirmRoute: ProfileProfileIdConfirmRoute,
 }
 
 export const routeTree = rootRoute
@@ -354,10 +354,10 @@ export const routeTree = rootRoute
         "/libraries/$libraryId",
         "/libraries/auth-google",
         "/libraries/new",
-        "/profile/confirm",
         "/assistants/",
         "/libraries/",
-        "/profile/"
+        "/profile/",
+        "/profile/$profileId/confirm"
       ]
     },
     "/": {
@@ -387,9 +387,6 @@ export const routeTree = rootRoute
     "/libraries/new": {
       "filePath": "libraries/new.tsx"
     },
-    "/profile/confirm": {
-      "filePath": "profile/confirm.tsx"
-    },
     "/assistants/": {
       "filePath": "assistants/index.tsx"
     },
@@ -398,6 +395,9 @@ export const routeTree = rootRoute
     },
     "/profile/": {
       "filePath": "profile/index.tsx"
+    },
+    "/profile/$profileId/confirm": {
+      "filePath": "profile/$profileId.confirm.tsx"
     }
   }
 }

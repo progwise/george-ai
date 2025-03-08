@@ -21,10 +21,12 @@
     "graphql-request": "^6.1.0",
     "graphql-scalars": "^1.24.0",
     "graphql-yoga": "^5.10.2",
+    "nodemailer": "^6.10.0",
     "typesense": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
+    "@types/nodemailer": "^6.4.17",
     "eslint": "^9.17.0",
     "prisma": "^6.4.1",
     "typescript": "^5.7.2",
