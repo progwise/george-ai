@@ -27,6 +27,10 @@ const resources = {
         altImage: 'George AI',
       },
       conversations: 'Conversations',
+      errors: {
+        requiredField: 'This field is required',
+        invalidEmail: 'Invalid email',
+      },
     },
   },
   de: {
@@ -56,6 +60,10 @@ const resources = {
       },
     },
     conversations: 'Konversationen',
+    errors: {
+      requiredField: 'Pflichtfeld',
+      invalidEmail: 'Ungültige E-Mail-Adresse',
+    },
   },
 }
 

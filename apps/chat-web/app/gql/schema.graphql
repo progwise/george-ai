@@ -278,12 +278,12 @@ type UserProfile {
   createdAt: DateTime!
   email: String!
   expiresAt: DateTime
-  family_name: String
+  firstName: String
   freeConversations: Int!
   freeMessages: Int!
   freeStorage: Int!
-  given_name: String
   id: ID!
+  lastName: String
   position: String
   updatedAt: DateTime
   userId: ID!

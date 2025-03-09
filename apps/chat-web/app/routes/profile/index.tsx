@@ -1,14 +1,12 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import React from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm } from '../../components/user/user-profile-form'
 import { graphql } from '../../gql'
-import { UserProfileInputSchema } from '../../gql/validation'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
@@ -77,38 +75,6 @@ export const removeUserProfile = createServerFn({ method: 'POST' })
     })
   })
 
-const saveUserProfileDocument = graphql(/* GraphQL */ `
-  mutation saveUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
-    updateUserProfile(userId: $userId, input: $userProfileInput) {
-      id
-    }
-  }
-`)
-
-const saveUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Invalid form data')
-    }
-    const userId = z
-      .string()
-      .nonempty()
-      .parse(data.get('userId') as string)
-
-    const userProfileInput = UserProfileInputSchema().parse({
-      business: data.get('business') as string,
-      email: data.get('email') as string,
-      family_name: data.get('family_name') as string,
-      given_name: data.get('given_name') as string,
-      position: data.get('position') as string,
-    })
-
-    return { userId, userProfileInput }
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(saveUserProfileDocument, ctx.data)
-  })
-
 export const Route = createFileRoute('/profile/')({
   component: RouteComponent,
 })
@@ -159,18 +125,6 @@ function RouteComponent() {
     },
   })
 
-  const { mutate: save, isPending: saveIsPending } = useMutation({
-    mutationFn: async (data: FormData) => {
-      if (!userProfile?.userProfile?.id) {
-        throw new Error('Profile not found')
-      }
-      return await saveUserProfile({ data })
-    },
-    onSettled: () => {
-      refetchProfile()
-    },
-  })
-
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async () => {
       if (!auth.user?.id) {
@@ -205,11 +159,6 @@ function RouteComponent() {
     )
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    const data = new FormData(event.currentTarget)
-    save(data)
-  }
-
   const handleSendConfirmationMail = () => {
     sendConfirmationMailMutation()
   }
@@ -229,13 +178,8 @@ function RouteComponent() {
       </p>
       <LoadingSpinner isLoading={createIsPending} message="Generating user profile" />
       <LoadingSpinner isLoading={removeIsPending} message="Removing user profile" />
-      <LoadingSpinner isLoading={saveIsPending} message="Saving user profile" />
       <LoadingSpinner isLoading={sendConfirmationMailIsPending} message="Sending email" />
-      <UserProfileForm
-        userProfile={userProfile.userProfile}
-        handleSubmit={handleSubmit}
-        handleSendConfirmationMail={handleSendConfirmationMail}
-      />
+      <UserProfileForm userProfile={userProfile.userProfile} handleSendConfirmationMail={handleSendConfirmationMail} />
     </article>
   )
 }

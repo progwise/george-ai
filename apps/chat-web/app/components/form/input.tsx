@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { ZodRawShape, z } from 'zod'
 
-interface InputProps {
+interface InputProps<T extends ZodRawShape> {
   name: string
   label: string
   value?: string | number | undefined | null
@@ -9,10 +11,13 @@ interface InputProps {
   placeholder?: string
   required?: boolean
   readOnly?: boolean
+  schema?: z.ZodObject<T>
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
   className?: string
 }
 
-export const Input = ({
+export const Input = <T extends ZodRawShape>({
   name,
   label,
   value,
@@ -21,13 +26,39 @@ export const Input = ({
   placeholder,
   required,
   readOnly,
+  schema,
+  onChange,
+  onBlur,
   className,
-}: InputProps) => {
+}: InputProps<T>) => {
+  const [errors, setErrors] = useState<string[]>([])
   const renderedType = type === 'date' ? 'text' : type
   const renderedValue = value ? value : valueNotSet
+
+  const validate = (newValue: string) => {
+    if (!schema) return
+    const partialSchema = schema.partial()
+    const parseResult = partialSchema.safeParse({ [name]: newValue })
+    if (!parseResult.success) {
+      setErrors(parseResult.error.errors.map((error) => error.message))
+    } else {
+      setErrors([])
+    }
+  }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    validate(event.target.value)
+    onChange?.(event)
+  }
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    validate(event.target.value)
+    onBlur?.(event)
+  }
+
   return (
     <label className={twMerge('flex w-full flex-col', className)}>
-      <span className="text-sm text-slate-400">{label}</span>
+      <span className={twMerge('text-sm text-slate-400', errors.length > 0 && 'text-warning')}>{label}</span>
       <input
         key={value}
         name={name}
@@ -42,7 +73,10 @@ export const Input = ({
         placeholder={placeholder || ''}
         required={required}
         readOnly={readOnly}
+        onChange={handleChange}
+        onBlur={handleBlur}
       />
+      <span>{errors.join(', ')}</span>
     </label>
   )
 }

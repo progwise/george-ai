@@ -1,17 +1,24 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createServerFn } from '@tanstack/react-start'
+import { t } from 'i18next'
 import React from 'react'
+import { z } from 'zod'
 
-import { dateTimeString } from '@george-ai/web-utils'
+import { dateTimeString, validateForm } from '@george-ai/web-utils'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
+import { LoadingSpinner } from '../loading-spinner'
 
 const UserProfileForm_UserProfileFragment = graphql(`
   fragment UserProfileForm_userProfile on UserProfile {
     id
     userId
     email
-    given_name
-    family_name
+    firstName
+    lastName
     freeConversations
     freeMessages
     freeStorage
@@ -23,24 +30,78 @@ const UserProfileForm_UserProfileFragment = graphql(`
     position
   }
 `)
+
+const formSchema = z.object({
+  userId: z.string().min(1, t('errors.requiredField')),
+  email: z
+    .string()
+    .email({ message: t('errors.invalidEmail') })
+    .min(1, t('errors.requiredField')),
+  firstName: z.string().min(1, t('errors.requiredField')),
+  lastName: z.string().min(1, t('errors.requiredField')),
+  business: z.string().min(1, t('errors.requiredField')),
+  position: z.string().min(1, t('errors.requiredField')),
+})
+
+const updateProfile = createServerFn({ method: 'POST' })
+  .validator((data: FormData) => {
+    if (!(data instanceof FormData)) {
+      throw new Error('Invalid form data')
+    }
+
+    const o = Object.fromEntries(data)
+    return formSchema.parse(o)
+  })
+  .handler(async (ctx) => {
+    return await backendRequest(
+      graphql(`
+        mutation saveUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
+          updateUserProfile(userId: $userId, input: $userProfileInput) {
+            id
+          }
+        }
+      `),
+      {
+        userId: ctx.data.userId,
+        userProfileInput: ctx.data,
+      },
+    )
+  })
+
 interface UserProfileFormProps {
   userProfile: FragmentType<typeof UserProfileForm_UserProfileFragment>
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   handleSendConfirmationMail: () => void
 }
 
 export const UserProfileForm = (props: UserProfileFormProps) => {
   const userProfile = useFragment(UserProfileForm_UserProfileFragment, props.userProfile)
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    props.handleSubmit(event)
-  }
+  const queryClient = useQueryClient()
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: FormData) => updateProfile({ data }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile, userProfile.id] })
+    },
+  })
+
   const handleSendConfirmationMail = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     props.handleSendConfirmationMail()
   }
   return (
-    <form onSubmit={handleSubmit} className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault()
+        const formData = new FormData(event.currentTarget)
+        const formValidation = validateForm({ formData, formSchema })
+        if (formValidation.errors.length < 0) {
+          mutate(formData)
+        } else {
+          alert(formValidation.errors.join('\n'))
+        }
+      }}
+      className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2"
+    >
+      <LoadingSpinner isLoading={isPending} message="Saving profile" />
       <input type="hidden" name="id" value={userProfile.id} />
       <input type="hidden" name="userId" value={userProfile.userId} />
 
@@ -88,9 +149,9 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         readOnly
       />
       <hr className="col-span-2 my-2" />
-      <Input name="email" label="Email" value={userProfile.email} className="col-span-2" />
-      <Input name="given_name" label="First Name" value={userProfile.given_name} className="col-span-1" />
-      <Input name="family_name" label="Family Name" value={userProfile.family_name} className="col-span-1" />
+      <Input schema={formSchema} name={'email'} label="Email" value={userProfile.email} className="col-span-2" />
+      <Input name="firstName" label="First Name" value={userProfile.firstName} className="col-span-1" />
+      <Input name="lastName" label="Family Name" value={userProfile.lastName} className="col-span-1" />
       <hr className="col-span-2 my-2" />
       <Input name="business" label="Business" value={userProfile.business} className="col-span-2" />
       <Input name="position" label="Position" value={userProfile.position} className="col-span-2" />

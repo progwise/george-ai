@@ -53,8 +53,8 @@ model UserProfile {
   updatedAt         DateTime  @updatedAt
   expiresAt         DateTime?
   email             String
-  given_name        String?
-  family_name       String?
+  firstName         String?
+  lastName          String?
   freeConversations Int       @default(3)
   freeMessages      Int       @default(20)
   freeStorage       Int       @default(1000000000)
