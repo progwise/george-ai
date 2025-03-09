@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { t } from 'i18next'
-import { JSX } from 'react'
+import { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 
 import { useAuth } from '../auth/auth-hook'
@@ -12,13 +12,7 @@ import { MenuIcon } from '../icons/menu-icon'
 import UserIcon from '../icons/user-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 
-const TopNavigationLink = ({
-  to,
-  children,
-}: {
-  to: keyof FileRoutesByTo
-  children: Array<JSX.Element | string> | JSX.Element | string
-}) => {
+const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; children: ReactNode }) => {
   return (
     <Link to={to} className="btn btn-ghost" activeProps={{ className: 'btn-active' }} activeOptions={{ exact: false }}>
       {children}
