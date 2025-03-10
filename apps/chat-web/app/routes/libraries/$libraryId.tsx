@@ -104,6 +104,7 @@ export const Route = createFileRoute('/libraries/$libraryId')({
 
 function RouteComponent() {
   const auth = useAuth()
+  const remainingStorage = (auth.userProfile?.freeStorage || 0) - (auth.userProfile?.usedStorage || 0)
   const currentLocation = useLocation()
   const { libraryId } = useParams({ strict: false })
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
@@ -157,7 +158,11 @@ function RouteComponent() {
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Google Drive" />
         <div role="tabpanel" className="tab-content p-10">
-          <GoogleDriveFiles libraryId={aiLibrary.id} currentLocationHref={currentLocation.href} />
+          <GoogleDriveFiles
+            libraryId={aiLibrary.id}
+            currentLocationHref={currentLocation.href}
+            noFreeUploads={remainingStorage < 100}
+          />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />

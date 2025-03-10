@@ -4,6 +4,7 @@ import { useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { TrashIcon } from '../../icons/trash-icon'
 import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
@@ -52,8 +53,13 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
 
   return (
     <>
-      <button type="button" className="btn btn-error btn-sm" onClick={() => dialogReference.current?.showModal()}>
-        Delete conversation
+      <button
+        type="button"
+        className="btn btn-square btn-ghost btn-sm lg:tooltip"
+        onClick={() => dialogReference.current?.showModal()}
+        data-tip="Delete Conversation"
+      >
+        <TrashIcon className="size-6" />
       </button>
       <dialog ref={dialogReference} className="modal">
         <div className="modal-box">

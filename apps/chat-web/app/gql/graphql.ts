@@ -214,10 +214,12 @@ export type Mutation = {
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
+  confirmUserProfile?: Maybe<UserProfile>
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createUser?: Maybe<User>
+  createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteMessage?: Maybe<AiConversationMessage>
@@ -226,11 +228,14 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
+  removeUserProfile?: Maybe<UserProfile>
+  sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
   updateMessage?: Maybe<AiConversationMessage>
+  updateUserProfile?: Maybe<UserProfile>
 }
 
 export type MutationAddConversationParticipantsArgs = {
@@ -247,6 +252,10 @@ export type MutationChatArgs = {
 
 export type MutationClearEmbeddedFilesArgs = {
   libraryId: Scalars['String']['input']
+}
+
+export type MutationConfirmUserProfileArgs = {
+  profileId: Scalars['String']['input']
 }
 
 export type MutationCreateAiAssistantArgs = {
@@ -266,6 +275,10 @@ export type MutationCreateAiLibraryArgs = {
 export type MutationCreateUserArgs = {
   data: UserInput
   username: Scalars['String']['input']
+}
+
+export type MutationCreateUserProfileArgs = {
+  userId: Scalars['String']['input']
 }
 
 export type MutationDeleteAiAssistantArgs = {
@@ -300,6 +313,15 @@ export type MutationRemoveConversationParticipantArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationRemoveUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
+export type MutationSendConfirmationMailArgs = {
+  confirmationUrl: Scalars['String']['input']
+  userId: Scalars['String']['input']
+}
+
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
   userId: Scalars['String']['input']
@@ -324,6 +346,11 @@ export type MutationUpdateMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
+export type MutationUpdateUserProfileArgs = {
+  input: UserProfileInput
+  userId: Scalars['String']['input']
+}
+
 export type Query = {
   __typename?: 'Query'
   aiAssistant?: Maybe<AiAssistant>
@@ -337,6 +364,7 @@ export type Query = {
   aiLibraryUsage?: Maybe<Array<AiLibraryUsage>>
   myConversationUsers: Array<User>
   user?: Maybe<User>
+  userProfile?: Maybe<UserProfile>
 }
 
 export type QueryAiAssistantArgs = {
@@ -385,6 +413,10 @@ export type QueryUserArgs = {
   email: Scalars['String']['input']
 }
 
+export type QueryUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
 export enum RetrievalFlow {
   OnlyLocal = 'OnlyLocal',
   OnlyWeb = 'OnlyWeb',
@@ -401,6 +433,8 @@ export type User = {
   id: Scalars['ID']['output']
   lastLogin?: Maybe<Scalars['DateTime']['output']>
   name?: Maybe<Scalars['String']['output']>
+  profile?: Maybe<UserProfile>
+  registered?: Maybe<Scalars['Boolean']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   username: Scalars['String']['output']
 }
@@ -410,6 +444,33 @@ export type UserInput = {
   family_name?: InputMaybe<Scalars['String']['input']>
   given_name?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
+}
+
+export type UserProfile = {
+  __typename?: 'UserProfile'
+  business?: Maybe<Scalars['String']['output']>
+  confirmationDate?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
+  email: Scalars['String']['output']
+  expiresAt?: Maybe<Scalars['DateTime']['output']>
+  firstName?: Maybe<Scalars['String']['output']>
+  freeMessages: Scalars['Int']['output']
+  freeStorage: Scalars['Int']['output']
+  id: Scalars['ID']['output']
+  lastName?: Maybe<Scalars['String']['output']>
+  position?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  usedMessages?: Maybe<Scalars['Int']['output']>
+  usedStorage?: Maybe<Scalars['Int']['output']>
+  userId: Scalars['ID']['output']
+}
+
+export type UserProfileInput = {
+  business?: InputMaybe<Scalars['String']['input']>
+  email: Scalars['String']['input']
+  firstName?: InputMaybe<Scalars['String']['input']>
+  lastName?: InputMaybe<Scalars['String']['input']>
+  position?: InputMaybe<Scalars['String']['input']>
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -829,6 +890,35 @@ export type ProcessFileMutation = {
   } | null
 }
 
+export type UserProfileForm_UserProfileFragment = {
+  __typename?: 'UserProfile'
+  id: string
+  userId: string
+  email: string
+  firstName?: string | null
+  lastName?: string | null
+  freeMessages: number
+  usedMessages?: number | null
+  freeStorage: number
+  usedStorage?: number | null
+  createdAt: string
+  updatedAt?: string | null
+  confirmationDate?: string | null
+  expiresAt?: string | null
+  business?: string | null
+  position?: string | null
+} & { ' $fragmentName'?: 'UserProfileForm_UserProfileFragment' }
+
+export type SaveUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  userProfileInput: UserProfileInput
+}>
+
+export type SaveUserProfileMutation = {
+  __typename?: 'Mutation'
+  updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
 export type AiAssistantEditQueryVariables = Exact<{
   id: Scalars['String']['input']
   ownerId: Scalars['String']['input']
@@ -988,6 +1078,37 @@ export type CreateAiLibraryMutationVariables = Exact<{
 export type CreateAiLibraryMutation = {
   __typename?: 'Mutation'
   createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+}
+
+export type UserProfileQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type UserProfileQuery = {
+  __typename?: 'Query'
+  userProfile?:
+    | ({ __typename?: 'UserProfile'; id: string } & {
+        ' $fragmentRefs'?: { UserProfileForm_UserProfileFragment: UserProfileForm_UserProfileFragment }
+      })
+    | null
+}
+
+export type CreateUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type CreateUserProfileMutation = {
+  __typename?: 'Mutation'
+  createUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type RemoveUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type RemoveUserProfileMutation = {
+  __typename?: 'Mutation'
+  removeUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{
@@ -1179,6 +1300,43 @@ export type MyConversationUsersQuery = {
     createdAt: string
     email: string
   }>
+}
+
+export type SendConfirmationMailMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  confirmationUrl: Scalars['String']['input']
+}>
+
+export type SendConfirmationMailMutation = { __typename?: 'Mutation'; sendConfirmationMail?: boolean | null }
+
+export type ConfirmUserProfileMutationVariables = Exact<{
+  profileId: Scalars['String']['input']
+}>
+
+export type ConfirmUserProfileMutation = {
+  __typename?: 'Mutation'
+  confirmUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type GetUserProfileQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type GetUserProfileQuery = {
+  __typename?: 'Query'
+  userProfile?: {
+    __typename?: 'UserProfile'
+    id: string
+    email: string
+    firstName?: string | null
+    lastName?: string | null
+    business?: string | null
+    position?: string | null
+    freeMessages: number
+    usedMessages?: number | null
+    freeStorage: number
+    usedStorage?: number | null
+  } | null
 }
 
 export const ConversationForm_ConversationFragmentDoc = {
@@ -1403,6 +1561,36 @@ export const ConversationNew_AssistantParticipationCandidatesFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationNew_AssistantParticipationCandidatesFragment, unknown>
+export const UserProfileForm_UserProfileFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UserProfileForm_userProfile' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UserProfileForm_UserProfileFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2400,6 +2588,53 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
+export const SaveUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'saveUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfileInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
 export const AiAssistantEditDocument = {
   kind: 'Document',
   definitions: [
@@ -3142,6 +3377,145 @@ export const CreateAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
+export const UserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'userProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'userProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UserProfileForm_userProfile' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UserProfileForm_userProfile' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>
+export const CreateUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateUserProfileMutation, CreateUserProfileMutationVariables>
+export const RemoveUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveUserProfileMutation, RemoveUserProfileMutationVariables>
 export const AiAssistantCardsDocument = {
   kind: 'Document',
   definitions: [
@@ -3768,3 +4142,131 @@ export const MyConversationUsersDocument = {
     },
   ],
 } as unknown as DocumentNode<MyConversationUsersQuery, MyConversationUsersQueryVariables>
+export const SendConfirmationMailDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'sendConfirmationMail' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sendConfirmationMail' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'confirmationUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<SendConfirmationMailMutation, SendConfirmationMailMutationVariables>
+export const ConfirmUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'confirmUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'confirmUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'profileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ConfirmUserProfileMutation, ConfirmUserProfileMutationVariables>
+export const GetUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'userProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>

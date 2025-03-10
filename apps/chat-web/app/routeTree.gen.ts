@@ -11,26 +11,21 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
-import { Route as AssistantsIndexImport } from './routes/assistants/index'
-import { Route as AssistantsNewImport } from './routes/assistants/new'
-import { Route as ContactImport } from './routes/contact'
-import { Route as ConversationsSplatImport } from './routes/conversations/$'
-import { Route as IndexImport } from './routes/index'
 import { Route as LangchainChatImport } from './routes/langchain-chat'
-import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
-import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
+import { Route as ContactImport } from './routes/contact'
+import { Route as IndexImport } from './routes/index'
+import { Route as ProfileIndexImport } from './routes/profile/index'
 import { Route as LibrariesIndexImport } from './routes/libraries/index'
+import { Route as AssistantsIndexImport } from './routes/assistants/index'
 import { Route as LibrariesNewImport } from './routes/libraries/new'
-import { Route as ProfileImport } from './routes/profile'
+import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
+import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
+import { Route as ConversationsSplatImport } from './routes/conversations/$'
+import { Route as AssistantsNewImport } from './routes/assistants/new'
+import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
+import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
 
 // Create/Update Routes
-
-const ProfileRoute = ProfileImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const LangchainChatRoute = LangchainChatImport.update({
   id: '/langchain-chat',
@@ -47,6 +42,12 @@ const ContactRoute = ContactImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfileIndexRoute = ProfileIndexImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -98,6 +99,12 @@ const AssistantsAssistantIdRoute = AssistantsAssistantIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProfileProfileIdConfirmRoute = ProfileProfileIdConfirmImport.update({
+  id: '/profile/$profileId/confirm',
+  path: '/profile/$profileId/confirm',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -121,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/langchain-chat'
       fullPath: '/langchain-chat'
       preLoaderRoute: typeof LangchainChatImport
-      parentRoute: typeof rootRoute
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileImport
       parentRoute: typeof rootRoute
     }
     '/assistants/$assistantId': {
@@ -186,6 +186,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesIndexImport
       parentRoute: typeof rootRoute
     }
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/profile/$profileId/confirm': {
+      id: '/profile/$profileId/confirm'
+      path: '/profile/$profileId/confirm'
+      fullPath: '/profile/$profileId/confirm'
+      preLoaderRoute: typeof ProfileProfileIdConfirmImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -195,7 +209,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
-  '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
@@ -204,13 +217,14 @@ export interface FileRoutesByFullPath {
   '/libraries/new': typeof LibrariesNewRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
+  '/profile': typeof ProfileIndexRoute
+  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
-  '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
@@ -219,6 +233,8 @@ export interface FileRoutesByTo {
   '/libraries/new': typeof LibrariesNewRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
+  '/profile': typeof ProfileIndexRoute
+  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
 export interface FileRoutesById {
@@ -226,7 +242,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
-  '/profile': typeof ProfileRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
@@ -235,6 +250,8 @@ export interface FileRoutesById {
   '/libraries/new': typeof LibrariesNewRoute
   '/assistants/': typeof AssistantsIndexRoute
   '/libraries/': typeof LibrariesIndexRoute
+  '/profile/': typeof ProfileIndexRoute
+  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
 export interface FileRouteTypes {
@@ -243,7 +260,6 @@ export interface FileRouteTypes {
     | '/'
     | '/contact'
     | '/langchain-chat'
-    | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/conversations/$'
@@ -252,12 +268,13 @@ export interface FileRouteTypes {
     | '/libraries/new'
     | '/assistants'
     | '/libraries'
+    | '/profile'
+    | '/profile/$profileId/confirm'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/contact'
     | '/langchain-chat'
-    | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/conversations/$'
@@ -266,12 +283,13 @@ export interface FileRouteTypes {
     | '/libraries/new'
     | '/assistants'
     | '/libraries'
+    | '/profile'
+    | '/profile/$profileId/confirm'
   id:
     | '__root__'
     | '/'
     | '/contact'
     | '/langchain-chat'
-    | '/profile'
     | '/assistants/$assistantId'
     | '/assistants/new'
     | '/conversations/$'
@@ -280,6 +298,8 @@ export interface FileRouteTypes {
     | '/libraries/new'
     | '/assistants/'
     | '/libraries/'
+    | '/profile/'
+    | '/profile/$profileId/confirm'
   fileRoutesById: FileRoutesById
 }
 
@@ -287,7 +307,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   LangchainChatRoute: typeof LangchainChatRoute
-  ProfileRoute: typeof ProfileRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   AssistantsNewRoute: typeof AssistantsNewRoute
   ConversationsSplatRoute: typeof ConversationsSplatRoute
@@ -296,13 +315,14 @@ export interface RootRouteChildren {
   LibrariesNewRoute: typeof LibrariesNewRoute
   AssistantsIndexRoute: typeof AssistantsIndexRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
+  ProfileProfileIdConfirmRoute: typeof ProfileProfileIdConfirmRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   LangchainChatRoute: LangchainChatRoute,
-  ProfileRoute: ProfileRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   AssistantsNewRoute: AssistantsNewRoute,
   ConversationsSplatRoute: ConversationsSplatRoute,
@@ -311,6 +331,8 @@ const rootRouteChildren: RootRouteChildren = {
   LibrariesNewRoute: LibrariesNewRoute,
   AssistantsIndexRoute: AssistantsIndexRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
+  ProfileProfileIdConfirmRoute: ProfileProfileIdConfirmRoute,
 }
 
 export const routeTree = rootRoute
@@ -326,7 +348,6 @@ export const routeTree = rootRoute
         "/",
         "/contact",
         "/langchain-chat",
-        "/profile",
         "/assistants/$assistantId",
         "/assistants/new",
         "/conversations/$",
@@ -334,7 +355,9 @@ export const routeTree = rootRoute
         "/libraries/auth-google",
         "/libraries/new",
         "/assistants/",
-        "/libraries/"
+        "/libraries/",
+        "/profile/",
+        "/profile/$profileId/confirm"
       ]
     },
     "/": {
@@ -345,9 +368,6 @@ export const routeTree = rootRoute
     },
     "/langchain-chat": {
       "filePath": "langchain-chat.tsx"
-    },
-    "/profile": {
-      "filePath": "profile.tsx"
     },
     "/assistants/$assistantId": {
       "filePath": "assistants/$assistantId.tsx"
@@ -372,6 +392,12 @@ export const routeTree = rootRoute
     },
     "/libraries/": {
       "filePath": "libraries/index.tsx"
+    },
+    "/profile/": {
+      "filePath": "profile/index.tsx"
+    },
+    "/profile/$profileId/confirm": {
+      "filePath": "profile/$profileId.confirm.tsx"
     }
   }
 }

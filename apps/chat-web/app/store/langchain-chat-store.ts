@@ -1,6 +1,6 @@
 import { RetrievalFlow, ask } from '@george-ai/langchain-chat'
 
-import i18n from '../i18n'
+import { getLanguage, translate } from '../i18n'
 
 export interface LangchainChatMessage {
   id: string
@@ -12,12 +12,16 @@ export interface LangchainChatMessage {
   retrievalFlow: RetrievalFlow
 }
 
+const language = await getLanguage()
+
+const greeting = translate('greeting', language)
+
 const getDefaultChat = (retrievalFlow: RetrievalFlow = 'Sequential'): LangchainChatMessage[] => [
   {
     id: '0',
     sessionId: (Math.random() + 1).toString(36).slice(7),
     sender: 'bot',
-    text: i18n.t('greeting'),
+    text: greeting,
     source: 'George AI',
     time: new Date(),
     retrievalFlow,

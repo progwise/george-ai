@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { t } from 'i18next'
-import { JSX } from 'react'
+import { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 
 import { useAuth } from '../auth/auth-hook'
+import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import ChatBubbleIcon from '../icons/chat-bubble-icon'
@@ -12,7 +12,7 @@ import { MenuIcon } from '../icons/menu-icon'
 import UserIcon from '../icons/user-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 
-const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; children: Array<JSX.Element | string> }) => {
+const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; children: ReactNode }) => {
   return (
     <Link to={to} className="btn btn-ghost" activeProps={{ className: 'btn-active' }} activeOptions={{ exact: false }}>
       {children}
@@ -21,6 +21,7 @@ const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; childre
 }
 
 const TopNavigation = () => {
+  const { t } = useTranslation()
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -150,9 +151,7 @@ const TopNavigation = () => {
             </button>
           ) : (
             <>
-              <Link to={user.profileUrl} className="btn btn-ghost gap-2">
-                {user?.name}
-              </Link>
+              <TopNavigationLink to="/profile">{user?.name || 'no name'}</TopNavigationLink>
               <button type="button" className="btn btn-ghost gap-2" onClick={() => logout()}>
                 <UserIcon className="size-6" />
                 {t('signOut')}
