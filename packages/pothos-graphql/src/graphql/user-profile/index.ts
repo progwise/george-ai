@@ -132,7 +132,7 @@ builder.mutationField('confirmUserProfile', (t) =>
     args: {
       profileId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { profileId }) => {
+    resolve: (query, _source, { profileId }) => {
       return prisma.userProfile.update({
         ...query,
         where: { id: profileId },
