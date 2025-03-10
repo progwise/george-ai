@@ -20,6 +20,9 @@ export const AssistantForm = ({
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="assistantId" value={assistant.id} />
+      <label className="form-control w-full max-w-xs">
+        <input type="file" accept="image/*" name="icon" className="file-input file-input-bordered w-full max-w-xs" />
+      </label>
       <label className="input input-bordered flex items-center gap-2">
         Name your assistant:
         <input
