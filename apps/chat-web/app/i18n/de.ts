@@ -27,6 +27,7 @@ export default {
     createdAt: 'Erstellt',
     updatedAt: 'Geändert',
     confirmationDate: 'Bestätigt',
+    confirmedAt: 'Confirmed',
     expiresAt: 'Läuft ab',
     never: 'Nie',
     firstName: 'Vorname',
