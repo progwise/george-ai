@@ -16,11 +16,16 @@ const transporter = createTransport({
 })
 
 export const sendMail = async (to: string, subject: string, text: string, html: string) => {
-  return await transporter.sendMail({
-    from: 'into@george-ai.net',
-    to,
-    subject,
-    text,
-    html,
-  })
+  try {
+    return await transporter.sendMail({
+      from: 'into@george-ai.net',
+      to,
+      subject,
+      text,
+      html,
+    })
+  } catch (e) {
+    console.error('Error sending email', e)
+    throw e
+  }
 }
