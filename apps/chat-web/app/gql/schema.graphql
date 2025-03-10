@@ -279,7 +279,6 @@ type UserProfile {
   email: String!
   expiresAt: DateTime
   firstName: String
-  freeConversations: Int!
   freeMessages: Int!
   freeStorage: Int!
   id: ID!
@@ -292,7 +291,7 @@ type UserProfile {
 input UserProfileInput {
   business: String
   email: String!
-  family_name: String
-  given_name: String
+  firstName: String
+  lastName: String
   position: String
 }

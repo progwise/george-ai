@@ -20,7 +20,6 @@ const UserProfileForm_UserProfileFragment = graphql(`
     email
     firstName
     lastName
-    freeConversations
     freeMessages
     freeStorage
     createdAt
@@ -200,14 +199,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       />
       <hr className="col-span-2 my-2" />
       <Input
-        name="freeConversations"
-        label={t('labels.freeConversations')}
-        value={userProfile.freeConversations}
-        className="col-span-1"
-        type="number"
-        readOnly
-      />
-      <Input
         name="freeStorage"
         label={t('labels.freeStorage')}
         value={userProfile.freeStorage}
@@ -224,7 +215,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         type="number"
         readOnly
       />
-      <div className="col-span-1 flex justify-end">
+      <div className="col-span-2 flex justify-end">
         <a className="btn" href={`mailto:info@george-ai.net?subject=Request higher limits for ${userProfile.email}`}>
           {t('actions.increaseLimits')}
         </a>

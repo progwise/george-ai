@@ -11,4 +11,3 @@ build
 .pnp.*
 .typesense-data
 .postgres-data*
-migration_lock.toml

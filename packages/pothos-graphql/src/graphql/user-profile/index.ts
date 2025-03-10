@@ -15,7 +15,6 @@ builder.prismaObject('UserProfile', {
     email: t.exposeString('email', { nullable: false }),
     firstName: t.exposeString('firstName', { nullable: true }),
     lastName: t.exposeString('lastName', { nullable: true }),
-    freeConversations: t.exposeInt('freeConversations', { nullable: false }),
     freeMessages: t.exposeInt('freeMessages', { nullable: false }),
     freeStorage: t.exposeInt('freeStorage', { nullable: false }),
     business: t.exposeString('business', { nullable: true }),
@@ -57,8 +56,7 @@ builder.mutationField('createUserProfile', (t) =>
           email: user.email,
           firstName: user.given_name,
           lastName: user.family_name,
-          freeConversations: 10,
-          freeMessages: 100,
+          freeMessages: 20,
           freeStorage: 1000,
         },
       })

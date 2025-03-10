@@ -454,7 +454,6 @@ export type UserProfile = {
   email: Scalars['String']['output']
   expiresAt?: Maybe<Scalars['DateTime']['output']>
   firstName?: Maybe<Scalars['String']['output']>
-  freeConversations: Scalars['Int']['output']
   freeMessages: Scalars['Int']['output']
   freeStorage: Scalars['Int']['output']
   id: Scalars['ID']['output']
@@ -467,8 +466,8 @@ export type UserProfile = {
 export type UserProfileInput = {
   business?: InputMaybe<Scalars['String']['input']>
   email: Scalars['String']['input']
-  family_name?: InputMaybe<Scalars['String']['input']>
-  given_name?: InputMaybe<Scalars['String']['input']>
+  firstName?: InputMaybe<Scalars['String']['input']>
+  lastName?: InputMaybe<Scalars['String']['input']>
   position?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -896,7 +895,6 @@ export type UserProfileForm_UserProfileFragment = {
   email: string
   firstName?: string | null
   lastName?: string | null
-  freeConversations: number
   freeMessages: number
   freeStorage: number
   createdAt: string
@@ -1553,7 +1551,6 @@ export const UserProfileForm_UserProfileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeConversations' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
@@ -3403,7 +3400,6 @@ export const UserProfileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeConversations' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },

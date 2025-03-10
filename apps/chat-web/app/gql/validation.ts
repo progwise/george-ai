@@ -95,8 +95,8 @@ export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInpu
   return z.object({
     business: z.string().nullish(),
     email: z.string(),
-    family_name: z.string().nullish(),
-    given_name: z.string().nullish(),
+    firstName: z.string().nullish(),
+    lastName: z.string().nullish(),
     position: z.string().nullish(),
   })
 }

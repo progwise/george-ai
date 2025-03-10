@@ -48,21 +48,20 @@ model User {
 }
 
 model UserProfile {
-  id                String    @id @default(cuid())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  expiresAt         DateTime?
-  email             String
-  firstName         String?
-  lastName          String?
-  freeConversations Int       @default(3)
-  freeMessages      Int       @default(20)
-  freeStorage       Int       @default(1000000000)
-  business          String?
-  position          String?
-  user              User      @relation(fields: [userId], references: [id])
-  userId            String    @unique
-  confirmationDate  DateTime?
+  id               String    @id @default(cuid())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  expiresAt        DateTime?
+  email            String
+  firstName        String?
+  lastName         String?
+  freeMessages     Int       @default(20)
+  freeStorage      Int       @default(1000)
+  business         String?
+  position         String?
+  user             User      @relation(fields: [userId], references: [id])
+  userId           String    @unique
+  confirmationDate DateTime?
 }
 
 model AiAssistant {

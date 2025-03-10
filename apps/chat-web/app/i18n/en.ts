@@ -34,7 +34,6 @@ export default {
     email: 'Email',
     business: 'Business',
     position: 'Position',
-    freeConversations: 'Free Conversations',
     freeStorage: 'Free Storage',
     freeMessages: 'Free Messages',
   },
