@@ -21,7 +21,9 @@ const UserProfileForm_UserProfileFragment = graphql(`
     firstName
     lastName
     freeMessages
+    usedMessages
     freeStorage
+    usedStorage
     createdAt
     updatedAt
     confirmationDate
@@ -150,7 +152,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         />
       ) : (
         <label className="col-span-1 flex w-full flex-col">
-          <span className="text-sm text-slate-400">Not confirmed</span>
+          <span className="text-sm text-slate-400">{t('labels.notConfirmed')}</span>
           <button type="button" className="btn col-span-1 self-baseline" onClick={handleSendConfirmationMail}>
             {t('actions.sendConfirmationMail')}
           </button>
@@ -211,6 +213,23 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="freeMessages"
         label={t('labels.freeMessages')}
         value={userProfile.freeMessages}
+        className="col-span-1"
+        type="number"
+        readOnly
+      />
+      <Input
+        name="usedStorage"
+        label={t('labels.usedStorage')}
+        value={userProfile.usedStorage}
+        className="col-span-1"
+        type="number"
+        readOnly
+      />
+
+      <Input
+        name="usedMessages"
+        label={t('labels.usedMessages')}
+        value={userProfile.usedMessages}
         className="col-span-1"
         type="number"
         readOnly

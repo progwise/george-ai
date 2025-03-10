@@ -56,7 +56,7 @@ model UserProfile {
   firstName        String?
   lastName         String?
   freeMessages     Int       @default(20)
-  freeStorage      Int       @default(1000)
+  freeStorage      Int       @default(100000)
   business         String?
   position         String?
   user             User      @relation(fields: [userId], references: [id])

@@ -20,6 +20,36 @@ builder.prismaObject('UserProfile', {
     business: t.exposeString('business', { nullable: true }),
     position: t.exposeString('position', { nullable: true }),
     confirmationDate: t.expose('confirmationDate', { type: 'DateTime' }),
+    usedMessages: t.field({
+      type: 'Int',
+      resolve: async (source) => {
+        const messageCount = await prisma.aiConversationMessage.count({
+          where: {
+            sender: {
+              userId: source.userId,
+            },
+          },
+        })
+        return messageCount
+      },
+    }),
+    usedStorage: t.field({
+      type: 'Int',
+      resolve: async (source) => {
+        const fileSizeSum = await prisma.aiLibraryFile.aggregate({
+          where: {
+            library: {
+              ownerId: source.userId,
+            },
+          },
+          _sum: {
+            size: true,
+          },
+        })
+
+        return fileSizeSum._sum.size || 0
+      },
+    }),
   }),
 })
 
@@ -57,7 +87,7 @@ builder.mutationField('createUserProfile', (t) =>
           firstName: user.given_name,
           lastName: user.family_name,
           freeMessages: 20,
-          freeStorage: 1000,
+          freeStorage: 100000,
         },
       })
     },

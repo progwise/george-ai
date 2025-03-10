@@ -27,6 +27,7 @@ export default {
     updatedAt: 'Updated',
     confirmationDate: 'Confirmed',
     confirmedAt: 'Confirmed',
+    notConfirmed: 'Not confirmed',
     expiresAt: 'Expires',
     never: 'Never',
     firstName: 'First Name',
@@ -36,6 +37,8 @@ export default {
     position: 'Position',
     freeStorage: 'Free Storage',
     freeMessages: 'Free Messages',
+    usedStorage: 'Used Storage',
+    usedMessages: 'Used Messages',
   },
   errors: {
     requiredField: 'required',

@@ -76,3 +76,29 @@ export const confirmUserProfile = createServerFn({ method: 'POST' })
       },
     ),
   )
+
+export const getUserProfile = createServerFn({ method: 'GET' })
+  .validator((data: { userId: string }) => z.string().nonempty().parse(data.userId))
+  .handler((ctx) =>
+    backendRequest(
+      graphql(`
+        query getUserProfile($userId: String!) {
+          userProfile(userId: $userId) {
+            id
+            email
+            firstName
+            lastName
+            business
+            position
+            freeMessages
+            usedMessages
+            freeStorage
+            usedStorage
+          }
+        }
+      `),
+      {
+        userId: ctx.data,
+      },
+    ),
+  )

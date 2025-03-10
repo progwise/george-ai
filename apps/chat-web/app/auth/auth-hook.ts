@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Keycloak from 'keycloak-js'
 
 import { queryKeys } from '../query-keys'
+import { getUserProfile } from '../server-functions/users'
 import { ensureBackendUser, getKeycloakConfig } from './auth.server'
 
 export interface CurrentUser {
@@ -68,6 +69,18 @@ export const useAuth = () => {
     },
   })
 
+  const { data: currentUserProfile } = useQuery({
+    queryKey: [queryKeys.UserProfile, currentUser?.id],
+    enabled: !!currentUser,
+    queryFn: async () => {
+      if (!currentUser?.id) {
+        return null
+      }
+      const userProfile = await getUserProfile({ data: { userId: currentUser.id } })
+      return userProfile
+    },
+  })
+
   if (!keycloak) {
     return {
       isAuthenticated: false,
@@ -85,6 +98,7 @@ export const useAuth = () => {
       },
       logout: async () => {},
       user: null,
+      userProfile: null,
     }
   }
 
@@ -96,5 +110,6 @@ export const useAuth = () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUser] })
     },
     user: currentUser,
+    userProfile: currentUserProfile?.userProfile,
   }
 }

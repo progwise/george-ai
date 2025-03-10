@@ -460,6 +460,8 @@ export type UserProfile = {
   lastName?: Maybe<Scalars['String']['output']>
   position?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
+  usedMessages?: Maybe<Scalars['Int']['output']>
+  usedStorage?: Maybe<Scalars['Int']['output']>
   userId: Scalars['ID']['output']
 }
 
@@ -896,7 +898,9 @@ export type UserProfileForm_UserProfileFragment = {
   firstName?: string | null
   lastName?: string | null
   freeMessages: number
+  usedMessages?: number | null
   freeStorage: number
+  usedStorage?: number | null
   createdAt: string
   updatedAt?: string | null
   confirmationDate?: string | null
@@ -1314,6 +1318,27 @@ export type ConfirmUserProfileMutation = {
   confirmUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
+export type GetUserProfileQueryVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type GetUserProfileQuery = {
+  __typename?: 'Query'
+  userProfile?: {
+    __typename?: 'UserProfile'
+    id: string
+    email: string
+    firstName?: string | null
+    lastName?: string | null
+    business?: string | null
+    position?: string | null
+    freeMessages: number
+    usedMessages?: number | null
+    freeStorage: number
+    usedStorage?: number | null
+  } | null
+}
+
 export const ConversationForm_ConversationFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -1552,7 +1577,9 @@ export const UserProfileForm_UserProfileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
@@ -3401,7 +3428,9 @@ export const UserProfileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
           { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
@@ -4193,3 +4222,51 @@ export const ConfirmUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<ConfirmUserProfileMutation, ConfirmUserProfileMutationVariables>
+export const GetUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'userProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>

@@ -12,6 +12,7 @@ import { LibraryFile, LibraryFileSchema } from './files-table'
 export interface DesktopFilesProps {
   libraryId: string
   onUploadComplete?: () => void
+  disabled?: boolean
 }
 
 const PrepareDesktopFileDocument = graphql(`
@@ -61,7 +62,7 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
     return await Promise.all(processFiles)
   })
 
-export const DesktopFileUpload = ({ libraryId, onUploadComplete }: DesktopFilesProps) => {
+export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
   const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } = useMutation({
     mutationFn: (data: { libraryId: string; selectedFiles: LibraryFile[] }) => prepareDesktopFiles({ data }),
@@ -104,10 +105,22 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete }: DesktopFilesP
     <>
       <LoadingSpinner isLoading={prepareFilesIsPending} />
       <nav className="flex items-center justify-between gap-4">
-        <button type="button" className="btn btn-xs" onClick={() => document.getElementById('fileInput')?.click()}>
+        <button
+          type="button"
+          className="btn btn-xs"
+          onClick={() => document.getElementById('fileInput')?.click()}
+          disabled={disabled}
+        >
           Upload
         </button>
-        <input type="file" multiple id="fileInput" onChange={handleUploadFiles} style={{ display: 'none' }} />
+        <input
+          type="file"
+          multiple
+          id="fileInput"
+          onChange={handleUploadFiles}
+          style={{ display: 'none' }}
+          disabled={disabled}
+        />
       </nav>
     </>
   )

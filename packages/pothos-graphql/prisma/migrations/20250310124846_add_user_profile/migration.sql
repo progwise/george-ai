@@ -8,7 +8,7 @@ CREATE TABLE "UserProfile" (
     "firstName" TEXT,
     "lastName" TEXT,
     "freeMessages" INTEGER NOT NULL DEFAULT 20,
-    "freeStorage" INTEGER NOT NULL DEFAULT 1000,
+    "freeStorage" INTEGER NOT NULL DEFAULT 100000,
     "business" TEXT,
     "position" TEXT,
     "userId" TEXT NOT NULL,

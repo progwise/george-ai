@@ -28,6 +28,7 @@ export default {
     updatedAt: 'Geändert',
     confirmationDate: 'Bestätigt',
     confirmedAt: 'Bestätigt am',
+    notConfirmed: 'Nicht bestätigt',
     expiresAt: 'Läuft ab',
     never: 'Nie',
     firstName: 'Vorname',
@@ -37,6 +38,8 @@ export default {
     position: 'Position',
     freeStorage: 'Freier Speicher',
     freeMessages: 'Anzahl Nachrichten',
+    usedStorage: 'Verwendeter Speicher',
+    usedMessages: 'Vorhandene Nachrichten',
   },
   errors: {
     requiredField: 'erforderlich',
