@@ -206,10 +206,12 @@ type Mutation {
   ): [AiConversationParticipant!]
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
+  confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
+  createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteMessage(messageId: String!): AiConversationMessage
@@ -219,12 +221,15 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
+  removeUserProfile(userId: String!): UserProfile
+  sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
   updateMessage(content: String!, messageId: String!): AiConversationMessage
+  updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
 }
 
 type Query {
@@ -239,6 +244,7 @@ type Query {
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
   myConversationUsers(userId: String!): [User!]!
   user(email: String!): User
+  userProfile(userId: String!): UserProfile
 }
 
 enum RetrievalFlow {
@@ -256,6 +262,8 @@ type User {
   id: ID!
   lastLogin: DateTime
   name: String
+  profile: UserProfile
+  registered: Boolean
   updatedAt: DateTime
   username: String!
 }
@@ -265,4 +273,30 @@ input UserInput {
   family_name: String
   given_name: String
   name: String!
+}
+
+type UserProfile {
+  business: String
+  confirmationDate: DateTime
+  createdAt: DateTime!
+  email: String!
+  expiresAt: DateTime
+  firstName: String
+  freeMessages: Int!
+  freeStorage: Int!
+  id: ID!
+  lastName: String
+  position: String
+  updatedAt: DateTime
+  usedMessages: Int
+  usedStorage: Int
+  userId: ID!
+}
+
+input UserProfileInput {
+  business: String
+  email: String!
+  firstName: String
+  lastName: String
+  position: String
 }

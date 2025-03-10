@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
+import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
@@ -108,15 +109,19 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
 })
 
 export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
+  const { userProfile } = useAuth()
+  const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
+
   const { data, isLoading, refetch } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
 
   if (isLoading) {
     return <LoadingSpinner />
   }
+
   return (
     <>
       <nav className="flex items-center justify-between gap-4">
-        <div className="flex gap-4">
+        <div className="flex w-full gap-4">
           <button
             type="button"
             className="btn btn-xs"
@@ -127,7 +132,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Clear
           </button>
-          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} />
+          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} disabled={remainingStorage < 1} />
+          <div className="flex w-full justify-end text-sm">
+            <span>
+              Remaining storage: {remainingStorage} / {userProfile?.freeStorage}
+            </span>
+          </div>
         </div>
       </nav>
       <table className="table">
