@@ -14,6 +14,7 @@ import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
 export interface GoogleDriveFilesProps {
   currentLocationHref: string
   libraryId: string
+  noFreeUploads: boolean
 }
 
 interface GoogleDriveResponse {
@@ -115,7 +116,7 @@ const embedFiles = createServerFn({ method: 'GET' })
     await Promise.all(processFiles)
   })
 
-export const GoogleDriveFiles = ({ libraryId, currentLocationHref }: GoogleDriveFilesProps) => {
+export const GoogleDriveFiles = ({ libraryId, currentLocationHref, noFreeUploads }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
 
   const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
@@ -166,7 +167,7 @@ export const GoogleDriveFiles = ({ libraryId, currentLocationHref }: GoogleDrive
         </div>
         <button
           type="button"
-          disabled={!selectedFiles.length || embedFilesIsPending}
+          disabled={!selectedFiles.length || embedFilesIsPending || noFreeUploads}
           className="btn btn-xs"
           onClick={async () => {
             await handleEmbedFiles(selectedFiles)

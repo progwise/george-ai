@@ -4,10 +4,12 @@ import { HeadContent, Scripts } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
 import TopNavigation from '../components/top-navigation'
+import { getLanguage } from '../i18n'
 import appCss from '../index.css?url'
 
 interface RouterContext {
   queryClient: QueryClient
+  language: 'en' | 'de'
 }
 
 const TanStackRouterDevtools =
@@ -56,6 +58,12 @@ const RootDocument = () => {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  beforeLoad: async () => {
+    const language = await getLanguage()
+    return {
+      language: language,
+    }
+  },
   head: () => ({
     meta: [
       { charSet: 'utf8' },

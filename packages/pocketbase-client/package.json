@@ -2,7 +2,7 @@
   "name": "@george-ai/pocketbase-client",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.4",
   "author": "progwise.net",
   "private": true,
   "scripts": {
