@@ -6,7 +6,6 @@ export interface validateFormParams<T extends ZodRawShape> {
 }
 export const validateForm = <T extends ZodRawShape>({ formData, formSchema }: validateFormParams<T>) => {
   const entries = Object.fromEntries(formData)
-  console.log('entries', entries)
   const parseResult = formSchema.safeParse(entries)
   if (!parseResult.success) {
     const errors = parseResult.error.errors.map((error) => {

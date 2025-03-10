@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { t } from 'i18next'
 import { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 
 import { useAuth } from '../auth/auth-hook'
+import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import ChatBubbleIcon from '../icons/chat-bubble-icon'
@@ -21,6 +21,7 @@ const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; childre
 }
 
 const TopNavigation = () => {
+  const { t } = useTranslation()
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)

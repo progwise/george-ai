@@ -1,0 +1,55 @@
+export default {
+  brand: 'George-Ai',
+  chat: 'Chat',
+  assistants: 'Assistants',
+  signIn: 'Sign in',
+  signOut: 'Sign out',
+  flowSequential: 'Flow: Sequential',
+  flowParallel: 'Flow: Parallel',
+  flowLocal: 'Flow: Only Local',
+  flowWeb: 'Flow: Only Web',
+  resetConversation: 'Reset conversation',
+  greeting: 'Hello, I am your travel assistant. How can I help you?',
+  library: 'Library',
+
+  home: {
+    title: 'Your AI. Your Data. Your Rules.',
+    paragraph: `Meet George-AI: a custom-trained AI assistant tailored to your 
+    business needs. Create unique content, handle customer interactions, 
+    and streamline workflows — all powered by your own data sources and 
+    fully compliant with European data protection standards.`,
+    btnText: 'Start Training Your AI',
+    altImage: 'George AI',
+  },
+  conversations: 'Conversations',
+  labels: {
+    createdAt: 'Created',
+    updatedAt: 'Updated',
+    confirmationDate: 'Confirmed',
+    expiresAt: 'Expires',
+    never: 'Never',
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    email: 'Email',
+    business: 'Business',
+    position: 'Position',
+    freeConversations: 'Free Conversations',
+    freeStorage: 'Free Storage',
+    freeMessages: 'Free Messages',
+  },
+  errors: {
+    requiredField: 'required',
+    invalidEmail: 'Invalid email',
+  },
+  actions: {
+    saving: 'Saving...',
+    save: 'Save',
+    sendConfirmationMail: 'Send confirmation mail',
+    increaseLimits: 'Increase limits',
+    removeProfile: 'Remove user profile',
+  },
+  texts: {
+    profileNotFoundFor: 'Profile not found for',
+    profileFoundFor: 'Profile found for',
+  },
+}

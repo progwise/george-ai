@@ -7,6 +7,7 @@ import { useAuth } from '../../auth/auth-hook'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm } from '../../components/user/user-profile-form'
 import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
@@ -80,6 +81,7 @@ export const Route = createFileRoute('/profile/')({
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
   const auth = useAuth()
 
   const {
@@ -151,7 +153,9 @@ function RouteComponent() {
   if (!userProfile?.userProfile) {
     return (
       <article className="flex w-full flex-col items-center gap-4">
-        <p>No profile found for {auth.user?.name}</p>
+        <p>
+          {t('texts.profileNotFoundFor')} {auth.user?.name}
+        </p>
         <button type="button" className="btn btn-primary w-48" onClick={() => create()}>
           Create Profile
         </button>
@@ -166,12 +170,12 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <p className="flex items-center gap-2">
-        Profile found for {auth.user?.name}
+        {t('texts.profileFoundFor')} {auth.user?.name}
         <button
           type="button"
           className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
           onClick={() => remove()}
-          data-tip="Remove profile"
+          data-tip={t('actions.removeProfile')}
         >
           <TrashIcon className="size-6" />
         </button>

@@ -1,7 +1,7 @@
 import { defineConfig } from '@tanstack/react-start/config'
 import tsConfigPaths from 'vite-tsconfig-paths'
 
-import './app/i18n'
+import './app/i18n/get-language'
 
 export default defineConfig({
   server: {
@@ -16,6 +16,11 @@ export default defineConfig({
     },
   },
   vite: {
+    build: {
+      rollupOptions: {
+        external: ['node:buffer', 'node:worker_threads', 'node:async_hooks'],
+      },
+    },
     plugins: [
       {
         name: 'report-hmr-ports',

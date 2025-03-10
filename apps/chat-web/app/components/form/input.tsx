@@ -57,15 +57,16 @@ export const Input = <T extends ZodRawShape>({
   }
 
   return (
-    <label className={twMerge('flex w-full flex-col', className)}>
-      <span className={twMerge('text-sm text-slate-400', errors.length > 0 && 'text-warning')}>{label}</span>
+    <label className={twMerge('grid w-full grid-cols-2', className)}>
+      <span className={twMerge('text-sm text-slate-400', errors.length > 0 && 'text-error')}>{label}</span>
+      <span className="justify-self-end text-sm text-error">{errors.join(', ')}</span>
       <input
         key={value}
         name={name}
         type={renderedType || 'text'}
         defaultValue={renderedValue || ''}
         className={twMerge(
-          'input input-bordered w-full',
+          'input input-bordered col-span-2 w-full',
           readOnly && 'cursor-not-allowed text-slate-400',
           type === 'number' && 'text-right',
           type === 'date' && 'text-center',
@@ -76,7 +77,6 @@ export const Input = <T extends ZodRawShape>({
         onChange={handleChange}
         onBlur={handleBlur}
       />
-      <span>{errors.join(', ')}</span>
     </label>
   )
 }

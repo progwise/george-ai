@@ -27,8 +27,8 @@ builder.prismaObject('UserProfile', {
 const UserProfileInput = builder.inputType('UserProfileInput', {
   fields: (t) => ({
     email: t.string({ required: true }),
-    given_name: t.string({ required: false }),
-    family_name: t.string({ required: false }),
+    firstName: t.string({ required: false }),
+    lastName: t.string({ required: false }),
     business: t.string({ required: false }),
     position: t.string({ required: false }),
   }),
