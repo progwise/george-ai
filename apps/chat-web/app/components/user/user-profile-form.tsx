@@ -92,7 +92,9 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => updateProfile({ data }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile, userProfile.id] })
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.UserProfile, userProfile.id, queryKeys.UserProfileForEdit, userProfile.userId],
+      })
     },
   })
 
@@ -129,7 +131,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="createdAt"
         type="date"
         label={t('labels.createdAt')}
-        value={dateTimeString(userProfile.createdAt)}
+        value={dateTimeString(userProfile.createdAt, language)}
         className="col-span-1"
         readOnly
       />
@@ -137,7 +139,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="updatedAt"
         type="date"
         label={t('labels.updatedAt')}
-        value={dateTimeString(userProfile.updatedAt)}
+        value={dateTimeString(userProfile.updatedAt, language)}
         className="col-span-1"
         readOnly
       />
@@ -146,7 +148,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
           name="confirmationDate"
           type="date"
           label={t('labels.confirmedAt')}
-          value={dateTimeString(userProfile.confirmationDate)}
+          value={dateTimeString(userProfile.confirmationDate, language)}
           className="col-span-1"
           readOnly
         />
@@ -163,7 +165,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="expiresAt"
         type="date"
         label={t('labels.expiresAt')}
-        value={dateTimeString(userProfile.expiresAt)}
+        value={dateTimeString(userProfile.expiresAt, language)}
         valueNotSet={t('labels.never')}
         className="col-span-1"
         readOnly

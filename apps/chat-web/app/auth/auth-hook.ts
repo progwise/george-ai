@@ -65,7 +65,7 @@ export const useAuth = () => {
         return null
       }
       const { login: user } = await ensureBackendUser({ data: token })
-      return { ...user, profileUrl: keycloak.createAccountUrl() }
+      return { ...user }
     },
   })
 

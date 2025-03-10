@@ -42,7 +42,7 @@ const TopNavigation = () => {
         </Link>
 
         {user ? (
-          <Link to={user.profileUrl} className="btn btn-ghost gap-2">
+          <Link to="/profile" className="btn btn-ghost gap-2">
             {user.name}
           </Link>
         ) : (
