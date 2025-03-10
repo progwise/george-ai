@@ -21,7 +21,7 @@ interface ConversationFormProps {
 export const ConversationForm = (props: ConversationFormProps) => {
   const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
@@ -43,7 +43,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     onSettled: () => {
       // refetch the conversation to get the new message
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, conversation.id],
+        queryKey: [queryKeys.Conversation, conversation.id, queryKeys.UserProfile, user?.id],
       })
     },
   })
@@ -54,6 +54,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
     const content = formData.get('message') as string
     const recipientAssistantIds = Array.from(formData.getAll('assistants')).map((formData) => formData.toString())
 
+    const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
+    if (remainingMessages < 1) {
+      alert('You have no more free messages left. Create your profile and ask for more...')
+      return
+    }
     form.reset()
 
     mutate({ content, recipientAssistantIds })

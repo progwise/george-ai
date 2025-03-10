@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 
 import { RetrievalFlow } from '@george-ai/langchain-chat'
@@ -8,9 +7,11 @@ import { RetrievalFlow } from '@george-ai/langchain-chat'
 import { Dropdown } from '../components/dropdown'
 import { FormattedMarkdown } from '../components/formatted-markdown'
 import { LangchainChatForm } from '../components/langchain-chat-form'
+import { useTranslation } from '../i18n/use-translation-hook'
 import { chatMessagesQueryOptions, reset } from '../server-functions/langchain-chat-history'
 
 const ChatRoute = () => {
+  const { t } = useTranslation()
   const [sessionId, setSessionId] = useState<string | undefined>(undefined)
   const [selectedFlow, setSelectedFlow] = useState<RetrievalFlow>('Sequential')
 

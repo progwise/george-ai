@@ -4,8 +4,6 @@ import { hydrateRoot } from 'react-dom/client'
 
 import { createRouter } from './router'
 
-import './i18n'
-
 const router = createRouter()
 
 hydrateRoot(document, <StartClient router={router} />)
