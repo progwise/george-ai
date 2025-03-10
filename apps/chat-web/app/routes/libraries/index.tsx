@@ -83,7 +83,7 @@ function RouteComponent() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="overflow-x-auto">
         <table className="table">
           <thead>
             <tr>
