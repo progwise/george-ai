@@ -220,6 +220,7 @@ type Mutation {
   processFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
+  unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult

@@ -58,6 +58,20 @@ const reProcessFile = createServerFn({ method: 'POST' })
     return await backendRequest(ReprocessFileDocument, { id: ctx.data })
   })
 
+const dropAllFiles = createServerFn({ method: 'POST' })
+  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
+  .handler(async (ctx) => {
+    const dropFilePromises = ctx.data.map((fileId) => backendRequest(DropFileDocument, { id: fileId }))
+    return await Promise.all(dropFilePromises)
+  })
+
+const reProcessAllFiles = createServerFn({ method: 'POST' })
+  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
+  .handler(async (ctx) => {
+    const reProcessFilePromises = ctx.data.map((fileId) => backendRequest(ReprocessFileDocument, { id: fileId }))
+    return await Promise.all(reProcessFilePromises)
+  })
+
 const EmbeddingsTableDocument = graphql(`
   query EmbeddingsTable($libraryId: String!) {
     aiLibraryFiles(libraryId: $libraryId) {
@@ -125,7 +139,32 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             <th>#Size</th>
             <th>#Chunks</th>
             <th>Processed</th>
-            <th></th>
+            <th>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="btn btn-xs"
+                  onClick={async () => {
+                    const fileIds = data?.aiLibraryFiles?.map((file) => file.id) || []
+                    await dropAllFiles({ data: fileIds })
+                    await refetch()
+                  }}
+                >
+                  Drop
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-xs"
+                  onClick={async () => {
+                    const fileIds = data?.aiLibraryFiles?.map((file) => file.id) || []
+                    await reProcessAllFiles({ data: fileIds })
+                    await refetch()
+                  }}
+                >
+                  Re-Process
+                </button>
+              </div>
+            </th>
           </tr>
         </thead>
         <tbody>

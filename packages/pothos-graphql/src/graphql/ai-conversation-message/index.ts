@@ -104,6 +104,21 @@ builder.mutationField('hideMessage', (t) =>
   }),
 )
 
+builder.mutationField('unhideMessage', (t) =>
+  t.prismaField({
+    type: 'AiConversationMessage',
+    args: {
+      messageId: t.arg.string({ required: true }),
+    },
+    resolve: (_query, _source, { messageId }) => {
+      return prisma.aiConversationMessage.update({
+        where: { id: messageId },
+        data: { hidden: false },
+      })
+    },
+  }),
+)
+
 builder.mutationField('sendMessage', (t) =>
   t.prismaField({
     type: ['AiConversationMessage'],

@@ -37,6 +37,7 @@ interface IncomingMessage {
   content: string
   source: string
   createdAt: string
+  hidden: boolean
   sender: {
     id: string
     assistantId?: string
@@ -56,14 +57,14 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   })
   const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
-  const messages = conversation.messages.filter((message) => !message.hidden)
+  const messages = conversation.messages
   const isAssistantLoading = false
   const selectedConversationId = conversation.id
 
   useEffect(() => {
     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
     setNewMessages([])
-  }, [conversation.id])
+  }, [messages])
 
   useEffect(() => {
     if (!selectedConversationId || !backend_url) {
@@ -73,26 +74,30 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
       `${backend_url}/conversation-messages-sse?conversationId=${selectedConversationId}`,
     )
 
+    const incomingMessages: IncomingMessage[] = []
+
     evtSource.onmessage = (event) => {
       const incomingMessage = JSON.parse(event.data) as IncomingMessage
 
-      setNewMessages((previousMessages) => {
-        const existingMessage = previousMessages.find((message) => message.id === incomingMessage.id)
-        if (existingMessage) {
-          return previousMessages.map((message) =>
-            message.id === incomingMessage.id
-              ? { ...message, content: message.content + incomingMessage.content }
-              : message,
-          )
-        }
-        return [...previousMessages, incomingMessage].sort((a, b) =>
-          BigInt(a.sequenceNumber) > BigInt(b.sequenceNumber) ? 1 : -1,
+      const index = incomingMessages.findIndex((message) => message.id === incomingMessage.id)
+
+      if (index === -1) {
+        incomingMessages.push(incomingMessage)
+        setNewMessages((prev) =>
+          [...prev, incomingMessage]
+            .filter((message) => !message.hidden)
+            .sort((a, b) => {
+              return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0 ? 1 : -1
+            }),
         )
-      })
+        return
+      } else {
+        incomingMessages[index].content += incomingMessage.content
+      }
 
       const div = document.getElementById(`textarea_${incomingMessage.id}`) as HTMLDivElement
       if (div) {
-        div.innerHTML = convertMdToHtml(incomingMessage.content)
+        div.innerHTML = convertMdToHtml(incomingMessages[index].content)
       }
     }
     evtSource.onerror = (error) => {
@@ -105,7 +110,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
 
   return (
     <section className="flex flex-col gap-4">
-      {messages?.map((message) => (
+      {messages.map((message) => (
         <ConversationMessage
           key={message.id}
           isLoading={isAssistantLoading}
@@ -115,6 +120,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
             source: message.source,
             createdAt: message.createdAt,
             conversationId: selectedConversationId,
+            hidden: message.hidden ?? false,
             sender: {
               id: message.sender.id,
               assistantId: message.sender.assistantId || undefined,
@@ -124,25 +130,28 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
           }}
         />
       ))}
-      {newMessages.map((message) => (
-        <ConversationMessage
-          key={message.id}
-          isLoading={true}
-          message={{
-            id: message.id,
-            content: message.content,
-            source: message.source,
-            createdAt: message.createdAt,
-            conversationId: selectedConversationId,
-            sender: {
-              id: message.sender.id,
-              name: message.sender.name,
-              isBot: message.sender.isBot,
-              assistantId: message.sender.assistantId,
-            },
-          }}
-        />
-      ))}
+      {newMessages
+        .filter((message) => !message.hidden)
+        .map((message) => (
+          <ConversationMessage
+            key={message.id}
+            isLoading={true}
+            message={{
+              id: message.id,
+              content: message.content,
+              source: message.source,
+              createdAt: message.createdAt,
+              conversationId: selectedConversationId,
+              hidden: message.hidden,
+              sender: {
+                id: message.sender.id,
+                name: message.sender.name,
+                isBot: message.sender.isBot,
+                assistantId: message.sender.assistantId,
+              },
+            }}
+          />
+        ))}
     </section>
   )
 }

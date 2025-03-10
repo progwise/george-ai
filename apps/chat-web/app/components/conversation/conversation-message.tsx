@@ -3,8 +3,9 @@ import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
 import { CrossIcon } from '../../icons/cross-icon'
+import { ExpandableArrows } from '../../icons/expandable-arrows-icon'
 import { queryKeys } from '../../query-keys'
-import { hideMessage } from '../../server-functions/conversations'
+import { hideMessage, unhideMessage } from '../../server-functions/conversations'
 import { FormattedMarkdown } from '../formatted-markdown'
 
 interface ConversationMessageProps {
@@ -15,6 +16,7 @@ interface ConversationMessageProps {
     source?: string | null
     createdAt: string
     conversationId: string
+    hidden: boolean
     sender: {
       id: string
       assistantId?: string
@@ -38,12 +40,33 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
     },
   })
 
+  const { mutate: unhideMessageMutate } = useMutation({
+    mutationFn: async (messageId: string) => {
+      await unhideMessage({ data: { messageId } })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.Conversation, message.conversationId],
+      })
+    },
+  })
+
   const handleHideMessage = () => {
-    hideMessageMutate(message.id)
+    if (message.hidden) {
+      unhideMessageMutate(message.id)
+    } else {
+      hideMessageMutate(message.id)
+    }
   }
 
   return (
-    <div key={message.id} className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
+    <div
+      key={message.id}
+      className={twMerge(
+        'bg-base-350 card border border-base-300 p-4 text-base-content shadow-md',
+        message.hidden && 'opacity-50',
+      )}
+    >
       <div className="mb-2 flex items-center gap-3">
         <div
           className={twMerge(
@@ -80,13 +103,20 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
             <span className="loading loading-dots loading-xs"></span>
           </div>
         )}
-        <button type="button" className="btn btn-xs ml-auto self-start" onClick={handleHideMessage}>
-          <CrossIcon />
+        <button
+          type="button"
+          className="btn btn-xs ml-auto self-start lg:tooltip"
+          onClick={handleHideMessage}
+          data-tip={message.hidden ? 'Unhide' : 'Hide'}
+        >
+          {message.hidden ? <ExpandableArrows /> : <CrossIcon />}
         </button>
       </div>
-      <div className="border-t border-base-200 pt-3">
-        <FormattedMarkdown id={`textarea_${message.id}`} markdown={message.content} />
-      </div>
+      {!message.hidden && (
+        <div className="border-t border-base-200 pt-3">
+          <FormattedMarkdown id={`textarea_${message.id}`} markdown={message.content} />
+        </div>
+      )}
       {message.source && <div className="mt-2 text-xs opacity-70">Source: {message.source}</div>}
     </div>
   )

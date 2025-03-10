@@ -229,6 +229,7 @@ export type Mutation = {
   processFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   sendMessage: Array<AiConversationMessage>
+  unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
@@ -309,6 +310,10 @@ export type MutationRemoveConversationParticipantArgs = {
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
   userId: Scalars['String']['input']
+}
+
+export type MutationUnhideMessageArgs = {
+  messageId: Scalars['String']['input']
 }
 
 export type MutationUpdateAiAssistantArgs = {
@@ -1154,6 +1159,15 @@ export type HideMessageMutationVariables = Exact<{
 export type HideMessageMutation = {
   __typename?: 'Mutation'
   hideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
+}
+
+export type UnhideMessageMutationVariables = Exact<{
+  messageId: Scalars['String']['input']
+}>
+
+export type UnhideMessageMutation = {
+  __typename?: 'Mutation'
+  unhideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
 }
 
 export type AddParticipantMutationVariables = Exact<{
@@ -3683,6 +3697,46 @@ export const HideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<HideMessageMutation, HideMessageMutationVariables>
+export const UnhideMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'unhideMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unhideMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messageId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hidden' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
 export const AddParticipantDocument = {
   kind: 'Document',
   definitions: [
