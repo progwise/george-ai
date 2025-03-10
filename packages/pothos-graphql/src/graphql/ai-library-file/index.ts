@@ -146,3 +146,47 @@ builder.mutationField('dropFile', (t) =>
     },
   }),
 )
+
+builder.mutationField('dropFiles', (t) =>
+  t.prismaField({
+    type: ['AiLibraryFile'],
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { libraryId }) => {
+      const files = await prisma.aiLibraryFile.findMany({
+        ...query,
+        where: { libraryId },
+      })
+
+      if (files.length === 0) {
+        throw new Error(`No files found for library: ${libraryId}`)
+      }
+
+      const fileIds = files.map((file) => file.id)
+      await Promise.all(fileIds.map((fileId) => dropFile(libraryId, fileId)))
+
+      const deleteResults = await prisma.aiLibraryFile.deleteMany({
+        where: { libraryId },
+      })
+
+      await Promise.all(
+        files.map((file) => {
+          return new Promise((resolve) => {
+            fs.rm(getFilePath(file.id), (err) => {
+              if (err) {
+                resolve(`Error deleting file ${file.id}: ${err.message}`)
+              } else {
+                resolve(`File ${file.id} deleted`)
+              }
+            })
+          })
+        }),
+      )
+
+      console.log(`dropped files for library ${libraryId}:`, deleteResults)
+
+      return files
+    },
+  }),
+)

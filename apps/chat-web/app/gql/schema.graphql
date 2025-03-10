@@ -215,6 +215,7 @@ type Mutation {
   deleteAiLibrary(id: String!): AiLibrary
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
+  dropFiles(libraryId: String!): [AiLibraryFile!]
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile

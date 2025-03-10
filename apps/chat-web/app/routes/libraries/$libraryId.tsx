@@ -1,10 +1,10 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, useLocation, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef } from 'react'
 import { z } from 'zod'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
 import { GoogleDriveFiles } from '../../components/library/google-drive-files'
 import { LibraryForm } from '../../components/library/library-form'
@@ -57,14 +57,6 @@ const updateLibraryDocument = graphql(`
   }
 `)
 
-const deleteLibraryDocument = graphql(`
-  mutation deleteAiLibrary($id: String!) {
-    deleteAiLibrary(id: $id) {
-      id
-    }
-  }
-`)
-
 const changeLibrary = createServerFn({ method: 'POST' })
   .validator((data: FormData) => {
     if (!(data instanceof FormData)) {
@@ -89,12 +81,6 @@ const changeLibrary = createServerFn({ method: 'POST' })
       data: ctx.data.library,
       id: ctx.data.libraryId,
     })
-  })
-
-const deleteLibrary = createServerFn({ method: 'GET' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(deleteLibraryDocument, { id: ctx.data })
   })
 
 const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
@@ -136,7 +122,6 @@ function RouteComponent() {
       navigate({ to: '..' })
     },
   })
-  const dialogRef = useRef<HTMLDialogElement>(null)
 
   const { aiLibrary, aiLibraries } = data || {}
 
@@ -147,9 +132,6 @@ function RouteComponent() {
 
     saveLibrary(formData)
   }
-  const handleDelete = async () => {
-    dialogRef.current?.showModal()
-  }
 
   const disabled = !auth?.isAuthenticated
 
@@ -157,45 +139,15 @@ function RouteComponent() {
     return <LoadingSpinner />
   }
 
-  const handleDeleteConfirm = async () => {
-    await deleteLibrary({ data: aiLibrary.id })
-    await navigate({ to: '..' })
-    dialogRef.current?.close()
-  }
-
-  const fileCount = aiLibrary.files?.length
-
   return (
     <>
-      <dialog ref={dialogRef} className="modal">
-        <div className="modal-box">
-          <form method="dialog">
-            <button type="submit" className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="text-lg font-bold">Confirm to delete assistant</h3>
-          <p>
-            <q>{aiLibrary.name}</q> will be deleted along with {fileCount} files.
-          </p>
-          <div className="modal-action">
-            <form method="dialog">
-              <button type="submit" className="btn btn-error" onClick={handleDeleteConfirm}>
-                Delete Assistant
-              </button>
-            </form>
-          </div>
-        </div>
-      </dialog>
       <article className="flex w-full flex-col gap-4">
         <LoadingSpinner isLoading={saveIsPending} />
         <div className="flex items-center justify-between">
           <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
           <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
           <div className="flex gap-2">
-            <button type="button" className="btn btn-warning btn-sm" onClick={handleDelete}>
-              Delete
-            </button>
+            <DeleteLibraryDialog library={aiLibrary} />
             <Link type="button" className="btn btn-primary btn-sm" to="..">
               Back
             </Link>
