@@ -1,7 +1,8 @@
-import { builder } from '../builder'
-import { prisma } from '../../prisma'
 import { askAssistantChain } from '@george-ai/langchain-chat'
+
 import { callConversationMessagesUpdateSubscriptions } from '../../conversation-messages-subscription'
+import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 console.log('Setting up: AiConversationMessage')
 
@@ -98,11 +99,10 @@ builder.mutationField('sendMessage', (t) =>
       data: t.arg({ type: messageInput, required: true }),
     },
     resolve: async (_query, _source, { userId, data }) => {
-      const participant =
-        await prisma.aiConversationParticipant.findFirstOrThrow({
-          select: { id: true, user: true, assistant: true },
-          where: { conversationId: data.conversationId, userId },
-        })
+      const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
+        select: { id: true, user: true, assistant: true },
+        where: { conversationId: data.conversationId, userId },
+      })
       const assistantsToAsk = await prisma.aiAssistant.findMany({
         select: {
           id: true,
@@ -158,25 +158,67 @@ builder.mutationField('sendMessage', (t) =>
         },
       })
 
-      const assistantAnswersPromises = assistantsToAsk.map(
-        async (assistant) => {
-          const senderId = assistant.conversationParticipations[0].id
-          const newAssistantMessage = await prisma.aiConversationMessage.create(
-            {
-              data: {
-                content: '',
-                conversationId: data.conversationId,
-                senderId,
-              },
-            },
-          )
+      const assistantAnswersPromises = assistantsToAsk.map(async (assistant) => {
+        const senderId = assistant.conversationParticipations[0].id
+        const newAssistantMessage = await prisma.aiConversationMessage.create({
+          data: {
+            content: '',
+            conversationId: data.conversationId,
+            senderId,
+          },
+        })
 
+        await callConversationMessagesUpdateSubscriptions({
+          conversationId: data.conversationId,
+          message: {
+            messageId: newAssistantMessage.id,
+            sequenceNumber: newAssistantMessage.sequenceNumber,
+            content: '',
+            createdAt: newAssistantMessage.createdAt,
+            updatedAt: newAssistantMessage.updatedAt,
+            sender: {
+              id: participant.id,
+              name: assistant.name,
+              isBot: true,
+              assistantId: assistant.id,
+            },
+          },
+        })
+
+        let answer = ''
+
+        for await (const answerFromAssistant of askAssistantChain({
+          message: {
+            id: newUserMessage.id,
+            content: data.content,
+            isBot: participant.assistant !== null,
+            author: {
+              id: participant.id,
+              name: participant.user?.name || participant.assistant?.name,
+            },
+          },
+          history: history.map((message) => ({
+            id: message.id,
+            content: message.content,
+            author: {
+              id: message.senderId,
+              name: message.sender.assistant?.name || message.sender.user?.name || '',
+            },
+            isBot: message.sender.assistant !== null,
+          })),
+          assistant,
+          libraries: assistant.usages.map((usage) => ({
+            id: usage.library.id,
+            name: usage.library.name,
+          })),
+        })) {
+          const content = answerFromAssistant
           await callConversationMessagesUpdateSubscriptions({
             conversationId: data.conversationId,
             message: {
               messageId: newAssistantMessage.id,
               sequenceNumber: newAssistantMessage.sequenceNumber,
-              content: '',
+              content,
               createdAt: newAssistantMessage.createdAt,
               updatedAt: newAssistantMessage.updatedAt,
               sender: {
@@ -187,63 +229,14 @@ builder.mutationField('sendMessage', (t) =>
               },
             },
           })
+          answer += content
+        }
 
-          let answer = ''
-
-          for await (const answerFromAssistant of askAssistantChain({
-            message: {
-              id: newUserMessage.id,
-              content: data.content,
-              isBot: participant.assistant !== null,
-              author: {
-                id: participant.id,
-                name: participant.user?.name || participant.assistant?.name,
-              },
-            },
-            history: history.map((message) => ({
-              id: message.id,
-              content: message.content,
-              author: {
-                id: message.senderId,
-                name:
-                  message.sender.assistant?.name ||
-                  message.sender.user?.name ||
-                  '',
-              },
-              isBot: message.sender.assistant !== null,
-            })),
-            assistant,
-            libraries: assistant.usages.map((usage) => ({
-              id: usage.library.id,
-              name: usage.library.name,
-            })),
-          })) {
-            const content = answerFromAssistant
-            await callConversationMessagesUpdateSubscriptions({
-              conversationId: data.conversationId,
-              message: {
-                messageId: newAssistantMessage.id,
-                sequenceNumber: newAssistantMessage.sequenceNumber,
-                content,
-                createdAt: newAssistantMessage.createdAt,
-                updatedAt: newAssistantMessage.updatedAt,
-                sender: {
-                  id: participant.id,
-                  name: assistant.name,
-                  isBot: true,
-                  assistantId: assistant.id,
-                },
-              },
-            })
-            answer += content
-          }
-
-          return prisma.aiConversationMessage.update({
-            where: { id: newAssistantMessage.id },
-            data: { content: answer },
-          })
-        },
-      )
+        return prisma.aiConversationMessage.update({
+          where: { id: newAssistantMessage.id },
+          data: { content: answer },
+        })
+      })
 
       const assistantAnswers = await Promise.all(assistantAnswersPromises)
 

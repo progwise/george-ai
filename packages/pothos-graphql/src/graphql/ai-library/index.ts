@@ -1,5 +1,7 @@
-import { dropVectorStore } from '@george-ai/langchain-chat'
 import * as fs from 'fs'
+
+import { dropVectorStore } from '@george-ai/langchain-chat'
+
 import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'

@@ -1,3 +1,10 @@
 pnpm-lock.yaml
-apps/pocketbase/
-apps/chat-web/app/gql/
+.output
+.uploads
+.vinxi
+.turbo
+.vinxi
+.posgres-data*
+.typesense-data
+apps/pocketbase/pb_data
+.node_modules

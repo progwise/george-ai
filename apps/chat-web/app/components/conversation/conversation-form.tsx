@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { sendMessage } from '../../server-functions/conversations'
-import { FragmentType, graphql, useFragment } from '../../gql'
+
 import { useAuth } from '../../auth/auth-hook'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { queryKeys } from '../../query-keys'
+import { sendMessage } from '../../server-functions/conversations'
 
 const ConversationForm_ConversationFragment = graphql(`
   fragment ConversationForm_conversation on AiConversation {
@@ -18,18 +19,12 @@ interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
-  const conversation = useFragment(
-    ConversationForm_ConversationFragment,
-    props.conversation,
-  )
+  const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
   const { user } = useAuth()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async (data: {
-      content: string
-      recipientAssistantIds: string[]
-    }) => {
+    mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
       if (!user?.id) {
         throw new Error('User not set')
       }
@@ -57,24 +52,18 @@ export const ConversationForm = (props: ConversationFormProps) => {
     const form = event.currentTarget
     const formData = new FormData(form)
     const content = formData.get('message') as string
-    const recipientAssistantIds = Array.from(formData.getAll('assistants')).map(
-      (formData) => formData.toString(),
-    )
+    const recipientAssistantIds = Array.from(formData.getAll('assistants')).map((formData) => formData.toString())
 
     form.reset()
 
     mutate({ content, recipientAssistantIds })
   }
 
-  const handleTextareaKeyDown = (
-    event: React.KeyboardEvent<HTMLTextAreaElement>,
-  ) => {
+  const handleTextareaKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
 
-      event.currentTarget.form?.dispatchEvent(
-        new Event('submit', { bubbles: true, cancelable: true }),
-      )
+      event.currentTarget.form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     }
   }
 
@@ -83,16 +72,14 @@ export const ConversationForm = (props: ConversationFormProps) => {
   }
 
   return (
-    <div className="card bg-base-350 text-base-content shadow-md border border-base-300 p-4">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 flex items-center justify-center bg-primary text-primary-content rounded-full">
+    <div className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
+      <div className="mb-2 flex items-center gap-3">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-content">
           {user.name?.[0] || user.username?.[0]}
         </div>
 
         <div className="flex flex-col">
-          <span className="font-semibold text-sm">
-            {user.name || user.username}
-          </span>
+          <span className="text-sm font-semibold">{user.name || user.username}</span>
           <span className="text-xs opacity-60">
             {new Date(Date.now()).toLocaleTimeString([], {
               hour: '2-digit',
@@ -116,26 +103,21 @@ export const ConversationForm = (props: ConversationFormProps) => {
           disabled={isPending}
           onKeyDown={handleTextareaKeyDown}
         ></textarea>
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           {conversation.assistants?.map((assistant) => (
-            <label key={assistant.id} className="cursor-pointer label gap-2">
+            <label key={assistant.id} className="label cursor-pointer gap-2">
               <input
                 name="assistants"
                 value={assistant.id}
                 type="checkbox"
                 defaultChecked
-                className="checkbox checkbox-info checkbox-sm"
+                className="checkbox-info checkbox checkbox-sm"
               />
               <span className="label-text">Ask {assistant.name}</span>
             </label>
           ))}
 
-          <button
-            name="send"
-            type="submit"
-            className="btn btn-primary btn-sm"
-            disabled={isPending}
-          >
+          <button name="send" type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
             Send
           </button>
         </div>

@@ -1,12 +1,8 @@
+import { Listbox as HuListbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { useState } from 'react'
-import {
-  Listbox as HuListbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/react'
-import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon'
+
 import { CheckIcon } from '../icons/check-icon'
+import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon'
 
 interface ListboxProps<T> {
   items: T[]
@@ -14,11 +10,7 @@ interface ListboxProps<T> {
   onChange: (item: T) => void
 }
 
-export const Listbox = <T extends { id: string; name: string }>({
-  items,
-  selectedItem,
-  onChange,
-}: ListboxProps<T>) => {
+export const Listbox = <T extends { id: string; name: string }>({ items, selectedItem, onChange }: ListboxProps<T>) => {
   const [selected, setSelected] = useState(selectedItem)
 
   return (
@@ -42,18 +34,16 @@ export const Listbox = <T extends { id: string; name: string }>({
 
         <ListboxOptions
           transition
-          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-box bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-box bg-white text-base shadow-lg ring-1 ring-black/5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
         >
           {items.map((item) => (
             <ListboxOption
               key={item.id}
               value={item}
-              className="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-[focus]:bg-indigo-600 data-[focus]:text-white data-[focus]:outline-none data-[focus]:rounded-box"
+              className="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 data-[focus]:rounded-box data-[focus]:bg-indigo-600 data-[focus]:text-white data-[focus]:outline-none"
             >
               <div className="flex items-center">
-                <span className="ml-3 block truncate font-normal group-data-[selected]:font-semibold">
-                  {item.name}
-                </span>
+                <span className="ml-3 block truncate font-normal group-data-[selected]:font-semibold">{item.name}</span>
               </div>
 
               <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600 group-[&:not([data-selected])]:hidden group-data-[focus]:text-white">

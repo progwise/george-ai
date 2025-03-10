@@ -209,13 +209,7 @@ migrate(
             id: 'users_avatar',
             maxSelect: 1,
             maxSize: 5242880,
-            mimeTypes: [
-              'image/jpeg',
-              'image/png',
-              'image/svg+xml',
-              'image/gif',
-              'image/webp',
-            ],
+            mimeTypes: ['image/jpeg', 'image/png', 'image/svg+xml', 'image/gif', 'image/webp'],
             name: 'avatar',
             presentable: false,
             protected: false,
@@ -665,9 +659,7 @@ migrate(
           },
         ],
         id: 'pbc_2279338944',
-        indexes: [
-          'CREATE INDEX `idx_mfas_collectionRef_recordRef` ON `_mfas` (collectionRef,recordRef)',
-        ],
+        indexes: ['CREATE INDEX `idx_mfas_collectionRef_recordRef` ON `_mfas` (collectionRef,recordRef)'],
         listRule:
           "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
         name: '_mfas',
@@ -772,9 +764,7 @@ migrate(
           },
         ],
         id: 'pbc_1638494021',
-        indexes: [
-          'CREATE INDEX `idx_otps_collectionRef_recordRef` ON `_otps` (collectionRef, recordRef)',
-        ],
+        indexes: ['CREATE INDEX `idx_otps_collectionRef_recordRef` ON `_otps` (collectionRef, recordRef)'],
         listRule:
           "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
         name: '_otps',

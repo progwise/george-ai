@@ -1,14 +1,15 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+
 import { useAuth } from '../../auth/auth-hook'
 import { LibraryForm } from '../../components/library/library-form'
+import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql'
 import { AiLibraryType } from '../../gql/graphql'
-import { createServerFn } from '@tanstack/react-start'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
-import { graphql } from '../../gql'
-import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
-import { LoadingSpinner } from '../../components/loading-spinner'
 
 const createLibraryDocument = graphql(`
   mutation createAiLibrary($ownerId: String!, $data: AiLibraryInput!) {
@@ -51,13 +52,12 @@ function RouteComponent() {
   const disabled = !isAuthenticated || !user
 
   const navigate = useNavigate()
-  const { mutate: createLibraryMuation, isPending: createIsPending } =
-    useMutation({
-      mutationFn: (data: FormData) => createLibrary({ data }),
-      onSettled: () => {
-        navigate({ to: '..' })
-      },
-    })
+  const { mutate: createLibraryMuation, isPending: createIsPending } = useMutation({
+    mutationFn: (data: FormData) => createLibrary({ data }),
+    onSettled: () => {
+      navigate({ to: '..' })
+    },
+  })
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -72,11 +72,9 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={createIsPending} />
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">Create your Library</h3>
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
-        </div>
+        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
             List

@@ -1,5 +1,6 @@
 import { ask } from '@george-ai/langchain-chat'
 import { RetrievalFlow } from '@george-ai/langchain-chat'
+
 import { builder } from '../builder'
 
 console.log('Setting up: Chat')

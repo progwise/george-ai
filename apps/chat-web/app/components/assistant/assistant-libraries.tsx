@@ -1,11 +1,12 @@
-import { z } from 'zod'
-import { graphql } from '../../gql'
-import { backendRequest } from '../../server-functions/backend'
-import { createServerFn } from '@tanstack/react-start'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { queryKeys } from '../../query-keys'
-import { LoadingSpinner } from '../loading-spinner'
 import { Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
+
+import { graphql } from '../../gql'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
+import { LoadingSpinner } from '../loading-spinner'
 
 const AssistantLibrariesDocument = graphql(/* GraphQL */ `
   query assistantLibraries($assistantId: String!, $ownerId: String!) {
@@ -21,25 +22,15 @@ const AssistantLibrariesDocument = graphql(/* GraphQL */ `
 `)
 
 const getAssistantLibraries = createServerFn({ method: 'GET' })
-  .validator(
-    ({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
-      assistantId: z.string().nonempty().parse(assistantId),
-      ownerId: z.string().nonempty().parse(ownerId),
-    }),
-  )
-  .handler(
-    async (ctx) => await backendRequest(AssistantLibrariesDocument, ctx.data),
-  )
+  .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
+    assistantId: z.string().nonempty().parse(assistantId),
+    ownerId: z.string().nonempty().parse(ownerId),
+  }))
+  .handler(async (ctx) => await backendRequest(AssistantLibrariesDocument, ctx.data))
 
 const UpdateLibraryUsageDocument = graphql(/* GraphQL */ `
-  mutation updateLibraryUsage(
-    $assistantId: String!
-    $libraryId: String!
-    $use: Boolean!
-  ) {
-    updateLibraryUsage(
-      data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }
-    ) {
+  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {
+    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {
       usageId
       deletedCount
     }
@@ -47,29 +38,14 @@ const UpdateLibraryUsageDocument = graphql(/* GraphQL */ `
 `)
 
 const updateLibraryUsage = createServerFn({ method: 'POST' })
-  .validator(
-    ({
-      assistantId,
-      libraryId,
-      use,
-    }: {
-      assistantId: string
-      libraryId: string
-      use: boolean
-    }) => ({
-      assistantId: z.string().nonempty().parse(assistantId),
-      libraryId: z.string().nonempty().parse(libraryId),
-      use: z.boolean().parse(use),
-    }),
-  )
-  .handler(
-    async (ctx) => await backendRequest(UpdateLibraryUsageDocument, ctx.data),
-  )
+  .validator(({ assistantId, libraryId, use }: { assistantId: string; libraryId: string; use: boolean }) => ({
+    assistantId: z.string().nonempty().parse(assistantId),
+    libraryId: z.string().nonempty().parse(libraryId),
+    use: z.boolean().parse(use),
+  }))
+  .handler(async (ctx) => await backendRequest(UpdateLibraryUsageDocument, ctx.data))
 
-const assistantLibrariesQueryOptions = (
-  assistantId: string,
-  ownerId: string,
-) => ({
+const assistantLibrariesQueryOptions = (assistantId: string, ownerId: string) => ({
   queryKey: [queryKeys.AiAssistantLibraries, assistantId, ownerId],
   queryFn: async () => {
     return getAssistantLibraries({ data: { assistantId, ownerId } })
@@ -82,33 +58,18 @@ export interface AssistantLibrariesProps {
   ownerId: string
 }
 
-export const AssistantLibraries = ({
-  assistantId,
-  ownerId,
-}: AssistantLibrariesProps) => {
-  const { data, isLoading, refetch } = useSuspenseQuery(
-    assistantLibrariesQueryOptions(assistantId, ownerId),
-  )
+export const AssistantLibraries = ({ assistantId, ownerId }: AssistantLibrariesProps) => {
+  const { data, isLoading, refetch } = useSuspenseQuery(assistantLibrariesQueryOptions(assistantId, ownerId))
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
-    mutationFn: (data: {
-      assistantId: string
-      libraryId: string
-      use: boolean
-    }) => updateLibraryUsage({ data }),
+    mutationFn: (data: { assistantId: string; libraryId: string; use: boolean }) => updateLibraryUsage({ data }),
     onSettled: () => refetch(),
   })
 
   return (
     <>
       <LoadingSpinner
-        isLoading={
-          isLoading ||
-          !data ||
-          !data.aiLibraries ||
-          !data.aiLibraryUsage ||
-          updateUsageIsPending
-        }
+        isLoading={isLoading || !data || !data.aiLibraries || !data.aiLibraryUsage || updateUsageIsPending}
       />
       <table className="table">
         <thead>
@@ -134,18 +95,13 @@ export const AssistantLibraries = ({
                       })
                     }}
                     name="selectedFiles"
-                    checked={data.aiLibraryUsage?.some(
-                      (usage) => usage.libraryId === library.id,
-                    )}
+                    checked={data.aiLibraryUsage?.some((usage) => usage.libraryId === library.id)}
                   />
                 </label>
               </td>
               <td>{index + 1}</td>
               <td>
-                <Link
-                  to="/libraries/$libraryId"
-                  params={{ libraryId: library.id }}
-                >
+                <Link to="/libraries/$libraryId" params={{ libraryId: library.id }}>
                   {library.name}
                 </Link>
               </td>

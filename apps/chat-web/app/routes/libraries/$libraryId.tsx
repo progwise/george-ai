@@ -1,14 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import {
-  createFileRoute,
-  Link,
-  useLocation,
-  useNavigate,
-  useParams,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, useLocation, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
 import { GoogleDriveFiles } from '../../components/library/google-drive-files'
@@ -47,15 +42,11 @@ const aiLibraryEditQueryDocument = graphql(`
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
-  .validator(
-    ({ libraryId, ownerId }: { libraryId: string; ownerId: string }) => ({
-      id: z.string().nonempty().parse(libraryId),
-      ownerId: z.string().nonempty().parse(ownerId),
-    }),
-  )
-  .handler(
-    async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data),
-  )
+  .validator(({ libraryId, ownerId }: { libraryId: string; ownerId: string }) => ({
+    id: z.string().nonempty().parse(libraryId),
+    ownerId: z.string().nonempty().parse(ownerId),
+  }))
+  .handler(async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data))
 
 const updateLibraryDocument = graphql(`
   mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
@@ -121,18 +112,14 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
 export const Route = createFileRoute('/libraries/$libraryId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
     return {
       libraryId: params.libraryId,
       ownerId: currentUser?.id,
     }
   },
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(
-      librariesQueryOptions(context.ownerId, context.libraryId),
-    )
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId, context.libraryId))
   },
   staleTime: 0,
 })
@@ -141,9 +128,7 @@ function RouteComponent() {
   const auth = useAuth()
   const currentLocation = useLocation()
   const { libraryId } = useParams({ strict: false })
-  const { data, isLoading } = useSuspenseQuery(
-    librariesQueryOptions(auth.user?.id, libraryId),
-  )
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
@@ -185,25 +170,17 @@ function RouteComponent() {
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
           <form method="dialog">
-            <button
-              type="submit"
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            >
+            <button type="submit" className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
               ✕
             </button>
           </form>
           <h3 className="text-lg font-bold">Confirm to delete assistant</h3>
           <p>
-            <q>{aiLibrary.name}</q> will be deleted along with {fileCount}{' '}
-            files.
+            <q>{aiLibrary.name}</q> will be deleted along with {fileCount} files.
           </p>
           <div className="modal-action">
             <form method="dialog">
-              <button
-                type="submit"
-                className="btn btn-error"
-                onClick={handleDeleteConfirm}
-              >
+              <button type="submit" className="btn btn-error" onClick={handleDeleteConfirm}>
                 Delete Assistant
               </button>
             </form>
@@ -212,20 +189,11 @@ function RouteComponent() {
       </dialog>
       <article className="flex w-full flex-col gap-4">
         <LoadingSpinner isLoading={saveIsPending} />
-        <div className="flex justify-between items-center">
-          <LibrarySelector
-            libraries={aiLibraries!}
-            selectedLibrary={aiLibrary!}
-          />
-          <div className="badge badge-secondary badge-outline">
-            {disabled ? 'Disabled' : 'enabled'}
-          </div>
+        <div className="flex items-center justify-between">
+          <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
+          <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
           <div className="flex gap-2">
-            <button
-              type="button"
-              className="btn btn-sm btn-warning"
-              onClick={handleDelete}
-            >
+            <button type="button" className="btn btn-warning btn-sm" onClick={handleDelete}>
               Delete
             </button>
             <Link type="button" className="btn btn-primary btn-sm" to="..">
@@ -235,13 +203,7 @@ function RouteComponent() {
         </div>
 
         <div role="tablist" className="tabs tabs-bordered">
-          <input
-            type="radio"
-            name="my_tabs_1"
-            role="tab"
-            className="tab"
-            aria-label="Rules"
-          />
+          <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
           <div role="tabpanel" className="tab-content p-10">
             {auth.user?.id && (
               <LibraryForm
@@ -253,39 +215,17 @@ function RouteComponent() {
             )}
           </div>
 
-          <input
-            type="radio"
-            name="my_tabs_1"
-            role="tab"
-            className="tab"
-            aria-label="Files"
-            defaultChecked
-          />
+          <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
           <div role="tabpanel" className="tab-content p-10">
             <EmbeddingsTable libraryId={aiLibrary.id} />
           </div>
 
-          <input
-            type="radio"
-            name="my_tabs_1"
-            role="tab"
-            className="tab whitespace-nowrap"
-            aria-label="Google Drive"
-          />
+          <input type="radio" name="my_tabs_1" role="tab" className="tab whitespace-nowrap" aria-label="Google Drive" />
           <div role="tabpanel" className="tab-content p-10">
-            <GoogleDriveFiles
-              libraryId={aiLibrary.id}
-              currentLocationHref={currentLocation.href}
-            />
+            <GoogleDriveFiles libraryId={aiLibrary.id} currentLocationHref={currentLocation.href} />
           </div>
 
-          <input
-            type="radio"
-            name="my_tabs_1"
-            role="tab"
-            className="tab"
-            aria-label="Query"
-          />
+          <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />
           <div role="tabpanel" className="tab-content p-10">
             <LibraryQuery libraryId={aiLibrary.id} />
           </div>

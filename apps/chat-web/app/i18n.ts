@@ -59,26 +59,17 @@ const resources = {
   },
 }
 
-await i18n
-  .use(LanguageDetector)
-  .init({
-    resources,
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false, // React already does XSS protection
-    },
-    detection: {
-      // optional config for i18next-browser-languagedetector
-      order: [
-        'navigator',
-        'htmlTag',
-        'cookie',
-        'localStorage',
-        'path',
-        'subdomain',
-      ],
-      caches: ['cookie'],
-    },
-  })
+await i18n.use(LanguageDetector).init({
+  resources,
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false, // React already does XSS protection
+  },
+  detection: {
+    // optional config for i18next-browser-languagedetector
+    order: ['navigator', 'htmlTag', 'cookie', 'localStorage', 'path', 'subdomain'],
+    caches: ['cookie'],
+  },
+})
 
 export default i18n

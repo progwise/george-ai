@@ -1,33 +1,23 @@
-import {
-  checkFileUpload,
-  completeFileUpload,
-  getFilePath,
-} from '@george-ai/pothos-graphql'
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-export const dataUploadMiddleware = async (
-  httpRequest: Request,
-  httpResponse: Response,
-) => {
+import { checkFileUpload, completeFileUpload, getFilePath } from '@george-ai/pothos-graphql'
+
+export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
     httpResponse.status(405).send('Method Not Allowed')
     return
   }
 
   if (httpRequest.headers['content-type'] === 'multipart/form-data') {
-    httpResponse
-      .status(400)
-      .send('Bad Request: Multipart form data not supported')
+    httpResponse.status(400).send('Bad Request: Multipart form data not supported')
     return
   }
 
   const uploadToken = httpRequest.headers['x-upload-token']
 
   if (!uploadToken) {
-    httpResponse
-      .status(400)
-      .send('Bad Request: x-upload-token header is required')
+    httpResponse.status(400).send('Bad Request: x-upload-token header is required')
     return
   }
 
@@ -55,9 +45,7 @@ export const dataUploadMiddleware = async (
   filestream.on('error', (error) => {
     console.error(error)
     httpResponse.statusCode = 400
-    httpResponse.write(
-      JSON.stringify({ status: 'error in filestream', description: error }),
-    )
+    httpResponse.write(JSON.stringify({ status: 'error in filestream', description: error }))
     httpResponse.end()
   })
 
