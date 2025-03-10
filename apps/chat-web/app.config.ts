@@ -1,8 +1,6 @@
 import { defineConfig } from '@tanstack/react-start/config'
 import tsConfigPaths from 'vite-tsconfig-paths'
 
-import './app/i18n/get-language'
-
 export default defineConfig({
   server: {
     preset: 'node-server',
