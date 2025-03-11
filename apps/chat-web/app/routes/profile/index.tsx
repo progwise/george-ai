@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -81,6 +81,7 @@ export const Route = createFileRoute('/profile/')({
 })
 
 function RouteComponent() {
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
   const auth = useAuth()
 
@@ -89,7 +90,7 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfile, auth.user?.id],
+    queryKey: [queryKeys.UserProfileForEdit, auth.user?.id],
     queryFn: async () => {
       if (!auth.user?.id) {
         return null
@@ -112,6 +113,7 @@ function RouteComponent() {
     },
     onSettled: () => {
       refetchProfile()
+      queryClient.invalidateQueries({ queryKey: queryKeys.UserProfile, userId: auth.user?.id })
     },
   })
 
@@ -124,6 +126,7 @@ function RouteComponent() {
     },
     onSettled: () => {
       refetchProfile()
+      queryClient.invalidateQueries({ queryKey: queryKeys.UserProfile, userId: auth.user?.id })
     },
   })
 

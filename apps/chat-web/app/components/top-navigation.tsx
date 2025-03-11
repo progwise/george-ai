@@ -35,14 +35,14 @@ const TopNavigation = () => {
   }
 
   return (
-    <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-10 lg:mb-14">
+    <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
       <div className="flex w-full items-center justify-between lg:hidden">
         <Link to="/" className="btn btn-ghost">
           <BowlerHatIcon className="size-8" />
         </Link>
 
         {user ? (
-          <Link to={user.profileUrl} className="btn btn-ghost gap-2">
+          <Link to="/profile" className="btn btn-ghost gap-2">
             {user.name}
           </Link>
         ) : (

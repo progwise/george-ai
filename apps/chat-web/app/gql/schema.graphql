@@ -51,6 +51,7 @@ type AiConversationMessage {
   conversation: AiConversation
   conversationId: ID!
   createdAt: DateTime!
+  hidden: Boolean
   id: ID!
   sender: AiConversationParticipant!
   senderId: ID!
@@ -218,6 +219,7 @@ type Mutation {
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   dropFiles(libraryId: String!): [AiLibraryFile!]
+  hideMessage(messageId: String!): AiConversationMessage
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
@@ -225,6 +227,7 @@ type Mutation {
   removeUserProfile(userId: String!): UserProfile
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
+  unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult

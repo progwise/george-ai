@@ -13,6 +13,7 @@ import { DeleteConversationDialog } from '../../components/conversation/delete-c
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { MenuIcon } from '../../icons/menu-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
@@ -92,10 +93,10 @@ function RouteComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxReference = useRef<HTMLInputElement>(null)
+  const { t } = useTranslation()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
-    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden'
   }
 
   const closeMenu = () => {
@@ -212,7 +213,7 @@ function RouteComponent() {
                 type="button"
                 className="btn btn-circle btn-ghost btn-sm lg:tooltip"
                 onClick={handleDeleteConversation}
-                data-tip="Delete Conversation"
+                data-tip={t('tooltips.deleteConversation')}
               >
                 <TrashIcon className="size-6" />
               </button>

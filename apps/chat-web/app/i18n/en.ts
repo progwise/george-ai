@@ -50,9 +50,20 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     increaseLimits: 'Increase limits',
     removeProfile: 'Remove user profile',
+    drop: 'Drop',
+    reProcess: 'Re-Process',
+  },
+  tooltips: {
+    clearEmbeddings: 'Clear embeddings',
+    deleteConversation: 'Delete conversation',
+    drop: 'Drop',
+    reProcess: 'Re-Process',
+    hide: 'Hide',
+    unhide: 'Unhide',
   },
   texts: {
     profileNotFoundFor: 'Profile not found for',
     profileFoundFor: 'Profile found for',
+    noAssistant: 'No assistant',
   },
 }

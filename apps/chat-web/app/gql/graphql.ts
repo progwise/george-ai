@@ -72,6 +72,7 @@ export type AiConversationMessage = {
   conversation?: Maybe<AiConversation>
   conversationId: Scalars['ID']['output']
   createdAt: Scalars['DateTime']['output']
+  hidden?: Maybe<Scalars['Boolean']['output']>
   id: Scalars['ID']['output']
   sender: AiConversationParticipant
   senderId: Scalars['ID']['output']
@@ -227,6 +228,7 @@ export type Mutation = {
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
   dropFiles?: Maybe<Array<AiLibraryFile>>
+  hideMessage?: Maybe<AiConversationMessage>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
@@ -234,6 +236,7 @@ export type Mutation = {
   removeUserProfile?: Maybe<UserProfile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
+  unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsageResult>
@@ -308,6 +311,10 @@ export type MutationDropFilesArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationHideMessageArgs = {
+  messageId: Scalars['String']['input']
+}
+
 export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
 }
@@ -336,6 +343,10 @@ export type MutationSendConfirmationMailArgs = {
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
   userId: Scalars['String']['input']
+}
+
+export type MutationUnhideMessageArgs = {
+  messageId: Scalars['String']['input']
 }
 
 export type MutationUpdateAiAssistantArgs = {
@@ -738,6 +749,7 @@ export type ConversationHistory_ConversationFragment = {
     content?: string | null
     source?: string | null
     createdAt: string
+    hidden?: boolean | null
     sender:
       | {
           __typename?: 'AssistantParticipant'
@@ -755,6 +767,24 @@ export type ConversationHistory_ConversationFragment = {
         }
   }>
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
+
+export type HideMessageMutationVariables = Exact<{
+  messageId: Scalars['String']['input']
+}>
+
+export type HideMessageMutation = {
+  __typename?: 'Mutation'
+  hideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
+}
+
+export type UnhideMessageMutationVariables = Exact<{
+  messageId: Scalars['String']['input']
+}>
+
+export type UnhideMessageMutation = {
+  __typename?: 'Mutation'
+  unhideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
+}
 
 export type ConversationParticipants_ConversationFragment = {
   __typename?: 'AiConversation'
@@ -1425,6 +1455,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hidden' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'sender' },
@@ -2343,6 +2374,86 @@ export const UpdateLibraryUsageDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateLibraryUsageMutation, UpdateLibraryUsageMutationVariables>
+export const HideMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'hideMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'hideMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messageId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hidden' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<HideMessageMutation, HideMessageMutationVariables>
+export const UnhideMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'unhideMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'unhideMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messageId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hidden' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -3106,6 +3217,7 @@ export const GetConversationDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hidden' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'sender' },
