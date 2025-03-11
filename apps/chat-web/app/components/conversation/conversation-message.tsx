@@ -5,8 +5,9 @@ import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { graphql } from '../../gql'
-import { CrossIcon } from '../../icons/cross-icon'
-import { ExpandableArrows } from '../../icons/expandable-arrows-icon'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { CollapseArrows } from '../../icons/collapse-arrows-icon'
+import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { FormattedMarkdown } from '../formatted-markdown'
@@ -65,6 +66,7 @@ interface ConversationMessageProps {
 
 export const ConversationMessage = ({ isLoading, message }: ConversationMessageProps) => {
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   const { mutate: hideMessageMutate } = useMutation({
     mutationFn: async (messageId: string) => {
@@ -142,11 +144,11 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
         )}
         <button
           type="button"
-          className="btn btn-xs ml-auto self-start lg:tooltip"
+          className="btn btn-ghost btn-xs ml-auto self-start lg:tooltip"
           onClick={handleHideMessage}
-          data-tip={message.hidden ? 'Unhide' : 'Hide'}
+          data-tip={message.hidden ? t('tooltips.unhide') : t('tooltips.hide')}
         >
-          {message.hidden ? <ExpandableArrows /> : <CrossIcon />}
+          {message.hidden ? <ExpandArrows /> : <CollapseArrows />}
         </button>
       </div>
       {!message.hidden && (

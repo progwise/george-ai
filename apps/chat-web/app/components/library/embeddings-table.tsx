@@ -8,6 +8,8 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { DropIcon } from '../../icons/drop-icon'
+import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
@@ -201,6 +203,22 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             Clear
           </button>
           <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} disabled={remainingStorage < 1} />
+          <button
+            type="button"
+            className="btn btn-xs"
+            onClick={() => dropAllFilesMutation.mutate(selectedFiles)}
+            disabled={selectedFiles.length === 0}
+          >
+            {t('actions.drop')}
+          </button>
+          <button
+            type="button"
+            className="btn btn-xs"
+            onClick={() => reProcessAllFilesMutation.mutate(selectedFiles)}
+            disabled={selectedFiles.length === 0}
+          >
+            {t('actions.reProcess')}
+          </button>
           <div className="flex w-full justify-end text-sm">
             <span>
               Remaining storage: {remainingStorage} / {userProfile?.freeStorage}
@@ -208,24 +226,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </div>
         </div>
       </nav>
-      <div className="mb-2 flex justify-end gap-2">
-        <button
-          type="button"
-          className="btn btn-xs"
-          onClick={() => dropAllFilesMutation.mutate(selectedFiles)}
-          disabled={selectedFiles.length === 0}
-        >
-          Drop Selected
-        </button>
-        <button
-          type="button"
-          className="btn btn-xs"
-          onClick={() => reProcessAllFilesMutation.mutate(selectedFiles)}
-          disabled={selectedFiles.length === 0}
-        >
-          Re-Process Selected
-        </button>
-      </div>
       <table className="table">
         <thead>
           <tr>
@@ -263,19 +263,21 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               <td className="flex gap-2">
                 <button
                   type="button"
-                  className="btn btn-xs"
+                  className="btn btn-xs lg:tooltip"
                   onClick={() => dropFileMutation.mutate(file.id)}
                   disabled={dropFileMutation.isPending}
+                  data-tip={t('tooltips.drop')}
                 >
-                  {t('actions.drop')}
+                  <DropIcon />
                 </button>
                 <button
                   type="button"
-                  className="btn btn-xs"
+                  className="btn btn-xs lg:tooltip"
                   onClick={() => reProcessFileMutation.mutate(file.id)}
                   disabled={reProcessFileMutation.isPending}
+                  data-tip={t('tooltips.reProcess')}
                 >
-                  Re-Process
+                  <ReprocessIcon />
                 </button>
               </td>
             </tr>
