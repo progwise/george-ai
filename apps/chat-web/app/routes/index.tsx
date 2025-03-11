@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { t } from 'i18next'
+
+import { useTranslation } from '../i18n/use-translation-hook'
 
 const Home = () => {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col gap-4 lg:flex-row">
       <article className="prose prose-xl my-auto">

@@ -15,6 +15,24 @@ builder.prismaObject('User', {
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    registered: t.field({
+      type: 'Boolean',
+      resolve: async (source) => {
+        const count = await prisma.userProfile.count({
+          where: { userId: source.id },
+        })
+        return count > 0
+      },
+    }),
+    profile: t.prismaField({
+      type: 'UserProfile',
+      resolve: async (query, source) => {
+        return prisma.userProfile.findFirst({
+          ...query,
+          where: { userId: source.id },
+        })
+      },
+    }),
   }),
 })
 
@@ -63,6 +81,18 @@ builder.mutationField('login', (t) =>
           given_name,
           family_name,
           username: preferred_username,
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          name: true,
+          given_name: true,
+          family_name: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          profile: true,
         },
       })
       return user
