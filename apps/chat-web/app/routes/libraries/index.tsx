@@ -25,22 +25,17 @@ const librariesDocument = graphql(/* GraphQL */ `
 `)
 
 const getLibraries = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => {
-    return z.string().nonempty().parse(ownerId)
-  })
+  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
   .handler(async (ctx) => {
-    return await backendRequest(librariesDocument, { ownerId: ctx.data })
+    return backendRequest(librariesDocument, { ownerId: ctx.data })
   })
 
 const librariesQueryOptions = (ownerId?: string) =>
   queryOptions({
     queryKey: [queryKeys.AiLibraries, ownerId],
     queryFn: async () => {
-      if (!ownerId) {
-        return null
-      } else {
-        return getLibraries({ data: ownerId })
-      }
+      if (!ownerId) return null
+      return getLibraries({ data: ownerId })
     },
     enabled: !!ownerId,
   })
@@ -48,9 +43,7 @@ const librariesQueryOptions = (ownerId?: string) =>
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
     return {
       ownerId: currentUser?.id,
     }
@@ -65,31 +58,12 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
   const isLoggedIn = !!auth?.user
 
-
-  const formatDateMobile = (dateStr?: string) => {
-    if (!dateStr) return ''
-    const dateObj = new Date(dateStr)
-
-    const yyyyMmDd = dateObj.toISOString().slice(0, 10)
-
-    const fullDateTime = dateObj.toLocaleString()
-    return (
-      <span title={fullDateTime}>
-        {yyyyMmDd}
-      </span>
-    )
-  }
-
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
           {!isLoggedIn ? (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => auth?.login()}
-            >
+            <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
               Log in to see your Libraries
             </button>
           ) : (
@@ -104,72 +78,51 @@ function RouteComponent() {
         )}
       </div>
 
-      <div className="hidden md:block overflow-x-auto">
-        <table className="table">
-          <thead>
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead className="hidden md:table-header-group">
             <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Owner</th>
-              <th>Last update</th>
-              <td></td>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.aiLibraries?.map((library, index) => (
-              <tr key={library.id} className="hover:bg-gray-100">
-                <td>{index + 1}</td>
-                <td>{library.name}</td>
-                <td>{library.libraryType}</td>
-                <td>{library.owner?.name}</td>
-                <td>{library.updatedAt || library.createdAt}</td>
-                <td>
-                  <Link
-                    className="btn btn-outline btn-xs"
-                    to={'/libraries/$libraryId'}
-                    params={{ libraryId: library.id }}
-                  >
-                    Details
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="md:hidden overflow-x-auto">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Details</th>
               <th>#</th>
               <th>Name</th>
               <th>Type</th>
               <th>Owner</th>
-              <th>Date</th>
+              <th className="text-right">Last update</th>
             </tr>
           </thead>
+
           <tbody>
-            {data?.aiLibraries?.map((library, index) => (
-              <tr key={library.id} className="hover:bg-gray-100">
-                <td>
-                  <Link
-                    className="btn btn-outline btn-xs"
-                    to={'/libraries/$libraryId'}
-                    params={{ libraryId: library.id }}
-                  >
-                    Details
-                  </Link>
-                </td>
-                <td>{index + 1}</td>
-                <td>{library.name}</td>
-                <td>{library.libraryType}</td>
-                <td>{library.owner?.name}</td>
-                <td>{formatDateMobile(library.updatedAt || library.createdAt)}</td>
-              </tr>
-            ))}
+            {data?.aiLibraries?.map((library, index) => {
+              const date = new Date(library.updatedAt ?? library.createdAt)
+              const dateString = date.toLocaleString()
+
+              return (
+                <tr key={library.id} className="my-2 block border-b hover:bg-gray-100 md:my-0 md:table-row">
+                  <td data-label="#" className="block px-2 py-1 md:table-cell md:py-2">
+                    {index + 1}
+                  </td>
+                  <td data-label="Name" className="block px-2 py-1 md:table-cell md:py-2">
+                    <Link
+                      to={'/libraries/$libraryId'}
+                      params={{ libraryId: library.id }}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {library.name}
+                    </Link>
+                  </td>
+                  <td data-label="Type" className="block px-2 py-1 md:table-cell md:py-2">
+                    {library.libraryType}
+                  </td>
+
+                  <td data-label="Owner" className="block px-2 py-1 md:table-cell md:py-2">
+                    {library.owner?.name}
+                  </td>
+
+                  <td data-label="Last update" className="block px-2 py-1 text-right md:table-cell md:py-2">
+                    {dateString}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
