@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 
@@ -34,6 +35,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { t, language } = useTranslation()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
@@ -65,25 +67,26 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const dialogReference = useRef<HTMLDialogElement>(null)
 
   const handleCreateConversation = async () => {
-    try {
-      const form = document.querySelector('form')
-      if (!form) {
-        throw new Error('Form not found')
-      }
-      const formData = new FormData(form)
-
-      const assistantIds = formData.getAll('assistants').map((id) => id.toString())
-      const userIds = formData.getAll('users').map((id) => id.toString())
-
-      await mutate({ assistantIds, userIds })
-    } catch {
-      /* empty */
+    const form = document.querySelector('form')
+    if (!form) {
+      throw new Error('Form not found')
     }
+    const formData = new FormData(form)
+
+    const assistantIds = formData.getAll('assistants').map((id) => id.toString())
+    const userIds = formData.getAll('users').map((id) => id.toString())
+
+    await mutate({ assistantIds, userIds })
+
     dialogReference.current?.close()
   }
 
+  if (!language) {
+    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
+  }
+
   if (!user) {
-    return <h3>Login to use conversations.</h3>
+    return <h3>{t('texts.loginToUseConversations')}</h3>
   }
 
   return (
@@ -94,7 +97,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
       <dialog className="modal" ref={dialogReference}>
         <LoadingSpinner isLoading={isPending} />
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Create a new conversation</h3>
+          <h3 className="text-lg font-bold">{t('texts.newConversation')}</h3>
           <p className="py-0">You are about to start a new conversation with the selected users and assistants.</p>
           <p className="py-4">You can change these participants any time.</p>
           <div className="flex flex-row justify-items-stretch gap-2">

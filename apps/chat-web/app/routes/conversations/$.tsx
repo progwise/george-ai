@@ -13,6 +13,7 @@ import { DeleteConversationDialog } from '../../components/conversation/delete-c
 import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { MenuIcon } from '../../icons/menu-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
@@ -95,6 +96,7 @@ function RouteComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxReference = useRef<HTMLInputElement>(null)
+  const { t, language } = useTranslation()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -128,8 +130,12 @@ function RouteComponent() {
     queryFn: async () => (userId ? await getAssignableAssistants({ data: { ownerId: userId } }) : null),
   })
 
+  if (!language) {
+    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
+  }
+
   if (!userId) {
-    return <h3>Login to use conversations.</h3>
+    return <h3>{t('texts.loginToUseConversations')}</h3>
   }
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {

@@ -55,5 +55,8 @@ export default {
   texts: {
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     profileFoundFor: 'Benutzerprofil gefunden für',
+    newConversation: 'Neue Konversation',
+    deleteConversation: 'Konversation löschen',
+    loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
   },
 }

@@ -4,8 +4,10 @@ import { useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { deleteConversation } from '../../server-functions/conversations'
+import { LoadingSpinner } from '../loading-spinner'
 
 const ConversationDelete_ConversationFragment = graphql(`
   fragment ConversationDelete_conversation on AiConversation {
@@ -25,6 +27,7 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
   const auth = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { t, language } = useTranslation()
 
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
@@ -43,12 +46,12 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
   const dialogReference = useRef<HTMLDialogElement>(null)
 
   const handleDeleteConversation = async () => {
-    try {
-      await mutate()
-    } catch {
-      /* empty */
-    }
+    await mutate()
     dialogReference.current?.close()
+  }
+
+  if (!language) {
+    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
   }
 
   return (
@@ -64,7 +67,7 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
       <dialog ref={dialogReference} className="modal">
         <div className="modal-box">
           <h3 className="text-lg font-bold">
-            <span>Delete conversation</span> <br />
+            <span>{t('texts.deleteConversation')}</span> <br />
             <time className="text-nowrap">{new Date(conversation.createdAt).toLocaleString().replace(',', '')}</time>
             {' with '}
             <span>{conversation.assistants?.map((assistant) => assistant.name).join(',')}</span>
