@@ -48,7 +48,9 @@ const librariesQueryOptions = (ownerId?: string) =>
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([
+      queryKeys.CurrentUser,
+    ])
     return {
       ownerId: currentUser?.id,
     }
@@ -63,12 +65,31 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
   const isLoggedIn = !!auth?.user
 
+
+  const formatDateMobile = (dateStr?: string) => {
+    if (!dateStr) return ''
+    const dateObj = new Date(dateStr)
+
+    const yyyyMmDd = dateObj.toISOString().slice(0, 10)
+
+    const fullDateTime = dateObj.toLocaleString()
+    return (
+      <span title={fullDateTime}>
+        {yyyyMmDd}
+      </span>
+    )
+  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
           {!isLoggedIn ? (
-            <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => auth?.login()}
+            >
               Log in to see your Libraries
             </button>
           ) : (
@@ -83,7 +104,7 @@ function RouteComponent() {
         )}
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto">
         <table className="table">
           <thead>
             <tr>
@@ -112,6 +133,41 @@ function RouteComponent() {
                     Details
                   </Link>
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="md:hidden overflow-x-auto">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Details</th>
+              <th>#</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Owner</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.aiLibraries?.map((library, index) => (
+              <tr key={library.id} className="hover:bg-gray-100">
+                <td>
+                  <Link
+                    className="btn btn-outline btn-xs"
+                    to={'/libraries/$libraryId'}
+                    params={{ libraryId: library.id }}
+                  >
+                    Details
+                  </Link>
+                </td>
+                <td>{index + 1}</td>
+                <td>{library.name}</td>
+                <td>{library.libraryType}</td>
+                <td>{library.owner?.name}</td>
+                <td>{formatDateMobile(library.updatedAt || library.createdAt)}</td>
               </tr>
             ))}
           </tbody>
