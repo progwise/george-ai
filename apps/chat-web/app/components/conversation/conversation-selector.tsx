@@ -1,7 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
+import { dateString } from '@george-ai/web-utils'
+
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 
 const ConversationSelector_ConversationsFragment = graphql(`
   fragment ConversationSelector_conversations on AiConversation {
@@ -26,11 +29,12 @@ export const ConversationSelector = ({
   onClick,
 }: ConversationSelectorProps) => {
   const conversations = useFragment(ConversationSelector_ConversationsFragment, conversationsFragment)
+  const { t, language } = useTranslation()
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<Record<string, typeof conversations>>(
     (accumulator, conversation) => {
-      const date = new Date(conversation.createdAt).toISOString().split('T')[0]
+      const date = dateString(conversation.createdAt, language)
       if (!accumulator[date]) {
         accumulator[date] = []
       }
@@ -58,8 +62,8 @@ export const ConversationSelector = ({
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >
-                    <span>
-                      {conversation.assistants?.map((assistant) => assistant.name).join(', ') || 'No assistant'}
+                    <span className="mt-1 block">
+                      {conversation.assistants?.map((assistant) => assistant.name).join(', ') || t('texts.noAssistant')}
                     </span>
                   </Link>
                 </li>

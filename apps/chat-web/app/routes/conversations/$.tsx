@@ -100,7 +100,6 @@ function RouteComponent() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
-    document.body.style.overflow = isMenuOpen ? 'auto' : 'hidden'
   }
 
   const closeMenu = () => {

@@ -43,7 +43,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     onSettled: () => {
       // refetch the conversation to get the new message
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, conversation.id, queryKeys.UserProfile, user?.id],
+        queryKey: [queryKeys.Conversation, conversation.id],
       })
     },
   })
