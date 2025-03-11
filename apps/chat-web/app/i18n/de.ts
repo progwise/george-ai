@@ -51,9 +51,20 @@ export default {
     sendConfirmationMail: 'Bestätigungsmail senden',
     increaseLimits: 'Grenzen erhöhen',
     removeProfile: 'Benutzerprofil entfernen',
+    drop: 'Entfernen',
+    reProcess: 'Erneut verarbeiten',
+  },
+  tooltips: {
+    clearEmbeddings: 'Einbettungen löschen',
+    DeleteConversation: 'Konversation löschen',
+    drop: 'Entfernen',
+    reProcess: 'Erneut verarbeiten',
+    hide: 'Verbergen',
+    unhide: 'Einblenden',
   },
   texts: {
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     profileFoundFor: 'Benutzerprofil gefunden für',
+    noAssistant: 'Kein Assistent',
   },
 }

@@ -3,11 +3,12 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
+import { dateTimeString } from '@george-ai/web-utils'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
-import { dateTimeString } from '@george-ai/web-utils'
 
 const librariesDocument = graphql(/* GraphQL */ `
   query aiLibraries($ownerId: String!) {
@@ -44,9 +45,7 @@ const librariesQueryOptions = (ownerId?: string) =>
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
     return {
       ownerId: currentUser?.id,
     }
@@ -95,16 +94,10 @@ function RouteComponent() {
 
           <tbody>
             {data?.aiLibraries?.map((library, index) => {
-              const displayedDate = dateTimeString(
-                library.updatedAt ?? library.createdAt,
-                'en',
-              )
+              const displayedDate = dateTimeString(library.updatedAt ?? library.createdAt, 'en')
 
               return (
-                <tr
-                  key={library.id}
-                  className="my-2 block border-b hover:bg-gray-100 md:my-0 md:table-row"
-                >
+                <tr key={library.id} className="my-2 block border-b hover:bg-gray-100 md:my-0 md:table-row">
                   <td data-label="#" className="block px-2 py-1 md:table-cell md:py-2">
                     {index + 1}
                   </td>
@@ -123,10 +116,7 @@ function RouteComponent() {
                   <td data-label="Owner" className="block px-2 py-1 md:table-cell md:py-2">
                     {library.owner?.name}
                   </td>
-                  <td
-                    data-label="Last update"
-                    className="block px-2 py-1 text-right md:table-cell md:py-2"
-                  >
+                  <td data-label="Last update" className="block px-2 py-1 text-right md:table-cell md:py-2">
                     {displayedDate}
                   </td>
                 </tr>
