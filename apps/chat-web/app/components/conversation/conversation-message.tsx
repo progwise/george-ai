@@ -1,12 +1,49 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { twMerge } from 'tailwind-merge'
+import { z } from 'zod'
 
+import { graphql } from '../../gql'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ExpandableArrows } from '../../icons/expandable-arrows-icon'
 import { queryKeys } from '../../query-keys'
-import { hideMessage, unhideMessage } from '../../server-functions/conversations'
+import { backendRequest } from '../../server-functions/backend'
 import { FormattedMarkdown } from '../formatted-markdown'
+
+const HideMessageDocument = graphql(`
+  mutation hideMessage($messageId: String!) {
+    hideMessage(messageId: $messageId) {
+      id
+      hidden
+    }
+  }
+`)
+
+const hideMessage = createServerFn({ method: 'POST' })
+  .validator((data: { messageId: string }) => z.object({ messageId: z.string() }).parse(data))
+  .handler((ctx) =>
+    backendRequest(HideMessageDocument, {
+      messageId: ctx.data.messageId,
+    }),
+  )
+
+const UnhideMessageDocument = graphql(`
+  mutation unhideMessage($messageId: String!) {
+    unhideMessage(messageId: $messageId) {
+      id
+      hidden
+    }
+  }
+`)
+
+const unhideMessage = createServerFn({ method: 'POST' })
+  .validator((data: { messageId: string }) => z.object({ messageId: z.string() }).parse(data))
+  .handler((ctx) =>
+    backendRequest(UnhideMessageDocument, {
+      messageId: ctx.data.messageId,
+    }),
+  )
 
 interface ConversationMessageProps {
   isLoading: boolean
@@ -33,7 +70,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
     mutationFn: async (messageId: string) => {
       await hideMessage({ data: { messageId } })
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, message.conversationId],
       })
@@ -44,7 +81,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
     mutationFn: async (messageId: string) => {
       await unhideMessage({ data: { messageId } })
     },
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, message.conversationId],
       })

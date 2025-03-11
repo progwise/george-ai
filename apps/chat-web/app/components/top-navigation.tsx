@@ -35,7 +35,7 @@ const TopNavigation = () => {
   }
 
   return (
-    <nav className="navbar sticky top-0 z-50 mb-6 rounded-box bg-base-200 shadow-xl">
+    <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
       <div className="flex w-full items-center justify-between lg:hidden">
         <Link to="/" className="btn btn-ghost">
           <BowlerHatIcon className="size-8" />

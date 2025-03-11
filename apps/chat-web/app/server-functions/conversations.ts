@@ -76,37 +76,3 @@ export const deleteConversation = createServerFn({ method: 'POST' })
       conversationId: ctx.data.conversationId,
     }),
   )
-
-const HideMessageDocument = graphql(`
-  mutation hideMessage($messageId: String!) {
-    hideMessage(messageId: $messageId) {
-      id
-      hidden
-    }
-  }
-`)
-
-export const hideMessage = createServerFn({ method: 'POST' })
-  .validator((data: { messageId: string }) => z.object({ messageId: z.string() }).parse(data))
-  .handler((ctx) =>
-    backendRequest(HideMessageDocument, {
-      messageId: ctx.data.messageId,
-    }),
-  )
-
-const UnhideMessageDocument = graphql(`
-  mutation unhideMessage($messageId: String!) {
-    unhideMessage(messageId: $messageId) {
-      id
-      hidden
-    }
-  }
-`)
-
-export const unhideMessage = createServerFn({ method: 'POST' })
-  .validator((data: { messageId: string }) => z.object({ messageId: z.string() }).parse(data))
-  .handler((ctx) =>
-    backendRequest(UnhideMessageDocument, {
-      messageId: ctx.data.messageId,
-    }),
-  )

@@ -37,7 +37,6 @@ interface IncomingMessage {
   content: string
   source: string
   createdAt: string
-  hidden: boolean
   sender: {
     id: string
     assistantId?: string
@@ -58,7 +57,6 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
   const messages = conversation.messages
-  const isAssistantLoading = false
   const selectedConversationId = conversation.id
 
   useEffect(() => {
@@ -84,11 +82,9 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
       if (index === -1) {
         incomingMessages.push(incomingMessage)
         setNewMessages((prev) =>
-          [...prev, incomingMessage]
-            .filter((message) => !message.hidden)
-            .sort((a, b) => {
-              return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0 ? 1 : -1
-            }),
+          [...prev, incomingMessage].sort((a, b) => {
+            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0 ? 1 : -1
+          }),
         )
         return
       } else {
@@ -113,7 +109,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
       {messages.map((message) => (
         <ConversationMessage
           key={message.id}
-          isLoading={isAssistantLoading}
+          isLoading={false}
           message={{
             id: message.id,
             content: message.content || '',
@@ -130,28 +126,26 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
           }}
         />
       ))}
-      {newMessages
-        .filter((message) => !message.hidden)
-        .map((message) => (
-          <ConversationMessage
-            key={message.id}
-            isLoading={true}
-            message={{
-              id: message.id,
-              content: message.content,
-              source: message.source,
-              createdAt: message.createdAt,
-              conversationId: selectedConversationId,
-              hidden: message.hidden,
-              sender: {
-                id: message.sender.id,
-                name: message.sender.name,
-                isBot: message.sender.isBot,
-                assistantId: message.sender.assistantId,
-              },
-            }}
-          />
-        ))}
+      {newMessages.map((message) => (
+        <ConversationMessage
+          key={message.id}
+          isLoading={true}
+          message={{
+            id: message.id,
+            content: message.content,
+            source: message.source,
+            createdAt: message.createdAt,
+            conversationId: selectedConversationId,
+            hidden: false,
+            sender: {
+              id: message.sender.id,
+              name: message.sender.name,
+              isBot: message.sender.isBot,
+              assistantId: message.sender.assistantId,
+            },
+          }}
+        />
+      ))}
     </section>
   )
 }
