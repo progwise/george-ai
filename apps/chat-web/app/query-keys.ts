@@ -12,4 +12,6 @@ export const queryKeys = {
   ConversationAssignableAssistants: 'ConversationAssignableAssistants',
   CurrentUser: 'CurrentUser',
   BackendUrl: 'BackendUrl',
+  UserProfile: 'UserProfile',
+  UserProfileForEdit: 'UserProfileForEdit',
 }

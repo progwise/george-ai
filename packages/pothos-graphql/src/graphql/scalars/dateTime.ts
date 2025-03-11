@@ -4,8 +4,4 @@ import { builder } from '../builder'
 
 console.log('Setting up: DateTime')
 
-export const DateTimeScalar = builder.addScalarType(
-  'DateTime',
-  GraphQLDateTime,
-  {},
-)
+export const DateTimeScalar = builder.addScalarType('DateTime', GraphQLDateTime, {})

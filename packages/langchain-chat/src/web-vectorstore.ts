@@ -6,11 +6,7 @@ const retrieverWeb = new TavilySearchAPIRetriever({
   k: WEB_RETRIEVAL_K,
 })
 
-export const getWebContent = async ({
-  question,
-}: {
-  question: string
-}): Promise<string> => {
+export const getWebContent = async ({ question }: { question: string }): Promise<string> => {
   try {
     const webQuery = `${question}`
     const webDocuments = await retrieverWeb.invoke(webQuery)
@@ -20,9 +16,7 @@ export const getWebContent = async ({
     }
 
     console.log('Retrieved web content:', webDocuments)
-    const content = webDocuments
-      .map((document_) => document_.pageContent)
-      .join('\n\n')
+    const content = webDocuments.map((document_) => document_.pageContent).join('\n\n')
 
     if (!content) {
       throw new Error('No content retrieved from web documents')
@@ -32,14 +26,10 @@ export const getWebContent = async ({
     return webResponse
   } catch (error) {
     console.error('Error retrieving web content:', error)
-    if (
-      (error as { response?: { status?: number } }).response?.status === 401
-    ) {
+    if ((error as { response?: { status?: number } }).response?.status === 401) {
       console.error('Authentication failed. Check API credentials.')
       return 'Authentication error: Unable to retrieve web information.'
-    } else if (
-      (error as { response?: { status?: number } }).response?.status === 404
-    ) {
+    } else if ((error as { response?: { status?: number } }).response?.status === 404) {
       console.error('Resource not found. Check the API endpoint.')
       return 'Resource not found: Unable to retrieve web information.'
     } else {

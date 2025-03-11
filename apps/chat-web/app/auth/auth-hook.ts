@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ensureBackendUser, getKeycloakConfig } from './auth.server'
 import Keycloak from 'keycloak-js'
+
 import { queryKeys } from '../query-keys'
+import { getUserProfile } from '../server-functions/users'
+import { ensureBackendUser, getKeycloakConfig } from './auth.server'
 
 export interface CurrentUser {
   id: string
@@ -11,7 +13,6 @@ export interface CurrentUser {
   given_name: string
   family_name: string
   createdAt: string
-  profileUrl: string
 }
 
 export interface AuthContext {
@@ -49,12 +50,7 @@ export const useAuth = () => {
   })
 
   const { data: currentUser } = useQuery({
-    queryKey: [
-      queryKeys.CurrentUser,
-      keycloak,
-      keycloak?.authenticated,
-      keycloak?.token,
-    ],
+    queryKey: [queryKeys.CurrentUser, keycloak, keycloak?.authenticated, keycloak?.token],
     staleTime: Infinity,
     enabled: !!keycloak && !keycloakIsLoading,
     queryFn: async () => {
@@ -69,7 +65,19 @@ export const useAuth = () => {
         return null
       }
       const { login: user } = await ensureBackendUser({ data: token })
-      return { ...user, profileUrl: keycloak.createAccountUrl() }
+      return { ...user }
+    },
+  })
+
+  const { data: currentUserProfile } = useQuery({
+    queryKey: [queryKeys.UserProfile, currentUser?.id],
+    enabled: !!currentUser,
+    queryFn: async () => {
+      if (!currentUser?.id) {
+        return null
+      }
+      const userProfile = await getUserProfile({ data: { userId: currentUser.id } })
+      return userProfile
     },
   })
 
@@ -90,6 +98,7 @@ export const useAuth = () => {
       },
       logout: async () => {},
       user: null,
+      userProfile: null,
     }
   }
 
@@ -101,5 +110,6 @@ export const useAuth = () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUser] })
     },
     user: currentUser,
+    userProfile: currentUserProfile?.userProfile,
   }
 }

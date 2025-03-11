@@ -13,15 +13,8 @@ export const getGoogleLoginUrl = createServerFn({
     }
   })
   .handler(({ data }) => {
-    const scopes = [
-      'openid',
-      'email',
-      'profile',
-      'https://www.googleapis.com/auth/drive.readonly',
-    ]
-    const encodedScopes = scopes
-      .map((scope) => encodeURIComponent(scope))
-      .join('%20')
+    const scopes = ['openid', 'email', 'profile', 'https://www.googleapis.com/auth/drive.readonly']
+    const encodedScopes = scopes.map((scope) => encodeURIComponent(scope)).join('%20')
     return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_DRIVE_CLIENT_ID}&redirect_uri=${data.redirect_url}&response_type=code&scope=${encodedScopes}`
   })
 
@@ -50,15 +43,12 @@ export const getGoogleAccessToken = createServerFn({
   .handler(async ({ data }) => {
     const params = `?client_id=${GOOGLE_DRIVE_CLIENT_ID}&client_secret=${GOOGLE_DRIVE_CLIENT_SECRET}&code=${data.access_code}&grant_type=authorization_code&redirect_uri=${data.redirect_url}`
     console.log('getGoogleAccessToken params', params)
-    const tokenData = await fetch(
-      `https://oauth2.googleapis.com/token${params}`,
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-        },
+    const tokenData = await fetch(`https://oauth2.googleapis.com/token${params}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
       },
-    )
+    })
 
     const json = await tokenData.json()
     if (!tokenData.ok) {
@@ -83,14 +73,11 @@ export const getGoogleUserData = createServerFn({
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const user_data = await fetch(
-      'https://www.googleapis.com/oauth2/v1/userinfo?alt=json',
-      {
-        headers: {
-          Authorization: `${data.token_type} ${data.access_token}`,
-        },
+    const user_data = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
+      headers: {
+        Authorization: `${data.token_type} ${data.access_token}`,
       },
-    )
+    })
       .then((res) => res.json())
       .catch((error) => {
         console.error('error getting user data', error)

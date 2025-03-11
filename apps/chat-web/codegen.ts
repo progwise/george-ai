@@ -1,4 +1,5 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
+
 import 'dotenv/config'
 
 const config: CodegenConfig = {
@@ -28,7 +29,7 @@ const config: CodegenConfig = {
       },
     },
   },
-  hooks: { afterOneFileWrite: ['prettier --write'] },
+  hooks: { afterOneFileWrite: ['prettier --write ./app/gql'] },
   config: {
     scalars: { Date: 'string', DateTime: 'string', Decimal: 'number' },
     dedupeFragments: true,

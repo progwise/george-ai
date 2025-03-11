@@ -1,4 +1,5 @@
 import React from 'react'
+
 import { AiAssistant } from '../../gql/graphql'
 
 export interface AssistantEditFormProps {
@@ -19,14 +20,8 @@ export const AssistantForm = ({
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="assistantId" value={assistant.id} />
-
       <label className="form-control w-full max-w-xs">
-        <input
-          type="file"
-          accept="image/*"
-          name="icon"
-          className="file-input file-input-bordered w-full max-w-xs"
-        />
+        <input type="file" accept="image/*" name="icon" className="file-input file-input-bordered w-full max-w-xs" />
       </label>
       <label className="input input-bordered flex items-center gap-2">
         Name your assistant:
@@ -43,7 +38,7 @@ export const AssistantForm = ({
       <textarea
         key={assistant.description}
         name="description"
-        className="textarea textarea-bordered flex-grow w-full"
+        className="textarea textarea-bordered w-full flex-grow"
         placeholder="Born and brought up in northern Germany, George is the most recent British monarch born outside Great Britain."
         defaultValue={assistant.description || ''}
       ></textarea>
@@ -77,12 +72,8 @@ export const AssistantForm = ({
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 items-center">
-        <button
-          disabled={disabled}
-          type="submit"
-          className="btn btn-primary btn-sm"
-        >
+      <div className="flex items-center justify-end gap-4">
+        <button disabled={disabled} type="submit" className="btn btn-primary btn-sm">
           Save
         </button>
       </div>

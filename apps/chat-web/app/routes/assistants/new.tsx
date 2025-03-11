@@ -1,14 +1,15 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { graphql } from '../../gql'
-import { AiAssistantInputSchema } from '../../gql/validation'
-import { AssistantForm } from '../../components/assistant/assistant-form'
-import { AiAssistantType } from '../../gql/graphql'
-import { backendRequest } from '../../server-functions/backend'
+
 import { useAuth } from '../../auth/auth-hook'
-import { useMutation } from '@tanstack/react-query'
+import { AssistantForm } from '../../components/assistant/assistant-form'
 import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql'
+import { AiAssistantType } from '../../gql/graphql'
+import { AiAssistantInputSchema } from '../../gql/validation'
+import { backendRequest } from '../../server-functions/backend'
 
 const createAssistantDocument = graphql(`
   mutation createAiAssistant($ownerId: String!, $data: AiAssistantInput!) {
@@ -53,13 +54,12 @@ function RouteComponent() {
   const auth = useAuth()
 
   const navigate = useNavigate()
-  const { mutate: createAssistantMutation, isPending: createIsPending } =
-    useMutation({
-      mutationFn: (data: FormData) => createAssistant({ data }),
-      onSettled: () => {
-        navigate({ to: '..' })
-      },
-    })
+  const { mutate: createAssistantMutation, isPending: createIsPending } = useMutation({
+    mutationFn: (data: FormData) => createAssistant({ data }),
+    onSettled: () => {
+      navigate({ to: '..' })
+    },
+  })
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -73,11 +73,9 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={createIsPending} />
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">New Assistant</h3>
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
-        </div>
+        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
             List

@@ -17,6 +17,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
       - uses: ./.github/actions/establish-ssh
         id: ssh
         with:
@@ -36,6 +45,8 @@ jobs:
             echo "TAVILY_API_KEY=${{ secrets.TAVILY_API_KEY}}" >>./gai-backend.env
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY}}" >>./gai-backend.env
             echo "GRAPHQL_API_KEY=${{ secrets.GRAPHQL_API_KEY}}" >>./gai-backend.env
+            echo "SMTP_USER=${{ secrets.SMTP_USER}}" >>./gai-backend.env
+            echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD}}" >>./gai-backend.env
             echo "POSTGRES_PASSWORD=${{ secrets.GAI_DB_PASSWORD}}" >./gai-db.env
             echo "GRAPHQL_API_KEY=${{ secrets.GRAPHQL_API_KEY}}" >./gai-chatweb.env
             echo "GOOGLE_DRIVE_CLIENT_ID=${{ secrets.GOOGLE_DRIVE_CLIENT_ID}}" >>./gai-chatweb.env
@@ -55,3 +66,9 @@ jobs:
             docker pull ghcr.io/progwise/george-ai/pocketbase:latest
             docker stack deploy --with-registry-auth --compose-file /home/swarm/george-ai-stack.yml george-ai
           EOF
+      - name: Run prisma migrations
+        run: |
+          echo "Run prisma migrationson gai"
+          export DATABASE_URL=postgresql://chatweb:${{ secrets.GAI_DB_PASSWORD}}@backend-db.george-ai.net:5434/chatweb?schema=public
+          cd ./packages/pothos-graphql
+          pnpx prisma migrate deploy

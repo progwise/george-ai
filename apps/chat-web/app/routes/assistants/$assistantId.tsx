@@ -1,22 +1,18 @@
-import {
-  createFileRoute,
-  Link,
-  useParams,
-  useNavigate,
-} from '@tanstack/react-router'
-import { graphql } from '../../gql/gql'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import { Link, createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { AssistantForm } from '../../components/assistant/assistant-form'
-import { AiAssistantInputSchema } from '../../gql/validation'
-import { backendRequest } from '../../server-functions/backend'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
-import { AssistantSelector } from '../../components/assistant/assistant-selector'
-import { queryKeys } from '../../query-keys'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
-import { useMutation } from '@tanstack/react-query'
+import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql/gql'
+import { AiAssistantInputSchema } from '../../gql/validation'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
 
 const aiAssistantEditQueryDocument = graphql(`
   query aiAssistantEdit($id: String!, $ownerId: String!) {
@@ -38,12 +34,10 @@ const aiAssistantEditQueryDocument = graphql(`
 `)
 
 const getAssistant = createServerFn({ method: 'GET' })
-  .validator(
-    ({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
-      assistantId: z.string().nonempty().parse(assistantId),
-      ownerId: z.string().nonempty().parse(ownerId),
-    }),
-  )
+  .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
+    assistantId: z.string().nonempty().parse(assistantId),
+    ownerId: z.string().nonempty().parse(ownerId),
+  }))
   .handler(
     async (ctx) =>
       await backendRequest(aiAssistantEditQueryDocument, {
@@ -105,21 +99,15 @@ const assistantsQueryOptions = (ownerId?: string, assistantId?: string) => ({
 export const Route = createFileRoute('/assistants/$assistantId')({
   component: RouteComponent,
   beforeLoad: async ({ params, context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
     return {
       assistantId: params.assistantId,
       ownerId: currentUser?.id,
     }
   },
   loader: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
-    context.queryClient.ensureQueryData(
-      assistantsQueryOptions(currentUser?.id, context.assistantId),
-    )
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
+    context.queryClient.ensureQueryData(assistantsQueryOptions(currentUser?.id, context.assistantId))
   },
   staleTime: 0,
 })
@@ -127,9 +115,7 @@ export const Route = createFileRoute('/assistants/$assistantId')({
 function RouteComponent() {
   const { user } = useAuth()
   const { assistantId } = useParams({ strict: false })
-  const { data, isLoading } = useSuspenseQuery(
-    assistantsQueryOptions(user?.id, assistantId),
-  )
+  const { data, isLoading } = useSuspenseQuery(assistantsQueryOptions(user?.id, assistantId))
 
   const { aiAssistant, aiAssistants } = data || {}
 
@@ -159,14 +145,9 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={saveIsPending} />
-      <div className="flex justify-between items-center">
-        <AssistantSelector
-          assistants={aiAssistants!}
-          selectedAssistant={aiAssistant!}
-        />
-        <div className="badge badge-secondary badge-outline">
-          {disabled ? 'Disabled' : 'enabled'}
-        </div>
+      <div className="flex items-center justify-between">
+        <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
+        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
             List
@@ -175,30 +156,12 @@ function RouteComponent() {
       </div>
 
       <div role="tablist" className="tabs tabs-bordered">
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Rules"
-          defaultChecked
-        />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" defaultChecked />
         <div role="tabpanel" className="tab-content p-10">
-          <AssistantForm
-            assistant={aiAssistant}
-            ownerId={user.id}
-            handleSubmit={handleSubmit}
-            disabled={disabled}
-          />
+          <AssistantForm assistant={aiAssistant} ownerId={user.id} handleSubmit={handleSubmit} disabled={disabled} />
         </div>
 
-        <input
-          type="radio"
-          name="my_tabs_1"
-          role="tab"
-          className="tab"
-          aria-label="Used Libraries"
-        />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Used Libraries" />
         <div role="tabpanel" className="tab-content p-10">
           <AssistantLibraries assistantId={aiAssistant.id} ownerId={user.id} />
         </div>

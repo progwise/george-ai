@@ -1,5 +1,6 @@
-import { ask, RetrievalFlow } from '@george-ai/langchain-chat'
-import i18n from '../i18n'
+import { RetrievalFlow, ask } from '@george-ai/langchain-chat'
+
+import { getLanguage, translate } from '../i18n'
 
 export interface LangchainChatMessage {
   id: string
@@ -11,14 +12,16 @@ export interface LangchainChatMessage {
   retrievalFlow: RetrievalFlow
 }
 
-const getDefaultChat = (
-  retrievalFlow: RetrievalFlow = 'Sequential',
-): LangchainChatMessage[] => [
+const language = await getLanguage()
+
+const greeting = translate('greeting', language)
+
+const getDefaultChat = (retrievalFlow: RetrievalFlow = 'Sequential'): LangchainChatMessage[] => [
   {
     id: '0',
     sessionId: (Math.random() + 1).toString(36).slice(7),
     sender: 'bot',
-    text: i18n.t('greeting'),
+    text: greeting,
     source: 'George AI',
     time: new Date(),
     retrievalFlow,
@@ -66,25 +69,17 @@ const sendChatMessage = async (
   ] satisfies LangchainChatMessage[]
 
   const newChat = [...oldChat, ...newMessages]
-  chatItems = [
-    ...chatItems.filter((item) => item.sessionId !== sessionId),
-    ...newChat,
-  ]
+  chatItems = [...chatItems.filter((item) => item.sessionId !== sessionId), ...newChat]
   return newChat
 }
 
 const reset = (sessionId: string) => {
   const oldChat = getChat(sessionId)
 
-  const lastFlow = oldChat.length
-    ? oldChat[oldChat.length - 1].retrievalFlow
-    : 'Sequential'
+  const lastFlow = oldChat.length ? oldChat[oldChat.length - 1].retrievalFlow : 'Sequential'
 
   const newChat = getDefaultChat(lastFlow)
-  chatItems = [
-    ...chatItems.filter((item) => item.sessionId !== sessionId),
-    ...newChat,
-  ]
+  chatItems = [...chatItems.filter((item) => item.sessionId !== sessionId), ...newChat]
   return newChat
 }
 

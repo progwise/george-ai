@@ -14,11 +14,7 @@ export interface FilesTableProps {
   setSelectedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
 }
 
-export const FilesTable = ({
-  files,
-  selectedFiles,
-  setSelectedFiles,
-}: FilesTableProps) => {
+export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTableProps) => {
   return (
     <table className="table">
       <thead>

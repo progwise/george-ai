@@ -1,10 +1,11 @@
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
+
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { queryKeys } from '../../query-keys'
 import { getBackendPublicUrl } from '../../server-functions/backend'
 import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
-import { useQuery } from '@tanstack/react-query'
-import { queryKeys } from '../../query-keys'
 
 const ConversationHistory_ConversationFragment = graphql(`
   fragment ConversationHistory_conversation on AiConversation {
@@ -15,6 +16,7 @@ const ConversationHistory_ConversationFragment = graphql(`
       content
       source
       createdAt
+      hidden
       sender {
         id
         name
@@ -52,13 +54,9 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     },
     staleTime: Infinity,
   })
-  const conversation = useFragment(
-    ConversationHistory_ConversationFragment,
-    props.conversation,
-  )
+  const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
   const messages = conversation.messages
-  const isAssistantLoading = false
   const selectedConversationId = conversation.id
 
   useEffect(() => {
@@ -73,21 +71,19 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     const evtSource = new EventSource(
       `${backend_url}/conversation-messages-sse?conversationId=${selectedConversationId}`,
     )
+
     const incomingMessages: IncomingMessage[] = []
 
     evtSource.onmessage = (event) => {
       const incomingMessage = JSON.parse(event.data) as IncomingMessage
-      const index = incomingMessages.findIndex(
-        (message) => message.id === incomingMessage.id,
-      )
+
+      const index = incomingMessages.findIndex((message) => message.id === incomingMessage.id)
 
       if (index === -1) {
         incomingMessages.push(incomingMessage)
         setNewMessages((prev) =>
           [...prev, incomingMessage].sort((a, b) => {
-            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0
-              ? 1
-              : -1
+            return BigInt(a.sequenceNumber) - BigInt(b.sequenceNumber) > 0 ? 1 : -1
           }),
         )
         return
@@ -95,9 +91,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         incomingMessages[index].content += incomingMessage.content
       }
 
-      const div = document.getElementById(
-        `textarea_${incomingMessage.id}`,
-      ) as HTMLDivElement
+      const div = document.getElementById(`textarea_${incomingMessage.id}`) as HTMLDivElement
       if (div) {
         div.innerHTML = convertMdToHtml(incomingMessages[index].content)
       }
@@ -112,15 +106,17 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
 
   return (
     <section className="flex flex-col gap-4">
-      {messages?.map((message) => (
+      {messages.map((message) => (
         <ConversationMessage
           key={message.id}
-          isLoading={isAssistantLoading}
+          isLoading={false}
           message={{
             id: message.id,
             content: message.content || '',
             source: message.source,
             createdAt: message.createdAt,
+            conversationId: selectedConversationId,
+            hidden: message.hidden ?? false,
             sender: {
               id: message.sender.id,
               assistantId: message.sender.assistantId || undefined,
@@ -139,6 +135,8 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
             content: message.content,
             source: message.source,
             createdAt: message.createdAt,
+            conversationId: selectedConversationId,
+            hidden: false,
             sender: {
               id: message.sender.id,
               name: message.sender.name,

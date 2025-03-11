@@ -5,9 +5,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "mounts": [
-    "type=bind,source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,readonly"
-  ],
+  "mounts": ["type=bind,source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,readonly"],
   "customizations": {
     "vscode": {
       "extensions": [
