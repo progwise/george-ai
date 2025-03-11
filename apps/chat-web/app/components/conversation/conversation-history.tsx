@@ -16,6 +16,7 @@ const ConversationHistory_ConversationFragment = graphql(`
       content
       source
       createdAt
+      hidden
       sender {
         id
         name
@@ -56,7 +57,6 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
   const messages = conversation.messages
-  const isAssistantLoading = false
   const selectedConversationId = conversation.id
 
   useEffect(() => {
@@ -71,10 +71,12 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     const evtSource = new EventSource(
       `${backend_url}/conversation-messages-sse?conversationId=${selectedConversationId}`,
     )
+
     const incomingMessages: IncomingMessage[] = []
 
     evtSource.onmessage = (event) => {
       const incomingMessage = JSON.parse(event.data) as IncomingMessage
+
       const index = incomingMessages.findIndex((message) => message.id === incomingMessage.id)
 
       if (index === -1) {
@@ -104,15 +106,17 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
 
   return (
     <section className="flex flex-col gap-4">
-      {messages?.map((message) => (
+      {messages.map((message) => (
         <ConversationMessage
           key={message.id}
-          isLoading={isAssistantLoading}
+          isLoading={false}
           message={{
             id: message.id,
             content: message.content || '',
             source: message.source,
             createdAt: message.createdAt,
+            conversationId: selectedConversationId,
+            hidden: message.hidden ?? false,
             sender: {
               id: message.sender.id,
               assistantId: message.sender.assistantId || undefined,
@@ -131,6 +135,8 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
             content: message.content,
             source: message.source,
             createdAt: message.createdAt,
+            conversationId: selectedConversationId,
+            hidden: false,
             sender: {
               id: message.sender.id,
               name: message.sender.name,
