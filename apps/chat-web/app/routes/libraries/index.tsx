@@ -4,19 +4,15 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { dateStringShort } from '@george-ai/web-utils'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-/**
- * Local helper to show just HH:MM with AM/PM or 24hr,
- * depending on the user's language/locale.
- */
 function timeString(input: string | null | undefined, language: string) {
   if (!input) return ''
   const data = new Date(input)
-  // Minimal options: hour + minute
   return data.toLocaleTimeString(language, {
     hour: 'numeric',
     minute: '2-digit',
@@ -58,12 +54,8 @@ const librariesQueryOptions = (ownerId?: string) =>
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([
-      queryKeys.CurrentUser,
-    ])
-    return {
-      ownerId: currentUser?.id,
-    }
+    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
+    return { ownerId: currentUser?.id }
   },
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId))
@@ -80,20 +72,14 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
           {!isLoggedIn ? (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => auth?.login()}
-            >
+            <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
               Log in to see your Libraries
             </button>
           ) : (
             'My Libraries'
           )}
         </h3>
-
         {isLoading && <span className="loading loading-ring loading-md"></span>}
-
         {isLoggedIn && (
           <Link type="button" className="btn btn-primary btn-sm" to="/libraries/new">
             Add new
@@ -112,37 +98,20 @@ function RouteComponent() {
               <th className="text-right">Last update</th>
             </tr>
           </thead>
-
           <tbody>
             {data?.aiLibraries?.map((library, index) => {
               const language = navigator.language || ''
-              // "Mar 11, 2025" or "11. März 2025" depending on user locale
-              const datePart = dateStringShort(
-                library.updatedAt ?? library.createdAt,
-                language,
-              )
-              // e.g. "9:39 AM" or "21:39" depending on user locale
-              const timePart = timeString(
-                library.updatedAt ?? library.createdAt,
-                language,
-              )
-
+              const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
+              const timePart = timeString(library.updatedAt ?? library.createdAt, language)
               return (
                 <tr
                   key={library.id}
-                  className="my-2 block border-b hover:bg-gray-100 md:my-0 md:table-row"
+                  className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
                 >
-                  <td
-                    data-label="#"
-                    className="block px-2 py-1 md:table-cell md:py-2"
-                  >
+                  <td data-label="#" className="block px-2 py-1 md:table-cell md:py-2">
                     {index + 1}
                   </td>
-
-                  <td
-                    data-label="Name"
-                    className="block px-2 py-1 md:table-cell md:py-2"
-                  >
+                  <td data-label="Name" className="block px-2 py-1 md:table-cell md:py-2">
                     <Link
                       to={'/libraries/$libraryId'}
                       params={{ libraryId: library.id }}
@@ -151,25 +120,17 @@ function RouteComponent() {
                       {library.name}
                     </Link>
                   </td>
-
-                  <td
-                    data-label="Type"
-                    className="block px-2 py-1 md:table-cell md:py-2"
-                  >
+                  <td data-label="Type" className="block px-2 py-1 md:table-cell md:py-2">
                     {library.libraryType}
                   </td>
-
-                  <td
-                    data-label="Owner"
-                    className="block px-2 py-1 md:table-cell md:py-2"
-                  >
+                  <td data-label="Owner" className="block px-2 py-1 md:table-cell md:py-2">
                     {library.owner?.name}
                   </td>
                   <td
                     data-label="Last update"
-                    className="block px-2 py-1 text-right md:table-cell md:py-2"
+                    className={`absolute right-0 top-0 block px-2 py-1 text-right md:static md:table-cell md:py-2`}
                   >
-                    <div className="flex flex-col items-end">
+                    <div className="flex flex-col items-end leading-tight">
                       <span>{datePart}</span>
                       <span>{timePart}</span>
                     </div>
