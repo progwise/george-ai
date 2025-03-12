@@ -2,6 +2,7 @@ export default {
   brand: 'George-Ai',
   chat: 'Chat',
   assistants: 'Assistenten',
+  users: 'Benutzer',
   signIn: 'Anmelden',
   signOut: 'Abmelden',
   flowSequential: 'Ablauf: Sequenziell',
@@ -53,10 +54,14 @@ export default {
     removeProfile: 'Benutzerprofil entfernen',
     drop: 'Entfernen',
     reProcess: 'Erneut verarbeiten',
+    delete: 'Löschen',
+    cancel: 'Abbrechen',
+    new: 'Neue',
+    create: 'Erstellen',
   },
   tooltips: {
     clearEmbeddings: 'Einbettungen löschen',
-    DeleteConversation: 'Konversation löschen',
+    deleteConversation: 'Konversation löschen',
     drop: 'Entfernen',
     reProcess: 'Erneut verarbeiten',
     hide: 'Verbergen',
@@ -68,6 +73,12 @@ export default {
     noAssistant: 'Kein Assistent',
     newConversation: 'Neue Konversation',
     deleteConversation: 'Konversation löschen',
+    deleteConversationConfirmation:
+      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
+    with: 'mit',
+    newConversationConfirmation:
+      'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
+    changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
   },
 }

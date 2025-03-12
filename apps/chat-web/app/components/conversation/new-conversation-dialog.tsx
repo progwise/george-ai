@@ -35,7 +35,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
@@ -81,10 +81,6 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     dialogReference.current?.close()
   }
 
-  if (!language) {
-    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
-  }
-
   if (!user) {
     return <h3>{t('texts.loginToUseConversations')}</h3>
   }
@@ -92,17 +88,17 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
   return (
     <>
       <button type="button" className="btn btn-primary btn-sm" onClick={() => dialogReference.current?.showModal()}>
-        New
+        {t('actions.new')}
       </button>
       <dialog className="modal" ref={dialogReference}>
         <LoadingSpinner isLoading={isPending} />
         <div className="modal-box">
           <h3 className="text-lg font-bold">{t('texts.newConversation')}</h3>
-          <p className="py-0">You are about to start a new conversation with the selected users and assistants.</p>
-          <p className="py-4">You can change these participants any time.</p>
+          <p className="py-0">{t('texts.newConversationConfirmation')}</p>
+          <p className="py-4">{t('texts.changeParticipantsAnytime')}</p>
           <div className="flex flex-row justify-items-stretch gap-2">
             <div>
-              <h4 className="underline">Assistants</h4>
+              <h4 className="underline">{t('assistants')}</h4>
               {assistants?.map((assistant) => (
                 <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
                   <input
@@ -117,7 +113,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
               ))}
             </div>
             <div>
-              <h4 className="underline">Users</h4>
+              <h4 className="underline">{t('users')}</h4>
               {humans?.map((user) => (
                 <label key={user.id} className="label cursor-pointer gap-2">
                   <input
@@ -135,7 +131,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
           <div className="modal-action">
             <form method="dialog">
               <button type="submit" className="btn btn-sm">
-                Cancel
+                {t('actions.cancel')}
               </button>
             </form>
             <button
@@ -144,7 +140,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
               disabled={isPending || !assistants}
               onClick={handleCreateConversation}
             >
-              Create
+              {t('actions.create')}
             </button>
           </div>
         </div>

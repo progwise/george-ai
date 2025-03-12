@@ -96,7 +96,7 @@ function RouteComponent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxReference = useRef<HTMLInputElement>(null)
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -128,10 +128,6 @@ function RouteComponent() {
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
     queryFn: async () => (userId ? await getAssignableAssistants({ data: { ownerId: userId } }) : null),
   })
-
-  if (!language) {
-    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
-  }
 
   if (!userId) {
     return <h3>{t('texts.loginToUseConversations')}</h3>

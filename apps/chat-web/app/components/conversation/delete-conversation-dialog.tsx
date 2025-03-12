@@ -7,7 +7,6 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { deleteConversation } from '../../server-functions/conversations'
-import { LoadingSpinner } from '../loading-spinner'
 
 const ConversationDelete_ConversationFragment = graphql(`
   fragment ConversationDelete_conversation on AiConversation {
@@ -27,7 +26,7 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
   const auth = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { t, language } = useTranslation()
+  const { t } = useTranslation()
 
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
@@ -50,10 +49,6 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
     dialogReference.current?.close()
   }
 
-  if (!language) {
-    return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
-  }
-
   return (
     <>
       <button
@@ -68,15 +63,18 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
         <div className="modal-box">
           <h3 className="text-lg font-bold">
             <span>{t('texts.deleteConversation')}</span> <br />
-            <time className="text-nowrap">{new Date(conversation.createdAt).toLocaleString().replace(',', '')}</time>
-            {' with '}
+            <time className="text-nowrap">
+              {new Date(conversation.createdAt).toLocaleString().replace(',', '')}
+            </time>{' '}
+            {t('texts.with')}
+            {''}
             <span>{conversation.assistants?.map((assistant) => assistant.name).join(',')}</span>
           </h3>
-          <p className="py-4">You are about to delete this conversation. It cannot be restored. Please confirm.</p>
+          <p className="py-4">{t('texts.deleteConversationConfirmation')}</p>
           <div className="modal-action">
             <form method="dialog">
               <button type="submit" className="btn btn-sm">
-                Cancel
+                {t('actions.cancel')}
               </button>
             </form>
             <button
@@ -85,7 +83,7 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
               disabled={isPending}
               onClick={handleDeleteConversation}
             >
-              Delete
+              {t('actions.delete')}
             </button>
           </div>
         </div>
