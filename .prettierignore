@@ -1,5 +1,6 @@
 pnpm-lock.yaml
 .output
+apps/chat-web/app/routeTree.gen.ts
 .uploads
 .vinxi
 .turbo

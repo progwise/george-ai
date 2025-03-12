@@ -52,6 +52,8 @@ export default {
     removeProfile: 'Remove user profile',
     drop: 'Drop',
     reProcess: 'Re-Process',
+    delete: 'Delete',
+    cancel: 'Cancel',
   },
   tooltips: {
     clearEmbeddings: 'Clear embeddings',
@@ -65,5 +67,7 @@ export default {
     profileNotFoundFor: 'Profile not found for',
     profileFoundFor: 'Profile found for',
     noAssistant: 'No assistant',
+    deleteLibrary: 'Delete {libraryName} library',
+    deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
   },
 }

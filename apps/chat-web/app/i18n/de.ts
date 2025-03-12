@@ -53,10 +53,12 @@ export default {
     removeProfile: 'Benutzerprofil entfernen',
     drop: 'Entfernen',
     reProcess: 'Erneut verarbeiten',
+    delete: 'Löschen',
+    cancel: 'Abbrechen',
   },
   tooltips: {
     clearEmbeddings: 'Einbettungen löschen',
-    DeleteConversation: 'Konversation löschen',
+    deleteConversation: 'Konversation löschen',
     drop: 'Entfernen',
     reProcess: 'Erneut verarbeiten',
     hide: 'Verbergen',
@@ -66,5 +68,7 @@ export default {
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     profileFoundFor: 'Benutzerprofil gefunden für',
     noAssistant: 'Kein Assistent',
+    deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
   },
 }

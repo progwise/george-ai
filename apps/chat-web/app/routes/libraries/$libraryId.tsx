@@ -141,53 +141,46 @@ function RouteComponent() {
   }
 
   return (
-    <>
-      <article className="flex w-full flex-col gap-4">
-        <LoadingSpinner isLoading={saveIsPending} />
-        <div className="flex items-center justify-between">
-          <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
-          <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
-          <div className="flex gap-2">
-            <DeleteLibraryDialog library={aiLibrary} />
-            <Link type="button" className="btn btn-primary btn-sm" to="..">
-              Back
-            </Link>
-          </div>
+    <article className="flex w-full flex-col gap-4">
+      <LoadingSpinner isLoading={saveIsPending} />
+      <div className="flex items-center justify-between">
+        <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
+        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
+        <div className="flex gap-2">
+          <DeleteLibraryDialog library={aiLibrary} />
+          <Link type="button" className="btn btn-primary btn-sm" to="..">
+            Back
+          </Link>
+        </div>
+      </div>
+
+      <div role="tablist" className="tabs tabs-bordered">
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
+        <div role="tabpanel" className="tab-content p-10">
+          {auth.user?.id && (
+            <LibraryForm library={aiLibrary!} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
+          )}
         </div>
 
-        <div role="tablist" className="tabs tabs-bordered">
-          <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
-          <div role="tabpanel" className="tab-content p-10">
-            {auth.user?.id && (
-              <LibraryForm
-                library={aiLibrary!}
-                ownerId={auth.user.id}
-                handleSubmit={handleSubmit}
-                disabled={disabled}
-              />
-            )}
-          </div>
-
-          <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
-          <div role="tabpanel" className="tab-content p-10">
-            <EmbeddingsTable libraryId={aiLibrary.id} />
-          </div>
-
-          <input type="radio" name="my_tabs_1" role="tab" className="tab whitespace-nowrap" aria-label="Google Drive" />
-          <div role="tabpanel" className="tab-content p-10">
-            <GoogleDriveFiles
-              libraryId={aiLibrary.id}
-              currentLocationHref={currentLocation.href}
-              noFreeUploads={remainingStorage < 100}
-            />
-          </div>
-
-          <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />
-          <div role="tabpanel" className="tab-content p-10">
-            <LibraryQuery libraryId={aiLibrary.id} />
-          </div>
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
+        <div role="tabpanel" className="tab-content p-10">
+          <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
-      </article>
-    </>
+
+        <input type="radio" name="my_tabs_1" role="tab" className="tab whitespace-nowrap" aria-label="Google Drive" />
+        <div role="tabpanel" className="tab-content p-10">
+          <GoogleDriveFiles
+            libraryId={aiLibrary.id}
+            currentLocationHref={currentLocation.href}
+            noFreeUploads={remainingStorage < 100}
+          />
+        </div>
+
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />
+        <div role="tabpanel" className="tab-content p-10">
+          <LibraryQuery libraryId={aiLibrary.id} />
+        </div>
+      </div>
+    </article>
   )
 }

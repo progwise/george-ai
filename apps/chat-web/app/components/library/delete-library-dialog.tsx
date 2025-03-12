@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { AiLibrary } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -43,38 +44,37 @@ interface libraryDeleteAssistantDialogProps {
 }
 
 export const DeleteLibraryDialog = ({ library }: libraryDeleteAssistantDialogProps) => {
-  const deleteDialogRef = useRef<HTMLDialogElement>(null)
+  const dialogReference = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleDeleteConfirm = async () => {
     await deleteFiles({ data: library.id })
     await deleteLibrary({ data: library.id })
     await queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries] })
     navigate({ to: '..' })
-    deleteDialogRef.current?.close()
+    dialogReference.current?.close()
   }
 
-  const fileCount = library.files?.length
+  const fileCount = library.files?.length ?? 0
   return (
     <>
-      <button type="button" className="btn btn-error btn-sm" onClick={() => deleteDialogRef.current?.showModal()}>
-        Delete
+      <button type="button" className="btn btn-error btn-sm" onClick={() => dialogReference.current?.showModal()}>
+        {t('actions.delete')}
       </button>
-      <dialog ref={deleteDialogRef} className="modal">
+      <dialog ref={dialogReference} className="modal">
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Delete {library.name} library</h3>
-          <p className="py-4">
-            {library.name} will be deleted along with {fileCount} files.
-          </p>
+          <h3 className="text-lg font-bold">{t('texts.deleteLibrary', { libraryName: library.name })}</h3>
+          <p className="py-4">{t('texts.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}</p>
           <div className="modal-action">
             <form method="dialog">
               <button type="submit" className="btn btn-sm">
-                Cancel
+                {t('actions.cancel')}
               </button>
             </form>
             <button type="submit" className="btn btn-error btn-sm" onClick={handleDeleteConfirm}>
-              Delete
+              {t('actions.delete')}
             </button>
           </div>
         </div>

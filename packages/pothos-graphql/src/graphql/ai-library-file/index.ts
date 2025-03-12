@@ -8,6 +8,35 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile')
 
+async function dropFileById(fileId: string) {
+  const file = await prisma.aiLibraryFile.findUnique({
+    where: { id: fileId },
+  })
+  if (!file) {
+    throw new Error(`File not found: ${fileId}`)
+  }
+
+  await dropFile(file.libraryId, file.id)
+
+  const deleteResult = await prisma.aiLibraryFile.delete({
+    where: { id: file.id },
+  })
+
+  await new Promise((resolve, reject) => {
+    fs.rm(getFilePath(file.id), (err) => {
+      if (err) {
+        reject(`Error deleting file ${file.id}: ${err.message}`)
+      } else {
+        resolve(`File ${file.id} deleted`)
+      }
+    })
+  })
+
+  console.log('dropped file', deleteResult)
+
+  return deleteResult
+}
+
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
@@ -115,34 +144,8 @@ builder.mutationField('dropFile', (t) =>
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { fileId }) => {
-      const file = await prisma.aiLibraryFile.findUnique({
-        ...query,
-        where: { id: fileId },
-      })
-      if (!file) {
-        throw new Error(`File not found: ${fileId}`)
-      }
-
-      await dropFile(file.libraryId, file.id)
-
-      const deleteResult = await prisma.aiLibraryFile.delete({
-        where: { id: fileId },
-      })
-
-      await new Promise((resolve) => {
-        fs.rm(getFilePath(file.id), (err) => {
-          if (err) {
-            resolve(`Error deleting file ${file.id}: ${err.message}`)
-          } else {
-            resolve(`File ${file.id} deleted`)
-          }
-        })
-      })
-
-      console.log('dropped file', deleteResult)
-
-      return file
+    resolve: async (_query, _source, { fileId }) => {
+      return await dropFileById(fileId)
     },
   }),
 )
@@ -163,30 +166,16 @@ builder.mutationField('dropFiles', (t) =>
         throw new Error(`No files found for library: ${libraryId}`)
       }
 
-      const fileIds = files.map((file) => file.id)
-      await Promise.all(fileIds.map((fileId) => dropFile(libraryId, fileId)))
+      const results = []
 
-      const deleteResults = await prisma.aiLibraryFile.deleteMany({
-        where: { libraryId },
-      })
+      for (const file of files) {
+        const droppedFile = await dropFileById(file.id)
+        results.push(droppedFile)
+      }
 
-      await Promise.all(
-        files.map((file) => {
-          return new Promise((resolve) => {
-            fs.rm(getFilePath(file.id), (err) => {
-              if (err) {
-                resolve(`Error deleting file ${file.id}: ${err.message}`)
-              } else {
-                resolve(`File ${file.id} deleted`)
-              }
-            })
-          })
-        }),
-      )
+      console.log(`Dropped files for library ${libraryId}:`, results)
 
-      console.log(`dropped files for library ${libraryId}:`, deleteResults)
-
-      return files
+      return results
     },
   }),
 )
