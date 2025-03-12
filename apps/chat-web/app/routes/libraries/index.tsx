@@ -3,21 +3,12 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { dateStringShort } from '@george-ai/web-utils'
+import { dateStringShort, timeString } from '@george-ai/web-utils'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
-
-function timeString(input: string | null | undefined, language: string) {
-  if (!input) return ''
-  const data = new Date(input)
-  return data.toLocaleTimeString(language, {
-    hour: 'numeric',
-    minute: '2-digit',
-  })
-}
 
 const librariesDocument = graphql(/* GraphQL */ `
   query aiLibraries($ownerId: String!) {
@@ -95,7 +86,7 @@ function RouteComponent() {
               <th>Name</th>
               <th>Type</th>
               <th>Owner</th>
-              <th className="text-right">Last update</th>
+              <th>Last update</th>
             </tr>
           </thead>
           <tbody>
@@ -103,15 +94,16 @@ function RouteComponent() {
               const language = navigator.language || ''
               const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
               const timePart = timeString(library.updatedAt ?? library.createdAt, language)
+
               return (
                 <tr
                   key={library.id}
                   className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
                 >
-                  <td data-label="#" className="block px-2 py-1 md:table-cell md:py-2">
+                  <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
                     {index + 1}
                   </td>
-                  <td data-label="Name" className="block px-2 py-1 md:table-cell md:py-2">
+                  <td data-label="Name" className="block py-1 md:table-cell md:py-2">
                     <Link
                       to={'/libraries/$libraryId'}
                       params={{ libraryId: library.id }}
@@ -120,17 +112,17 @@ function RouteComponent() {
                       {library.name}
                     </Link>
                   </td>
-                  <td data-label="Type" className="block px-2 py-1 md:table-cell md:py-2">
+                  <td data-label="Type" className="block py-1 md:table-cell md:py-2">
                     {library.libraryType}
                   </td>
-                  <td data-label="Owner" className="block px-2 py-1 md:table-cell md:py-2">
+                  <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
                     {library.owner?.name}
                   </td>
                   <td
                     data-label="Last update"
-                    className={`absolute right-0 top-0 block px-2 py-1 text-right md:static md:table-cell md:py-2`}
+                    className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
                   >
-                    <div className="flex flex-col items-end leading-tight">
+                    <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
                       <span>{datePart}</span>
                       <span>{timePart}</span>
                     </div>

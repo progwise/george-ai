@@ -39,3 +39,14 @@ export const dateTimeStringShort = (input: string | null | undefined, language: 
     minute: '2-digit',
   })
 }
+
+export const timeString = (input: string | null | undefined, language: string) => {
+  if (!input) {
+    return ''
+  }
+  const data = new Date(input)
+  return data.toLocaleTimeString(language, {
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
