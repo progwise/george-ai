@@ -56,7 +56,7 @@ export default {
   },
   tooltips: {
     clearEmbeddings: 'Einbettungen löschen',
-    DeleteConversation: 'Konversation löschen',
+    deleteConversation: 'Konversation löschen',
     drop: 'Entfernen',
     reProcess: 'Erneut verarbeiten',
     hide: 'Verbergen',

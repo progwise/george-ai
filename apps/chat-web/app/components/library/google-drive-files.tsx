@@ -147,6 +147,20 @@ export const GoogleDriveFiles = ({ libraryId, currentLocationHref, noFreeUploads
     onSuccess: () => {
       alert('Files embedded successfully')
       setSelectedFiles([])
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiLibraryFiles, libraryId],
+      })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiLibraryFiles, libraryId],
+      })
+    },
+    onError: (error) => {
+      alert(`Error embedding files: ${error.message}`)
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiLibraryFiles, libraryId],
+      })
     },
   })
 

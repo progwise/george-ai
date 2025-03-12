@@ -172,6 +172,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     onSettled: () => {
       refetch()
     },
+    onError: () => {
+      alert('An error occurred while reprocessing the file. Please try again later.')
+    },
   })
 
   const dropAllFilesMutation = useMutation({
@@ -191,6 +194,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     onSettled: () => {
       refetch()
       setSelectedFiles([])
+    },
+    onError: () => {
+      alert('An error occurred while reprocessing the files. Please try again later.')
     },
   })
 
