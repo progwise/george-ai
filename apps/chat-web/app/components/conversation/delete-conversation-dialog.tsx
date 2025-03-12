@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { RefObject } from 'react'
+import { useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { TrashIcon } from '../../icons/trash-icon'
 import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
@@ -18,15 +20,14 @@ const ConversationDelete_ConversationFragment = graphql(`
 
 interface DeleteConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
-  ref: RefObject<HTMLDialogElement | null>
 }
 
 export const DeleteConversationDialog = (props: DeleteConversationDialogProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
-  const { ref } = props
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
   const { mutate, isPending } = useMutation({
@@ -37,38 +38,59 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
       await queryClient.invalidateQueries({
         queryKey: ['conversations', auth.user?.id],
       })
-      ref.current?.close()
       navigate({ to: '..' })
     },
   })
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const dialogReference = useRef<HTMLDialogElement>(null)
 
-    mutate()
+  const handleDeleteConversation = async () => {
+    await mutate()
+    dialogReference.current?.close()
   }
 
   return (
-    <dialog ref={ref} className="modal">
-      <div className="modal-box">
-        <h3 className="text-lg font-bold">
-          <span>Delete conversation</span> <br />
-          <time className="text-nowrap">{new Date(conversation.createdAt).toLocaleString().replace(',', '')}</time>
-          {' with '}
-          <span>{conversation.assistants?.map((assistant) => assistant.name).join(',')}</span>
-        </h3>
-        <p className="py-4">You are about to delete this conversation. It cannot be restored. Please confirm.</p>
-        <form method="dialog" onSubmit={handleSubmit}>
+    <>
+      <button
+        type="button"
+        className="btn btn-square btn-ghost btn-sm lg:tooltip"
+        onClick={() => dialogReference.current?.showModal()}
+        data-tip={t('tooltips.deleteConversation')}
+      >
+        <TrashIcon className="size-6" />
+      </button>
+      <dialog ref={dialogReference} className="modal">
+        <div className="modal-box">
+          <h3 className="text-lg font-bold">
+            <span>{t('texts.deleteConversation')}</span> <br />
+            <time className="text-nowrap">
+              {new Date(conversation.createdAt).toLocaleString().replace(',', '')}
+            </time>{' '}
+            {t('texts.with')}
+            {''}
+            <span>{conversation.assistants?.map((assistant) => assistant.name).join(',')}</span>
+          </h3>
+          <p className="py-4">{t('texts.deleteConversationConfirmation')}</p>
           <div className="modal-action">
-            <button type="button" className="btn" onClick={() => ref.current?.close()}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-error" disabled={isPending}>
-              Delete
+            <form method="dialog">
+              <button type="submit" className="btn btn-sm">
+                {t('actions.cancel')}
+              </button>
+            </form>
+            <button
+              type="submit"
+              className="btn btn-error btn-sm"
+              disabled={isPending}
+              onClick={handleDeleteConversation}
+            >
+              {t('actions.delete')}
             </button>
           </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button type="submit">cancel</button>
         </form>
-      </div>
-    </dialog>
+      </dialog>
+    </>
   )
 }
