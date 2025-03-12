@@ -19,87 +19,113 @@ interface EmbeddingsTableProps {
   libraryId: string
 }
 
-const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
-  mutation clearEmbeddings($libraryId: String!) {
-    clearEmbeddedFiles(libraryId: $libraryId)
-  }
-`)
-
-const DropFileDocument = graphql(/* GraphQL */ `
-  mutation dropFile($id: String!) {
-    dropFile(fileId: $id) {
-      id
-    }
-  }
-`)
-
-const ReprocessFileDocument = graphql(/* GraphQL */ `
-  mutation reProcessFile($id: String!) {
-    processFile(fileId: $id) {
-      id
-      chunks
-      size
-      uploadedAt
-      processedAt
-    }
-  }
-`)
-
 const clearEmbeddings = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(ClearEmbeddingsDocument, {
-      libraryId: ctx.data,
-    })
+    return await backendRequest(
+      graphql(`
+        mutation clearEmbeddings($libraryId: String!) {
+          clearEmbeddedFiles(libraryId: $libraryId)
+        }
+      `),
+      { libraryId: ctx.data },
+    )
   })
 
 const dropFile = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(DropFileDocument, { id: ctx.data })
+    return await backendRequest(
+      graphql(`
+        mutation dropFile($id: String!) {
+          dropFile(fileId: $id) {
+            id
+          }
+        }
+      `),
+      { id: ctx.data },
+    )
   })
 
 const reProcessFile = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(ReprocessFileDocument, { id: ctx.data })
+    return await backendRequest(
+      graphql(`
+        mutation reProcessFile($id: String!) {
+          processFile(fileId: $id) {
+            id
+            chunks
+            size
+            uploadedAt
+            processedAt
+          }
+        }
+      `),
+      { id: ctx.data },
+    )
   })
 
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const dropFilePromises = ctx.data.map((fileId) => backendRequest(DropFileDocument, { id: fileId }))
+    const dropFilePromises = ctx.data.map((fileId) =>
+      backendRequest(
+        graphql(`
+          mutation dropFile($id: String!) {
+            dropFile(fileId: $id) {
+              id
+            }
+          }
+        `),
+        { id: fileId },
+      ),
+    )
     return await Promise.all(dropFilePromises)
   })
 
 const reProcessAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const reProcessFilePromises = ctx.data.map((fileId) => backendRequest(ReprocessFileDocument, { id: fileId }))
+    const reProcessFilePromises = ctx.data.map((fileId) =>
+      backendRequest(
+        graphql(`
+          mutation reProcessFile($id: String!) {
+            processFile(fileId: $id) {
+              id
+              chunks
+              size
+              uploadedAt
+              processedAt
+            }
+          }
+        `),
+        { id: fileId },
+      ),
+    )
     return await Promise.all(reProcessFilePromises)
   })
-
-const EmbeddingsTableDocument = graphql(`
-  query EmbeddingsTable($libraryId: String!) {
-    aiLibraryFiles(libraryId: $libraryId) {
-      id
-      name
-      originUri
-      mimeType
-      size
-      chunks
-      uploadedAt
-      processedAt
-    }
-  }
-`)
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
   .validator(({ libraryId }: { libraryId: string }) => z.string().nonempty().parse(libraryId))
   .handler(async (ctx) => {
-    return await backendRequest(EmbeddingsTableDocument, {
-      libraryId: ctx.data,
-    })
+    return await backendRequest(
+      graphql(`
+        query EmbeddingsTable($libraryId: String!) {
+          aiLibraryFiles(libraryId: $libraryId) {
+            id
+            name
+            originUri
+            mimeType
+            size
+            chunks
+            uploadedAt
+            processedAt
+          }
+        }
+      `),
+      { libraryId: ctx.data },
+    )
   })
 
 const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
