@@ -113,7 +113,13 @@ const embedFiles = createServerFn({ method: 'GET' })
       })
     })
 
-    await Promise.all(processFiles)
+    const results = await Promise.allSettled(processFiles)
+    const errors = results
+      .filter((result) => result.status === 'rejected')
+      .map((result) => (result as PromiseRejectedResult).reason)
+    if (errors.length > 0) {
+      throw new Error(`Failed to process some files:\n${errors.join('\n')}`)
+    }
   })
 
 export const GoogleDriveFiles = ({ libraryId, currentLocationHref, noFreeUploads }: GoogleDriveFilesProps) => {
