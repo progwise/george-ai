@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
@@ -64,6 +64,7 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
 
 export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const { mutate: prepareFilesMutation, isPending: prepareFilesIsPending } = useMutation({
     mutationFn: (data: { libraryId: string; selectedFiles: LibraryFile[] }) => prepareDesktopFiles({ data }),
     onSettled: async (data, error) => {
@@ -105,18 +106,13 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
     <>
       <LoadingSpinner isLoading={prepareFilesIsPending} />
       <nav className="flex items-center justify-between gap-4">
-        <button
-          type="button"
-          className="btn btn-xs"
-          onClick={() => document.getElementById('fileInput')?.click()}
-          disabled={disabled}
-        >
+        <button type="button" className="btn btn-xs" onClick={() => fileInputRef.current?.click()} disabled={disabled}>
           Upload
         </button>
         <input
           type="file"
           multiple
-          id="fileInput"
+          ref={fileInputRef}
           onChange={handleUploadFiles}
           style={{ display: 'none' }}
           disabled={disabled}
