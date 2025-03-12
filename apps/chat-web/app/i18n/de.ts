@@ -58,6 +58,7 @@ export default {
     cancel: 'Abbrechen',
     new: 'Neue',
     create: 'Erstellen',
+    add: 'Hinzufügen',
   },
   tooltips: {
     clearEmbeddings: 'Einbettungen löschen',
@@ -80,5 +81,9 @@ export default {
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
+    addParticipants: 'Teilnehmer hinzufügen',
+    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
+    noAssistantsAvailable: 'Keine Assistenten verfügbar',
+    noUsersAvailable: 'Keine Benutzer verfügbar',
   },
 }

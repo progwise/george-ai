@@ -57,6 +57,7 @@ export default {
     cancel: 'Cancel',
     new: 'New',
     create: 'Create',
+    add: 'Add',
   },
   tooltips: {
     clearEmbeddings: 'Clear embeddings',
@@ -77,5 +78,9 @@ export default {
     with: 'with',
     newConversationConfirmation: 'You are about to start a new conversation with the selected users and assistants.',
     changeParticipantsAnytime: 'You can change these participants any time.',
+    addParticipants: 'Add participants',
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
+    noAssistantsAvailable: 'No assistants available',
+    noUsersAvailable: 'No users available',
   },
 }
