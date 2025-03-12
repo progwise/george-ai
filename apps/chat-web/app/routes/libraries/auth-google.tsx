@@ -44,23 +44,30 @@ function RouteComponent() {
 
   const getAccessToken = useCallback(async () => {
     const redirect_url = window.location.origin + fullPath
-    const accessToken = await getGoogleAccessToken({
-      data: { access_code: search.code, redirect_url },
-    })
-    console.log('got access token', accessToken)
-    localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
-    localStorage.removeItem('google_login_progress')
-    window.location.href = localStorage.getItem('google_login_redirect_after') || '/'
+    if (search.code) {
+      const accessToken = await getGoogleAccessToken({
+        data: { access_code: search.code, redirect_url },
+      })
+      console.log('got access token', accessToken)
+      localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
+      localStorage.removeItem('google_login_progress')
+      window.location.href = localStorage.getItem('google_login_redirect_after') || '/'
+    } else {
+      console.error('No access code found in the URL')
+    }
   }, [search.code, fullPath])
 
+  useEffect(() => {
+    if (search.code) {
+      getAccessToken()
+    }
+  }, [search.code, getAccessToken])
+
   return (
-    <div>
-      ...Authenticating
-      <button className="btn" type="button" onClick={redirectForAccessCode}>
-        Step 1
-      </button>
-      <button className="btn" type="button" onClick={getAccessToken}>
-        Step 2
+    <div className="flex flex-col items-center justify-center">
+      <div className="mb-4 text-lg font-semibold">Authenticating...</div>
+      <button className="btn btn-primary" type="button" onClick={redirectForAccessCode}>
+        Start Google Login
       </button>
     </div>
   )
