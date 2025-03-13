@@ -16,8 +16,9 @@ import * as types from './graphql'
  */
 type Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n    }\n  }\n': typeof types.LoginDocument
-  '\n        mutation deleteAiAssistant($id: String!) {\n          deleteAiAssistant(assistantId: $id) {\n            id\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
-  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n  }\n': typeof types.AssistantCard_AssistantFragmentFragmentDoc
+  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n': typeof types.AssistantCard_AssistantFragmentFragmentDoc
+  '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
+  '\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantDelete_AssistantFragmentFragmentDoc
   '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
   '\n  fragment AssistantForm_languageModel on AiLanguageModel {\n    id\n    name\n  }\n': typeof types.AssistantForm_LanguageModelFragmentDoc
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAssistantDocument
@@ -74,10 +75,12 @@ type Documents = {
 const documents: Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n    }\n  }\n':
     types.LoginDocument,
-  '\n        mutation deleteAiAssistant($id: String!) {\n          deleteAiAssistant(assistantId: $id) {\n            id\n          }\n        }\n      ':
-    types.DeleteAiAssistantDocument,
-  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n  }\n':
+  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n':
     types.AssistantCard_AssistantFragmentFragmentDoc,
+  '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ':
+    types.DeleteAiAssistantDocument,
+  '\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n':
+    types.AssistantDelete_AssistantFragmentFragmentDoc,
   '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n':
     types.AssistantForm_AssistantFragmentDoc,
   '\n  fragment AssistantForm_languageModel on AiLanguageModel {\n    id\n    name\n  }\n':
@@ -207,14 +210,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation deleteAiAssistant($id: String!) {\n          deleteAiAssistant(assistantId: $id) {\n            id\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation deleteAiAssistant($id: String!) {\n          deleteAiAssistant(assistantId: $id) {\n            id\n          }\n        }\n      ']
+  source: '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n',
+): (typeof documents)['\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n  }\n',
-): (typeof documents)['\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n  }\n']
+  source: '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

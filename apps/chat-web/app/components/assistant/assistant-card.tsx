@@ -1,29 +1,8 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import React, { useRef } from 'react'
-import { z } from 'zod'
+import React from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-
-const deleteAssistant = createServerFn({ method: 'GET' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation deleteAiAssistant($id: String!) {
-          deleteAiAssistant(assistantId: $id) {
-            id
-          }
-        }
-      `),
-      {
-        id: ctx.data,
-      },
-    )
-  })
+import { AssistantDeleteDialog } from './assistant-delete-dialog'
 
 const AssistantCard_assistantFragment = graphql(`
   fragment AssistantCard_assistantFragment on AiAssistant {
@@ -31,6 +10,7 @@ const AssistantCard_assistantFragment = graphql(`
     name
     description
     icon
+    ...AssistantDelete_assistantFragment
   }
 `)
 
@@ -40,49 +20,13 @@ export interface AssistantCardProps {
 
 export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
   const assistant = useFragment(AssistantCard_assistantFragment, props.assistant)
-  const dialogRef = useRef<HTMLDialogElement>(null)
-
-  const queryClient = useQueryClient()
-
-  const handleDelete = () => {
-    dialogRef.current?.showModal()
-  }
-
-  const handleDeleteConfirm = async () => {
-    await deleteAssistant({ data: assistant.id })
-    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] })
-    dialogRef.current?.close()
-  }
 
   return (
     <>
-      <dialog ref={dialogRef} className="modal">
-        <div className="modal-box">
-          <form method="dialog">
-            <button type="submit" className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="text-lg font-bold">Confirm to delete assistant</h3>
-          <p>
-            <q>{assistant.name}</q> will be deleted.
-          </p>
-          <div className="modal-action">
-            <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button type="submit" className="btn btn-error" onClick={handleDeleteConfirm}>
-                Delete Assistant
-              </button>
-            </form>
-          </div>
-        </div>
-      </dialog>
       <div key={assistant.id} className="card w-96 bg-base-100 shadow-xl">
         <figure className="max-h-24">
           <div className="absolute left-2 right-2 top-2 flex justify-between gap-2">
-            <button type="button" className="btn btn-warning btn-sm" onClick={handleDelete}>
-              Delete
-            </button>
+            <AssistantDeleteDialog assistant={assistant} />
             <button type="button" className="btn btn-success btn-sm">
               Try
             </button>

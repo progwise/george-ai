@@ -696,22 +696,28 @@ export type LoginMutation = {
   } | null
 }
 
-export type DeleteAiAssistantMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type DeleteAiAssistantMutation = {
-  __typename?: 'Mutation'
-  deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string } | null
-}
-
-export type AssistantCard_AssistantFragmentFragment = {
+export type AssistantCard_AssistantFragmentFragment = ({
   __typename?: 'AiAssistant'
   id: string
   name: string
   description?: string | null
   icon?: string | null
-} & { ' $fragmentName'?: 'AssistantCard_AssistantFragmentFragment' }
+} & { ' $fragmentRefs'?: { AssistantDelete_AssistantFragmentFragment: AssistantDelete_AssistantFragmentFragment } }) & {
+  ' $fragmentName'?: 'AssistantCard_AssistantFragmentFragment'
+}
+
+export type DeleteAiAssistantMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+}>
+
+export type DeleteAiAssistantMutation = {
+  __typename?: 'Mutation'
+  deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
+}
+
+export type AssistantDelete_AssistantFragmentFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
+  ' $fragmentName'?: 'AssistantDelete_AssistantFragmentFragment'
+}
 
 export type AssistantForm_AssistantFragment = {
   __typename?: 'AiAssistant'
@@ -1422,6 +1428,23 @@ export type GetUserProfileQuery = {
   } | null
 }
 
+export const AssistantDelete_AssistantFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AssistantDelete_AssistantFragmentFragment, unknown>
 export const AssistantCard_AssistantFragmentFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -1436,6 +1459,19 @@ export const AssistantCard_AssistantFragmentFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
         ],
       },
     },
@@ -2370,7 +2406,7 @@ export const DeleteAiAssistantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -2384,12 +2420,15 @@ export const DeleteAiAssistantDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
         ],
@@ -2513,6 +2552,56 @@ export const UpdateLibraryUsageDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateLibraryUsageMutation, UpdateLibraryUsageMutationVariables>
+export const CreateAiAssistantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAiAssistant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiAssistant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateAiAssistantMutation, CreateAiAssistantMutationVariables>
 export const HideMessageDocument = {
   kind: 'Document',
   definitions: [
@@ -3153,6 +3242,18 @@ export const AiAssistantCardsDocument = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AssistantCard_assistantFragment' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
@@ -3162,6 +3263,7 @@ export const AiAssistantCardsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' } },
         ],
       },
     },
