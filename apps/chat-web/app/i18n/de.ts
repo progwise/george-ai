@@ -60,6 +60,8 @@ export default {
   errors: {
     requiredField: 'erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
+    llmTemperatureToLow: '>= 0.0',
+    llmTemperatureToHigh: '<= 1.0',
   },
   actions: {
     saving: 'Speichern...',

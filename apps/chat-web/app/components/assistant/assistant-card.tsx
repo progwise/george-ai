@@ -5,7 +5,6 @@ import React, { useRef } from 'react'
 import { z } from 'zod'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { AiAssistant } from '../../gql/graphql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 

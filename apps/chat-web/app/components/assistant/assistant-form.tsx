@@ -44,8 +44,16 @@ const getFormSchema = (language: 'en' | 'de') =>
   z.object({
     id: z.string().nonempty(),
     name: z.string().min(1, translate('errors.requiredField', language)),
-    description: z.string().optional(),
-    languageModelId: z.string().min(1, translate('errors.requiredField', language)),
+    description: z.string().nullish(),
+    languageModelId: z.string().nullish(),
+    llmTemperature: z.preprocess(
+      (value: string) => (value?.length < 1 ? null : parseFloat(value)),
+      z
+        .number()
+        .min(0, translate('errors.llmTemperatureToLow', language))
+        .max(1, translate('errors.llmTemperatureToHigh', language))
+        .nullish(),
+    ),
   })
 
 const updateAssistant = createServerFn({ method: 'POST' })
@@ -70,6 +78,8 @@ const updateAssistant = createServerFn({ method: 'POST' })
         data: {
           name: data.name,
           description: data.description,
+          languageModelId: data.languageModelId,
+          llmTemperature: data.llmTemperature,
         },
       },
     )
@@ -146,7 +156,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
       />
 
       <Select
-        name="languageModel"
+        name="languageModelId"
         label={t('labels.languageModel')}
         options={languageModels}
         value={assistant?.languageModel}
