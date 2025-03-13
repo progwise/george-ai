@@ -67,6 +67,7 @@ export default {
     reProcess: 'Erneut verarbeiten',
     hide: 'Verbergen',
     unhide: 'Einblenden',
+    addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
   },
   texts: {
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',

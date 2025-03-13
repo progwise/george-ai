@@ -96,53 +96,63 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
           <h3 className="text-lg font-bold">{t('texts.newConversation')}</h3>
           <p className="py-0">{t('texts.newConversationConfirmation')}</p>
           <p className="py-4">{t('texts.changeParticipantsAnytime')}</p>
-          <div className="flex flex-row justify-items-stretch gap-2">
-            <div>
-              <h4 className="underline">{t('assistants')}</h4>
-              {assistants?.map((assistant) => (
-                <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="assistants"
-                    value={assistant.id}
-                    defaultChecked
-                    className="checkbox-info checkbox"
-                  />
-                  <span className="label-text">{assistant.name}</span>
-                </label>
-              ))}
+          <form method="dialog" onSubmit={handleCreateConversation}>
+            <div className="flex gap-2">
+              <div className="w-1/2">
+                <h4 className="underline">{t('assistants')}</h4>
+                {assistants && assistants.length > 0 ? (
+                  assistants.map((assistant) => (
+                    <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
+                      <input
+                        type="checkbox"
+                        name="assistants"
+                        value={assistant.id}
+                        defaultChecked
+                        className="checkbox-info checkbox"
+                      />
+                      <span className="label-text">{assistant.name}</span>
+                    </label>
+                  ))
+                ) : (
+                  <p>{t('texts.noAssistantsAvailable')}</p>
+                )}
+              </div>
+              <div className="w-1/2">
+                <h4 className="underline">{t('users')}</h4>
+                {humans && humans.length > 0 ? (
+                  humans.map((user) => (
+                    <label key={user.id} className="label cursor-pointer justify-start gap-2">
+                      <input
+                        type="checkbox"
+                        name="users"
+                        value={user.id}
+                        defaultChecked
+                        className="checkbox-info checkbox"
+                      />
+                      <span className="label-text">{user.name || user.username}</span>
+                    </label>
+                  ))
+                ) : (
+                  <p>{t('texts.noUsersAvailable')}</p>
+                )}
+              </div>
             </div>
-            <div>
-              <h4 className="underline">{t('users')}</h4>
-              {humans?.map((user) => (
-                <label key={user.id} className="label cursor-pointer gap-2">
-                  <input
-                    type="checkbox"
-                    name="users"
-                    value={user.id}
-                    defaultChecked
-                    className="checkbox-info checkbox"
-                  />
-                  <span className="label-text">{user.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="modal-action">
-            <form method="dialog">
+            <div className="modal-action">
               <button type="submit" className="btn btn-sm">
                 {t('actions.cancel')}
               </button>
-            </form>
-            <button
-              type="submit"
-              className="btn btn-primary btn-sm"
-              disabled={isPending || !assistants}
-              onClick={handleCreateConversation}
-            >
-              {t('actions.create')}
-            </button>
-          </div>
+              <div>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-sm"
+                  disabled={isPending || !assistants}
+                  onClick={handleCreateConversation}
+                >
+                  {t('actions.create')}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
         <form method="dialog" className="modal-backdrop">
           <button type="submit">close</button>

@@ -66,6 +66,7 @@ export default {
     reProcess: 'Re-Process',
     hide: 'Hide',
     unhide: 'Unhide',
+    addNoParticipantsSelected: 'No assistant or user is selected',
   },
   texts: {
     profileNotFoundFor: 'Profile not found for',

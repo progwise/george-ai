@@ -1,5 +1,6 @@
+/* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect */
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -46,12 +47,14 @@ interface ConversationParticipantsProps {
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const [selectedAssistants, setSelectedAssistants] = useState<string[]>([])
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+
   const queryClient = useQueryClient()
   const auth = useAuth()
   const { t } = useTranslation()
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
-
   const humanCandidates = useFragment(
     ConversationParticipants_HumanParticipationCandidatesFragment,
     props.humanCandidates,
@@ -86,6 +89,15 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     },
   })
 
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'assistants' | 'users') => {
+    const { value, checked } = event.target
+    if (type === 'assistants') {
+      setSelectedAssistants((prev) => (checked ? [...prev, value] : prev.filter((id) => id !== value)))
+    } else {
+      setSelectedUsers((prev) => (checked ? [...prev, value] : prev.filter((id) => id !== value)))
+    }
+  }
+
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
     event.preventDefault()
     mutateRemove({ participantId })
@@ -102,23 +114,51 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateAdd({ assistantIds, userIds })
   }
 
+  useEffect(() => {
+    const existingParticipantIds = conversation.participants.map((participant) => participant.id)
+
+    if (assistantCandidates) {
+      const filteredAssistants = assistantCandidates.filter(
+        (assistant) => !existingParticipantIds.includes(assistant.id),
+      )
+      setSelectedAssistants(filteredAssistants.map((assistant) => assistant.id))
+    }
+
+    if (humanCandidates) {
+      const filteredUsers = humanCandidates.filter((user) => !existingParticipantIds.includes(user.id))
+      setSelectedUsers(filteredUsers.map((user) => user.id))
+    }
+  }, [assistantCandidates, humanCandidates, conversation.participants])
+
+  const isAddButtonDisabled = addParticipantIsPending || (selectedAssistants.length === 0 && selectedUsers.length === 0)
+
+  const existingParticipantIds = conversation.participants.map(
+    (participant) => participant.userId || participant.assistantId,
+  )
+
+  const filteredAssistantCandidates = assistantCandidates?.filter(
+    (assistant) => !existingParticipantIds.includes(assistant.id),
+  )
+
+  const filteredHumanCandidates = humanCandidates?.filter((user) => !existingParticipantIds.includes(user.id))
+
   if (auth.user == null || !auth.user?.id) {
     return <></>
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap gap-2">
       <LoadingSpinner isLoading={removeParticipantIsPending || addParticipantIsPending} />
       <dialog className="modal" ref={dialogRef}>
         <div className="modal-box">
           <h3 className="text-lg font-bold">{t('texts.addParticipants')}</h3>
           <p className="py-4">{t('texts.addParticipantsConfirmation')}</p>
           <form method="dialog" onSubmit={handleSubmit}>
-            <div className="flex flex-row gap-2">
+            <div className="flex gap-2">
               <div className="w-1/2">
                 <h4 className="underline">{t('assistants')}</h4>
-                {assistantCandidates && assistantCandidates.length > 0 ? (
-                  assistantCandidates.map((assistant) => (
+                {filteredAssistantCandidates && filteredAssistantCandidates.length > 0 ? (
+                  filteredAssistantCandidates.map((assistant) => (
                     <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
                       <input
                         type="checkbox"
@@ -126,6 +166,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
                         value={assistant.id}
                         defaultChecked
                         className="checkbox-info checkbox"
+                        onChange={(e) => handleCheckboxChange(e, 'assistants')}
                       />
                       <span className="label-text">{assistant.name}</span>
                     </label>
@@ -136,8 +177,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               </div>
               <div className="w-1/2">
                 <h4 className="underline">{t('users')}</h4>
-                {humanCandidates && humanCandidates.length > 0 ? (
-                  humanCandidates.map((user) => (
+                {filteredHumanCandidates && filteredHumanCandidates.length > 0 ? (
+                  filteredHumanCandidates.map((user) => (
                     <label key={user.id} className="label cursor-pointer justify-start gap-2">
                       <input
                         type="checkbox"
@@ -145,6 +186,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
                         value={user.id}
                         defaultChecked
                         className="checkbox-info checkbox"
+                        onChange={(e) => handleCheckboxChange(e, 'users')}
                       />
                       <span className="label-text">{user.name || user.username}</span>
                     </label>
@@ -158,9 +200,15 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               <button type="button" className="btn btn-sm" onClick={() => dialogRef.current?.close()}>
                 {t('actions.cancel')}
               </button>
-              <button type="submit" className="btn btn-primary btn-sm" disabled={addParticipantIsPending}>
-                {t('actions.add')}
-              </button>
+
+              <div
+                className={` ${isAddButtonDisabled ? 'lg:tooltip lg:tooltip-left' : ''} `}
+                data-tip={t('tooltips.addNoParticipantsSelected')}
+              >
+                <button type="submit" className="btn btn-primary btn-sm" disabled={isAddButtonDisabled}>
+                  {t('actions.add')}
+                </button>
+              </div>
             </div>
           </form>
         </div>
