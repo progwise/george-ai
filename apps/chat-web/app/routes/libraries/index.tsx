@@ -7,6 +7,7 @@ import { dateStringShort, timeString } from '@george-ai/web-utils'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -58,6 +59,8 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
   const isLoggedIn = !!auth?.user
 
+  const { language } = useTranslation()
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -91,7 +94,6 @@ function RouteComponent() {
           </thead>
           <tbody>
             {data?.aiLibraries?.map((library, index) => {
-              const language = navigator.language || ''
               const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
               const timePart = timeString(library.updatedAt ?? library.createdAt, language)
 
@@ -136,3 +138,5 @@ function RouteComponent() {
     </article>
   )
 }
+
+export default RouteComponent
