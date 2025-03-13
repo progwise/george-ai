@@ -98,7 +98,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
           <p className="py-4">{t('texts.changeParticipantsAnytime')}</p>
           <div className="flex flex-row justify-items-stretch gap-2">
             <div>
-              <h4 className="underline">{t('assistants')}</h4>
+              <h4 className="underline">{t('conversations.assistants')}</h4>
               {assistants?.map((assistant) => (
                 <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
                   <input
@@ -113,7 +113,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
               ))}
             </div>
             <div>
-              <h4 className="underline">{t('users')}</h4>
+              <h4 className="underline">{t('conversations.humans')}</h4>
               {humans?.map((user) => (
                 <label key={user.id} className="label cursor-pointer gap-2">
                   <input

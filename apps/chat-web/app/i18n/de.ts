@@ -28,6 +28,10 @@ export default {
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
   },
   brand: 'George-Ai',
+  conversations: {
+    assistants: 'Assistenten',
+    humans: 'Benutzer',
+  },
   dialog: {
     cancel: 'Abbrechen',
     ok: 'OK',

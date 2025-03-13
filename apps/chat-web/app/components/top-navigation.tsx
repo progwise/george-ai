@@ -70,7 +70,7 @@ const TopNavigation = () => {
               <li>
                 <Link to="/assistants" onClick={closeMenu}>
                   <BowlerHatIcon className="size-6" />
-                  {t('assistants')}
+                  {t('topNavigation.assistants')}
                 </Link>
               </li>
               <li>

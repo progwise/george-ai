@@ -28,6 +28,10 @@ export default {
     signInForAssistants: 'Login to see your assistants',
   },
   brand: 'George-Ai',
+  conversations: {
+    assistants: 'Assistants',
+    humans: 'Users',
+  },
   dialog: {
     cancel: 'Cancel',
     ok: 'OK',
