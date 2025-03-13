@@ -18,14 +18,19 @@ export default {
     addNewDescription:
       'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
     delete: 'Delete assistant',
-    deleteButton: 'delete',
-    deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
+    deleteButton: 'Delete',
+    deleteDescription: 'You are about to delete assistant {assistantName}. Please confirm.',
     myAssistants: 'My assistants',
     placeholders: {
       description: 'Describe your assistant',
-      name: 'Name your assitant',
+      name: 'Name your assistant',
     },
     signInForAssistants: 'Login to see your assistants',
+    assistantCard: {
+      tryButton: 'Try',
+      defaultAltText: 'Assistant icon',
+      configureButton: 'Configure',
+    },
   },
   brand: 'George-Ai',
   conversations: {
@@ -68,6 +73,7 @@ export default {
     freeMessages: 'Free Messages',
     freeStorage: 'Free Storage',
     instructions: 'Instructions',
+    languageModel: 'Language Model',
     lastName: 'Last Name',
     llmTemperature: 'LLM Temperature',
     name: 'Name',
@@ -80,7 +86,7 @@ export default {
   },
   library: 'Library',
   placeholders: {
-    email: 'Ihre E-Mail-Adresse',
+    email: 'Your email address',
   },
   resetConversation: 'Reset conversation',
   texts: {

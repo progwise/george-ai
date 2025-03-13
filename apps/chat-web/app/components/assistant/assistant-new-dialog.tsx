@@ -12,19 +12,17 @@ import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
 
 const createNewAssistant = createServerFn({ method: 'POST' })
-  .validator(async (data: FormData) => {
-    const o = Object.fromEntries(data)
-
+  .validator((data: FormData) => {
+    const object = Object.fromEntries(data)
     return z
       .object({
         ownerId: z.string().nonempty(),
         name: z.string().min(1),
       })
-      .parse(o)
+      .parse(object)
   })
   .handler(async (ctx) => {
-    const data = await ctx.data
-    console.log(data)
+    const data = ctx.data
     return await backendRequest(
       graphql(`
         mutation createAiAssistant($ownerId: String!, $name: String!) {
@@ -34,9 +32,7 @@ const createNewAssistant = createServerFn({ method: 'POST' })
           }
         }
       `),
-      {
-        ...data,
-      },
+      data,
     )
   })
 

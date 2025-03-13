@@ -60,7 +60,7 @@ export const Input = <T extends ZodRawShape>({
     <label className={twMerge('grid h-full w-full grid-cols-2', className)}>
       <span
         className={twMerge(
-          'overflow-hidden text-nowrap text-sm text-base-content/50',
+          'mb-2 overflow-hidden text-nowrap text-sm text-base-content/50',
           errors.length > 0 && 'text-error',
         )}
       >

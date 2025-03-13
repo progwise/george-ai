@@ -62,16 +62,15 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
   return (
     <>
       <LoadingSpinner isLoading={updateUsageIsPending} />
-      <table className="table">
+      <table className="table table-fixed">
         <thead>
           <tr>
-            <th></th>
-            <th></th>
-            <th>Library</th>
+            <th className="w-1/12"></th>
+            <th className="w-11/12">Library</th>
           </tr>
         </thead>
         <tbody>
-          {libraries?.map((library, index) => (
+          {libraries?.map((library) => (
             <tr key={library.id}>
               <td>
                 <label>
@@ -90,9 +89,12 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
                   />
                 </label>
               </td>
-              <td>{index + 1}</td>
               <td>
-                <Link to="/libraries/$libraryId" params={{ libraryId: library.id }}>
+                <Link
+                  to="/libraries/$libraryId"
+                  params={{ libraryId: library.id }}
+                  className="font-bold hover:underline"
+                >
                   {library.name}
                 </Link>
               </td>

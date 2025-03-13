@@ -13,13 +13,13 @@ import { DialogForm } from '../dialog-form'
 
 const deleteAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
-    const o = Object.fromEntries(data)
+    const object = Object.fromEntries(data)
 
     return z
       .object({
         assistantId: z.string().nonempty(),
       })
-      .parse(o)
+      .parse(object)
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -87,7 +87,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
       <DialogForm
         ref={dialogRef}
         title={t('assistants.delete')}
-        description={t('assistants.deleteDescription')}
+        description={t('assistants.deleteDescription', { assistantName: assistant.name })}
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >

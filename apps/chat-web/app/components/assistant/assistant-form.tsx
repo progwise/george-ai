@@ -114,8 +114,8 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
     disabled: updateIsPending || disabled,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
-      const o = Object.fromEntries(formData)
-      const parseResult = schema.safeParse(o)
+      const object = Object.fromEntries(formData)
+      const parseResult = schema.safeParse(object)
       if (parseResult.success) {
         update(formData)
       } else {

@@ -102,7 +102,7 @@ export const LangchainChatForm = ({ sessionId, retrievalFlow }: LangchainChatFor
         {!auth?.isAuthenticated && (
           <Alert message="Sign in to chat" type="warning" className="py-2">
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => auth?.login()}>
-              Sign in
+              Sign In
             </button>
           </Alert>
         )}
