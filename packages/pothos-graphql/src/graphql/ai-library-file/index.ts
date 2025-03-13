@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-import { dropFile, embedFile } from '@george-ai/langchain-chat'
+import { dropFileFromVectorstore, embedFile } from '@george-ai/langchain-chat'
 
 import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
@@ -16,23 +16,24 @@ async function dropFileById(fileId: string) {
     throw new Error(`File not found: ${fileId}`)
   }
 
-  await dropFile(file.libraryId, file.id)
-
-  const deleteResult = await prisma.aiLibraryFile.delete({
-    where: { id: file.id },
-  })
-
-  await new Promise((resolve, reject) => {
-    fs.rm(getFilePath(file.id), (err) => {
-      if (err) {
-        reject(`Error deleting file ${file.id}: ${err.message}`)
-      } else {
-        resolve(`File ${file.id} deleted`)
-      }
+  const deleteResult = await Promise.all([
+    dropFileFromVectorstore(file.libraryId, file.id),
+    new Promise((resolve, reject) => {
+      fs.rm(getFilePath(file.id), (err) => {
+        if (err) {
+          reject(`Error deleting file ${file.id}: ${err.message}`)
+        } else {
+          resolve(`File ${file.id} deleted`)
+        }
+      })
+    }),
+  ]).then(async () => {
+    const deletedFile = await prisma.aiLibraryFile.delete({
+      where: { id: file.id },
     })
+    console.log('dropped file', deletedFile)
+    return deletedFile
   })
-
-  console.log('dropped file', deleteResult)
 
   return deleteResult
 }
