@@ -4,32 +4,43 @@ import { createServerFn } from '@tanstack/react-start'
 import React, { useRef } from 'react'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { AiAssistant } from '../../gql/graphql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-const deleteAssistantDocument = graphql(`
-  mutation deleteAiAssistant($id: String!) {
-    deleteAiAssistant(assistantId: $id) {
-      id
-    }
-  }
-`)
-
 const deleteAssistant = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(deleteAssistantDocument, {
-      id: ctx.data,
-    })
+    return await backendRequest(
+      graphql(`
+        mutation deleteAiAssistant($id: String!) {
+          deleteAiAssistant(assistantId: $id) {
+            id
+          }
+        }
+      `),
+      {
+        id: ctx.data,
+      },
+    )
   })
 
+const AssistantCard_assistantFragment = graphql(`
+  fragment AssistantCard_assistantFragment on AiAssistant {
+    id
+    name
+    description
+    icon
+  }
+`)
+
 export interface AssistantCardProps {
-  assistant: AiAssistant
+  assistant: FragmentType<typeof AssistantCard_assistantFragment>
 }
 
-export const AssistantCard = ({ assistant }: AssistantCardProps): React.ReactElement => {
+export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
+  const assistant = useFragment(AssistantCard_assistantFragment, props.assistant)
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   const queryClient = useQueryClient()

@@ -58,12 +58,15 @@ function RouteComponent() {
             <span>{t('assistants.myAssistants')}</span>
           )}
         </h3>
-        <LoadingSpinner isLoading={isLoading} />
         {isLoggendIn && <AssistantNewDialog />}
       </div>
 
       <div className="flex flex-wrap gap-4">
-        {data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)}
+        {!data?.aiAssistants || isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)
+        )}
       </div>
     </article>
   )
