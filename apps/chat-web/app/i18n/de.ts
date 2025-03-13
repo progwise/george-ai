@@ -15,6 +15,7 @@ export default {
     signIn: 'Anmelden',
     signOut: 'Abmelden',
     conversations: 'Konversationen',
+    users: 'Benutzer',
   },
 
   home: {
@@ -69,10 +70,34 @@ export default {
     sendConfirmationMail: 'Bestätigungsmail senden',
     increaseLimits: 'Grenzen erhöhen',
     removeProfile: 'Benutzerprofil entfernen',
+    drop: 'Entfernen',
+    reProcess: 'Erneut verarbeiten',
+    delete: 'Löschen',
+    cancel: 'Abbrechen',
+    new: 'Neue',
+    create: 'Erstellen',
+  },
+  tooltips: {
+    clearEmbeddings: 'Einbettungen löschen',
+    deleteConversation: 'Konversation löschen',
+    drop: 'Entfernen',
+    reProcess: 'Erneut verarbeiten',
+    hide: 'Verbergen',
+    unhide: 'Einblenden',
   },
   texts: {
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     profileFoundFor: 'Benutzerprofil gefunden für',
+    noAssistant: 'Kein Assistent',
+    newConversation: 'Neue Konversation',
+    deleteConversation: 'Konversation löschen',
+    deleteConversationConfirmation:
+      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
+    with: 'mit',
+    newConversationConfirmation:
+      'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
+    changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
   },
   assistants: {
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
