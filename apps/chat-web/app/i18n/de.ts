@@ -1,16 +1,21 @@
 export default {
   brand: 'George-Ai',
-  chat: 'Chat',
-  assistants: 'Assistenten',
-  signIn: 'Anmelden',
-  signOut: 'Abmelden',
   flowSequential: 'Ablauf: Sequenziell',
   flowParallel: 'Ablauf: Parallel',
   flowLocal: 'Ablauf: Nur Lokal',
   flowWeb: 'Ablauf: Nur Web',
   resetConversation: 'Konversation zurücksetzen',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
-  library: 'Bibliothek',
+
+  topNavigation: {
+    home: 'Startseite',
+    assistants: 'Assistenten',
+    chat: 'Chat',
+    libraries: 'Bibliotheken',
+    signIn: 'Anmelden',
+    signOut: 'Abmelden',
+    conversations: 'Konversationen',
+  },
 
   home: {
     title: 'Ihre KI. Ihre Daten. Ihre Regeln.',
@@ -22,8 +27,14 @@ export default {
     btnText: 'KI-Training starten',
     altImage: 'George KI',
   },
-  conversations: 'Konversationen',
+  dialog: {
+    cancel: 'Abbrechen',
+    ok: 'OK',
+  },
   labels: {
+    name: 'Name',
+    description: 'Beschreibung',
+    instructions: 'Anweisungen',
     createdAt: 'Erstellt',
     updatedAt: 'Geändert',
     confirmationDate: 'Bestätigt',
@@ -40,6 +51,11 @@ export default {
     freeMessages: 'Anzahl Nachrichten',
     usedStorage: 'Verwendeter Speicher',
     usedMessages: 'Vorhandene Nachrichten',
+    languageModel: 'Sprachmodell',
+    llmTemperature: 'LLM Temperatur',
+  },
+  placeholders: {
+    email: 'Ihre E-Mail-Adresse',
   },
   errors: {
     requiredField: 'erforderlich',
@@ -55,5 +71,18 @@ export default {
   texts: {
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     profileFoundFor: 'Benutzerprofil gefunden für',
+  },
+  assistants: {
+    signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
+    myAssistants: 'Meine Assistenten',
+    addNewButton: 'Assistent erstellen',
+    addNew: 'Neuen Assistenten erstellen',
+    addNewDescription:
+      'Ein Assistent führt Sie durch die Ai von George. Er unterstütut Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
+    placeholders: {
+      description: 'Beschreiben Sie Ihren Assistenten',
+      name: 'Name Ihres Assistenten',
+      instructions: 'Geben Sie Anweisungen für Ihren Assistenten ein',
+    },
   },
 }

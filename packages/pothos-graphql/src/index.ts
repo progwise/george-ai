@@ -1,5 +1,6 @@
 import { builder } from './graphql/builder'
 
+import './graphql/ai-language-model'
 import './graphql/ai-assistant'
 import './graphql/ai-conversation'
 import './graphql/ai-conversation-message'

@@ -2,12 +2,10 @@ import { z } from 'zod'
 
 import {
   AiAssistantInput,
-  AiAssistantType,
   AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
-  AiLibraryType,
   AiLibraryUsageInput,
   RetrievalFlow,
   UserInput,
@@ -24,17 +22,14 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
-export const AiAssistantTypeSchema = z.nativeEnum(AiAssistantType)
-
-export const AiLibraryTypeSchema = z.nativeEnum(AiLibraryType)
-
 export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
-    assistantType: AiAssistantTypeSchema,
     description: z.string().nullish(),
     icon: z.string().nullish(),
+    languageModelId: z.string().nullish(),
+    llmTemperature: z.number().nullish(),
     name: z.string(),
     url: z.string().nullish(),
   })
@@ -68,7 +63,6 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   return z.object({
     description: z.string().nullish(),
     icon: z.string().nullish(),
-    libraryType: AiLibraryTypeSchema,
     name: z.string(),
     url: z.string().nullish(),
   })

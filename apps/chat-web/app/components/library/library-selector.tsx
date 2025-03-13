@@ -1,5 +1,4 @@
 import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
 
 import { AiLibrary } from '../../gql/graphql'
 import { Listbox } from '../listbox'
@@ -11,17 +10,15 @@ interface LibrarySelectorProps {
 
 export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorProps) => {
   const navigate = useNavigate()
-  const [selected, setSelected] = useState(selectedLibrary)
 
   return (
     <Listbox
       items={libraries}
-      selectedItem={selected}
+      selectedItem={selectedLibrary}
       onChange={(newLibrary) => {
-        setSelected(newLibrary)
         navigate({
           to: '/libraries/$libraryId',
-          params: { libraryId: newLibrary.id },
+          params: { libraryId: newLibrary!.id },
         })
       }}
     />

@@ -1,37 +1,16 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
-import { Link, createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { Link, createFileRoute, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth-hook'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql/gql'
-import { AiAssistantInputSchema } from '../../gql/validation'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
-
-const aiAssistantEditQueryDocument = graphql(`
-  query aiAssistantEdit($id: String!, $ownerId: String!) {
-    aiAssistant(id: $id) {
-      id
-      name
-      description
-      icon
-      createdAt
-      ownerId
-      assistantType
-      url
-    }
-    aiAssistants(ownerId: $ownerId) {
-      id
-      name
-    }
-  }
-`)
 
 const getAssistant = createServerFn({ method: 'GET' })
   .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
@@ -40,131 +19,81 @@ const getAssistant = createServerFn({ method: 'GET' })
   }))
   .handler(
     async (ctx) =>
-      await backendRequest(aiAssistantEditQueryDocument, {
-        id: ctx.data.assistantId,
-        ownerId: ctx.data.ownerId,
-      }),
+      await backendRequest(
+        graphql(`
+          query aiAssistantDetails($id: String!, $ownerId: String!) {
+            aiAssistant(id: $id) {
+              ...AssistantForm_assistant
+              ...AssistantSelector_assistant
+              ...AssistantForLibrariesFragment
+            }
+            aiAssistants(ownerId: $ownerId) {
+              ...AssistantSelector_assistant
+            }
+            aiLibraryUsage(assistantId: $id) {
+              ...AssistantLibrariesUsageFragment
+            }
+            aiLibraries(ownerId: $ownerId) {
+              ...AssistantLibrariesFragment
+            }
+            aiLanguageModels {
+              ...AssistantForm_languageModel
+            }
+          }
+        `),
+        {
+          id: ctx.data.assistantId,
+          ownerId: ctx.data.ownerId,
+        },
+      ),
   )
-
-const updateAssistantDocument = graphql(/* GraphQL */ `
-  mutation changeAiAssistant($id: String!, $data: AiAssistantInput!) {
-    updateAiAssistant(id: $id, data: $data) {
-      id
-      name
-    }
-  }
-`)
-
-const changeAssistant = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Invalid form data')
-    }
-
-    const assistantId = z
-      .string()
-      .nonempty()
-      .parse(data.get('assistantId') as string)
-
-    const icon = data.get('icon') as File
-
-    const assistant = AiAssistantInputSchema().parse({
-      name: data.get('name') as string,
-      description: data.get('description') as string,
-      url: data.get('url') as string,
-      icon: icon.name as string,
-      assistantType: data.get('assistantType'),
-    })
-    return { assistantId, assistant }
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(updateAssistantDocument, {
-      data: ctx.data.assistant,
-      id: ctx.data.assistantId,
-    })
-  })
-
-const assistantsQueryOptions = (ownerId?: string, assistantId?: string) => ({
-  queryKey: [queryKeys.AiAssistants, assistantId, ownerId],
-  queryFn: async () => {
-    if (!ownerId || !assistantId) {
-      return null
-    } else {
-      return getAssistant({ data: { ownerId, assistantId } })
-    }
-  },
-  enabled: !!ownerId || !!assistantId,
-})
 
 export const Route = createFileRoute('/assistants/$assistantId')({
   component: RouteComponent,
-  beforeLoad: async ({ params, context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
-    return {
-      assistantId: params.assistantId,
-      ownerId: currentUser?.id,
-    }
-  },
-  loader: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
-    context.queryClient.ensureQueryData(assistantsQueryOptions(currentUser?.id, context.assistantId))
-  },
   staleTime: 0,
 })
 
 function RouteComponent() {
   const { user } = useAuth()
+  const ownerId = user?.id
   const { assistantId } = useParams({ strict: false })
-  const { data, isLoading } = useSuspenseQuery(assistantsQueryOptions(user?.id, assistantId))
-
-  const { aiAssistant, aiAssistants } = data || {}
-
-  const navigate = useNavigate()
-  const { mutate: saveAssistant, isPending: saveIsPending } = useMutation({
-    mutationFn: (data: FormData) => changeAssistant({ data }),
-    onSettled: () => {
-      navigate({ to: '..' })
+  const { data, isLoading } = useQuery({
+    queryKey: [queryKeys.AiAssistantForEdit, assistantId, ownerId],
+    queryFn: async () => {
+      if (!ownerId || !assistantId) {
+        return null
+      } else {
+        return getAssistant({ data: { ownerId, assistantId } })
+      }
     },
+    enabled: !!ownerId && !!assistantId,
   })
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = event.currentTarget
-    const formData = new FormData(form)
+  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage, aiLanguageModels } = data || {}
 
-    saveAssistant(formData)
-  }
-
-  if (!aiAssistant) {
+  if (!user?.id || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || !aiLanguageModels || isLoading) {
     return <LoadingSpinner />
   }
-  if (!user?.id || !aiAssistant || !aiAssistants || isLoading) {
-    return <LoadingSpinner />
-  }
-  const disabled = !user
+
   return (
-    <article className="flex w-full flex-col gap-4">
-      <LoadingSpinner isLoading={saveIsPending} />
-      <div className="flex items-center justify-between">
-        <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
-        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
+    <article className="container flex w-full flex-col gap-4">
+      <div className="flex justify-between">
+        <div className="w-64">
+          <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
+        </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
             List
           </Link>
         </div>
       </div>
-
-      <div role="tablist" className="tabs tabs-bordered">
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" defaultChecked />
-        <div role="tabpanel" className="tab-content p-10">
-          <AssistantForm assistant={aiAssistant} ownerId={user.id} handleSubmit={handleSubmit} disabled={disabled} />
+      <div className="flex w-full flex-col gap-4 lg:flex-row">
+        <div className="card grid w-1/2 grow rounded-box bg-base-200 px-3 py-3">
+          <AssistantForm assistant={aiAssistant} languageModels={aiLanguageModels} disabled={!user} />
+          <hr className="my-3" />
+          <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
-
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Used Libraries" />
-        <div role="tabpanel" className="tab-content p-10">
-          <AssistantLibraries assistantId={aiAssistant.id} ownerId={user.id} />
-        </div>
+        <div className="card grid w-1/2 grow place-items-center rounded-box bg-base-200"></div>
       </div>
     </article>
   )

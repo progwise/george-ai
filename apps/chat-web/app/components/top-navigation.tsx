@@ -48,7 +48,7 @@ const TopNavigation = () => {
         ) : (
           <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
             <UserIcon className="size-6" />
-            {t('signIn')}
+            {t('topNavigation.signIn')}
           </button>
         )}
 
@@ -95,7 +95,7 @@ const TopNavigation = () => {
                     }}
                   >
                     <UserIcon className="size-6" />
-                    {t('signIn')}
+                    {t('topNavigation.signIn')}
                   </button>
                 </li>
               ) : (
@@ -128,33 +128,33 @@ const TopNavigation = () => {
         <div className="flex gap-4">
           <TopNavigationLink to="/conversations/$">
             <ConversationIcon className="size-6" />
-            {t('conversations')}
+            {t('topNavigation.conversations')}
           </TopNavigationLink>
           <TopNavigationLink to="/assistants">
             <BowlerHatIcon className="size-6" />
-            {t('assistants')}
+            {t('topNavigation.assistants')}
           </TopNavigationLink>
           <TopNavigationLink to="/libraries">
             <AcademicCapIcon className="size-6" />
-            {t('library')}
+            {t('topNavigation.libraries')}
           </TopNavigationLink>
           <TopNavigationLink to="/langchain-chat">
             <ChatBubbleIcon className="size-6" />
-            {t('chat')}
+            {t('topNavigation.chat')}
           </TopNavigationLink>
         </div>
         <div className="flex gap-2">
           {!user ? (
             <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
               <UserIcon className="size-6" />
-              {t('signIn')}
+              {t('topNavigation.signIn')}
             </button>
           ) : (
             <>
               <TopNavigationLink to="/profile">{user?.name || 'no name'}</TopNavigationLink>
               <button type="button" className="btn btn-ghost gap-2" onClick={() => logout()}>
                 <UserIcon className="size-6" />
-                {t('signOut')}
+                {t('topNavigation.signOut')}
               </button>
             </>
           )}
