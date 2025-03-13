@@ -109,7 +109,7 @@ function RouteComponent() {
                     <Link
                       to={'/libraries/$libraryId'}
                       params={{ libraryId: library.id }}
-                      className="font-bold text-black"
+                      className="hover:text-primary, text-black, font-bold hover:underline"
                     >
                       {library.name}
                     </Link>
