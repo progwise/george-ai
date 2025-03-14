@@ -20,6 +20,7 @@ interface SelectProps<T extends ZodRawShape> {
   name: string
   schema?: z.ZodObject<T>
   onBlur?: (selectedItem: SelectItem | null) => void
+  placeholder?: string
 }
 
 export const Select = <T extends ZodRawShape>({
@@ -32,6 +33,7 @@ export const Select = <T extends ZodRawShape>({
   label,
   name,
   schema,
+  placeholder,
 }: SelectProps<T>) => {
   const hiddenIdFieldRef = useRef<HTMLInputElement>(null)
   const [errors, setErrors] = useState<string[]>([])
@@ -66,6 +68,7 @@ export const Select = <T extends ZodRawShape>({
           onChange={(selectedOption) => {
             handleChange(selectedOption)
           }}
+          placeholder={placeholder}
         />
       </div>
     </label>

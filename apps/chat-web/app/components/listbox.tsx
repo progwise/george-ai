@@ -9,6 +9,7 @@ interface ListboxProps<T> {
   onChange: (item: T | null) => void
   disabled?: boolean
   required?: boolean
+  placeholder?: string
 }
 
 export const Listbox = <T extends { id: string; name: string }>({
@@ -17,6 +18,7 @@ export const Listbox = <T extends { id: string; name: string }>({
   onChange,
   disabled,
   required,
+  placeholder,
 }: ListboxProps<T>) => {
   return (
     <HuListbox
@@ -32,7 +34,11 @@ export const Listbox = <T extends { id: string; name: string }>({
           className="grid w-full cursor-default grid-cols-1 rounded-lg bg-white py-1 pl-3 pr-2 text-left text-sm/6 text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
         >
           <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
-            <span className="block truncate">{selectedItem?.name || '-'}</span>
+            {selectedItem ? (
+              <span className="block truncate">{selectedItem.name}</span>
+            ) : (
+              <span className="block truncate text-base-content/50">{placeholder}</span>
+            )}
           </span>
           <ChevronUpDownIcon
             aria-hidden="true"

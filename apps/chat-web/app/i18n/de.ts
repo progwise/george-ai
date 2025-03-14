@@ -25,6 +25,8 @@ export default {
     myAssistants: 'Meine Assistenten',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
+      languageModel: 'Wählen Sie das Sprachmodell',
+      llmTemperature: 'Zwischen 0.0 und 1.0',
       name: 'Name Ihres Assistenten',
     },
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
