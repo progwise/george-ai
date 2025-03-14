@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -8,15 +9,17 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
 import { FileUpload } from '../form/file-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
+import { LoadingSpinner } from '../loading-spinner'
 
 const AssistantForm_AssistantFragment = graphql(`
   fragment AssistantForm_assistant on AiAssistant {
     id
     name
+    iconUrl
     description
     ownerId
     languageModelId
@@ -109,9 +112,42 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
       queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, data?.updateAiAssistant?.id, ownerId] }),
   })
 
+  const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
+    mutationFn: async (file: File) => {
+      if (!assistant?.id || !ownerId) {
+        throw new Error('Assistant or ownerId is missing')
+      }
+      const fileExtension = file.name.split('.').pop() || 'png'
+      const uploadUrl = (await getBackendPublicUrl()) + `/assistant-icon?assistantId=${assistant.id}`
+      await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'image/*',
+          Authorization: `ApiKey ${process.env.GRAPHQL_API_KEY}`,
+          'x-file-extension': fileExtension,
+        },
+        body: file,
+      })
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiAssistantForEdit, assistant?.id, ownerId],
+      }),
+  })
+
+  const handleUploadFiles = React.useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.currentTarget.files
+      if (!files || files.length !== 1) return
+      const file = Array.from(files)[0]
+      mutateAssistantIcon(file)
+    },
+    [mutateAssistantIcon],
+  )
+
   const fieldProps = {
     schema,
-    disabled: updateIsPending || disabled,
+    disabled: updateIsPending || mutateAssistantIconPending || disabled,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
       const parseResult = schema.safeParse(Object.fromEntries(formData))
@@ -124,14 +160,22 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   }
 
   return (
-    <form ref={formRef} className="flex w-full flex-col items-center gap-2">
+    <form
+      ref={formRef}
+      className={twMerge('flex w-full flex-col items-center gap-2')}
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <div className={twMerge('relative h-24 w-24 rounded-full bg-cover bg-center bg-no-repeat')}>
+        <img key={Date.now()} src={assistant?.iconUrl} alt={t('labels.assistantIcon')} className="absolute z-0" />
+      </div>
+      <LoadingSpinner isLoading={updateIsPending || mutateAssistantIconPending} />
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant?.id} />
 
       <FileUpload
-        className="col-span-2 justify-self-center"
+        className="z-10 col-span-2 justify-self-center"
         fileTypes="image/*"
-        handleUploadFiles={(event) => console.log(event)}
+        handleUploadFiles={handleUploadFiles}
       />
       <Input
         name="name"

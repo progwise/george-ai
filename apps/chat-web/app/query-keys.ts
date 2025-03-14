@@ -6,6 +6,7 @@ export const queryKeys = {
   AiAssistantLibraries: 'AiAssistantLibraries',
   AiLibraries: 'AiLibraries',
   AiLibraryFiles: 'AiLibraryFiles',
+  AssistantIconUrl: 'AssistantIconUrl',
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',
   Conversation: 'Conversation',

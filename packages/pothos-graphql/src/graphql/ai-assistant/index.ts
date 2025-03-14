@@ -20,6 +20,13 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
+    iconUrl: t.field({
+      type: 'String',
+      nullable: false,
+      resolve: (source) => {
+        return `${process.env.BACKEND_PUBLIC_URL}/assistant-icon?assistantId=${source.id}`
+      },
+    }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
     icon: t.exposeString('icon'),

@@ -29,6 +29,7 @@ export type AiAssistant = {
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   icon?: Maybe<Scalars['String']['output']>
+  iconUrl: Scalars['String']['output']
   id: Scalars['ID']['output']
   languageModel?: Maybe<AiLanguageModel>
   languageModelId?: Maybe<Scalars['String']['output']>
@@ -775,6 +776,7 @@ export type AssistantForm_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   name: string
+  iconUrl: string
   description?: string | null
   ownerId: string
   languageModelId?: string | null
@@ -1590,6 +1592,7 @@ export const AssistantForm_AssistantFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModelId' } },
@@ -3369,6 +3372,7 @@ export const AiAssistantDetailsDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModelId' } },

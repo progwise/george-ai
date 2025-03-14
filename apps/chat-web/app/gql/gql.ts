@@ -21,7 +21,7 @@ type Documents = {
   '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n': typeof types.AssistantCard_AssistantFragmentFragmentDoc
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
   '\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantDelete_AssistantFragmentFragmentDoc
-  '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
+  '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
   '\n  fragment AssistantForm_languageModel on AiLanguageModel {\n    id\n    name\n  }\n': typeof types.AssistantForm_LanguageModelFragmentDoc
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAssistantDocument
   '\n  fragment AssistantForLibrariesFragment on AiAssistant {\n    id\n  }\n': typeof types.AssistantForLibrariesFragmentFragmentDoc
@@ -89,7 +89,7 @@ const documents: Documents = {
     types.DeleteAiAssistantDocument,
   '\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n':
     types.AssistantDelete_AssistantFragmentFragmentDoc,
-  '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n':
+  '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n':
     types.AssistantForm_AssistantFragmentDoc,
   '\n  fragment AssistantForm_languageModel on AiLanguageModel {\n    id\n    name\n  }\n':
     types.AssistantForm_LanguageModelFragmentDoc,
@@ -252,8 +252,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n',
-): (typeof documents)['\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n']
+  source: '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n',
+): (typeof documents)['\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

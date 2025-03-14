@@ -8,6 +8,7 @@ type AiAssistant {
   createdAt: DateTime!
   description: String
   icon: String
+  iconUrl: String!
   id: ID!
   languageModel: AiLanguageModel
   languageModelId: String
