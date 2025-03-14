@@ -60,54 +60,54 @@ export const Input = <T extends ZodRawShape>({
   }
 
   return (
-    <label className={twMerge('grid h-full w-full grid-cols-2', className)}>
-      <span
-        className={twMerge(
-          'overflow-hidden text-nowrap text-sm text-base-content/50',
-          errors.length > 0 && 'text-error',
-        )}
-      >
-        {label || ' '}
-      </span>
-      <span className="justify-self-end overflow-hidden text-nowrap text-sm text-error">{errors.join(', ')}</span>
-      <div className="col-span-2 flex flex-row">
-        {type === 'textarea' ? (
-          <textarea
-            ref={ref as React.Ref<HTMLTextAreaElement>}
-            key={value}
-            name={name}
-            defaultValue={renderedValue || ''}
-            className={twMerge(
-              'input-borderedh-full input input-sm w-full',
-              readOnly && 'cursor-not-allowed text-base-content/50',
-            )}
-            placeholder={placeholder || ''}
-            required={required}
-            readOnly={readOnly}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-        ) : (
-          <input
-            ref={ref as React.Ref<HTMLInputElement>}
-            key={value}
-            name={name}
-            type={renderedType || 'text'}
-            defaultValue={renderedValue || ''}
-            className={twMerge(
-              'input input-sm input-bordered col-span-2 w-full',
-              readOnly && 'cursor-not-allowed text-base-content/50',
-              type === 'number' && 'text-right',
-              type === 'date' && 'text-center',
-            )}
-            placeholder={placeholder || ''}
-            required={required}
-            readOnly={readOnly}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
-        )}
+    <label className={twMerge('flex h-full w-full flex-col', className)}>
+      <div className="flex flex-row justify-between">
+        <span
+          className={twMerge(
+            'overflow-hidden text-nowrap text-sm text-base-content/50',
+            errors.length > 0 && 'text-error',
+          )}
+        >
+          {label}
+        </span>
+        <span className="justify-self-end overflow-hidden text-nowrap text-sm text-error">{errors.join(', ')}</span>
       </div>
+      {type === 'textarea' ? (
+        <textarea
+          ref={ref as React.Ref<HTMLTextAreaElement>}
+          key={value}
+          name={name}
+          defaultValue={renderedValue || ''}
+          className={twMerge(
+            'input input-sm input-bordered col-span-2 h-full w-full',
+            readOnly && 'cursor-not-allowed text-base-content/50',
+          )}
+          placeholder={placeholder || ''}
+          required={required}
+          readOnly={readOnly}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      ) : (
+        <input
+          ref={ref as React.Ref<HTMLInputElement>}
+          key={value}
+          name={name}
+          type={renderedType || 'text'}
+          defaultValue={renderedValue || ''}
+          className={twMerge(
+            'input input-sm input-bordered col-span-2 w-full',
+            readOnly && 'cursor-not-allowed text-base-content/50',
+            type === 'number' && 'text-right',
+            type === 'date' && 'text-center',
+          )}
+          placeholder={placeholder || ''}
+          required={required}
+          readOnly={readOnly}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+      )}
     </label>
   )
 }

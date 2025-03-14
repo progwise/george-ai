@@ -27,10 +27,10 @@ export const DialogForm = ({ ref, title, description, onSubmit, children, disabl
         <form method="dialog" onSubmit={handleSubmit}>
           <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
           <div className="modal-action">
-            <button type="button" className="btn" onClick={() => ref.current?.close()}>
+            <button type="button" className="btn btn-sm" onClick={() => ref.current?.close()}>
               {t('dialog.cancel')}
             </button>
-            <button type="submit" className="btn btn-primary min-w-36" disabled={disabledSubmit}>
+            <button type="submit" className="btn btn-primary btn-sm min-w-36" disabled={disabledSubmit}>
               {t('dialog.ok')}
             </button>
           </div>

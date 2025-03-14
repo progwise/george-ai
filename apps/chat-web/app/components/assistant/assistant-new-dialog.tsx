@@ -13,14 +13,12 @@ import { Input } from '../form/input'
 
 const createNewAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
-    const o = Object.fromEntries(data)
-
     return z
       .object({
         ownerId: z.string().nonempty(),
         name: z.string().min(1),
       })
-      .parse(o)
+      .parse(Object.fromEntries(data))
   })
   .handler(async (ctx) => {
     const data = await ctx.data
