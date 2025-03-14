@@ -24,14 +24,18 @@ export default {
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
     initialSituations: 'Initiale Situationen',
     libraries: 'Verwendete Bibliotheken',
+    libraryToAdd: 'Bibliothek hinzufügen',
     myAssistants: 'Meine Assistenten',
+    noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
       languageModel: 'Wählen Sie das Sprachmodell',
       llmTemperature: 'Zwischen 0.0 und 1.0',
       name: 'Name Ihres Assistenten',
     },
+    removeLibrary: 'Bibliothek entfernen',
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
+    usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
   },
   brand: 'George-Ai',
   conversations: {

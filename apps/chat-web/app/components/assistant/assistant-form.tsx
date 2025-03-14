@@ -124,7 +124,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   }
 
   return (
-    <form ref={formRef} className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2">
+    <form ref={formRef} className="flex w-full flex-col items-center gap-2">
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant?.id} />
 

@@ -161,7 +161,6 @@ builder.mutationField('upsertAiBaseCases', (t) =>
       const baseCasesToDeleteNoDescription = baseCases.filter(
         (bc) => bc.id && (!bc.description || bc.description.length < 1),
       )
-      console.log('baseCasesToDeleteNoDescription', baseCasesToDeleteNoDescription)
       await prisma.aiAssistantBaseCase.deleteMany({
         where: { id: { in: baseCasesToDeleteNoDescription.map((bc) => bc.id!) } },
       })
@@ -173,7 +172,6 @@ builder.mutationField('upsertAiBaseCases', (t) =>
         sequence = sequence + 1
         baseCase.sequence = sequence
         if (baseCase.id) {
-          console.log('updating base case', baseCase)
           await prisma.aiAssistantBaseCase.update({
             ...query,
             where: { id: baseCase.id },
@@ -183,7 +181,6 @@ builder.mutationField('upsertAiBaseCases', (t) =>
             },
           })
         } else {
-          console.log('creating base case', baseCase)
           await prisma.aiAssistantBaseCase.create({
             ...query,
             data: {

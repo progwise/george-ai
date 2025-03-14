@@ -79,9 +79,8 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
 
 export function AiLibraryUsageInputSchema(): z.ZodObject<Properties<AiLibraryUsageInput>> {
   return z.object({
-    assistantId: z.string(),
     libraryId: z.string(),
-    use: z.boolean(),
+    usedFor: z.string().nullish(),
   })
 }
 

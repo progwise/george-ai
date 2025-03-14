@@ -166,24 +166,19 @@ export type AiLibraryInput = {
 
 export type AiLibraryUsage = {
   __typename?: 'AiLibraryUsage'
-  assistant?: Maybe<AiAssistant>
+  assistant: AiAssistant
   assistantId: Scalars['ID']['output']
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
-  library?: Maybe<AiLibrary>
+  library: AiLibrary
   libraryId: Scalars['ID']['output']
+  updatedAt: Scalars['DateTime']['output']
+  usedFor?: Maybe<Scalars['String']['output']>
 }
 
 export type AiLibraryUsageInput = {
-  assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-  use: Scalars['Boolean']['input']
-}
-
-export type AiLibraryUsageResult = {
-  __typename?: 'AiLibraryUsageResult'
-  deletedCount?: Maybe<Scalars['Int']['output']>
-  usageId?: Maybe<Scalars['String']['output']>
+  usedFor?: InputMaybe<Scalars['String']['input']>
 }
 
 export type AssistantParticipant = AiConversationParticipant & {
@@ -227,6 +222,7 @@ export type HumanParticipant = AiConversationParticipant & {
 export type Mutation = {
   __typename?: 'Mutation'
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
+  addLibraryUsage?: Maybe<AiLibraryUsage>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmUserProfile?: Maybe<UserProfile>
@@ -244,13 +240,15 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
+  removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
-  updateLibraryUsage?: Maybe<AiLibraryUsageResult>
+  updateLibraryUsage?: Maybe<AiLibraryUsage>
+  updateLibraryUsages?: Maybe<Array<AiLibraryUsage>>
   updateMessage?: Maybe<AiConversationMessage>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
@@ -260,6 +258,11 @@ export type MutationAddConversationParticipantsArgs = {
   assistantIds?: InputMaybe<Array<Scalars['String']['input']>>
   conversationId: Scalars['String']['input']
   userIds?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+export type MutationAddLibraryUsageArgs = {
+  assistantId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationChatArgs = {
@@ -335,6 +338,11 @@ export type MutationRemoveConversationParticipantArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationRemoveLibraryUsageArgs = {
+  assistantId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}
+
 export type MutationRemoveUserProfileArgs = {
   userId: Scalars['String']['input']
 }
@@ -364,7 +372,13 @@ export type MutationUpdateAiLibraryArgs = {
 }
 
 export type MutationUpdateLibraryUsageArgs = {
-  data: AiLibraryUsageInput
+  id: Scalars['String']['input']
+  usedFor?: InputMaybe<Scalars['String']['input']>
+}
+
+export type MutationUpdateLibraryUsagesArgs = {
+  assistantId: Scalars['String']['input']
+  usages: Array<AiLibraryUsageInput>
 }
 
 export type MutationUpdateMessageArgs = {
@@ -796,23 +810,43 @@ export type AssistantLibrariesFragmentFragment = { __typename?: 'AiLibrary'; id:
   ' $fragmentName'?: 'AssistantLibrariesFragmentFragment'
 }
 
-export type AssistantLibrariesUsageFragmentFragment = { __typename?: 'AiLibraryUsage'; libraryId: string } & {
-  ' $fragmentName'?: 'AssistantLibrariesUsageFragmentFragment'
+export type AssistantLibrariesUsageFragmentFragment = {
+  __typename?: 'AiLibraryUsage'
+  id: string
+  assistantId: string
+  libraryId: string
+  usedFor?: string | null
+  library: { __typename?: 'AiLibrary'; id: string; name: string }
+} & { ' $fragmentName'?: 'AssistantLibrariesUsageFragmentFragment' }
+
+export type AddLibraryUsageMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type AddLibraryUsageMutation = {
+  __typename?: 'Mutation'
+  addLibraryUsage?: { __typename?: 'AiLibraryUsage'; id: string } | null
+}
+
+export type RemoveLibraryUsageMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type RemoveLibraryUsageMutation = {
+  __typename?: 'Mutation'
+  removeLibraryUsage?: { __typename?: 'AiLibraryUsage'; id: string } | null
 }
 
 export type UpdateLibraryUsageMutationVariables = Exact<{
-  assistantId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
-  use: Scalars['Boolean']['input']
+  id: Scalars['String']['input']
+  usedFor: Scalars['String']['input']
 }>
 
 export type UpdateLibraryUsageMutation = {
   __typename?: 'Mutation'
-  updateLibraryUsage?: {
-    __typename?: 'AiLibraryUsageResult'
-    usageId?: string | null
-    deletedCount?: number | null
-  } | null
+  updateLibraryUsage?: { __typename?: 'AiLibraryUsage'; id: string } | null
 }
 
 export type CreateAiAssistantMutationVariables = Exact<{
@@ -1642,7 +1676,23 @@ export const AssistantLibrariesUsageFragmentFragmentDoc = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryUsage' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'libraryId' } }],
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedFor' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'library' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
       },
     },
   ],
@@ -2610,13 +2660,13 @@ export const UpdateAssistantDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAssistantMutation, UpdateAssistantMutationVariables>
-export const UpdateLibraryUsageDocument = {
+export const AddLibraryUsageDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'updateLibraryUsage' },
+      name: { kind: 'Name', value: 'addLibraryUsage' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -2628,10 +2678,99 @@ export const UpdateLibraryUsageDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addLibraryUsage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AddLibraryUsageMutation, AddLibraryUsageMutationVariables>
+export const RemoveLibraryUsageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeLibraryUsage' },
+      variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'use' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeLibraryUsage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveLibraryUsageMutation, RemoveLibraryUsageMutationVariables>
+export const UpdateLibraryUsageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateLibraryUsage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'usedFor' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -2643,35 +2782,18 @@ export const UpdateLibraryUsageDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: {
-                  kind: 'ObjectValue',
-                  fields: [
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'assistantId' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'libraryId' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-                    },
-                    {
-                      kind: 'ObjectField',
-                      name: { kind: 'Name', value: 'use' },
-                      value: { kind: 'Variable', name: { kind: 'Name', value: 'use' } },
-                    },
-                  ],
-                },
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'usedFor' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'usedFor' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'usageId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'deletedCount' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
@@ -3324,7 +3446,23 @@ export const AiAssistantDetailsDocument = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryUsage' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'libraryId' } }],
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedFor' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'library' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
       },
     },
     {

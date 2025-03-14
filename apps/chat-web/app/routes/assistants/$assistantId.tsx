@@ -92,14 +92,14 @@ function RouteComponent() {
         </div>
       </div>
       <div className="flex w-full flex-col gap-4 lg:flex-row">
-        <div className="card grid w-1/2 grow rounded-box bg-base-200 px-3 py-3">
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
           <AssistantForm assistant={aiAssistant} languageModels={aiLanguageModels} disabled={!user} />
           <hr className="my-3" />
           <AssistantBasecaseForm assistant={aiAssistant} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
-        <div className="card grid w-1/2 grow place-items-center rounded-box bg-base-200"></div>
+        <div className="card grid grow place-items-center rounded-box bg-base-200 lg:w-1/2"></div>
       </div>
     </article>
   )

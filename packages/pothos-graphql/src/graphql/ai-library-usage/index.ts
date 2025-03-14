@@ -8,16 +8,17 @@ export const AiLibraryUsage = builder.prismaObject('AiLibraryUsage', {
     assistantId: t.exposeID('assistantId', { nullable: false }),
     libraryId: t.exposeID('libraryId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    assistant: t.relation('assistant'),
-    library: t.relation('library'),
+    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+    assistant: t.relation('assistant', { nullable: false }),
+    library: t.relation('library', { nullable: false }),
+    usedFor: t.exposeString('usedFor'),
   }),
 })
 
 const AiLibraryUsageInput = builder.inputType('AiLibraryUsageInput', {
   fields: (t) => ({
-    assistantId: t.string({ required: true }),
     libraryId: t.string({ required: true }),
-    use: t.boolean({ required: true }),
+    usedFor: t.string({ required: false }),
   }),
 })
 
@@ -43,52 +44,106 @@ builder.queryField('aiLibraryUsage', (t) =>
   }),
 )
 
-builder.objectType('AiLibraryUsageResult', {
-  fields: (t) => ({
-    usageId: t.exposeString('usageId', { nullable: true }),
-    deletedCount: t.exposeInt('deletedCount', { nullable: true }),
-  }),
-})
-
-builder.mutationField('updateLibraryUsage', (t) =>
-  t.field({
-    type: 'AiLibraryUsageResult',
-    args: { data: t.arg({ type: AiLibraryUsageInput, required: true }) },
-    resolve: async (_parent, { data }) => {
-      const { assistantId, libraryId, use } = data
-      const assistant = await prisma.aiAssistant.findUnique({
-        select: { id: true },
-        where: { id: assistantId },
-      })
-      if (!assistant) {
-        throw new Error(`Assistant not found: ${assistantId}`)
-      }
-      const library = await prisma.aiLibrary.findUnique({
-        select: { id: true },
-        where: { id: libraryId },
-      })
-      if (!library) {
-        throw new Error(`Library not found: ${libraryId}`)
-      }
-      if (!use) {
-        const deleteResult = await prisma.aiLibraryUsage.deleteMany({
-          where: { assistantId, libraryId },
-        })
-        return { deletedCount: deleteResult.count, usageId: null }
-      }
-
-      const existingUsage = await prisma.aiLibraryUsage.findFirst({
+builder.mutationField('addLibraryUsage', (t) =>
+  t.prismaField({
+    type: 'AiLibraryUsage',
+    args: {
+      assistantId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, args) => {
+      const { assistantId, libraryId } = args
+      const existing = await prisma.aiLibraryUsage.findFirst({
         where: { assistantId, libraryId },
       })
-
-      if (existingUsage) {
-        return { usageId: existingUsage.id, deletedCount: null }
+      if (existing) {
+        throw new Error('Library usage already exists')
       }
-
-      const newUsage = await prisma.aiLibraryUsage.create({
+      const result = await prisma.aiLibraryUsage.create({
+        ...query,
         data: { assistantId, libraryId },
       })
-      return { usageId: newUsage.id, deletedCount: null }
+      return result
+    },
+  }),
+)
+
+builder.mutationField('removeLibraryUsage', (t) =>
+  t.prismaField({
+    type: 'AiLibraryUsage',
+    args: {
+      assistantId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, args) => {
+      const { assistantId, libraryId } = args
+      const existing = await prisma.aiLibraryUsage.findFirst({
+        where: { assistantId, libraryId },
+      })
+      if (!existing) {
+        throw new Error('Library usage does not exist')
+      }
+      const result = await prisma.aiLibraryUsage.delete({
+        ...query,
+        where: { assistantId_libraryId: { assistantId, libraryId } },
+      })
+      return result
+    },
+  }),
+)
+
+builder.mutationField('updateLibraryUsage', (t) =>
+  t.prismaField({
+    type: 'AiLibraryUsage',
+    args: {
+      id: t.arg.string({ required: true }),
+      usedFor: t.arg.string({ required: false }),
+    },
+    resolve: async (query, _source, args) => {
+      const { id, usedFor } = args
+      const existing = await prisma.aiLibraryUsage.findFirst({
+        where: { id },
+      })
+      if (!existing) {
+        throw new Error('Library usage does not exist')
+      }
+      const result = await prisma.aiLibraryUsage.update({
+        ...query,
+        where: { id },
+        data: { usedFor },
+      })
+      return result
+    },
+  }),
+)
+
+builder.mutationField('updateLibraryUsages', (t) =>
+  t.prismaField({
+    type: ['AiLibraryUsage'],
+    args: {
+      assistantId: t.arg.string({ required: true }),
+      usages: t.arg({ type: [AiLibraryUsageInput], required: true }),
+    },
+    resolve: async (query, _source, args) => {
+      const assistantId = args.assistantId
+
+      const result = await prisma.$transaction(async (tx) => {
+        await tx.aiLibraryUsage.deleteMany({
+          where: { assistantId },
+        })
+        return Promise.all(
+          args.usages.map((usage) => {
+            const libraryId = usage.libraryId
+            return tx.aiLibraryUsage.upsert({
+              ...query,
+              where: { assistantId_libraryId: { assistantId, libraryId } },
+              create: { ...usage, assistantId },
+              update: { ...usage },
+            })
+          }),
+        )
+      })
+      return result
     },
   }),
 )

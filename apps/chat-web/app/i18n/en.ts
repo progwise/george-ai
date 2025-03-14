@@ -24,14 +24,18 @@ export default {
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
     initialSituations: 'Initial situations',
     libraries: 'Used libraries',
+    libraryToAdd: 'Add library',
     myAssistants: 'My assistants',
+    noLibrariesToAdd: 'All libraries added',
     placeholders: {
       description: 'Describe your assistant',
       languageModel: 'Select the language model',
       llmTemperature: 'Between 0.0 and 1.0',
       name: 'Name your assistant',
     },
+    removeLibrary: 'Remove library',
     signInForAssistants: 'Login to see your assistants',
+    usagePlaceholder: 'How should the library be used?',
   },
   brand: 'George-Ai',
   conversations: {

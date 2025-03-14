@@ -26,8 +26,10 @@ type Documents = {
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAssistantDocument
   '\n  fragment AssistantForLibrariesFragment on AiAssistant {\n    id\n  }\n': typeof types.AssistantForLibrariesFragmentFragmentDoc
   '\n  fragment AssistantLibrariesFragment on AiLibrary {\n    id\n    name\n  }\n': typeof types.AssistantLibrariesFragmentFragmentDoc
-  '\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    libraryId\n  }\n': typeof types.AssistantLibrariesUsageFragmentFragmentDoc
-  '\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n': typeof types.UpdateLibraryUsageDocument
+  '\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n': typeof types.AssistantLibrariesUsageFragmentFragmentDoc
+  '\n        mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {\n          addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ': typeof types.AddLibraryUsageDocument
+  '\n        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {\n          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ': typeof types.RemoveLibraryUsageDocument
+  '\n          mutation updateLibraryUsage($id: String!, $usedFor: String!) {\n            updateLibraryUsage(id: $id, usedFor: $usedFor) {\n              id\n            }\n          }\n        ': typeof types.UpdateLibraryUsageDocument
   '\n        mutation createAiAssistant($ownerId: String!, $name: String!) {\n          createAiAssistant(ownerId: $ownerId, name: $name) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateAiAssistantDocument
   '\n  fragment AssistantSelector_assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantSelector_AssistantFragmentDoc
   '\n  fragment ConversationForm_conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationForm_ConversationFragmentDoc
@@ -97,9 +99,13 @@ const documents: Documents = {
     types.AssistantForLibrariesFragmentFragmentDoc,
   '\n  fragment AssistantLibrariesFragment on AiLibrary {\n    id\n    name\n  }\n':
     types.AssistantLibrariesFragmentFragmentDoc,
-  '\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    libraryId\n  }\n':
+  '\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n':
     types.AssistantLibrariesUsageFragmentFragmentDoc,
-  '\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n':
+  '\n        mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {\n          addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ':
+    types.AddLibraryUsageDocument,
+  '\n        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {\n          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ':
+    types.RemoveLibraryUsageDocument,
+  '\n          mutation updateLibraryUsage($id: String!, $usedFor: String!) {\n            updateLibraryUsage(id: $id, usedFor: $usedFor) {\n              id\n            }\n          }\n        ':
     types.UpdateLibraryUsageDocument,
   '\n        mutation createAiAssistant($ownerId: String!, $name: String!) {\n          createAiAssistant(ownerId: $ownerId, name: $name) {\n            id\n            name\n          }\n        }\n      ':
     types.CreateAiAssistantDocument,
@@ -276,14 +282,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    libraryId\n  }\n',
-): (typeof documents)['\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    libraryId\n  }\n']
+  source: '\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n',
-): (typeof documents)['\n  mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {\n    updateLibraryUsage(data: { assistantId: $assistantId, libraryId: $libraryId, use: $use }) {\n      usageId\n      deletedCount\n    }\n  }\n']
+  source: '\n        mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {\n          addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {\n          addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {\n          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {\n          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          mutation updateLibraryUsage($id: String!, $usedFor: String!) {\n            updateLibraryUsage(id: $id, usedFor: $usedFor) {\n              id\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation updateLibraryUsage($id: String!, $usedFor: String!) {\n            updateLibraryUsage(id: $id, usedFor: $usedFor) {\n              id\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

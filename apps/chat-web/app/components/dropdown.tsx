@@ -1,19 +1,25 @@
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { JSX } from 'react'
 import { twMerge } from 'tailwind-merge'
+
+import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon'
+
+interface DropDownItem {
+  id: string
+  title: string
+  icon?: JSX.Element
+}
 
 interface DropdownProps {
   title: string
   className?: string
-  options: Array<{
-    title: string
-    action: () => void
-    key?: string
-  }>
+  options: Array<DropDownItem>
+  action: (item: DropDownItem) => void
 }
 
-export const Dropdown = ({ title, options, className }: DropdownProps): JSX.Element => {
-  const handleOptionClick = (action: () => void) => {
-    action()
+export const Dropdown = ({ title, options, action, className }: DropdownProps): JSX.Element => {
+  const handleOptionClick = (item: DropDownItem) => {
+    action(item)
     // blur the active element to prevent the dropdown from staying open
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur()
@@ -21,24 +27,31 @@ export const Dropdown = ({ title, options, className }: DropdownProps): JSX.Elem
   }
 
   return (
-    <div className={twMerge('dropdown', className)}>
-      <button type="button" className="btn no-animation w-full" tabIndex={0}>
-        {title}
-      </button>
-      <ul
-        tabIndex={0} // this is needed for safari, see https://bugs.webkit.org/show_bug.cgi?id=22261
-        className="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-      >
-        {options.map((option) => {
-          return (
-            <li tabIndex={2} key={option.key ?? option.title}>
-              <button type="button" className="text-left" onClick={() => handleOptionClick(option.action)}>
-                {option.title}
+    <div className={twMerge('text-right', className)}>
+      <Menu>
+        <MenuButton className="input input-sm input-bordered flex w-full items-center justify-between gap-4 rounded-lg bg-white px-2 py-1 text-left text-sm focus:outline-none">
+          {title}
+          <ChevronUpDownIcon className="" />
+        </MenuButton>
+        <MenuItems
+          transition
+          anchor="bottom end"
+          className="border-back/4 flex flex-col items-start gap-2 rounded-xl border bg-white px-3 py-2 text-sm text-black transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+        >
+          {options.map((item) => (
+            <MenuItem key={item.id}>
+              <button
+                type="button"
+                onClick={() => handleOptionClick(item)}
+                className="btn btn-ghost btn-sm flex w-full justify-start font-normal"
+              >
+                {item.icon && <>{item.icon}</>}
+                <span>{item.title}</span>
               </button>
-            </li>
-          )
-        })}
-      </ul>
+            </MenuItem>
+          ))}
+        </MenuItems>
+      </Menu>
     </div>
   )
 }
