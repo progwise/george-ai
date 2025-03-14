@@ -96,6 +96,7 @@ type AiLibrary {
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
+  dropError: String
   id: ID!
   libraryId: String!
   mimeType: String!

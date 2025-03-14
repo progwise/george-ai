@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useState } from 'react'
 import { z } from 'zod'
@@ -90,6 +90,7 @@ const EmbeddingsTableDocument = graphql(`
       chunks
       uploadedAt
       processedAt
+      dropError
     }
   }
 `)
@@ -118,8 +119,10 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
+  const [dropErrors, setDropErrors] = useState<{ id: string; name: string; error: string }[]>([])
   const { t, language } = useTranslation()
   const { data, isLoading, refetch } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
+  const queryClient = useQueryClient()
 
   const clearEmbeddingsMutation = useMutation({
     mutationFn: async (libraryId: string) => {
@@ -134,8 +137,26 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     mutationFn: async (fileId: string) => {
       await dropFile({ data: fileId })
     },
+    onSuccess: (_, fileId) => {
+      setDropErrors((prev) => prev.filter((error) => error.id !== fileId))
+    },
+    onError: (error, fileId) => {
+      const fileInfo = data?.aiLibraryFiles?.find((file) => file.id === fileId)
+      if (fileInfo) {
+        setDropErrors((prev) => [
+          ...prev,
+          {
+            id: fileId,
+            name: fileInfo.name,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          },
+        ])
+      }
+    },
     onSettled: () => {
-      refetch()
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiLibraryFiles, libraryId],
+      })
     },
   })
 
@@ -151,6 +172,24 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const dropAllFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
       await dropAllFiles({ data: fileIds })
+    },
+    onSuccess: () => {
+      setDropErrors((prev) => prev.filter((error) => !selectedFiles.includes(error.id)))
+    },
+    onError: (error) => {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const fileInfos = data?.aiLibraryFiles?.filter((file) => selectedFiles.includes(file.id)) || []
+
+      fileInfos.forEach((fileInfo) => {
+        setDropErrors((prev) => [
+          ...prev,
+          {
+            id: fileInfo.id,
+            name: fileInfo.name,
+            error: errorMessage,
+          },
+        ])
+      })
     },
     onSettled: () => {
       refetch()
@@ -191,6 +230,21 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
+      {dropErrors.length > 0 && (
+        <div className="alert alert-error mb-4" role="alert">
+          <span>{t('texts.dropFileFailure')}</span>
+          <ul className="list-disc pl-4">
+            {dropErrors.map((file) => (
+              <li key={file.id}>
+                {file.name}: {file.error}
+              </li>
+            ))}
+          </ul>
+          <button type="submit" className="btn btn-ghost btn-xs ml-auto" onClick={() => setDropErrors([])}>
+            ✕
+          </button>
+        </div>
+      )}
       <nav className="flex items-center justify-between gap-4">
         <div className="flex w-full gap-4">
           <button

@@ -69,5 +69,6 @@ export default {
     noAssistant: 'No assistant',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
+    dropFileFailure: 'Failed to drop files:',
   },
 }

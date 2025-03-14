@@ -120,6 +120,7 @@ model AiLibraryFile {
   chunks      Int?
   uploadedAt  DateTime?
   processedAt DateTime?
+  dropError   String?
 }
 
 model AiConversation {

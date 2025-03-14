@@ -70,5 +70,6 @@ export default {
     noAssistant: 'Kein Assistent',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
   },
 }

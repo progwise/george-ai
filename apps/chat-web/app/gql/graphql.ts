@@ -119,6 +119,7 @@ export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
+  dropError?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
@@ -921,6 +922,7 @@ export type EmbeddingsTableQuery = {
     chunks?: number | null
     uploadedAt?: string | null
     processedAt?: string | null
+    dropError?: string | null
   }> | null
 }
 
@@ -2722,6 +2724,7 @@ export const EmbeddingsTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
               ],
             },
           },

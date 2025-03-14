@@ -16,26 +16,34 @@ async function dropFileById(fileId: string) {
     throw new Error(`File not found: ${fileId}`)
   }
 
-  const deleteResult = await Promise.all([
-    dropFileFromVectorstore(file.libraryId, file.id),
-    new Promise((resolve, reject) => {
-      fs.rm(getFilePath(file.id), (err) => {
-        if (err) {
-          reject(`Error deleting file ${file.id}: ${err.message}`)
-        } else {
-          resolve(`File ${file.id} deleted`)
-        }
-      })
-    }),
-  ]).then(async () => {
+  let dropError: string | null = null
+
+  try {
+    await Promise.all([
+      dropFileFromVectorstore(file.libraryId, file.id),
+      new Promise((resolve, reject) => {
+        fs.rm(getFilePath(file.id), (err) => {
+          if (err) {
+            reject(`Error deleting file ${file.id}: ${err.message}`)
+          } else {
+            resolve(`File ${file.id} deleted`)
+          }
+        })
+      }),
+    ])
+
     const deletedFile = await prisma.aiLibraryFile.delete({
       where: { id: file.id },
     })
-    console.log('dropped file', deletedFile)
     return deletedFile
-  })
-
-  return deleteResult
+  } catch (error) {
+    dropError = error instanceof Error ? error.message : String(error)
+    const updatedFile = await prisma.aiLibraryFile.update({
+      where: { id: file.id },
+      data: { dropError },
+    })
+    return updatedFile
+  }
 }
 
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
@@ -57,6 +65,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
+    dropError: t.exposeString('dropError', { nullable: true }),
   }),
 })
 
