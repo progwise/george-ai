@@ -160,6 +160,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         options={languageModels}
         value={assistant?.languageModel}
         className="col-span-1"
+        placeholder={t('assistants.placeholders.languageModel')}
         {...fieldProps}
       />
 
@@ -169,6 +170,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         label={t('labels.llmTemperature')}
         value={assistant?.llmTemperature}
         className="col-span-1 flex-grow"
+        placeholder={t('assistants.placeholders.llmTemperature')}
         required
         {...fieldProps}
       />

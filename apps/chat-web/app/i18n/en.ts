@@ -25,6 +25,8 @@ export default {
     myAssistants: 'My assistants',
     placeholders: {
       description: 'Describe your assistant',
+      languageModel: 'Select the language model',
+      llmTemperature: 'Between 0.0 and 1.0',
       name: 'Name your assistant',
     },
     signInForAssistants: 'Login to see your assistants',
