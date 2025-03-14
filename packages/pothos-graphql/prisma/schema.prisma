@@ -21,16 +21,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum AiAssistantType {
-  CHATBOT
-  DOCUMENT_GENERATOR
-}
-
-enum AiLibraryType {
-  GOOGLE_DRIVE
-  POCKETBASE
-}
-
 model User {
   id                         String                      @id @default(cuid())
   createdAt                  DateTime                    @default(now())
@@ -64,6 +54,15 @@ model UserProfile {
   confirmationDate DateTime?
 }
 
+model AiLanguageModel {
+  id          String  @id @default(cuid())
+  provider    String
+  name        String
+  description String?
+
+  AiAssistant AiAssistant[]
+}
+
 model AiAssistant {
   id                         String                      @id @default(cuid())
   createdAt                  DateTime                    @default(now())
@@ -74,9 +73,22 @@ model AiAssistant {
   icon                       String?
   owner                      User                        @relation(fields: [ownerId], references: [id])
   ownerId                    String
-  assistantType              AiAssistantType
   usages                     AiLibraryUsage[]
   conversationParticipations AiConversationParticipant[]
+  languageModel              AiLanguageModel?            @relation(fields: [languageModelId], references: [id])
+  languageModelId            String?
+  llmTemperature             Float?
+  baseCases                  AiAssistantBaseCase[]
+}
+
+model AiAssistantBaseCase {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  sequence    Int
+  assistantId String
+  description String
 }
 
 model AiLibrary {
@@ -91,7 +103,6 @@ model AiLibrary {
   owner         User             @relation(fields: [ownerId], references: [id])
   ownerId       String
   isPublic      Boolean          @default(true)
-  libraryType   AiLibraryType
   usages        AiLibraryUsage[]
   files         AiLibraryFile[]
 }

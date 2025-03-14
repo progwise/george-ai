@@ -3,14 +3,16 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiAssistant')
 
-export enum AiAssistantType {
-  CHATBOT = 'CHATBOT',
-  DOCUMENT_GENERATOR = 'DOCUMENT_GENERATOR',
-}
-
-export const AiAssistantTypeEnum = builder.enumType(AiAssistantType, {
-  name: 'AiAssistantType',
-  description: 'Type of the AiAssistant',
+export const AiAssistantBaseCase = builder.prismaObject('AiAssistantBaseCase', {
+  name: 'AiAssistantBaseCase',
+  fields: (t) => ({
+    id: t.exposeID('id'),
+    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
+    updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    sequence: t.exposeFloat('sequence'),
+    description: t.exposeString('description'),
+    assistant: t.relation('assistant'),
+  }),
 })
 
 export const AiAssistant = builder.prismaObject('AiAssistant', {
@@ -21,17 +23,13 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     description: t.exposeString('description'),
     url: t.exposeString('url'),
     icon: t.exposeString('icon'),
-    assistantType: t.field({
-      type: AiAssistantTypeEnum,
-      nullable: false,
-      select: { assistantType: true },
-      resolve: (assistant) => {
-        return AiAssistantType[assistant.assistantType]
-      },
-    }),
     ownerId: t.exposeID('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    languageModelId: t.expose('languageModelId', { type: 'String' }),
+    languageModel: t.relation('languageModel'),
+    llmTemperature: t.exposeFloat('llmTemperature'),
+    baseCases: t.relation('baseCases', { nullable: false, query: () => ({ orderBy: [{ sequence: 'asc' }] }) }),
   }),
 })
 
@@ -41,10 +39,8 @@ const AiAssistantInput = builder.inputType('AiAssistantInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    assistantType: t.field({
-      type: AiAssistantTypeEnum,
-      required: true,
-    }),
+    languageModelId: t.string({ required: false }),
+    llmTemperature: t.float({ required: false }),
   }),
 })
 
@@ -105,11 +101,12 @@ builder.mutationField('updateAiAssistant', (t) =>
       data: t.arg({ type: AiAssistantInput, required: true }),
     },
     resolve: async (query, _source, { id, data }) => {
-      return prisma.aiAssistant.update({
+      const result = await prisma.aiAssistant.update({
         ...query,
         where: { id },
         data,
       })
+      return result
     },
   }),
 )
@@ -119,9 +116,9 @@ builder.mutationField('createAiAssistant', (t) =>
     type: 'AiAssistant',
     args: {
       ownerId: t.arg.string({ required: true }),
-      data: t.arg({ type: AiAssistantInput, required: true }),
+      name: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { ownerId, data }) => {
+    resolve: async (_query, _source, { ownerId, name }) => {
       const owner = await prisma.user.findFirst({
         where: { id: ownerId },
       })
@@ -130,7 +127,7 @@ builder.mutationField('createAiAssistant', (t) =>
       }
 
       return prisma.aiAssistant.create({
-        data: { ...data, ownerId },
+        data: { name, ownerId },
       })
     },
   }),

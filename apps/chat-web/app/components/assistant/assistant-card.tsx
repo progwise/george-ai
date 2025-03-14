@@ -1,89 +1,42 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import React, { useRef } from 'react'
-import { z } from 'zod'
+import React from 'react'
 
-import { graphql } from '../../gql'
-import { AiAssistant } from '../../gql/graphql'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { AssistantDeleteDialog } from './assistant-delete-dialog'
 
-const deleteAssistantDocument = graphql(`
-  mutation deleteAiAssistant($id: String!) {
-    deleteAiAssistant(assistantId: $id) {
-      id
-    }
+const AssistantCard_assistantFragment = graphql(`
+  fragment AssistantCard_assistantFragment on AiAssistant {
+    id
+    name
+    description
+    icon
+    ...AssistantDelete_assistantFragment
   }
 `)
 
-const deleteAssistant = createServerFn({ method: 'GET' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(deleteAssistantDocument, {
-      id: ctx.data,
-    })
-  })
-
 export interface AssistantCardProps {
-  assistant: AiAssistant
+  assistant: FragmentType<typeof AssistantCard_assistantFragment>
 }
 
-export const AssistantCard = ({ assistant }: AssistantCardProps): React.ReactElement => {
-  const dialogRef = useRef<HTMLDialogElement>(null)
-
-  const queryClient = useQueryClient()
-
-  const handleDelete = () => {
-    dialogRef.current?.showModal()
-  }
-
-  const handleDeleteConfirm = async () => {
-    await deleteAssistant({ data: assistant.id })
-    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] })
-    dialogRef.current?.close()
-  }
+export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
+  const { t } = useTranslation()
+  const assistant = useFragment(AssistantCard_assistantFragment, props.assistant)
 
   return (
     <>
-      <dialog ref={dialogRef} className="modal">
-        <div className="modal-box">
-          <form method="dialog">
-            <button type="submit" className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="text-lg font-bold">Confirm to delete assistant</h3>
-          <p>
-            <q>{assistant.name}</q> will be deleted.
-          </p>
-          <div className="modal-action">
-            <form method="dialog">
-              {/* if there is a button in form, it will close the modal */}
-              <button type="submit" className="btn btn-error" onClick={handleDeleteConfirm}>
-                Delete Assistant
-              </button>
-            </form>
-          </div>
-        </div>
-      </dialog>
       <div key={assistant.id} className="card w-96 bg-base-100 shadow-xl">
         <figure className="max-h-24">
           <div className="absolute left-2 right-2 top-2 flex justify-between gap-2">
-            <button type="button" className="btn btn-warning btn-sm" onClick={handleDelete}>
-              Delete
-            </button>
-            <button type="button" className="btn btn-success btn-sm">
-              Try
-            </button>
+            <AssistantDeleteDialog assistant={assistant} />
           </div>
           <img
             src={
-              !assistant.icon || assistant.icon?.length < 5000 //change if icon upload implemented
+              !assistant.icon || assistant.icon?.length < 5000 //TODO: change if icon upload implemented
                 ? '/george-portrait.jpg'
                 : assistant.icon
             }
-            alt={assistant.name ?? 'Assistant icon'}
+            alt={assistant.name}
           />
         </figure>
         <div className="card-body p-4">
@@ -101,7 +54,7 @@ export const AssistantCard = ({ assistant }: AssistantCardProps): React.ReactEle
               to={`/assistants/$assistantId`}
               params={{ assistantId: assistant.id }}
             >
-              Configure
+              {t('actions.edit')}
             </Link>
           </div>
         </div>

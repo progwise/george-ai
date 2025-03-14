@@ -1,11 +1,34 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
 import { AssistantCard } from '../../components/assistant/assistant-card'
+import { AssistantNewDialog } from '../../components/assistant/assistant-new-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
+import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
-import { getMyAiAssistants } from '../../server-functions/assistants'
+import { backendRequest } from '../../server-functions/backend'
+
+const getMyAiAssistants = createServerFn({ method: 'GET' })
+  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
+  .handler((ctx) =>
+    backendRequest(
+      graphql(/* GraphQL */ `
+        query aiAssistantCards($ownerId: String!) {
+          aiAssistants(ownerId: $ownerId) {
+            id
+            ...AssistantCard_assistantFragment
+          }
+        }
+      `),
+      {
+        ownerId: ctx.data,
+      },
+    ),
+  )
 
 export const Route = createFileRoute('/assistants/')({
   component: RouteComponent,
@@ -13,16 +36,13 @@ export const Route = createFileRoute('/assistants/')({
 
 function RouteComponent() {
   const authContext = useAuth()
+  const { t } = useTranslation()
   const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.AiAssistants, authContext?.user?.id],
-    enabled: !!authContext?.user,
+    queryKey: [queryKeys.MyAiAssistants, authContext?.user?.id],
     queryFn: async () => {
-      if (!authContext?.user?.id) {
-        return null
-      } else {
-        return getMyAiAssistants({ data: authContext.user.id })
-      }
+      return getMyAiAssistants({ data: authContext.user!.id! })
     },
+    enabled: !!authContext?.user?.id,
   })
   const isLoggendIn = !!authContext?.user
 
@@ -32,22 +52,21 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           {!isLoggendIn ? (
             <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
-              Log in to see your assistants
+              {t('assistants.signInForAssistants')}
             </button>
           ) : (
-            'My Assistants'
+            <span>{t('assistants.myAssistants')}</span>
           )}
         </h3>
-        <LoadingSpinner isLoading={isLoading} />
-        {isLoggendIn && (
-          <Link type="button" className="btn btn-primary btn-sm" to="/assistants/new">
-            Add new
-          </Link>
-        )}
+        {isLoggendIn && <AssistantNewDialog />}
       </div>
 
       <div className="flex flex-wrap gap-4">
-        {data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)}
+        {!data?.aiAssistants || isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)
+        )}
       </div>
     </article>
   )

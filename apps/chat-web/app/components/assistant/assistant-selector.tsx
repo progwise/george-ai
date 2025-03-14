@@ -1,26 +1,32 @@
 import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
 
-import { AiAssistant } from '../../gql/graphql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { Listbox } from '../listbox'
 
+const AssistantSelector_AssistantFragment = graphql(`
+  fragment AssistantSelector_assistant on AiAssistant {
+    id
+    name
+  }
+`)
+
 interface AssistantSelectorProps {
-  assistants: Pick<AiAssistant, 'id' | 'name'>[]
-  selectedAssistant: Pick<AiAssistant, 'id' | 'name'>
+  assistants: FragmentType<typeof AssistantSelector_AssistantFragment>[]
+  selectedAssistant: FragmentType<typeof AssistantSelector_AssistantFragment>
 }
 
-export const AssistantSelector = ({ assistants, selectedAssistant }: AssistantSelectorProps) => {
+export const AssistantSelector = (props: AssistantSelectorProps) => {
+  const assistants = useFragment(AssistantSelector_AssistantFragment, props.assistants)
+  const selectedAssistant = useFragment(AssistantSelector_AssistantFragment, props.selectedAssistant)
   const navigate = useNavigate()
-  const [selected, setSelected] = useState(selectedAssistant)
   return (
     <Listbox
       items={assistants}
-      selectedItem={selected}
+      selectedItem={selectedAssistant}
       onChange={(newAssistant) => {
-        setSelected(newAssistant)
         navigate({
           to: '/assistants/$assistantId',
-          params: { assistantId: newAssistant.id },
+          params: { assistantId: newAssistant!.id },
         })
       }}
     />
