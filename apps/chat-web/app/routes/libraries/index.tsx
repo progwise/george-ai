@@ -16,7 +16,6 @@ const librariesDocument = graphql(/* GraphQL */ `
     aiLibraries(ownerId: $ownerId) {
       id
       name
-      libraryType
       owner {
         id
         name
@@ -87,7 +86,6 @@ function RouteComponent() {
             <tr>
               <th>#</th>
               <th>Name</th>
-              <th>Type</th>
               <th>Owner</th>
               <th>Last update</th>
             </tr>
@@ -109,13 +107,10 @@ function RouteComponent() {
                     <Link
                       to={'/libraries/$libraryId'}
                       params={{ libraryId: library.id }}
-                      className="hover:text-primary, text-black, font-bold hover:underline"
+                      className="font-bold hover:underline"
                     >
                       {library.name}
                     </Link>
-                  </td>
-                  <td data-label="Type" className="block py-1 md:table-cell md:py-2">
-                    {library.libraryType}
                   </td>
                   <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
                     {library.owner?.name}

@@ -21,7 +21,6 @@ import { Route as LibrariesNewImport } from './routes/libraries/new'
 import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
 import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
 import { Route as ConversationsSplatImport } from './routes/conversations/$'
-import { Route as AssistantsNewImport } from './routes/assistants/new'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
 
@@ -87,12 +86,6 @@ const ConversationsSplatRoute = ConversationsSplatImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AssistantsNewRoute = AssistantsNewImport.update({
-  id: '/assistants/new',
-  path: '/assistants/new',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AssistantsAssistantIdRoute = AssistantsAssistantIdImport.update({
   id: '/assistants/$assistantId',
   path: '/assistants/$assistantId',
@@ -135,13 +128,6 @@ declare module '@tanstack/react-router' {
       path: '/assistants/$assistantId'
       fullPath: '/assistants/$assistantId'
       preLoaderRoute: typeof AssistantsAssistantIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/assistants/new': {
-      id: '/assistants/new'
-      path: '/assistants/new'
-      fullPath: '/assistants/new'
-      preLoaderRoute: typeof AssistantsNewImport
       parentRoute: typeof rootRoute
     }
     '/conversations/$': {
@@ -210,7 +196,6 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
-  '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
@@ -226,7 +211,6 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
-  '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
@@ -243,7 +227,6 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/langchain-chat': typeof LangchainChatRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
-  '/assistants/new': typeof AssistantsNewRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
@@ -261,7 +244,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/langchain-chat'
     | '/assistants/$assistantId'
-    | '/assistants/new'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
@@ -276,7 +258,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/langchain-chat'
     | '/assistants/$assistantId'
-    | '/assistants/new'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
@@ -291,7 +272,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/langchain-chat'
     | '/assistants/$assistantId'
-    | '/assistants/new'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
@@ -308,7 +288,6 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   LangchainChatRoute: typeof LangchainChatRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
-  AssistantsNewRoute: typeof AssistantsNewRoute
   ConversationsSplatRoute: typeof ConversationsSplatRoute
   LibrariesLibraryIdRoute: typeof LibrariesLibraryIdRoute
   LibrariesAuthGoogleRoute: typeof LibrariesAuthGoogleRoute
@@ -324,7 +303,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   LangchainChatRoute: LangchainChatRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
-  AssistantsNewRoute: AssistantsNewRoute,
   ConversationsSplatRoute: ConversationsSplatRoute,
   LibrariesLibraryIdRoute: LibrariesLibraryIdRoute,
   LibrariesAuthGoogleRoute: LibrariesAuthGoogleRoute,
@@ -349,7 +327,6 @@ export const routeTree = rootRoute
         "/contact",
         "/langchain-chat",
         "/assistants/$assistantId",
-        "/assistants/new",
         "/conversations/$",
         "/libraries/$libraryId",
         "/libraries/auth-google",
@@ -371,9 +348,6 @@ export const routeTree = rootRoute
     },
     "/assistants/$assistantId": {
       "filePath": "assistants/$assistantId.tsx"
-    },
-    "/assistants/new": {
-      "filePath": "assistants/new.tsx"
     },
     "/conversations/$": {
       "filePath": "conversations/$.tsx"

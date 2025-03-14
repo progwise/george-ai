@@ -7,7 +7,6 @@ import { useAuth } from '../../auth/auth-hook'
 import { LibraryForm } from '../../components/library/library-form'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
-import { AiLibraryType } from '../../gql/graphql'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -90,7 +89,6 @@ function RouteComponent() {
             ownerId,
             name: '',
             description: '',
-            libraryType: AiLibraryType.GoogleDrive,
           }}
           ownerId={ownerId}
           handleSubmit={handleSubmit}
