@@ -132,3 +132,74 @@ builder.mutationField('createAiAssistant', (t) =>
     },
   }),
 )
+
+const BaseCaseInputType = builder.inputType('AiBaseCaseInputType', {
+  fields: (t) => ({
+    id: t.string({ required: false }),
+    sequence: t.float({ required: false }),
+    description: t.string({ required: false }),
+  }),
+})
+
+builder.mutationField('upsertAiBaseCases', (t) =>
+  t.prismaField({
+    type: ['AiAssistantBaseCase'],
+    args: {
+      assistantId: t.arg.string({ required: true }),
+      baseCases: t.arg({ type: [BaseCaseInputType], required: true }),
+    },
+    resolve: async (query, _source, { assistantId, baseCases }) => {
+      const assistant = await prisma.aiAssistant.findUnique({
+        where: { id: assistantId },
+        include: { baseCases: true },
+      })
+
+      if (!assistant) {
+        throw new Error(`Assistant with id ${assistantId} not found`)
+      }
+
+      const baseCasesToDeleteNoDescription = baseCases.filter(
+        (bc) => bc.id && (!bc.description || bc.description.length < 1),
+      )
+      console.log('baseCasesToDeleteNoDescription', baseCasesToDeleteNoDescription)
+      await prisma.aiAssistantBaseCase.deleteMany({
+        where: { id: { in: baseCasesToDeleteNoDescription.map((bc) => bc.id!) } },
+      })
+
+      const filteredBaseCases = baseCases.filter((baseCase) => baseCase.description && baseCase.description.length > 0)
+
+      let sequence = 0
+      for (const baseCase of filteredBaseCases) {
+        sequence = sequence + 1
+        baseCase.sequence = sequence
+        if (baseCase.id) {
+          console.log('updating base case', baseCase)
+          await prisma.aiAssistantBaseCase.update({
+            ...query,
+            where: { id: baseCase.id },
+            data: {
+              sequence: baseCase.sequence,
+              description: baseCase.description!,
+            },
+          })
+        } else {
+          console.log('creating base case', baseCase)
+          await prisma.aiAssistantBaseCase.create({
+            ...query,
+            data: {
+              sequence: baseCase.sequence,
+              description: baseCase.description!,
+              assistantId,
+            },
+          })
+        }
+      }
+
+      return prisma.aiAssistantBaseCase.findMany({
+        ...query,
+        where: { assistantId },
+        orderBy: { sequence: 'asc' },
+      })
+    },
+  }),
+)

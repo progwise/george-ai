@@ -20,6 +20,8 @@ export default {
     delete: 'Delete assistant',
     deleteButton: 'delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
+    initialSituations: 'Initial situations',
+    libraries: 'Used libraries',
     myAssistants: 'My assistants',
     placeholders: {
       description: 'Describe your assistant',

@@ -20,6 +20,8 @@ export default {
     delete: 'Assistent löschen',
     deleteButton: 'löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
+    initialSituations: 'Initiale Situationen',
+    libraries: 'Verwendete Bibliotheken',
     myAssistants: 'Meine Assistenten',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',

@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import {
   AiAssistantInput,
+  AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryFileInput,
@@ -32,6 +33,14 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
     llmTemperature: z.number().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiBaseCaseInputTypeSchema(): z.ZodObject<Properties<AiBaseCaseInputType>> {
+  return z.object({
+    description: z.string().nullish(),
+    id: z.string().nullish(),
+    sequence: z.number().nullish(),
   })
 }
 

@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
+import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
@@ -26,6 +27,7 @@ const getAssistant = createServerFn({ method: 'GET' })
               ...AssistantForm_assistant
               ...AssistantSelector_assistant
               ...AssistantForLibrariesFragment
+              ...AssistantBasecaseForm_assistantFragment
             }
             aiAssistants(ownerId: $ownerId) {
               ...AssistantSelector_assistant
@@ -90,6 +92,8 @@ function RouteComponent() {
       <div className="flex w-full flex-col gap-4 lg:flex-row">
         <div className="card grid w-1/2 grow rounded-box bg-base-200 px-3 py-3">
           <AssistantForm assistant={aiAssistant} languageModels={aiLanguageModels} disabled={!user} />
+          <hr className="my-3" />
+          <AssistantBasecaseForm assistant={aiAssistant} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>

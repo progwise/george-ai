@@ -3,8 +3,9 @@ import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
 interface InputProps<T extends ZodRawShape> {
+  ref?: React.Ref<HTMLInputElement | HTMLTextAreaElement>
   name: string
-  label: string
+  label?: string
   value?: string | number | undefined | null
   valueNotSet?: string
   type?: 'text' | 'textarea' | 'email' | 'password' | 'number' | 'date'
@@ -18,6 +19,7 @@ interface InputProps<T extends ZodRawShape> {
 }
 
 export const Input = <T extends ZodRawShape>({
+  ref,
   name,
   label,
   value,
@@ -52,6 +54,7 @@ export const Input = <T extends ZodRawShape>({
   }
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
+    if (event.target.value === renderedValue) return
     validate(event.target.value)
     onBlur?.(event)
   }
@@ -64,43 +67,47 @@ export const Input = <T extends ZodRawShape>({
           errors.length > 0 && 'text-error',
         )}
       >
-        {label}
+        {label || ' '}
       </span>
       <span className="justify-self-end overflow-hidden text-nowrap text-sm text-error">{errors.join(', ')}</span>
-      {type === 'textarea' ? (
-        <textarea
-          key={value}
-          name={name}
-          defaultValue={renderedValue || ''}
-          className={twMerge(
-            'input input-sm input-bordered col-span-2 h-full w-full',
-            readOnly && 'cursor-not-allowed text-base-content/50',
-          )}
-          placeholder={placeholder || ''}
-          required={required}
-          readOnly={readOnly}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-      ) : (
-        <input
-          key={value}
-          name={name}
-          type={renderedType || 'text'}
-          defaultValue={renderedValue || ''}
-          className={twMerge(
-            'input input-sm input-bordered col-span-2 w-full',
-            readOnly && 'cursor-not-allowed text-base-content/50',
-            type === 'number' && 'text-right',
-            type === 'date' && 'text-center',
-          )}
-          placeholder={placeholder || ''}
-          required={required}
-          readOnly={readOnly}
-          onChange={handleChange}
-          onBlur={handleBlur}
-        />
-      )}
+      <div className="col-span-2 flex flex-row">
+        {type === 'textarea' ? (
+          <textarea
+            ref={ref as React.Ref<HTMLTextAreaElement>}
+            key={value}
+            name={name}
+            defaultValue={renderedValue || ''}
+            className={twMerge(
+              'input-borderedh-full input input-sm w-full',
+              readOnly && 'cursor-not-allowed text-base-content/50',
+            )}
+            placeholder={placeholder || ''}
+            required={required}
+            readOnly={readOnly}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+        ) : (
+          <input
+            ref={ref as React.Ref<HTMLInputElement>}
+            key={value}
+            name={name}
+            type={renderedType || 'text'}
+            defaultValue={renderedValue || ''}
+            className={twMerge(
+              'input input-sm input-bordered col-span-2 w-full',
+              readOnly && 'cursor-not-allowed text-base-content/50',
+              type === 'number' && 'text-right',
+              type === 'date' && 'text-center',
+            )}
+            placeholder={placeholder || ''}
+            required={required}
+            readOnly={readOnly}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+        )}
+      </div>
     </label>
   )
 }

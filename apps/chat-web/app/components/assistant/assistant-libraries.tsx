@@ -4,8 +4,10 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
 const AssistantForLibrariesFragment = graphql(`
@@ -49,6 +51,7 @@ export interface AssistantLibrariesProps {
 }
 
 export const AssistantLibraries = (props: AssistantLibrariesProps) => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const assistant = useFragment(AssistantForLibrariesFragment, props.assistant)
   const libraries = useFragment(AssistantLibrariesFragment, props.libraries)
@@ -60,46 +63,40 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
   })
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
+      <p className="overflow-hidden text-nowrap text-sm text-base-content/50">{t('assistants.libraries')}</p>
+
       <LoadingSpinner isLoading={updateUsageIsPending} />
-      <table className="table">
-        <thead>
-          <tr>
-            <th></th>
-            <th></th>
-            <th>Library</th>
-          </tr>
-        </thead>
-        <tbody>
-          {libraries?.map((library, index) => (
-            <tr key={library.id}>
-              <td>
-                <label>
-                  <input
-                    type="checkbox"
-                    className="checkbox"
-                    onChange={async (event) => {
-                      updateUsage({
-                        assistantId: assistant.id,
-                        libraryId: library.id,
-                        use: event.target.checked,
-                      })
-                    }}
-                    name="selectedFiles"
-                    checked={usages?.some((usage) => usage.libraryId === library.id)}
-                  />
-                </label>
-              </td>
-              <td>{index + 1}</td>
-              <td>
-                <Link to="/libraries/$libraryId" params={{ libraryId: library.id }}>
-                  {library.name}
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+
+      {libraries?.map((library) => (
+        <div className="card grid grid-cols-2 gap-2" key={library.id}>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              onChange={async (event) => {
+                updateUsage({
+                  assistantId: assistant.id,
+                  libraryId: library.id,
+                  use: event.target.checked,
+                })
+              }}
+              name="selectedFiles"
+              checked={usages?.some((usage) => usage.libraryId === library.id)}
+            />
+
+            <Link to="/libraries/$libraryId" params={{ libraryId: library.id }}>
+              {library.name}
+            </Link>
+          </label>
+          <Input
+            className="col-span-2"
+            type="textarea"
+            name="description"
+            placeholder="When should the assistant choose this library"
+          />
+        </div>
+      ))}
+    </div>
   )
 }

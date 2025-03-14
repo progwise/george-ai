@@ -36,6 +36,12 @@ input AiAssistantInput {
   url: String
 }
 
+input AiBaseCaseInputType {
+  description: String
+  id: String
+  sequence: Float
+}
+
 type AiConversation {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
@@ -232,6 +238,7 @@ type Mutation {
   updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
+  upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
 }
 
 type Query {
