@@ -155,7 +155,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       ) : (
         <label className="col-span-1 flex w-full flex-col">
           <span className="text-sm text-slate-400">{t('labels.notConfirmed')}</span>
-          <button type="button" className="btn col-span-1 self-baseline" onClick={handleSendConfirmationMail}>
+          <button type="button" className="btn btn-sm col-span-1" onClick={handleSendConfirmationMail}>
             {t('actions.sendConfirmationMail')}
           </button>
         </label>
@@ -237,13 +237,16 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         readOnly
       />
       <div className="col-span-2 flex justify-end">
-        <a className="btn" href={`mailto:info@george-ai.net?subject=Request higher limits for ${userProfile.email}`}>
+        <a
+          className="btn btn-sm"
+          href={`mailto:info@george-ai.net?subject=Request higher limits for ${userProfile.email}`}
+        >
           {t('actions.increaseLimits')}
         </a>
       </div>
       <hr className="col-span-2 my-2" />
       <div className="col-span-2 flex justify-end">
-        <input type="submit" value={t('actions.save')} className="btn btn-primary" />
+        <input type="submit" value={t('actions.save')} className="btn btn-primary btn-sm" />
       </div>
     </form>
   )

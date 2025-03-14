@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import React from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { AssistantDeleteDialog } from './assistant-delete-dialog'
 
 const AssistantCard_assistantFragment = graphql(`
@@ -19,6 +20,7 @@ export interface AssistantCardProps {
 }
 
 export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
+  const { t } = useTranslation()
   const assistant = useFragment(AssistantCard_assistantFragment, props.assistant)
 
   return (
@@ -27,17 +29,14 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
         <figure className="max-h-24">
           <div className="absolute left-2 right-2 top-2 flex justify-between gap-2">
             <AssistantDeleteDialog assistant={assistant} />
-            <button type="button" className="btn btn-success btn-sm">
-              Try
-            </button>
           </div>
           <img
             src={
-              !assistant.icon || assistant.icon?.length < 5000 //change if icon upload implemented
+              !assistant.icon || assistant.icon?.length < 5000 //TODO: change if icon upload implemented
                 ? '/george-portrait.jpg'
                 : assistant.icon
             }
-            alt={assistant.name ?? 'Assistant icon'}
+            alt={assistant.name}
           />
         </figure>
         <div className="card-body p-4">
@@ -55,7 +54,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
               to={`/assistants/$assistantId`}
               params={{ assistantId: assistant.id }}
             >
-              Configure
+              {t('actions.edit')}
             </Link>
           </div>
         </div>

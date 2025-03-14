@@ -4,6 +4,8 @@ export default {
     create: 'Erstellen',
     delete: 'Löschen',
     drop: 'Entfernen',
+    edit: 'Bearbeiten',
+    gotoOverview: 'Zur Übersicht',
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue',
     removeProfile: 'Benutzerprofil entfernen',
@@ -16,9 +18,9 @@ export default {
     addNew: 'Neuen Assistenten erstellen',
     addNewButton: 'Assistent erstellen',
     addNewDescription:
-      'Ein Assistent führt Sie durch die Ai von George. Er unterstütut Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
+      'Ein Assistent führt Sie durch die Ai von George. Er unterstützt Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
     delete: 'Assistent löschen',
-    deleteButton: 'löschen',
+    deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
     myAssistants: 'Meine Assistenten',
     placeholders: {

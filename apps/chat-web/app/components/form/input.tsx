@@ -57,16 +57,18 @@ export const Input = <T extends ZodRawShape>({
   }
 
   return (
-    <label className={twMerge('grid h-full w-full grid-cols-2', className)}>
-      <span
-        className={twMerge(
-          'overflow-hidden text-nowrap text-sm text-base-content/50',
-          errors.length > 0 && 'text-error',
-        )}
-      >
-        {label}
-      </span>
-      <span className="justify-self-end overflow-hidden text-nowrap text-sm text-error">{errors.join(', ')}</span>
+    <label className={twMerge('flex h-full w-full flex-col', className)}>
+      <div className="flex flex-row justify-between">
+        <span
+          className={twMerge(
+            'overflow-hidden text-nowrap text-sm text-base-content/50',
+            errors.length > 0 && 'text-error',
+          )}
+        >
+          {label}
+        </span>
+        <span className="justify-self-end overflow-hidden text-nowrap text-sm text-error">{errors.join(', ')}</span>
+      </div>
       {type === 'textarea' ? (
         <textarea
           key={value}

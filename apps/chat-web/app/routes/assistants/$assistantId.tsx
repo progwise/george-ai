@@ -9,6 +9,7 @@ import { AssistantLibraries } from '../../components/assistant/assistant-librari
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql/gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -54,6 +55,7 @@ export const Route = createFileRoute('/assistants/$assistantId')({
 })
 
 function RouteComponent() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const ownerId = user?.id
   const { assistantId } = useParams({ strict: false })
@@ -83,7 +85,7 @@ function RouteComponent() {
         </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
-            List
+            {t('actions.gotoOverview')}
           </Link>
         </div>
       </div>

@@ -101,7 +101,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   const languageModels = useFragment(AssistantForm_LanguageModelFragment, props.languageModels)
   const { disabled } = props
 
-  const schema = getFormSchema(language)
+  const schema = React.useMemo(() => getFormSchema(language), [language])
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
@@ -114,8 +114,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
     disabled: updateIsPending || disabled,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
-      const o = Object.fromEntries(formData)
-      const parseResult = schema.safeParse(o)
+      const parseResult = schema.safeParse(Object.fromEntries(formData))
       if (parseResult.success) {
         update(formData)
       } else {
