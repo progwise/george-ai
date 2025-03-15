@@ -123,8 +123,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         method: 'POST',
         headers: {
           'Content-Type': 'image/*',
-          Authorization: `ApiKey ${process.env.GRAPHQL_API_KEY}`,
-          'x-file-extension': fileExtension,
+          'x-file-extension': fileExtension.toLowerCase(),
         },
         body: file,
       })
