@@ -10,7 +10,7 @@ const AssistantCard_assistantFragment = graphql(`
     id
     name
     description
-    icon
+    iconUrl
     ...AssistantDelete_assistantFragment
   }
 `)
@@ -30,14 +30,17 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
           <div className="absolute left-2 right-2 top-2 flex justify-between gap-2">
             <AssistantDeleteDialog assistant={assistant} />
           </div>
-          <img
-            src={
-              !assistant.icon || assistant.icon?.length < 5000 //TODO: change if icon upload implemented
-                ? '/george-portrait.jpg'
-                : assistant.icon
-            }
-            alt={assistant.name}
-          />
+          <div className="h-36 w-full overflow-hidden rounded-lg border bg-black/5 bg-cover bg-center bg-no-repeat text-center">
+            <img
+              key={Date.now()}
+              src={assistant.iconUrl}
+              alt={t('labels.assistantIcon')}
+              className="h-full w-full object-cover"
+              onError={(event) => {
+                event.currentTarget.hidden = true
+              }}
+            />
+          </div>
         </figure>
         <div className="card-body p-4">
           <h2 className="card-title">{assistant.name}</h2>

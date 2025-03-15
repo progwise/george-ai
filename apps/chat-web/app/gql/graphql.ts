@@ -754,7 +754,7 @@ export type AssistantCard_AssistantFragmentFragment = ({
   id: string
   name: string
   description?: string | null
-  icon?: string | null
+  iconUrl: string
 } & { ' $fragmentRefs'?: { AssistantDelete_AssistantFragmentFragment: AssistantDelete_AssistantFragmentFragment } }) & {
   ' $fragmentName'?: 'AssistantCard_AssistantFragmentFragment'
 }
@@ -1561,7 +1561,7 @@ export const AssistantCard_AssistantFragmentFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' } },
         ],
       },
@@ -3555,7 +3555,7 @@ export const AiAssistantCardsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'icon' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDelete_assistantFragment' } },
         ],
       },

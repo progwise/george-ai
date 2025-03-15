@@ -18,7 +18,7 @@ type Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n    }\n  }\n': typeof types.LoginDocument
   '\n        mutation upsertAiBaseCases($assistantId: String!, $baseCases: [AiBaseCaseInputType!]!) {\n          upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {\n            id\n            sequence\n            description\n          }\n        }\n      ': typeof types.UpsertAiBaseCasesDocument
   '\n  fragment AssistantBasecaseForm_assistantFragment on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n': typeof types.AssistantBasecaseForm_AssistantFragmentFragmentDoc
-  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n': typeof types.AssistantCard_AssistantFragmentFragmentDoc
+  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ...AssistantDelete_assistantFragment\n  }\n': typeof types.AssistantCard_AssistantFragmentFragmentDoc
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
   '\n  fragment AssistantDelete_assistantFragment on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantDelete_AssistantFragmentFragmentDoc
   '\n  fragment AssistantForm_assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModelId\n    languageModel {\n      id\n      name\n    }\n    llmTemperature\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
@@ -83,7 +83,7 @@ const documents: Documents = {
     types.UpsertAiBaseCasesDocument,
   '\n  fragment AssistantBasecaseForm_assistantFragment on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      description\n    }\n  }\n':
     types.AssistantBasecaseForm_AssistantFragmentFragmentDoc,
-  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n':
+  '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ...AssistantDelete_assistantFragment\n  }\n':
     types.AssistantCard_AssistantFragmentFragmentDoc,
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ':
     types.DeleteAiAssistantDocument,
@@ -234,8 +234,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n',
-): (typeof documents)['\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    icon\n    ...AssistantDelete_assistantFragment\n  }\n']
+  source: '\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ...AssistantDelete_assistantFragment\n  }\n',
+): (typeof documents)['\n  fragment AssistantCard_assistantFragment on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ...AssistantDelete_assistantFragment\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
