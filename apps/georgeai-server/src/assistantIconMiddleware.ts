@@ -30,6 +30,7 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
             file.endsWith('.svg') ||
             file.endsWith('.jpg') ||
             file.endsWith('.jpeg') ||
+            file.endsWith('.webp') ||
             file.endsWith('.gif')),
       )
 
@@ -38,7 +39,11 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
       return
     }
     const icon = fs.createReadStream(`${assistantIconsPath}/${assistantFiles[0]}`)
-    httpResponse.contentType(`image/${assistantFiles[0].split('.').pop()}`)
+    let fileType = assistantFiles[0].split('.').pop()
+    if (fileType?.endsWith('svg')) {
+      fileType = 'svg+xml'
+    }
+    httpResponse.contentType(`image/${fileType}`)
     icon.pipe(httpResponse)
     httpResponse.status(200)
     return
@@ -60,10 +65,10 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
 
   const fileExtension = httpRequest.headers['x-file-extension'] as string
 
-  if (!fileExtension || !['png', 'svg', 'jpg', 'jpeg', 'gif'].includes(fileExtension)) {
+  if (!fileExtension || !['png', 'svg', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileExtension)) {
     httpResponse
       .status(400)
-      .send('Bad Request: x-file-extension header is required and must be one of png, svg, jpg, jpeg, gif')
+      .send('Bad Request: x-file-extension header is required and must be one of png, svg, jpg, jpeg, gif, webp')
     return
   }
 

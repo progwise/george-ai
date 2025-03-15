@@ -165,9 +165,6 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
       className={twMerge('flex w-full flex-col items-center gap-2')}
       onSubmit={(e) => e.preventDefault()}
     >
-      <div className={twMerge('relative h-24 w-24 rounded-full bg-cover bg-center bg-no-repeat')}>
-        <img key={Date.now()} src={assistant?.iconUrl} alt={t('labels.assistantIcon')} className="absolute z-0" />
-      </div>
       <LoadingSpinner isLoading={updateIsPending || mutateAssistantIconPending} />
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant?.id} />
@@ -176,13 +173,14 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         className="z-10 col-span-2 justify-self-center"
         fileTypes="image/*"
         handleUploadFiles={handleUploadFiles}
+        imageUrl={assistant?.iconUrl}
       />
       <Input
         name="name"
         type="text"
         label={t('labels.name')}
         value={assistant?.name}
-        className="col-span-2"
+        className="z-10 col-span-2"
         required
         {...fieldProps}
       />
