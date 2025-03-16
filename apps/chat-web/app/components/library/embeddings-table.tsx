@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -12,8 +12,10 @@ import { DropIcon } from '../../icons/drop-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
@@ -146,6 +148,17 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
   const { data, isLoading, refetch } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
+  const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+
+  const handleGoogleDriveClick = () => {
+    if (googleDriveAccessToken) {
+      dialogRef.current?.showModal()
+    } else {
+      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}`
+    }
+  }
 
   const clearEmbeddingsMutation = useMutation({
     mutationFn: async (libraryId: string) => {
@@ -235,6 +248,24 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             Clear
           </button>
           <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} disabled={remainingStorage < 1} />
+          <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
+            Google Drive
+          </button>
+          {googleDriveAccessToken && (
+            <DialogForm
+              ref={dialogRef}
+              title="Add Google Drive Files"
+              submitButtonText="Close"
+              onSubmit={() => dialogRef.current?.close()}
+            >
+              <GoogleDriveFiles
+                libraryId={libraryId}
+                currentLocationHref={window.location.href}
+                noFreeUploads={remainingStorage < 100}
+                dialogRef={dialogRef}
+              />
+            </DialogForm>
+          )}
           <button
             type="button"
             className="btn btn-xs"
@@ -258,6 +289,14 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </div>
         </div>
       </nav>
+      {googleDriveAccessToken && (
+        <GoogleDriveFiles
+          libraryId={libraryId}
+          currentLocationHref={window.location.href}
+          noFreeUploads={remainingStorage < 100}
+          dialogRef={dialogRef}
+        />
+      )}
       <table className="table">
         <thead>
           <tr>

@@ -38,7 +38,8 @@ export default {
   },
   dialog: {
     cancel: 'Abbrechen',
-    ok: 'OK',
+    confirm: 'Bestätigen',
+    done: 'Fertig',
   },
   errors: {
     invalidEmail: 'Ungültige E-Mail-Adresse',

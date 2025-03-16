@@ -38,7 +38,8 @@ export default {
   },
   dialog: {
     cancel: 'Cancel',
-    ok: 'OK',
+    confirm: 'Confirm',
+    done: 'Done',
   },
   errors: {
     invalidEmail: 'Invalid email',
