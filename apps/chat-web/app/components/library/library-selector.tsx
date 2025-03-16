@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 
 import { AiLibrary } from '../../gql/graphql'
-import { Listbox } from '../listbox'
+import { Select, SelectItem } from '../form/select'
 
 interface LibrarySelectorProps {
   libraries: Pick<AiLibrary, 'id' | 'name'>[]
@@ -11,16 +11,21 @@ interface LibrarySelectorProps {
 export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorProps) => {
   const navigate = useNavigate()
 
+  const libraryOptions: SelectItem[] = libraries.map((library) => ({ id: library.id, name: library.name }))
+  const selectedLibraryOption: SelectItem = { id: selectedLibrary.id, name: selectedLibrary.name }
+
   return (
-    <Listbox
-      items={libraries}
-      selectedItem={selectedLibrary}
-      onChange={(newLibrary) => {
+    <Select
+      options={libraryOptions}
+      value={selectedLibraryOption}
+      onBlur={(newLibrary) => {
         navigate({
           to: '/libraries/$libraryId',
           params: { libraryId: newLibrary!.id },
         })
       }}
+      name="library"
+      label="Select Library"
     />
   )
 }
