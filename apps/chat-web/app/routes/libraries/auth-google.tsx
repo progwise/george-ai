@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { z } from 'zod'
 
 import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
@@ -18,9 +18,22 @@ export const Route = createFileRoute('/libraries/auth-google')({
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
+export const redirectForAccessCode = async (fullPath: string, search: Record<string, string | undefined>) => {
+  const redirect_url = window.location.origin + fullPath
+  if (!search.code) {
+    console.log('start login')
+    localStorage.setItem('google_login_progress', '1')
+    const newUrl = await getGoogleLoginUrl({
+      data: { redirect_url },
+    })
+    window.location.href = newUrl
+  }
+}
+
 function RouteComponent() {
   const search = Route.useSearch()
   const fullPath = Route.fullPath
+  const dialogRef = useRef<HTMLDialogElement>(null)
   console.log(fullPath)
 
   useEffect(() => {
@@ -29,18 +42,6 @@ function RouteComponent() {
       localStorage.setItem('google_login_redirect_after', search.redirectAfterAuth)
     }
   }, [search.redirectAfterAuth])
-
-  const redirectForAccessCode = async () => {
-    const redirect_url = window.location.origin + fullPath
-    if (!search.code) {
-      console.log('start login')
-      localStorage.setItem('google_login_progress', '1')
-      const newUrl = await getGoogleLoginUrl({
-        data: { redirect_url },
-      })
-      window.location.href = newUrl
-    }
-  }
 
   const getAccessToken = useCallback(async () => {
     const redirect_url = window.location.origin + fullPath
@@ -52,6 +53,7 @@ function RouteComponent() {
       localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
       localStorage.removeItem('google_login_progress')
       window.location.href = localStorage.getItem('google_login_redirect_after') || '/'
+      dialogRef.current?.showModal()
     } else {
       console.error('No access code found in the URL')
     }
@@ -66,7 +68,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary" type="button" onClick={redirectForAccessCode}>
+      <button className="btn btn-primary" type="button" onClick={() => redirectForAccessCode(fullPath, search)}>
         Start Google Login
       </button>
     </div>
