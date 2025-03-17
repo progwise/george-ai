@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
 import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
@@ -33,8 +33,6 @@ export const redirectForAccessCode = async (fullPath: string, search: Record<str
 function RouteComponent() {
   const search = Route.useSearch()
   const fullPath = Route.fullPath
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  console.log(fullPath)
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
@@ -51,9 +49,9 @@ function RouteComponent() {
       })
       console.log('got access token', accessToken)
       localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
+      localStorage.setItem('google_drive_dialog_open', 'true')
       localStorage.removeItem('google_login_progress')
       window.location.href = localStorage.getItem('google_login_redirect_after') || '/'
-      dialogRef.current?.showModal()
     } else {
       console.error('No access code found in the URL')
     }

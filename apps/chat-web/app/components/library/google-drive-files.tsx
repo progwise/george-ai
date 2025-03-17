@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../gql'
@@ -188,6 +188,13 @@ export const GoogleDriveFiles = ({
     localStorage.removeItem('google_drive_access_token')
     window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}`
   }
+
+  useEffect(() => {
+    if (googleDriveAccessToken.access_token && localStorage.getItem('google_drive_dialog_open') === 'true') {
+      dialogRef.current?.showModal()
+      localStorage.removeItem('google_drive_dialog_open')
+    }
+  }, [googleDriveAccessToken.access_token, dialogRef])
 
   return (
     <>
