@@ -226,64 +226,80 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </div>
         </div>
       </nav>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={selectedFiles.length === data?.aiLibraryFiles?.length}
-                onChange={handleSelectAll}
-                className="flex justify-center"
-              />
-            </th>
-            <th></th>
-            <th>Name</th>
-            <th>#Size</th>
-            <th>#Chunks</th>
-            <th>Processed</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.aiLibraryFiles?.map((file, index) => (
-            <tr key={file.id}>
-              <td>
+
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead className="hidden md:table-header-group">
+            <tr>
+              <th>
                 <input
                   type="checkbox"
-                  checked={selectedFiles.includes(file.id)}
-                  onChange={() => handleSelectFile(file.id)}
+                  checked={selectedFiles.length === data?.aiLibraryFiles?.length}
+                  onChange={handleSelectAll}
+                  className="flex justify-center"
                 />
-              </td>
-              <td>{index + 1}</td>
-              <td>{file.name}</td>
-              <td>{file.size}</td>
-              <td>{file.chunks}</td>
-              <td>{dateTimeString(file.processedAt, language)}</td>
-              <td className="flex gap-2">
-                <button
-                  type="button"
-                  className="btn btn-xs lg:tooltip"
-                  onClick={() => dropFileMutation.mutate(file.id)}
-                  disabled={dropFileMutation.isPending}
-                  data-tip={t('tooltips.drop')}
-                >
-                  <DropIcon />
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-xs lg:tooltip"
-                  onClick={() => reProcessFileMutation.mutate(file.id)}
-                  disabled={reProcessFileMutation.isPending}
-                  data-tip={t('tooltips.reProcess')}
-                >
-                  <ReprocessIcon />
-                </button>
-              </td>
+              </th>
+              <th></th>
+              <th>Name</th>
+              <th>#Size</th>
+              <th>#Chunks</th>
+              <th>Processed</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data?.aiLibraryFiles?.map((file, index) => (
+              <tr key={file.id} className="block border-b hover:bg-gray-100 md:table-row">
+                <td data-label="Select" className="block px-2 py-1 md:table-cell md:py-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedFiles.includes(file.id)}
+                    onChange={() => handleSelectFile(file.id)}
+                  />
+                </td>
+
+                <td data-label="#" className="block px-2 py-1 md:table-cell md:py-2">
+                  {index + 1}
+                </td>
+                <td data-label="Name" className="block px-2 py-1 md:table-cell md:py-2">
+                  {file.name}
+                </td>
+                <td data-label="#Size" className="block px-2 py-1 md:table-cell md:py-2">
+                  {file.size}
+                </td>
+                <td data-label="#Chunks" className="block px-2 py-1 md:table-cell md:py-2">
+                  {file.chunks}
+                </td>
+                <td data-label="Processed" className="block px-2 py-1 md:table-cell md:py-2">
+                  {dateTimeString(file.processedAt, language)}
+                </td>
+                <td data-label="Actions" className="block px-2 py-1 md:table-cell md:py-2">
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-xs lg:tooltip"
+                      onClick={() => dropFileMutation.mutate(file.id)}
+                      disabled={dropFileMutation.isPending}
+                      data-tip={t('tooltips.drop')}
+                    >
+                      <DropIcon />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-xs lg:tooltip"
+                      onClick={() => reProcessFileMutation.mutate(file.id)}
+                      disabled={reProcessFileMutation.isPending}
+                      data-tip={t('tooltips.reProcess')}
+                    >
+                      <ReprocessIcon />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }
