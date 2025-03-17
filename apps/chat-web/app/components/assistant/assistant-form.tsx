@@ -1,82 +1,179 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
+import { z } from 'zod'
 
-import { AiAssistant } from '../../gql/graphql'
+import { useAuth } from '../../auth/auth-hook'
+import { FragmentType, graphql, useFragment } from '../../gql'
+import { getLanguage, translate } from '../../i18n'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
+import { backendRequest } from '../../server-functions/backend'
+import { FileUpload } from '../form/file-upload'
+import { Input } from '../form/input'
+import { Select } from '../form/select'
+
+const AssistantForm_AssistantFragment = graphql(`
+  fragment AssistantForm_assistant on AiAssistant {
+    id
+    name
+    description
+    ownerId
+    languageModelId
+    languageModel {
+      id
+      name
+    }
+    llmTemperature
+    baseCases {
+      id
+      sequence
+      description
+    }
+  }
+`)
+
+const AssistantForm_LanguageModelFragment = graphql(`
+  fragment AssistantForm_languageModel on AiLanguageModel {
+    id
+    name
+  }
+`)
+
+const getFormSchema = (language: 'en' | 'de') =>
+  z.object({
+    id: z.string().nonempty(),
+    name: z.string().min(1, translate('errors.requiredField', language)),
+    description: z.string().nullish(),
+    languageModelId: z.string().nullish(),
+    llmTemperature: z.preprocess(
+      (value: string) => (value?.length < 1 ? null : parseFloat(value)),
+      z
+        .number()
+        .min(0, translate('errors.llmTemperatureToLow', language))
+        .max(1, translate('errors.llmTemperatureToHigh', language))
+        .nullish(),
+    ),
+  })
+
+const updateAssistant = createServerFn({ method: 'POST' })
+  .validator(async (data: FormData) => {
+    const o = Object.fromEntries(data)
+    const language = await getLanguage()
+    const schema = getFormSchema(language)
+    return schema.parse(o)
+  })
+  .handler(async (ctx) => {
+    const data = await ctx.data
+    return await backendRequest(
+      graphql(`
+        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {
+          updateAiAssistant(id: $id, data: $data) {
+            id
+          }
+        }
+      `),
+      {
+        id: data.id,
+        data: {
+          name: data.name,
+          description: data.description,
+          languageModelId: data.languageModelId,
+          llmTemperature: data.llmTemperature,
+        },
+      },
+    )
+  })
 
 export interface AssistantEditFormProps {
-  assistant: AiAssistant
-  ownerId: string
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+  assistant?: FragmentType<typeof AssistantForm_AssistantFragment>
+  languageModels: FragmentType<typeof AssistantForm_LanguageModelFragment>[]
   disabled: boolean
 }
 
-export const AssistantForm = ({
-  assistant,
-  ownerId,
-  handleSubmit,
-  disabled,
-}: AssistantEditFormProps): React.ReactElement => {
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <input type="hidden" name="ownerId" value={ownerId} />
-      <input type="hidden" name="url" value="wasauchimmer" />
-      <input type="hidden" name="assistantId" value={assistant.id} />
-      <label className="form-control w-full max-w-xs">
-        <input type="file" accept="image/*" name="icon" className="file-input file-input-bordered w-full max-w-xs" />
-      </label>
-      <label className="input input-bordered flex items-center gap-2">
-        Name your assistant:
-        <input
-          key={assistant.name}
-          name="name"
-          type="text"
-          defaultValue={assistant.name}
-          className="grow"
-          placeholder="George II"
-          required
-        />
-      </label>
-      <textarea
-        key={assistant.description}
-        name="description"
-        className="textarea textarea-bordered w-full flex-grow"
-        placeholder="Born and brought up in northern Germany, George is the most recent British monarch born outside Great Britain."
-        defaultValue={assistant.description || ''}
-      ></textarea>
-      <div className="flex gap-2">
-        <div className="form-control">
-          <label className="label cursor-pointer">
-            <span className="label-text pr-4">Chatbot</span>
-            <input
-              key={assistant.assistantType}
-              type="radio"
-              name="assistantType"
-              value="CHATBOT"
-              className="radio checked:bg-green-500"
-              defaultChecked={assistant.assistantType === 'CHATBOT'}
-            />
-          </label>
-        </div>
-        <div className="form-control">
-          <label className="label cursor-pointer">
-            <span className="label-text pr-4">Doc Generator</span>
-            <input
-              key={assistant.assistantType}
-              type="radio"
-              name="assistantType"
-              value="DOCUMENT_GENERATOR"
-              className="radio checked:bg-blue-500"
-              defaultChecked={assistant.assistantType === 'DOCUMENT_GENERATOR'}
-              disabled
-            />
-          </label>
-        </div>
-      </div>
+export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement => {
+  const { user } = useAuth()
+  const ownerId = user?.id
+  const formRef = React.useRef<HTMLFormElement>(null)
+  const { t, language } = useTranslation()
+  const queryClient = useQueryClient()
+  const assistant = useFragment(AssistantForm_AssistantFragment, props.assistant)
+  const languageModels = useFragment(AssistantForm_LanguageModelFragment, props.languageModels)
+  const { disabled } = props
 
-      <div className="flex items-center justify-end gap-4">
-        <button disabled={disabled} type="submit" className="btn btn-primary btn-sm">
-          Save
-        </button>
-      </div>
+  const schema = React.useMemo(() => getFormSchema(language), [language])
+
+  const { mutate: update, isPending: updateIsPending } = useMutation({
+    mutationFn: (data: FormData) => updateAssistant({ data }),
+    onSettled: (data) =>
+      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, data?.updateAiAssistant?.id, ownerId] }),
+  })
+
+  const fieldProps = {
+    schema,
+    disabled: updateIsPending || disabled,
+    onBlur: () => {
+      const formData = new FormData(formRef.current!)
+      const parseResult = schema.safeParse(Object.fromEntries(formData))
+      if (parseResult.success) {
+        update(formData)
+      } else {
+        console.error('Validation errors:', parseResult.error.errors)
+      }
+    },
+  }
+
+  return (
+    <form ref={formRef} className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2">
+      <input type="hidden" name="ownerId" value={ownerId} />
+      <input type="hidden" name="id" value={assistant?.id} />
+
+      <FileUpload
+        className="col-span-2 justify-self-center"
+        fileTypes="image/*"
+        handleUploadFiles={(event) => console.log(event)}
+      />
+      <Input
+        name="name"
+        type="text"
+        label={t('labels.name')}
+        value={assistant?.name}
+        className="col-span-2"
+        required
+        {...fieldProps}
+      />
+
+      <Input
+        name="description"
+        type="textarea"
+        label={t('labels.description')}
+        value={assistant?.description}
+        placeholder={t('assistants.placeholders.description')}
+        className="col-span-2"
+        required
+        {...fieldProps}
+      />
+
+      <Select
+        name="languageModelId"
+        label={t('labels.languageModel')}
+        options={languageModels}
+        value={assistant?.languageModel}
+        className="col-span-1"
+        placeholder={t('assistants.placeholders.languageModel')}
+        {...fieldProps}
+      />
+
+      <Input
+        name="llmTemperature"
+        type="number"
+        label={t('labels.llmTemperature')}
+        value={assistant?.llmTemperature}
+        className="col-span-1 flex-grow"
+        placeholder={t('assistants.placeholders.llmTemperature')}
+        required
+        {...fieldProps}
+      />
     </form>
   )
 }

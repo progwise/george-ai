@@ -25,7 +25,7 @@ export interface AuthContext {
 export const useAuth = () => {
   const queryClient = useQueryClient()
   const { data: keycloak, isLoading: keycloakIsLoading } = useQuery({
-    queryKey: ['keycloak'],
+    queryKey: [queryKeys.KeycloakInstance],
     staleTime: Infinity,
     queryFn: async () => {
       const config = await getKeycloakConfig()
@@ -107,7 +107,6 @@ export const useAuth = () => {
     login: async () => {},
     logout: async () => {
       keycloak.logout()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUser] })
     },
     user: currentUser,
     userProfile: currentUserProfile?.userProfile,
