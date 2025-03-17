@@ -11,7 +11,7 @@ interface FileUploadProps {
   multiple?: boolean
   disabled?: boolean
   handleUploadFiles: ChangeEventHandler<HTMLInputElement>
-  imageUrl?: string
+  imageUrl?: string | null | undefined
 }
 
 export const FileUpload = ({
@@ -35,15 +35,19 @@ export const FileUpload = ({
         onClick={handleClick}
         disabled={disabled}
       >
-        <img
-          key={Date.now()}
-          src={imageUrl}
-          alt={t('labels.assistantIcon')}
-          className="h-full w-full object-cover"
-          onError={(event) => {
-            event.currentTarget.hidden = true
-          }}
-        />
+        {!imageUrl ? (
+          <span className="hover:text-primary">{t('assistants.addAssistantIcon')}...</span>
+        ) : (
+          <img
+            key={Date.now()}
+            src={imageUrl}
+            alt={t('labels.assistantIcon')}
+            className="h-full w-full object-cover"
+            onError={(event) => {
+              event.currentTarget.hidden = true
+            }}
+          />
+        )}
       </button>
       <input
         type="file"

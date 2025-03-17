@@ -13,8 +13,10 @@ export default {
     save: 'Speichern',
     saving: 'Speichern...',
     sendConfirmationMail: 'Bestätigungsmail senden',
+    sendMessage: 'Nachricht senden',
   },
   assistants: {
+    addAssistantIcon: 'Assistentenbild hinzufügen',
     addNew: 'Neuen Assistenten erstellen',
     addNewButton: 'Assistent erstellen',
     addNewDescription:
@@ -22,6 +24,7 @@ export default {
     delete: 'Assistent löschen',
     deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
+    hasNoIcon: '{assistant.name} hat kein Icon',
     initialSituations: 'Initiale Situationen',
     libraries: 'Verwendete Bibliotheken',
     libraryToAdd: 'Bibliothek hinzufügen',

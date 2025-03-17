@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-import { checkAssistant, getAssistantIconsPath } from '@george-ai/pothos-graphql'
+import { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from '@george-ai/pothos-graphql'
 
 export const assistantIconMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   const assistantId = httpRequest.query['assistantId'] as string
@@ -92,9 +92,13 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
 
   httpRequest.pipe(filestream)
 
-  httpRequest.on('end', () => {
+  httpRequest.on('end', async () => {
     filestream.close(() => {
       httpResponse.end(JSON.stringify({ status: 'success' }))
+    })
+    await updateAssistantIconUrl({
+      assistantId,
+      iconUrl: `${process.env.BACKEND_PUBLIC_URL}/assistant-icon?assistantId=${assistantId}`,
     })
   })
 }

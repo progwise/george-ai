@@ -7,6 +7,7 @@ import { useAuth } from '../../auth/auth-hook'
 import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
+import { AssistantPreview } from '../../components/assistant/assistant-preview'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql/gql'
@@ -29,6 +30,8 @@ const getAssistant = createServerFn({ method: 'GET' })
               ...AssistantSelector_assistant
               ...AssistantForLibrariesFragment
               ...AssistantBasecaseForm_assistantFragment
+              ...AssistantPreview_assistantFragment
+              ...AssistantIcon_assistantFragment
             }
             aiAssistants(ownerId: $ownerId) {
               ...AssistantSelector_assistant
@@ -99,7 +102,9 @@ function RouteComponent() {
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
-        <div className="card grid grow place-items-center rounded-box bg-base-200 lg:w-1/2"></div>
+        <div className="card grid grow place-items-center rounded-box bg-base-200 lg:w-1/2">
+          <AssistantPreview assistant={aiAssistant} />
+        </div>
       </div>
     </article>
   )

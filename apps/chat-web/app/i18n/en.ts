@@ -13,8 +13,10 @@ export default {
     save: 'Save',
     saving: 'Saving...',
     sendConfirmationMail: 'Send confirmation mail',
+    sendMessage: 'Send message',
   },
   assistants: {
+    addAssistantIcon: 'Add assistant icon',
     addNew: 'Create new assistant',
     addNewButton: 'Create assistant',
     addNewDescription:
@@ -22,6 +24,7 @@ export default {
     delete: 'Delete assistant',
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
+    hasNoIcon: '{assistant.name} has no icon',
     initialSituations: 'Initial situations',
     libraries: 'Used libraries',
     libraryToAdd: 'Add library',

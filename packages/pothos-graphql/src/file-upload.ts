@@ -41,3 +41,11 @@ export const getAssistantIconsPath = () => {
 
   return `${path}`
 }
+
+export const updateAssistantIconUrl = async ({ assistantId, iconUrl }: { assistantId: string; iconUrl: string }) => {
+  const assistant = await prisma?.aiAssistant.update({
+    where: { id: assistantId },
+    data: { iconUrl },
+  })
+  return assistant
+}

@@ -159,11 +159,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   }
 
   return (
-    <form
-      ref={formRef}
-      className={twMerge('flex w-full flex-col items-center gap-2')}
-      onSubmit={(e) => e.preventDefault()}
-    >
+    <form ref={formRef} className={twMerge('grid items-center gap-2')} onSubmit={(e) => e.preventDefault()}>
       <LoadingSpinner isLoading={updateIsPending || mutateAssistantIconPending} />
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant?.id} />
@@ -210,7 +206,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         type="number"
         label={t('labels.llmTemperature')}
         value={assistant?.llmTemperature}
-        className="col-span-1 flex-grow"
+        className="col-span-1"
         placeholder={t('assistants.placeholders.llmTemperature')}
         required
         {...fieldProps}
