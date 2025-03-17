@@ -9,7 +9,6 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
-import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
 
@@ -199,50 +198,43 @@ export const GoogleDriveFiles = ({
   return (
     <>
       <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
-      <DialogForm
-        ref={dialogRef}
-        title="Add Google Drive Files"
-        submitButtonText={t('dialog.done')}
-        onSubmit={() => dialogRef.current?.close()}
-      >
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between gap-2">
-            {!googleDriveAccessToken.access_token && (
-              <Link
-                className="btn btn-xs"
-                to="/libraries/auth-google"
-                search={{ redirectAfterAuth: currentLocationHref }}
-              >
-                Login with Google
-              </Link>
-            )}
-            {googleDriveAccessToken.access_token && (
-              <button type="button" className="btn btn-xs" onClick={handleSwitchAccount}>
-                Switch Google Account
-              </button>
-            )}
-            {googleDriveAccessToken.access_token && (
-              <button
-                type="button"
-                disabled={!selectedFiles.length || embedFilesIsPending || noFreeUploads}
-                className="btn btn-xs"
-                onClick={async () => {
-                  await handleEmbedFiles(selectedFiles)
-                }}
-              >
-                Add {selectedFiles.length} files into the Library
-              </button>
-            )}
-          </div>
-          {googleDriveFilesData?.files && (
-            <FilesTable
-              files={googleDriveFilesData.files}
-              selectedFiles={selectedFiles}
-              setSelectedFiles={setSelectedFiles}
-            />
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between gap-2">
+          {!googleDriveAccessToken.access_token && (
+            <Link
+              className="btn btn-xs"
+              to="/libraries/auth-google"
+              search={{ redirectAfterAuth: currentLocationHref }}
+            >
+              {t('auth.loginWithGoogle')}
+            </Link>
+          )}
+          {googleDriveAccessToken.access_token && (
+            <button type="button" className="btn btn-xs" onClick={handleSwitchAccount}>
+              {t('auth.switchGoogleAccount')}
+            </button>
+          )}
+          {googleDriveAccessToken.access_token && (
+            <button
+              type="button"
+              disabled={!selectedFiles.length || embedFilesIsPending || noFreeUploads}
+              className="btn btn-xs"
+              onClick={async () => {
+                await handleEmbedFiles(selectedFiles)
+              }}
+            >
+              Add {selectedFiles.length} files into the Library
+            </button>
           )}
         </div>
-      </DialogForm>
+        {googleDriveFilesData?.files && (
+          <FilesTable
+            files={googleDriveFilesData.files}
+            selectedFiles={selectedFiles}
+            setSelectedFiles={setSelectedFiles}
+          />
+        )}
+      </div>
     </>
   )
 }

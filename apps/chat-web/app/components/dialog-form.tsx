@@ -28,15 +28,19 @@ export const DialogForm = ({
     onSubmit(formData)
   }
 
+  const handleClose = () => {
+    ref.current?.close()
+  }
+
   return (
     <dialog className="modal" ref={ref}>
       <div className="modal-box">
         <h3 className="text-lg font-bold">{title}</h3>
-        <p className="py-4">{description}</p>
+        {description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
+          <div className="flex flex-col gap-2">{children}</div>
           <div className="modal-action sticky bottom-0 bg-white">
-            <button type="button" className="btn btn-sm" onClick={() => ref.current?.close()}>
+            <button type="button" className="btn btn-sm" onClick={handleClose}>
               {t('dialog.cancel')}
             </button>
             <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
@@ -45,8 +49,8 @@ export const DialogForm = ({
           </div>
         </form>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button type="button" onClick={() => ref.current?.close()}>
+      <form method="dialog" className="modal-backdrop" onClick={handleClose}>
+        <button type="button" onClick={handleClose}>
           Close
         </button>
       </form>

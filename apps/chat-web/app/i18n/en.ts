@@ -31,6 +31,10 @@ export default {
     },
     signInForAssistants: 'Login to see your assistants',
   },
+  auth: {
+    signInWithGoogle: 'Sign in with Google',
+    switchGoogleAccount: 'Switch Google Account',
+  },
   brand: 'George-Ai',
   conversations: {
     assistants: 'Assistants',

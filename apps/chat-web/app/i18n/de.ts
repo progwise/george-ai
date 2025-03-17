@@ -31,6 +31,10 @@ export default {
     },
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
   },
+  auth: {
+    signInWithGoogle: 'Mit Google anmelden',
+    switchGoogleAccount: 'Google-Konto wechseln',
+  },
   brand: 'George-Ai',
   conversations: {
     assistants: 'Assistenten',

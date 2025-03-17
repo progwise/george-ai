@@ -251,21 +251,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
             Google Drive
           </button>
-          {googleDriveAccessToken && (
-            <DialogForm
-              ref={dialogRef}
-              title="Add Google Drive Files"
-              submitButtonText="Close"
-              onSubmit={() => dialogRef.current?.close()}
-            >
-              <GoogleDriveFiles
-                libraryId={libraryId}
-                currentLocationHref={window.location.href}
-                noFreeUploads={remainingStorage < 100}
-                dialogRef={dialogRef}
-              />
-            </DialogForm>
-          )}
           <button
             type="button"
             className="btn btn-xs"
@@ -290,12 +275,19 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         </div>
       </nav>
       {googleDriveAccessToken && (
-        <GoogleDriveFiles
-          libraryId={libraryId}
-          currentLocationHref={window.location.href}
-          noFreeUploads={remainingStorage < 100}
-          dialogRef={dialogRef}
-        />
+        <DialogForm
+          ref={dialogRef}
+          title="Add Google Drive Files"
+          submitButtonText={t('dialog.done')}
+          onSubmit={() => dialogRef.current?.close()}
+        >
+          <GoogleDriveFiles
+            libraryId={libraryId}
+            currentLocationHref={window.location.href}
+            noFreeUploads={remainingStorage < 100}
+            dialogRef={dialogRef}
+          />
+        </DialogForm>
       )}
       <table className="table">
         <thead>
