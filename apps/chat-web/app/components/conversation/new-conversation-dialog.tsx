@@ -3,39 +3,35 @@ import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
-
-const ConversationNew_HumanParticipationCandidatesFragment = graphql(`
-  fragment ConversationNew_HumanParticipationCandidates on User {
-    id
-    name
-    username
-  }
-`)
-
-const ConversationNew_AssistantParticipationCandidatesFragment = graphql(`
-  fragment ConversationNew_AssistantParticipationCandidates on AiAssistant {
-    id
-    name
-  }
-`)
+import {
+  ParticipantSelectionData,
+  ParticipantsSelector,
+  ParticipantsSelector_AssistantsFragment,
+  ParticipantsSelector_HumansFragment,
+} from './participants-selector'
 
 interface NewConversationDialogProps {
-  assistants: FragmentType<typeof ConversationNew_AssistantParticipationCandidatesFragment>[] | null
-  humans: FragmentType<typeof ConversationNew_HumanParticipationCandidatesFragment>[] | null
+  assistants: FragmentType<typeof ParticipantsSelector_AssistantsFragment>[] | null
+  humans: FragmentType<typeof ParticipantsSelector_HumansFragment>[] | null
   isOpen: boolean
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
   const { user } = useAuth()
-  const assistants = useFragment(ConversationNew_AssistantParticipationCandidatesFragment, props.assistants)
-  const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const dialogReference = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    if (props.isOpen && dialogReference.current) {
+      dialogReference.current?.showModal()
+    }
+  }, [props.isOpen])
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
@@ -53,32 +49,16 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
       if (!user) {
         throw new Error('User not set')
       }
+      if (dialogReference.current) {
+        dialogReference.current.close()
+      }
       queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
       navigate({ to: `/conversations/${result.createAiConversation?.id}` })
     },
   })
 
-  useEffect(() => {
-    if (props.isOpen) {
-      dialogReference.current?.showModal()
-    }
-  }, [props.isOpen])
-
-  const dialogReference = useRef<HTMLDialogElement>(null)
-
-  const handleCreateConversation = async () => {
-    const form = document.querySelector('form')
-    if (!form) {
-      throw new Error('Form not found')
-    }
-    const formData = new FormData(form)
-
-    const assistantIds = formData.getAll('assistants').map((id) => id.toString())
-    const userIds = formData.getAll('users').map((id) => id.toString())
-
-    await mutate({ assistantIds, userIds })
-
-    dialogReference.current?.close()
+  const handleSubmit = ({ assistantIds, userIds }: ParticipantSelectionData) => {
+    mutate({ assistantIds, userIds })
   }
 
   if (!user) {
@@ -90,74 +70,14 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
       <button type="button" className="btn btn-primary btn-sm" onClick={() => dialogReference.current?.showModal()}>
         {t('actions.new')}
       </button>
-      <dialog className="modal" ref={dialogReference}>
-        <LoadingSpinner isLoading={isPending} />
-        <div className="modal-box">
-          <h3 className="text-lg font-bold">{t('texts.newConversation')}</h3>
-          <p className="py-0">{t('texts.newConversationConfirmation')}</p>
-          <p className="py-4">{t('texts.changeParticipantsAnytime')}</p>
-          <form method="dialog" onSubmit={handleCreateConversation}>
-            <div className="flex gap-2">
-              <div className="w-1/2">
-                <h4 className="underline">{t('assistants')}</h4>
-                {assistants && assistants.length > 0 ? (
-                  assistants.map((assistant) => (
-                    <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
-                      <input
-                        type="checkbox"
-                        name="assistants"
-                        value={assistant.id}
-                        defaultChecked
-                        className="checkbox-info checkbox"
-                      />
-                      <span className="label-text">{assistant.name}</span>
-                    </label>
-                  ))
-                ) : (
-                  <p>{t('texts.noAssistantsAvailable')}</p>
-                )}
-              </div>
-              <div className="w-1/2">
-                <h4 className="underline">{t('users')}</h4>
-                {humans && humans.length > 0 ? (
-                  humans.map((user) => (
-                    <label key={user.id} className="label cursor-pointer justify-start gap-2">
-                      <input
-                        type="checkbox"
-                        name="users"
-                        value={user.id}
-                        defaultChecked
-                        className="checkbox-info checkbox"
-                      />
-                      <span className="label-text">{user.name || user.username}</span>
-                    </label>
-                  ))
-                ) : (
-                  <p>{t('texts.noUsersAvailable')}</p>
-                )}
-              </div>
-            </div>
-            <div className="modal-action">
-              <button type="submit" className="btn btn-sm">
-                {t('actions.cancel')}
-              </button>
-              <div>
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-sm"
-                  disabled={isPending || !assistants}
-                  onClick={handleCreateConversation}
-                >
-                  {t('actions.create')}
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button type="submit">close</button>
-        </form>
-      </dialog>
+      <LoadingSpinner isLoading={isPending} />
+      <ParticipantsSelector
+        assistants={props.assistants}
+        humans={props.humans}
+        onSubmit={handleSubmit}
+        isNewConversation
+        dialogRef={dialogReference}
+      />
     </>
   )
 }

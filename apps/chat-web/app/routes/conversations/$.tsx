@@ -35,7 +35,7 @@ const ConversationQueryDocument = graphql(`
   query getConversation($conversationId: String!) {
     aiConversation(conversationId: $conversationId) {
       ...ConversationForm_conversation
-      ...ConversationParticipants_conversation
+      ...ParticipantsSelector_conversation
       ...ConversationDelete_conversation
       ...ConversationHistory_conversation
     }
@@ -49,8 +49,7 @@ export const getConversation = createServerFn({ method: 'GET' })
 const AssignableUsersDocument = graphql(`
   query getAssignableUsers($userId: String!) {
     myConversationUsers(userId: $userId) {
-      ...ConversationNew_HumanParticipationCandidates
-      ...ConversationParticipants_HumanParticipationCandidates
+      ...ParticipantsSelector_Humans
     }
   }
 `)
@@ -62,8 +61,7 @@ export const getAssignableHumans = createServerFn({ method: 'GET' })
 const AssignableAssistantsDocument = graphql(`
   query getAssignableAssistants($ownerId: String!) {
     aiAssistants(ownerId: $ownerId) {
-      ...ConversationNew_AssistantParticipationCandidates
-      ...ConversationParticipants_AssistantParticipationCandidates
+      ...ParticipantsSelector_Assistants
     }
   }
 `)
@@ -188,8 +186,8 @@ function RouteComponent() {
             <div className="flex items-center justify-between">
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
-                assistantCandidates={assignableAssistants.aiAssistants}
-                humanCandidates={assignableUsers.myConversationUsers}
+                assistants={assignableAssistants.aiAssistants}
+                humans={assignableUsers.myConversationUsers}
               />
               <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
             </div>

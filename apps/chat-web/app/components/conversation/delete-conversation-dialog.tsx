@@ -44,8 +44,8 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
 
   const dialogReference = useRef<HTMLDialogElement>(null)
 
-  const handleDeleteConversation = async () => {
-    await mutate()
+  const handleDeleteConversation = () => {
+    mutate()
     dialogReference.current?.close()
   }
 
