@@ -119,18 +119,22 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id          String    @id @default(cuid())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  library     AiLibrary @relation(fields: [libraryId], references: [id])
-  libraryId   String
-  name        String
-  originUri   String?
-  mimeType    String
-  size        Int?
-  chunks      Int?
-  uploadedAt  DateTime?
-  processedAt DateTime?
+  id                     String    @id @default(cuid())
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  library                AiLibrary @relation(fields: [libraryId], references: [id])
+  libraryId              String
+  name                   String
+  originUri              String?
+  mimeType               String
+  size                   Int?
+  chunks                 Int?
+  uploadedAt             DateTime?
+  processedAt            DateTime?
+  processingStartedAt    DateTime?
+  processingEndedAt      DateTime?
+  processingErrorAt      DateTime?
+  processingErrorMessage String?
 }
 
 model AiConversation {

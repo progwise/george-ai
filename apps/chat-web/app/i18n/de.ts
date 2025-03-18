@@ -31,6 +31,10 @@ export default {
     },
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
   },
+  auth: {
+    signInWithGoogle: 'Mit Google anmelden',
+    switchGoogleAccount: 'Google-Konto wechseln',
+  },
   brand: 'George-Ai',
   conversations: {
     assistants: 'Assistenten',
@@ -38,7 +42,8 @@ export default {
   },
   dialog: {
     cancel: 'Abbrechen',
-    ok: 'OK',
+    confirm: 'Bestätigen',
+    done: 'Fertig',
   },
   errors: {
     invalidEmail: 'Ungültige E-Mail-Adresse',
