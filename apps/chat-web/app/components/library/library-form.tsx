@@ -35,34 +35,6 @@ export const LibraryForm = ({ library, ownerId, handleSubmit, disabled }: Librar
         placeholder="The Alexandrian Library was one of the largest and most significant libraries of the ancient world."
         defaultValue={library.description || ''}
       ></textarea>
-      <div className="flex gap-2">
-        <div className="form-control">
-          <label className="label cursor-pointer">
-            <span className="label-text pr-4">Google Drive</span>
-            <input
-              key={library.libraryType}
-              type="radio"
-              name="libraryType"
-              value="GOOGLE_DRIVE"
-              className="radio checked:bg-green-500"
-              defaultChecked={library.libraryType === 'GOOGLE_DRIVE'}
-            />
-          </label>
-        </div>
-        <div className="form-control">
-          <label className="label cursor-pointer">
-            <span className="label-text pr-4">Pocketbase</span>
-            <input
-              key={library.libraryType}
-              type="radio"
-              name="libraryType"
-              value="DOCUMENT_GENERATOR"
-              className="radio checked:bg-blue-500"
-              defaultChecked={library.libraryType === 'POCKETBASE'}
-            />
-          </label>
-        </div>
-      </div>
 
       <div className="flex items-center justify-end gap-4">
         <button disabled={disabled} type="submit" className="btn btn-primary btn-sm">

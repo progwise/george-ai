@@ -8,16 +8,6 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiLibrary')
 
-export enum AiLibraryType {
-  GOOGLE_DRIVE = 'GOOGLE_DRIVE',
-  POCKETBASE = 'POCKETBASE',
-}
-
-export const AiLibraryTypeEnum = builder.enumType(AiLibraryType, {
-  name: 'AiLibraryType',
-  description: 'Type of the AiLibrary',
-})
-
 export const AiLibrary = builder.prismaObject('AiLibrary', {
   name: 'AiLibrary',
   fields: (t) => ({
@@ -25,14 +15,6 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
-    libraryType: t.field({
-      type: AiLibraryTypeEnum,
-      nullable: false,
-      select: { libraryType: true },
-      resolve: (aiLibrary) => {
-        return AiLibraryType[aiLibrary.libraryType]
-      },
-    }),
     owner: t.relation('owner'),
     ownerId: t.exposeString('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
@@ -47,10 +29,6 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    libraryType: t.field({
-      type: AiLibraryTypeEnum,
-      required: true,
-    }),
   }),
 })
 

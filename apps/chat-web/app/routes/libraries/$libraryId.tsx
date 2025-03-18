@@ -24,7 +24,6 @@ const aiLibraryEditQueryDocument = graphql(`
       description
       createdAt
       ownerId
-      libraryType
       url
       files {
         id
@@ -72,7 +71,6 @@ const changeLibrary = createServerFn({ method: 'POST' })
       name: data.get('name') as string,
       description: data.get('description') as string,
       url: data.get('url') as string,
-      libraryType: data.get('libraryType'),
     })
     return { libraryId, library }
   })

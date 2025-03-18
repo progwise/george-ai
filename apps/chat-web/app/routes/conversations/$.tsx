@@ -15,7 +15,6 @@ import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { MenuIcon } from '../../icons/menu-icon'
-import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -88,8 +87,12 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
-  const newDialogRef = useRef<HTMLDialogElement>(null)
-  const deleteDialogRef = useRef<HTMLDialogElement>(null)
+
+  const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
+    queryKey: [queryKeys.Conversations, userId],
+    queryFn: async () => (userId ? await getConversations({ data: { userId } }) : null),
+  })
+
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxReference = useRef<HTMLInputElement>(null)
@@ -105,11 +108,6 @@ function RouteComponent() {
       drawerCheckboxReference.current.checked = false
     }
   }
-
-  const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
-    queryKey: [queryKeys.Conversations, userId],
-    queryFn: async () => (userId ? await getConversations({ data: { userId } }) : null),
-  })
 
   const { data: selectedConversation, isLoading: selectedConversationIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.Conversation, selectedConversationId],
@@ -132,19 +130,11 @@ function RouteComponent() {
   })
 
   if (!userId) {
-    return <h3>Login to use conversations.</h3>
+    return <h3>{t('texts.loginToUseConversations')}</h3>
   }
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })
-  }
-
-  const handleNewConversation = () => {
-    newDialogRef.current?.showModal()
-  }
-
-  const handleDeleteConversation = () => {
-    deleteDialogRef.current?.showModal()
   }
 
   if (
@@ -152,34 +142,26 @@ function RouteComponent() {
     selectedConversationIsLoading ||
     assignableUsersIsLoading ||
     assignableAssistantsIsLoading ||
-    !assignableAssistants ||
     !assignableUsers ||
+    !assignableAssistants ||
     !conversations
   ) {
     return <LoadingSpinner />
   }
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
-      <NewConversationDialog
-        ref={newDialogRef}
-        humans={assignableUsers.myConversationUsers}
-        assistants={assignableAssistants.aiAssistants}
-      />
-
-      {selectedConversation?.aiConversation && (
-        <DeleteConversationDialog ref={deleteDialogRef} conversation={selectedConversation.aiConversation} />
-      )}
-
+    <div className="flex gap-4 lg:flex-row">
       {userId && (
         <div className="relative flex flex-col gap-2">
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between">
             <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
               <MenuIcon className="size-6" />
             </button>
-            <button type="button" className="btn btn-sm" onClick={handleNewConversation}>
-              New
-            </button>
+            <NewConversationDialog
+              humans={assignableUsers.myConversationUsers}
+              assistants={assignableAssistants.aiAssistants}
+              isOpen={conversations?.aiConversations?.length === 0}
+            />
           </div>
 
           {isMenuOpen && <div className="fixed inset-0 z-10 lg:hidden" onClick={closeMenu} />}
@@ -209,14 +191,7 @@ function RouteComponent() {
                 assistantCandidates={assignableAssistants.aiAssistants}
                 humanCandidates={assignableUsers.myConversationUsers}
               />
-              <button
-                type="button"
-                className="btn btn-circle btn-ghost btn-sm lg:tooltip"
-                onClick={handleDeleteConversation}
-                data-tip={t('tooltips.deleteConversation')}
-              >
-                <TrashIcon className="size-6" />
-              </button>
+              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
             </div>
             <ConversationHistory conversation={selectedConversation.aiConversation} />
             <ConversationForm conversation={selectedConversation.aiConversation} />

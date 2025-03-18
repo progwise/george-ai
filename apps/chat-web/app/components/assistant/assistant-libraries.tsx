@@ -1,32 +1,29 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
 
-const AssistantLibrariesDocument = graphql(/* GraphQL */ `
-  query assistantLibraries($assistantId: String!, $ownerId: String!) {
-    aiLibraryUsage(assistantId: $assistantId) {
-      id
-      libraryId
-    }
-    aiLibraries(ownerId: $ownerId) {
-      id
-      name
-    }
+const AssistantForLibrariesFragment = graphql(`
+  fragment AssistantForLibrariesFragment on AiAssistant {
+    id
   }
 `)
-
-const getAssistantLibraries = createServerFn({ method: 'GET' })
-  .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
-    assistantId: z.string().nonempty().parse(assistantId),
-    ownerId: z.string().nonempty().parse(ownerId),
-  }))
-  .handler(async (ctx) => await backendRequest(AssistantLibrariesDocument, ctx.data))
+const AssistantLibrariesFragment = graphql(`
+  fragment AssistantLibrariesFragment on AiLibrary {
+    id
+    name
+  }
+`)
+const AssistantLibrariesUsageFragment = graphql(`
+  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {
+    libraryId
+  }
+`)
 
 const UpdateLibraryUsageDocument = graphql(/* GraphQL */ `
   mutation updateLibraryUsage($assistantId: String!, $libraryId: String!, $use: Boolean!) {
@@ -45,32 +42,26 @@ const updateLibraryUsage = createServerFn({ method: 'POST' })
   }))
   .handler(async (ctx) => await backendRequest(UpdateLibraryUsageDocument, ctx.data))
 
-const assistantLibrariesQueryOptions = (assistantId: string, ownerId: string) => ({
-  queryKey: [queryKeys.AiAssistantLibraries, assistantId, ownerId],
-  queryFn: async () => {
-    return getAssistantLibraries({ data: { assistantId, ownerId } })
-  },
-  enabled: !!assistantId,
-})
-
 export interface AssistantLibrariesProps {
-  assistantId: string
-  ownerId: string
+  assistant: FragmentType<typeof AssistantForLibrariesFragment>
+  libraries: FragmentType<typeof AssistantLibrariesFragment>[] | undefined
+  usages: FragmentType<typeof AssistantLibrariesUsageFragment>[] | undefined
 }
 
-export const AssistantLibraries = ({ assistantId, ownerId }: AssistantLibrariesProps) => {
-  const { data, isLoading, refetch } = useSuspenseQuery(assistantLibrariesQueryOptions(assistantId, ownerId))
+export const AssistantLibraries = (props: AssistantLibrariesProps) => {
+  const queryClient = useQueryClient()
+  const assistant = useFragment(AssistantForLibrariesFragment, props.assistant)
+  const libraries = useFragment(AssistantLibrariesFragment, props.libraries)
+  const usages = useFragment(AssistantLibrariesUsageFragment, props.usages)
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string; use: boolean }) => updateLibraryUsage({ data }),
-    onSettled: () => refetch(),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, assistant.id] }),
   })
 
   return (
     <>
-      <LoadingSpinner
-        isLoading={isLoading || !data || !data.aiLibraries || !data.aiLibraryUsage || updateUsageIsPending}
-      />
+      <LoadingSpinner isLoading={updateUsageIsPending} />
       <table className="table">
         <thead>
           <tr>
@@ -80,7 +71,7 @@ export const AssistantLibraries = ({ assistantId, ownerId }: AssistantLibrariesP
           </tr>
         </thead>
         <tbody>
-          {data?.aiLibraries?.map((library, index) => (
+          {libraries?.map((library, index) => (
             <tr key={library.id}>
               <td>
                 <label>
@@ -89,13 +80,13 @@ export const AssistantLibraries = ({ assistantId, ownerId }: AssistantLibrariesP
                     className="checkbox"
                     onChange={async (event) => {
                       updateUsage({
-                        assistantId,
+                        assistantId: assistant.id,
                         libraryId: library.id,
                         use: event.target.checked,
                       })
                     }}
                     name="selectedFiles"
-                    checked={data.aiLibraryUsage?.some((usage) => usage.libraryId === library.id)}
+                    checked={usages?.some((usage) => usage.libraryId === library.id)}
                   />
                 </label>
               </td>

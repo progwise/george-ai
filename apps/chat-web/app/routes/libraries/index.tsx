@@ -3,8 +3,11 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
+import { dateStringShort, timeString } from '@george-ai/web-utils'
+
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -13,7 +16,6 @@ const librariesDocument = graphql(/* GraphQL */ `
     aiLibraries(ownerId: $ownerId) {
       id
       name
-      libraryType
       owner {
         id
         name
@@ -25,22 +27,17 @@ const librariesDocument = graphql(/* GraphQL */ `
 `)
 
 const getLibraries = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => {
-    return z.string().nonempty().parse(ownerId)
-  })
+  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
   .handler(async (ctx) => {
-    return await backendRequest(librariesDocument, { ownerId: ctx.data })
+    return backendRequest(librariesDocument, { ownerId: ctx.data })
   })
 
 const librariesQueryOptions = (ownerId?: string) =>
   queryOptions({
     queryKey: [queryKeys.AiLibraries, ownerId],
     queryFn: async () => {
-      if (!ownerId) {
-        return null
-      } else {
-        return getLibraries({ data: ownerId })
-      }
+      if (!ownerId) return null
+      return getLibraries({ data: ownerId })
     },
     enabled: !!ownerId,
   })
@@ -49,9 +46,7 @@ export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
-    return {
-      ownerId: currentUser?.id,
-    }
+    return { ownerId: currentUser?.id }
   },
   loader: async ({ context }) => {
     context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId))
@@ -62,6 +57,8 @@ function RouteComponent() {
   const auth = useAuth()
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
   const isLoggedIn = !!auth?.user
+
+  const { language } = useTranslation()
 
   return (
     <article className="flex w-full flex-col gap-4">
@@ -83,40 +80,58 @@ function RouteComponent() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-4">
-        <table className="table">
-          <thead>
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead className="hidden md:table-header-group">
             <tr>
-              <th></th>
+              <th>#</th>
               <th>Name</th>
-              <th>Type</th>
               <th>Owner</th>
               <th>Last update</th>
-              <td></td>
             </tr>
           </thead>
           <tbody>
-            {data?.aiLibraries?.map((library, index) => (
-              <tr key={library.id} className="hover:bg-gray-100">
-                <td>{index + 1}</td>
-                <td>{library.name}</td>
-                <td>{library.libraryType}</td>
-                <td>{library.owner?.name}</td>
-                <td>{library.updatedAt || library.createdAt}</td>
-                <td>
-                  <Link
-                    className="btn btn-outline btn-xs"
-                    to={'/libraries/$libraryId'}
-                    params={{ libraryId: library.id }}
+            {data?.aiLibraries?.map((library, index) => {
+              const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
+              const timePart = timeString(library.updatedAt ?? library.createdAt, language)
+
+              return (
+                <tr
+                  key={library.id}
+                  className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
+                >
+                  <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
+                    {index + 1}
+                  </td>
+                  <td data-label="Name" className="block py-1 md:table-cell md:py-2">
+                    <Link
+                      to={'/libraries/$libraryId'}
+                      params={{ libraryId: library.id }}
+                      className="font-bold hover:underline"
+                    >
+                      {library.name}
+                    </Link>
+                  </td>
+                  <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
+                    {library.owner?.name}
+                  </td>
+                  <td
+                    data-label="Last update"
+                    className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
                   >
-                    Details
-                  </Link>
-                </td>
-              </tr>
-            ))}
+                    <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
+                      <span>{datePart}</span>
+                      <span>{timePart}</span>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
     </article>
   )
 }
+
+export default RouteComponent

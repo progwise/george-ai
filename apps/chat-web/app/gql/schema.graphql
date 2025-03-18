@@ -4,31 +4,36 @@ schema {
 }
 
 type AiAssistant {
-  assistantType: AiAssistantType!
+  baseCases: [AiAssistantBaseCase!]!
   createdAt: DateTime!
   description: String
   icon: String
   id: ID!
+  languageModel: AiLanguageModel
+  languageModelId: String
+  llmTemperature: Float
   name: String!
   ownerId: ID!
   updatedAt: DateTime
   url: String
 }
 
-input AiAssistantInput {
-  assistantType: AiAssistantType!
+type AiAssistantBaseCase {
+  assistant: AiAssistant
+  createdAt: DateTime!
   description: String
-  icon: String
-  name: String!
-  url: String
+  id: ID
+  sequence: Float
+  updatedAt: DateTime
 }
 
-"""
-Type of the AiAssistant
-"""
-enum AiAssistantType {
-  CHATBOT
-  DOCUMENT_GENERATOR
+input AiAssistantInput {
+  description: String
+  icon: String
+  languageModelId: String
+  llmTemperature: Float
+  name: String!
+  url: String
 }
 
 type AiConversation {
@@ -80,12 +85,18 @@ interface AiConversationParticipant {
   userId: ID
 }
 
+type AiLanguageModel {
+  description: String
+  id: ID!
+  name: String!
+  provider: String
+}
+
 type AiLibrary {
   createdAt: DateTime!
   description: String
   files: [AiLibraryFile!]
   id: ID!
-  libraryType: AiLibraryType!
   name: String!
   owner: User
   ownerId: String!
@@ -118,17 +129,8 @@ input AiLibraryFileInput {
 input AiLibraryInput {
   description: String
   icon: String
-  libraryType: AiLibraryType!
   name: String!
   url: String
-}
-
-"""
-Type of the AiLibrary
-"""
-enum AiLibraryType {
-  GOOGLE_DRIVE
-  POCKETBASE
 }
 
 type AiLibraryUsage {
@@ -209,7 +211,7 @@ type Mutation {
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmUserProfile(profileId: String!): UserProfile
-  createAiAssistant(data: AiAssistantInput!, ownerId: String!): AiAssistant
+  createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createUser(data: UserInput!, username: String!): User
@@ -242,6 +244,7 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
   aiConversations(userId: String!): [AiConversation!]!
+  aiLanguageModels: [AiLanguageModel!]!
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
