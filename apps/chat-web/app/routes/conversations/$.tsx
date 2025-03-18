@@ -150,10 +150,10 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex gap-4 lg:flex-row">
+    <div className="flex flex-col gap-4 lg:flex-row">
       {userId && (
         <div className="relative flex flex-col gap-2">
-          <div className="flex justify-between">
+          <div className="flex items-center justify-between">
             <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
               <MenuIcon className="size-6" />
             </button>
