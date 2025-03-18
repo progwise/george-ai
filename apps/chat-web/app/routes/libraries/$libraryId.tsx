@@ -25,13 +25,7 @@ const aiLibraryEditQueryDocument = graphql(`
       createdAt
       ownerId
       url
-      files {
-        id
-        createdAt
-        libraryId
-        mimeType
-        name
-      }
+      filesCount
     }
     aiLibraries(ownerId: $ownerId) {
       id
@@ -82,7 +76,7 @@ const changeLibrary = createServerFn({ method: 'POST' })
   })
 
 const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
-  queryKey: [queryKeys.AiLibraries, libraryId, ownerId],
+  queryKey: [queryKeys.AiLibraries, ownerId, libraryId],
   queryFn: async () => {
     if (!ownerId || !libraryId) {
       return null

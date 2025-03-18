@@ -96,6 +96,7 @@ type AiLibrary {
   createdAt: DateTime!
   description: String
   files: [AiLibraryFile!]
+  filesCount: Int
   id: ID!
   name: String!
   owner: User

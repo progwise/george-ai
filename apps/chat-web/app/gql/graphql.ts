@@ -122,6 +122,7 @@ export type AiLibrary = {
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   files?: Maybe<Array<AiLibraryFile>>
+  filesCount?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
   owner?: Maybe<User>
@@ -1178,14 +1179,7 @@ export type AiLibraryEditQuery = {
     createdAt: string
     ownerId: string
     url?: string | null
-    files?: Array<{
-      __typename?: 'AiLibraryFile'
-      id: string
-      createdAt: string
-      libraryId: string
-      mimeType: string
-      name: string
-    }> | null
+    filesCount?: number | null
   } | null
   aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
@@ -3779,20 +3773,7 @@ export const AiLibraryEditDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'files' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                    ],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
               ],
             },
           },

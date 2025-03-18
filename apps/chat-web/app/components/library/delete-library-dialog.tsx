@@ -52,12 +52,13 @@ export const DeleteLibraryDialog = ({ library }: libraryDeleteAssistantDialogPro
   const handleDeleteConfirm = async () => {
     await deleteFiles({ data: library.id })
     await deleteLibrary({ data: library.id })
-    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries] })
+    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries, library.ownerId] })
     navigate({ to: '..' })
     dialogReference.current?.close()
   }
 
-  const fileCount = library.files?.length ?? 0
+  const fileCount = library.filesCount ?? 0
+
   return (
     <>
       <button type="button" className="btn btn-error btn-sm" onClick={() => dialogReference.current?.showModal()}>

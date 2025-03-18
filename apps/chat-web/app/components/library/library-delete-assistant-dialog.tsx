@@ -32,7 +32,7 @@ export const LibraryDeleteAssistantDialog = ({ library }: libraryDeleteAssistant
 
   const handleDeleteConfirm = async () => {
     await deleteLibrary({ data: library.id })
-    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries] })
+    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries, library.ownerId] })
     deleteDialogRef.current?.close()
   }
 

@@ -20,6 +20,14 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     files: t.relation('files'),
+    filesCount: t.int({
+      resolve: async (parent) => {
+        const count = await prisma.aiLibraryFile.count({
+          where: { libraryId: parent.id },
+        })
+        return count
+      },
+    }),
   }),
 })
 
