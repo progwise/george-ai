@@ -129,9 +129,10 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={saveIsPending} />
-      <div className="flex items-center justify-between">
-        <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
-        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
+      <div className="flex justify-between">
+        <div className="w-64">
+          <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
+        </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
             {t('actions.gotoOverview')}
