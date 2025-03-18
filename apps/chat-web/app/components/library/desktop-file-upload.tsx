@@ -11,7 +11,7 @@ import { LibraryFile, LibraryFileSchema } from './files-table'
 
 export interface DesktopFilesProps {
   libraryId: string
-  onUploadComplete?: (uploadedFileIds: string[]) => void
+  onUploadComplete?: (uploadedFileIds: string[]) => Promise<void>
   disabled?: boolean
 }
 
