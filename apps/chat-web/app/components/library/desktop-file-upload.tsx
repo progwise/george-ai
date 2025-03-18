@@ -11,7 +11,7 @@ import { LibraryFile, LibraryFileSchema } from './files-table'
 
 export interface DesktopFilesProps {
   libraryId: string
-  onUploadComplete?: () => void
+  onUploadComplete?: (uploadedFileIds: string[]) => void
   disabled?: boolean
 }
 
@@ -72,17 +72,23 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
         console.error('Error preparing files:', error)
         return
       }
+      if (!data) {
+        console.error('No data returned from prepareFilesMutation')
+        return
+      }
       const files = Array.from(selectedFiles!)
-      data?.forEach(async (file) => {
+      const uploadedFileIds: string[] = []
+      for (const file of data) {
         const blob = files.find((f) => f.name === file.fileName)
         await fetch(file.uploadUrl, {
           method: file.method,
           headers: file.headers,
           body: blob,
         })
-      })
+        uploadedFileIds.push(file.fileId)
+      }
       if (onUploadComplete) {
-        onUploadComplete()
+        await onUploadComplete(uploadedFileIds)
       }
     },
   })

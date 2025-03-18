@@ -255,6 +255,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     dropFileMutation.isPending ||
     reProcessFileMutation.isPending
 
+  const handleUploadComplete = async (uploadedFileIds: string[]) => {
+    const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
+    await Promise.all(uploadedFiles)
+    await refetch()
+  }
+
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
@@ -269,7 +275,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Clear
           </button>
-          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} disabled={remainingStorage < 1} />
+          <DesktopFileUpload
+            libraryId={libraryId}
+            onUploadComplete={(uploadedFileIds) => handleUploadComplete(uploadedFileIds)}
+            disabled={remainingStorage < 1}
+          />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
             Google Drive
           </button>
