@@ -129,6 +129,7 @@ builder.queryField('aiLibraryFiles', (t) =>
     resolve: (_query, _source, { libraryId }) => {
       return prisma.aiLibraryFile.findMany({
         where: { libraryId },
+        orderBy: { name: 'asc' },
       })
     },
   }),
