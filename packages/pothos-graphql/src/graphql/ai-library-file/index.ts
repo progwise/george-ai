@@ -19,8 +19,12 @@ async function dropFileById(fileId: string) {
   let dropError: string | null = null
 
   try {
-    await Promise.all([
-      dropFileFromVectorstore(file.libraryId, file.id),
+    await dropFileFromVectorstore(file.libraryId, file.id)
+
+    const [deletedFile] = await Promise.all([
+      prisma.aiLibraryFile.delete({
+        where: { id: file.id },
+      }),
       new Promise((resolve, reject) => {
         fs.rm(getFilePath(file.id), (err) => {
           if (err) {
@@ -32,9 +36,6 @@ async function dropFileById(fileId: string) {
       }),
     ])
 
-    const deletedFile = await prisma.aiLibraryFile.delete({
-      where: { id: file.id },
-    })
     return deletedFile
   } catch (error) {
     dropError = error instanceof Error ? error.message : String(error)
