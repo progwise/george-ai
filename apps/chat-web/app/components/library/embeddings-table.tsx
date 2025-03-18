@@ -8,6 +8,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { CrossIcon } from '../../icons/cross-icon'
 import { DropIcon } from '../../icons/drop-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
@@ -314,7 +315,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               className="btn btn-ghost btn-sm absolute right-2 top-2"
               onClick={() => dialogRef.current?.close()}
             >
-              x
+              <CrossIcon />
             </button>
             <h3 className="text-lg font-bold">Add Google Drive Files</h3>
             <div className="flex-grow overflow-auto py-4">
