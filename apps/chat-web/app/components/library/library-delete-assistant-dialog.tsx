@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import React, { useRef } from 'react'
 import { z } from 'zod'
+
 import { graphql } from '../../gql'
 import { AiLibrary } from '../../gql/graphql'
 import { queryKeys } from '../../query-keys'
@@ -25,9 +26,7 @@ interface libraryDeleteAssistantDialogProps {
   library: AiLibrary
 }
 
-export const LibraryDeleteAssistantDialog = ({
-  library,
-}: libraryDeleteAssistantDialogProps): React.ReactElement => {
+export const LibraryDeleteAssistantDialog = ({ library }: libraryDeleteAssistantDialogProps): React.ReactElement => {
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
 
@@ -38,22 +37,16 @@ export const LibraryDeleteAssistantDialog = ({
   }
 
   const fileCount = library.files?.length
+
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-error btn-sm"
-        onClick={() => deleteDialogRef.current?.showModal()}
-      >
+      <button type="button" className="btn btn-error btn-sm" onClick={() => deleteDialogRef.current?.showModal()}>
         Delete
       </button>
       <dialog ref={deleteDialogRef} className="modal">
         <div className="modal-box">
           <form method="dialog">
-            <button
-              type="submit"
-              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            >
+            <button type="submit" className="btn btn-circle btn-ghost btn-sm absolute right-2 top-2">
               ✕
             </button>
           </form>
@@ -63,11 +56,7 @@ export const LibraryDeleteAssistantDialog = ({
           </p>
           <div className="modal-action">
             <form method="dialog">
-              <button
-                type="submit"
-                className="btn btn-error"
-                onClick={handleDeleteConfirm}
-              >
+              <button type="submit" className="btn btn-error" onClick={handleDeleteConfirm}>
                 Delete Assistant
               </button>
             </form>
