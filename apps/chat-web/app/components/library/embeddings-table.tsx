@@ -265,8 +265,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <nav className="flex items-center justify-between gap-4">
-        <div className="flex w-full gap-4">
+      <nav className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex w-full flex-wrap gap-4">
           <button
             type="button"
             className="btn btn-xs lg:tooltip"
@@ -334,69 +334,72 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={selectedFiles.length === data?.aiLibraryFiles?.length}
-                onChange={handleSelectAll}
-                className="flex justify-center"
-              />
-            </th>
-            <th></th>
-            <th>Name</th>
-            <th>#Size</th>
-            <th>#Chunks</th>
-            <th>Processed</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-            <tr key={file.id}>
-              <td>
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th>
                 <input
                   type="checkbox"
-                  checked={selectedFiles.includes(file.id)}
-                  onChange={() => handleSelectFile(file.id)}
+                  checked={selectedFiles.length === data?.aiLibraryFiles?.length}
+                  onChange={handleSelectAll}
+                  className="flex justify-center"
                 />
-              </td>
-              <td>{index + 1}</td>
-              <td>{file.name}</td>
-              <td>{file.size}</td>
-              <td>{file.chunks}</td>
-              <td>{dateTimeString(file.processedAt, language)}</td>
-              <td className="flex gap-2">
-                <button
-                  type="button"
-                  className="btn btn-xs lg:tooltip"
-                  onClick={() => dropFileMutation.mutate(file.id)}
-                  disabled={dropFileMutation.isPending}
-                  data-tip={t('tooltips.drop')}
-                >
-                  <DropIcon />
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-xs lg:tooltip"
-                  onClick={() => reProcessFileMutation.mutate(file.id)}
-                  disabled={reProcessFileMutation.isPending}
-                  data-tip={t('tooltips.reProcess')}
-                >
-                  <ReprocessIcon />
-                </button>
-                {file.processingErrorMessage ? (
-                  <span className="content-center lg:tooltip" data-tip={file.processingErrorMessage}>
-                    <ExclamationIcon />
-                  </span>
-                ) : undefined}
-              </td>
+              </th>
+              <th></th>
+              <th>Name</th>
+              <th>#Size</th>
+              <th>#Chunks</th>
+              <th>Processed</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
+              <tr key={file.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedFiles.includes(file.id)}
+                    onChange={() => handleSelectFile(file.id)}
+                  />
+                </td>
+                <td>{index + 1}</td>
+                <td>{file.name}</td>
+                <td>{file.size}</td>
+                <td>{file.chunks}</td>
+                <td>{dateTimeString(file.processedAt, language)}</td>
+                <td className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-xs lg:tooltip"
+                    onClick={() => dropFileMutation.mutate(file.id)}
+                    disabled={dropFileMutation.isPending}
+                    data-tip={t('tooltips.drop')}
+                  >
+                    <DropIcon />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-xs lg:tooltip"
+                    onClick={() => reProcessFileMutation.mutate(file.id)}
+                    disabled={reProcessFileMutation.isPending}
+                    data-tip={t('tooltips.reProcess')}
+                  >
+                    <ReprocessIcon />
+                  </button>
+
+                  {file.processingErrorMessage ? (
+                    <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
+                      <ExclamationIcon />
+                    </span>
+                  ) : undefined}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }

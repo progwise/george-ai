@@ -165,26 +165,15 @@ export const GoogleDriveFiles = ({
     },
     onError: (error) => {
       alert(`Error embedding files: ${error.message}`)
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraryFiles, libraryId],
-      })
     },
   })
 
   const handleEmbedFiles = async (files: LibraryFile[]) => {
-    try {
-      await embedFilesMutation({
-        libraryId,
-        files,
-        access_token: googleDriveAccessToken.access_token!,
-      })
-    } catch (error) {
-      alert(`Error embedding files: ${error.message}`)
-    } finally {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraryFiles, libraryId],
-      })
-    }
+    embedFilesMutation({
+      libraryId,
+      files,
+      access_token: googleDriveAccessToken.access_token!,
+    })
   }
 
   const handleSwitchAccount = () => {
