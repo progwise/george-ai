@@ -9,6 +9,7 @@ import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DropIcon } from '../../icons/drop-icon'
+import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
@@ -23,11 +24,8 @@ interface EmbeddingsTableProps {
 interface AiLibraryFile {
   id: string
   name: string
-  originUri?: string | null
-  mimeType: string
   size?: number | null
   chunks?: number | null
-  uploadedAt?: string | null
   processedAt?: string | null
   processingErrorMessage?: string | null
 }
@@ -378,6 +376,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 >
                   <ReprocessIcon />
                 </button>
+                {file.processingErrorMessage ? (
+                  <span className="content-center lg:tooltip" data-tip={file.processingErrorMessage}>
+                    <ExclamationIcon />
+                  </span>
+                ) : undefined}
               </td>
             </tr>
           ))}

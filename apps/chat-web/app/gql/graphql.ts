@@ -241,6 +241,7 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
+  reProcessFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeUserProfile?: Maybe<UserProfile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -325,6 +326,10 @@ export type MutationPrepareFileArgs = {
 }
 
 export type MutationProcessFileArgs = {
+  fileId: Scalars['String']['input']
+}
+
+export type MutationReProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
