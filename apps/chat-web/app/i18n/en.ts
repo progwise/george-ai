@@ -32,7 +32,7 @@ export default {
     signInForAssistants: 'Login to see your assistants',
   },
   auth: {
-    signInWithGoogle: 'Sign in with Google',
+    signInWithGoogle: 'Login with Google',
     switchGoogleAccount: 'Switch Google Account',
   },
   brand: 'George-Ai',

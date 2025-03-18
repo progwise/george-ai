@@ -38,8 +38,8 @@ export const DialogForm = ({
         <h3 className="text-lg font-bold">{title}</h3>
         {description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-2">{children}</div>
-          <div className="modal-action sticky bottom-0 bg-white">
+          <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
+          <div className="modal-action">
             <button type="button" className="btn btn-sm" onClick={handleClose}>
               {t('dialog.cancel')}
             </button>

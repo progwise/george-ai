@@ -24,6 +24,10 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       type: 'DateTime',
       nullable: true,
     }),
+    processingStartedAt: t.expose('processingStartedAt', { type: 'DateTime', nullable: true }),
+    processingEndedAt: t.expose('processingEndedAt', { type: 'DateTime', nullable: true }),
+    processingErrorAt: t.expose('processingErrorAt', { type: 'DateTime', nullable: true }),
+    processingErrorMessage: t.exposeString('processingErrorMessage', { nullable: true }),
     libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
@@ -75,22 +79,43 @@ builder.mutationField('processFile', (t) =>
         throw new Error(`File not found: ${fileId}`)
       }
 
-      const embeddedFile = await embedFile(file.libraryId, {
-        id: file.id,
-        name: file.name,
-        originUri: file.originUri!,
-        mimeType: file.mimeType,
-        path: getFilePath(file.id),
-      })
-
-      return await prisma.aiLibraryFile.update({
-        ...query,
+      await prisma.aiLibraryFile.update({
         where: { id: fileId },
         data: {
-          ...embeddedFile,
-          processedAt: new Date(),
+          processingStartedAt: new Date(),
         },
       })
+
+      try {
+        const embeddedFile = await embedFile(file.libraryId, {
+          id: file.id,
+          name: file.name,
+          originUri: file.originUri!,
+          mimeType: file.mimeType,
+          path: getFilePath(file.id),
+        })
+
+        return await prisma.aiLibraryFile.update({
+          ...query,
+          where: { id: fileId },
+          data: {
+            ...embeddedFile,
+            processedAt: new Date(),
+            processingEndedAt: new Date(),
+            processingErrorAt: null,
+            processingErrorMessage: null,
+          },
+        })
+      } catch (error) {
+        await prisma.aiLibraryFile.update({
+          where: { id: fileId },
+          data: {
+            processingErrorAt: new Date(),
+            processingErrorMessage: (error as Error).message,
+          },
+        })
+        throw error
+      }
     },
   }),
 )

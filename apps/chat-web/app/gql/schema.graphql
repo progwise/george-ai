@@ -112,6 +112,10 @@ type AiLibraryFile {
   name: String!
   originUri: String
   processedAt: DateTime
+  processingEndedAt: DateTime
+  processingErrorAt: DateTime
+  processingErrorMessage: String
+  processingStartedAt: DateTime
   size: Int
   updatedAt: DateTime
   uploadedAt: DateTime

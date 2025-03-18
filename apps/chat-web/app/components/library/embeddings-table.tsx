@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -12,13 +12,24 @@ import { DropIcon } from '../../icons/drop-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
-import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
+}
+
+interface AiLibraryFile {
+  id: string
+  name: string
+  originUri?: string | null
+  mimeType: string
+  size?: number | null
+  chunks?: number | null
+  uploadedAt?: string | null
+  processedAt?: string | null
+  processingErrorMessage?: string | null
 }
 
 const clearEmbeddings = createServerFn({ method: 'GET' })
@@ -61,6 +72,7 @@ const reProcessFile = createServerFn({ method: 'POST' })
             size
             uploadedAt
             processedAt
+            processingErrorMessage
           }
         }
       `),
@@ -99,6 +111,7 @@ const reProcessAllFiles = createServerFn({ method: 'POST' })
               size
               uploadedAt
               processedAt
+              processingErrorMessage
             }
           }
         `),
@@ -123,6 +136,7 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
             chunks
             uploadedAt
             processedAt
+            processingErrorMessage
           }
         }
       `),
@@ -134,9 +148,10 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
   queryKey: [queryKeys.AiLibraryFiles, libraryId],
   queryFn: async () => {
     if (!libraryId) {
-      return null
+      return { aiLibraryFiles: [] }
     } else {
-      return getLibraryFiles({ data: { libraryId } })
+      const result = await getLibraryFiles({ data: { libraryId } })
+      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
     }
   },
   enabled: !!libraryId,
@@ -147,16 +162,25 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
-  const { data, isLoading, refetch } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
+  const { data, isLoading, refetch } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
+    aiLibraryFilesQueryOptions(libraryId),
+  )
   const dialogRef = useRef<HTMLDialogElement>(null)
   const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
   const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.has('googleDriveAuth') && googleDriveAccessToken) {
+      dialogRef.current?.showModal()
+    }
+  }, [googleDriveAccessToken])
 
   const handleGoogleDriveClick = () => {
     if (googleDriveAccessToken) {
       dialogRef.current?.showModal()
     } else {
-      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}`
+      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}&googleDriveAuth=true`
     }
   }
 
@@ -275,19 +299,31 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         </div>
       </nav>
       {googleDriveAccessToken && (
-        <DialogForm
-          ref={dialogRef}
-          title="Add Google Drive Files"
-          submitButtonText={t('dialog.done')}
-          onSubmit={() => dialogRef.current?.close()}
-        >
-          <GoogleDriveFiles
-            libraryId={libraryId}
-            currentLocationHref={window.location.href}
-            noFreeUploads={remainingStorage < 100}
-            dialogRef={dialogRef}
-          />
-        </DialogForm>
+        <dialog ref={dialogRef} className="modal">
+          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm absolute right-2 top-2"
+              onClick={() => dialogRef.current?.close()}
+            >
+              x
+            </button>
+            <h3 className="text-lg font-bold">Add Google Drive Files</h3>
+            <div className="flex-grow overflow-auto py-4">
+              <GoogleDriveFiles
+                libraryId={libraryId}
+                currentLocationHref={window.location.href}
+                noFreeUploads={remainingStorage < 100}
+                dialogRef={dialogRef}
+              />
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop" onClick={() => dialogRef.current?.close()}>
+            <button type="button" onClick={() => dialogRef.current?.close()}>
+              Close
+            </button>
+          </form>
+        </dialog>
       )}
       <table className="table">
         <thead>
@@ -309,7 +345,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </tr>
         </thead>
         <tbody>
-          {data?.aiLibraryFiles?.map((file, index) => (
+          {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
             <tr key={file.id}>
               <td>
                 <input
