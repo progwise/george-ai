@@ -81,7 +81,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     const assistantIds = formData.getAll('assistants').map((id) => id.toString())
     const userIds = formData.getAll('users').map((id) => id.toString())
 
-    await mutate({ assistantIds, userIds })
+    mutate({ assistantIds, userIds })
 
     dialogReference.current?.close()
   }
