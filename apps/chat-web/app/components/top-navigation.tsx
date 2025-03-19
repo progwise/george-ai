@@ -64,7 +64,7 @@ const TopNavigation = () => {
               <li>
                 <Link to="/conversations/$" onClick={closeMenu}>
                   <ConversationIcon className="size-6" />
-                  {t('conversations')}
+                  {t('topNavigation.conversations')}
                 </Link>
               </li>
               <li>

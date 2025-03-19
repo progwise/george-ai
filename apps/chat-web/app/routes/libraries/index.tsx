@@ -100,30 +100,26 @@ function RouteComponent() {
                   key={library.id}
                   className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
                 >
-                  <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
-                    {index + 1}
-                  </td>
-                  <td data-label="Name" className="block py-1 md:table-cell md:py-2">
-                    <Link
-                      to={'/libraries/$libraryId'}
-                      params={{ libraryId: library.id }}
-                      className="font-bold hover:underline"
+                  <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }} className="contents">
+                    <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
+                      {index + 1}
+                    </td>
+                    <td data-label="Name" className="block py-1 md:table-cell md:py-2">
+                      <span className="font-bold hover:underline">{library.name}</span>
+                    </td>
+                    <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
+                      {library.owner?.name}
+                    </td>
+                    <td
+                      data-label="Last update"
+                      className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
                     >
-                      {library.name}
-                    </Link>
-                  </td>
-                  <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
-                    {library.owner?.name}
-                  </td>
-                  <td
-                    data-label="Last update"
-                    className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
-                  >
-                    <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
-                      <span>{datePart}</span>
-                      <span>{timePart}</span>
-                    </div>
-                  </td>
+                      <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
+                        <span>{datePart}</span>
+                        <span>{timePart}</span>
+                      </div>
+                    </td>
+                  </Link>
                 </tr>
               )
             })}

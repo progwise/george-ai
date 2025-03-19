@@ -139,6 +139,10 @@ export type AiLibraryFile = {
   name: Scalars['String']['output']
   originUri?: Maybe<Scalars['String']['output']>
   processedAt?: Maybe<Scalars['DateTime']['output']>
+  processingEndedAt?: Maybe<Scalars['DateTime']['output']>
+  processingErrorAt?: Maybe<Scalars['DateTime']['output']>
+  processingErrorMessage?: Maybe<Scalars['String']['output']>
+  processingStartedAt?: Maybe<Scalars['DateTime']['output']>
   size?: Maybe<Scalars['Int']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
@@ -237,6 +241,7 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
+  reProcessFile?: Maybe<AiLibraryFile>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeUserProfile?: Maybe<UserProfile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -321,6 +326,10 @@ export type MutationPrepareFileArgs = {
 }
 
 export type MutationProcessFileArgs = {
+  fileId: Scalars['String']['input']
+}
+
+export type MutationReProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
@@ -942,6 +951,7 @@ export type ReProcessFileMutation = {
     size?: number | null
     uploadedAt?: string | null
     processedAt?: string | null
+    processingErrorMessage?: string | null
   } | null
 }
 
@@ -961,6 +971,7 @@ export type EmbeddingsTableQuery = {
     chunks?: number | null
     uploadedAt?: string | null
     processedAt?: string | null
+    processingErrorMessage?: string | null
   }> | null
 }
 
@@ -2827,6 +2838,7 @@ export const ReProcessFileDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
               ],
             },
           },
@@ -2873,6 +2885,7 @@ export const EmbeddingsTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
               ],
             },
           },
