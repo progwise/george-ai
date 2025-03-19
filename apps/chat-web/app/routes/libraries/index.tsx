@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -60,18 +61,22 @@ function RouteComponent() {
 
   const { t, language } = useTranslation()
 
+  if (!isLoggedIn) {
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
+        {t('texts.signInForLibraries')}
+      </button>
+    )
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">
-          {!isLoggedIn ? (
-            <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
-              {t('texts.signInForLibraries')}
-            </button>
-          ) : (
-            'My Libraries'
-          )}
-        </h3>
+        <h3 className="text-base font-semibold">My Libraries</h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
         {isLoggedIn && (
           <Link type="button" className="btn btn-primary btn-sm" to="/libraries/new">
@@ -81,8 +86,10 @@ function RouteComponent() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="table w-full">
-          {isLoggedIn && data?.aiLibraries && data.aiLibraries.length > 0 && (
+        {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
+          <h3> No Libraries Found </h3>
+        ) : (
+          <table className="table w-full">
             <thead className="hidden md:table-header-group">
               <tr>
                 <th>#</th>
@@ -91,42 +98,43 @@ function RouteComponent() {
                 <th>Last update</th>
               </tr>
             </thead>
-          )}
-          <tbody>
-            {data?.aiLibraries?.map((library, index) => {
-              const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
-              const timePart = timeString(library.updatedAt ?? library.createdAt, language)
 
-              return (
-                <tr
-                  key={library.id}
-                  className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
-                >
-                  <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }} className="contents">
-                    <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
-                      {index + 1}
-                    </td>
-                    <td data-label="Name" className="block py-1 md:table-cell md:py-2">
-                      <span className="font-bold hover:underline">{library.name}</span>
-                    </td>
-                    <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
-                      {library.owner?.name}
-                    </td>
-                    <td
-                      data-label="Last update"
-                      className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
-                    >
-                      <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
-                        <span>{datePart}</span>
-                        <span>{timePart}</span>
-                      </div>
-                    </td>
-                  </Link>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+            <tbody>
+              {data?.aiLibraries?.map((library, index) => {
+                const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
+                const timePart = timeString(library.updatedAt ?? library.createdAt, language)
+
+                return (
+                  <tr
+                    key={library.id}
+                    className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
+                  >
+                    <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }} className="contents">
+                      <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
+                        {index + 1}
+                      </td>
+                      <td data-label="Name" className="block py-1 md:table-cell md:py-2">
+                        <span className="font-bold hover:underline">{library.name}</span>
+                      </td>
+                      <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
+                        {library.owner?.name}
+                      </td>
+                      <td
+                        data-label="Last update"
+                        className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
+                      >
+                        <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
+                          <span>{datePart}</span>
+                          <span>{timePart}</span>
+                        </div>
+                      </td>
+                    </Link>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </article>
   )
