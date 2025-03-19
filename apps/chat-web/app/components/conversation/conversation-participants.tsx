@@ -24,10 +24,12 @@ interface ConversationParticipantsProps {
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null)
+  const authContext = useAuth()
+  const user = authContext.user
+
   const queryClient = useQueryClient()
-  const auth = useAuth()
   const { t } = useTranslation()
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
 
@@ -53,7 +55,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
         queryKey: [queryKeys.Conversation, conversation.id],
       })
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, auth.user?.id],
+        queryKey: [queryKeys.Conversations, user?.id],
       })
       dialogRef.current?.close()
     },
@@ -68,7 +70,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateAdd({ assistantIds, userIds })
   }
 
-  if (auth.user == null || !auth.user?.id) {
+  if (user == null || !user?.id) {
     return <></>
   }
 
@@ -80,7 +82,6 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
         assistants={props.assistants}
         humans={props.humans}
         onSubmit={handleSubmit}
-        defaultChecked
         dialogRef={dialogRef}
       />
       {conversation.participants.map((participant) => (
@@ -92,7 +93,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             participant.userId && 'badge-primary',
           )}
         >
-          {participant.userId !== auth.user?.id && (
+          {participant.userId !== user?.id && (
             <button
               type="button"
               className="btn btn-circle btn-ghost btn-xs"

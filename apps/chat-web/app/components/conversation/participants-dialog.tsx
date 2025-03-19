@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { DialogForm } from '../dialog-form'
 
 export const ParticipantsDialog_ConversationFragment = graphql(`
   fragment ParticipantsDialog_conversation on AiConversation {
@@ -33,14 +34,9 @@ interface ParticipantsDialogProps {
   assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
   humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
   onSubmit: (data: { assistantIds: string[]; userIds: string[] }) => void
-  defaultChecked?: boolean
   isNewConversation?: boolean
   dialogRef?: React.RefObject<HTMLDialogElement | null>
-}
-
-interface SelectionState {
-  assistantIds: Record<string, boolean>
-  userIds: Record<string, boolean>
+  isOpen?: boolean
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -52,9 +48,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const assistants = useFragment(ParticipantsDialog_AssistantsFragment, props.assistants)
   const humans = useFragment(ParticipantsDialog_HumansFragment, props.humans)
 
-  const existingParticipantIds = useMemo(
-    () => conversation?.participants.map((participant) => participant.userId || participant.assistantId),
-    [conversation?.participants],
+  const existingParticipantIds = conversation?.participants.map(
+    (participant) => participant.userId || participant.assistantId,
   )
 
   const availableAssistants = useMemo(
@@ -62,7 +57,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       props.isNewConversation
         ? assistants || []
         : assistants?.filter((assistant) => !existingParticipantIds?.includes(assistant.id)) || [],
-    [assistants, existingParticipantIds, props.isNewConversation],
+    [props.isNewConversation, assistants, existingParticipantIds],
   )
 
   const availableHumans = useMemo(
@@ -70,29 +65,38 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       props.isNewConversation
         ? humans || []
         : humans?.filter((user) => !existingParticipantIds?.includes(user.id)) || [],
-    [humans, existingParticipantIds, props.isNewConversation],
+    [props.isNewConversation, humans, existingParticipantIds],
   )
 
-  const [selections, setSelections] = useState<SelectionState>({
+  const [selections, setSelections] = useState<{
+    assistantIds: Record<string, boolean>
+    userIds: Record<string, boolean>
+  }>({
     assistantIds: {},
     userIds: {},
   })
 
+  const initializeSelections = useCallback(() => {
+    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+    setSelections({
+      assistantIds: Object.fromEntries(availableAssistants.map((a) => [a.id, true])),
+      userIds: Object.fromEntries(availableHumans.map((h) => [h.id, true])),
+    })
+  }, [availableAssistants, availableHumans])
+
+  useEffect(() => {
+    if (props.isOpen) {
+      initializeSelections()
+      dialogRef.current?.showModal()
+    }
+  }, [props.isOpen, initializeSelections, dialogRef])
+
   useEffect(() => {
     const dialogElement = dialogRef.current
     if (dialogElement) {
-      const resetSelections = () => {
-        const defaultValue = props.isNewConversation || props.defaultChecked || true
-
-        setSelections({
-          assistantIds: Object.fromEntries(availableAssistants.map((a) => [a.id, defaultValue])),
-          userIds: Object.fromEntries(availableHumans.map((u) => [u.id, defaultValue])),
-        })
-      }
-
       const originalShowModal = dialogElement.showModal
       dialogElement.showModal = function () {
-        resetSelections()
+        initializeSelections()
         return originalShowModal.apply(this)
       }
 
@@ -102,7 +106,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         }
       }
     }
-  }, [dialogRef, availableAssistants, availableHumans, props.isNewConversation, props.defaultChecked])
+  }, [dialogRef, initializeSelections])
 
   const handleCheckboxChange = (id: string, checked: boolean, type: 'assistants' | 'users') => {
     const stateKey = type === 'assistants' ? 'assistantIds' : 'userIds'
@@ -112,27 +116,25 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     }))
   }
 
-  const getSelectedIds = (selectionMap: Record<string, boolean>) =>
-    Object.entries(selectionMap)
-      .filter(([, isSelected]) => isSelected)
-      .map(([id]) => id)
-
   const getSelectedCount = () =>
     Object.values(selections.assistantIds).filter(Boolean).length +
     Object.values(selections.userIds).filter(Boolean).length
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const noParticipantsSelected = getSelectedCount() === 0
 
-    const selectedAssistantIds = getSelectedIds(selections.assistantIds)
-    const selectedUserIds = getSelectedIds(selections.userIds)
+  const handleSubmit = () => {
+    const selectedAssistantIds = Object.entries(selections.assistantIds)
+      .filter(([, isSelected]) => isSelected)
+      .map(([id]) => id)
+
+    const selectedUserIds = Object.entries(selections.userIds)
+      .filter(([, isSelected]) => isSelected)
+      .map(([id]) => id)
 
     if (selectedAssistantIds.length === 0 && selectedUserIds.length === 0) return
 
     props.onSubmit({ assistantIds: selectedAssistantIds, userIds: selectedUserIds })
   }
-
-  const noParticipantsSelected = getSelectedCount() === 0
 
   const renderParticipantList = (
     items: Array<{ id: string; name?: string | null; username?: string | null }>,
@@ -161,42 +163,27 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const description = props.isNewConversation
     ? t('texts.newConversationConfirmation')
     : t('texts.addParticipantsConfirmation')
+  const submitButtonText = props.isNewConversation ? t('actions.create') : t('actions.add')
 
   return (
-    <dialog className="modal" ref={dialogRef}>
-      <div className="modal-box">
-        <h3 className="text-lg font-bold">{title}</h3>
-        <p className="py-4">{description}</p>
-        <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex gap-2">
-            <div className="w-1/2">
-              <h4 className="underline">{t('assistants')}</h4>
-              {renderParticipantList(availableAssistants, 'assistants')}
-            </div>
-            <div className="w-1/2">
-              <h4 className="underline">{t('users')}</h4>
-              {renderParticipantList(availableHumans, 'users')}
-            </div>
-          </div>
-          <div className="modal-action">
-            <button type="button" className="btn btn-sm" onClick={() => dialogRef.current?.close()}>
-              {t('actions.cancel')}
-            </button>
-
-            <div
-              className={noParticipantsSelected ? 'lg:tooltip lg:tooltip-left' : ''}
-              data-tip={t('tooltips.addNoParticipantsSelected')}
-            >
-              <button type="submit" className="btn btn-primary btn-sm" disabled={noParticipantsSelected}>
-                {props.isNewConversation ? t('actions.create') : t('actions.add')}
-              </button>
-            </div>
-          </div>
-        </form>
+    <DialogForm
+      ref={dialogRef}
+      title={title}
+      description={description}
+      onSubmit={handleSubmit}
+      disabledSubmit={noParticipantsSelected}
+      submitButtonText={submitButtonText}
+    >
+      <div className="flex w-full gap-2">
+        <div className="w-1/2">
+          <h4 className="underline">{t('conversations.assistants')}</h4>
+          {renderParticipantList(availableAssistants, 'assistants')}
+        </div>
+        <div className="w-1/2">
+          <h4 className="underline">{t('conversations.humans')}</h4>
+          {renderParticipantList(availableHumans, 'users')}
+        </div>
       </div>
-      <form method="dialog" className="modal-backdrop">
-        <button type="submit">close</button>
-      </form>
-    </dialog>
+    </DialogForm>
   )
 }

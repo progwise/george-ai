@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType } from '../../gql'
@@ -27,7 +27,7 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const dialogReference = useRef<HTMLDialogElement>(null)
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
@@ -46,8 +46,8 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
         throw new Error('User not set')
       }
 
-      if (dialogReference.current) {
-        dialogReference.current.close()
+      if (dialogRef.current) {
+        dialogRef.current.close()
       }
       queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, user.id] })
       if (result?.createAiConversation) {
@@ -60,12 +60,6 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
     mutate({ assistantIds, userIds })
   }
 
-  useEffect(() => {
-    if (props.isOpen) {
-      dialogReference.current?.showModal()
-    }
-  }, [props.isOpen])
-
   if (!user) {
     return (
       <button type="button" className="btn btn-outline" onClick={() => authContext?.login()}>
@@ -76,7 +70,7 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
 
   return (
     <>
-      <button type="button" className="btn btn-primary btn-sm" onClick={() => dialogReference.current?.showModal()}>
+      <button type="button" className="btn btn-primary btn-sm" onClick={() => dialogRef.current?.showModal()}>
         {t('actions.new')}
       </button>
       <LoadingSpinner isLoading={isPending} />
@@ -85,7 +79,8 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
         humans={props.humans}
         onSubmit={handleSubmit}
         isNewConversation
-        dialogRef={dialogReference}
+        dialogRef={dialogRef}
+        isOpen={props.isOpen}
       />
     </>
   )
