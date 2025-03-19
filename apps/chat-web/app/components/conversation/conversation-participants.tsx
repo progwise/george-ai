@@ -11,17 +11,16 @@ import { queryKeys } from '../../query-keys'
 import { addConversationParticipants, removeConversationParticipant } from '../../server-functions/participations'
 import { LoadingSpinner } from '../loading-spinner'
 import {
-  ParticipantSelectionData,
-  ParticipantsSelector,
-  ParticipantsSelector_AssistantsFragment,
-  ParticipantsSelector_ConversationFragment,
-  ParticipantsSelector_HumansFragment,
-} from './participants-selector'
+  ParticipantsDialog,
+  ParticipantsDialog_AssistantsFragment,
+  ParticipantsDialog_ConversationFragment,
+  ParticipantsDialog_HumansFragment,
+} from './participants-dialog'
 
 interface ConversationParticipantsProps {
-  conversation: FragmentType<typeof ParticipantsSelector_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsSelector_AssistantsFragment>[] | null
-  humans: FragmentType<typeof ParticipantsSelector_HumansFragment>[] | null
+  conversation: FragmentType<typeof ParticipantsDialog_ConversationFragment>
+  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
+  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
@@ -30,7 +29,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const auth = useAuth()
   const { t } = useTranslation()
 
-  const conversation = useFragment(ParticipantsSelector_ConversationFragment, props.conversation)
+  const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
@@ -65,7 +64,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateRemove({ participantId })
   }
 
-  const handleSubmit = ({ assistantIds, userIds }: ParticipantSelectionData) => {
+  const handleSubmit = ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
     mutateAdd({ assistantIds, userIds })
   }
 
@@ -76,7 +75,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   return (
     <div className="flex flex-wrap gap-2">
       <LoadingSpinner isLoading={removeParticipantIsPending || addParticipantIsPending} />
-      <ParticipantsSelector
+      <ParticipantsDialog
         conversation={props.conversation}
         assistants={props.assistants}
         humans={props.humans}

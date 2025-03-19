@@ -3,8 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 
-export const ParticipantsSelector_ConversationFragment = graphql(`
-  fragment ParticipantsSelector_conversation on AiConversation {
+export const ParticipantsDialog_ConversationFragment = graphql(`
+  fragment ParticipantsDialog_conversation on AiConversation {
     id
     participants {
       id
@@ -15,32 +15,27 @@ export const ParticipantsSelector_ConversationFragment = graphql(`
   }
 `)
 
-export const ParticipantsSelector_AssistantsFragment = graphql(`
-  fragment ParticipantsSelector_Assistants on AiAssistant {
+export const ParticipantsDialog_AssistantsFragment = graphql(`
+  fragment ParticipantsDialog_Assistants on AiAssistant {
     id
   }
 `)
 
-export const ParticipantsSelector_HumansFragment = graphql(`
-  fragment ParticipantsSelector_Humans on User {
+export const ParticipantsDialog_HumansFragment = graphql(`
+  fragment ParticipantsDialog_Humans on User {
     id
     username
   }
 `)
 
-interface ParticipantsSelectorProps {
-  conversation?: FragmentType<typeof ParticipantsSelector_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsSelector_AssistantsFragment>[] | null
-  humans: FragmentType<typeof ParticipantsSelector_HumansFragment>[] | null
+interface ParticipantsDialogProps {
+  conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
+  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
+  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
   onSubmit: (data: { assistantIds: string[]; userIds: string[] }) => void
   defaultChecked?: boolean
   isNewConversation?: boolean
   dialogRef?: React.RefObject<HTMLDialogElement | null>
-}
-
-export interface ParticipantSelectionData {
-  assistantIds: string[]
-  userIds: string[]
 }
 
 interface SelectionState {
@@ -48,14 +43,14 @@ interface SelectionState {
   userIds: Record<string, boolean>
 }
 
-export const ParticipantsSelector = (props: ParticipantsSelectorProps) => {
+export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const localDialogRef = useRef<HTMLDialogElement>(null)
   const dialogRef = props.dialogRef || localDialogRef
   const { t } = useTranslation()
 
-  const conversation = useFragment(ParticipantsSelector_ConversationFragment, props.conversation)
-  const assistants = useFragment(ParticipantsSelector_AssistantsFragment, props.assistants)
-  const humans = useFragment(ParticipantsSelector_HumansFragment, props.humans)
+  const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
+  const assistants = useFragment(ParticipantsDialog_AssistantsFragment, props.assistants)
+  const humans = useFragment(ParticipantsDialog_HumansFragment, props.humans)
 
   const existingParticipantIds = useMemo(
     () => conversation?.participants.map((participant) => participant.userId || participant.assistantId),

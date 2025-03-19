@@ -9,19 +9,18 @@ import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 import {
-  ParticipantSelectionData,
-  ParticipantsSelector,
-  ParticipantsSelector_AssistantsFragment,
-  ParticipantsSelector_HumansFragment,
-} from './participants-selector'
+  ParticipantsDialog,
+  ParticipantsDialog_AssistantsFragment,
+  ParticipantsDialog_HumansFragment,
+} from './participants-dialog'
 
-interface NewConversationDialogProps {
-  assistants: FragmentType<typeof ParticipantsSelector_AssistantsFragment>[] | null
-  humans: FragmentType<typeof ParticipantsSelector_HumansFragment>[] | null
+interface NewConversationSelectorProps {
+  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
+  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
   isOpen: boolean
 }
 
-export const NewConversationDialog = (props: NewConversationDialogProps) => {
+export const NewConversationSelector = (props: NewConversationSelectorProps) => {
   const authContext = useAuth()
   const user = authContext.user
 
@@ -57,7 +56,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     },
   })
 
-  const handleSubmit = ({ assistantIds, userIds }: ParticipantSelectionData) => {
+  const handleSubmit = ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
     mutate({ assistantIds, userIds })
   }
 
@@ -81,7 +80,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
         {t('actions.new')}
       </button>
       <LoadingSpinner isLoading={isPending} />
-      <ParticipantsSelector
+      <ParticipantsDialog
         assistants={props.assistants}
         humans={props.humans}
         onSubmit={handleSubmit}

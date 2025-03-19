@@ -10,7 +10,7 @@ import { ConversationHistory } from '../../components/conversation/conversation-
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
-import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
+import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -35,7 +35,7 @@ const ConversationQueryDocument = graphql(`
   query getConversation($conversationId: String!) {
     aiConversation(conversationId: $conversationId) {
       ...ConversationForm_conversation
-      ...ParticipantsSelector_conversation
+      ...ParticipantsDialog_conversation
       ...ConversationDelete_conversation
       ...ConversationHistory_conversation
     }
@@ -49,7 +49,7 @@ export const getConversation = createServerFn({ method: 'GET' })
 const AssignableUsersDocument = graphql(`
   query getAssignableUsers($userId: String!) {
     myConversationUsers(userId: $userId) {
-      ...ParticipantsSelector_Humans
+      ...ParticipantsDialog_Humans
     }
   }
 `)
@@ -61,7 +61,7 @@ export const getAssignableHumans = createServerFn({ method: 'GET' })
 const AssignableAssistantsDocument = graphql(`
   query getAssignableAssistants($ownerId: String!) {
     aiAssistants(ownerId: $ownerId) {
-      ...ParticipantsSelector_Assistants
+      ...ParticipantsDialog_Assistants
     }
   }
 `)
@@ -159,7 +159,7 @@ function RouteComponent() {
             <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
               <MenuIcon className="size-6" />
             </button>
-            <NewConversationDialog
+            <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
               isOpen={conversations?.aiConversations?.length === 0}
