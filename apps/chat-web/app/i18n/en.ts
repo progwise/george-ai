@@ -31,6 +31,10 @@ export default {
     },
     signInForAssistants: 'Login to see your assistants',
   },
+  auth: {
+    signInWithGoogle: 'Login with Google',
+    switchGoogleAccount: 'Switch Google Account',
+  },
   brand: 'George-Ai',
   conversations: {
     assistants: 'Assistants',
@@ -38,7 +42,8 @@ export default {
   },
   dialog: {
     cancel: 'Cancel',
-    ok: 'OK',
+    confirm: 'Confirm',
+    done: 'Done',
   },
   errors: {
     invalidEmail: 'Invalid email',
@@ -102,6 +107,7 @@ export default {
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
     dropFileFailure: 'Failed to drop files:',
+    addGoogleDriveFiles: 'Add Google Drive files',
   },
   tooltips: {
     clearEmbeddings: 'Clear embeddings',

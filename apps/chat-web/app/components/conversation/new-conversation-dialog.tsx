@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 
@@ -49,12 +50,14 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
         },
       })
     },
-    onSuccess: (result) => {
+    onSettled: (result) => {
       if (!user) {
         throw new Error('User not set')
       }
-      queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
-      navigate({ to: `/conversations/${result.createAiConversation?.id}` })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, user.id] })
+      if (result?.createAiConversation) {
+        navigate({ to: `/conversations/${result.createAiConversation.id}` })
+      }
     },
   })
 
