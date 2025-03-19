@@ -85,7 +85,7 @@ function RouteComponent() {
         </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
-            {t('actions.gotoOverview')}
+            {t('actions.goToOverview')}
           </Link>
         </div>
       </div>

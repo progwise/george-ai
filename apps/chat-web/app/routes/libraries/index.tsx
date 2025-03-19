@@ -58,7 +58,7 @@ function RouteComponent() {
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
   const isLoggedIn = !!auth?.user
 
-  const { language } = useTranslation()
+  const { t, language } = useTranslation()
 
   return (
     <article className="flex w-full flex-col gap-4">
@@ -66,7 +66,7 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           {!isLoggedIn ? (
             <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
-              Log in to see your Libraries
+              {t('texts.signInForLibraries')}
             </button>
           ) : (
             'My Libraries'
@@ -82,14 +82,16 @@ function RouteComponent() {
 
       <div className="overflow-x-auto">
         <table className="table w-full">
-          <thead className="hidden md:table-header-group">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Owner</th>
-              <th>Last update</th>
-            </tr>
-          </thead>
+          {isLoggedIn && data?.aiLibraries && data.aiLibraries.length > 0 && (
+            <thead className="hidden md:table-header-group">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Owner</th>
+                <th>Last update</th>
+              </tr>
+            </thead>
+          )}
           <tbody>
             {data?.aiLibraries?.map((library, index) => {
               const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
