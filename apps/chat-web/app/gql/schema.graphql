@@ -112,6 +112,10 @@ type AiLibraryFile {
   name: String!
   originUri: String
   processedAt: DateTime
+  processingEndedAt: DateTime
+  processingErrorAt: DateTime
+  processingErrorMessage: String
+  processingStartedAt: DateTime
   size: Int
   updatedAt: DateTime
   uploadedAt: DateTime
@@ -222,6 +226,7 @@ type Mutation {
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
+  reProcessFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeUserProfile(userId: String!): UserProfile
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean

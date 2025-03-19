@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 import {
@@ -21,17 +22,13 @@ interface NewConversationDialogProps {
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
-  const { user } = useAuth()
+  const authContext = useAuth()
+  const user = authContext.user
+
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const dialogReference = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    if (props.isOpen && dialogReference.current) {
-      dialogReference.current?.showModal()
-    }
-  }, [props.isOpen])
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
@@ -45,15 +42,18 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
         },
       })
     },
-    onSuccess: (result) => {
+    onSettled: (result) => {
       if (!user) {
         throw new Error('User not set')
       }
+
       if (dialogReference.current) {
         dialogReference.current.close()
       }
-      queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
-      navigate({ to: `/conversations/${result.createAiConversation?.id}` })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, user.id] })
+      if (result?.createAiConversation) {
+        navigate({ to: `/conversations/${result.createAiConversation.id}` })
+      }
     },
   })
 
@@ -61,8 +61,18 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     mutate({ assistantIds, userIds })
   }
 
+  useEffect(() => {
+    if (props.isOpen) {
+      dialogReference.current?.showModal()
+    }
+  }, [props.isOpen])
+
   if (!user) {
-    return <h3>{t('texts.loginToUseConversations')}</h3>
+    return (
+      <button type="button" className="btn btn-outline" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   return (

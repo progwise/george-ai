@@ -80,8 +80,8 @@ export const Route = createFileRoute('/conversations/$')({
 })
 
 function RouteComponent() {
-  const auth = useAuth()
-  const userId = auth.user?.id
+  const authContext = useAuth()
+  const userId = authContext.user?.id
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
@@ -128,7 +128,11 @@ function RouteComponent() {
   })
 
   if (!userId) {
-    return <h3>{t('texts.loginToUseConversations')}</h3>
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
@@ -148,10 +152,10 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex gap-4 lg:flex-row">
+    <div className="flex flex-col gap-4 lg:flex-row">
       {userId && (
         <div className="relative flex flex-col gap-2">
-          <div className="flex justify-between">
+          <div className="flex items-center justify-between">
             <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
               <MenuIcon className="size-6" />
             </button>

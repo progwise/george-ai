@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -8,107 +8,149 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { CrossIcon } from '../../icons/cross-icon'
 import { DropIcon } from '../../icons/drop-icon'
+import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
 }
 
-const ClearEmbeddingsDocument = graphql(/* GraphQL */ `
-  mutation clearEmbeddings($libraryId: String!) {
-    clearEmbeddedFiles(libraryId: $libraryId)
-  }
-`)
-
-const DropFileDocument = graphql(/* GraphQL */ `
-  mutation dropFile($id: String!) {
-    dropFile(fileId: $id) {
-      id
-    }
-  }
-`)
-
-const ReprocessFileDocument = graphql(/* GraphQL */ `
-  mutation reProcessFile($id: String!) {
-    processFile(fileId: $id) {
-      id
-      chunks
-      size
-      uploadedAt
-      processedAt
-    }
-  }
-`)
+interface AiLibraryFile {
+  id: string
+  name: string
+  size?: number | null
+  chunks?: number | null
+  processedAt?: string | null
+  processingErrorMessage?: string | null
+}
 
 const clearEmbeddings = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(ClearEmbeddingsDocument, {
-      libraryId: ctx.data,
-    })
+    return await backendRequest(
+      graphql(`
+        mutation clearEmbeddings($libraryId: String!) {
+          clearEmbeddedFiles(libraryId: $libraryId)
+        }
+      `),
+      { libraryId: ctx.data },
+    )
   })
 
 const dropFile = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(DropFileDocument, { id: ctx.data })
+    return await backendRequest(
+      graphql(`
+        mutation dropFile($id: String!) {
+          dropFile(fileId: $id) {
+            id
+          }
+        }
+      `),
+      { id: ctx.data },
+    )
   })
 
 const reProcessFile = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
-    return await backendRequest(ReprocessFileDocument, { id: ctx.data })
+    return await backendRequest(
+      graphql(`
+        mutation reProcessFile($id: String!) {
+          processFile(fileId: $id) {
+            id
+            chunks
+            size
+            uploadedAt
+            processedAt
+            processingErrorMessage
+          }
+        }
+      `),
+      { id: ctx.data },
+    )
   })
 
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const dropFilePromises = ctx.data.map((fileId) => backendRequest(DropFileDocument, { id: fileId }))
+    const dropFilePromises = ctx.data.map((fileId) =>
+      backendRequest(
+        graphql(`
+          mutation dropFile($id: String!) {
+            dropFile(fileId: $id) {
+              id
+            }
+          }
+        `),
+        { id: fileId },
+      ),
+    )
     return await Promise.all(dropFilePromises)
   })
 
 const reProcessAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const reProcessFilePromises = ctx.data.map((fileId) => backendRequest(ReprocessFileDocument, { id: fileId }))
+    const reProcessFilePromises = ctx.data.map((fileId) =>
+      backendRequest(
+        graphql(`
+          mutation reProcessFile($id: String!) {
+            processFile(fileId: $id) {
+              id
+              chunks
+              size
+              uploadedAt
+              processedAt
+              processingErrorMessage
+            }
+          }
+        `),
+        { id: fileId },
+      ),
+    )
     return await Promise.all(reProcessFilePromises)
   })
-
-const EmbeddingsTableDocument = graphql(`
-  query EmbeddingsTable($libraryId: String!) {
-    aiLibraryFiles(libraryId: $libraryId) {
-      id
-      name
-      originUri
-      mimeType
-      size
-      chunks
-      uploadedAt
-      processedAt
-    }
-  }
-`)
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
   .validator(({ libraryId }: { libraryId: string }) => z.string().nonempty().parse(libraryId))
   .handler(async (ctx) => {
-    return await backendRequest(EmbeddingsTableDocument, {
-      libraryId: ctx.data,
-    })
+    return await backendRequest(
+      graphql(`
+        query EmbeddingsTable($libraryId: String!) {
+          aiLibraryFiles(libraryId: $libraryId) {
+            id
+            name
+            originUri
+            mimeType
+            size
+            chunks
+            uploadedAt
+            processedAt
+            processingErrorMessage
+          }
+        }
+      `),
+      { libraryId: ctx.data },
+    )
   })
 
 const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
   queryKey: [queryKeys.AiLibraryFiles, libraryId],
   queryFn: async () => {
     if (!libraryId) {
-      return null
+      return { aiLibraryFiles: [] }
     } else {
-      return getLibraryFiles({ data: { libraryId } })
+      const result = await getLibraryFiles({ data: { libraryId } })
+      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
     }
   },
   enabled: !!libraryId,
@@ -119,7 +161,27 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
-  const { data, isLoading, refetch } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
+  const { data, isLoading, refetch } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
+    aiLibraryFilesQueryOptions(libraryId),
+  )
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
+  const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.has('googleDriveAuth') && googleDriveAccessToken) {
+      dialogRef.current?.showModal()
+    }
+  }, [googleDriveAccessToken])
+
+  const handleGoogleDriveClick = () => {
+    if (googleDriveAccessToken) {
+      dialogRef.current?.showModal()
+    } else {
+      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}&googleDriveAuth=true`
+    }
+  }
 
   const clearEmbeddingsMutation = useMutation({
     mutationFn: async (libraryId: string) => {
@@ -146,6 +208,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     onSettled: () => {
       refetch()
     },
+    onError: () => {
+      alert('An error occurred while reprocessing the file. Please try again later.')
+    },
   })
 
   const dropAllFilesMutation = useMutation({
@@ -165,6 +230,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     onSettled: () => {
       refetch()
       setSelectedFiles([])
+    },
+    onError: () => {
+      alert('An error occurred while reprocessing the files. Please try again later.')
     },
   })
 
@@ -188,11 +256,17 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     dropFileMutation.isPending ||
     reProcessFileMutation.isPending
 
+  const handleUploadComplete = async (uploadedFileIds: string[]) => {
+    const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
+    await Promise.all(uploadedFiles)
+    await refetch()
+  }
+
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <nav className="flex items-center justify-between gap-4">
-        <div className="flex w-full gap-4">
+      <nav className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex w-full flex-wrap gap-4">
           <button
             type="button"
             className="btn btn-xs lg:tooltip"
@@ -202,7 +276,14 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             Clear
           </button>
-          <DesktopFileUpload libraryId={libraryId} onUploadComplete={refetch} disabled={remainingStorage < 1} />
+          <DesktopFileUpload
+            libraryId={libraryId}
+            onUploadComplete={(uploadedFileIds) => handleUploadComplete(uploadedFileIds)}
+            disabled={remainingStorage < 1}
+          />
+          <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
+            Google Drive
+          </button>
           <button
             type="button"
             className="btn btn-xs"
@@ -226,64 +307,99 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </div>
         </div>
       </nav>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={selectedFiles.length === data?.aiLibraryFiles?.length}
-                onChange={handleSelectAll}
-                className="flex justify-center"
+      {googleDriveAccessToken && (
+        <dialog ref={dialogRef} className="modal">
+          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm absolute right-2 top-2"
+              onClick={() => dialogRef.current?.close()}
+            >
+              <CrossIcon />
+            </button>
+            <h3 className="text-lg font-bold">Add Google Drive Files</h3>
+            <div className="flex-grow overflow-auto py-4">
+              <GoogleDriveFiles
+                libraryId={libraryId}
+                currentLocationHref={window.location.href}
+                noFreeUploads={remainingStorage < 100}
+                dialogRef={dialogRef}
               />
-            </th>
-            <th></th>
-            <th>Name</th>
-            <th>#Size</th>
-            <th>#Chunks</th>
-            <th>Processed</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.aiLibraryFiles?.map((file, index) => (
-            <tr key={file.id}>
-              <td>
+            </div>
+          </div>
+          <form method="dialog" className="modal-backdrop" onClick={() => dialogRef.current?.close()}>
+            <button type="button" onClick={() => dialogRef.current?.close()}>
+              Close
+            </button>
+          </form>
+        </dialog>
+      )}
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th>
                 <input
                   type="checkbox"
-                  checked={selectedFiles.includes(file.id)}
-                  onChange={() => handleSelectFile(file.id)}
+                  checked={selectedFiles.length === data?.aiLibraryFiles?.length}
+                  onChange={handleSelectAll}
+                  className="flex justify-center"
                 />
-              </td>
-              <td>{index + 1}</td>
-              <td>{file.name}</td>
-              <td>{file.size}</td>
-              <td>{file.chunks}</td>
-              <td>{dateTimeString(file.processedAt, language)}</td>
-              <td className="flex gap-2">
-                <button
-                  type="button"
-                  className="btn btn-xs lg:tooltip"
-                  onClick={() => dropFileMutation.mutate(file.id)}
-                  disabled={dropFileMutation.isPending}
-                  data-tip={t('tooltips.drop')}
-                >
-                  <DropIcon />
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-xs lg:tooltip"
-                  onClick={() => reProcessFileMutation.mutate(file.id)}
-                  disabled={reProcessFileMutation.isPending}
-                  data-tip={t('tooltips.reProcess')}
-                >
-                  <ReprocessIcon />
-                </button>
-              </td>
+              </th>
+              <th></th>
+              <th>Name</th>
+              <th>#Size</th>
+              <th>#Chunks</th>
+              <th>Processed</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
+              <tr key={file.id}>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedFiles.includes(file.id)}
+                    onChange={() => handleSelectFile(file.id)}
+                  />
+                </td>
+                <td>{index + 1}</td>
+                <td>{file.name}</td>
+                <td>{file.size}</td>
+                <td>{file.chunks}</td>
+                <td>{dateTimeString(file.processedAt, language)}</td>
+                <td className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-xs lg:tooltip"
+                    onClick={() => dropFileMutation.mutate(file.id)}
+                    disabled={dropFileMutation.isPending}
+                    data-tip={t('tooltips.drop')}
+                  >
+                    <DropIcon />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-xs lg:tooltip"
+                    onClick={() => reProcessFileMutation.mutate(file.id)}
+                    disabled={reProcessFileMutation.isPending}
+                    data-tip={t('tooltips.reProcess')}
+                  >
+                    <ReprocessIcon />
+                  </button>
+
+                  {file.processingErrorMessage ? (
+                    <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
+                      <ExclamationIcon />
+                    </span>
+                  ) : undefined}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }

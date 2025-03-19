@@ -5,7 +5,7 @@ export default {
     delete: 'Löschen',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
-    gotoOverview: 'Zur Übersicht',
+    goToOverview: 'Zur Übersicht',
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue',
     removeProfile: 'Benutzerprofil entfernen',
@@ -32,6 +32,10 @@ export default {
     },
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
   },
+  auth: {
+    signInWithGoogle: 'Mit Google anmelden',
+    switchGoogleAccount: 'Google-Konto wechseln',
+  },
   brand: 'George-Ai',
   conversations: {
     assistants: 'Assistenten',
@@ -39,7 +43,8 @@ export default {
   },
   dialog: {
     cancel: 'Abbrechen',
-    ok: 'OK',
+    confirm: 'Bestätigen',
+    done: 'Fertig',
   },
   errors: {
     invalidEmail: 'Ungültige E-Mail-Adresse',
@@ -95,13 +100,14 @@ export default {
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
-    loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     newConversation: 'Neue Konversation',
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
     noAssistant: 'Kein Assistent',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
+    signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
+    signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
     with: 'mit',
     addParticipants: 'Teilnehmer hinzufügen',
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
