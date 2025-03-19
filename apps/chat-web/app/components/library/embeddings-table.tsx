@@ -186,12 +186,23 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     }
   }
 
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.AiLibraryFiles, libraryId],
+    })
+
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.AiLibraries],
+    })
+  }
+
   const clearEmbeddingsMutation = useMutation({
     mutationFn: async (libraryId: string) => {
       await clearEmbeddings({ data: libraryId })
     },
     onSettled: () => {
       refetch()
+      invalidateQueries()
     },
   })
 
@@ -216,9 +227,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraryFiles, libraryId],
-      })
+      invalidateQueries()
     },
   })
 
@@ -228,6 +237,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     },
     onSettled: () => {
       refetch()
+      invalidateQueries()
     },
     onError: () => {
       alert('An error occurred while reprocessing the file. Please try again later.')
@@ -259,6 +269,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     onSettled: () => {
       refetch()
       setSelectedFiles([])
+      invalidateQueries()
     },
   })
 
@@ -269,6 +280,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     onSettled: () => {
       refetch()
       setSelectedFiles([])
+      invalidateQueries()
     },
     onError: () => {
       alert('An error occurred while reprocessing the files. Please try again later.')

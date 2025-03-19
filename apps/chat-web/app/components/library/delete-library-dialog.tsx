@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
@@ -49,12 +49,24 @@ export const DeleteLibraryDialog = ({ library }: libraryDeleteAssistantDialogPro
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  const handleDeleteConfirm = async () => {
-    await deleteFiles({ data: library.id })
-    await deleteLibrary({ data: library.id })
-    await queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraries, library.ownerId] })
-    navigate({ to: '..' })
-    dialogReference.current?.close()
+  const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
+    mutationFn: async () => {
+      await deleteFiles({ data: library.id })
+      await deleteLibrary({ data: library.id })
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiLibraries, library.ownerId],
+      })
+      navigate({ to: '..' })
+    },
+    onSettled: () => {
+      dialogReference.current?.close()
+    },
+  })
+
+  const handleDeleteConfirm = () => {
+    deleteLibraryWithFiles()
   }
 
   const fileCount = library.filesCount ?? 0
@@ -74,7 +86,7 @@ export const DeleteLibraryDialog = ({ library }: libraryDeleteAssistantDialogPro
                 {t('actions.cancel')}
               </button>
             </form>
-            <button type="submit" className="btn btn-error btn-sm" onClick={handleDeleteConfirm}>
+            <button type="submit" className="btn btn-error btn-sm" disabled={isPending} onClick={handleDeleteConfirm}>
               {t('actions.delete')}
             </button>
           </div>
