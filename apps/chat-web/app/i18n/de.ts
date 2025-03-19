@@ -5,7 +5,7 @@ export default {
     delete: 'Löschen',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
-    gotoOverview: 'Zur Übersicht',
+    goToOverview: 'Zur Übersicht',
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue',
     removeProfile: 'Benutzerprofil entfernen',
@@ -99,13 +99,14 @@ export default {
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
-    loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     newConversation: 'Neue Konversation',
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
     noAssistant: 'Kein Assistent',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
+    signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
+    signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
     with: 'mit',
   },
   tooltips: {
