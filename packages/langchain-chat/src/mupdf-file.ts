@@ -1,11 +1,10 @@
-//@ts-expect-error // This file is not used in the project
-import * as mupdf from 'mupdf'
+import * as mupdfjs from 'mupdf/mupdfjs'
 
 import { getFileExtension } from './common'
 
 export async function loadMuPDFFile(file: { name: string; id: string; mimeType: string; path: string }) {
   console.log('Using MuPDF to parse PDF:', file.path)
-  const pdf = await mupdf.openDocument(file.path)
+  const pdf = await mupdfjs.PDFDocument.openDocument(file.path)
   const pageCount = pdf.countPages()
   console.log(`MuPDF found ${pageCount} pages for ${file.name}`)
 
