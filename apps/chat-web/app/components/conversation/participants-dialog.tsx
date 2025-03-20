@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -43,6 +43,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const localDialogRef = useRef<HTMLDialogElement>(null)
   const dialogRef = props.dialogRef || localDialogRef
   const { t } = useTranslation()
+  const [hasChecked, setHasChecked] = useState(true)
 
   const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
   const assistants = useFragment(ParticipantsDialog_AssistantsFragment, props.assistants)
@@ -68,79 +69,36 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     [props.isNewConversation, humans, existingParticipantIds],
   )
 
-  const [selections, setSelections] = useState<{
-    assistantIds: Record<string, boolean>
-    userIds: Record<string, boolean>
-  }>({
-    assistantIds: {},
-    userIds: {},
-  })
-
-  const initializeSelections = useCallback(() => {
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-    setSelections({
-      assistantIds: Object.fromEntries(availableAssistants.map((a) => [a.id, true])),
-      userIds: Object.fromEntries(availableHumans.map((h) => [h.id, true])),
-    })
-  }, [availableAssistants, availableHumans])
-
   useEffect(() => {
     if (props.isOpen) {
-      initializeSelections()
       dialogRef.current?.showModal()
     }
-  }, [props.isOpen, initializeSelections, dialogRef])
+  }, [props.isOpen, dialogRef])
 
-  useEffect(() => {
-    const dialogElement = dialogRef.current
-    if (dialogElement) {
-      const originalShowModal = dialogElement.showModal
-      dialogElement.showModal = function () {
-        initializeSelections()
-        return originalShowModal.apply(this)
-      }
+  const handleSubmit = (formData: FormData) => {
+    const assistantIds = Array.from(formData.getAll('assistantIds'))
+    const userIds = Array.from(formData.getAll('userIds'))
 
-      return () => {
-        if (dialogElement) {
-          dialogElement.showModal = originalShowModal
-        }
-      }
-    }
-  }, [dialogRef, initializeSelections])
+    if (assistantIds.length === 0 && userIds.length === 0) return
 
-  const handleCheckboxChange = (id: string, checked: boolean, type: 'assistants' | 'users') => {
-    const stateKey = type === 'assistants' ? 'assistantIds' : 'userIds'
-    setSelections((prev) => ({
-      ...prev,
-      [stateKey]: { ...prev[stateKey], [id]: checked },
-    }))
+    props.onSubmit({
+      assistantIds: assistantIds as string[],
+      userIds: userIds as string[],
+    })
   }
 
-  const getSelectedCount = () =>
-    Object.values(selections.assistantIds).filter(Boolean).length +
-    Object.values(selections.userIds).filter(Boolean).length
+  const handleCheckboxChange = () => {
+    const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
 
-  const noParticipantsSelected = getSelectedCount() === 0
+    const hasAnyChecked = checkboxes ? Array.from(checkboxes).some((checkbox) => checkbox.checked) : false
 
-  const handleSubmit = () => {
-    const selectedAssistantIds = Object.entries(selections.assistantIds)
-      .filter(([, isSelected]) => isSelected)
-      .map(([id]) => id)
-
-    const selectedUserIds = Object.entries(selections.userIds)
-      .filter(([, isSelected]) => isSelected)
-      .map(([id]) => id)
-
-    if (selectedAssistantIds.length === 0 && selectedUserIds.length === 0) return
-
-    props.onSubmit({ assistantIds: selectedAssistantIds, userIds: selectedUserIds })
+    setHasChecked(hasAnyChecked)
   }
 
   const renderParticipantList = (
     items: Array<{ id: string; name?: string | null; username?: string | null }>,
     type: 'assistants' | 'users',
   ) => {
-    const selectionMap = type === 'assistants' ? selections.assistantIds : selections.userIds
     const emptyMessage = type === 'assistants' ? 'texts.noAssistantsAvailable' : 'texts.noUsersAvailable'
 
     if (items.length === 0) return <p>{t(emptyMessage)}</p>
@@ -149,10 +107,11 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       <label key={item.id} className="label cursor-pointer justify-start gap-2">
         <input
           type="checkbox"
+          name={type === 'assistants' ? 'assistantIds' : 'userIds'}
           value={item.id}
-          checked={!!selectionMap[item.id]}
           className="checkbox-info checkbox"
-          onChange={(e) => handleCheckboxChange(item.id, e.target.checked, type)}
+          defaultChecked={true}
+          onChange={handleCheckboxChange}
         />
         <span className="label-text">{type === 'assistants' ? item.name : item.name || item.username}</span>
       </label>
@@ -171,7 +130,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       title={title}
       description={description}
       onSubmit={handleSubmit}
-      disabledSubmit={noParticipantsSelected}
+      disabledSubmit={!hasChecked}
       submitButtonText={submitButtonText}
     >
       <div className="flex w-full gap-2">
