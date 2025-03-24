@@ -141,7 +141,7 @@ function RouteComponent() {
         <div className="flex gap-2">
           <DeleteLibraryDialog library={aiLibrary} />
           <Link type="button" className="btn btn-primary btn-sm" to="..">
-            {t('actions.gotoOverview')}
+            {t('actions.goToOverview')}
           </Link>
         </div>
       </div>
@@ -155,7 +155,7 @@ function RouteComponent() {
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
-        <div role="tabpanel" className="tab-content p-10">
+        <div role="tabpanel" className="tab-content overflow-x-auto p-10">
           <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
 

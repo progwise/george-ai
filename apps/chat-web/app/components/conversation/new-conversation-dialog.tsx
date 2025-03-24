@@ -31,7 +31,9 @@ interface NewConversationDialogProps {
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
-  const { user } = useAuth()
+  const authContext = useAuth()
+  const user = authContext.user
+
   const assistants = useFragment(ConversationNew_AssistantParticipationCandidatesFragment, props.assistants)
   const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
@@ -79,13 +81,17 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     const assistantIds = formData.getAll('assistants').map((id) => id.toString())
     const userIds = formData.getAll('users').map((id) => id.toString())
 
-    await mutate({ assistantIds, userIds })
+    mutate({ assistantIds, userIds })
 
     dialogReference.current?.close()
   }
 
   if (!user) {
-    return <h3>{t('texts.loginToUseConversations')}</h3>
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   return (

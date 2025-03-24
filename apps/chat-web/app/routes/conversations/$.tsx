@@ -82,8 +82,8 @@ export const Route = createFileRoute('/conversations/$')({
 })
 
 function RouteComponent() {
-  const auth = useAuth()
-  const userId = auth.user?.id
+  const authContext = useAuth()
+  const userId = authContext.user?.id
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
@@ -130,7 +130,11 @@ function RouteComponent() {
   })
 
   if (!userId) {
-    return <h3>{t('texts.loginToUseConversations')}</h3>
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
