@@ -35,6 +35,7 @@ model User {
   libraries                  AiLibrary[]
   conversationParticipations AiConversationParticipant[]
   profile                    UserProfile?
+  conversations              AiConversation[]
 }
 
 model UserProfile {
@@ -143,6 +144,8 @@ model AiConversation {
   updatedAt    DateTime                    @updatedAt
   messages     AiConversationMessage[]
   participants AiConversationParticipant[]
+  owner        User                        @relation(fields: [ownerId], references: [id])
+  ownerId      String
 }
 
 model AiConversationParticipant {

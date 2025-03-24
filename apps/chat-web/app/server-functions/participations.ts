@@ -13,22 +13,27 @@ const AddParticipantsDocument = graphql(`
 `)
 
 export const addConversationParticipants = createServerFn({ method: 'POST' })
-  .validator((data: { conversationId: string; userIds: string[]; assistantIds: string[] }) =>
+  .validator((data: { conversationId: string; userIds: string[]; assistantIds: string[]; ownerId: string }) =>
     z
       .object({
         conversationId: z.string(),
         userIds: z.array(z.string()),
         assistantIds: z.array(z.string()),
+        ownerId: z.string(),
       })
       .parse(data),
   )
-  .handler((ctx) =>
+  .handler((ctx) => {
+    if (!ctx.data.ownerId) {
+      throw new Error('ownerId is required')
+    }
     backendRequest(AddParticipantsDocument, {
+      ownerId: ctx.data.ownerId,
       conversationId: ctx.data.conversationId,
       userIds: ctx.data.userIds,
       assistantIds: ctx.data.assistantIds,
-    }),
-  )
+    })
+  })
 
 const RemoveParticipantDocument = graphql(`
   mutation removeParticipant($participantId: String!) {

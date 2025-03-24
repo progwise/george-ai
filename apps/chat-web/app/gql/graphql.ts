@@ -65,6 +65,8 @@ export type AiConversation = {
   humans: Array<User>
   id: Scalars['ID']['output']
   messages: Array<AiConversationMessage>
+  owner?: Maybe<User>
+  ownerId: Scalars['String']['output']
   participants: Array<AiConversationParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -281,6 +283,7 @@ export type MutationCreateAiAssistantArgs = {
 
 export type MutationCreateAiConversationArgs = {
   data: AiConversationCreateInput
+  ownerId: Scalars['String']['input']
 }
 
 export type MutationCreateAiLibraryArgs = {
@@ -856,6 +859,7 @@ export type UnhideMessageMutation = {
 export type ConversationParticipants_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
+  ownerId: string
   participants: Array<
     | {
         __typename?: 'AssistantParticipant'
@@ -897,6 +901,7 @@ export type ConversationSelector_ConversationsFragment = {
 export type ConversationDelete_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
+  ownerId: string
   createdAt: string
   assistants: Array<{ __typename?: 'AiAssistant'; name: string }>
 } & { ' $fragmentName'?: 'ConversationDelete_ConversationFragment' }
@@ -1344,6 +1349,7 @@ export type SendMessageMutation = {
 }
 
 export type CreateConversationMutationVariables = Exact<{
+  ownerId: Scalars['String']['input']
   data: AiConversationCreateInput
 }>
 
@@ -1690,6 +1696,7 @@ export const ConversationParticipants_ConversationFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'participants' },
@@ -1782,6 +1789,7 @@ export const ConversationDelete_ConversationFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
@@ -3415,6 +3423,7 @@ export const GetConversationDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'participants' },
@@ -3439,6 +3448,7 @@ export const GetConversationDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
@@ -4364,6 +4374,11 @@ export const CreateConversationDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
@@ -4378,6 +4393,11 @@ export const CreateConversationDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'createAiConversation' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },

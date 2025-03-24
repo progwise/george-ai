@@ -12,6 +12,7 @@ import { deleteConversation } from '../../server-functions/conversations'
 const ConversationDelete_ConversationFragment = graphql(`
   fragment ConversationDelete_conversation on AiConversation {
     id
+    ownerId
     createdAt
     assistants {
       name
@@ -31,6 +32,8 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
 
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
+  const isOwner = auth.user?.id === conversation.ownerId
+
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       deleteConversation({ data: { conversationId: conversation.id } })
@@ -48,6 +51,10 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
   const handleDeleteConversation = async () => {
     await mutate()
     dialogReference.current?.close()
+  }
+
+  if (!isOwner) {
+    return null
   }
 
   return (

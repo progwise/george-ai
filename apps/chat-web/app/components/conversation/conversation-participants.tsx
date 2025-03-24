@@ -13,6 +13,7 @@ import { LoadingSpinner } from '../loading-spinner'
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_conversation on AiConversation {
     id
+    ownerId
     participants {
       id
       name
@@ -58,8 +59,23 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     props.assistantCandidates,
   )
 
+  const existingAssistantIds = conversation.participants.filter((p) => p.assistantId).map((p) => p.assistantId)
+
+  const existingUserIds = conversation.participants.filter((p) => p.userId).map((p) => p.userId)
+
+  const filteredAssistantCandidates = assistantCandidates?.filter(
+    (assistant) => !existingAssistantIds.includes(assistant.id),
+  )
+
+  const filteredHumanCandidates = humanCandidates?.filter((human) => !existingUserIds.includes(human.id))
+
+  const isOwner = auth.user?.id === conversation.ownerId
+
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
+      if (!isOwner) {
+        throw new Error('Only the owner can remove participants')
+      }
       return await removeConversationParticipant({ data: { participantId } })
     },
     onSettled: async () => {
@@ -71,8 +87,14 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
 
   const { mutate: mutateAdd, isPending: addParticipantIsPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
+      if (!isOwner) {
+        throw new Error('Only the owner can add participants')
+      }
+      if (!auth.user?.id) {
+        throw new Error('User not set')
+      }
       return await addConversationParticipants({
-        data: { conversationId: conversation.id, assistantIds, userIds },
+        data: { conversationId: conversation.id, assistantIds, userIds, ownerId: auth.user.id },
       })
     },
     onSettled: async () => {
@@ -82,24 +104,33 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversations, auth.user?.id],
       })
+
       dialogRef.current?.close()
     },
   })
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
+    if (!isOwner) {
+      console.error('Only the conversation owner can remove participants')
+      return
+    }
     event.preventDefault()
     mutateRemove({ participantId })
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = event.currentTarget
-    const formData = new FormData(form)
+  const handleSubmit = () => {
+    if (!isOwner) {
+      console.error('Only the conversation owner can add participants')
+      return
+    }
+    const form = document.getElementById('participants-form') as HTMLFormElement
+    if (form) {
+      const formData = new FormData(form)
+      const assistantIds = formData.getAll('assistants').map((id) => id.toString())
+      const userIds = formData.getAll('users').map((id) => id.toString())
 
-    const assistantIds = formData.getAll('assistants').map((id) => id.toString())
-    const userIds = formData.getAll('users').map((id) => id.toString())
-
-    mutateAdd({ assistantIds, userIds })
+      mutateAdd({ assistantIds, userIds })
+    }
   }
 
   if (auth.user == null || !auth.user?.id) {
@@ -113,11 +144,11 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
         <div className="modal-box">
           <h3 className="text-lg font-bold">Add participants</h3>
           <p className="py-4">You can add participants to the current conversation.</p>
-          <form method="dialog" onSubmit={handleSubmit}>
-            <div className="flex flex-row gap-2">
+          <form id="participants-form">
+            <div className="flex flex-row justify-items-stretch gap-2">
               <div>
                 <h4 className="underline">Assistants</h4>
-                {assistantCandidates?.map((assistant) => (
+                {filteredAssistantCandidates?.map((assistant) => (
                   <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
                     <input
                       type="checkbox"
@@ -132,7 +163,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               </div>
               <div>
                 <h4 className="underline">Users</h4>
-                {humanCandidates?.map((user) => (
+                {filteredHumanCandidates?.map((user) => (
                   <label key={user.id} className="label cursor-pointer gap-2">
                     <input
                       type="checkbox"
@@ -146,16 +177,25 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
                 ))}
               </div>
             </div>
-            <div className="modal-action">
-              <button type="button" className="btn" onClick={() => dialogRef.current?.close()}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={addParticipantIsPending}>
-                Add
-              </button>
-            </div>
           </form>
+          <div className="modal-action">
+            <button type="button" className="btn btn-sm" onClick={() => dialogRef.current?.close()}>
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={addParticipantIsPending}
+              onClick={handleSubmit}
+            >
+              Add
+            </button>
+          </div>
         </div>
+        <form method="dialog" className="modal-backdrop">
+          <button type="submit">close</button>
+        </form>
       </dialog>
       {conversation.participants.map((participant) => (
         <div
@@ -166,7 +206,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             participant.userId && 'badge-primary',
           )}
         >
-          {participant.userId !== auth.user?.id && (
+          {participant.userId !== auth.user?.id && isOwner && (
             <button
               type="button"
               className="btn btn-circle btn-ghost btn-xs"
@@ -178,14 +218,16 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
           {participant.name}
         </div>
       ))}
-      <button
-        type="button"
-        className="btn btn-neutral btn-xs flex flex-row"
-        onClick={() => dialogRef.current?.showModal()}
-      >
-        <PlusIcon />
-        Add...
-      </button>
+      {isOwner && (
+        <button
+          type="button"
+          className="btn btn-neutral btn-xs flex flex-row"
+          onClick={() => dialogRef.current?.showModal()}
+        >
+          <PlusIcon />
+          Add...
+        </button>
+      )}
     </div>
   )
 }

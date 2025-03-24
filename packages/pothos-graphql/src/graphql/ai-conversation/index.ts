@@ -47,6 +47,8 @@ builder.prismaObject('AiConversation', {
         })
       },
     }),
+    owner: t.relation('owner'),
+    ownerId: t.exposeString('ownerId', { nullable: false }),
   }),
 })
 
@@ -96,9 +98,10 @@ builder.mutationField('createAiConversation', (t) =>
   t.prismaField({
     type: 'AiConversation',
     args: {
+      ownerId: t.arg.string({ required: true }),
       data: t.arg({ type: conversationCreateInput, required: true }),
     },
-    resolve: (_query, _source, { data }) =>
+    resolve: (_query, _source, { ownerId, data }) =>
       prisma.aiConversation.create({
         data: {
           participants: {
@@ -109,6 +112,7 @@ builder.mutationField('createAiConversation', (t) =>
               ...data.userIds.map((userId) => ({ userId })),
             ],
           },
+          ownerId,
         },
       }),
   }),

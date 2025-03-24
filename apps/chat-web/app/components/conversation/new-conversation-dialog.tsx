@@ -49,6 +49,7 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
         data: {
           userIds: [...userIds, user.id],
           assistantIds: [...assistantIds],
+          ownerId: user.id,
         },
       })
     },
@@ -105,38 +106,40 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
           <h3 className="text-lg font-bold">{t('texts.newConversation')}</h3>
           <p className="py-0">{t('texts.newConversationConfirmation')}</p>
           <p className="py-4">{t('texts.changeParticipantsAnytime')}</p>
-          <div className="flex flex-row justify-items-stretch gap-2">
-            <div>
-              <h4 className="underline">{t('conversations.assistants')}</h4>
-              {assistants?.map((assistant) => (
-                <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="assistants"
-                    value={assistant.id}
-                    defaultChecked
-                    className="checkbox-info checkbox"
-                  />
-                  <span className="label-text">{assistant.name}</span>
-                </label>
-              ))}
+          <form id="conversation-form">
+            <div className="flex flex-row justify-items-stretch gap-2">
+              <div>
+                <h4 className="underline">{t('conversations.assistants')}</h4>
+                {assistants?.map((assistant) => (
+                  <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      name="assistants"
+                      value={assistant.id}
+                      defaultChecked
+                      className="checkbox-info checkbox"
+                    />
+                    <span className="label-text">{assistant.name}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
+                <h4 className="underline">{t('conversations.humans')}</h4>
+                {humans?.map((user) => (
+                  <label key={user.id} className="label cursor-pointer gap-2">
+                    <input
+                      type="checkbox"
+                      name="users"
+                      value={user.id}
+                      defaultChecked
+                      className="checkbox-info checkbox"
+                    />
+                    <span className="label-text">{user.name}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-            <div>
-              <h4 className="underline">{t('conversations.humans')}</h4>
-              {humans?.map((user) => (
-                <label key={user.id} className="label cursor-pointer gap-2">
-                  <input
-                    type="checkbox"
-                    name="users"
-                    value={user.id}
-                    defaultChecked
-                    className="checkbox-info checkbox"
-                  />
-                  <span className="label-text">{user.name}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+          </form>
           <div className="modal-action">
             <form method="dialog">
               <button type="submit" className="btn btn-sm">
