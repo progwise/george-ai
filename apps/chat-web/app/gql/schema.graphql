@@ -95,6 +95,8 @@ type AiLanguageModel {
 type AiLibrary {
   createdAt: DateTime!
   description: String
+  files: [AiLibraryFile!]
+  filesCount: Int
   id: ID!
   name: String!
   owner: User
@@ -106,6 +108,7 @@ type AiLibrary {
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
+  dropError: String
   id: ID!
   libraryId: String!
   mimeType: String!
@@ -220,8 +223,10 @@ type Mutation {
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
+  deleteAiLibrary(id: String!): AiLibrary
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
+  dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
