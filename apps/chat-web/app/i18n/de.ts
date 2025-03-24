@@ -95,10 +95,14 @@ export default {
   },
   resetConversation: 'Konversation zurücksetzen',
   texts: {
+    addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     newConversation: 'Neue Konversation',
     newConversationConfirmation:
@@ -107,10 +111,6 @@ export default {
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     with: 'mit',
-    deleteLibrary: 'Bibliothek {libraryName} löschen',
-    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
-    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
-    addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
   },
   tooltips: {
     clearEmbeddings: 'Einbettungen löschen',

@@ -105,7 +105,6 @@ model AiLibrary {
   isPublic      Boolean          @default(true)
   usages        AiLibraryUsage[]
   files         AiLibraryFile[]
-  filesCount    Int              @default(0)
 }
 
 model AiLibraryUsage {

@@ -21,11 +21,11 @@ const aiLibraryEditQueryDocument = graphql(`
     aiLibrary(id: $id) {
       id
       name
-      description
       createdAt
-      ownerId
+      description
       url
-      filesCount
+      ownerId
+      ...DeleteLibraryDialog_Library
     }
     aiLibraries(ownerId: $ownerId) {
       id
@@ -136,7 +136,7 @@ function RouteComponent() {
       <LoadingSpinner isLoading={saveIsPending} />
       <div className="flex justify-between">
         <div className="w-64">
-          <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
+          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
         </div>
         <div className="flex gap-2">
           <DeleteLibraryDialog library={aiLibrary} />
@@ -150,7 +150,7 @@ function RouteComponent() {
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
         <div role="tabpanel" className="tab-content p-10">
           {auth.user?.id && (
-            <LibraryForm library={aiLibrary!} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
+            <LibraryForm library={aiLibrary} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
           )}
         </div>
 

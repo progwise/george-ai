@@ -161,9 +161,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
-  const [dropErrors, setDropErrors] = useState<{ id: string; name: string; error: string }[]>([])
+  const [showDropFileError, setShowDropFileError] = useState(true)
   const { t, language } = useTranslation()
-  const { data, isLoading, refetch } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
+  const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
     aiLibraryFilesQueryOptions(libraryId),
   )
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -201,30 +201,17 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       await clearEmbeddings({ data: libraryId })
     },
     onSettled: () => {
-      refetch()
       invalidateQueries()
     },
   })
 
-  const dropFileMutation = useMutation({
+  const {
+    mutate: dropFileMutation,
+    error: dropFileError,
+    isPending: dropFileIsPending,
+  } = useMutation({
     mutationFn: async (fileId: string) => {
       await dropFile({ data: fileId })
-    },
-    onSuccess: (_, fileId) => {
-      setDropErrors((prev) => prev.filter((error) => error.id !== fileId))
-    },
-    onError: (error, fileId) => {
-      const fileInfo = data?.aiLibraryFiles?.find((file) => file.id === fileId)
-      if (fileInfo) {
-        setDropErrors((prev) => [
-          ...prev,
-          {
-            id: fileId,
-            name: fileInfo.name,
-            error: error instanceof Error ? error.message : 'Unknown error',
-          },
-        ])
-      }
     },
     onSettled: () => {
       invalidateQueries()
@@ -236,7 +223,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       await reProcessFile({ data: fileId })
     },
     onSettled: () => {
-      refetch()
       invalidateQueries()
     },
     onError: () => {
@@ -248,26 +234,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     mutationFn: async (fileIds: string[]) => {
       await dropAllFiles({ data: fileIds })
     },
-    onSuccess: () => {
-      setDropErrors((prev) => prev.filter((error) => !selectedFiles.includes(error.id)))
-    },
-    onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      const fileInfos = data?.aiLibraryFiles?.filter((file) => selectedFiles.includes(file.id)) || []
-
-      fileInfos.forEach((fileInfo) => {
-        setDropErrors((prev) => [
-          ...prev,
-          {
-            id: fileInfo.id,
-            name: fileInfo.name,
-            error: errorMessage,
-          },
-        ])
-      })
-    },
     onSettled: () => {
-      refetch()
       setSelectedFiles([])
       invalidateQueries()
     },
@@ -278,7 +245,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       await reProcessAllFiles({ data: fileIds })
     },
     onSettled: () => {
-      refetch()
       setSelectedFiles([])
       invalidateQueries()
     },
@@ -304,31 +270,23 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     clearEmbeddingsMutation.isPending ||
     dropAllFilesMutation.isPending ||
     reProcessAllFilesMutation.isPending ||
-    dropFileMutation.isPending ||
+    dropFileIsPending ||
     reProcessFileMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
     await Promise.all(uploadedFiles)
-    await refetch()
   }
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      {dropErrors.length > 0 && (
-        <div className="alert alert-error mb-4" role="alert">
+      {dropFileError && showDropFileError && (
+        <div className="alert alert-error mb-4 cursor-pointer" role="alert" onClick={() => setShowDropFileError(false)}>
           <span>{t('texts.dropFileFailure')}</span>
           <ul className="list-disc pl-4">
-            {dropErrors.map((file) => (
-              <li key={file.id}>
-                {file.name}: {file.error}
-              </li>
-            ))}
+            <li>{dropFileError.message}</li>
           </ul>
-          <button type="submit" className="btn btn-ghost btn-xs ml-auto" onClick={() => setDropErrors([])}>
-            ✕
-          </button>
         </div>
       )}
       <nav className="flex flex-wrap items-center justify-between gap-4">
@@ -439,8 +397,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
-                    onClick={() => dropFileMutation.mutate(file.id)}
-                    disabled={dropFileMutation.isPending}
+                    onClick={() => dropFileMutation(file.id)}
+                    disabled={dropFileIsPending}
                     data-tip={t('tooltips.drop')}
                   >
                     <DropIcon />

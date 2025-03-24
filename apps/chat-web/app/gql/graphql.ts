@@ -945,6 +945,17 @@ export type DeleteAiLibraryMutation = {
   deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
 }
 
+export type DeleteLibraryDialog_LibraryFragment = {
+  __typename?: 'AiLibrary'
+  id: string
+  name: string
+  ownerId: string
+  filesCount?: number | null
+  createdAt: string
+  description?: string | null
+  url?: string | null
+} & { ' $fragmentName'?: 'DeleteLibraryDialog_LibraryFragment' }
+
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -1182,16 +1193,17 @@ export type AiLibraryEditQueryVariables = Exact<{
 
 export type AiLibraryEditQuery = {
   __typename?: 'Query'
-  aiLibrary?: {
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-    description?: string | null
-    createdAt: string
-    ownerId: string
-    url?: string | null
-    filesCount?: number | null
-  } | null
+  aiLibrary?:
+    | ({
+        __typename?: 'AiLibrary'
+        id: string
+        name: string
+        createdAt: string
+        description?: string | null
+        url?: string | null
+        ownerId: string
+      } & { ' $fragmentRefs'?: { DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment } })
+    | null
   aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
 
@@ -1864,6 +1876,28 @@ export const ConversationNew_AssistantParticipationCandidatesFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationNew_AssistantParticipationCandidatesFragment, unknown>
+export const DeleteLibraryDialog_LibraryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteLibraryDialog_LibraryFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3782,11 +3816,11 @@ export const AiLibraryEditDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
               ],
             },
           },
@@ -3808,6 +3842,23 @@ export const AiLibraryEditDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
         ],
       },
     },

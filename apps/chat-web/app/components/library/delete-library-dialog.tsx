@@ -4,8 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { AiLibrary } from '../../gql/graphql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
@@ -27,6 +26,18 @@ const deleteLibraryDocument = graphql(`
   }
 `)
 
+const DeleteLibraryDialog_LibraryFragment = graphql(`
+  fragment DeleteLibraryDialog_Library on AiLibrary {
+    id
+    name
+    ownerId
+    filesCount
+    createdAt
+    description
+    url
+  }
+`)
+
 const deleteFiles = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
@@ -39,28 +50,28 @@ const deleteLibrary = createServerFn({ method: 'GET' })
     return await backendRequest(deleteLibraryDocument, { id: ctx.data })
   })
 
-interface libraryDeleteAssistantDialogProps {
-  library: AiLibrary
+interface LibraryDeleteAssistantDialogProps {
+  library: FragmentType<typeof DeleteLibraryDialog_LibraryFragment>
 }
 
-export const DeleteLibraryDialog = ({ library }: libraryDeleteAssistantDialogProps) => {
+export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) => {
   const dialogReference = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const library = useFragment(DeleteLibraryDialog_LibraryFragment, props.library)
 
   const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
     mutationFn: async () => {
       await deleteFiles({ data: library.id })
       await deleteLibrary({ data: library.id })
     },
-    onSuccess: async () => {
+    onSettled: async () => {
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.AiLibraries, library.ownerId],
       })
       navigate({ to: '..' })
-    },
-    onSettled: () => {
+
       dialogReference.current?.close()
     },
   })
