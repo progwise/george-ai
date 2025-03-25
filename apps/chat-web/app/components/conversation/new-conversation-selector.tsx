@@ -3,20 +3,31 @@ import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
-import { FragmentType } from '../../gql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
-import {
-  ParticipantsDialog,
-  ParticipantsDialog_AssistantsFragment,
-  ParticipantsDialog_HumansFragment,
-} from './participants-dialog'
+import { ParticipantsDialog } from './participants-dialog'
+
+const NewConversationSelector_AssistantsFragment = graphql(`
+  fragment NewConversationSelector_Assistants on AiAssistant {
+    id
+    ...ParticipantsDialog_Assistants
+  }
+`)
+
+export const NewConversationSelector_HumansFragment = graphql(`
+  fragment NewConversationSelector_Humans on User {
+    id
+    username
+    ...ParticipantsDialog_Humans
+  }
+`)
 
 interface NewConversationSelectorProps {
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
-  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
+  assistants: FragmentType<typeof NewConversationSelector_AssistantsFragment>[]
+  humans: FragmentType<typeof NewConversationSelector_HumansFragment>[]
   isOpen: boolean
 }
 
@@ -28,6 +39,8 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
   const navigate = useNavigate()
   const { t } = useTranslation()
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const assistants = useFragment(NewConversationSelector_AssistantsFragment, props.assistants)
+  const humans = useFragment(NewConversationSelector_HumansFragment, props.humans)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
@@ -46,13 +59,12 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
         throw new Error('User not set')
       }
 
-      if (dialogRef.current) {
-        dialogRef.current.close()
-      }
       queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, user.id] })
       if (result?.createAiConversation) {
         navigate({ to: `/conversations/${result.createAiConversation.id}` })
       }
+
+      dialogRef.current?.close()
     },
   })
 
@@ -75,8 +87,8 @@ export const NewConversationSelector = (props: NewConversationSelectorProps) => 
       </button>
       <LoadingSpinner isLoading={isPending} />
       <ParticipantsDialog
-        assistants={props.assistants}
-        humans={props.humans}
+        assistants={assistants}
+        humans={humans}
         onSubmit={handleSubmit}
         isNewConversation
         dialogRef={dialogRef}

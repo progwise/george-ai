@@ -10,7 +10,7 @@ import { queryKeys } from '../../query-keys'
 import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
-  fragment ConversationDelete_conversation on AiConversation {
+  fragment ConversationDelete_Conversation on AiConversation {
     id
     createdAt
     assistants {

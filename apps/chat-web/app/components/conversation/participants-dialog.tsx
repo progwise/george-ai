@@ -4,25 +4,24 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
 
-export const ParticipantsDialog_ConversationFragment = graphql(`
-  fragment ParticipantsDialog_conversation on AiConversation {
+const ParticipantsDialog_ConversationFragment = graphql(`
+  fragment ParticipantsDialog_Conversation on AiConversation {
     id
     participants {
       id
-      name
       userId
       assistantId
     }
   }
 `)
 
-export const ParticipantsDialog_AssistantsFragment = graphql(`
+const ParticipantsDialog_AssistantsFragment = graphql(`
   fragment ParticipantsDialog_Assistants on AiAssistant {
     id
   }
 `)
 
-export const ParticipantsDialog_HumansFragment = graphql(`
+const ParticipantsDialog_HumansFragment = graphql(`
   fragment ParticipantsDialog_Humans on User {
     id
     username
@@ -31,8 +30,8 @@ export const ParticipantsDialog_HumansFragment = graphql(`
 
 interface ParticipantsDialogProps {
   conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
-  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
+  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[]
+  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[]
   onSubmit: (data: { assistantIds: string[]; userIds: string[] }) => void
   isNewConversation?: boolean
   dialogRef?: React.RefObject<HTMLDialogElement | null>
@@ -72,6 +71,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   useEffect(() => {
     if (props.isOpen) {
       dialogRef.current?.showModal()
+      const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
+      checkboxes?.forEach((checkbox) => {
+        checkbox.checked = true
+      })
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setHasChecked(true)
     }
   }, [props.isOpen, dialogRef])
 
@@ -132,6 +137,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       onSubmit={handleSubmit}
       disabledSubmit={!hasChecked}
       submitButtonText={submitButtonText}
+      submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
     >
       <div className="flex w-full gap-2">
         <div className="w-1/2">

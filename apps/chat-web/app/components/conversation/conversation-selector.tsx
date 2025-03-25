@@ -7,7 +7,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 
 const ConversationSelector_ConversationsFragment = graphql(`
-  fragment ConversationSelector_conversations on AiConversation {
+  fragment ConversationSelector_Conversations on AiConversation {
     id
     createdAt
     assistants {

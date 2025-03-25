@@ -1,5 +1,6 @@
 export default {
   actions: {
+    add: 'Add',
     cancel: 'Cancel',
     create: 'Create',
     delete: 'Delete',
@@ -13,7 +14,6 @@ export default {
     save: 'Save',
     saving: 'Saving...',
     sendConfirmationMail: 'Send confirmation mail',
-    add: 'Add',
   },
   assistants: {
     addNew: 'Create new assistant',
@@ -45,6 +45,7 @@ export default {
     cancel: 'Cancel',
     confirm: 'Confirm',
     done: 'Done',
+    tooltipText: 'Nothing is selected',
   },
   errors: {
     invalidEmail: 'Invalid email',
@@ -95,30 +96,30 @@ export default {
   },
   resetConversation: 'Reset conversation',
   texts: {
+    addParticipants: 'Add participants',
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     changeParticipantsAnytime: 'You can change these participants any time.',
     deleteConversation: 'Delete conversation',
     deleteConversationConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
     newConversation: 'New conversation',
     newConversationConfirmation: 'You are about to start a new conversation with the selected users and assistants.',
     noAssistant: 'No assistant',
+    noAssistantsAvailable: 'No assistants available',
+    noUsersAvailable: 'No users available',
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
     signInForConversations: 'Sign in to use conversations.',
     signInForLibraries: 'Sign in to see your libraries.',
     with: 'with',
-    addParticipants: 'Add participants',
-    addParticipantsConfirmation: 'You can add participants to the current conversation.',
-    noAssistantsAvailable: 'No assistants available',
-    noUsersAvailable: 'No users available',
   },
   tooltips: {
+    addNoParticipantsSelected: 'No assistant or user is selected',
     clearEmbeddings: 'Clear embeddings',
     deleteConversation: 'Delete conversation',
     drop: 'Drop',
     hide: 'Hide',
     reProcess: 'Re-Process',
     unhide: 'Unhide',
-    addNoParticipantsSelected: 'No assistant or user is selected',
   },
   topNavigation: {
     assistants: 'Assistants',

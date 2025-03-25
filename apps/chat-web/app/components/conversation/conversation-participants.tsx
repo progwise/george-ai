@@ -3,24 +3,47 @@ import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../../auth/auth-hook'
-import { FragmentType, useFragment } from '../../gql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { addConversationParticipants, removeConversationParticipant } from '../../server-functions/participations'
 import { LoadingSpinner } from '../loading-spinner'
-import {
-  ParticipantsDialog,
-  ParticipantsDialog_AssistantsFragment,
-  ParticipantsDialog_ConversationFragment,
-  ParticipantsDialog_HumansFragment,
-} from './participants-dialog'
+import { ParticipantsDialog } from './participants-dialog'
+
+const ConversationParticipants_ConversationFragment = graphql(`
+  fragment ConversationParticipants_Conversation on AiConversation {
+    id
+    participants {
+      id
+      name
+      userId
+      assistantId
+    }
+    ...ParticipantsDialog_Conversation
+  }
+`)
+
+const ConversationParticipants_AssistantsFragment = graphql(`
+  fragment ConversationParticipants_Assistants on AiAssistant {
+    id
+    ...ParticipantsDialog_Assistants
+  }
+`)
+
+export const ConversationParticipants_HumansFragment = graphql(`
+  fragment ConversationParticipants_Humans on User {
+    id
+    username
+    ...ParticipantsDialog_Humans
+  }
+`)
 
 interface ConversationParticipantsProps {
-  conversation: FragmentType<typeof ParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[] | null
-  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[] | null
+  conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
+  assistants: FragmentType<typeof ConversationParticipants_AssistantsFragment>[]
+  humans: FragmentType<typeof ConversationParticipants_HumansFragment>[]
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
@@ -31,7 +54,9 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const { t } = useTranslation()
   const dialogRef = useRef<HTMLDialogElement>(null)
 
-  const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
+  const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
+  const assistants = useFragment(ConversationParticipants_AssistantsFragment, props.assistants)
+  const humans = useFragment(ConversationParticipants_HumansFragment, props.humans)
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
@@ -70,17 +95,21 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateAdd({ assistantIds, userIds })
   }
 
-  if (user == null || !user?.id) {
-    return <></>
+  if (!user) {
+    return (
+      <button type="button" className="btn btn-outline" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   return (
     <div className="flex flex-wrap gap-2">
       <LoadingSpinner isLoading={removeParticipantIsPending || addParticipantIsPending} />
       <ParticipantsDialog
-        conversation={props.conversation}
-        assistants={props.assistants}
-        humans={props.humans}
+        conversation={conversation}
+        assistants={assistants}
+        humans={humans}
         onSubmit={handleSubmit}
         dialogRef={dialogRef}
       />
