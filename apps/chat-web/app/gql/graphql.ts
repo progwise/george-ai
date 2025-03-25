@@ -121,6 +121,8 @@ export type AiLibrary = {
   __typename?: 'AiLibrary'
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
+  files?: Maybe<Array<AiLibraryFile>>
+  filesCount?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
   owner?: Maybe<User>
@@ -133,6 +135,7 @@ export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
+  dropError?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
@@ -235,8 +238,10 @@ export type Mutation = {
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
+  deleteAiLibrary?: Maybe<AiLibrary>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
+  dropFiles?: Maybe<Array<AiLibraryFile>>
   hideMessage?: Maybe<AiConversationMessage>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
@@ -305,12 +310,20 @@ export type MutationDeleteAiConversationArgs = {
   conversationId: Scalars['String']['input']
 }
 
+export type MutationDeleteAiLibraryArgs = {
+  id: Scalars['String']['input']
+}
+
 export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
 export type MutationDropFileArgs = {
   fileId: Scalars['String']['input']
+}
+
+export type MutationDropFilesArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationHideMessageArgs = {
@@ -923,6 +936,35 @@ export type ParticipantsDialog_HumansFragment = { __typename?: 'User'; id: strin
   ' $fragmentName'?: 'ParticipantsDialog_HumansFragment'
 }
 
+export type DropFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type DropFilesMutation = {
+  __typename?: 'Mutation'
+  dropFiles?: Array<{ __typename?: 'AiLibraryFile'; id: string; libraryId: string }> | null
+}
+
+export type DeleteAiLibraryMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteAiLibraryMutation = {
+  __typename?: 'Mutation'
+  deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
+}
+
+export type DeleteLibraryDialog_LibraryFragment = {
+  __typename?: 'AiLibrary'
+  id: string
+  name: string
+  ownerId: string
+  filesCount?: number | null
+  createdAt: string
+  description?: string | null
+  url?: string | null
+} & { ' $fragmentName'?: 'DeleteLibraryDialog_LibraryFragment' }
+
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -981,6 +1023,7 @@ export type EmbeddingsTableQuery = {
     uploadedAt?: string | null
     processedAt?: string | null
     processingErrorMessage?: string | null
+    dropError?: string | null
   }> | null
 }
 
@@ -1159,15 +1202,17 @@ export type AiLibraryEditQueryVariables = Exact<{
 
 export type AiLibraryEditQuery = {
   __typename?: 'Query'
-  aiLibrary?: {
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-    description?: string | null
-    createdAt: string
-    ownerId: string
-    url?: string | null
-  } | null
+  aiLibrary?:
+    | ({
+        __typename?: 'AiLibrary'
+        id: string
+        name: string
+        createdAt: string
+        description?: string | null
+        url?: string | null
+        ownerId: string
+      } & { ' $fragmentRefs'?: { DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment } })
+    | null
   aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
 
@@ -1942,6 +1987,28 @@ export const NewConversationSelector_HumansFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<NewConversationSelector_HumansFragment, unknown>
+export const DeleteLibraryDialog_LibraryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteLibraryDialog_LibraryFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2804,6 +2871,83 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const DropFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropFilesMutation, DropFilesMutationVariables>
+export const DeleteAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAiLibraryMutation, DeleteAiLibraryMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -2997,6 +3141,7 @@ export const EmbeddingsTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
               ],
             },
           },
@@ -3798,10 +3943,11 @@ export const AiLibraryEditDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
               ],
             },
           },
@@ -3823,6 +3969,23 @@ export const AiLibraryEditDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
         ],
       },
     },

@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import de from './de'
 import en from './en'
 
-const getTranslatedValue = (key: string, language: 'en' | 'de'): string => {
+const getTranslatedValue = (key: string, language: 'en' | 'de', values?: Record<string, string | number>): string => {
   const keys = key.split('.')
   let currentObject = language === 'de' ? de : en
   keys.forEach((k) => {
@@ -15,16 +15,22 @@ const getTranslatedValue = (key: string, language: 'en' | 'de'): string => {
   if (currentObject === undefined) {
     return key
   }
-  return currentObject.toString()
+  let translatedValue = currentObject.toString()
+  if (values) {
+    Object.keys(values).forEach((placeholder) => {
+      translatedValue = translatedValue.replace(`{${placeholder}}`, values[placeholder].toString())
+    })
+  }
+  return translatedValue
 }
 
 const useTranslation = () => {
   const ctx = useRouteContext({ strict: false })
   const language: 'de' | 'en' = ctx.language === 'de' ? 'de' : 'en'
   const t = useCallback(
-    (key: string) => {
+    (key: string, values?: Record<string, string | number>) => {
       try {
-        return getTranslatedValue(key, language)
+        return getTranslatedValue(key, language, values)
       } catch (e) {
         console.error(`Translation key not found: ${e}`, language)
         return key
@@ -35,4 +41,4 @@ const useTranslation = () => {
   return { t, language }
 }
 
-export { useTranslation, getTranslatedValue }
+export { getTranslatedValue, useTranslation }

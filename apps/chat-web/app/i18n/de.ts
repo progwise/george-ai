@@ -97,12 +97,16 @@ export default {
   },
   resetConversation: 'Konversation zurücksetzen',
   texts: {
+    addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     newConversation: 'Neue Konversation',
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',

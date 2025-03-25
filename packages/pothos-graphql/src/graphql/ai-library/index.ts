@@ -19,6 +19,15 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     ownerId: t.exposeString('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    files: t.relation('files'),
+    filesCount: t.int({
+      resolve: async (parent) => {
+        const count = await prisma.aiLibraryFile.count({
+          where: { libraryId: parent.id },
+        })
+        return count
+      },
+    }),
   }),
 })
 
@@ -92,6 +101,21 @@ builder.mutationField('createAiLibrary', (t) =>
           ...data,
           ownerId,
         },
+      })
+    },
+  }),
+)
+
+builder.mutationField('deleteAiLibrary', (t) =>
+  t.prismaField({
+    type: 'AiLibrary',
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: (query, _source, { id }) => {
+      return prisma.aiLibrary.delete({
+        ...query,
+        where: { id },
       })
     },
   }),
