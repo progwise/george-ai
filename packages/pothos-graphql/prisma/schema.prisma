@@ -131,6 +131,7 @@ model AiLibraryFile {
   chunks                 Int?
   uploadedAt             DateTime?
   processedAt            DateTime?
+  dropError              String?
   processingStartedAt    DateTime?
   processingEndedAt      DateTime?
   processingErrorAt      DateTime?
