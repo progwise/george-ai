@@ -57,5 +57,28 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     })
   })
 
+  // Cleanup aborted uploads
+  httpRequest.on('close', async () => {
+    if (!httpRequest.complete) {
+      console.log('Upload aborted, cleaning up...')
+
+      // Delete the partially uploaded file from the filesystem
+      try {
+        fs.unlinkSync(getFilePath(file.id))
+      } catch (error) {
+        console.error('Error deleting partial file:', error)
+      }
+
+      // Remove the upload record from the database
+      try {
+        await prisma?.aiLibraryFile.delete({ where: { id: file.id } })
+        console.log(`Deleted database record for file ID: ${file.id}`)
+      } catch (error) {
+        console.error('Error deleting database record:', error)
+      }
+    }
+  })
+
   await completeFileUpload(file.id)
+  httpResponse.status(200).send('File upload completed successfully')
 }
