@@ -35,13 +35,11 @@ const ParticipantsDialog_HumansFragment = graphql(`
   }
 `)
 
-export type DialogMode = 'new' | 'add'
-
 interface ParticipantsDialogProps {
   conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
   assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[]
   humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[]
-  dialogMode: DialogMode
+  dialogMode: 'new' | 'add'
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {

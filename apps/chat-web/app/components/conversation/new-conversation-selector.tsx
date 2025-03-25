@@ -3,15 +3,12 @@ import { ParticipantsDialog } from './participants-dialog'
 
 const NewConversationSelector_AssistantsFragment = graphql(`
   fragment NewConversationSelector_Assistants on AiAssistant {
-    id
     ...ParticipantsDialog_Assistants
   }
 `)
 
 export const NewConversationSelector_HumansFragment = graphql(`
   fragment NewConversationSelector_Humans on User {
-    id
-    username
     ...ParticipantsDialog_Humans
   }
 `)

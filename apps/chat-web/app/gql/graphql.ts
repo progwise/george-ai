@@ -876,11 +876,11 @@ export type ConversationParticipants_ConversationFragment = ({
   ' $fragmentName'?: 'ConversationParticipants_ConversationFragment'
 }
 
-export type ConversationParticipants_AssistantsFragment = ({ __typename?: 'AiAssistant'; id: string } & {
+export type ConversationParticipants_AssistantsFragment = ({ __typename?: 'AiAssistant' } & {
   ' $fragmentRefs'?: { ParticipantsDialog_AssistantsFragment: ParticipantsDialog_AssistantsFragment }
 }) & { ' $fragmentName'?: 'ConversationParticipants_AssistantsFragment' }
 
-export type ConversationParticipants_HumansFragment = ({ __typename?: 'User'; id: string; username: string } & {
+export type ConversationParticipants_HumansFragment = ({ __typename?: 'User' } & {
   ' $fragmentRefs'?: { ParticipantsDialog_HumansFragment: ParticipantsDialog_HumansFragment }
 }) & { ' $fragmentName'?: 'ConversationParticipants_HumansFragment' }
 
@@ -898,11 +898,11 @@ export type ConversationDelete_ConversationFragment = {
   assistants: Array<{ __typename?: 'AiAssistant'; name: string }>
 } & { ' $fragmentName'?: 'ConversationDelete_ConversationFragment' }
 
-export type NewConversationSelector_AssistantsFragment = ({ __typename?: 'AiAssistant'; id: string } & {
+export type NewConversationSelector_AssistantsFragment = ({ __typename?: 'AiAssistant' } & {
   ' $fragmentRefs'?: { ParticipantsDialog_AssistantsFragment: ParticipantsDialog_AssistantsFragment }
 }) & { ' $fragmentName'?: 'NewConversationSelector_AssistantsFragment' }
 
-export type NewConversationSelector_HumansFragment = ({ __typename?: 'User'; id: string; username: string } & {
+export type NewConversationSelector_HumansFragment = ({ __typename?: 'User' } & {
   ' $fragmentRefs'?: { ParticipantsDialog_HumansFragment: ParticipantsDialog_HumansFragment }
 }) & { ' $fragmentName'?: 'NewConversationSelector_HumansFragment' }
 
@@ -1789,10 +1789,7 @@ export const ConversationParticipants_AssistantsFragmentDoc = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } }],
       },
     },
     {
@@ -1829,11 +1826,7 @@ export const ConversationParticipants_HumansFragmentDoc = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } }],
       },
     },
     {
@@ -1912,10 +1905,7 @@ export const NewConversationSelector_AssistantsFragmentDoc = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } }],
       },
     },
     {
@@ -1935,11 +1925,7 @@ export const NewConversationSelector_HumansFragmentDoc = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } }],
       },
     },
     {
@@ -3697,11 +3683,7 @@ export const GetAssignableUsersDocument = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } }],
       },
     },
     {
@@ -3710,11 +3692,7 @@ export const GetAssignableUsersDocument = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Humans' } }],
       },
     },
   ],
@@ -3769,10 +3747,7 @@ export const GetAssignableAssistantsDocument = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } }],
       },
     },
     {
@@ -3781,10 +3756,7 @@ export const GetAssignableAssistantsDocument = {
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } },
-        ],
+        selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistants' } }],
       },
     },
   ],

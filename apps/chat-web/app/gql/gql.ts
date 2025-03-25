@@ -33,12 +33,12 @@ type Documents = {
   '\n  mutation hideMessage($messageId: String!) {\n    hideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.HideMessageDocument
   '\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.UnhideMessageDocument
   '\n  fragment ConversationParticipants_Conversation on AiConversation {\n    id\n    participants {\n      id\n      name\n      userId\n      assistantId\n    }\n    ...ParticipantsDialog_Conversation\n  }\n': typeof types.ConversationParticipants_ConversationFragmentDoc
-  '\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n': typeof types.ConversationParticipants_AssistantsFragmentDoc
-  '\n  fragment ConversationParticipants_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n': typeof types.ConversationParticipants_HumansFragmentDoc
+  '\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n': typeof types.ConversationParticipants_AssistantsFragmentDoc
+  '\n  fragment ConversationParticipants_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n': typeof types.ConversationParticipants_HumansFragmentDoc
   '\n  fragment ConversationSelector_Conversations on AiConversation {\n    id\n    createdAt\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationSelector_ConversationsFragmentDoc
   '\n  fragment ConversationDelete_Conversation on AiConversation {\n    id\n    createdAt\n    assistants {\n      name\n    }\n  }\n': typeof types.ConversationDelete_ConversationFragmentDoc
-  '\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n': typeof types.NewConversationSelector_AssistantsFragmentDoc
-  '\n  fragment NewConversationSelector_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n': typeof types.NewConversationSelector_HumansFragmentDoc
+  '\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n': typeof types.NewConversationSelector_AssistantsFragmentDoc
+  '\n  fragment NewConversationSelector_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n': typeof types.NewConversationSelector_HumansFragmentDoc
   '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n': typeof types.ParticipantsDialog_ConversationFragmentDoc
   '\n  fragment ParticipantsDialog_Assistants on AiAssistant {\n    id\n  }\n': typeof types.ParticipantsDialog_AssistantsFragmentDoc
   '\n  fragment ParticipantsDialog_Humans on User {\n    id\n    username\n  }\n': typeof types.ParticipantsDialog_HumansFragmentDoc
@@ -114,17 +114,17 @@ const documents: Documents = {
     types.UnhideMessageDocument,
   '\n  fragment ConversationParticipants_Conversation on AiConversation {\n    id\n    participants {\n      id\n      name\n      userId\n      assistantId\n    }\n    ...ParticipantsDialog_Conversation\n  }\n':
     types.ConversationParticipants_ConversationFragmentDoc,
-  '\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n':
+  '\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n':
     types.ConversationParticipants_AssistantsFragmentDoc,
-  '\n  fragment ConversationParticipants_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n':
+  '\n  fragment ConversationParticipants_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n':
     types.ConversationParticipants_HumansFragmentDoc,
   '\n  fragment ConversationSelector_Conversations on AiConversation {\n    id\n    createdAt\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationSelector_ConversationsFragmentDoc,
   '\n  fragment ConversationDelete_Conversation on AiConversation {\n    id\n    createdAt\n    assistants {\n      name\n    }\n  }\n':
     types.ConversationDelete_ConversationFragmentDoc,
-  '\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n':
+  '\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n':
     types.NewConversationSelector_AssistantsFragmentDoc,
-  '\n  fragment NewConversationSelector_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n':
+  '\n  fragment NewConversationSelector_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n':
     types.NewConversationSelector_HumansFragmentDoc,
   '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n':
     types.ParticipantsDialog_ConversationFragmentDoc,
@@ -328,14 +328,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n',
-): (typeof documents)['\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n']
+  source: '\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n',
+): (typeof documents)['\n  fragment ConversationParticipants_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ConversationParticipants_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n',
-): (typeof documents)['\n  fragment ConversationParticipants_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n']
+  source: '\n  fragment ConversationParticipants_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n',
+): (typeof documents)['\n  fragment ConversationParticipants_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -352,14 +352,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n',
-): (typeof documents)['\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    id\n    ...ParticipantsDialog_Assistants\n  }\n']
+  source: '\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n',
+): (typeof documents)['\n  fragment NewConversationSelector_Assistants on AiAssistant {\n    ...ParticipantsDialog_Assistants\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment NewConversationSelector_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n',
-): (typeof documents)['\n  fragment NewConversationSelector_Humans on User {\n    id\n    username\n    ...ParticipantsDialog_Humans\n  }\n']
+  source: '\n  fragment NewConversationSelector_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n',
+): (typeof documents)['\n  fragment NewConversationSelector_Humans on User {\n    ...ParticipantsDialog_Humans\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

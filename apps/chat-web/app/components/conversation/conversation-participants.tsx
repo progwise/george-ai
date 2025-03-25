@@ -25,15 +25,12 @@ const ConversationParticipants_ConversationFragment = graphql(`
 
 const ConversationParticipants_AssistantsFragment = graphql(`
   fragment ConversationParticipants_Assistants on AiAssistant {
-    id
     ...ParticipantsDialog_Assistants
   }
 `)
 
 export const ConversationParticipants_HumansFragment = graphql(`
   fragment ConversationParticipants_Humans on User {
-    id
-    username
     ...ParticipantsDialog_Humans
   }
 `)
