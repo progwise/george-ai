@@ -22,7 +22,7 @@ const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
     aiConversations(userId: $userId) {
       id
-      ...ConversationSelector_Conversations
+      ...ConversationSelector_Conversation
     }
   }
 `)
@@ -49,8 +49,8 @@ export const getConversation = createServerFn({ method: 'GET' })
 const AssignableUsersDocument = graphql(`
   query getAssignableUsers($userId: String!) {
     myConversationUsers(userId: $userId) {
-      ...NewConversationSelector_Humans
-      ...ConversationParticipants_Humans
+      ...NewConversationSelector_Human
+      ...ConversationParticipants_Human
     }
   }
 `)
@@ -62,8 +62,8 @@ export const getAssignableHumans = createServerFn({ method: 'GET' })
 const AssignableAssistantsDocument = graphql(`
   query getAssignableAssistants($ownerId: String!) {
     aiAssistants(ownerId: $ownerId) {
-      ...NewConversationSelector_Assistants
-      ...ConversationParticipants_Assistants
+      ...NewConversationSelector_Assistant
+      ...ConversationParticipants_Assistant
     }
   }
 `)

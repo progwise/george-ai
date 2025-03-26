@@ -22,14 +22,14 @@ const ParticipantsDialog_ConversationFragment = graphql(`
   }
 `)
 
-const ParticipantsDialog_AssistantsFragment = graphql(`
-  fragment ParticipantsDialog_Assistants on AiAssistant {
+const ParticipantsDialog_AssistantFragment = graphql(`
+  fragment ParticipantsDialog_Assistant on AiAssistant {
     id
   }
 `)
 
-const ParticipantsDialog_HumansFragment = graphql(`
-  fragment ParticipantsDialog_Humans on User {
+const ParticipantsDialog_HumanFragment = graphql(`
+  fragment ParticipantsDialog_Human on User {
     id
     username
   }
@@ -37,8 +37,8 @@ const ParticipantsDialog_HumansFragment = graphql(`
 
 interface ParticipantsDialogProps {
   conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantsFragment>[]
-  humans: FragmentType<typeof ParticipantsDialog_HumansFragment>[]
+  assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
+  humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
 }
 
@@ -53,8 +53,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const user = authContext.user
 
   const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
-  const assistants = useFragment(ParticipantsDialog_AssistantsFragment, props.assistants)
-  const humans = useFragment(ParticipantsDialog_HumansFragment, props.humans)
+  const assistants = useFragment(ParticipantsDialog_AssistantFragment, props.assistants)
+  const humans = useFragment(ParticipantsDialog_HumanFragment, props.humans)
 
   const existingParticipantIds = conversation?.participants.map(
     (participant) => participant.userId || participant.assistantId,

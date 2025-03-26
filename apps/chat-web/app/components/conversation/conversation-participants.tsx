@@ -23,22 +23,22 @@ const ConversationParticipants_ConversationFragment = graphql(`
   }
 `)
 
-const ConversationParticipants_AssistantsFragment = graphql(`
-  fragment ConversationParticipants_Assistants on AiAssistant {
-    ...ParticipantsDialog_Assistants
+const ConversationParticipants_AssistantFragment = graphql(`
+  fragment ConversationParticipants_Assistant on AiAssistant {
+    ...ParticipantsDialog_Assistant
   }
 `)
 
-export const ConversationParticipants_HumansFragment = graphql(`
-  fragment ConversationParticipants_Humans on User {
-    ...ParticipantsDialog_Humans
+export const ConversationParticipants_HumanFragment = graphql(`
+  fragment ConversationParticipants_Human on User {
+    ...ParticipantsDialog_Human
   }
 `)
 
 interface ConversationParticipantsProps {
   conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
-  assistants: FragmentType<typeof ConversationParticipants_AssistantsFragment>[]
-  humans: FragmentType<typeof ConversationParticipants_HumansFragment>[]
+  assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
+  humans: FragmentType<typeof ConversationParticipants_HumanFragment>[]
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
@@ -49,8 +49,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const { t } = useTranslation()
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
-  const assistants = useFragment(ConversationParticipants_AssistantsFragment, props.assistants)
-  const humans = useFragment(ConversationParticipants_HumansFragment, props.humans)
+  const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
+  const humans = useFragment(ConversationParticipants_HumanFragment, props.humans)
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {

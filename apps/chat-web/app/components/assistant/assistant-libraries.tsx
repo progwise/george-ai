@@ -8,19 +8,19 @@ import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
 
-const AssistantForLibrariesFragment = graphql(`
-  fragment AssistantForLibrariesFragment on AiAssistant {
+const AssistantLibraries_AssistantFragment = graphql(`
+  fragment AssistantLibraries_Assistant on AiAssistant {
     id
   }
 `)
-const AssistantLibrariesFragment = graphql(`
-  fragment AssistantLibrariesFragment on AiLibrary {
+const AssistantLibraries_LibraryFragment = graphql(`
+  fragment AssistantLibraries_Library on AiLibrary {
     id
     name
   }
 `)
-const AssistantLibrariesUsageFragment = graphql(`
-  fragment AssistantLibrariesUsageFragment on AiLibraryUsage {
+const AssistantLibraries_LibraryUsageFragment = graphql(`
+  fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {
     libraryId
   }
 `)
@@ -43,16 +43,16 @@ const updateLibraryUsage = createServerFn({ method: 'POST' })
   .handler(async (ctx) => await backendRequest(UpdateLibraryUsageDocument, ctx.data))
 
 export interface AssistantLibrariesProps {
-  assistant: FragmentType<typeof AssistantForLibrariesFragment>
-  libraries: FragmentType<typeof AssistantLibrariesFragment>[] | undefined
-  usages: FragmentType<typeof AssistantLibrariesUsageFragment>[] | undefined
+  assistant: FragmentType<typeof AssistantLibraries_AssistantFragment>
+  libraries: FragmentType<typeof AssistantLibraries_LibraryFragment>[] | undefined
+  usages: FragmentType<typeof AssistantLibraries_LibraryUsageFragment>[] | undefined
 }
 
 export const AssistantLibraries = (props: AssistantLibrariesProps) => {
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantForLibrariesFragment, props.assistant)
-  const libraries = useFragment(AssistantLibrariesFragment, props.libraries)
-  const usages = useFragment(AssistantLibrariesUsageFragment, props.usages)
+  const assistant = useFragment(AssistantLibraries_AssistantFragment, props.assistant)
+  const libraries = useFragment(AssistantLibraries_LibraryFragment, props.libraries)
+  const usages = useFragment(AssistantLibraries_LibraryUsageFragment, props.usages)
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string; use: boolean }) => updateLibraryUsage({ data }),
