@@ -24,7 +24,6 @@ export default {
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
     hasNoIcon: '{assistant.name} has no icon',
-    initialSituations: 'Initial situations',
     libraries: 'Used libraries',
     libraryToAdd: 'Add library',
     myAssistants: 'My assistants',

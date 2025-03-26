@@ -3,6 +3,8 @@ import * as fs from 'fs'
 
 import { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from '@george-ai/pothos-graphql'
 
+const allowedFileTypes = ['png', 'svg', 'jpg', 'jpeg', 'gif', 'webp']
+
 export const assistantIconMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   const assistantId = httpRequest.query['assistantId'] as string
 
@@ -23,16 +25,7 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
   if (httpRequest.method.toUpperCase() === 'GET') {
     const assistantFiles = fs
       .readdirSync(assistantIconsPath)
-      .filter(
-        (file) =>
-          file.startsWith(assistantId) &&
-          (file.endsWith('.png') ||
-            file.endsWith('.svg') ||
-            file.endsWith('.jpg') ||
-            file.endsWith('.jpeg') ||
-            file.endsWith('.webp') ||
-            file.endsWith('.gif')),
-      )
+      .filter((file) => file.startsWith(assistantId) && allowedFileTypes.some((type) => file.endsWith(`.${type}`)))
 
     if (assistantFiles.length < 1) {
       httpResponse.status(404).send('Not Found: icon not found')
@@ -65,10 +58,10 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
 
   const fileExtension = httpRequest.headers['x-file-extension'] as string
 
-  if (!fileExtension || !['png', 'svg', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileExtension)) {
+  if (!fileExtension || !allowedFileTypes.includes(fileExtension)) {
     httpResponse
       .status(400)
-      .send('Bad Request: x-file-extension header is required and must be one of png, svg, jpg, jpeg, gif, webp')
+      .send(`Bad Request: x-file-extension header is required and must be one of ${allowedFileTypes.join(', ')}`)
     return
   }
 

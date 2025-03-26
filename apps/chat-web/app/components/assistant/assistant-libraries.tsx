@@ -167,7 +167,7 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
                 }}
                 data-tip={t('assistants.removeLibrary')}
               >
-                <TrashIcon className="size-4" />
+                <TrashIcon />
               </button>
             </label>
             <Input

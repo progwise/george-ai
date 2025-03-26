@@ -24,7 +24,6 @@ export default {
     deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
     hasNoIcon: '{assistant.name} hat kein Icon',
-    initialSituations: 'Initiale Situationen',
     libraries: 'Verwendete Bibliotheken',
     libraryToAdd: 'Bibliothek hinzufügen',
     myAssistants: 'Meine Assistenten',
