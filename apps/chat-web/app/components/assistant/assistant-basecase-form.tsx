@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -15,7 +16,8 @@ const upsertAiBaseCases = createServerFn({ method: 'POST' })
     const baseCases = Array.from(data.getAll('baseCasesId')).map((id, index) => ({
       id,
       sequence: data.getAll('baseCasesSequence')[index],
-      description: data.getAll('baseCaseDescription')[index],
+      condition: data.getAll('baseCasesCondition')[index],
+      instruction: data.getAll('baseCasesInstruction')[index],
     }))
 
     const assistantId = data.get('assistantId')
@@ -29,7 +31,8 @@ const upsertAiBaseCases = createServerFn({ method: 'POST' })
               (value: string) => (value?.length || 0 < 1 ? null : parseInt(value)),
               z.number().nullish(),
             ),
-            description: z.string().nullish(),
+            condition: z.string().nullish(),
+            instruction: z.string().nullish(),
           }),
         ),
       })
@@ -42,7 +45,8 @@ const upsertAiBaseCases = createServerFn({ method: 'POST' })
           upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {
             id
             sequence
-            description
+            condition
+            instruction
           }
         }
       `),
@@ -56,7 +60,8 @@ const AssistantBasecaseForm_assistantFragment = graphql(`
     baseCases {
       id
       sequence
-      description
+      condition
+      instruction
     }
   }
 `)
@@ -70,51 +75,86 @@ export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const formRef = React.useRef<HTMLFormElement>(null)
-  const newInputRef = React.useRef<HTMLInputElement>(null)
+
   const assistant = useFragment(AssistantBasecaseForm_assistantFragment, props.assistant)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
-      await upsertAiBaseCases({ data })
+      return await upsertAiBaseCases({ data })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, assistant.id, auth.user?.id] })
     },
   })
 
+  useEffect(() => {
+    // Repair the focus and set it to the last existing instruction input if baseCase length changed
+    if (formRef.current) {
+      const instructionInputs = formRef.current.querySelectorAll<HTMLTextAreaElement>(
+        'textarea[name="baseCasesInstruction"]',
+      )
+      if (instructionInputs && instructionInputs.length > 1) {
+        instructionInputs[instructionInputs.length - 2].focus()
+      }
+    }
+  }, [assistant.baseCases.length])
+
   const fieldProps = {
-    type: 'text' as const,
-    name: 'baseCaseDescription',
-    placeholder: 'An user can start here.',
     canGrab: true,
     disabled: isPending,
-    onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
+    className: 'w-full',
+    onBlur: (event: React.FocusEvent) => {
+      event.preventDefault()
       if (!formRef.current) return
-      if (event.target === newInputRef.current && !event.target.value) {
-        formRef.current.reset()
-        return
-      }
+
       const formData = new FormData(formRef.current)
       mutate(formData)
       formRef.current.reset()
-      newInputRef.current?.focus()
     },
   }
   return (
     <form ref={formRef} className="flex flex-col gap-2">
-      <p className="overflow-hidden text-nowrap text-sm text-base-content/50">{t('assistants.initialSituations')}</p>
+      <p className="text-base-content/50">{t('labels.behavior')}</p>
       <input type="hidden" name="assistantId" value={assistant.id} />
-      {assistant.baseCases.map((baseCase) => (
-        <div key={baseCase.id}>
+      {assistant.baseCases.map((baseCase, index) => (
+        <div key={baseCase.id} className="flex flex-col gap-2 border-b border-base-content/20 pb-2">
           <input type="hidden" name="baseCasesId" value={baseCase.id || ''} />
           <input type="hidden" name="baseCasesSequence" value={baseCase.sequence || 0} />
-          <Input value={baseCase.description} {...fieldProps} />
+          <Input
+            label={`${index + 1}. ${t('labels.condition')}`}
+            value={baseCase.condition}
+            name="baseCasesCondition"
+            placeholder={t('placeholders.condition')}
+            {...fieldProps}
+          />
+          <Input
+            label={`${t('labels.instructions')}`}
+            type="textarea"
+            value={baseCase.instruction}
+            name="baseCasesInstruction"
+            placeholder={t('placeholders.instruction')}
+            {...{ ...fieldProps, className: twMerge(fieldProps.className, 'h-24') }}
+          />
         </div>
       ))}
-      <div>
+      <div className="flex flex-col gap-2">
         <input type="hidden" name="baseCasesId" value="" />
         <input type="hidden" name="baseCasesSequence" value="" />
-        <Input ref={newInputRef} value="" {...fieldProps} />
+        <Input
+          label={`${t('labels.nextCondition')}`}
+          value=""
+          name="baseCasesCondition"
+          placeholder={t('placeholders.condition')}
+          {...fieldProps}
+        />
+        <Input
+          label={`${t('labels.instructions')}`}
+          type="textarea"
+          value=""
+          name="baseCasesInstruction"
+          placeholder={t('placeholders.instruction')}
+          {...{ ...fieldProps, className: twMerge(fieldProps.className, 'h-24') }}
+        />
       </div>
     </form>
   )

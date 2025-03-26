@@ -54,15 +54,6 @@ model UserProfile {
   confirmationDate DateTime?
 }
 
-model AiLanguageModel {
-  id          String  @id @default(cuid())
-  provider    String
-  name        String
-  description String?
-
-  AiAssistant AiAssistant[]
-}
-
 model AiAssistant {
   id                         String                      @id @default(cuid())
   createdAt                  DateTime                    @default(now())
@@ -75,9 +66,7 @@ model AiAssistant {
   ownerId                    String
   usages                     AiLibraryUsage[]
   conversationParticipations AiConversationParticipant[]
-  languageModel              AiLanguageModel?            @relation(fields: [languageModelId], references: [id])
-  languageModelId            String?
-  llmTemperature             Float?
+  languageModel              String?                     @default("OpenAI")
   baseCases                  AiAssistantBaseCase[]
 }
 
@@ -88,7 +77,8 @@ model AiAssistantBaseCase {
   assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   sequence    Int
   assistantId String
-  description String
+  condition   String?
+  instruction String?
 }
 
 model AiLibrary {

@@ -10,7 +10,8 @@ export const AiAssistantBaseCase = builder.prismaObject('AiAssistantBaseCase', {
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     sequence: t.exposeFloat('sequence'),
-    description: t.exposeString('description'),
+    condition: t.exposeString('condition'),
+    instruction: t.exposeString('instruction'),
     assistant: t.relation('assistant'),
   }),
 })
@@ -26,9 +27,7 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     ownerId: t.exposeID('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    languageModelId: t.expose('languageModelId', { type: 'String' }),
-    languageModel: t.relation('languageModel'),
-    llmTemperature: t.exposeFloat('llmTemperature'),
+    languageModel: t.expose('languageModel', { type: 'String' }),
     baseCases: t.relation('baseCases', { nullable: false, query: () => ({ orderBy: [{ sequence: 'asc' }] }) }),
   }),
 })
@@ -39,8 +38,7 @@ const AiAssistantInput = builder.inputType('AiAssistantInput', {
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    languageModelId: t.string({ required: false }),
-    llmTemperature: t.float({ required: false }),
+    languageModel: t.string({ required: false }),
   }),
 })
 
@@ -137,7 +135,8 @@ const BaseCaseInputType = builder.inputType('AiBaseCaseInputType', {
   fields: (t) => ({
     id: t.string({ required: false }),
     sequence: t.float({ required: false }),
-    description: t.string({ required: false }),
+    condition: t.string({ required: false }),
+    instruction: t.string({ required: false }),
   }),
 })
 
@@ -159,13 +158,17 @@ builder.mutationField('upsertAiBaseCases', (t) =>
       }
 
       const baseCasesToDeleteNoDescription = baseCases.filter(
-        (bc) => bc.id && (!bc.description || bc.description.length < 1),
+        (bc) => bc.id && (!bc.condition || bc.condition.length < 1) && (!bc.instruction || bc.instruction.length < 1),
       )
       await prisma.aiAssistantBaseCase.deleteMany({
         where: { id: { in: baseCasesToDeleteNoDescription.map((bc) => bc.id!) } },
       })
 
-      const filteredBaseCases = baseCases.filter((baseCase) => baseCase.description && baseCase.description.length > 0)
+      const filteredBaseCases = baseCases.filter(
+        (baseCase) =>
+          (baseCase.condition && baseCase.condition.length > 0) ||
+          (baseCase.instruction && baseCase.instruction.length > 0),
+      )
 
       let sequence = 0
       for (const baseCase of filteredBaseCases) {
@@ -177,7 +180,8 @@ builder.mutationField('upsertAiBaseCases', (t) =>
             where: { id: baseCase.id },
             data: {
               sequence: baseCase.sequence,
-              description: baseCase.description!,
+              condition: baseCase.condition,
+              instruction: baseCase.instruction,
             },
           })
         } else {
@@ -185,7 +189,8 @@ builder.mutationField('upsertAiBaseCases', (t) =>
             ...query,
             data: {
               sequence: baseCase.sequence,
-              description: baseCase.description!,
+              condition: baseCase.condition,
+              instruction: baseCase.instruction,
               assistantId,
             },
           })

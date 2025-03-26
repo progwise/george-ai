@@ -44,6 +44,7 @@ export default {
   conversations: {
     assistants: 'Assistenten',
     humans: 'Benutzer',
+    askAssistant: '{assistantName} fragen',
   },
   dialog: {
     cancel: 'Abbrechen',
@@ -71,7 +72,9 @@ export default {
     title: 'Ihre KI. Ihre Daten. Ihre Regeln.',
   },
   labels: {
+    behavior: 'Verhaltensfälle',
     business: 'Unternehmen',
+    condition: 'Fall',
     confirmationDate: 'Bestätigt',
     confirmedAt: 'Bestätigt am',
     createdAt: 'Erstellt',
@@ -87,6 +90,7 @@ export default {
     llmTemperature: 'LLM Temperatur',
     name: 'Name',
     never: 'Nie',
+    nextCondition: 'Neuer Fall',
     notConfirmed: 'Nicht bestätigt',
     position: 'Position',
     updatedAt: 'Geändert',
@@ -95,6 +99,8 @@ export default {
   },
   library: 'Bibliothek',
   placeholders: {
+    condition: 'Wenn',
+    instruction: 'Dann',
     email: 'Ihre E-Mail-Adresse',
   },
   resetConversation: 'Konversation zurücksetzen',
@@ -104,6 +110,7 @@ export default {
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
+    loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',

@@ -257,6 +257,16 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
   await loadDocuments(documents)
 }
 
+export const similaritySearch = async (question: string, libraryId: string) => {
+  await ensureVectorStore(libraryId)
+  const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
+  const documents = await typesenseVectorStore.similaritySearch(question)
+  return documents.map((document) => ({
+    pageContent: document.pageContent,
+    docName: document.metadata.docName.toString() as string,
+  }))
+}
+
 // retrieves content from the vector store similar to the question
 export const getPDFContentForQuestion = async (question: string) => {
   await ensureVectorStore('common')

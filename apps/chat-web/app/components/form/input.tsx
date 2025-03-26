@@ -60,7 +60,7 @@ export const Input = <T extends ZodRawShape>({
   }
 
   return (
-    <label className={twMerge('flex h-full w-full flex-col', className)}>
+    <label className={twMerge('flex flex-col', className)}>
       <div className="flex flex-row justify-between">
         <span
           className={twMerge(
@@ -79,7 +79,7 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered col-span-2 h-full w-full',
+            'input input-sm input-bordered flex-grow leading-normal',
             readOnly && 'cursor-not-allowed text-base-content/50',
           )}
           placeholder={placeholder || ''}
@@ -96,7 +96,7 @@ export const Input = <T extends ZodRawShape>({
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered col-span-2 w-full',
+            'input input-sm input-bordered w-full',
             readOnly && 'cursor-not-allowed text-base-content/50',
             type === 'number' && 'text-right',
             type === 'date' && 'text-center',

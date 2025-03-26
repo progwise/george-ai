@@ -5,6 +5,7 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
+  AiFlowInput,
   AiLibraryFileInput,
   AiLibraryInput,
   AiLibraryUsageInput,
@@ -29,8 +30,7 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
   return z.object({
     description: z.string().nullish(),
     icon: z.string().nullish(),
-    languageModelId: z.string().nullish(),
-    llmTemperature: z.number().nullish(),
+    languageModel: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
   })
@@ -38,8 +38,9 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
 
 export function AiBaseCaseInputTypeSchema(): z.ZodObject<Properties<AiBaseCaseInputType>> {
   return z.object({
-    description: z.string().nullish(),
+    condition: z.string().nullish(),
     id: z.string().nullish(),
+    instruction: z.string().nullish(),
     sequence: z.number().nullish(),
   })
 }
@@ -56,6 +57,15 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
     content: z.string(),
     conversationId: z.string(),
     recipientAssistantIds: z.array(z.string()),
+  })
+}
+
+export function AiFlowInputSchema(): z.ZodObject<Properties<AiFlowInput>> {
+  return z.object({
+    assistantId: z.string(),
+    ownerId: z.string(),
+    task: z.string(),
+    trigger: z.string(),
   })
 }
 

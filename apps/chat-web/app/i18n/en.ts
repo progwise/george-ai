@@ -44,6 +44,7 @@ export default {
   conversations: {
     assistants: 'Assistants',
     humans: 'Users',
+    askAssistant: 'ask {assistantName}',
   },
   dialog: {
     cancel: 'Cancel',
@@ -70,7 +71,9 @@ export default {
     title: 'Your AI. Your Data. Your Rules.',
   },
   labels: {
+    behavior: 'Behavior Cases',
     business: 'Business',
+    condition: 'Case',
     confirmationDate: 'Confirmed',
     confirmedAt: 'Confirmed',
     createdAt: 'Created',
@@ -86,6 +89,7 @@ export default {
     llmTemperature: 'LLM Temperature',
     name: 'Name',
     never: 'Never',
+    nextCondition: 'New Case',
     notConfirmed: 'Not confirmed',
     position: 'Position',
     updatedAt: 'Updated',
@@ -94,6 +98,8 @@ export default {
   },
   library: 'Library',
   placeholders: {
+    condition: 'if',
+    instruction: 'then',
     email: 'Your email address',
   },
   resetConversation: 'Reset conversation',
@@ -102,6 +108,7 @@ export default {
     deleteConversation: 'Delete conversation',
     deleteConversationConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
     loginToUseConversations: 'Login to use conversations.',
+    loginToUseSendMessages: 'Login to send messages.',
     newConversation: 'New conversation',
     newConversationConfirmation: 'You are about to start a new conversation with the selected users and assistants.',
     noAssistant: 'No assistant',

@@ -7,7 +7,6 @@ import { useAuth } from '../../auth/auth-hook'
 import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
-import { AssistantPreview } from '../../components/assistant/assistant-preview'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql/gql'
@@ -30,7 +29,6 @@ const getAssistant = createServerFn({ method: 'GET' })
               ...AssistantSelector_assistant
               ...AssistantForLibrariesFragment
               ...AssistantBasecaseForm_assistantFragment
-              ...AssistantPreview_assistantFragment
               ...AssistantIcon_assistantFragment
             }
             aiAssistants(ownerId: $ownerId) {
@@ -41,9 +39,6 @@ const getAssistant = createServerFn({ method: 'GET' })
             }
             aiLibraries(ownerId: $ownerId) {
               ...AssistantLibrariesFragment
-            }
-            aiLanguageModels {
-              ...AssistantForm_languageModel
             }
           }
         `),
@@ -76,9 +71,9 @@ function RouteComponent() {
     enabled: !!ownerId && !!assistantId,
   })
 
-  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage, aiLanguageModels } = data || {}
+  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}
 
-  if (!user?.id || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || !aiLanguageModels || isLoading) {
+  if (!user?.id || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
   }
 
@@ -94,16 +89,16 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      <div className="flex w-full flex-col gap-4 lg:flex-row">
+      <div className="flex w-full flex-col items-start gap-4 lg:flex-row">
         <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
-          <AssistantForm assistant={aiAssistant} languageModels={aiLanguageModels} disabled={!user} />
-          <hr className="my-3" />
-          <AssistantBasecaseForm assistant={aiAssistant} />
+          <AssistantForm assistant={aiAssistant} disabled={!user} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
+
+          <hr className="my-3" />
         </div>
-        <div className="card grid grow place-items-center rounded-box bg-base-200 lg:w-1/2">
-          <AssistantPreview assistant={aiAssistant} />
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+          <AssistantBasecaseForm assistant={aiAssistant} />
         </div>
       </div>
     </article>

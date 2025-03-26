@@ -16,7 +16,6 @@ interface AssistantIconProps {
 
 export const AssistantIcon = (props: AssistantIconProps): React.ReactElement => {
   const assistant = useFragment(AssistantIcon_AssistantFragment, props.assistant)
-  console.log(assistant)
   return (
     <div className={props.className}>
       <img

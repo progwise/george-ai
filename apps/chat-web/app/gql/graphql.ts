@@ -21,6 +21,7 @@ export type Scalars = {
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: string; output: string }
   Decimal: { input: number; output: number }
+  JSONObject: { input: any; output: any }
 }
 
 export type AiAssistant = {
@@ -28,24 +29,27 @@ export type AiAssistant = {
   baseCases: Array<AiAssistantBaseCase>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
-  icon?: Maybe<Scalars['String']['output']>
-  iconUrl: Scalars['String']['output']
+  iconUrl?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
-  languageModel?: Maybe<AiLanguageModel>
-  languageModelId?: Maybe<Scalars['String']['output']>
-  llmTemperature?: Maybe<Scalars['Float']['output']>
+  languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
+  previewFlow: AiFlow
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+}
+
+export type AiAssistantPreviewFlowArgs = {
+  ownerId: Scalars['String']['input']
 }
 
 export type AiAssistantBaseCase = {
   __typename?: 'AiAssistantBaseCase'
   assistant?: Maybe<AiAssistant>
+  condition?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
-  description?: Maybe<Scalars['String']['output']>
   id?: Maybe<Scalars['ID']['output']>
+  instruction?: Maybe<Scalars['String']['output']>
   sequence?: Maybe<Scalars['Float']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -53,15 +57,15 @@ export type AiAssistantBaseCase = {
 export type AiAssistantInput = {
   description?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
-  languageModelId?: InputMaybe<Scalars['String']['input']>
-  llmTemperature?: InputMaybe<Scalars['Float']['input']>
+  languageModel?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
 }
 
 export type AiBaseCaseInputType = {
-  description?: InputMaybe<Scalars['String']['input']>
+  condition?: InputMaybe<Scalars['String']['input']>
   id?: InputMaybe<Scalars['String']['input']>
+  instruction?: InputMaybe<Scalars['String']['input']>
   sequence?: InputMaybe<Scalars['Float']['input']>
 }
 
@@ -116,12 +120,36 @@ export type AiConversationParticipant = {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
-export type AiLanguageModel = {
-  __typename?: 'AiLanguageModel'
-  description?: Maybe<Scalars['String']['output']>
+export type AiFlow = {
+  __typename?: 'AiFlow'
+  assistant: AiAssistant
+  assistantId: Scalars['String']['output']
+  createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
-  name: Scalars['String']['output']
-  provider?: Maybe<Scalars['String']['output']>
+  nodes: Array<AiFlowNode>
+  owner: User
+  ownerId: Scalars['ID']['output']
+  task?: Maybe<Scalars['String']['output']>
+  trigger?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type AiFlowInput = {
+  assistantId: Scalars['String']['input']
+  ownerId: Scalars['String']['input']
+  task: Scalars['String']['input']
+  trigger: Scalars['String']['input']
+}
+
+export type AiFlowNode = {
+  __typename?: 'AiFlowNode'
+  createdAt: Scalars['DateTime']['output']
+  flowId: Scalars['ID']['output']
+  id: Scalars['ID']['output']
+  message?: Maybe<Scalars['String']['output']>
+  sequence: Scalars['Float']['output']
+  type: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 export type AiLibrary = {
@@ -230,6 +258,7 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
+  createFlow?: Maybe<AiFlow>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -244,6 +273,7 @@ export type Mutation = {
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
+  sendFlowMessage?: Maybe<AiFlowNode>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -292,6 +322,10 @@ export type MutationCreateAiConversationArgs = {
 export type MutationCreateAiLibraryArgs = {
   data: AiLibraryInput
   ownerId: Scalars['String']['input']
+}
+
+export type MutationCreateFlowArgs = {
+  data: AiFlowInput
 }
 
 export type MutationCreateUserArgs = {
@@ -353,6 +387,12 @@ export type MutationSendConfirmationMailArgs = {
   userId: Scalars['String']['input']
 }
 
+export type MutationSendFlowMessageArgs = {
+  flowId: Scalars['String']['input']
+  message: Scalars['String']['input']
+  type: Scalars['String']['input']
+}
+
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
   userId: Scalars['String']['input']
@@ -404,7 +444,7 @@ export type Query = {
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
-  aiLanguageModels: Array<AiLanguageModel>
+  aiFlow?: Maybe<AiFlow>
   aiLibraries?: Maybe<Array<AiLibrary>>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
@@ -433,6 +473,10 @@ export type QueryAiConversationMessagesArgs = {
 
 export type QueryAiConversationsArgs = {
   userId: Scalars['String']['input']
+}
+
+export type QueryAiFlowArgs = {
+  id: Scalars['String']['input']
 }
 
 export type QueryAiLibrariesArgs = {
@@ -734,7 +778,8 @@ export type UpsertAiBaseCasesMutation = {
     __typename?: 'AiAssistantBaseCase'
     id?: string | null
     sequence?: number | null
-    description?: string | null
+    condition?: string | null
+    instruction?: string | null
   }> | null
 }
 
@@ -745,7 +790,8 @@ export type AssistantBasecaseForm_AssistantFragmentFragment = {
     __typename?: 'AiAssistantBaseCase'
     id?: string | null
     sequence?: number | null
-    description?: string | null
+    condition?: string | null
+    instruction?: string | null
   }>
 } & { ' $fragmentName'?: 'AssistantBasecaseForm_AssistantFragmentFragment' }
 
@@ -754,7 +800,7 @@ export type AssistantCard_AssistantFragmentFragment = ({
   id: string
   name: string
   description?: string | null
-  iconUrl: string
+  iconUrl?: string | null
 } & { ' $fragmentRefs'?: { AssistantDelete_AssistantFragmentFragment: AssistantDelete_AssistantFragmentFragment } }) & {
   ' $fragmentName'?: 'AssistantCard_AssistantFragmentFragment'
 }
@@ -776,23 +822,11 @@ export type AssistantForm_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   name: string
-  iconUrl: string
+  iconUrl?: string | null
   description?: string | null
   ownerId: string
-  languageModelId?: string | null
-  llmTemperature?: number | null
-  languageModel?: { __typename?: 'AiLanguageModel'; id: string; name: string } | null
-  baseCases: Array<{
-    __typename?: 'AiAssistantBaseCase'
-    id?: string | null
-    sequence?: number | null
-    description?: string | null
-  }>
+  languageModel?: string | null
 } & { ' $fragmentName'?: 'AssistantForm_AssistantFragment' }
-
-export type AssistantForm_LanguageModelFragment = { __typename?: 'AiLanguageModel'; id: string; name: string } & {
-  ' $fragmentName'?: 'AssistantForm_LanguageModelFragment'
-}
 
 export type UpdateAssistantMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -803,6 +837,14 @@ export type UpdateAssistantMutation = {
   __typename?: 'Mutation'
   updateAiAssistant?: { __typename?: 'AiAssistant'; id: string } | null
 }
+
+export type AssistantIcon_AssistantFragmentFragment = {
+  __typename?: 'AiAssistant'
+  id: string
+  name: string
+  updatedAt?: string | null
+  iconUrl?: string | null
+} & { ' $fragmentName'?: 'AssistantIcon_AssistantFragmentFragment' }
 
 export type AssistantForLibrariesFragmentFragment = { __typename?: 'AiAssistant'; id: string } & {
   ' $fragmentName'?: 'AssistantForLibrariesFragmentFragment'
@@ -1106,6 +1148,7 @@ export type AiAssistantDetailsQuery = {
           AssistantSelector_AssistantFragment: AssistantSelector_AssistantFragment
           AssistantForLibrariesFragmentFragment: AssistantForLibrariesFragmentFragment
           AssistantBasecaseForm_AssistantFragmentFragment: AssistantBasecaseForm_AssistantFragmentFragment
+          AssistantIcon_AssistantFragmentFragment: AssistantIcon_AssistantFragmentFragment
         }
       })
     | null
@@ -1124,11 +1167,6 @@ export type AiAssistantDetailsQuery = {
       ' $fragmentRefs'?: { AssistantLibrariesFragmentFragment: AssistantLibrariesFragmentFragment }
     }
   > | null
-  aiLanguageModels: Array<
-    { __typename?: 'AiLanguageModel' } & {
-      ' $fragmentRefs'?: { AssistantForm_LanguageModelFragment: AssistantForm_LanguageModelFragment }
-    }
-  >
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{
@@ -1522,7 +1560,8 @@ export const AssistantBasecaseForm_AssistantFragmentFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sequence' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'condition' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'instruction' } },
               ],
             },
           },
@@ -1595,53 +1634,31 @@ export const AssistantForm_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModelId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'languageModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'llmTemperature' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'baseCases' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sequence' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
         ],
       },
     },
   ],
 } as unknown as DocumentNode<AssistantForm_AssistantFragment, unknown>
-export const AssistantForm_LanguageModelFragmentDoc = {
+export const AssistantIcon_AssistantFragmentFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantForm_languageModel' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLanguageModel' } },
+      name: { kind: 'Name', value: 'AssistantIcon_assistantFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<AssistantForm_LanguageModelFragment, unknown>
+} as unknown as DocumentNode<AssistantIcon_AssistantFragmentFragment, unknown>
 export const AssistantForLibrariesFragmentFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2567,7 +2584,8 @@ export const UpsertAiBaseCasesDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sequence' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'condition' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'instruction' } },
               ],
             },
           },
@@ -3302,6 +3320,7 @@ export const AiAssistantDetailsDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantSelector_assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantForLibrariesFragment' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantBasecaseForm_assistantFragment' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantIcon_assistantFragment' } },
               ],
             },
           },
@@ -3352,14 +3371,6 @@ export const AiAssistantDetailsDocument = {
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLibrariesFragment' } }],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLanguageModels' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantForm_languageModel' } }],
-            },
-          },
         ],
       },
     },
@@ -3375,31 +3386,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'languageModelId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'languageModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'llmTemperature' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'baseCases' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sequence' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
         ],
       },
     },
@@ -3437,10 +3424,25 @@ export const AiAssistantDetailsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sequence' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'condition' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'instruction' } },
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantIcon_assistantFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
         ],
       },
     },
@@ -3473,18 +3475,6 @@ export const AiAssistantDetailsDocument = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AssistantLibrariesFragment' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantForm_languageModel' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLanguageModel' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
