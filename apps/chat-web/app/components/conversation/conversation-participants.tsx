@@ -3,7 +3,6 @@ import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
 import { removeConversationParticipant } from '../../server-functions/participations'
@@ -46,7 +45,6 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const user = authContext.user
 
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
@@ -69,11 +67,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   }
 
   if (!user) {
-    return (
-      <button type="button" className="btn btn-outline" onClick={() => authContext?.login()}>
-        {t('texts.signInForConversations')}
-      </button>
-    )
+    return null
   }
 
   return (
