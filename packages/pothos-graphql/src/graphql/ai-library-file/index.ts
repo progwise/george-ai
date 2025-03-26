@@ -47,6 +47,39 @@ async function dropFileById(fileId: string) {
   }
 }
 
+const cancelFileUpload = async (fileId: string) => {
+  const file = await prisma.aiLibraryFile.findUnique({
+    where: { id: fileId },
+  })
+  if (!file) {
+    throw new Error(`File not found: ${fileId}`)
+  }
+
+  try {
+    await dropFileFromVectorstore(file.libraryId, file.id)
+
+    await Promise.all([
+      prisma.aiLibraryFile.delete({
+        where: { id: file.id },
+      }),
+      new Promise((resolve, reject) => {
+        fs.rm(getFilePath(file.id), (err) => {
+          if (err) {
+            reject(`Error deleting file ${file.id}: ${err.message}`)
+          } else {
+            resolve(`File ${file.id} deleted`)
+          }
+        })
+      }),
+    ])
+
+    console.log(`Cancelled and removed file: ${fileId}`)
+  } catch (error) {
+    console.error(`Error cancelling file upload for ${fileId}:`, error)
+    throw error
+  }
+}
+
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
@@ -269,6 +302,19 @@ builder.mutationField('reProcessFile', (t) =>
         })
         throw error
       }
+    },
+  }),
+)
+
+builder.mutationField('cancelFileUpload', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { fileId }) => {
+      await cancelFileUpload(fileId)
+      return true
     },
   }),
 )
