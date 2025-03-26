@@ -174,11 +174,6 @@ export type AiLibraryUsage = {
   usedFor?: Maybe<Scalars['String']['output']>
 }
 
-export type AiLibraryUsageInput = {
-  libraryId: Scalars['String']['input']
-  usedFor?: InputMaybe<Scalars['String']['input']>
-}
-
 export type AssistantParticipant = AiConversationParticipant & {
   __typename?: 'AssistantParticipant'
   assistant?: Maybe<AiAssistant>
@@ -249,7 +244,6 @@ export type Mutation = {
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
   updateLibraryUsage?: Maybe<AiLibraryUsage>
-  updateLibraryUsages?: Maybe<Array<AiLibraryUsage>>
   updateMessage?: Maybe<AiConversationMessage>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
@@ -387,11 +381,6 @@ export type MutationUpdateAiLibraryArgs = {
 export type MutationUpdateLibraryUsageArgs = {
   id: Scalars['String']['input']
   usedFor?: InputMaybe<Scalars['String']['input']>
-}
-
-export type MutationUpdateLibraryUsagesArgs = {
-  assistantId: Scalars['String']['input']
-  usages: Array<AiLibraryUsageInput>
 }
 
 export type MutationUpdateMessageArgs = {

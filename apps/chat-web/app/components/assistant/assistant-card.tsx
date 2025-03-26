@@ -56,7 +56,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
               <div className="badge badge-outline">Sequential</div>
             </div>
             <div className="flex w-full place-content-between">
-              <AssistantDeleteDialog assistant={assistant} renderOption="icon" />
+              <AssistantDeleteDialog assistant={assistant} />
               <Link
                 type="button"
                 className="btn btn-ghost btn-secondary btn-sm"

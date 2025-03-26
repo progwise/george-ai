@@ -11,14 +11,7 @@ export const AiLibraryUsage = builder.prismaObject('AiLibraryUsage', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
     assistant: t.relation('assistant', { nullable: false }),
     library: t.relation('library', { nullable: false }),
-    usedFor: t.exposeString('usedFor'),
-  }),
-})
-
-const AiLibraryUsageInput = builder.inputType('AiLibraryUsageInput', {
-  fields: (t) => ({
-    libraryId: t.string({ required: true }),
-    usedFor: t.string({ required: false }),
+    usedFor: t.exposeString('usedFor', { nullable: true }),
   }),
 })
 
@@ -111,37 +104,6 @@ builder.mutationField('updateLibraryUsage', (t) =>
         ...query,
         where: { id },
         data: { usedFor },
-      })
-      return result
-    },
-  }),
-)
-
-builder.mutationField('updateLibraryUsages', (t) =>
-  t.prismaField({
-    type: ['AiLibraryUsage'],
-    args: {
-      assistantId: t.arg.string({ required: true }),
-      usages: t.arg({ type: [AiLibraryUsageInput], required: true }),
-    },
-    resolve: async (query, _source, args) => {
-      const assistantId = args.assistantId
-
-      const result = await prisma.$transaction(async (tx) => {
-        await tx.aiLibraryUsage.deleteMany({
-          where: { assistantId },
-        })
-        return Promise.all(
-          args.usages.map((usage) => {
-            const libraryId = usage.libraryId
-            return tx.aiLibraryUsage.upsert({
-              ...query,
-              where: { assistantId_libraryId: { assistantId, libraryId } },
-              create: { ...usage, assistantId },
-              update: { ...usage },
-            })
-          }),
-        )
       })
       return result
     },

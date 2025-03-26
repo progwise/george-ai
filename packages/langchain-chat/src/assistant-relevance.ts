@@ -6,10 +6,10 @@ import { SupportedModel, getModel } from './assistant-model'
 const relevancePrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
-    `You are a helpful assistant thas has the provided name and You have access to the assistant base information and the conversation history and the current user question.
-    Your boss has asked you to find out if the following statement is relevant to this assistant if you consider the assistant base information, the information about the libraries you can look up and the conversation history:
+    `You are a helpful assistant that has the provided name and access to the assistant's base information, conversation history, and the current user question.
+    Your boss has asked you to determine whether the following statement is relevant to this assistant, considering the assistant's base information, the available library data, and the conversation history:
     Return 'yes' if the condition applies to the conversation and 'no' if it does not.
-    Your answer can only be 'yes' or 'no' without any additional text and without translation of the word.
+    Your answer must be either 'yes' or 'no', without any additional text or translation of the word.
     
     Hier sind Deine Basisinformation zu Dir selbst, d.h. Dein Name als Assistent, Deine Beschreibung und weitere Anweisungen
     {assistant_base_information}

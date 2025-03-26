@@ -7,7 +7,6 @@ import {
   AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
-  AiLibraryUsageInput,
   RetrievalFlow,
   UserInput,
   UserProfileInput,
@@ -74,13 +73,6 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
-  })
-}
-
-export function AiLibraryUsageInputSchema(): z.ZodObject<Properties<AiLibraryUsageInput>> {
-  return z.object({
-    libraryId: z.string(),
-    usedFor: z.string().nullish(),
   })
 }
 

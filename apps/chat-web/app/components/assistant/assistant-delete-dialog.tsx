@@ -49,7 +49,6 @@ const AssistantDelete_assistantFragment = graphql(`
 
 export interface AssistantDeleteDialogProps {
   assistant: FragmentType<typeof AssistantDelete_assistantFragment>
-  renderOption?: 'button' | 'icon'
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
@@ -83,20 +82,15 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
 
   return (
     <>
-      {props.renderOption === 'icon' ? (
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm tooltip"
-          onClick={showDialog}
-          data-tip={t('assistants.delete')}
-        >
-          <TrashIcon />
-        </button>
-      ) : (
-        <button type="button" className="btn btn-primary btn-sm" onClick={showDialog}>
-          {t('assistants.deleteButton')}
-        </button>
-      )}
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm tooltip"
+        onClick={showDialog}
+        data-tip={t('assistants.delete')}
+      >
+        <TrashIcon />
+      </button>
+
       <DialogForm
         ref={dialogRef}
         title={t('assistants.delete')}

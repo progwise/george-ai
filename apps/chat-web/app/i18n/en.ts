@@ -44,9 +44,9 @@ export default {
   },
   brand: 'George-Ai',
   conversations: {
+    askAssistant: 'ask {assistantName}',
     assistants: 'Assistants',
     humans: 'Users',
-    askAssistant: 'ask {assistantName}',
   },
   dialog: {
     cancel: 'Cancel',
