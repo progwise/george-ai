@@ -89,13 +89,11 @@ function RouteComponent() {
           </Link>
         </div>
       </div>
-      <div className="flex w-full flex-col items-start gap-4 lg:flex-row">
+      <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
         <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
           <AssistantForm assistant={aiAssistant} disabled={!user} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
-
-          <hr className="my-3" />
         </div>
         <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
           <AssistantBasecaseForm assistant={aiAssistant} />

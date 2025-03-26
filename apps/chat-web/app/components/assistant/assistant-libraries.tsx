@@ -146,21 +146,21 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
 
       <div className="flex flex-col gap-2">
         {usages?.map((usage) => (
-          <div className="card flex" key={usage.id}>
-            <label className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+          <div className="card" key={usage.id}>
+            <label className="flex justify-between">
+              <div className="ml-1 flex items-center gap-2">
                 <BookIcon className="size-3" />
                 <Link
                   to="/libraries/$libraryId"
                   params={{ libraryId: usage.libraryId }}
-                  className="link-hover link my-0 py-0 text-sm"
+                  className="link-hover link text-sm"
                 >
                   {usage.library.name}
                 </Link>
               </div>
               <button
                 type="button"
-                className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
+                className="btn btn-circle btn-ghost btn-sm tooltip tooltip-bottom"
                 onClick={() => {
                   const libraryId = usage.libraryId
                   removeUsage({ assistantId: assistant.id, libraryId })

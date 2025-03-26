@@ -27,9 +27,9 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
     <>
       <div key={assistant.id} className="card w-96 bg-base-100 shadow-xl">
         <figure className="max-h-24">
-          <div className="h-36 w-full overflow-hidden rounded-lg border bg-black/5 bg-cover bg-center bg-no-repeat text-center">
+          <div className="h-36 w-full overflow-hidden rounded-lg text-center">
             {!assistant.iconUrl ? (
-              <div className="flex h-full w-full items-center justify-center bg-black/5 text-base-content/50">
+              <div className="flex h-full w-full items-center justify-center bg-base-300 text-base-content/50">
                 {
                   t('assistants.hasNoIcon').replace('{assistant.name}', assistant.name) // TODO: assistant.name
                 }

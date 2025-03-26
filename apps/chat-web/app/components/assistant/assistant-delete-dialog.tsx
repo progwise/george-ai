@@ -86,7 +86,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
       {props.renderOption === 'icon' ? (
         <button
           type="button"
-          className="btn-btn-ghost btn btn-sm tooltip"
+          className="btn btn-ghost btn-sm tooltip"
           onClick={showDialog}
           data-tip={t('assistants.delete')}
         >
