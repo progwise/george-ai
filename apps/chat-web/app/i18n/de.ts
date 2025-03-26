@@ -16,7 +16,6 @@ export default {
     sendMessage: 'Nachricht senden',
   },
   assistants: {
-    addAssistantIcon: 'Assistentenbild hinzufügen',
     addNew: 'Neuen Assistenten erstellen',
     addNewButton: 'Assistent erstellen',
     addNewDescription:

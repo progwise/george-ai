@@ -2,6 +2,7 @@ import { ChangeEventHandler, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { CameraIcon } from '../../icons/camera-icon'
 
 type FileType = 'image/*' | 'audio/*' | 'video/*' | 'application/*'
 
@@ -36,10 +37,9 @@ export const FileUpload = ({
         disabled={disabled}
       >
         {!imageUrl ? (
-          <span className="hover:text-primary">{t('assistants.addAssistantIcon')}...</span>
+          <CameraIcon className="h-full w-full p-5 text-black/50" />
         ) : (
           <img
-            key={Date.now()}
             src={imageUrl}
             alt={t('labels.assistantIcon')}
             className="h-full w-full object-cover"

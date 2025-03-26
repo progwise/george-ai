@@ -16,7 +16,6 @@ export default {
     sendMessage: 'Send message',
   },
   assistants: {
-    addAssistantIcon: 'Add assistant icon',
     addNew: 'Create new assistant',
     addNewButton: 'Create assistant',
     addNewDescription:
