@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
@@ -83,52 +83,63 @@ const cancelFileUpload = createServerFn({ method: 'POST' })
 
 export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
   const dialogRef = useRef<HTMLDialogElement | null>(null)
-  const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
-  const [fileIdMap, setFileIdMap] = useState(() => new Map<string, string>())
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({})
+  const [abortControllers, setAbortControllers] = useState<Record<string, AbortController>>({})
+  const [fileIdMap, setFileIdMap] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    return () => {
+      Object.values(abortControllers).forEach((controller) => {
+        controller.abort()
+      })
+    }
+  }, [abortControllers])
 
   const handleCancelUpload = async (fileName: string) => {
-    const abortController = abortControllers.get(fileName)
-    if (abortController) {
-      abortController.abort()
-      const fileId = fileIdMap.get(fileName)
+    const controller = abortControllers[fileName]
+    if (controller) {
+      controller.abort()
+      const fileId = fileIdMap[fileName]
       if (fileId) {
         try {
           await cancelFileUpload({ data: { fileId } })
+          setUploadProgress((prev) => ({
+            ...prev,
+            [fileId]: -1, // -1 for cancellation
+          }))
         } catch (error) {
           console.error(`Error cancelling upload for file ${fileName}:`, error)
         }
       }
-      setUploadProgress((prev) => {
-        const newProgress = new Map(prev)
-        if (fileId) {
-          newProgress.set(fileId, -1) // -1 for cancellation
-        }
-        return newProgress
-      })
+
       setAbortControllers((prev) => {
-        const newControllers = new Map(prev)
-        newControllers.delete(fileName) // Remove the controller for the cancelled file
-        return newControllers
+        const updated = { ...prev }
+        delete updated[fileName]
+        return updated
       })
     }
   }
 
   const handleCancelAllUploads = () => {
-    abortControllers.forEach((abortController) => abortController.abort())
+    Object.values(abortControllers).forEach((controller) => {
+      controller.abort()
+    })
+
     setUploadProgress((prev) => {
-      const newProgress = new Map(prev)
-      abortControllers.forEach((_, fileName) => {
-        const fileId = fileIdMap.get(fileName)
+      const updated = { ...prev }
+      Object.keys(abortControllers).forEach((fileName) => {
+        const fileId = fileIdMap[fileName]
         if (fileId) {
-          newProgress.set(fileId, -1) // Mark all as cancelled
+          updated[fileId] = -1
         }
       })
-      return newProgress
+      return updated
     })
-    setAbortControllers(new Map())
+
+    setAbortControllers({})
     dialogRef.current?.close()
   }
 
@@ -141,25 +152,13 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       }
 
       const uploadedFileIds: string[] = []
-      const abortController = new AbortController()
-      setAbortControllers((prev) => {
-        const newControllers = new Map(prev)
-        preparedFiles.forEach((file) => {
-          newControllers.set(file.fileName, abortController)
-        })
-        return newControllers
-      })
-
-      // Map file names to their prepared file IDs
-      const newFileIdMap = new Map<string, string>()
+      const newFileIdMap: Record<string, string> = {}
       preparedFiles.forEach(({ fileName, fileId }) => {
-        newFileIdMap.set(fileName, fileId)
+        newFileIdMap[fileName] = fileId
       })
       setFileIdMap(newFileIdMap)
 
       const totalFiles = preparedFiles.length
-
-      // Update counters for completed and canceled uploads
       let completedUploads = 0
       let canceledUploads = 0
 
@@ -168,11 +167,10 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
         if (!fileBlob) return Promise.resolve()
 
         const abortController = new AbortController()
-        setAbortControllers((prev) => {
-          const newControllers = new Map(prev)
-          newControllers.set(file.fileName, abortController)
-          return newControllers
-        })
+        setAbortControllers((prev) => ({
+          ...prev,
+          [file.fileName]: abortController,
+        }))
 
         return new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest()
@@ -184,14 +182,13 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
 
           xhr.upload.onprogress = (event) => {
             if (event.lengthComputable) {
-              setUploadProgress((prev) => {
-                const newProgress = new Map(prev)
-                const fileId = newFileIdMap.get(file.fileName)
-                if (fileId) {
-                  newProgress.set(fileId, (event.loaded / event.total) * 100)
-                }
-                return newProgress
-              })
+              const fileId = newFileIdMap[file.fileName]
+              if (fileId) {
+                setUploadProgress((prev) => ({
+                  ...prev,
+                  [fileId]: (event.loaded / event.total) * 100,
+                }))
+              }
             }
           }
 
@@ -228,6 +225,8 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       try {
         await Promise.all(uploadPromises)
 
+        setAbortControllers({})
+
         // Dialog closes before reprocessing starts
         if (completedUploads + canceledUploads >= totalFiles) {
           dialogRef.current?.close()
@@ -237,6 +236,9 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
         }
       } catch (err) {
         console.error('Error during file upload:', err)
+
+        setAbortControllers({})
+
         // Dialog closes before reprocessing starts
         if (completedUploads + canceledUploads >= totalFiles) {
           dialogRef.current?.close()
@@ -266,6 +268,9 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
     dialogRef.current?.showModal()
   }
 
+  const uploadProgressMap = new Map(Object.entries(uploadProgress))
+  const fileIdMapForComponent = new Map(Object.entries(fileIdMap))
+
   return (
     <>
       <nav className="flex flex-col gap-4">
@@ -286,8 +291,8 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
           <h3 className="mb-2 text-lg font-bold">Uploading Files</h3>
           <FileUploadProgressList
             selectedFiles={selectedFiles}
-            uploadProgress={uploadProgress}
-            fileIdMap={fileIdMap}
+            uploadProgress={uploadProgressMap}
+            fileIdMap={fileIdMapForComponent}
             handleCancelUpload={handleCancelUpload}
           />
           <div className="modal-action justify-end">
