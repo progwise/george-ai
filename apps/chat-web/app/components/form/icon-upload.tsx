@@ -6,23 +6,15 @@ import { CameraIcon } from '../../icons/camera-icon'
 
 type FileType = 'image/*' | 'audio/*' | 'video/*' | 'application/*'
 
-interface FileUploadProps {
+interface IconUploadProps {
   fileTypes?: FileType[] | FileType
   className?: string
-  multiple?: boolean
   disabled?: boolean
-  handleUploadFiles: ChangeEventHandler<HTMLInputElement>
+  handleUploadIcon: ChangeEventHandler<HTMLInputElement>
   imageUrl?: string | null | undefined
 }
 
-export const FileUpload = ({
-  fileTypes,
-  className,
-  handleUploadFiles,
-  multiple,
-  disabled,
-  imageUrl,
-}: FileUploadProps) => {
+export const IconUpload = ({ fileTypes, className, handleUploadIcon, disabled, imageUrl }: IconUploadProps) => {
   const { t } = useTranslation()
   const ref = useRef<HTMLInputElement>(null)
   const handleClick = () => {
@@ -41,7 +33,7 @@ export const FileUpload = ({
         ) : (
           <img
             src={imageUrl}
-            alt={t('labels.assistantIcon')}
+            alt={t('labels.icon')}
             className="h-full w-full object-cover"
             onError={(event) => {
               event.currentTarget.hidden = true
@@ -52,9 +44,9 @@ export const FileUpload = ({
       <input
         type="file"
         accept={fileTypes ? (Array.isArray(fileTypes) ? fileTypes.join(',') : fileTypes) : undefined}
-        multiple={!!multiple}
+        multiple={false}
         ref={ref}
-        onChange={handleUploadFiles}
+        onChange={handleUploadIcon}
         style={{ display: 'none' }}
         disabled={disabled}
       />

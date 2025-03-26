@@ -6,7 +6,6 @@
   - You are about to drop the column `llmTemperature` on the `AiAssistant` table. All the data in the column will be lost.
   - You are about to drop the column `description` on the `AiAssistantBaseCase` table. All the data in the column will be lost.
   - You are about to drop the `AiLanguageModel` table. If the table is not empty, all the data it contains will be lost.
-  - Added the required column `updatedAt` to the `AiLibraryUsage` table without a default value. This is not possible if the table is not empty.
 
 */
 -- DropForeignKey
@@ -25,7 +24,7 @@ ADD COLUMN     "condition" TEXT,
 ADD COLUMN     "instruction" TEXT;
 
 -- AlterTable
-ALTER TABLE "AiLibraryUsage" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL,
+ALTER TABLE "AiLibraryUsage" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN     "usedFor" TEXT;
 
 -- DropTable

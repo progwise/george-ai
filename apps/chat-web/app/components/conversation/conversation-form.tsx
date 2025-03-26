@@ -120,7 +120,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
           ))}
 
           <button name="send" type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
-            Send ({remainingMessages})
+            {t('actions.sendMessage')} ({remainingMessages})
           </button>
         </div>
       </form>

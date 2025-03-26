@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
-import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -11,7 +10,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
 import { queryKeys } from '../../query-keys'
 import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
-import { FileUpload } from '../form/file-upload'
+import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 
@@ -108,7 +107,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
       }),
   })
 
-  const handleUploadFiles = React.useCallback(
+  const handleUploadIcon = React.useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.currentTarget.files
       if (!files || files.length !== 1) return
@@ -133,14 +132,14 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   }
 
   return (
-    <form ref={formRef} className={twMerge('grid items-center gap-2')} onSubmit={(e) => e.preventDefault()}>
+    <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant?.id} />
 
-      <FileUpload
-        className="z-10 col-span-2 justify-self-center"
+      <IconUpload
+        className="col-span-2 justify-self-center"
         fileTypes="image/*"
-        handleUploadFiles={handleUploadFiles}
+        handleUploadIcon={handleUploadIcon}
         imageUrl={assistant?.iconUrl}
       />
       <Input
@@ -148,7 +147,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         type="text"
         label={t('labels.name')}
         value={assistant?.name}
-        className="z-10 col-span-2"
+        className="col-span-2"
         required
         {...fieldProps}
       />

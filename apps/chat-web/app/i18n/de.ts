@@ -87,6 +87,7 @@ export default {
     firstName: 'Vorname',
     freeMessages: 'Anzahl Nachrichten',
     freeStorage: 'Freier Speicher',
+    icon: 'Icon',
     instructions: 'Anweisungen',
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',

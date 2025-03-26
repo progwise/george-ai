@@ -100,7 +100,7 @@ model AiLibrary {
 model AiLibraryUsage {
   id          String      @id @default(cuid())
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  updatedAt   DateTime    @updatedAt @default(now())
   assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   assistantId String
   library     AiLibrary   @relation(fields: [libraryId], references: [id], onDelete: Cascade)

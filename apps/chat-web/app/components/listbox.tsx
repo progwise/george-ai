@@ -1,5 +1,4 @@
 import { Listbox as HuListbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
-import { twMerge } from 'tailwind-merge'
 
 import { CheckIcon } from '../icons/check-icon'
 import { ChevronUpDownIcon } from '../icons/chevron-up-down-icon'
@@ -30,7 +29,7 @@ export const Listbox = <T extends { id: string; name: string }>({
         onChange(newItem)
       }}
     >
-      <div className={twMerge('', className)}>
+      <div className={className}>
         <ListboxButton
           disabled={disabled}
           aria-required={required}

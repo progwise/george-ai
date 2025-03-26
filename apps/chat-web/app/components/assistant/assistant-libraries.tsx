@@ -171,7 +171,7 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
               </button>
             </label>
             <Input
-              className=""
+              className="min-h-20"
               type="textarea"
               name="description"
               value={usage.usedFor}
