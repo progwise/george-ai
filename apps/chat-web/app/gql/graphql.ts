@@ -21,7 +21,6 @@ export type Scalars = {
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: string; output: string }
   Decimal: { input: number; output: number }
-  JSONObject: { input: any; output: any }
 }
 
 export type AiAssistant = {
@@ -34,13 +33,8 @@ export type AiAssistant = {
   languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
-  previewFlow: AiFlow
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
-}
-
-export type AiAssistantPreviewFlowArgs = {
-  ownerId: Scalars['String']['input']
 }
 
 export type AiAssistantBaseCase = {
@@ -118,38 +112,6 @@ export type AiConversationParticipant = {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
-}
-
-export type AiFlow = {
-  __typename?: 'AiFlow'
-  assistant: AiAssistant
-  assistantId: Scalars['String']['output']
-  createdAt: Scalars['DateTime']['output']
-  id: Scalars['ID']['output']
-  nodes: Array<AiFlowNode>
-  owner: User
-  ownerId: Scalars['ID']['output']
-  task?: Maybe<Scalars['String']['output']>
-  trigger?: Maybe<Scalars['String']['output']>
-  updatedAt?: Maybe<Scalars['DateTime']['output']>
-}
-
-export type AiFlowInput = {
-  assistantId: Scalars['String']['input']
-  ownerId: Scalars['String']['input']
-  task: Scalars['String']['input']
-  trigger: Scalars['String']['input']
-}
-
-export type AiFlowNode = {
-  __typename?: 'AiFlowNode'
-  createdAt: Scalars['DateTime']['output']
-  flowId: Scalars['ID']['output']
-  id: Scalars['ID']['output']
-  message?: Maybe<Scalars['String']['output']>
-  sequence: Scalars['Float']['output']
-  type: Scalars['String']['output']
-  updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 export type AiLibrary = {
@@ -265,7 +227,6 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
-  createFlow?: Maybe<AiFlow>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -283,7 +244,6 @@ export type Mutation = {
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
-  sendFlowMessage?: Maybe<AiFlowNode>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -332,10 +292,6 @@ export type MutationCreateAiConversationArgs = {
 export type MutationCreateAiLibraryArgs = {
   data: AiLibraryInput
   ownerId: Scalars['String']['input']
-}
-
-export type MutationCreateFlowArgs = {
-  data: AiFlowInput
 }
 
 export type MutationCreateUserArgs = {
@@ -409,12 +365,6 @@ export type MutationSendConfirmationMailArgs = {
   userId: Scalars['String']['input']
 }
 
-export type MutationSendFlowMessageArgs = {
-  flowId: Scalars['String']['input']
-  message: Scalars['String']['input']
-  type: Scalars['String']['input']
-}
-
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
   userId: Scalars['String']['input']
@@ -466,7 +416,6 @@ export type Query = {
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
-  aiFlow?: Maybe<AiFlow>
   aiLibraries?: Maybe<Array<AiLibrary>>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
@@ -495,10 +444,6 @@ export type QueryAiConversationMessagesArgs = {
 
 export type QueryAiConversationsArgs = {
   userId: Scalars['String']['input']
-}
-
-export type QueryAiFlowArgs = {
-  id: Scalars['String']['input']
 }
 
 export type QueryAiLibrariesArgs = {

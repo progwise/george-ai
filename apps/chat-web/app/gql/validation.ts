@@ -5,7 +5,6 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
-  AiFlowInput,
   AiLibraryFileInput,
   AiLibraryInput,
   AiLibraryUsageInput,
@@ -57,15 +56,6 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
     content: z.string(),
     conversationId: z.string(),
     recipientAssistantIds: z.array(z.string()),
-  })
-}
-
-export function AiFlowInputSchema(): z.ZodObject<Properties<AiFlowInput>> {
-  return z.object({
-    assistantId: z.string(),
-    ownerId: z.string(),
-    task: z.string(),
-    trigger: z.string(),
   })
 }
 

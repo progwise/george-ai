@@ -12,7 +12,6 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
-  previewFlow(ownerId: String!): AiFlow!
   updatedAt: DateTime
   url: String
 }
@@ -89,36 +88,6 @@ interface AiConversationParticipant {
   name: String
   user: User
   userId: ID
-}
-
-type AiFlow {
-  assistant: AiAssistant!
-  assistantId: String!
-  createdAt: DateTime!
-  id: ID!
-  nodes: [AiFlowNode!]!
-  owner: User!
-  ownerId: ID!
-  task: String
-  trigger: String
-  updatedAt: DateTime
-}
-
-input AiFlowInput {
-  assistantId: String!
-  ownerId: String!
-  task: String!
-  trigger: String!
-}
-
-type AiFlowNode {
-  createdAt: DateTime!
-  flowId: ID!
-  id: ID!
-  message: String
-  sequence: Float!
-  type: String!
-  updatedAt: DateTime
 }
 
 type AiLibrary {
@@ -232,8 +201,6 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
-scalar JSONObject
-
 type Mutation {
   addConversationParticipants(
     assistantIds: [String!]
@@ -247,7 +214,6 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
-  createFlow(data: AiFlowInput!): AiFlow
   createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
@@ -265,7 +231,6 @@ type Mutation {
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
-  sendFlowMessage(flowId: String!, message: String!, type: String!): AiFlowNode
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -283,7 +248,6 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
   aiConversations(userId: String!): [AiConversation!]!
-  aiFlow(id: String!): AiFlow
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
