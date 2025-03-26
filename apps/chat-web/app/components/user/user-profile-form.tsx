@@ -93,7 +93,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
     mutationFn: (data: FormData) => updateProfile({ data }),
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.UserProfile, userProfile.id, queryKeys.UserProfileForEdit, userProfile.userId],
+        queryKey: [queryKeys.CurrentUserProfile, userProfile.userId],
       })
     },
   })
