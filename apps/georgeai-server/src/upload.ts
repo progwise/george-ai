@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-import { checkFileUpload, completeFileUpload, getFilePath } from '@george-ai/pothos-graphql'
+import { checkFileUpload, cleanupFile, completeFileUpload, getFilePath } from '@george-ai/pothos-graphql'
 
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
@@ -62,24 +62,10 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     if (!httpRequest.complete) {
       console.log('Upload aborted, cleaning up...')
 
-      const filePath = getFilePath(file.id)
-
-      // Ensure the file is actually deleted
       try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath)
-          console.log(`Deleted partial file: ${filePath}`)
-        }
+        await cleanupFile(file.id)
       } catch (error) {
-        console.error('Error deleting partial file:', error)
-      }
-
-      // Remove the upload record from the database
-      try {
-        await prisma?.aiLibraryFile.delete({ where: { id: file.id } })
-        console.log(`Deleted database record for file ID: ${file.id}`)
-      } catch (error) {
-        console.error('Error deleting database record:', error)
+        console.error('Error during cleanup after upload abort:', error)
       }
     }
   })

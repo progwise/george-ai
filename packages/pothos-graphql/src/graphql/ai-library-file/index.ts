@@ -2,7 +2,7 @@ import * as fs from 'fs'
 
 import { dropFileFromVectorstore, embedFile } from '@george-ai/langchain-chat'
 
-import { getFilePath } from '../../file-upload'
+import { cleanupFile, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -48,36 +48,7 @@ async function dropFileById(fileId: string) {
 }
 
 const cancelFileUpload = async (fileId: string) => {
-  const file = await prisma.aiLibraryFile.findUnique({
-    where: { id: fileId },
-  })
-  if (!file) {
-    throw new Error(`File not found: ${fileId}`)
-  }
-
-  try {
-    await dropFileFromVectorstore(file.libraryId, file.id)
-
-    await Promise.all([
-      prisma.aiLibraryFile.delete({
-        where: { id: file.id },
-      }),
-      new Promise((resolve, reject) => {
-        fs.rm(getFilePath(file.id), (err) => {
-          if (err) {
-            reject(`Error deleting file ${file.id}: ${err.message}`)
-          } else {
-            resolve(`File ${file.id} deleted`)
-          }
-        })
-      }),
-    ])
-
-    console.log(`Cancelled and removed file: ${fileId}`)
-  } catch (error) {
-    console.error(`Error cancelling file upload for ${fileId}:`, error)
-    throw error
-  }
+  await cleanupFile(fileId)
 }
 
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
