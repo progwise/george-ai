@@ -44,7 +44,7 @@ type Documents = {
   '\n  fragment NewConversationSelector_Assistant on AiAssistant {\n    ...ParticipantsDialog_Assistant\n  }\n': typeof types.NewConversationSelector_AssistantFragmentDoc
   '\n  fragment NewConversationSelector_Human on User {\n    ...ParticipantsDialog_Human\n  }\n': typeof types.NewConversationSelector_HumanFragmentDoc
   '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n': typeof types.ParticipantsDialog_ConversationFragmentDoc
-  '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n  }\n': typeof types.ParticipantsDialog_AssistantFragmentDoc
+  '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.ParticipantsDialog_AssistantFragmentDoc
   '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n  }\n': typeof types.ParticipantsDialog_HumanFragmentDoc
   '\n  mutation dropFiles($libraryId: String!) {\n    dropFiles(libraryId: $libraryId) {\n      id\n      libraryId\n    }\n  }\n': typeof types.DropFilesDocument
   '\n  mutation deleteAiLibrary($id: String!) {\n    deleteAiLibrary(id: $id) {\n      id\n    }\n  }\n': typeof types.DeleteAiLibraryDocument
@@ -143,7 +143,7 @@ const documents: Documents = {
     types.NewConversationSelector_HumanFragmentDoc,
   '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n':
     types.ParticipantsDialog_ConversationFragmentDoc,
-  '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n  }\n':
+  '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n':
     types.ParticipantsDialog_AssistantFragmentDoc,
   '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n  }\n':
     types.ParticipantsDialog_HumanFragmentDoc,
@@ -415,8 +415,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n  }\n',
-): (typeof documents)['\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n  }\n']
+  source: '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

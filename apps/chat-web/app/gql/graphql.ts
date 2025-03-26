@@ -978,7 +978,7 @@ export type ParticipantsDialog_ConversationFragment = {
   >
 } & { ' $fragmentName'?: 'ParticipantsDialog_ConversationFragment' }
 
-export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string } & {
+export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
   ' $fragmentName'?: 'ParticipantsDialog_AssistantFragment'
 }
 
@@ -1891,7 +1891,13 @@ export const ParticipantsDialog_AssistantFragmentDoc = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ParticipantsDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
     },
   ],
 } as unknown as DocumentNode<ParticipantsDialog_AssistantFragment, unknown>
@@ -1911,7 +1917,13 @@ export const ConversationParticipants_AssistantFragmentDoc = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ParticipantsDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
     },
   ],
 } as unknown as DocumentNode<ConversationParticipants_AssistantFragment, unknown>
@@ -2027,7 +2039,13 @@ export const NewConversationSelector_AssistantFragmentDoc = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ParticipantsDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
     },
   ],
 } as unknown as DocumentNode<NewConversationSelector_AssistantFragment, unknown>
@@ -4085,7 +4103,13 @@ export const GetAssignableAssistantsDocument = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'ParticipantsDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
     },
     {
       kind: 'FragmentDefinition',

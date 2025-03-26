@@ -25,6 +25,7 @@ const ParticipantsDialog_ConversationFragment = graphql(`
 const ParticipantsDialog_AssistantFragment = graphql(`
   fragment ParticipantsDialog_Assistant on AiAssistant {
     id
+    name
   }
 `)
 
