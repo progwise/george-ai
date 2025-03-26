@@ -54,8 +54,8 @@ const upsertAiBaseCases = createServerFn({ method: 'POST' })
     )
   })
 
-const AssistantBasecaseForm_assistantFragment = graphql(`
-  fragment AssistantBasecaseForm_assistantFragment on AiAssistant {
+const AssistantBasecaseForm_AssistantFragment = graphql(`
+  fragment AssistantBasecaseForm_Assistant on AiAssistant {
     id
     baseCases {
       id
@@ -67,7 +67,7 @@ const AssistantBasecaseForm_assistantFragment = graphql(`
 `)
 
 export interface AssistantBaseCaseFormProps {
-  assistant: FragmentType<typeof AssistantBasecaseForm_assistantFragment>
+  assistant: FragmentType<typeof AssistantBasecaseForm_AssistantFragment>
 }
 
 export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
@@ -76,7 +76,7 @@ export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
   const { t } = useTranslation()
   const formRef = React.useRef<HTMLFormElement>(null)
 
-  const assistant = useFragment(AssistantBasecaseForm_assistantFragment, props.assistant)
+  const assistant = useFragment(AssistantBasecaseForm_AssistantFragment, props.assistant)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
