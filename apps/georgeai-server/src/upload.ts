@@ -62,9 +62,14 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     if (!httpRequest.complete) {
       console.log('Upload aborted, cleaning up...')
 
-      // Delete the partially uploaded file from the filesystem
+      const filePath = getFilePath(file.id)
+
+      // Ensure the file is actually deleted
       try {
-        fs.unlinkSync(getFilePath(file.id))
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath)
+          console.log(`Deleted partial file: ${filePath}`)
+        }
       } catch (error) {
         console.error('Error deleting partial file:', error)
       }
