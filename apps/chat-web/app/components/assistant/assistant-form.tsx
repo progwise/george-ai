@@ -14,7 +14,7 @@ import { Input } from '../form/input'
 import { Select } from '../form/select'
 
 const AssistantForm_AssistantFragment = graphql(`
-  fragment AssistantForm_assistant on AiAssistant {
+  fragment AssistantForm_Assistant on AiAssistant {
     id
     name
     description
@@ -34,7 +34,7 @@ const AssistantForm_AssistantFragment = graphql(`
 `)
 
 const AssistantForm_LanguageModelFragment = graphql(`
-  fragment AssistantForm_languageModel on AiLanguageModel {
+  fragment AssistantForm_LanguageModel on AiLanguageModel {
     id
     name
   }

@@ -5,23 +5,23 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { AssistantDeleteDialog } from './assistant-delete-dialog'
 
-const AssistantCard_assistantFragment = graphql(`
-  fragment AssistantCard_assistantFragment on AiAssistant {
+const AssistantCard_AssistantFragment = graphql(`
+  fragment AssistantCard_Assistant on AiAssistant {
     id
     name
     description
     icon
-    ...AssistantDelete_assistantFragment
+    ...AssistantDelete_Assistant
   }
 `)
 
 export interface AssistantCardProps {
-  assistant: FragmentType<typeof AssistantCard_assistantFragment>
+  assistant: FragmentType<typeof AssistantCard_AssistantFragment>
 }
 
 export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
   const { t } = useTranslation()
-  const assistant = useFragment(AssistantCard_assistantFragment, props.assistant)
+  const assistant = useFragment(AssistantCard_AssistantFragment, props.assistant)
 
   return (
     <>
