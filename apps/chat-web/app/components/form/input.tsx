@@ -79,7 +79,7 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered flex-grow leading-normal',
+            'input input-sm input-bordered flex-grow py-1 leading-normal',
             readOnly && 'cursor-not-allowed text-base-content/50',
           )}
           placeholder={placeholder || ''}

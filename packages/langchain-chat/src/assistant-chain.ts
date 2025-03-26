@@ -146,18 +146,6 @@ export async function* askAssistantChain(input: {
   }
 }
 
-// const searchVectorStorePrompt = ChatPromptTemplate.fromMessages([
-//   [
-//     'system',
-//     `You are a helpful assistant that has access to the entire conversation history and the current user question.
-//        Your task is to produce a single concise but contextually rich search query that captures the key details of what the user is asking, considering all previous messages in the conversation.
-//        The result should be a short phrase or sentence that includes relevant historical context and the latest request, suitable for a similarity and web search.`,
-//   ],
-//   new MessagesPlaceholder('chat_history'),
-//   ['human', '{question}'],
-// ])
-
-// Your name is George-AI. You are a travel assistant. You have access only to the following PDF excerpt
 const getAssistantAnswerPrompt = () =>
   ChatPromptTemplate.fromMessages([
     [

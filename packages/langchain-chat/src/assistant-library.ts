@@ -15,8 +15,10 @@ export const getLibraryPrompt = async ({
   const prompt = await ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You need to decide if the following library is relevant to the current user question. Relevance is defined by the library base information and the conversation history and the current user question.
-      You need to provide a JSON without any additional text. Your result must be parsed by some JSON parser that should not fail. So avoid any additional text, just pure JSON in the format:
+      `You need to determine whether the following library is relevant to the current user question. Relevance is decided based onthe library's base information, the conversation history and the current user question.
+      You must provide a pure JSON response without any additional text.
+      The result must be valid JSON that can be parsed without errors.
+      Ensure there is no extra text, only properly formatted JSON in the following structure:
       
       {json_format}
       

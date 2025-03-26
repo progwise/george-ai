@@ -31,7 +31,7 @@ export const Dropdown = ({ title, options, action, className }: DropdownProps): 
       <Menu>
         <MenuButton className="input input-sm input-bordered flex w-full items-center justify-between gap-4 rounded-lg bg-white px-2 py-1 text-left text-sm focus:outline-none">
           {title}
-          <ChevronUpDownIcon className="" />
+          <ChevronUpDownIcon />
         </MenuButton>
         <MenuItems
           transition
