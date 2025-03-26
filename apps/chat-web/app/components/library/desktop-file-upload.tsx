@@ -5,6 +5,8 @@ import { z } from 'zod'
 
 import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
 import { graphql } from '../../gql'
+import { CrossIcon } from '../../icons/cross-icon'
+import { FileIcon } from '../../icons/file-icon'
 import { backendRequest } from '../../server-functions/backend'
 import { LibraryFile, LibraryFileSchema } from './files-table'
 
@@ -64,14 +66,44 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
 export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [uploadProgress, setUploadProgress] = useState(() => new Map<string, number>())
+  const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
   const dialogRef = useRef<HTMLDialogElement | null>(null)
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
   const [fileIdMap, setFileIdMap] = useState(() => new Map<string, string>())
 
-  const handleCancelUpload = () => {
-    abortControllerRef.current?.abort()
-    setUploadProgress(new Map())
+  const handleCancelUpload = (fileName: string) => {
+    const abortController = abortControllers.get(fileName)
+    if (abortController) {
+      abortController.abort()
+      setUploadProgress((prev) => {
+        const newProgress = new Map(prev)
+        const fileId = fileIdMap.get(fileName)
+        if (fileId) {
+          newProgress.set(fileId, -1) // -1 for cancellation
+        }
+        return newProgress
+      })
+      setAbortControllers((prev) => {
+        const newControllers = new Map(prev)
+        newControllers.delete(fileName) // Remove the controller for the cancelled file
+        return newControllers
+      })
+    }
+  }
+
+  const handleCancelAllUploads = () => {
+    abortControllers.forEach((abortController) => abortController.abort())
+    setUploadProgress((prev) => {
+      const newProgress = new Map(prev)
+      abortControllers.forEach((_, fileName) => {
+        const fileId = fileIdMap.get(fileName)
+        if (fileId) {
+          newProgress.set(fileId, -1) // Mark all as cancelled
+        }
+      })
+      return newProgress
+    })
+    setAbortControllers(new Map())
     dialogRef.current?.close()
   }
 
@@ -84,7 +116,14 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       }
 
       const uploadedFileIds: string[] = []
-      abortControllerRef.current = new AbortController()
+      const abortController = new AbortController()
+      setAbortControllers((prev) => {
+        const newControllers = new Map(prev)
+        preparedFiles.forEach((file) => {
+          newControllers.set(file.fileName, abortController)
+        })
+        return newControllers
+      })
 
       // Map file names to their prepared file IDs
       const newFileIdMap = new Map<string, string>()
@@ -93,11 +132,24 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       })
       setFileIdMap(newFileIdMap)
 
-      for (const file of preparedFiles) {
-        const fileBlob = selectedFiles.find((f) => f.name === file.fileName)
-        if (!fileBlob) continue
+      const totalFiles = preparedFiles.length
 
-        await new Promise<void>((resolve, reject) => {
+      // Update counters for completed and canceled uploads
+      let completedUploads = 0
+      let canceledUploads = 0
+
+      const uploadPromises = preparedFiles.map((file) => {
+        const fileBlob = selectedFiles.find((f) => f.name === file.fileName)
+        if (!fileBlob) return Promise.resolve()
+
+        const abortController = new AbortController()
+        setAbortControllers((prev) => {
+          const newControllers = new Map(prev)
+          newControllers.set(file.fileName, abortController)
+          return newControllers
+        })
+
+        return new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest()
           xhr.open(file.method, file.uploadUrl)
 
@@ -121,22 +173,53 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
           xhr.onload = () => {
             if (xhr.status === 200) {
               uploadedFileIds.push(file.fileId)
+              completedUploads++
               resolve()
             } else {
               reject(new Error(`Failed to upload file: ${xhr.statusText}`))
             }
           }
 
-          xhr.onerror = () => reject(new Error('Network error during file upload'))
+          xhr.onerror = () => {
+            reject(new Error('Network error during file upload'))
+          }
+
+          xhr.onabort = () => {
+            canceledUploads++
+            reject(new Error('Upload aborted'))
+          }
 
           xhr.send(fileBlob)
-        })
-      }
 
-      if (onUploadComplete) {
-        await onUploadComplete(uploadedFileIds)
+          abortController.signal.addEventListener('abort', () => {
+            xhr.abort()
+          })
+        }).catch((error) => {
+          console.error(`Error uploading ${file.fileName}:`, error)
+          return // Allow other uploads to continue
+        })
+      })
+
+      try {
+        await Promise.all(uploadPromises)
+
+        // Ensure dialog closes after all files are processed or cancelled
+        if (completedUploads + canceledUploads >= totalFiles) {
+          if (onUploadComplete) {
+            await onUploadComplete(uploadedFileIds)
+          }
+          dialogRef.current?.close()
+        }
+      } catch (err) {
+        console.error('Error during file upload:', err)
+        // Ensure the dialog is closed even if an error occurs
+        if (completedUploads + canceledUploads >= totalFiles) {
+          if (onUploadComplete) {
+            await onUploadComplete(uploadedFileIds)
+          }
+          dialogRef.current?.close()
+        }
       }
-      dialogRef.current?.close()
     },
   })
 
@@ -145,7 +228,6 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
     if (files.length === 0) return
 
     setSelectedFiles(files)
-    abortControllerRef.current = new AbortController()
 
     prepareFilesMutation({
       libraryId,
@@ -176,25 +258,54 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       </nav>
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
-          <h3 className="text-lg font-bold">Uploading Files</h3>
+          <h3 className="mb-2 text-lg font-bold">Uploading Files</h3>
           <ul className="space-y-2">
             {selectedFiles.map((file) => {
               const fileId = fileIdMap.get(file.name) || file.name
+              const progress = uploadProgress.get(fileId)
+              const fileSize =
+                file.size >= 1000000 ? (file.size / 1000000).toFixed(1) + ' MB' : (file.size / 1000).toFixed(1) + ' KB'
+
               return (
-                <li key={file.name} className="flex items-center gap-2">
-                  <span className="w-1/2 truncate">{file.name}</span>
-                  <div className="relative h-2 w-full rounded bg-gray-200">
-                    <div
-                      className="absolute left-0 top-0 h-2 rounded bg-blue-500 transition-all duration-200"
-                      style={{ width: `${uploadProgress.get(fileId) || 0}%` }}
-                    ></div>
+                <li key={file.name} className="flex items-center justify-between gap-2 text-gray-700">
+                  <div className="flex w-1/2 items-center gap-2">
+                    <FileIcon />
+                    <span className="truncate">{file.name}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <span>{fileSize}</span>
+                    {progress === -1 ? (
+                      <span className="text-red-500">Cancelled</span>
+                    ) : progress === 100 ? (
+                      <span className="text-green-500">Uploaded</span>
+                    ) : (
+                      // Progress Bar
+                      <div className="relative h-2 w-20 rounded bg-gray-200">
+                        <div
+                          className="absolute left-0 top-0 h-2 rounded bg-blue-500 transition-all duration-200"
+                          style={{
+                            width: `${progress || 0}%`,
+                          }}
+                        ></div>
+                      </div>
+                    )}
+                  </div>
+                  {progress !== -1 && progress !== 100 && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-xs"
+                      onClick={() => handleCancelUpload(file.name)}
+                    >
+                      <CrossIcon />
+                    </button>
+                  )}
                 </li>
               )
             })}
           </ul>
+
           <div className="modal-action justify-end">
-            <button type="button" className="btn btn-sm" onClick={handleCancelUpload}>
+            <button type="button" className="btn btn-sm" onClick={handleCancelAllUploads}>
               Cancel
             </button>
           </div>
