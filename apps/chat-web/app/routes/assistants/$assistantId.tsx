@@ -25,20 +25,19 @@ const getAssistant = createServerFn({ method: 'GET' })
         graphql(`
           query aiAssistantDetails($id: String!, $ownerId: String!) {
             aiAssistant(id: $id) {
-              ...AssistantForm_assistant
-              ...AssistantSelector_assistant
-              ...AssistantForLibrariesFragment
-              ...AssistantBasecaseForm_assistantFragment
-              ...AssistantIcon_assistantFragment
+              ...AssistantForm_Assistant
+              ...AssistantSelector_Assistant
+              ...AssistantLibraries_Assistant
+              ...AssistantBasecaseForm_Assistant
             }
             aiAssistants(ownerId: $ownerId) {
-              ...AssistantSelector_assistant
+              ...AssistantSelector_Assistant
             }
             aiLibraryUsage(assistantId: $id) {
-              ...AssistantLibrariesUsageFragment
+              ...AssistantLibraries_LibraryUsage
             }
             aiLibraries(ownerId: $ownerId) {
-              ...AssistantLibrariesFragment
+              ...AssistantLibraries_Library
             }
           }
         `),

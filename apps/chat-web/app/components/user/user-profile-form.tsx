@@ -14,7 +14,7 @@ import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
 const UserProfileForm_UserProfileFragment = graphql(`
-  fragment UserProfileForm_userProfile on UserProfile {
+  fragment UserProfileForm_UserProfile on UserProfile {
     id
     userId
     email

@@ -1,5 +1,6 @@
 export default {
   actions: {
+    add: 'Add',
     cancel: 'Cancel',
     create: 'Create',
     delete: 'Delete',
@@ -52,6 +53,7 @@ export default {
     cancel: 'Cancel',
     confirm: 'Confirm',
     done: 'Done',
+    tooltipText: 'Nothing is selected',
   },
   errors: {
     invalidEmail: 'Invalid email',
@@ -108,6 +110,8 @@ export default {
   resetConversation: 'Reset conversation',
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
+    addParticipants: 'Add participants',
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     changeParticipantsAnytime: 'You can change these participants any time.',
     deleteConversation: 'Delete conversation',
     deleteConversationConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
@@ -119,6 +123,8 @@ export default {
     newConversation: 'New conversation',
     newConversationConfirmation: 'You are about to start a new conversation with the selected users and assistants.',
     noAssistant: 'No assistant',
+    noAssistantsAvailable: 'No assistants available',
+    noUsersAvailable: 'No users available',
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
     signInForConversations: 'Sign in to use conversations.',
@@ -126,6 +132,7 @@ export default {
     with: 'with',
   },
   tooltips: {
+    addNoParticipantsSelected: 'No assistant or user is selected',
     clearEmbeddings: 'Clear embeddings',
     deleteConversation: 'Delete conversation',
     drop: 'Drop',

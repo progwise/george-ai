@@ -15,7 +15,7 @@ import { Input } from '../form/input'
 import { Select } from '../form/select'
 
 const AssistantForm_AssistantFragment = graphql(`
-  fragment AssistantForm_assistant on AiAssistant {
+  fragment AssistantForm_Assistant on AiAssistant {
     id
     name
     iconUrl

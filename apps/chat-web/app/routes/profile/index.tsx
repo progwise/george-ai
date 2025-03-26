@@ -17,7 +17,7 @@ const userProfileQueryDocument = graphql(/* GraphQL */ `
   query userProfile($userId: String!) {
     userProfile(userId: $userId) {
       id
-      ...UserProfileForm_userProfile
+      ...UserProfileForm_UserProfile
     }
   }
 `)

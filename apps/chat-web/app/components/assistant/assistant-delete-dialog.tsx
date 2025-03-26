@@ -40,21 +40,21 @@ const deleteAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-const AssistantDelete_assistantFragment = graphql(`
-  fragment AssistantDelete_assistantFragment on AiAssistant {
+const AssistantDelete_AssistantFragment = graphql(`
+  fragment AssistantDelete_Assistant on AiAssistant {
     id
     name
   }
 `)
 
 export interface AssistantDeleteDialogProps {
-  assistant: FragmentType<typeof AssistantDelete_assistantFragment>
+  assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantDelete_assistantFragment, props.assistant)
+  const assistant = useFragment(AssistantDelete_AssistantFragment, props.assistant)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
   const navigate = useNavigate()

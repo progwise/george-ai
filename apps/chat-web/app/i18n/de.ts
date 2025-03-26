@@ -1,5 +1,6 @@
 export default {
   actions: {
+    add: 'Hinzufügen',
     cancel: 'Abbrechen',
     create: 'Erstellen',
     delete: 'Löschen',
@@ -52,6 +53,7 @@ export default {
     cancel: 'Abbrechen',
     confirm: 'Bestätigen',
     done: 'Fertig',
+    tooltipText: 'Nichts ausgewählt',
   },
   errors: {
     invalidEmail: 'Ungültige E-Mail-Adresse',
@@ -110,6 +112,8 @@ export default {
   resetConversation: 'Konversation zurücksetzen',
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
+    addParticipants: 'Teilnehmer hinzufügen',
+    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
@@ -123,6 +127,8 @@ export default {
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
     noAssistant: 'Kein Assistent',
+    noAssistantsAvailable: 'Keine Assistenten verfügbar',
+    noUsersAvailable: 'Keine Benutzer verfügbar',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
@@ -130,6 +136,7 @@ export default {
     with: 'mit',
   },
   tooltips: {
+    addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
     clearEmbeddings: 'Einbettungen löschen',
     deleteConversation: 'Konversation löschen',
     drop: 'Entfernen',

@@ -8,7 +8,7 @@ import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
 
 const ConversationHistory_ConversationFragment = graphql(`
-  fragment ConversationHistory_conversation on AiConversation {
+  fragment ConversationHistory_Conversation on AiConversation {
     id
     messages {
       id

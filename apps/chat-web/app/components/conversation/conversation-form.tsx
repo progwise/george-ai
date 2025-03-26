@@ -9,7 +9,7 @@ import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
 
 const ConversationForm_ConversationFragment = graphql(`
-  fragment ConversationForm_conversation on AiConversation {
+  fragment ConversationForm_Conversation on AiConversation {
     id
     assistants {
       id
