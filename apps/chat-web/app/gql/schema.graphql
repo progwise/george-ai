@@ -213,6 +213,7 @@ type Mutation {
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
+  cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmUserProfile(profileId: String!): UserProfile

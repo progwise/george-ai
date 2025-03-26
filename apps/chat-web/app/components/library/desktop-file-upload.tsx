@@ -63,6 +63,25 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
     return await Promise.all(processFiles)
   })
 
+const cancelFileUpload = createServerFn({ method: 'POST' })
+  .validator((data: { fileId: string }) =>
+    z
+      .object({
+        fileId: z.string().nonempty(),
+      })
+      .parse(data),
+  )
+  .handler(async (ctx) => {
+    await backendRequest(
+      graphql(`
+        mutation cancelFileUpload($fileId: String!) {
+          cancelFileUpload(fileId: $fileId)
+        }
+      `),
+      { fileId: ctx.data.fileId },
+    )
+  })
+
 export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -71,13 +90,20 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
   const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
   const [fileIdMap, setFileIdMap] = useState(() => new Map<string, string>())
 
-  const handleCancelUpload = (fileName: string) => {
+  const handleCancelUpload = async (fileName: string) => {
     const abortController = abortControllers.get(fileName)
     if (abortController) {
       abortController.abort()
+      const fileId = fileIdMap.get(fileName)
+      if (fileId) {
+        try {
+          await cancelFileUpload({ data: { fileId } })
+        } catch (error) {
+          console.error(`Error cancelling upload for file ${fileName}:`, error)
+        }
+      }
       setUploadProgress((prev) => {
         const newProgress = new Map(prev)
-        const fileId = fileIdMap.get(fileName)
         if (fileId) {
           newProgress.set(fileId, -1) // -1 for cancellation
         }
