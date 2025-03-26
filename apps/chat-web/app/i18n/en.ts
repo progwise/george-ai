@@ -5,7 +5,7 @@ export default {
     delete: 'Delete',
     drop: 'Drop',
     edit: 'Edit',
-    gotoOverview: 'Go to overview',
+    goToOverview: 'Go to overview',
     increaseLimits: 'Increase limits',
     new: 'New',
     removeProfile: 'Remove user profile',
@@ -37,8 +37,12 @@ export default {
       name: 'Name your assistant',
     },
     removeLibrary: 'Remove library',
-    signInForAssistants: 'Login to see your assistants',
     usagePlaceholder: 'How should the library be used?',
+    signInForAssistants: 'Sign in to see your assistants',
+  },
+  auth: {
+    signInWithGoogle: 'Sign in with Google',
+    switchGoogleAccount: 'Switch Google Account',
   },
   brand: 'George-Ai',
   conversations: {
@@ -48,7 +52,8 @@ export default {
   },
   dialog: {
     cancel: 'Cancel',
-    ok: 'OK',
+    confirm: 'Confirm',
+    done: 'Done',
   },
   errors: {
     invalidEmail: 'Invalid email',
@@ -104,9 +109,13 @@ export default {
   },
   resetConversation: 'Reset conversation',
   texts: {
+    addGoogleDriveFiles: 'Add Google Drive files',
     changeParticipantsAnytime: 'You can change these participants any time.',
     deleteConversation: 'Delete conversation',
     deleteConversationConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
+    deleteLibrary: 'Delete {libraryName} library',
+    deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
+    dropFileFailure: 'Failed to drop files:',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
     newConversation: 'New conversation',
@@ -114,6 +123,8 @@ export default {
     noAssistant: 'No assistant',
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
+    signInForConversations: 'Sign in to use conversations.',
+    signInForLibraries: 'Sign in to see your libraries.',
     with: 'with',
   },
   tooltips: {

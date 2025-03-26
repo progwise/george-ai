@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
+import { queryKeys } from '../../query-keys'
 import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
@@ -36,7 +37,7 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ['conversations', auth.user?.id],
+        queryKey: [queryKeys.Conversations, auth.user?.id],
       })
       navigate({ to: '..' })
     },

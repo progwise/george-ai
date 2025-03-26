@@ -5,7 +5,7 @@ export default {
     delete: 'Löschen',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
-    gotoOverview: 'Zur Übersicht',
+    goToOverview: 'Zur Übersicht',
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue',
     removeProfile: 'Benutzerprofil entfernen',
@@ -40,6 +40,10 @@ export default {
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen',
     usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
   },
+  auth: {
+    signInWithGoogle: 'Mit Google anmelden',
+    switchGoogleAccount: 'Google-Konto wechseln',
+  },
   brand: 'George-Ai',
   conversations: {
     assistants: 'Assistenten',
@@ -48,7 +52,8 @@ export default {
   },
   dialog: {
     cancel: 'Abbrechen',
-    ok: 'OK',
+    confirm: 'Bestätigen',
+    done: 'Fertig',
   },
   errors: {
     invalidEmail: 'Ungültige E-Mail-Adresse',
@@ -105,10 +110,14 @@ export default {
   },
   resetConversation: 'Konversation zurücksetzen',
   texts: {
+    addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',
@@ -117,6 +126,8 @@ export default {
     noAssistant: 'Kein Assistent',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
+    signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
+    signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
     with: 'mit',
   },
   tooltips: {

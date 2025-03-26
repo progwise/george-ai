@@ -124,6 +124,8 @@ type AiFlowNode {
 type AiLibrary {
   createdAt: DateTime!
   description: String
+  files: [AiLibraryFile!]
+  filesCount: Int
   id: ID!
   name: String!
   owner: User
@@ -135,12 +137,17 @@ type AiLibrary {
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
+  dropError: String
   id: ID!
   libraryId: String!
   mimeType: String!
   name: String!
   originUri: String
   processedAt: DateTime
+  processingEndedAt: DateTime
+  processingErrorAt: DateTime
+  processingErrorMessage: String
+  processingStartedAt: DateTime
   size: Int
   updatedAt: DateTime
   uploadedAt: DateTime
@@ -245,12 +252,15 @@ type Mutation {
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
+  deleteAiLibrary(id: String!): AiLibrary
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
+  dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
+  reProcessFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile

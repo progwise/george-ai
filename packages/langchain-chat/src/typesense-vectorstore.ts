@@ -110,7 +110,7 @@ export const dropVectorStore = async (libraryId: string) => {
   }
 }
 
-export const dropFile = async (libraryId: string, fileId: string) => {
+export const dropFileFromVectorstore = async (libraryId: string, fileId: string) => {
   await ensureVectorStore(libraryId)
   await removeFileById(libraryId, fileId)
 }

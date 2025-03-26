@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 
@@ -30,7 +31,9 @@ interface NewConversationDialogProps {
 }
 
 export const NewConversationDialog = (props: NewConversationDialogProps) => {
-  const { user } = useAuth()
+  const authContext = useAuth()
+  const user = authContext.user
+
   const assistants = useFragment(ConversationNew_AssistantParticipationCandidatesFragment, props.assistants)
   const humans = useFragment(ConversationNew_HumanParticipationCandidatesFragment, props.humans)
   const queryClient = useQueryClient()
@@ -49,12 +52,14 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
         },
       })
     },
-    onSuccess: (result) => {
+    onSettled: (result) => {
       if (!user) {
         throw new Error('User not set')
       }
-      queryClient.invalidateQueries({ queryKey: ['conversations', user.id] })
-      navigate({ to: `/conversations/${result.createAiConversation?.id}` })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, user.id] })
+      if (result?.createAiConversation) {
+        navigate({ to: `/conversations/${result.createAiConversation.id}` })
+      }
     },
   })
 
@@ -76,13 +81,17 @@ export const NewConversationDialog = (props: NewConversationDialogProps) => {
     const assistantIds = formData.getAll('assistants').map((id) => id.toString())
     const userIds = formData.getAll('users').map((id) => id.toString())
 
-    await mutate({ assistantIds, userIds })
+    mutate({ assistantIds, userIds })
 
     dialogReference.current?.close()
   }
 
   if (!user) {
-    return <h3>{t('texts.loginToUseConversations')}</h3>
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   return (

@@ -8,6 +8,7 @@ import { LibraryForm } from '../../components/library/library-form'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { AiLibraryInputSchema } from '../../gql/validation'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 
 const createLibraryDocument = graphql(`
@@ -47,8 +48,8 @@ export const Route = createFileRoute('/libraries/new')({
 })
 
 function RouteComponent() {
-  const { isAuthenticated, user } = useAuth()
-  const disabled = !isAuthenticated || !user
+  const { user } = useAuth()
+  const { t } = useTranslation()
 
   const navigate = useNavigate()
   const { mutate: createLibraryMuation, isPending: createIsPending } = useMutation({
@@ -73,10 +74,9 @@ function RouteComponent() {
       <LoadingSpinner isLoading={createIsPending} />
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">Create your Library</h3>
-        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
-            List
+            {t('actions.goToOverview')}
           </Link>
         </div>
       </div>

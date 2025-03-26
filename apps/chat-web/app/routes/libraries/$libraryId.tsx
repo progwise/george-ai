@@ -1,17 +1,18 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, useLocation, useNavigate, useParams } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
-import { GoogleDriveFiles } from '../../components/library/google-drive-files'
 import { LibraryForm } from '../../components/library/library-form'
 import { LibraryQuery } from '../../components/library/library-query'
 import { LibrarySelector } from '../../components/library/library-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { AiLibraryInputSchema } from '../../gql/validation'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -20,10 +21,11 @@ const aiLibraryEditQueryDocument = graphql(`
     aiLibrary(id: $id) {
       id
       name
-      description
       createdAt
-      ownerId
+      description
       url
+      ownerId
+      ...DeleteLibraryDialog_Library
     }
     aiLibraries(ownerId: $ownerId) {
       id
@@ -39,7 +41,7 @@ const getLibrary = createServerFn({ method: 'GET' })
   }))
   .handler(async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data))
 
-const updateLibraryDocument = graphql(/* GraphQL */ `
+const updateLibraryDocument = graphql(`
   mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {
     updateAiLibrary(id: $id, data: $data) {
       id
@@ -74,7 +76,7 @@ const changeLibrary = createServerFn({ method: 'POST' })
   })
 
 const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
-  queryKey: [queryKeys.AiLibraries, libraryId, ownerId],
+  queryKey: [queryKeys.AiLibraries, ownerId, libraryId],
   queryFn: async () => {
     if (!ownerId || !libraryId) {
       return null
@@ -102,11 +104,9 @@ export const Route = createFileRoute('/libraries/$libraryId')({
 
 function RouteComponent() {
   const auth = useAuth()
-  const remainingStorage = (auth.userProfile?.freeStorage || 0) - (auth.userProfile?.usedStorage || 0)
-  const currentLocation = useLocation()
   const { libraryId } = useParams({ strict: false })
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
-
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
@@ -114,7 +114,9 @@ function RouteComponent() {
       navigate({ to: '..' })
     },
   })
+
   const { aiLibrary, aiLibraries } = data || {}
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -122,6 +124,7 @@ function RouteComponent() {
 
     saveLibrary(formData)
   }
+
   const disabled = !auth?.isAuthenticated
 
   if (!aiLibrary || !aiLibraries || isLoading) {
@@ -131,12 +134,14 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <LoadingSpinner isLoading={saveIsPending} />
-      <div className="flex items-center justify-between">
-        <LibrarySelector libraries={aiLibraries!} selectedLibrary={aiLibrary!} />
-        <div className="badge badge-secondary badge-outline">{disabled ? 'Disabled' : 'enabled'}</div>
+      <div className="flex justify-between">
+        <div className="w-64">
+          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
+        </div>
         <div className="flex gap-2">
+          <DeleteLibraryDialog library={aiLibrary} />
           <Link type="button" className="btn btn-primary btn-sm" to="..">
-            List
+            {t('actions.goToOverview')}
           </Link>
         </div>
       </div>
@@ -145,22 +150,13 @@ function RouteComponent() {
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
         <div role="tabpanel" className="tab-content p-10">
           {auth.user?.id && (
-            <LibraryForm library={aiLibrary!} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
+            <LibraryForm library={aiLibrary} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
           )}
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
-        <div role="tabpanel" className="tab-content p-10">
+        <div role="tabpanel" className="tab-content overflow-x-auto p-10">
           <EmbeddingsTable libraryId={aiLibrary.id} />
-        </div>
-
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Google Drive" />
-        <div role="tabpanel" className="tab-content p-10">
-          <GoogleDriveFiles
-            libraryId={aiLibrary.id}
-            currentLocationHref={currentLocation.href}
-            noFreeUploads={remainingStorage < 100}
-          />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />
