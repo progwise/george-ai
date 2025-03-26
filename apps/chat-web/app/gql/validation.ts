@@ -2,11 +2,11 @@ import { z } from 'zod'
 
 import {
   AiAssistantInput,
+  AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
-  AiLibraryUsageInput,
   RetrievalFlow,
   UserInput,
   UserProfileInput,
@@ -28,10 +28,18 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
   return z.object({
     description: z.string().nullish(),
     icon: z.string().nullish(),
-    languageModelId: z.string().nullish(),
-    llmTemperature: z.number().nullish(),
+    languageModel: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiBaseCaseInputTypeSchema(): z.ZodObject<Properties<AiBaseCaseInputType>> {
+  return z.object({
+    condition: z.string().nullish(),
+    id: z.string().nullish(),
+    instruction: z.string().nullish(),
+    sequence: z.number().nullish(),
   })
 }
 
@@ -65,14 +73,6 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
-  })
-}
-
-export function AiLibraryUsageInputSchema(): z.ZodObject<Properties<AiLibraryUsageInput>> {
-  return z.object({
-    assistantId: z.string(),
-    libraryId: z.string(),
-    use: z.boolean(),
   })
 }
 

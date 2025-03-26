@@ -4,6 +4,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
+import { dateTimeString } from '@george-ai/web-utils'
+
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CollapseArrows } from '../../icons/collapse-arrows-icon'
@@ -66,7 +68,7 @@ interface ConversationMessageProps {
 
 export const ConversationMessage = ({ isLoading, message }: ConversationMessageProps) => {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
 
   const { mutate: hideMessageMutate } = useMutation({
     mutationFn: async (messageId: string) => {
@@ -125,17 +127,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
 
         <div className="flex flex-col">
           <span className="text-sm font-semibold">{message.sender.name}</span>
-          <span className="text-xs opacity-60">
-            {new Date(message.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}{' '}
-            ·{' '}
-            {new Date(message.createdAt).toLocaleDateString([], {
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
+          <span className="text-xs opacity-60">{dateTimeString(message.createdAt, language)}</span>
         </div>
         {isLoading && (
           <div>

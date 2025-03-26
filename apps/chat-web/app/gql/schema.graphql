@@ -7,11 +7,9 @@ type AiAssistant {
   baseCases: [AiAssistantBaseCase!]!
   createdAt: DateTime!
   description: String
-  icon: String
+  iconUrl: String
   id: ID!
-  languageModel: AiLanguageModel
-  languageModelId: String
-  llmTemperature: Float
+  languageModel: String
   name: String!
   ownerId: ID!
   updatedAt: DateTime
@@ -20,9 +18,10 @@ type AiAssistant {
 
 type AiAssistantBaseCase {
   assistant: AiAssistant
+  condition: String
   createdAt: DateTime!
-  description: String
   id: ID
+  instruction: String
   sequence: Float
   updatedAt: DateTime
 }
@@ -30,10 +29,16 @@ type AiAssistantBaseCase {
 input AiAssistantInput {
   description: String
   icon: String
-  languageModelId: String
-  llmTemperature: Float
+  languageModel: String
   name: String!
   url: String
+}
+
+input AiBaseCaseInputType {
+  condition: String
+  id: String
+  instruction: String
+  sequence: Float
 }
 
 type AiConversation {
@@ -85,13 +90,6 @@ interface AiConversationParticipant {
   userId: ID
 }
 
-type AiLanguageModel {
-  description: String
-  id: ID!
-  name: String!
-  provider: String
-}
-
 type AiLibrary {
   createdAt: DateTime!
   description: String
@@ -139,23 +137,14 @@ input AiLibraryInput {
 }
 
 type AiLibraryUsage {
-  assistant: AiAssistant
+  assistant: AiAssistant!
   assistantId: ID!
   createdAt: DateTime!
   id: ID!
-  library: AiLibrary
+  library: AiLibrary!
   libraryId: ID!
-}
-
-input AiLibraryUsageInput {
-  assistantId: String!
-  libraryId: String!
-  use: Boolean!
-}
-
-type AiLibraryUsageResult {
-  deletedCount: Int
-  usageId: String
+  updatedAt: DateTime!
+  usedFor: String
 }
 
 type AssistantParticipant implements AiConversationParticipant {
@@ -213,6 +202,7 @@ type Mutation {
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
+  addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmUserProfile(profileId: String!): UserProfile
@@ -233,15 +223,17 @@ type Mutation {
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
   removeConversationParticipant(id: String!): AiConversationParticipant
+  removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
-  updateLibraryUsage(data: AiLibraryUsageInput!): AiLibraryUsageResult
+  updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
+  upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
 }
 
 type Query {
@@ -250,7 +242,6 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
   aiConversations(userId: String!): [AiConversation!]!
-  aiLanguageModels: [AiLanguageModel!]!
   aiLibraries(ownerId: String!): [AiLibrary!]
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]

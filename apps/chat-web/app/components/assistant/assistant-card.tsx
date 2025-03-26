@@ -10,7 +10,7 @@ const AssistantCard_AssistantFragment = graphql(`
     id
     name
     description
-    icon
+    iconUrl
     ...AssistantDelete_Assistant
   }
 `)
@@ -27,17 +27,24 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
     <>
       <div key={assistant.id} className="card w-96 bg-base-100 shadow-xl">
         <figure className="max-h-24">
-          <div className="absolute left-2 right-2 top-2 flex justify-between gap-2">
-            <AssistantDeleteDialog assistant={assistant} />
+          <div className="h-36 w-full overflow-hidden rounded-lg text-center">
+            {!assistant.iconUrl ? (
+              <div className="flex h-full w-full items-center justify-center bg-base-300 text-base-content/50">
+                {
+                  t('assistants.hasNoIcon').replace('{assistant.name}', assistant.name) // TODO: assistant.name
+                }
+              </div>
+            ) : (
+              <img
+                src={assistant.iconUrl}
+                alt={t('labels.assistantIcon')}
+                className="h-full w-full object-cover"
+                onError={(event) => {
+                  event.currentTarget.hidden = true
+                }}
+              />
+            )}
           </div>
-          <img
-            src={
-              !assistant.icon || assistant.icon?.length < 5000 //TODO: change if icon upload implemented
-                ? '/george-portrait.jpg'
-                : assistant.icon
-            }
-            alt={assistant.name}
-          />
         </figure>
         <div className="card-body p-4">
           <h2 className="card-title">{assistant.name}</h2>
@@ -48,14 +55,17 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
               <div className="badge badge-outline">Local Only</div>
               <div className="badge badge-outline">Sequential</div>
             </div>
-            <Link
-              type="button"
-              className="btn btn-ghost btn-secondary btn-sm"
-              to={`/assistants/$assistantId`}
-              params={{ assistantId: assistant.id }}
-            >
-              {t('actions.edit')}
-            </Link>
+            <div className="flex w-full place-content-between">
+              <AssistantDeleteDialog assistant={assistant} />
+              <Link
+                type="button"
+                className="btn btn-ghost btn-secondary btn-sm"
+                to={`/assistants/$assistantId`}
+                params={{ assistantId: assistant.id }}
+              >
+                {t('actions.edit')}
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
@@ -81,13 +82,19 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
 
   return (
     <>
-      <button type="button" className="btn btn-primary btn-sm" onClick={showDialog}>
-        {t('assistants.deleteButton')}
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm tooltip"
+        onClick={showDialog}
+        data-tip={t('assistants.delete')}
+      >
+        <TrashIcon />
       </button>
+
       <DialogForm
         ref={dialogRef}
         title={t('assistants.delete')}
-        description={t('assistants.deleteDescription')} // TODO: add assistant name as soon as templates are available for translations
+        description={t('assistants.deleteDescription').replace('{assistant.name}', assistant.name)} // TODO: add assistant name as soon as templates are available for translations
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >

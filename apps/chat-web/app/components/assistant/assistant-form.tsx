@@ -7,9 +7,10 @@ import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { availableLanguageModels } from '../../language-models'
 import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-import { FileUpload } from '../form/file-upload'
+import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
+import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 
@@ -17,26 +18,10 @@ const AssistantForm_AssistantFragment = graphql(`
   fragment AssistantForm_Assistant on AiAssistant {
     id
     name
+    iconUrl
     description
     ownerId
-    languageModelId
-    languageModel {
-      id
-      name
-    }
-    llmTemperature
-    baseCases {
-      id
-      sequence
-      description
-    }
-  }
-`)
-
-const AssistantForm_LanguageModelFragment = graphql(`
-  fragment AssistantForm_LanguageModel on AiLanguageModel {
-    id
-    name
+    languageModel
   }
 `)
 
@@ -45,15 +30,7 @@ const getFormSchema = (language: 'en' | 'de') =>
     id: z.string().nonempty(),
     name: z.string().min(1, translate('errors.requiredField', language)),
     description: z.string().nullish(),
-    languageModelId: z.string().nullish(),
-    llmTemperature: z.preprocess(
-      (value: string) => (value?.length < 1 ? null : parseFloat(value)),
-      z
-        .number()
-        .min(0, translate('errors.llmTemperatureToLow', language))
-        .max(1, translate('errors.llmTemperatureToHigh', language))
-        .nullish(),
-    ),
+    languageModel: z.string().nullish(),
   })
 
 const updateAssistant = createServerFn({ method: 'POST' })
@@ -78,8 +55,7 @@ const updateAssistant = createServerFn({ method: 'POST' })
         data: {
           name: data.name,
           description: data.description,
-          languageModelId: data.languageModelId,
-          llmTemperature: data.llmTemperature,
+          languageModel: data.languageModel,
         },
       },
     )
@@ -87,7 +63,6 @@ const updateAssistant = createServerFn({ method: 'POST' })
 
 export interface AssistantEditFormProps {
   assistant?: FragmentType<typeof AssistantForm_AssistantFragment>
-  languageModels: FragmentType<typeof AssistantForm_LanguageModelFragment>[]
   disabled: boolean
 }
 
@@ -98,20 +73,53 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
   const assistant = useFragment(AssistantForm_AssistantFragment, props.assistant)
-  const languageModels = useFragment(AssistantForm_LanguageModelFragment, props.languageModels)
   const { disabled } = props
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
-    onSettled: (data) =>
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, data?.updateAiAssistant?.id, ownerId] }),
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiAssistantForEdit, assistant?.id, ownerId],
+      }),
   })
+
+  const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
+    mutationFn: async (file: File) => {
+      if (!assistant?.id || !ownerId) {
+        throw new Error('Assistant or ownerId is missing')
+      }
+      const fileExtension = file.name.split('.').pop() || 'png'
+      const uploadUrl = (await getBackendPublicUrl()) + `/assistant-icon?assistantId=${assistant.id}`
+      await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'image/*',
+          'x-file-extension': fileExtension.toLowerCase(),
+        },
+        body: file,
+      })
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.AiAssistantForEdit, assistant?.id, ownerId],
+      }),
+  })
+
+  const handleUploadIcon = React.useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.currentTarget.files
+      if (!files || files.length !== 1) return
+      const file = Array.from(files)[0]
+      mutateAssistantIcon(file)
+    },
+    [mutateAssistantIcon],
+  )
 
   const fieldProps = {
     schema,
-    disabled: updateIsPending || disabled,
+    disabled: updateIsPending || mutateAssistantIconPending || disabled,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
       const parseResult = schema.safeParse(Object.fromEntries(formData))
@@ -124,14 +132,15 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   }
 
   return (
-    <form ref={formRef} className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2">
+    <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
       <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant?.id} />
 
-      <FileUpload
+      <IconUpload
         className="col-span-2 justify-self-center"
         fileTypes="image/*"
-        handleUploadFiles={(event) => console.log(event)}
+        handleUploadIcon={handleUploadIcon}
+        imageUrl={assistant?.iconUrl}
       />
       <Input
         name="name"
@@ -149,29 +158,18 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         label={t('labels.description')}
         value={assistant?.description}
         placeholder={t('assistants.placeholders.description')}
-        className="col-span-2"
+        className="col-span-2 min-h-40"
         required
         {...fieldProps}
       />
 
       <Select
-        name="languageModelId"
+        name="languageModel"
         label={t('labels.languageModel')}
-        options={languageModels}
-        value={assistant?.languageModel}
+        options={availableLanguageModels}
+        value={availableLanguageModels.find((model) => model.id === assistant?.languageModel)}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
-        {...fieldProps}
-      />
-
-      <Input
-        name="llmTemperature"
-        type="number"
-        label={t('labels.llmTemperature')}
-        value={assistant?.llmTemperature}
-        className="col-span-1 flex-grow"
-        placeholder={t('assistants.placeholders.llmTemperature')}
-        required
         {...fieldProps}
       />
     </form>

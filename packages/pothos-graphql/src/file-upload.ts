@@ -24,3 +24,28 @@ export const getFilePath = (fileId: string) => {
 
   return `${path}/${fileId}`
 }
+
+export const checkAssistant = async (assistantId: string) => {
+  const assistant = await prisma?.aiAssistant.findUnique({
+    where: { id: assistantId },
+  })
+  return assistant
+}
+
+export const getAssistantIconsPath = () => {
+  const path = `${process.env.UPLOADS_PATH}/assistant-icons`
+
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path, { recursive: true })
+  }
+
+  return `${path}`
+}
+
+export const updateAssistantIconUrl = async ({ assistantId, iconUrl }: { assistantId: string; iconUrl: string }) => {
+  const assistant = await prisma?.aiAssistant.update({
+    where: { id: assistantId },
+    data: { iconUrl },
+  })
+  return assistant
+}

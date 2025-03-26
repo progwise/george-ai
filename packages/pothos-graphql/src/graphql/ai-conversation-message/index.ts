@@ -1,4 +1,5 @@
 import { askAssistantChain } from '@george-ai/langchain-chat'
+import { SupportedModel } from '@george-ai/langchain-chat/src/assistant-model'
 
 import { callConversationMessagesUpdateSubscriptions } from '../../conversation-messages-subscription'
 import { prisma } from '../../prisma'
@@ -144,6 +145,9 @@ builder.mutationField('sendMessage', (t) =>
             where: { conversationId: data.conversationId },
           },
           usages: { select: { library: true } },
+          languageModel: true,
+          description: true,
+          baseCases: true,
         },
         where: {
           id: {
@@ -238,10 +242,17 @@ builder.mutationField('sendMessage', (t) =>
             },
             isBot: message.sender.assistant !== null,
           })),
-          assistant,
+          assistant: {
+            ...assistant,
+            languageModel: (assistant.languageModel as SupportedModel) || 'gpt-3',
+            description:
+              assistant.description ||
+              'You are a helpful assistant and no prompt was speficied. Please state that you need a prompt to work properly.',
+          },
           libraries: assistant.usages.map((usage) => ({
             id: usage.library.id,
             name: usage.library.name,
+            description: usage.library.description || '',
           })),
         })) {
           const content = answerFromAssistant
