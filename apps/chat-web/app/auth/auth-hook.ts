@@ -70,7 +70,7 @@ export const useAuth = () => {
   })
 
   const { data: currentUserProfile } = useQuery({
-    queryKey: [queryKeys.UserProfile, currentUser?.id],
+    queryKey: [queryKeys.CurrentUserProfile, currentUser?.id],
     enabled: !!currentUser,
     queryFn: async () => {
       if (!currentUser?.id) {

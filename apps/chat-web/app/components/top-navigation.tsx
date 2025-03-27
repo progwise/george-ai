@@ -109,7 +109,7 @@ const TopNavigation = () => {
                       }}
                     >
                       <UserIcon className="size-6" />
-                      {t('signOut')}
+                      {t('topNavigation.signOut')}
                     </button>
                   </li>
                 </>

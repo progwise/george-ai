@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
@@ -39,21 +40,21 @@ const deleteAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-const AssistantDelete_assistantFragment = graphql(`
-  fragment AssistantDelete_assistantFragment on AiAssistant {
+const AssistantDelete_AssistantFragment = graphql(`
+  fragment AssistantDelete_Assistant on AiAssistant {
     id
     name
   }
 `)
 
 export interface AssistantDeleteDialogProps {
-  assistant: FragmentType<typeof AssistantDelete_assistantFragment>
+  assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
   const auth = useAuth()
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantDelete_assistantFragment, props.assistant)
+  const assistant = useFragment(AssistantDelete_AssistantFragment, props.assistant)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -81,13 +82,19 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
 
   return (
     <>
-      <button type="button" className="btn btn-primary btn-sm" onClick={showDialog}>
-        {t('assistants.deleteButton')}
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm tooltip"
+        onClick={showDialog}
+        data-tip={t('assistants.delete')}
+      >
+        <TrashIcon />
       </button>
+
       <DialogForm
         ref={dialogRef}
         title={t('assistants.delete')}
-        description={t('assistants.deleteDescription')} // TODO: add assistant name as soon as templates are available for translations
+        description={t('assistants.deleteDescription').replace('{assistant.name}', assistant.name)} // TODO: add assistant name as soon as templates are available for translations
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >

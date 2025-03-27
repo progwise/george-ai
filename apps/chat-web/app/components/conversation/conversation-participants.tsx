@@ -1,17 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { CrossIcon } from '../../icons/cross-icon'
-import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
-import { addConversationParticipants, removeConversationParticipant } from '../../server-functions/participations'
+import { removeConversationParticipant } from '../../server-functions/participations'
 import { LoadingSpinner } from '../loading-spinner'
+import { ParticipantsDialog } from './participants-dialog'
 
 const ConversationParticipants_ConversationFragment = graphql(`
-  fragment ConversationParticipants_conversation on AiConversation {
+  fragment ConversationParticipants_Conversation on AiConversation {
     id
     ownerId
     participants {
@@ -20,56 +19,38 @@ const ConversationParticipants_ConversationFragment = graphql(`
       userId
       assistantId
     }
+    ...ParticipantsDialog_Conversation
   }
 `)
 
-const ConversationParticipants_HumanParticipationCandidatesFragment = graphql(`
-  fragment ConversationParticipants_HumanParticipationCandidates on User {
-    id
-    name
-    username
+const ConversationParticipants_AssistantFragment = graphql(`
+  fragment ConversationParticipants_Assistant on AiAssistant {
+    ...ParticipantsDialog_Assistant
   }
 `)
 
-const ConversationParticipants_AssistantParticipationCandidatesFragment = graphql(`
-  fragment ConversationParticipants_AssistantParticipationCandidates on AiAssistant {
-    id
-    name
+export const ConversationParticipants_HumanFragment = graphql(`
+  fragment ConversationParticipants_Human on User {
+    ...ParticipantsDialog_Human
   }
 `)
 
 interface ConversationParticipantsProps {
   conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
-  assistantCandidates: FragmentType<typeof ConversationParticipants_AssistantParticipationCandidatesFragment>[] | null
-  humanCandidates: FragmentType<typeof ConversationParticipants_HumanParticipationCandidatesFragment>[] | null
+  assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
+  humans: FragmentType<typeof ConversationParticipants_HumanFragment>[]
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null)
+  const authContext = useAuth()
+  const user = authContext.user
   const queryClient = useQueryClient()
-  const auth = useAuth()
+
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
+  const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
+  const humans = useFragment(ConversationParticipants_HumanFragment, props.humans)
 
-  const humanCandidates = useFragment(
-    ConversationParticipants_HumanParticipationCandidatesFragment,
-    props.humanCandidates,
-  )
-  const assistantCandidates = useFragment(
-    ConversationParticipants_AssistantParticipationCandidatesFragment,
-    props.assistantCandidates,
-  )
-
-  const existingAssistantIds = conversation.participants.filter((p) => p.assistantId).map((p) => p.assistantId)
-
-  const existingUserIds = conversation.participants.filter((p) => p.userId).map((p) => p.userId)
-
-  const filteredAssistantCandidates = assistantCandidates?.filter(
-    (assistant) => !existingAssistantIds.includes(assistant.id),
-  )
-
-  const filteredHumanCandidates = humanCandidates?.filter((human) => !existingUserIds.includes(human.id))
-
-  const isOwner = auth.user?.id === conversation.ownerId
+  const isOwner = user?.id === conversation.ownerId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
@@ -85,30 +66,6 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     },
   })
 
-  const { mutate: mutateAdd, isPending: addParticipantIsPending } = useMutation({
-    mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
-      if (!isOwner) {
-        throw new Error('Only the owner can add participants')
-      }
-      if (!auth.user?.id) {
-        throw new Error('User not set')
-      }
-      return await addConversationParticipants({
-        data: { conversationId: conversation.id, assistantIds, userIds, ownerId: auth.user.id },
-      })
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, conversation.id],
-      })
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, auth.user?.id],
-      })
-
-      dialogRef.current?.close()
-    },
-  })
-
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
     if (!isOwner) {
       console.error('Only the conversation owner can remove participants')
@@ -118,85 +75,14 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateRemove({ participantId })
   }
 
-  const handleSubmit = () => {
-    if (!isOwner) {
-      console.error('Only the conversation owner can add participants')
-      return
-    }
-    const form = document.getElementById('participants-form') as HTMLFormElement
-    if (form) {
-      const formData = new FormData(form)
-      const assistantIds = formData.getAll('assistants').map((id) => id.toString())
-      const userIds = formData.getAll('users').map((id) => id.toString())
-
-      mutateAdd({ assistantIds, userIds })
-    }
-  }
-
-  if (auth.user == null || !auth.user?.id) {
+  if (user == null || !user?.id) {
     return <></>
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <LoadingSpinner isLoading={removeParticipantIsPending || addParticipantIsPending} />
-      <dialog className="modal" ref={dialogRef}>
-        <div className="modal-box">
-          <h3 className="text-lg font-bold">Add participants</h3>
-          <p className="py-4">You can add participants to the current conversation.</p>
-          <form id="participants-form">
-            <div className="flex flex-row justify-items-stretch gap-2">
-              <div>
-                <h4 className="underline">Assistants</h4>
-                {filteredAssistantCandidates?.map((assistant) => (
-                  <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
-                    <input
-                      type="checkbox"
-                      name="assistants"
-                      value={assistant.id}
-                      defaultChecked
-                      className="checkbox-info checkbox"
-                    />
-                    <span className="label-text">{assistant.name}</span>
-                  </label>
-                ))}
-              </div>
-              <div>
-                <h4 className="underline">Users</h4>
-                {filteredHumanCandidates?.map((user) => (
-                  <label key={user.id} className="label cursor-pointer gap-2">
-                    <input
-                      type="checkbox"
-                      name="users"
-                      value={user.id}
-                      defaultChecked
-                      className="checkbox-info checkbox"
-                    />
-                    <span className="label-text">{user.name || user.username}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </form>
-          <div className="modal-action">
-            <button type="button" className="btn btn-sm" onClick={() => dialogRef.current?.close()}>
-              Cancel
-            </button>
+    <div className="flex flex-wrap gap-2">
+      <LoadingSpinner isLoading={removeParticipantIsPending} />
 
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              disabled={addParticipantIsPending}
-              onClick={handleSubmit}
-            >
-              Add
-            </button>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button type="submit">close</button>
-        </form>
-      </dialog>
       {conversation.participants.map((participant) => (
         <div
           key={participant.id}
@@ -206,7 +92,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             participant.userId && 'badge-primary',
           )}
         >
-          {participant.userId !== auth.user?.id && isOwner && (
+          {participant.userId !== user?.id && isOwner && (
             <button
               type="button"
               className="btn btn-circle btn-ghost btn-xs"
@@ -218,16 +104,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
           {participant.name}
         </div>
       ))}
-      {isOwner && (
-        <button
-          type="button"
-          className="btn btn-neutral btn-xs flex flex-row"
-          onClick={() => dialogRef.current?.showModal()}
-        >
-          <PlusIcon />
-          Add...
-        </button>
-      )}
+
+      <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
     </div>
   )
 }

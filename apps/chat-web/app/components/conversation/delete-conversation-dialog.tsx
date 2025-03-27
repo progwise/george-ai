@@ -10,7 +10,7 @@ import { queryKeys } from '../../query-keys'
 import { deleteConversation } from '../../server-functions/conversations'
 
 const ConversationDelete_ConversationFragment = graphql(`
-  fragment ConversationDelete_conversation on AiConversation {
+  fragment ConversationDelete_Conversation on AiConversation {
     id
     ownerId
     createdAt
@@ -48,8 +48,8 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
 
   const dialogReference = useRef<HTMLDialogElement>(null)
 
-  const handleDeleteConversation = async () => {
-    await mutate()
+  const handleDeleteConversation = () => {
+    mutate()
     dialogReference.current?.close()
   }
 

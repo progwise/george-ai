@@ -110,7 +110,7 @@ export const dropVectorStore = async (libraryId: string) => {
   }
 }
 
-export const dropFile = async (libraryId: string, fileId: string) => {
+export const dropFileFromVectorstore = async (libraryId: string, fileId: string) => {
   await ensureVectorStore(libraryId)
   await removeFileById(libraryId, fileId)
 }
@@ -255,6 +255,16 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
     documents.map((d) => d.fileName),
   )
   await loadDocuments(documents)
+}
+
+export const similaritySearch = async (question: string, libraryId: string) => {
+  await ensureVectorStore(libraryId)
+  const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
+  const documents = await typesenseVectorStore.similaritySearch(question)
+  return documents.map((document) => ({
+    pageContent: document.pageContent,
+    docName: document.metadata.docName.toString() as string,
+  }))
 }
 
 // retrieves content from the vector store similar to the question

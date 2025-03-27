@@ -17,7 +17,7 @@ const userProfileQueryDocument = graphql(/* GraphQL */ `
   query userProfile($userId: String!) {
     userProfile(userId: $userId) {
       id
-      ...UserProfileForm_userProfile
+      ...UserProfileForm_UserProfile
     }
   }
 `)
@@ -113,7 +113,7 @@ function RouteComponent() {
     },
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: queryKeys.UserProfile, userId: auth.user?.id })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, auth.user?.id] })
     },
   })
 
@@ -126,7 +126,7 @@ function RouteComponent() {
     },
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: queryKeys.UserProfile, userId: auth.user?.id })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, auth.user?.id] })
     },
   })
 

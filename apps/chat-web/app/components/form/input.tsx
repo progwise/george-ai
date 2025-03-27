@@ -3,8 +3,9 @@ import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
 interface InputProps<T extends ZodRawShape> {
+  ref?: React.Ref<HTMLInputElement | HTMLTextAreaElement>
   name: string
-  label: string
+  label?: string
   value?: string | number | undefined | null
   valueNotSet?: string
   type?: 'text' | 'textarea' | 'email' | 'password' | 'number' | 'date'
@@ -18,6 +19,7 @@ interface InputProps<T extends ZodRawShape> {
 }
 
 export const Input = <T extends ZodRawShape>({
+  ref,
   name,
   label,
   value,
@@ -52,12 +54,13 @@ export const Input = <T extends ZodRawShape>({
   }
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
+    if (event.target.value === renderedValue) return
     validate(event.target.value)
     onBlur?.(event)
   }
 
   return (
-    <label className={twMerge('flex h-full w-full flex-col', className)}>
+    <label className={twMerge('flex flex-col', className)}>
       <div className="flex flex-row justify-between">
         <span
           className={twMerge(
@@ -71,11 +74,12 @@ export const Input = <T extends ZodRawShape>({
       </div>
       {type === 'textarea' ? (
         <textarea
+          ref={ref as React.Ref<HTMLTextAreaElement>}
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered col-span-2 h-full w-full',
+            'input input-sm input-bordered flex-grow py-1 leading-normal',
             readOnly && 'cursor-not-allowed text-base-content/50',
           )}
           placeholder={placeholder || ''}
@@ -86,12 +90,13 @@ export const Input = <T extends ZodRawShape>({
         />
       ) : (
         <input
+          ref={ref as React.Ref<HTMLInputElement>}
           key={value}
           name={name}
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered col-span-2 w-full',
+            'input input-sm input-bordered w-full',
             readOnly && 'cursor-not-allowed text-base-content/50',
             type === 'number' && 'text-right',
             type === 'date' && 'text-center',
