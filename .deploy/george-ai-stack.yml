@@ -43,6 +43,8 @@ services:
       # TYPESENSE_API_KEY=xyz
       SMTP_HOSTNAME: in-v3.mailjet.com
       SMTP_PORT: 587
+      BACKEND_PUBLIC_URL: https://backend.george-ai.net
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
     env_file:
       - gai-backend.env
     networks:
