@@ -36,21 +36,14 @@ export class MuPDFLoader {
   constructor(private file: MuPDFInputFile) {}
 
   async load(): Promise<MuPDFDocumentPart[]> {
-    console.log('Using MuPDF to parse PDF:', this.file.path)
-
     const data = await fs.readFile(this.file.path)
-
     const pdf = (await mupdfjs.PDFDocument.openDocument(data, 'pdf')) as unknown as IMuPDFDocument
-
     const pageCount = pdf.countPages()
-    console.log(`MuPDF found ${pageCount} pages for ${this.file.name}`)
-
     const docParts: MuPDFDocumentPart[] = []
+
     for (let i = 0; i < pageCount; i++) {
       const page = pdf.loadPage(i)
-
       const text = await page.getText()
-
       docParts.push({
         pageContent: text ?? '',
         metadata: {
