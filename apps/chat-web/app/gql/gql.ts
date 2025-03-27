@@ -50,6 +50,7 @@ type Documents = {
   '\n  mutation deleteAiLibrary($id: String!) {\n    deleteAiLibrary(id: $id) {\n      id\n    }\n  }\n': typeof types.DeleteAiLibraryDocument
   '\n  fragment DeleteLibraryDialog_Library on AiLibrary {\n    id\n    name\n    ownerId\n    filesCount\n    createdAt\n    description\n    url\n  }\n': typeof types.DeleteLibraryDialog_LibraryFragmentDoc
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
+  '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
   '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ': typeof types.ClearEmbeddingsDocument
   '\n        mutation dropFile($id: String!) {\n          dropFile(fileId: $id) {\n            id\n          }\n        }\n      ': typeof types.DropFileDocument
   '\n        mutation reProcessFile($id: String!) {\n          processFile(fileId: $id) {\n            id\n            chunks\n            size\n            uploadedAt\n            processedAt\n            processingErrorMessage\n          }\n        }\n      ': typeof types.ReProcessFileDocument
@@ -155,6 +156,8 @@ const documents: Documents = {
     types.DeleteLibraryDialog_LibraryFragmentDoc,
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
     types.PrepareDesktopFileDocument,
+  '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ':
+    types.CancelFileUploadDocument,
   '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ':
     types.ClearEmbeddingsDocument,
   '\n        mutation dropFile($id: String!) {\n          dropFile(fileId: $id) {\n            id\n          }\n        }\n      ':
@@ -447,6 +450,12 @@ export function graphql(
 export function graphql(
   source: '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n',
 ): (typeof documents)['\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ',
+): (typeof documents)['\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

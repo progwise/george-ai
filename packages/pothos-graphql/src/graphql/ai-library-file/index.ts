@@ -1,8 +1,6 @@
-import * as fs from 'fs'
+import { embedFile } from '@george-ai/langchain-chat'
 
-import { dropFileFromVectorstore, embedFile } from '@george-ai/langchain-chat'
-
-import { getFilePath } from '../../file-upload'
+import { cleanupFile, deleteFileAndRecord, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -19,24 +17,8 @@ async function dropFileById(fileId: string) {
   let dropError: string | null = null
 
   try {
-    await dropFileFromVectorstore(file.libraryId, file.id)
-
-    const [deletedFile] = await Promise.all([
-      prisma.aiLibraryFile.delete({
-        where: { id: file.id },
-      }),
-      new Promise((resolve, reject) => {
-        fs.rm(getFilePath(file.id), (err) => {
-          if (err) {
-            reject(`Error deleting file ${file.id}: ${err.message}`)
-          } else {
-            resolve(`File ${file.id} deleted`)
-          }
-        })
-      }),
-    ])
-
-    return deletedFile
+    await deleteFileAndRecord(file.id, file.libraryId)
+    return file
   } catch (error) {
     dropError = error instanceof Error ? error.message : String(error)
     const updatedFile = await prisma.aiLibraryFile.update({
@@ -45,6 +27,10 @@ async function dropFileById(fileId: string) {
     })
     return updatedFile
   }
+}
+
+const cancelFileUpload = async (fileId: string) => {
+  await cleanupFile(fileId)
 }
 
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
@@ -269,6 +255,19 @@ builder.mutationField('reProcessFile', (t) =>
         })
         throw error
       }
+    },
+  }),
+)
+
+builder.mutationField('cancelFileUpload', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { fileId }) => {
+      await cancelFileUpload(fileId)
+      return true
     },
   }),
 )

@@ -216,6 +216,7 @@ export type Mutation = {
   __typename?: 'Mutation'
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryUsage?: Maybe<AiLibraryUsage>
+  cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmUserProfile?: Maybe<UserProfile>
@@ -258,6 +259,10 @@ export type MutationAddConversationParticipantsArgs = {
 export type MutationAddLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationCancelFileUploadArgs = {
+  fileId: Scalars['String']['input']
 }
 
 export type MutationChatArgs = {
@@ -1023,6 +1028,12 @@ export type PrepareDesktopFileMutation = {
   __typename?: 'Mutation'
   prepareFile?: { __typename?: 'AiLibraryFile'; id: string } | null
 }
+
+export type CancelFileUploadMutationVariables = Exact<{
+  fileId: Scalars['String']['input']
+}>
+
+export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload?: boolean | null }
 
 export type ClearEmbeddingsMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -3209,6 +3220,39 @@ export const PrepareDesktopFileDocument = {
     },
   ],
 } as unknown as DocumentNode<PrepareDesktopFileMutation, PrepareDesktopFileMutationVariables>
+export const CancelFileUploadDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'cancelFileUpload' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cancelFileUpload' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
 export const ClearEmbeddingsDocument = {
   kind: 'Document',
   definitions: [
