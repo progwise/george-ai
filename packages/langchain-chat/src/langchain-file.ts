@@ -3,12 +3,14 @@ import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 
 import { getFileExtension } from './common'
-import { loadMuPDFFile } from './mupdf-file'
+import { MuPDFInputFile, MuPDFLoader } from './mupdf-file'
 
 export const loadFile = async (file: { name: string; id: string; mimeType: string; path: string }) => {
   switch (file.mimeType) {
     case 'application/pdf': {
-      const docParts = await loadMuPDFFile(file)
+      const loader = new MuPDFLoader(file as MuPDFInputFile)
+      const docParts = await loader.load()
+
       return docParts.map((part) => ({
         pageContent: part.pageContent,
         id: file.id,

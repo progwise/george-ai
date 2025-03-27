@@ -147,7 +147,8 @@ export const embedFile = async (
     originUri: file.originUri,
     mimeType: file.mimeType,
     chunks: fileParts.length,
-    size: fileParts.reduce((acc, part) => acc + part.pageContent.length, 0),
+
+    size: fileParts.reduce((acc: number, part: { pageContent: string }) => acc + part.pageContent.length, 0),
   }
 }
 
