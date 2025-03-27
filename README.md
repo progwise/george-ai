@@ -31,7 +31,7 @@ Use `env.example` files as the references.
 
 1. Navigate to `http://localhost:8180` and log in with the credentials `admin` and `admin`.
 2. Create a Realm using `KEYCLOAK_REALM` from `.env` file.
-3. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
+3. Create a client and set **Client ID** from `KEYCLOAK_CLIENT_ID`.
 4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
 5. Go to the **Users** section and create a user and set a password under the **Credentials** tab in the user view.
 6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
