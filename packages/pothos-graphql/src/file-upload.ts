@@ -27,6 +27,25 @@ export const getFilePath = (fileId: string) => {
   return `${path}/${fileId}`
 }
 
+export const deleteFileAndRecord = async (fileId: string, libraryId: string) => {
+  await dropFileFromVectorstore(libraryId, fileId)
+
+  await Promise.all([
+    prisma?.aiLibraryFile.delete({
+      where: { id: fileId },
+    }),
+    new Promise((resolve, reject) => {
+      fs.rm(getFilePath(fileId), (err) => {
+        if (err) {
+          reject(`Error deleting file ${fileId}: ${err.message}`)
+        } else {
+          resolve(`File ${fileId} deleted`)
+        }
+      })
+    }),
+  ])
+}
+
 export const cleanupFile = async (fileId: string) => {
   const file = await prisma?.aiLibraryFile.findUnique({
     where: { id: fileId },
@@ -37,23 +56,7 @@ export const cleanupFile = async (fileId: string) => {
   }
 
   try {
-    await dropFileFromVectorstore(file.libraryId, file.id)
-
-    await Promise.all([
-      prisma?.aiLibraryFile.delete({
-        where: { id: file.id },
-      }),
-      new Promise((resolve, reject) => {
-        fs.rm(getFilePath(file.id), (err) => {
-          if (err) {
-            reject(`Error deleting file ${file.id}: ${err.message}`)
-          } else {
-            resolve(`File ${file.id} deleted`)
-          }
-        })
-      }),
-    ])
-
+    await deleteFileAndRecord(file.id, file.libraryId)
     console.log(`Successfully cleaned up file: ${fileId}`)
   } catch (error) {
     console.error(`Error cleaning up file ${fileId}:`, error)
