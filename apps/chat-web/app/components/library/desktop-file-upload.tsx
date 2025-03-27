@@ -87,9 +87,23 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   // Using Map instead of Record here for better performance and advanced operations like iteration and key order preservation
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
-  const dialogRef = useRef<HTMLDialogElement | null>(null)
   const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
   const [fileIdMap, setFileIdMap] = useState(() => new Map<string, string>())
+
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  // This fixes upload dialog issues after cancelling or clearing files by resetting the states
+  const resetState = () => {
+    setSelectedFiles([])
+    setUploadProgress(new Map())
+    setAbortControllers(new Map())
+    setFileIdMap(new Map())
+    resetFileInput()
+  }
 
   const handleCancelUpload = async (fileName: string) => {
     const abortController = abortControllers.get(fileName)
@@ -130,11 +144,15 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
     await Promise.all(cancelPromises)
 
     abortControllers.forEach((abortController) => abortController.abort())
-    setUploadProgress(new Map())
-    setAbortControllers(new Map())
-    setFileIdMap(new Map())
-    setSelectedFiles([])
+    resetState()
     dialogRef.current?.close()
+  }
+
+  const handleUploadComplete = async (uploadedFileIds: string[]) => {
+    resetState()
+    if (onUploadComplete) {
+      await onUploadComplete(uploadedFileIds)
+    }
   }
 
   const { mutate: prepareFilesMutation } = useMutation({
@@ -237,7 +255,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
         if (completedUploads + canceledUploads >= totalFiles) {
           dialogRef.current?.close()
           if (onUploadComplete) {
-            await onUploadComplete(uploadedFileIds)
+            await handleUploadComplete(uploadedFileIds)
           }
         }
       } catch (err) {
@@ -246,7 +264,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
         if (completedUploads + canceledUploads >= totalFiles) {
           dialogRef.current?.close()
           if (onUploadComplete) {
-            await onUploadComplete(uploadedFileIds)
+            await handleUploadComplete(uploadedFileIds)
           }
         }
       }
@@ -256,6 +274,8 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
   const handleUploadFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files ? Array.from(event.target.files) : []
     if (files.length === 0) return
+
+    resetState()
 
     setSelectedFiles(files)
 
@@ -274,7 +294,15 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
   return (
     <>
       <nav className="flex flex-col gap-4">
-        <button type="button" className="btn btn-xs" onClick={() => fileInputRef.current?.click()} disabled={disabled}>
+        <button
+          type="button"
+          className="btn btn-xs"
+          onClick={() => {
+            resetFileInput()
+            fileInputRef.current?.click()
+          }}
+          disabled={disabled}
+        >
           Upload
         </button>
         <input
