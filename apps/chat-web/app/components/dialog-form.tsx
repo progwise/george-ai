@@ -10,6 +10,7 @@ export interface DialogFormProps {
   children?: React.ReactNode
   disabledSubmit?: boolean
   submitButtonText?: string
+  submitButtonTooltipText?: string
 }
 
 export const DialogForm = ({
@@ -20,6 +21,7 @@ export const DialogForm = ({
   children,
   disabledSubmit,
   submitButtonText,
+  submitButtonTooltipText,
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -43,9 +45,14 @@ export const DialogForm = ({
             <button type="button" className="btn btn-sm" onClick={handleClose}>
               {t('dialog.cancel')}
             </button>
-            <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
-              {submitButtonText || t('dialog.confirm')}
-            </button>
+            <div
+              className={` ${disabledSubmit ? 'lg:tooltip lg:tooltip-left' : ''} `}
+              data-tip={submitButtonTooltipText || t('dialog.tooltipText')}
+            >
+              <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
+                {submitButtonText || t('dialog.confirm')}
+              </button>
+            </div>
           </div>
         </form>
       </div>

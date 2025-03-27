@@ -14,7 +14,7 @@ import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
 const UserProfileForm_UserProfileFragment = graphql(`
-  fragment UserProfileForm_userProfile on UserProfile {
+  fragment UserProfileForm_UserProfile on UserProfile {
     id
     userId
     email
@@ -93,7 +93,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
     mutationFn: (data: FormData) => updateProfile({ data }),
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.UserProfile, userProfile.id, queryKeys.UserProfileForEdit, userProfile.userId],
+        queryKey: [queryKeys.CurrentUserProfile, userProfile.userId],
       })
     },
   })

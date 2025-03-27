@@ -16,6 +16,5 @@ export const queryKeys = {
   CurrentUser: 'CurrentUser',
   CurrentUserProfile: 'CurrentUserProfile',
   BackendUrl: 'BackendUrl',
-  UserProfile: 'UserProfile',
   UserProfileForEdit: 'UserProfileForEdit',
 }

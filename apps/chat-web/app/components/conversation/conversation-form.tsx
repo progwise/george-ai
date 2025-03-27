@@ -1,12 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { dateTimeString } from '@george-ai/web-utils'
+
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
 
 const ConversationForm_ConversationFragment = graphql(`
-  fragment ConversationForm_conversation on AiConversation {
+  fragment ConversationForm_Conversation on AiConversation {
     id
     assistants {
       id
@@ -19,6 +22,7 @@ interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
+  const { t, language } = useTranslation()
   const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
   const { user, userProfile } = useAuth()
@@ -47,6 +51,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
       })
     },
   })
+  const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
@@ -54,7 +60,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
     const content = formData.get('message') as string
     const recipientAssistantIds = Array.from(formData.getAll('assistants')).map((formData) => formData.toString())
 
-    const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
     if (remainingMessages < 1) {
       alert('You have no more free messages left. Create your profile and ask for more...')
       return
@@ -73,7 +78,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
   }
 
   if (!user) {
-    return <h3>Login to send messages</h3>
+    return <h3>{t('texts.loginToUseSendMessages')}</h3>
   }
 
   return (
@@ -85,17 +90,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
         <div className="flex flex-col">
           <span className="text-sm font-semibold">{user.name || user.username}</span>
-          <span className="text-xs opacity-60">
-            {new Date(Date.now()).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}{' '}
-            ·{' '}
-            {new Date(Date.now()).toLocaleDateString([], {
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
+          <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
         </div>
       </div>
 
@@ -118,12 +113,14 @@ export const ConversationForm = (props: ConversationFormProps) => {
                 defaultChecked
                 className="checkbox-info checkbox checkbox-sm"
               />
-              <span className="label-text">Ask {assistant.name}</span>
+              <span className="label-text">
+                {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
+              </span>
             </label>
           ))}
 
           <button name="send" type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
-            Send
+            {t('actions.sendMessage')} ({remainingMessages})
           </button>
         </div>
       </form>
