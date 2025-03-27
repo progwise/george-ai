@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { addConversationParticipants } from '../../server-functions/participations'
@@ -191,17 +192,13 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const isPending = isCreating || isAdding
 
   if (!user) {
-    return (
-      <button type="button" className="btn btn-outline" onClick={() => authContext?.login()}>
-        {t('texts.signInForConversations')}
-      </button>
-    )
+    return null
   }
 
   return (
     <>
       <button type="button" className={buttonClass} onClick={handleOpen}>
-        {props.dialogMode === 'new' ? null : <span className="plus-icon" />}
+        {props.dialogMode === 'new' ? null : <PlusIcon />}
         {buttonText}
       </button>
 

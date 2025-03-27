@@ -75,8 +75,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateRemove({ participantId })
   }
 
-  if (user == null || !user?.id) {
-    return <></>
+  if (!user) {
+    return null
   }
 
   return (
@@ -104,8 +104,9 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
           {participant.name}
         </div>
       ))}
-
-      <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+      {isOwner && (
+        <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+      )}
     </div>
   )
 }
