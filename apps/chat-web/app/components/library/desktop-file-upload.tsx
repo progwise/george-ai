@@ -83,7 +83,9 @@ const cancelFileUpload = createServerFn({ method: 'POST' })
 
 export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const dialogRef = useRef<HTMLDialogElement | null>(null)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  // Using Map instead of Record here for better performance and advanced operations like iteration and key order preservation
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
   const dialogRef = useRef<HTMLDialogElement | null>(null)
   const [abortControllers, setAbortControllers] = useState(() => new Map<string, AbortController>())
@@ -116,19 +118,22 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
     }
   }
 
-  const handleCancelAllUploads = () => {
-    abortControllers.forEach((abortController) => abortController.abort())
-    setUploadProgress((prev) => {
-      const newProgress = new Map(prev)
-      abortControllers.forEach((_, fileName) => {
-        const fileId = fileIdMap.get(fileName)
-        if (fileId) {
-          newProgress.set(fileId, -1) // Mark all as cancelled
-        }
-      })
-      return newProgress
+  const handleCancelAllUploads = async () => {
+    const cancelPromises = Array.from(fileIdMap.entries()).map(async ([fileName, fileId]) => {
+      try {
+        await cancelFileUpload({ data: { fileId } })
+      } catch (error) {
+        console.error(`Error cancelling upload for file ${fileName}:`, error)
+      }
     })
+
+    await Promise.all(cancelPromises)
+
+    abortControllers.forEach((abortController) => abortController.abort())
+    setUploadProgress(new Map())
     setAbortControllers(new Map())
+    setFileIdMap(new Map())
+    setSelectedFiles([])
     dialogRef.current?.close()
   }
 
