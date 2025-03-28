@@ -6,13 +6,30 @@ export const HomeDe = () => {
       <h1 className="mb-0 text-center">Ihre KI. Ihre Daten. Ihre Regeln.</h1>
       <ul className="menu menu-horizontal justify-center rounded-box">
         <li>
-          <a href="#features">Features</a>
+          <a
+            href="https://calendly.com/michael-vogt-progwise/30min"
+            target="_blank"
+            rel="noopener noreferrer"
+            type="button"
+            className="btn btn-primary btn-sm"
+          >
+            Online-Demo
+          </a>
         </li>
         <li>
-          <a href="#ai-act">AI-Act</a>
+          <a className="btn btn-secondary btn-sm" href="#features">
+            Features
+          </a>
         </li>
         <li>
-          <a href="#impressum">Impressum</a>
+          <a className="btn btn-secondary btn-sm" href="#ai-act">
+            AI-Act
+          </a>
+        </li>
+        <li>
+          <a className="btn btn-sm" href="#impressum">
+            Impressum
+          </a>
         </li>
       </ul>
       <article className="flex flex-col gap-4 sm:flex-row">

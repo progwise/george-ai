@@ -6,13 +6,30 @@ export const HomeEn = () => {
       <h1 className="mb-0 text-center">Your AI. Your Data. Your Rules.</h1>
       <ul className="menu menu-horizontal justify-center rounded-box">
         <li>
-          <a href="#features">Features</a>
+          <a
+            href="https://calendly.com/michael-vogt-progwise/30min"
+            target="_blank"
+            rel="noopener noreferrer"
+            type="button"
+            className="btn btn-primary btn-sm"
+          >
+            Online-Demo
+          </a>
         </li>
         <li>
-          <a href="#ai-act">AI Act</a>
+          <a className="btn btn-secondary btn-sm" href="#features">
+            Features
+          </a>
         </li>
         <li>
-          <a href="#impressum">Imprint</a>
+          <a className="btn btn-secondary btn-sm" href="#ai-act">
+            AI-Act
+          </a>
+        </li>
+        <li>
+          <a className="btn btn-sm" href="#impressum">
+            Imprint
+          </a>
         </li>
       </ul>
       <article className="flex flex-col gap-4 sm:flex-row">
@@ -50,7 +67,7 @@ export const HomeEn = () => {
         </div>
       </article>
 
-      <div className="">
+      <div>
         <a id="features" href="#" className="float-right text-sm">
           Top
         </a>
@@ -96,7 +113,7 @@ export const HomeEn = () => {
           </div>
         </article>
       </div>
-      <div className="">
+      <div>
         <a id="ai-act" href="#" className="float-right text-sm">
           Top
         </a>
