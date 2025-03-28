@@ -139,6 +139,7 @@ export default {
     assistants: 'Assistants',
     chat: 'Chat',
     conversations: 'Conversations',
+    demo: 'Online-Demo Appointment',
     home: 'Homepage',
     libraries: 'Libraries',
     signIn: 'Sign in',

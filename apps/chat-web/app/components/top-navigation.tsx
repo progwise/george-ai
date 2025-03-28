@@ -80,18 +80,31 @@ const TopNavigation = () => {
                 </Link>
               </li>
               {!user ? (
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      login()
-                      closeMenu()
-                    }}
-                  >
-                    <UserIcon className="size-6" />
-                    {t('topNavigation.signIn')}
-                  </button>
-                </li>
+                <>
+                  <li>
+                    <a
+                      href="https://calendly.com/michael-vogt-progwise/30min"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      type="button"
+                      className="btn- btn btn-accent"
+                    >
+                      {t('topNavigation.demo')}
+                    </a>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        login()
+                        closeMenu()
+                      }}
+                    >
+                      <UserIcon className="size-6" />
+                      {t('topNavigation.signIn')}
+                    </button>
+                  </li>
+                </>
               ) : (
                 <>
                   <li>
@@ -135,10 +148,22 @@ const TopNavigation = () => {
         </div>
         <div className="flex gap-2">
           {!user ? (
-            <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-              <UserIcon className="size-6" />
-              {t('topNavigation.signIn')}
-            </button>
+            <>
+              <a
+                href="https://calendly.com/michael-vogt-progwise/30min"
+                target="_blank"
+                rel="noopener noreferrer"
+                type="button"
+                className="btn- btn btn-accent"
+              >
+                {t('topNavigation.demo')}
+              </a>
+
+              <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+                <UserIcon className="size-6" />
+                {t('topNavigation.signIn')}
+              </button>
+            </>
           ) : (
             <>
               <TopNavigationLink to="/profile">{user?.name || 'no name'}</TopNavigationLink>

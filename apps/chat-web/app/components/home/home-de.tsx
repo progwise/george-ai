@@ -1,28 +1,18 @@
+import GeorgeBenefitsDe from './george-benefits-de'
 import { ImpressDe } from './impress-de'
 
 export const HomeDe = () => {
   return (
     <div className="prose prose-lg mt-10 flex max-w-none flex-col gap-4">
-      <h1 className="mb-0 text-center">Ihre KI. Ihre Daten. Ihre Regeln.</h1>
+      <h1 className="m-0 p-0 text-center">Ihre KI. Ihre Daten. Ihre Regeln.</h1>
       <ul className="menu menu-horizontal justify-center rounded-box">
         <li>
-          <a
-            href="https://calendly.com/michael-vogt-progwise/30min"
-            target="_blank"
-            rel="noopener noreferrer"
-            type="button"
-            className="btn btn-primary btn-sm"
-          >
-            Online-Demo
-          </a>
-        </li>
-        <li>
-          <a className="btn btn-secondary btn-sm" href="#features">
+          <a className="btn btn-sm" href="#features">
             Features
           </a>
         </li>
         <li>
-          <a className="btn btn-secondary btn-sm" href="#ai-act">
+          <a className="btn btn-sm" href="#ai-act">
             AI-Act
           </a>
         </li>
@@ -35,7 +25,10 @@ export const HomeDe = () => {
       <article className="flex flex-col gap-4 sm:flex-row">
         <div>
           <h2>Erstellen und trainieren Sie Ihre eigene Verwaltungs-KI.</h2>
-          <p>Ihr KI-Assistent wird von Ihnen selbst erstellt und trainiert. Entwickeln Sie Ihre eigene KI-Lösung</p>
+          <p>
+            Ihr KI-Assistent wird von Ihnen selbst erstellt und trainiert. Entwickeln Sie Ihre eigene KI-Lösung ohne
+            eine Zeile Code zu schreiben.
+          </p>
           <div className="flex flex-col gap-4 lg:flex-row">
             <ul>
               <li>
@@ -47,12 +40,16 @@ export const HomeDe = () => {
               </li>
               <li>
                 <strong>Use-Cases:</strong> Experimentieren Sie mit George-Ai: Forschen und optimieren Sie laufend Ihre
-                eigenen Einsatzzwecke KI.
+                eigenen Anwendungsfälle.
               </li>
               <li>
-                <strong>Beispiele:</strong> Kundenbetreuung, Intranet-Indizierung, Vertragsmanagement, HR-Chatbot,
-                Logistik, Terminplanung und vieles mehr. Lassen Sie Ihrer Fantasie freien lauf und vereinbaren einen
-                Termin mit uns.
+                <strong>Beispiele:</strong> Kundenchat, Mitarbeiterchat, Intranet-Suchmaschine, Vertragsmanagement,
+                HR-Chatbot, Logistik, Terminplanung und vieles mehr. Lassen Sie Ihrer Fantasie freien lauf und
+                vereinbaren einen Termin mit uns.
+              </li>
+              <li>
+                <strong>Updates:</strong> George wird ständig weiterentwickelt und orientiert sich an den neuesten
+                KI-Entwicklungen weltweit. Bleiben Sie am Ball und entickeln Sie neue Ideen am Puls der Zeit.
               </li>
               <li>
                 <strong>EU-KI-Act-konform:</strong> Ihre KI-Lösung laufend bzgl. des EU-KI-Act Risk-Levels eingestuft
@@ -67,7 +64,7 @@ export const HomeDe = () => {
         </div>
       </article>
 
-      <div className="">
+      <div>
         <a id="features" href="#" className="float-right text-sm">
           Top
         </a>
@@ -81,11 +78,12 @@ export const HomeDe = () => {
             <div className="mx-auto my-0 max-h-fit max-w-fit overflow-hidden rounded-3xl border">
               <img src="george-features.png" alt="Features von George" className="m-0 max-h-96 p-0" />
             </div>
-            <div className="">
+            <div>
               <ul>
                 <li>
                   <strong>Mehr als ein Chatbot - viel mehr:</strong> nach den großen Vorbildern in der Industrie.
                   Unterstützt multi-modale Modelle für Text, Bilder, Videos, Grafiken, Landkarten und vieles mehr.
+                  <strong> Ihre KI muss Ihnen und Ihren Mitarbeitern gefallen.</strong>
                 </li>
                 <li>
                   <strong>Public & Private Sprachmodelle:</strong> Kann für jeden Assistenten und für jede Bibliothek
@@ -109,12 +107,16 @@ export const HomeDe = () => {
                   <strong>Berechtigungen:</strong> Nicht alle Daten im Unternehmen sind für jedermann bestimmt: George
                   berücksichtigt Ihre Berechtigungen Use-Case übergreifend.
                 </li>
+                <li>
+                  <strong>Reporting:</strong> Erfassen Sie die Nutzung Ihrer KI-Lösung - für Ihr Unternehmen und auch
+                  für den EU-AI-Act.
+                </li>
               </ul>
             </div>
           </div>
         </article>
       </div>
-      <div className="">
+      <div>
         <a id="ai-act" href="#" className="float-right text-sm">
           Top
         </a>
@@ -135,6 +137,10 @@ export const HomeDe = () => {
                   <strong>Reporting der Nutzung</strong> gemäß EU-KI-Act je nach Risk-Level unter Einhaltung des
                   Datenschutzes und von Betriebsratsvereinbarungen.
                 </li>
+                <li>
+                  <strong>Automatische Aktualisierung</strong> der neuesten Vorschriften und Regeln. Wir kümmern uns
+                  täglich darum, dass Sie mit Ihrem Use-Case nicht an die Wand in Brüssel fahren.
+                </li>
               </ul>
             </div>
             <div className="mx-auto my-0 max-h-fit max-w-fit overflow-hidden rounded-3xl border">
@@ -143,6 +149,7 @@ export const HomeDe = () => {
           </div>
         </article>
       </div>
+      <GeorgeBenefitsDe />
       <div className="mt-52">
         <hr />
         <a id="impressum" href="#" className="float-right text-sm">

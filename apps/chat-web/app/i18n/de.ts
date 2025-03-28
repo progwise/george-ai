@@ -142,6 +142,7 @@ export default {
     assistants: 'Assistenten',
     chat: 'Chat',
     conversations: 'Konversationen',
+    demo: 'Online-Demo Termin',
     home: 'Startseite',
     libraries: 'Bibliotheken',
     signIn: 'Anmelden',
