@@ -52,8 +52,8 @@ export const HomeEn = () => {
                 worldwide. Stay on top and develop new ideas at the pulse of time.
               </li>
               <li>
-                <strong>EU AI Act compliant:</strong> Your AI solution is continuously classified according to the EU AI
-                Act risk levels and
+                <strong>EU AI Act compliant:</strong> Your AI solution is continuously surveyed according to the EU AI
+                Act risc levels
               </li>
             </ul>
 

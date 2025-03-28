@@ -52,8 +52,8 @@ export const HomeDe = () => {
                 KI-Entwicklungen weltweit. Bleiben Sie am Ball und entickeln Sie neue Ideen am Puls der Zeit.
               </li>
               <li>
-                <strong>EU-KI-Act-konform:</strong> Ihre KI-Lösung laufend bzgl. des EU-KI-Act Risk-Levels eingestuft
-                und
+                <strong>EU-KI-Act-konform:</strong> Ihre KI-Lösung wird laufend bzgl. des EU-KI-Act Risk-Levels
+                überwacht
               </li>
             </ul>
 
