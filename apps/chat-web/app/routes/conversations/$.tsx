@@ -9,7 +9,7 @@ import { ConversationForm } from '../../components/conversation/conversation-for
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
-import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
+import { DeleteLeaveConversationDialog } from '../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
@@ -194,7 +194,7 @@ function RouteComponent() {
                 assistants={assignableAssistants.aiAssistants}
                 humans={assignableUsers.myConversationUsers}
               />
-              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
+              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
             </div>
             <ConversationHistory conversation={selectedConversation.aiConversation} />
             <ConversationForm conversation={selectedConversation.aiConversation} />

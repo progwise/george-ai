@@ -234,6 +234,7 @@ export type Mutation = {
   dropFile?: Maybe<AiLibraryFile>
   dropFiles?: Maybe<Array<AiLibraryFile>>
   hideMessage?: Maybe<AiConversationMessage>
+  leaveAiConversation?: Maybe<AiConversationParticipant>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
@@ -331,6 +332,10 @@ export type MutationDropFilesArgs = {
 
 export type MutationHideMessageArgs = {
   messageId: Scalars['String']['input']
+}
+
+export type MutationLeaveAiConversationArgs = {
+  id: Scalars['String']['input']
 }
 
 export type MutationLoginArgs = {
@@ -969,6 +974,10 @@ export type ConversationDelete_ConversationFragment = {
   ownerId: string
   createdAt: string
   assistants: Array<{ __typename?: 'AiAssistant'; name: string }>
+  participants: Array<
+    | { __typename?: 'AssistantParticipant'; id: string; userId?: string | null }
+    | { __typename?: 'HumanParticipant'; id: string; userId?: string | null }
+  >
 } & { ' $fragmentName'?: 'ConversationDelete_ConversationFragment' }
 
 export type NewConversationSelector_AssistantFragment = ({ __typename?: 'AiAssistant' } & {
@@ -1477,6 +1486,18 @@ export type DeleteConversationMutationVariables = Exact<{
 export type DeleteConversationMutation = {
   __typename?: 'Mutation'
   deleteAiConversation?: { __typename?: 'AiConversation'; id: string } | null
+}
+
+export type LeaveConversationMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type LeaveConversationMutation = {
+  __typename?: 'Mutation'
+  leaveAiConversation?:
+    | { __typename?: 'AssistantParticipant'; id: string }
+    | { __typename?: 'HumanParticipant'; id: string }
+    | null
 }
 
 export type AddParticipantMutationVariables = Exact<{
@@ -2038,6 +2059,17 @@ export const ConversationDelete_ConversationFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+              ],
             },
           },
         ],
@@ -3983,6 +4015,17 @@ export const GetConversationDocument = {
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -5014,6 +5057,43 @@ export const DeleteConversationDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteConversationMutation, DeleteConversationMutationVariables>
+export const LeaveConversationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'leaveConversation' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'leaveAiConversation' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LeaveConversationMutation, LeaveConversationMutationVariables>
 export const AddParticipantDocument = {
   kind: 'Document',
   definitions: [

@@ -82,3 +82,18 @@ export const deleteConversation = createServerFn({ method: 'POST' })
       conversationId: ctx.data.conversationId,
     })
   })
+
+const LeaveConversationDocument = graphql(`
+  mutation leaveConversation($id: String!) {
+    leaveAiConversation(id: $id) {
+      id
+    }
+  }
+`)
+export const leaveConversation = createServerFn({ method: 'POST' })
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
+  .handler(async (ctx) => {
+    return backendRequest(LeaveConversationDocument, {
+      id: ctx.data.userId,
+    })
+  })
