@@ -58,7 +58,7 @@ export const HomeEn = () => {
             </ul>
 
             <div className="mx-auto my-0 max-h-fit max-w-fit overflow-hidden rounded-3xl border">
-              <img src="george-portrait.png" alt="Portrait of George" className="m-0 object-scale-down p-0" />
+              <img src="george-portrait.webp" alt="Portrait of George" className="m-0 object-scale-down p-0" />
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export const HomeEn = () => {
               applications.
             </p>
             <div className="mx-auto my-0 max-h-fit max-w-fit overflow-hidden rounded-3xl border">
-              <img src="george-features.png" alt="Features of George" className="m-0 max-h-96 p-0" />
+              <img src="george-features.webp" alt="Features of George" className="m-0 max-h-96 p-0" />
             </div>
             <div>
               <ul>
@@ -143,7 +143,7 @@ export const HomeEn = () => {
               </ul>
             </div>
             <div className="mx-auto my-0 max-h-fit max-w-fit overflow-hidden rounded-3xl border">
-              <img src="ai-act.png" alt="AI Act" className="m-0 max-h-96 p-0" />
+              <img src="ai-act.webp" alt="AI Act" className="m-0 max-h-96 p-0" />
             </div>
           </div>
         </article>
