@@ -1,5 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -32,12 +33,31 @@ export const redirectForAccessCode = async (fullPath: string, search: Record<str
   }
 }
 
+const useRedirectUrl = (fullPath: string, search: Record<string, string | undefined>) => {
+  return useQuery<string | null>({
+    queryKey: ['redirectUrl', fullPath, search],
+    queryFn: async (): Promise<string | null> => {
+      const redirect_url = window.location.origin + fullPath
+      if (!search.code) {
+        localStorage.setItem('google_login_progress', '1')
+        const newUrl = await getGoogleLoginUrl({
+          data: { redirect_url },
+        })
+        return newUrl
+      }
+      return null
+    },
+    enabled: !search.code,
+    staleTime: Infinity,
+  })
+}
+
 function RouteComponent() {
   const auth = useAuth()
   const search = Route.useSearch()
   const fullPath = Route.fullPath
   const { t } = useTranslation()
-  const [isLoading, setIsLoading] = useState(false)
+  const { data: redirectUrl } = useRedirectUrl(fullPath, search)
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
@@ -68,18 +88,11 @@ function RouteComponent() {
     }
   }, [search.code, getAccessToken])
 
-  const handleStartLogin = async () => {
-    if (isLoading) return
-
-    setIsLoading(true)
-    try {
-      await redirectForAccessCode(fullPath, search)
-    } catch (error) {
-      console.error('Error during Google login redirection:', error)
-    } finally {
-      setIsLoading(false)
+  const handleStartLogin = useCallback(() => {
+    if (redirectUrl) {
+      window.location.href = redirectUrl
     }
-  }
+  }, [redirectUrl])
 
   const isLoggedIn = !!auth?.user
 
@@ -94,8 +107,8 @@ function RouteComponent() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={isLoading}>
-        {isLoading ? 'Redirecting...' : 'Start Google Login'}
+      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={!redirectUrl}>
+        {redirectUrl ? 'Start Google Login' : 'Loading...'}
       </button>
     </div>
   )
