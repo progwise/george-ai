@@ -21,31 +21,13 @@ export const Route = createFileRoute('/libraries/auth-google')({
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
-export const redirectForAccessCode = async (fullPath: string, search: Record<string, string | undefined>) => {
-  const redirect_url = window.location.origin + fullPath
-  if (!search.code) {
-    console.log('start login')
-    localStorage.setItem('google_login_progress', '1')
-    const newUrl = await getGoogleLoginUrl({
-      data: { redirect_url },
-    })
-    window.location.href = newUrl
-  }
-}
-
 const useRedirectUrl = (fullPath: string, search: Record<string, string | undefined>) => {
   return useQuery<string | null>({
     queryKey: ['redirectUrl', fullPath, search],
     queryFn: async (): Promise<string | null> => {
+      localStorage.setItem('google_login_progress', '1')
       const redirect_url = window.location.origin + fullPath
-      if (!search.code) {
-        localStorage.setItem('google_login_progress', '1')
-        const newUrl = await getGoogleLoginUrl({
-          data: { redirect_url },
-        })
-        return newUrl
-      }
-      return null
+      return await getGoogleLoginUrl({ data: { redirect_url } })
     },
     enabled: !search.code,
     staleTime: Infinity,
@@ -61,7 +43,7 @@ function RouteComponent() {
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
-      console.log('setting redirectAfterAuth', search.redirectAfterAuth)
+      console.log('Setting redirectAfterAuth:', search.redirectAfterAuth)
       localStorage.setItem('google_login_redirect_after', search.redirectAfterAuth)
     }
   }, [search.redirectAfterAuth])
@@ -72,7 +54,7 @@ function RouteComponent() {
       const accessToken = await getGoogleAccessToken({
         data: { access_code: search.code, redirect_url },
       })
-      console.log('got access token', accessToken)
+      console.log('Got access token', accessToken)
       localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
       localStorage.setItem('google_drive_dialog_open', 'true')
       localStorage.removeItem('google_login_progress')

@@ -70,12 +70,6 @@ export default {
   home: {
     altImage: 'George KI',
     btnText: 'KI-Training starten',
-    paragraph: `Lernen Sie George-AI kennen: Ein maßgeschneiderter KI-Assistent, 
-        zugeschnitten auf Ihre Geschäftsanforderungen. Erstellen Sie einzigartige 
-        Inhalte, verwalten Sie Kundeninteraktionen und optimieren Sie Workflows — 
-        alles basierend auf Ihren eigenen Datenquellen und vollständig konform mit 
-        europäischen Datenschutzbestimmungen.`,
-    title: 'Ihre KI. Ihre Daten. Ihre Regeln.',
   },
   labels: {
     behavior: 'Verhaltensfälle',
@@ -148,6 +142,7 @@ export default {
     assistants: 'Assistenten',
     chat: 'Chat',
     conversations: 'Konversationen',
+    demo: 'Online-Demo Termin',
     home: 'Startseite',
     libraries: 'Bibliotheken',
     signIn: 'Anmelden',
