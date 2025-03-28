@@ -5,6 +5,7 @@ import { useRef } from 'react'
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { LeaveIcon } from '../../icons/leave-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { deleteConversation, leaveConversation } from '../../server-functions/conversations'
@@ -99,7 +100,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   }
 
   const isPending = isDeletePending || isLeavePending
-  const Icon = isOwner ? TrashIcon : TrashIcon // Replace with appropriate icon for leaving conversation
+  const Icon = isOwner ? TrashIcon : LeaveIcon
 
   const title = isOwner ? t('texts.deleteConversation') : t('texts.leaveConversation')
   const description = isOwner ? t('texts.deleteConversationConfirmation') : t('texts.leaveConversationConfirmation')
@@ -114,7 +115,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
         onClick={handleOpen}
         data-tip={buttonTooltip}
       >
-        <Icon className="size-4" />
+        <Icon className="size-6" />
       </button>
 
       <LoadingSpinner isLoading={isPending} />

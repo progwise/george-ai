@@ -185,7 +185,7 @@ function RouteComponent() {
           </div>
         </div>
       )}
-      <article className="flex w-full flex-col gap-2">
+      <article className="flex w-full flex-col gap-1">
         {selectedConversation?.aiConversation && (
           <>
             <div className="flex items-center justify-between">
