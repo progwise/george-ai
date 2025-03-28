@@ -69,11 +69,6 @@ export default {
   home: {
     altImage: 'George AI',
     btnText: 'Start Training Your AI',
-    paragraph: `Meet George-AI: a custom-trained AI assistant tailored to your 
-    business needs. Create unique content, handle customer interactions, 
-    and streamline workflows — all powered by your own data sources and 
-    fully compliant with European data protection standards.`,
-    title: 'Your AI. Your Data. Your Rules.',
   },
   labels: {
     behavior: 'Behavior Cases',
