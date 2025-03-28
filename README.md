@@ -36,6 +36,8 @@ Use `env.example` files as the references.
 5. Go to the **Users** section and create a user and set a password under the **Credentials** tab in the user view.
 6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
 
+Client Authentication has to be **off**.
+
 Docs for setting up an OAuth app in:
 
 - Google: https://support.google.com/cloud/answer/6158849?hl=en

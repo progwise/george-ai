@@ -9,9 +9,9 @@ import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { DropIcon } from '../../icons/drop-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
@@ -401,7 +401,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     disabled={dropFileIsPending}
                     data-tip={t('tooltips.drop')}
                   >
-                    <DropIcon />
+                    <TrashIcon />
                   </button>
                   <button
                     type="button"
