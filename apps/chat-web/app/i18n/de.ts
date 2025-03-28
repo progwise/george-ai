@@ -40,6 +40,7 @@ export default {
     usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
   },
   auth: {
+    signInForGoogleAuth: 'Melden Sie sich an, um die Google-Authentifizierung zu verwenden',
     signInWithGoogle: 'Mit Google anmelden',
     switchGoogleAccount: 'Google-Konto wechseln',
   },

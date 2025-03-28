@@ -40,6 +40,7 @@ export default {
     signInForAssistants: 'Sign in to see your assistants',
   },
   auth: {
+    signInForGoogleAuth: 'Sign in to use Google authentication',
     signInWithGoogle: 'Sign in with Google',
     switchGoogleAccount: 'Switch Google Account',
   },

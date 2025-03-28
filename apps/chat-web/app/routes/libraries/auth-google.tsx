@@ -1,8 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 
+import { useAuth } from '../../auth/auth-hook'
 import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
+import { useTranslation } from '../../i18n/use-translation-hook'
 
 export const authGoogleSearchSchema = z.object({
   redirectAfterAuth: z.string().optional(),
@@ -31,8 +33,11 @@ export const redirectForAccessCode = async (fullPath: string, search: Record<str
 }
 
 function RouteComponent() {
+  const auth = useAuth()
   const search = Route.useSearch()
   const fullPath = Route.fullPath
+  const { t } = useTranslation()
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
@@ -63,11 +68,34 @@ function RouteComponent() {
     }
   }, [search.code, getAccessToken])
 
+  const handleStartLogin = async () => {
+    if (isLoading) return
+
+    setIsLoading(true)
+    try {
+      await redirectForAccessCode(fullPath, search)
+    } catch (error) {
+      console.error('Error during Google login redirection:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const isLoggedIn = !!auth?.user
+
+  if (!isLoggedIn) {
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
+        {t('auth.signInForGoogleAuth')}
+      </button>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary" type="button" onClick={() => redirectForAccessCode(fullPath, search)}>
-        Start Google Login
+      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={isLoading}>
+        {isLoading ? 'Redirecting...' : 'Start Google Login'}
       </button>
     </div>
   )
