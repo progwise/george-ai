@@ -44,41 +44,6 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
     )
   })
 
-const dropFile = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation dropFile($id: String!) {
-          dropFile(fileId: $id) {
-            id
-          }
-        }
-      `),
-      { id: ctx.data },
-    )
-  })
-
-const reProcessFile = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation reProcessFile($id: String!) {
-          processFile(fileId: $id) {
-            id
-            chunks
-            size
-            uploadedAt
-            processedAt
-            processingErrorMessage
-          }
-        }
-      `),
-      { id: ctx.data },
-    )
-  })
-
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
@@ -161,7 +126,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
-  const [showDropFileError, setShowDropFileError] = useState(true)
   const { t, language } = useTranslation()
   const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
     aiLibraryFilesQueryOptions(libraryId),
@@ -205,31 +169,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     },
   })
 
-  const {
-    mutate: dropFileMutation,
-    error: dropFileError,
-    isPending: dropFileIsPending,
-  } = useMutation({
-    mutationFn: async (fileId: string) => {
-      await dropFile({ data: fileId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
-
-  const reProcessFileMutation = useMutation({
-    mutationFn: async (fileId: string) => {
-      await reProcessFile({ data: fileId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-    onError: () => {
-      alert('An error occurred while reprocessing the file. Please try again later.')
-    },
-  })
-
   const dropAllFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
       await dropAllFiles({ data: fileIds })
@@ -269,26 +208,15 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     isLoading ||
     clearEmbeddingsMutation.isPending ||
     dropAllFilesMutation.isPending ||
-    reProcessAllFilesMutation.isPending ||
-    dropFileIsPending ||
-    reProcessFileMutation.isPending
+    reProcessAllFilesMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
-    await Promise.all(uploadedFiles)
+    reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      {dropFileError && showDropFileError && (
-        <div className="alert alert-error mb-4 cursor-pointer" role="alert" onClick={() => setShowDropFileError(false)}>
-          <span>{t('texts.dropFileFailure')}</span>
-          <ul className="list-disc pl-4">
-            <li>{dropFileError.message}</li>
-          </ul>
-        </div>
-      )}
       <nav className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex w-full flex-wrap gap-4">
           <button
@@ -397,8 +325,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
-                    onClick={() => dropFileMutation(file.id)}
-                    disabled={dropFileIsPending}
+                    onClick={() => dropAllFilesMutation.mutate([file.id])}
+                    disabled={dropAllFilesMutation.isPending}
                     data-tip={t('tooltips.drop')}
                   >
                     <DropIcon />
@@ -406,8 +334,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
-                    onClick={() => reProcessFileMutation.mutate(file.id)}
-                    disabled={reProcessFileMutation.isPending}
+                    onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                    disabled={reProcessAllFilesMutation.isPending}
                     data-tip={t('tooltips.reProcess')}
                   >
                     <ReprocessIcon />
