@@ -120,7 +120,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         throw new Error('User not set')
       }
       return await addConversationParticipants({
-        data: { conversationId: conversation.id, assistantIds, userIds, ownerId: user.id },
+        data: { conversationId: conversation.id, assistantIds, userIds },
       })
     },
     onSettled: async () => {

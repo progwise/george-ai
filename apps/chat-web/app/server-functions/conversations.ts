@@ -77,8 +77,8 @@ const DeleteConversationDocument = graphql(`
 
 export const deleteConversation = createServerFn({ method: 'POST' })
   .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
-  .handler((ctx) =>
-    backendRequest(DeleteConversationDocument, {
+  .handler(async (ctx) => {
+    return backendRequest(DeleteConversationDocument, {
       conversationId: ctx.data.conversationId,
-    }),
-  )
+    })
+  })

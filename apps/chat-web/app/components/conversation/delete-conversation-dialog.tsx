@@ -25,22 +25,26 @@ interface DeleteConversationDialogProps {
 }
 
 export const DeleteConversationDialog = (props: DeleteConversationDialogProps) => {
-  const auth = useAuth()
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { t } = useTranslation()
+
+  const authContext = useAuth()
+  const user = authContext.user
 
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
-  const isOwner = auth.user?.id === conversation.ownerId
+  const isOwner = user?.id === conversation.ownerId
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      deleteConversation({ data: { conversationId: conversation.id } })
+      deleteConversation({
+        data: { conversationId: conversation.id },
+      })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, auth.user?.id],
+        queryKey: [queryKeys.Conversations, user?.id],
       })
       navigate({ to: '..' })
     },
