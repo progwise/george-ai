@@ -1,7 +1,7 @@
 import { getTranslatedValue } from './use-translation-hook'
 
 const getLanguageString = (languages: readonly string[]) => {
-  return languages.find((language) => language.startsWith('de')) || 'en'
+  return languages.findIndex((language) => language.startsWith('de')) ? 'de' : 'en'
 }
 
 const getLanguage = async () => {
