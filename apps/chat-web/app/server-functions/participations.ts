@@ -22,13 +22,13 @@ export const addConversationParticipants = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler((ctx) => {
+  .handler((ctx) =>
     backendRequest(AddParticipantsDocument, {
       conversationId: ctx.data.conversationId,
       userIds: ctx.data.userIds,
       assistantIds: ctx.data.assistantIds,
-    })
-  })
+    }),
+  )
 
 const RemoveParticipantDocument = graphql(`
   mutation removeParticipant($participantId: String!) {

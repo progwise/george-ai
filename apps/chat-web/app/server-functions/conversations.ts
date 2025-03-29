@@ -84,16 +84,16 @@ export const deleteConversation = createServerFn({ method: 'POST' })
   })
 
 const LeaveConversationDocument = graphql(`
-  mutation leaveConversation($id: String!) {
-    leaveAiConversation(id: $id) {
+  mutation leaveConversation($participantId: String!) {
+    leaveAiConversation(id: $participantId) {
       id
     }
   }
 `)
 export const leaveConversation = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
-  .handler(async (ctx) => {
-    return backendRequest(LeaveConversationDocument, {
-      id: ctx.data.userId,
-    })
-  })
+  .validator((data: { participantId: string }) => z.object({ participantId: z.string() }).parse(data))
+  .handler((ctx) =>
+    backendRequest(LeaveConversationDocument, {
+      participantId: ctx.data.participantId,
+    }),
+  )

@@ -1489,7 +1489,7 @@ export type DeleteConversationMutation = {
 }
 
 export type LeaveConversationMutationVariables = Exact<{
-  id: Scalars['String']['input']
+  participantId: Scalars['String']['input']
 }>
 
 export type LeaveConversationMutation = {
@@ -5067,7 +5067,7 @@ export const LeaveConversationDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -5081,7 +5081,7 @@ export const LeaveConversationDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
               },
             ],
             selectionSet: {

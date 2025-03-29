@@ -69,7 +69,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       if (!userParticipant) throw new Error('Participant not found')
       return await leaveConversation({
         data: {
-          userId: userParticipant.id,
+          participantId: userParticipant.id,
         },
       })
     },
