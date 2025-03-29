@@ -1,15 +1,20 @@
 import { getTranslatedValue } from './use-translation-hook'
 
+const getLanguageString = (languages: readonly string[]) => {
+  return languages.find((language) => language.startsWith('de')) || 'en'
+}
+
 const getLanguage = async () => {
   if (typeof window !== 'undefined') {
-    return window.navigator.language === 'de' ? 'de' : 'en'
+    const languageString = getLanguageString(window.navigator.languages)
+    return languageString
   }
   try {
     const vinxiModule = await import('vinxi/http')
     const headers = vinxiModule.getHeaders()
-    const languages = headers['accept-language']
-    const language = languages?.split(',')[0] || 'en'
-    return language === 'de' ? 'de' : 'en'
+    const languages = headers['accept-language']?.split(',')
+    const language = getLanguageString(languages || [])
+    return language
   } catch (e) {
     console.log('error', e)
     throw new Error('Could not determine language')
