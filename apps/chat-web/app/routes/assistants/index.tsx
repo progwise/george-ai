@@ -20,7 +20,7 @@ const getMyAiAssistants = createServerFn({ method: 'GET' })
         query aiAssistantCards($ownerId: String!) {
           aiAssistants(ownerId: $ownerId) {
             id
-            ...AssistantCard_assistantFragment
+            ...AssistantCard_Assistant
           }
         }
       `),

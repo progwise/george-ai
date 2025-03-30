@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -9,9 +9,9 @@ import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { DropIcon } from '../../icons/drop-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
@@ -136,6 +136,7 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
             uploadedAt
             processedAt
             processingErrorMessage
+            dropError
           }
         }
       `),
@@ -160,13 +161,15 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
+  const [showDropFileError, setShowDropFileError] = useState(true)
   const { t, language } = useTranslation()
-  const { data, isLoading, refetch } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
+  const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
     aiLibraryFilesQueryOptions(libraryId),
   )
   const dialogRef = useRef<HTMLDialogElement>(null)
   const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
   const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
@@ -183,21 +186,35 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     }
   }
 
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.AiLibraryFiles, libraryId],
+    })
+
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.AiLibraries],
+    })
+  }
+
   const clearEmbeddingsMutation = useMutation({
     mutationFn: async (libraryId: string) => {
       await clearEmbeddings({ data: libraryId })
     },
     onSettled: () => {
-      refetch()
+      invalidateQueries()
     },
   })
 
-  const dropFileMutation = useMutation({
+  const {
+    mutate: dropFileMutation,
+    error: dropFileError,
+    isPending: dropFileIsPending,
+  } = useMutation({
     mutationFn: async (fileId: string) => {
       await dropFile({ data: fileId })
     },
     onSettled: () => {
-      refetch()
+      invalidateQueries()
     },
   })
 
@@ -206,7 +223,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       await reProcessFile({ data: fileId })
     },
     onSettled: () => {
-      refetch()
+      invalidateQueries()
     },
     onError: () => {
       alert('An error occurred while reprocessing the file. Please try again later.')
@@ -218,8 +235,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       await dropAllFiles({ data: fileIds })
     },
     onSettled: () => {
-      refetch()
       setSelectedFiles([])
+      invalidateQueries()
     },
   })
 
@@ -228,8 +245,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       await reProcessAllFiles({ data: fileIds })
     },
     onSettled: () => {
-      refetch()
       setSelectedFiles([])
+      invalidateQueries()
     },
     onError: () => {
       alert('An error occurred while reprocessing the files. Please try again later.')
@@ -253,18 +270,25 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     clearEmbeddingsMutation.isPending ||
     dropAllFilesMutation.isPending ||
     reProcessAllFilesMutation.isPending ||
-    dropFileMutation.isPending ||
+    dropFileIsPending ||
     reProcessFileMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
     await Promise.all(uploadedFiles)
-    await refetch()
   }
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
+      {dropFileError && showDropFileError && (
+        <div className="alert alert-error mb-4 cursor-pointer" role="alert" onClick={() => setShowDropFileError(false)}>
+          <span>{t('texts.dropFileFailure')}</span>
+          <ul className="list-disc pl-4">
+            <li>{dropFileError.message}</li>
+          </ul>
+        </div>
+      )}
       <nav className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex w-full flex-wrap gap-4">
           <button
@@ -317,7 +341,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             >
               <CrossIcon />
             </button>
-            <h3 className="text-lg font-bold">Add Google Drive Files</h3>
+            <h3 className="text-lg font-bold">{t('texts.addGoogleDriveFiles')}</h3>
             <div className="flex-grow overflow-auto py-4">
               <GoogleDriveFiles
                 libraryId={libraryId}
@@ -373,11 +397,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
-                    onClick={() => dropFileMutation.mutate(file.id)}
-                    disabled={dropFileMutation.isPending}
+                    onClick={() => dropFileMutation(file.id)}
+                    disabled={dropFileIsPending}
                     data-tip={t('tooltips.drop')}
                   >
-                    <DropIcon />
+                    <TrashIcon />
                   </button>
                   <button
                     type="button"

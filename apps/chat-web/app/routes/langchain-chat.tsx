@@ -31,22 +31,23 @@ const ChatRoute = () => {
         <Dropdown
           className="w-52"
           title={t(`flow${selectedFlow}`)}
+          action={(item) => setSelectedFlow(item.title as RetrievalFlow)}
           options={[
             {
+              id: 'Sequential',
               title: t('flowSequential'),
-              action: () => setSelectedFlow('Sequential'),
             },
             {
+              id: 'Parallel',
               title: t('flowParallel'),
-              action: () => setSelectedFlow('Parallel'),
             },
             {
+              id: 'Only Local',
               title: t('flowLocal'),
-              action: () => setSelectedFlow('Only Local'),
             },
             {
+              id: 'Only Web',
               title: t('flowWeb'),
-              action: () => setSelectedFlow('Only Web'),
             },
           ]}
         />

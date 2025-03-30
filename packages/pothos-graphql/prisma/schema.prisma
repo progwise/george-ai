@@ -54,15 +54,6 @@ model UserProfile {
   confirmationDate DateTime?
 }
 
-model AiLanguageModel {
-  id          String  @id @default(cuid())
-  provider    String
-  name        String
-  description String?
-
-  AiAssistant AiAssistant[]
-}
-
 model AiAssistant {
   id                         String                      @id @default(cuid())
   createdAt                  DateTime                    @default(now())
@@ -70,14 +61,12 @@ model AiAssistant {
   name                       String
   description                String?
   url                        String?
-  icon                       String?
+  iconUrl                    String?
   owner                      User                        @relation(fields: [ownerId], references: [id])
   ownerId                    String
   usages                     AiLibraryUsage[]
   conversationParticipations AiConversationParticipant[]
-  languageModel              AiLanguageModel?            @relation(fields: [languageModelId], references: [id])
-  languageModelId            String?
-  llmTemperature             Float?
+  languageModel              String?                     @default("OpenAI")
   baseCases                  AiAssistantBaseCase[]
 }
 
@@ -88,7 +77,8 @@ model AiAssistantBaseCase {
   assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   sequence    Int
   assistantId String
-  description String
+  condition   String?
+  instruction String?
 }
 
 model AiLibrary {
@@ -110,10 +100,12 @@ model AiLibrary {
 model AiLibraryUsage {
   id          String      @id @default(cuid())
   createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt @default(now())
   assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   assistantId String
   library     AiLibrary   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
   libraryId   String
+  usedFor     String?
 
   @@unique([assistantId, libraryId])
 }
@@ -131,6 +123,7 @@ model AiLibraryFile {
   chunks                 Int?
   uploadedAt             DateTime?
   processedAt            DateTime?
+  dropError              String?
   processingStartedAt    DateTime?
   processingEndedAt      DateTime?
   processingErrorAt      DateTime?

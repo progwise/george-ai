@@ -6,7 +6,7 @@ import { useAuth } from '../auth/auth-hook'
 import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
-import ChatBubbleIcon from '../icons/chat-bubble-icon'
+import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { ConversationIcon } from '../icons/conversation-icon'
 import { MenuIcon } from '../icons/menu-icon'
 import UserIcon from '../icons/user-icon'
@@ -38,7 +38,7 @@ const TopNavigation = () => {
     <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
       <div className="flex w-full items-center justify-between lg:hidden">
         <Link to="/" className="btn btn-ghost">
-          <BowlerHatIcon className="size-8" />
+          <BowlerLogoIcon className="size-8" />
         </Link>
 
         {user ? (
@@ -79,25 +79,32 @@ const TopNavigation = () => {
                   {t('library')}
                 </Link>
               </li>
-              <li>
-                <Link to="/langchain-chat" onClick={closeMenu}>
-                  <ChatBubbleIcon className="size-6" />
-                  {t('chat')}
-                </Link>
-              </li>
               {!user ? (
-                <li>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      login()
-                      closeMenu()
-                    }}
-                  >
-                    <UserIcon className="size-6" />
-                    {t('topNavigation.signIn')}
-                  </button>
-                </li>
+                <>
+                  <li>
+                    <a
+                      href="https://calendly.com/michael-vogt-progwise/30min"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      type="button"
+                      className="btn- btn btn-accent"
+                    >
+                      {t('topNavigation.demo')}
+                    </a>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        login()
+                        closeMenu()
+                      }}
+                    >
+                      <UserIcon className="size-6" />
+                      {t('topNavigation.signIn')}
+                    </button>
+                  </li>
+                </>
               ) : (
                 <>
                   <li>
@@ -109,7 +116,7 @@ const TopNavigation = () => {
                       }}
                     >
                       <UserIcon className="size-6" />
-                      {t('signOut')}
+                      {t('topNavigation.signOut')}
                     </button>
                   </li>
                 </>
@@ -121,7 +128,7 @@ const TopNavigation = () => {
 
       <div className="hidden w-full items-center justify-between lg:flex">
         <TopNavigationLink to="/">
-          <BowlerHatIcon className="size-8" />
+          <BowlerLogoIcon className="size-8" />
           {t('brand')}
         </TopNavigationLink>
 
@@ -138,17 +145,25 @@ const TopNavigation = () => {
             <AcademicCapIcon className="size-6" />
             {t('topNavigation.libraries')}
           </TopNavigationLink>
-          <TopNavigationLink to="/langchain-chat">
-            <ChatBubbleIcon className="size-6" />
-            {t('topNavigation.chat')}
-          </TopNavigationLink>
         </div>
         <div className="flex gap-2">
           {!user ? (
-            <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-              <UserIcon className="size-6" />
-              {t('topNavigation.signIn')}
-            </button>
+            <>
+              <a
+                href="https://calendly.com/michael-vogt-progwise/30min"
+                target="_blank"
+                rel="noopener noreferrer"
+                type="button"
+                className="btn- btn btn-accent"
+              >
+                {t('topNavigation.demo')}
+              </a>
+
+              <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+                <UserIcon className="size-6" />
+                {t('topNavigation.signIn')}
+              </button>
+            </>
           ) : (
             <>
               <TopNavigationLink to="/profile">{user?.name || 'no name'}</TopNavigationLink>

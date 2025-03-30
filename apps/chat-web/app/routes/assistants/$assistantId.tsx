@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
+import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
 import { AssistantSelector } from '../../components/assistant/assistant-selector'
@@ -24,21 +25,19 @@ const getAssistant = createServerFn({ method: 'GET' })
         graphql(`
           query aiAssistantDetails($id: String!, $ownerId: String!) {
             aiAssistant(id: $id) {
-              ...AssistantForm_assistant
-              ...AssistantSelector_assistant
-              ...AssistantForLibrariesFragment
+              ...AssistantForm_Assistant
+              ...AssistantSelector_Assistant
+              ...AssistantLibraries_Assistant
+              ...AssistantBasecaseForm_Assistant
             }
             aiAssistants(ownerId: $ownerId) {
-              ...AssistantSelector_assistant
+              ...AssistantSelector_Assistant
             }
             aiLibraryUsage(assistantId: $id) {
-              ...AssistantLibrariesUsageFragment
+              ...AssistantLibraries_LibraryUsage
             }
             aiLibraries(ownerId: $ownerId) {
-              ...AssistantLibrariesFragment
-            }
-            aiLanguageModels {
-              ...AssistantForm_languageModel
+              ...AssistantLibraries_Library
             }
           }
         `),
@@ -71,9 +70,9 @@ function RouteComponent() {
     enabled: !!ownerId && !!assistantId,
   })
 
-  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage, aiLanguageModels } = data || {}
+  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}
 
-  if (!user?.id || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || !aiLanguageModels || isLoading) {
+  if (!user?.id || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
   }
 
@@ -85,17 +84,19 @@ function RouteComponent() {
         </div>
         <div className="flex gap-2">
           <Link type="button" className="btn btn-primary btn-sm" to="..">
-            {t('actions.gotoOverview')}
+            {t('actions.goToOverview')}
           </Link>
         </div>
       </div>
-      <div className="flex w-full flex-col gap-4 lg:flex-row">
-        <div className="card grid w-1/2 grow rounded-box bg-base-200 px-3 py-3">
-          <AssistantForm assistant={aiAssistant} languageModels={aiLanguageModels} disabled={!user} />
+      <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+          <AssistantForm assistant={aiAssistant} disabled={!user} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
-        <div className="card grid w-1/2 grow place-items-center rounded-box bg-base-200"></div>
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+          <AssistantBasecaseForm assistant={aiAssistant} />
+        </div>
       </div>
     </article>
   )

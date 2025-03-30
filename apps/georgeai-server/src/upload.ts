@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-import { checkFileUpload, completeFileUpload, getFilePath } from '@george-ai/pothos-graphql'
+import { checkFileUpload, cleanupFile, completeFileUpload, getFilePath } from '@george-ai/pothos-graphql'
 
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
@@ -57,5 +57,19 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     })
   })
 
+  // Cleanup aborted uploads
+  httpRequest.on('close', async () => {
+    if (!httpRequest.complete) {
+      console.log('Upload aborted, cleaning up...')
+
+      try {
+        await cleanupFile(file.id)
+      } catch (error) {
+        console.error('Error during cleanup after upload abort:', error)
+      }
+    }
+  })
+
   await completeFileUpload(file.id)
+  httpResponse.status(200).send('File upload completed successfully')
 }

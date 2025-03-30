@@ -1,12 +1,37 @@
-import * as fs from 'fs'
+import { embedFile } from '@george-ai/langchain-chat'
 
-import { dropFile, embedFile } from '@george-ai/langchain-chat'
-
-import { getFilePath } from '../../file-upload'
+import { cleanupFile, deleteFileAndRecord, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryFile')
+
+async function dropFileById(fileId: string) {
+  const file = await prisma.aiLibraryFile.findUnique({
+    where: { id: fileId },
+  })
+  if (!file) {
+    throw new Error(`File not found: ${fileId}`)
+  }
+
+  let dropError: string | null = null
+
+  try {
+    await deleteFileAndRecord(file.id, file.libraryId)
+    return file
+  } catch (error) {
+    dropError = error instanceof Error ? error.message : String(error)
+    const updatedFile = await prisma.aiLibraryFile.update({
+      where: { id: file.id },
+      data: { dropError },
+    })
+    return updatedFile
+  }
+}
+
+const cancelFileUpload = async (fileId: string) => {
+  await cleanupFile(fileId)
+}
 
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
@@ -31,6 +56,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
+    dropError: t.exposeString('dropError', { nullable: true }),
   }),
 })
 
@@ -141,34 +167,38 @@ builder.mutationField('dropFile', (t) =>
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { fileId }) => {
-      const file = await prisma.aiLibraryFile.findUnique({
+    resolve: async (_query, _source, { fileId }) => {
+      return await dropFileById(fileId)
+    },
+  }),
+)
+
+builder.mutationField('dropFiles', (t) =>
+  t.prismaField({
+    type: ['AiLibraryFile'],
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { libraryId }) => {
+      const files = await prisma.aiLibraryFile.findMany({
         ...query,
-        where: { id: fileId },
+        where: { libraryId },
       })
-      if (!file) {
-        throw new Error(`File not found: ${fileId}`)
+
+      if (files.length === 0) {
+        throw new Error(`No files found for library: ${libraryId}`)
       }
 
-      await dropFile(file.libraryId, file.id)
+      const results = []
 
-      const deleteResult = await prisma.aiLibraryFile.delete({
-        where: { id: fileId },
-      })
+      for (const file of files) {
+        const droppedFile = await dropFileById(file.id)
+        results.push(droppedFile)
+      }
 
-      await new Promise((resolve) => {
-        fs.rm(getFilePath(file.id), (err) => {
-          if (err) {
-            resolve(`Error deleting file ${file.id}: ${err.message}`)
-          } else {
-            resolve(`File ${file.id} deleted`)
-          }
-        })
-      })
+      console.log(`Dropped files for library ${libraryId}:`, results)
 
-      console.log('dropped file', deleteResult)
-
-      return file
+      return results
     },
   }),
 )
@@ -225,6 +255,19 @@ builder.mutationField('reProcessFile', (t) =>
         })
         throw error
       }
+    },
+  }),
+)
+
+builder.mutationField('cancelFileUpload', (t) =>
+  t.field({
+    type: 'Boolean',
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { fileId }) => {
+      await cancelFileUpload(fileId)
+      return true
     },
   }),
 )

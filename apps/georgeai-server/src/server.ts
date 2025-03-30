@@ -7,6 +7,7 @@ import { createYoga } from 'graphql-yoga'
 
 import { schema } from '@george-ai/pothos-graphql'
 
+import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { conversationMessagesSSE } from './conversation-messages-sse'
 import { dataUploadMiddleware } from './upload'
 
@@ -21,6 +22,8 @@ yogaRouter.use(yoga)
 const app = express()
 
 app.use(cors())
+
+app.use('/assistant-icon', assistantIconMiddleware)
 
 app.use((req, res, next) => {
   const authHeader = req.headers.authorization
