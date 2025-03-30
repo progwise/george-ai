@@ -93,6 +93,7 @@ export default {
     nextCondition: 'Neuer Fall',
     notConfirmed: 'Nicht bestätigt',
     position: 'Position',
+    remainingStorage: 'Verbleibender Speicher',
     updatedAt: 'Geändert',
     usedMessages: 'Vorhandene Nachrichten',
     usedStorage: 'Verwendeter Speicher',

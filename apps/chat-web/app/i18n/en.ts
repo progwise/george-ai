@@ -92,6 +92,7 @@ export default {
     nextCondition: 'New Case',
     notConfirmed: 'Not confirmed',
     position: 'Position',
+    remainingStorage: 'Remaining Storage',
     updatedAt: 'Updated',
     usedMessages: 'Used Messages',
     usedStorage: 'Used Storage',

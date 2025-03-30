@@ -31,14 +31,6 @@ interface AiLibraryFile {
   processingErrorMessage?: string | null
 }
 
-const humanFileSize = (bytes: number): string => {
-  if (bytes < 1024) return bytes + ' B'
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  const size = (bytes / Math.pow(1024, i)).toFixed(2)
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
-  return `${size} ${units[i]}`
-}
-
 const clearEmbeddings = createServerFn({ method: 'GET' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
@@ -167,9 +159,7 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
 
 export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
-  const usedStorage = userProfile?.usedStorage || 0
-  const totalStorage = userProfile?.freeStorage || 0
-  const remainingStorage = totalStorage - usedStorage
+  const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [showDropFileError, setShowDropFileError] = useState(true)
   const { t, language } = useTranslation()
@@ -200,6 +190,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
+
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraries],
     })
@@ -287,9 +278,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     await Promise.all(uploadedFiles)
   }
 
-  const totalStr = humanFileSize(totalStorage)
-  const remainStr = humanFileSize(remainingStorage)
-
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
@@ -301,7 +289,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </ul>
         </div>
       )}
-      <nav className="mb-4 flex flex-wrap items-center justify-between gap-4">
+      <nav className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex w-full flex-wrap gap-4">
           <button
             type="button"
@@ -310,7 +298,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
           >
-            {t('actions.clearAll')}
+            Clear
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
@@ -338,7 +326,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <div className="flex w-full justify-end text-sm">
             <span>
-              <strong>{t('Remaining Storage')}:</strong> {remainStr} / {totalStr}
+              Remaining storage: {remainingStorage} / {userProfile?.freeStorage}
             </span>
           </div>
         </div>
@@ -372,13 +360,14 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       )}
       <div className="overflow-x-auto">
         <table className="table w-full">
-          <thead className="hidden md:table-header-group">
+          <thead>
             <tr>
-              <th data-label="Select" className="block px-2 py-1 md:table-cell md:py-2">
+              <th>
                 <input
                   type="checkbox"
                   checked={selectedFiles.length === data?.aiLibraryFiles?.length}
                   onChange={handleSelectAll}
+                  className="flex justify-center"
                 />
               </th>
               <th></th>
@@ -391,61 +380,48 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </thead>
           <tbody>
             {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-              <tr key={file.id} className="block border-b hover:bg-gray-100 md:table-row">
-                <td data-label="Select" className="block px-2 py-1 md:table-cell md:py-2">
+              <tr key={file.id}>
+                <td>
                   <input
                     type="checkbox"
                     checked={selectedFiles.includes(file.id)}
                     onChange={() => handleSelectFile(file.id)}
                   />
                 </td>
-
-                <td data-label="#" className="hidden px-2 py-1 md:table-cell md:py-2">
-                  {index + 1}
+                <td className="hidden sm:table-cell">{index + 1}</td>
+                <td>
+                  <span className="tooltip tooltip-bottom sm:tooltip-open" data-tip={file.name}>
+                    {file.name.length > 8 ? `${file.name.slice(0, 8)}...` : file.name}
+                  </span>
                 </td>
+                <td>{file.size}</td>
+                <td>{file.chunks}</td>
+                <td>{dateTimeString(file.processedAt, language)}</td>
+                <td className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-xs lg:tooltip"
+                    onClick={() => dropFileMutation(file.id)}
+                    disabled={dropFileIsPending}
+                    data-tip={t('tooltips.drop')}
+                  >
+                    <TrashIcon />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-xs lg:tooltip"
+                    onClick={() => reProcessFileMutation.mutate(file.id)}
+                    disabled={reProcessFileMutation.isPending}
+                    data-tip={t('tooltips.reProcess')}
+                  >
+                    <ReprocessIcon />
+                  </button>
 
-                <td data-label="Name" className="block px-2 py-1 font-medium md:table-cell md:py-2">
-                  {file.name}
-                </td>
-
-                <td data-label="#Size" className="block px-2 py-1 md:table-cell md:py-2">
-                  {file.size ? humanFileSize(file.size) : ''}
-                </td>
-
-                <td data-label="#Chunks" className="block px-2 py-1 md:table-cell md:py-2">
-                  {file.chunks ?? ''}
-                </td>
-
-                <td data-label="Processed" className="block px-2 py-1 md:table-cell md:py-2">
-                  {dateTimeString(file.processedAt, language)}
-                </td>
-
-                <td data-label="Actions" className="block px-2 py-1 md:table-cell md:py-2">
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-xs lg:tooltip"
-                      onClick={() => dropFileMutation(file.id)}
-                      disabled={dropFileIsPending}
-                      data-tip={t('tooltips.drop')}
-                    >
-                      <TrashIcon />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-xs lg:tooltip"
-                      onClick={() => reProcessFileMutation.mutate(file.id)}
-                      disabled={reProcessFileMutation.isPending}
-                      data-tip={t('tooltips.reProcess')}
-                    >
-                      <ReprocessIcon />
-                    </button>
-                    {file.processingErrorMessage && (
-                      <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
-                        <ExclamationIcon />
-                      </span>
-                    )}
-                  </div>
+                  {file.processingErrorMessage ? (
+                    <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
+                      <ExclamationIcon />
+                    </span>
+                  ) : undefined}
                 </td>
               </tr>
             ))}
