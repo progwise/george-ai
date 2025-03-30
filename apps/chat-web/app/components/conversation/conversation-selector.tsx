@@ -6,8 +6,8 @@ import { dateString } from '@george-ai/web-utils'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 
-const ConversationSelector_ConversationsFragment = graphql(`
-  fragment ConversationSelector_conversations on AiConversation {
+const ConversationSelector_ConversationFragment = graphql(`
+  fragment ConversationSelector_Conversation on AiConversation {
     id
     createdAt
     assistants {
@@ -18,7 +18,7 @@ const ConversationSelector_ConversationsFragment = graphql(`
 `)
 
 interface ConversationSelectorProps {
-  conversations: FragmentType<typeof ConversationSelector_ConversationsFragment>[] | null
+  conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
   selectedConversationId?: string
   onClick?: () => void
 }
@@ -28,7 +28,7 @@ export const ConversationSelector = ({
   selectedConversationId,
   onClick,
 }: ConversationSelectorProps) => {
-  const conversations = useFragment(ConversationSelector_ConversationsFragment, conversationsFragment)
+  const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
   const { t, language } = useTranslation()
 
   // Group conversations by date

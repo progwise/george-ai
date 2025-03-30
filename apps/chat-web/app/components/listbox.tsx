@@ -10,6 +10,7 @@ interface ListboxProps<T> {
   disabled?: boolean
   required?: boolean
   placeholder?: string
+  className?: string
 }
 
 export const Listbox = <T extends { id: string; name: string }>({
@@ -19,15 +20,16 @@ export const Listbox = <T extends { id: string; name: string }>({
   disabled,
   required,
   placeholder,
+  className,
 }: ListboxProps<T>) => {
   return (
     <HuListbox
-      value={selectedItem}
+      defaultValue={selectedItem}
       onChange={(newItem) => {
         onChange(newItem)
       }}
     >
-      <div className="relative w-full">
+      <div className={className}>
         <ListboxButton
           disabled={disabled}
           aria-required={required}
@@ -47,8 +49,9 @@ export const Listbox = <T extends { id: string; name: string }>({
         </ListboxButton>
 
         <ListboxOptions
+          anchor="bottom"
           transition
-          className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-lg bg-white text-base shadow-lg ring-1 ring-black/5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+          className="z-10 mt-1 overflow-auto rounded-lg bg-white text-base shadow-lg ring-1 ring-black/5 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
         >
           {items.map((item) => (
             <ListboxOption

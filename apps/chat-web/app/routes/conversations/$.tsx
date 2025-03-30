@@ -10,7 +10,7 @@ import { ConversationHistory } from '../../components/conversation/conversation-
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
-import { NewConversationDialog } from '../../components/conversation/new-conversation-dialog'
+import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -22,7 +22,7 @@ const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
     aiConversations(userId: $userId) {
       id
-      ...ConversationSelector_conversations
+      ...ConversationSelector_Conversation
     }
   }
 `)
@@ -34,10 +34,10 @@ export const getConversations = createServerFn({ method: 'GET' })
 const ConversationQueryDocument = graphql(`
   query getConversation($conversationId: String!) {
     aiConversation(conversationId: $conversationId) {
-      ...ConversationForm_conversation
-      ...ConversationParticipants_conversation
-      ...ConversationDelete_conversation
-      ...ConversationHistory_conversation
+      ...ConversationParticipants_Conversation
+      ...ConversationDelete_Conversation
+      ...ConversationHistory_Conversation
+      ...ConversationForm_Conversation
     }
   }
 `)
@@ -49,8 +49,8 @@ export const getConversation = createServerFn({ method: 'GET' })
 const AssignableUsersDocument = graphql(`
   query getAssignableUsers($userId: String!) {
     myConversationUsers(userId: $userId) {
-      ...ConversationNew_HumanParticipationCandidates
-      ...ConversationParticipants_HumanParticipationCandidates
+      ...NewConversationSelector_Human
+      ...ConversationParticipants_Human
     }
   }
 `)
@@ -62,8 +62,8 @@ export const getAssignableHumans = createServerFn({ method: 'GET' })
 const AssignableAssistantsDocument = graphql(`
   query getAssignableAssistants($ownerId: String!) {
     aiAssistants(ownerId: $ownerId) {
-      ...ConversationNew_AssistantParticipationCandidates
-      ...ConversationParticipants_AssistantParticipationCandidates
+      ...NewConversationSelector_Assistant
+      ...ConversationParticipants_Assistant
     }
   }
 `)
@@ -82,8 +82,8 @@ export const Route = createFileRoute('/conversations/$')({
 })
 
 function RouteComponent() {
-  const auth = useAuth()
-  const userId = auth.user?.id
+  const authContext = useAuth()
+  const userId = authContext.user?.id
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
@@ -130,7 +130,11 @@ function RouteComponent() {
   })
 
   if (!userId) {
-    return <h3>{t('texts.loginToUseConversations')}</h3>
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+        {t('texts.signInForConversations')}
+      </button>
+    )
   }
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
@@ -150,17 +154,16 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex gap-4 lg:flex-row">
+    <div className="flex flex-col gap-4 lg:flex-row">
       {userId && (
         <div className="relative flex flex-col gap-2">
-          <div className="flex justify-between">
+          <div className="flex items-center justify-between">
             <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
               <MenuIcon className="size-6" />
             </button>
-            <NewConversationDialog
+            <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
-              isOpen={conversations?.aiConversations?.length === 0}
             />
           </div>
 
@@ -188,8 +191,8 @@ function RouteComponent() {
             <div className="flex items-center justify-between">
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
-                assistantCandidates={assignableAssistants.aiAssistants}
-                humanCandidates={assignableUsers.myConversationUsers}
+                assistants={assignableAssistants.aiAssistants}
+                humans={assignableUsers.myConversationUsers}
               />
               <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
             </div>

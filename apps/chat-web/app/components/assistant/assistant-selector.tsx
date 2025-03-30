@@ -4,7 +4,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { Listbox } from '../listbox'
 
 const AssistantSelector_AssistantFragment = graphql(`
-  fragment AssistantSelector_assistant on AiAssistant {
+  fragment AssistantSelector_Assistant on AiAssistant {
     id
     name
   }
