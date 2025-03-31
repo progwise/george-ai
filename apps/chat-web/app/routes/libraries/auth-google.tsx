@@ -21,8 +21,12 @@ export const Route = createFileRoute('/libraries/auth-google')({
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
-const useRedirectUrl = (fullPath: string, search: Record<string, string | undefined>) => {
-  return useQuery<string | null>({
+function RouteComponent() {
+  const auth = useAuth()
+  const search = Route.useSearch()
+  const fullPath = Route.fullPath
+  const { t } = useTranslation()
+  const { data: redirectUrlQuery } = useQuery<string | null>({
     queryKey: ['redirectUrl', fullPath, search],
     queryFn: async (): Promise<string | null> => {
       localStorage.setItem('google_login_progress', '1')
@@ -32,14 +36,6 @@ const useRedirectUrl = (fullPath: string, search: Record<string, string | undefi
     enabled: !search.code,
     staleTime: Infinity,
   })
-}
-
-function RouteComponent() {
-  const auth = useAuth()
-  const search = Route.useSearch()
-  const fullPath = Route.fullPath
-  const { t } = useTranslation()
-  const { data: redirectUrl } = useRedirectUrl(fullPath, search)
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
@@ -71,10 +67,10 @@ function RouteComponent() {
   }, [search.code, getAccessToken])
 
   const handleStartLogin = useCallback(() => {
-    if (redirectUrl) {
-      window.location.href = redirectUrl
+    if (redirectUrlQuery) {
+      window.location.href = redirectUrlQuery
     }
-  }, [redirectUrl])
+  }, [redirectUrlQuery])
 
   const isLoggedIn = !!auth?.user
 
@@ -89,8 +85,8 @@ function RouteComponent() {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={!redirectUrl}>
-        {redirectUrl ? 'Start Google Login' : 'Loading...'}
+      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={!redirectUrlQuery}>
+        {redirectUrlQuery ? 'Start Google Login' : 'Loading...'}
       </button>
     </div>
   )
