@@ -53,7 +53,6 @@ export default {
     cancel: 'Abbrechen',
     confirm: 'Bestätigen',
     done: 'Fertig',
-    tooltipText: 'Nichts ausgewählt',
   },
   errors: {
     invalidEmail: 'Ungültige E-Mail-Adresse',
@@ -97,7 +96,23 @@ export default {
     usedMessages: 'Vorhandene Nachrichten',
     usedStorage: 'Verwendeter Speicher',
   },
-  library: 'Bibliothek',
+  libraries: {
+    addNew: 'Neue Bibliothek erstellen',
+    addNewButton: 'Bibliothek erstellen',
+    addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
+    deleteLibrary: 'Bibliothek {libraryName} löschen',
+    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    lastUpdate: 'Letzte Aktualisierung',
+    myLibraries: 'Meine Bibliotheken',
+    noLibrariesFound: 'Keine Bibliotheken gefunden',
+    name: 'Name',
+    owner: 'Besitzer',
+    placeholders: {
+      description: 'Beschreiben Sie Ihre Bibliothek',
+      name: 'Name Ihrer Bibliothek',
+    },
+    signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
+  },
   placeholders: {
     condition: 'Wenn',
     instruction: 'Dann',
@@ -112,8 +127,6 @@ export default {
     deleteConversation: 'Konversation löschen',
     deleteConversationConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
-    deleteLibrary: 'Bibliothek {libraryName} löschen',
-    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
@@ -126,7 +139,6 @@ export default {
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
-    signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
     with: 'mit',
   },
   tooltips: {
