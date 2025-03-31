@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
@@ -43,6 +43,7 @@ interface ParticipantsDialogProps {
   assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
   humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
+  isOpen: boolean
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -159,6 +160,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const handleOpen = () => {
     dialogRef.current?.showModal()
   }
+
+  useEffect(() => {
+    if (props.isOpen) {
+      dialogRef.current?.showModal()
+    }
+  }, [props.isOpen])
 
   const renderParticipantList = (
     items: Array<{ id: string; name?: string | null; username?: string | null }>,

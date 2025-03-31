@@ -164,6 +164,7 @@ function RouteComponent() {
             <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
+              isOpen={conversations?.aiConversations?.length === 0}
             />
           </div>
 

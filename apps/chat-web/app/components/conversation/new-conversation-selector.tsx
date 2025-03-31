@@ -16,11 +16,12 @@ export const NewConversationSelector_HumanFragment = graphql(`
 interface NewConversationSelectorProps {
   assistants: FragmentType<typeof NewConversationSelector_AssistantFragment>[]
   humans: FragmentType<typeof NewConversationSelector_HumanFragment>[]
+  isOpen: boolean
 }
 
 export const NewConversationSelector = (props: NewConversationSelectorProps) => {
   const assistants = useFragment(NewConversationSelector_AssistantFragment, props.assistants)
   const humans = useFragment(NewConversationSelector_HumanFragment, props.humans)
 
-  return <ParticipantsDialog assistants={assistants} humans={humans} dialogMode="new" />
+  return <ParticipantsDialog assistants={assistants} humans={humans} dialogMode="new" isOpen={props.isOpen} />
 }
