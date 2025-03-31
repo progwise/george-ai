@@ -371,11 +371,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 />
               </th>
               <th></th>
-              <th>Name</th>
-              <th>#Size</th>
-              <th>#Chunks</th>
-              <th>Processed</th>
-              <th>Actions</th>
+              <th className="hidden sm:table-cell">Name</th>
+              <th className="hidden sm:table-cell">#Size</th>
+              <th className="hidden sm:table-cell">#Chunks</th>
+              <th className="hidden sm:table-cell">Processed</th>
+              <th className="hidden sm:table-cell">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -390,14 +390,47 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 </td>
                 <td className="hidden sm:table-cell">{index + 1}</td>
                 <td>
-                  <span className="tooltip tooltip-bottom sm:tooltip-open" data-tip={file.name}>
-                    {file.name.length > 8 ? `${file.name.slice(0, 8)}...` : file.name}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="hidden sm:inline">{file.name}</span>
+                    <span className="sm:hidden" title={file.name}>
+                      {(() => {
+                        const extension = file.name.split('.').pop()
+                        const baseName = file.name.slice(0, file.name.lastIndexOf('.'))
+                        const truncatedBaseName = baseName.length > 17 ? `${baseName.slice(0, 14)}...` : baseName
+                        return `${truncatedBaseName}.${extension}`
+                      })()}
+                    </span>
+                    <div className="mt-2 flex items-center gap-2 sm:hidden">
+                      <button
+                        type="button"
+                        className="btn btn-xs lg:tooltip"
+                        onClick={() => dropFileMutation(file.id)}
+                        disabled={dropFileIsPending}
+                        data-tip={t('tooltips.drop')}
+                      >
+                        <TrashIcon />
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs lg:tooltip"
+                        onClick={() => reProcessFileMutation.mutate(file.id)}
+                        disabled={reProcessFileMutation.isPending}
+                        data-tip={t('tooltips.reProcess')}
+                      >
+                        <ReprocessIcon />
+                      </button>
+                      {file.processingErrorMessage && (
+                        <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
+                          <ExclamationIcon />
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </td>
-                <td>{file.size}</td>
-                <td>{file.chunks}</td>
-                <td>{dateTimeString(file.processedAt, language)}</td>
-                <td className="flex flex-wrap items-center gap-2">
+                <td className="hidden sm:table-cell">{file.size}</td>
+                <td className="hidden sm:table-cell">{file.chunks}</td>
+                <td className="hidden sm:table-cell">{dateTimeString(file.processedAt, language)}</td>
+                <td className="hidden items-center gap-2 sm:flex">
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
@@ -416,12 +449,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   >
                     <ReprocessIcon />
                   </button>
-
-                  {file.processingErrorMessage ? (
+                  {file.processingErrorMessage && (
                     <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
                       <ExclamationIcon />
                     </span>
-                  ) : undefined}
+                  )}
                 </td>
               </tr>
             ))}
