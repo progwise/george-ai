@@ -40,6 +40,7 @@ export default {
     usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
   },
   auth: {
+    signInForGoogleAuth: 'Melden Sie sich an, um die Google-Authentifizierung zu verwenden',
     signInWithGoogle: 'Mit Google anmelden',
     switchGoogleAccount: 'Google-Konto wechseln',
   },
@@ -114,7 +115,6 @@ export default {
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
-    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',

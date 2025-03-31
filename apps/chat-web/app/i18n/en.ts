@@ -40,6 +40,7 @@ export default {
     signInForAssistants: 'Sign in to see your assistants',
   },
   auth: {
+    signInForGoogleAuth: 'Sign in to use Google authentication',
     signInWithGoogle: 'Sign in with Google',
     switchGoogleAccount: 'Switch Google Account',
   },
@@ -112,7 +113,6 @@ export default {
     deleteConversationConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
-    dropFileFailure: 'Failed to drop files:',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
     newConversation: 'New conversation',
