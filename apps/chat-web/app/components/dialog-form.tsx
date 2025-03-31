@@ -47,7 +47,7 @@ export const DialogForm = ({
             </button>
             <div
               className={` ${disabledSubmit ? 'lg:tooltip lg:tooltip-left' : ''} `}
-              data-tip={submitButtonTooltipText || t('dialog.tooltipText')}
+              data-tip={submitButtonTooltipText}
             >
               <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
                 {submitButtonText || t('dialog.confirm')}
