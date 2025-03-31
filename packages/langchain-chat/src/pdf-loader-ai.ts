@@ -41,8 +41,6 @@ export class PDFLoaderAI {
       ],
     })
 
-    console.log(response.output_text)
-
     const textLoader = new TextLoader(new Blob([response.output_text]))
 
     return await textLoader.load()
