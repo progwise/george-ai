@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -129,6 +129,18 @@ function RouteComponent() {
     queryFn: async () => (userId ? await getAssignableAssistants({ data: { ownerId: userId } }) : null),
   })
 
+  useEffect(() => {
+    if (selectedConversation?.aiConversation && !selectedConversationIsLoading) {
+      // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth',
+        })
+      }, 100)
+    }
+  }, [selectedConversation?.aiConversation, selectedConversationIsLoading])
+
   if (!userId) {
     return (
       <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
@@ -158,7 +170,7 @@ function RouteComponent() {
       {userId && (
         <div className="relative flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <button type="button" className="btn btn-sm lg:hidden" onClick={toggleMenu}>
+            <button type="button" className="btn btn-sm mx-1 lg:hidden" onClick={toggleMenu}>
               <MenuIcon className="size-6" />
             </button>
             <NewConversationSelector

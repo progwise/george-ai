@@ -103,10 +103,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
   return (
     <div
       key={message.id}
-      className={twMerge(
-        'bg-base-350 card border border-base-300 p-4 text-base-content shadow-md',
-        message.hidden && 'opacity-50',
-      )}
+      className={twMerge('card mx-1 border p-3 text-base-content shadow-md', message.hidden && 'opacity-50')}
     >
       <div className="mb-2 flex items-center gap-3">
         <div
@@ -129,7 +126,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
           <span className="text-sm font-semibold">{message.sender.name}</span>
           <span className="text-xs opacity-60">{dateTimeString(message.createdAt, language)}</span>
         </div>
-        {isLoading && (
+        {isLoading && message.sender.isBot && (
           <div>
             <span className="loading loading-dots loading-xs"></span>
           </div>

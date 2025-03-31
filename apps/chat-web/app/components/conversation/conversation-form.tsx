@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -26,6 +27,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
   const { user, userProfile } = useAuth()
+  const editableDivRef = useRef<HTMLDivElement>(null)
+  const [message, setMessage] = useState('')
+  const [showPlaceholder, setShowPlaceholder] = useState(true)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
@@ -57,23 +61,61 @@ export const ConversationForm = (props: ConversationFormProps) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
-    const content = formData.get('message') as string
     const recipientAssistantIds = Array.from(formData.getAll('assistants')).map((formData) => formData.toString())
 
     if (remainingMessages < 1) {
       alert('You have no more free messages left. Create your profile and ask for more...')
       return
     }
-    form.reset()
 
-    mutate({ content, recipientAssistantIds })
+    mutate({ content: message, recipientAssistantIds })
+
+    if (editableDivRef.current) {
+      editableDivRef.current.innerHTML = ''
+      setMessage('')
+      setShowPlaceholder(true)
+    }
   }
 
-  const handleTextareaKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
 
-      event.currentTarget.form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      if (remainingMessages < 1) {
+        alert('You have no more free messages left. Create your profile and ask for more...')
+        return
+      }
+
+      const checkedAssistants = document.querySelectorAll<HTMLInputElement>('input[name="assistants"]:checked')
+      const recipientAssistantIds = Array.from(checkedAssistants).map((input) => input.value)
+
+      mutate({ content: message, recipientAssistantIds })
+
+      if (editableDivRef.current) {
+        editableDivRef.current.innerHTML = ''
+        setMessage('')
+        setShowPlaceholder(true)
+      }
+    }
+  }
+
+  const handleInput = () => {
+    if (editableDivRef.current) {
+      const text = editableDivRef.current.innerText
+      setMessage(text)
+      setShowPlaceholder(text.length === 0)
+    }
+  }
+
+  const handleFocus = () => {
+    if (showPlaceholder) {
+      setShowPlaceholder(false)
+    }
+  }
+
+  const handleBlur = () => {
+    if (editableDivRef.current && editableDivRef.current.innerText.trim() === '') {
+      setShowPlaceholder(true)
     }
   }
 
@@ -82,46 +124,61 @@ export const ConversationForm = (props: ConversationFormProps) => {
   }
 
   return (
-    <div className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
-      <div className="mb-2 flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-content">
-          {user.name?.[0] || user.username?.[0]}
+    <div className="sticky bottom-2 z-50 mx-1 rounded-box border bg-base-100 p-3 text-base-content shadow-md">
+      <form onSubmit={handleSubmit} className="flex flex-col items-end">
+        <div className="relative mb-2 w-full">
+          <div
+            ref={editableDivRef}
+            contentEditable={!isPending && 'plaintext-only'}
+            className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
+            onKeyDown={handleKeyDown}
+            onInput={handleInput}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            role="textbox"
+            aria-multiline="true"
+            aria-disabled={!!isPending}
+          ></div>
+          {showPlaceholder && (
+            <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">Ask anything</div>
+          )}
         </div>
+        <div className="flex w-full justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-content">
+              {(user.name?.[0] || user.username?.[0])?.toUpperCase()}
+            </div>
 
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">{user.name || user.username}</span>
-          <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
-        </div>
-      </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">{user.name || user.username}</span>
+              <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {conversation.assistants?.map((assistant) => (
+              <label key={assistant.id} className="label cursor-pointer gap-2">
+                <input
+                  name="assistants"
+                  value={assistant.id}
+                  type="checkbox"
+                  defaultChecked
+                  className="checkbox-info checkbox checkbox-sm"
+                />
+                <span className="label-text">
+                  {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
+                </span>
+              </label>
+            ))}
 
-      <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
-        <textarea
-          className="textarea textarea-bordered w-full"
-          placeholder="Type your message"
-          rows={2}
-          name="message"
-          disabled={isPending}
-          onKeyDown={handleTextareaKeyDown}
-        ></textarea>
-        <div className="flex items-center gap-2">
-          {conversation.assistants?.map((assistant) => (
-            <label key={assistant.id} className="label cursor-pointer gap-2">
-              <input
-                name="assistants"
-                value={assistant.id}
-                type="checkbox"
-                defaultChecked
-                className="checkbox-info checkbox checkbox-sm"
-              />
-              <span className="label-text">
-                {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
-              </span>
-            </label>
-          ))}
-
-          <button name="send" type="submit" className="btn btn-primary btn-sm" disabled={isPending}>
-            {t('actions.sendMessage')} ({remainingMessages})
-          </button>
+            <button
+              name="send"
+              type="submit"
+              className="btn btn-primary btn-sm"
+              disabled={isPending || remainingMessages < 1}
+            >
+              {t('actions.sendMessage')} ({remainingMessages})
+            </button>
+          </div>
         </div>
       </form>
     </div>

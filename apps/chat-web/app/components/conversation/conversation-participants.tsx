@@ -71,7 +71,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="mx-1 flex flex-wrap gap-2">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
 
       {conversation.participants.map((participant) => (
