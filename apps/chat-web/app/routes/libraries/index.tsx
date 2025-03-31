@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { LibraryNewDialog } from '../../components/library/library-new-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -64,7 +65,7 @@ function RouteComponent() {
   if (!isLoggedIn) {
     return (
       <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
-        {t('texts.signInForLibraries')}
+        {t('libraries.signInForLibraries')}
       </button>
     )
   }
@@ -76,26 +77,22 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold">My Libraries</h3>
+        <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
-        {isLoggedIn && (
-          <Link type="button" className="btn btn-primary btn-sm" to="/libraries/new">
-            Add new
-          </Link>
-        )}
+        {isLoggedIn && <LibraryNewDialog />}
       </div>
 
       <div className="overflow-x-auto">
         {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
-          <h3> No Libraries Found </h3>
+          <h3>{t('libraries.noLibrariesFound')}</h3>
         ) : (
           <table className="table w-full">
             <thead className="hidden md:table-header-group">
               <tr>
                 <th>#</th>
-                <th>Name</th>
-                <th>Owner</th>
-                <th>Last update</th>
+                <th>{t('libraries.name')}</th>
+                <th>{t('libraries.owner')}</th>
+                <th>{t('libraries.lastUpdate')}</th>
               </tr>
             </thead>
 
