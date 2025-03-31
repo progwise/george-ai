@@ -43,7 +43,7 @@ interface ParticipantsDialogProps {
   assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
   humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
-  isOpen: boolean
+  isOpen?: boolean
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
