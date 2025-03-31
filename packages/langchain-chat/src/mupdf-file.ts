@@ -1,4 +1,4 @@
-import * as mupdfjs from 'mupdf/mupdfjs'
+import { PDFDocument } from 'mupdf'
 
 import { getFileExtension } from './common'
 
@@ -37,7 +37,7 @@ export class MuPDFLoader {
 
   async load(): Promise<MuPDFDocumentPart[]> {
     const data = await fs.readFile(this.file.path)
-    const pdf = (await mupdfjs.PDFDocument.openDocument(data, 'pdf')) as unknown as IMuPDFDocument
+    const pdf = PDFDocument.openDocument(data, 'pdf') as unknown as IMuPDFDocument
     const pageCount = pdf.countPages()
     const docParts: MuPDFDocumentPart[] = []
 

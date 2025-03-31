@@ -13,8 +13,16 @@ export default defineConfig({
       appPath: './src/server.ts',
     }),
   ],
-  ssr: {
-    target: 'node',
-    noExternal: true,
+  build: {
+    rollupOptions: {
+      output: {
+        format: 'esm',
+      },
+      external: ['node:buffer', 'node:worker_threads', 'node:async_hooks', 'mupdf'],
+    },
+    commonjsOptions: {
+      esmExternals: true,
+    },
+    outDir: './dist',
   },
 })
