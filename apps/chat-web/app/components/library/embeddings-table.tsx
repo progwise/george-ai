@@ -182,7 +182,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     if (googleDriveAccessToken) {
       dialogRef.current?.showModal()
     } else {
-      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}&googleDriveAuth=true`
+      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(
+        window.location.href,
+      )}&googleDriveAuth=true`
     }
   }
 
@@ -190,7 +192,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
-
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraries],
     })
@@ -289,8 +290,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </ul>
         </div>
       )}
-      <nav className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex w-full flex-wrap gap-4">
+
+      <nav className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             className="btn btn-xs lg:tooltip"
@@ -302,7 +304,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
-            onUploadComplete={(uploadedFileIds) => handleUploadComplete(uploadedFileIds)}
+            onUploadComplete={handleUploadComplete}
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
@@ -324,17 +326,16 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             {t('actions.reProcess')}
           </button>
-          <div className="flex w-full justify-end text-sm">
-            <div className="text-left sm:text-right">
-              <span>Remaining Storage:</span>
-              <br />
-              <span>
-                {remainingStorage} / {userProfile?.freeStorage}
-              </span>
-            </div>
+        </div>
+
+        <div className="text-right text-sm">
+          <div className="font-semibold">Remaining Storage</div>
+          <div>
+            {remainingStorage} / {userProfile?.freeStorage}
           </div>
         </div>
       </nav>
+
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
           <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
@@ -362,108 +363,142 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-      <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={selectedFiles.length === data?.aiLibraryFiles?.length}
-                  onChange={handleSelectAll}
-                  className="flex justify-center"
-                />
-              </th>
-              <th></th>
-              <th className="hidden sm:table-cell">Name</th>
-              <th className="hidden sm:table-cell">#Size</th>
-              <th className="hidden sm:table-cell">#Chunks</th>
-              <th className="hidden sm:table-cell">Processed</th>
-              <th className="hidden sm:table-cell">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-              <tr key={file.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedFiles.includes(file.id)}
-                    onChange={() => handleSelectFile(file.id)}
-                  />
-                </td>
-                <td className="hidden sm:table-cell">{index + 1}</td>
-                <td>
-                  <div className="flex flex-col">
-                    <span className="hidden sm:inline">{file.name}</span>
-                    <span className="sm:hidden" title={file.name}>
+
+      {data?.aiLibraryFiles?.length === 0 ? (
+        <div className="mt-4 text-center text-sm italic">{t('texts.noFilesFound') || 'No files found.'}</div>
+      ) : (
+        <>
+          <div className="block space-y-4 sm:hidden">
+            {data?.aiLibraryFiles.map((file, index) => (
+              <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm"
+                      checked={selectedFiles.includes(file.id)}
+                      onChange={() => handleSelectFile(file.id)}
+                    />
+                    <span className="font-semibold">
+                      {index + 1}.{' '}
                       {(() => {
+                        // Truncate if needed
                         const extension = file.name.split('.').pop()
-                        const baseName = file.name.slice(0, file.name.lastIndexOf('.'))
+                        const baseName = file.name.slice(0, file.name.lastIndexOf('.')) || file.name
                         const truncatedBaseName = baseName.length > 17 ? `${baseName.slice(0, 14)}...` : baseName
-                        return `${truncatedBaseName}.${extension}`
+                        return `${truncatedBaseName}${extension ? '.' + extension : ''}`
                       })()}
                     </span>
-                    <div className="mt-2 flex items-center gap-2 sm:hidden">
-                      <button
-                        type="button"
-                        className="btn btn-xs lg:tooltip"
-                        onClick={() => dropFileMutation(file.id)}
-                        disabled={dropFileIsPending}
-                        data-tip={t('tooltips.drop')}
-                      >
-                        <TrashIcon />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-xs lg:tooltip"
-                        onClick={() => reProcessFileMutation.mutate(file.id)}
-                        disabled={reProcessFileMutation.isPending}
-                        data-tip={t('tooltips.reProcess')}
-                      >
-                        <ReprocessIcon />
-                      </button>
-                      {file.processingErrorMessage && (
-                        <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
-                          <ExclamationIcon />
-                        </span>
-                      )}
-                    </div>
+                  </label>
+                </div>
+
+                <div className="mt-2 text-sm">
+                  <div>
+                    <strong>Size:</strong> {file.size ?? '-'}
                   </div>
-                </td>
-                <td className="hidden sm:table-cell">{file.size}</td>
-                <td className="hidden sm:table-cell">{file.chunks}</td>
-                <td className="hidden sm:table-cell">{dateTimeString(file.processedAt, language)}</td>
-                <td className="hidden items-center gap-2 sm:flex">
+                  <div>
+                    <strong>Chunks:</strong> {file.chunks ?? '-'}
+                  </div>
+                  <div>
+                    <strong>Processed:</strong> {dateTimeString(file.processedAt, language) || '-'}
+                  </div>
+                </div>
+
+                {file.processingErrorMessage && (
+                  <div className="mt-2 flex items-center text-xs text-red-600">
+                    <ExclamationIcon /> <span className="ml-1">{file.processingErrorMessage}</span>
+                  </div>
+                )}
+
+                <div className="mt-3 flex gap-2">
                   <button
                     type="button"
-                    className="btn btn-xs lg:tooltip"
+                    className="btn btn-xs"
                     onClick={() => dropFileMutation(file.id)}
                     disabled={dropFileIsPending}
-                    data-tip={t('tooltips.drop')}
                   >
                     <TrashIcon />
                   </button>
                   <button
                     type="button"
-                    className="btn btn-xs lg:tooltip"
+                    className="btn btn-xs"
                     onClick={() => reProcessFileMutation.mutate(file.id)}
                     disabled={reProcessFileMutation.isPending}
-                    data-tip={t('tooltips.reProcess')}
                   >
                     <ReprocessIcon />
                   </button>
-                  {file.processingErrorMessage && (
-                    <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
-                      <ExclamationIcon />
-                    </span>
-                  )}
-                </td>
-              </tr>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          {/* Desktop (table view) */}
+          <div className="hidden overflow-x-auto sm:block">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Size</th>
+                  <th>Chunks</th>
+                  <th>Processed</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
+                  <tr key={file.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="checkbox"
+                        checked={selectedFiles.includes(file.id)}
+                        onChange={() => handleSelectFile(file.id)}
+                      />
+                    </td>
+                    <td>{index + 1}</td>
+                    <td>{file.name}</td>
+                    <td>{file.size ?? '-'}</td>
+                    <td>{file.chunks ?? '-'}</td>
+                    <td>{dateTimeString(file.processedAt, language) || '-'}</td>
+                    <td className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-xs"
+                        onClick={() => dropFileMutation(file.id)}
+                        disabled={dropFileIsPending}
+                      >
+                        <TrashIcon />
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs"
+                        onClick={() => reProcessFileMutation.mutate(file.id)}
+                        disabled={reProcessFileMutation.isPending}
+                      >
+                        <ReprocessIcon />
+                      </button>
+                      {file.processingErrorMessage && (
+                        <span className="tooltip" data-tip={file.processingErrorMessage}>
+                          <ExclamationIcon className="text-red-600" />
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </>
   )
 }
