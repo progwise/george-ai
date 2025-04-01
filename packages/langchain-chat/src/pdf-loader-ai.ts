@@ -32,10 +32,11 @@ export class PDFLoaderAI {
             ...images,
             {
               type: 'input_text',
-              text: `Can you write as formatted text exactly what you can see in the attached images?
-              The images have been converted from a pdf file in advance to read the content completely no matter of the orientation of the text or if the text is upside down.
-              You must write the text in the same order as it is in the images.
-              Each original page from the pdf file was converted into a separate image. Please mention the page number in the text.
+              text: `Please write a formatted text about what you can see in the attached images.
+              The images have been converted from the pages of a pdf file in advance. You have to read the content completely no matter of the text orientation.
+              You must write the text in the same order as it is in the images. Please be careful and just repeat the text as it is in the images.
+              Additionally you have to describe the images without any additional text.
+              Please mention the page number in the text which now is the number of the image.
               You are not allowed to add any additional text. Please be careful and just repeat the text as it is in the images.
               Please also describe the images without any additional text.`,
             },
