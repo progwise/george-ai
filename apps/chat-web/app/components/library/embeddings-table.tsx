@@ -325,9 +325,13 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             {t('actions.reProcess')}
           </button>
           <div className="flex w-full justify-end text-sm">
-            <span>
-              Remaining storage: {remainingStorage} / {userProfile?.freeStorage}
-            </span>
+            <div className="text-left sm:text-right">
+              <span>Remaining Storage:</span>
+              <br />
+              <span>
+                {remainingStorage} / {userProfile?.freeStorage}
+              </span>
+            </div>
           </div>
         </div>
       </nav>
