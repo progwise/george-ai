@@ -62,7 +62,7 @@ const TopNavigation = () => {
         </Link>
         <Link to="/libraries" className="join-item flex flex-col items-center">
           <AcademicCapIcon className="size-6" />
-          {t('library')}
+          {t('topNavigation.libraries')}
         </Link>
 
         {!user ? (
