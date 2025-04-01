@@ -52,8 +52,6 @@ type Documents = {
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
   '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ': typeof types.ClearEmbeddingsDocument
-  '\n        mutation dropFile($id: String!) {\n          dropFile(fileId: $id) {\n            id\n          }\n        }\n      ': typeof types.DropFileDocument
-  '\n        mutation reProcessFile($id: String!) {\n          processFile(fileId: $id) {\n            id\n            chunks\n            size\n            uploadedAt\n            processedAt\n            processingErrorMessage\n          }\n        }\n      ': typeof types.ReProcessFileDocument
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n            }\n          }\n        ': typeof types.DropFileDocument
   '\n          mutation reProcessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ': typeof types.ReProcessFileDocument
   '\n        query EmbeddingsTable($libraryId: String!) {\n          aiLibraryFiles(libraryId: $libraryId) {\n            id\n            name\n            originUri\n            mimeType\n            size\n            chunks\n            uploadedAt\n            processedAt\n            processingErrorMessage\n            dropError\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
@@ -161,10 +159,6 @@ const documents: Documents = {
     types.CancelFileUploadDocument,
   '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ':
     types.ClearEmbeddingsDocument,
-  '\n        mutation dropFile($id: String!) {\n          dropFile(fileId: $id) {\n            id\n          }\n        }\n      ':
-    types.DropFileDocument,
-  '\n        mutation reProcessFile($id: String!) {\n          processFile(fileId: $id) {\n            id\n            chunks\n            size\n            uploadedAt\n            processedAt\n            processingErrorMessage\n          }\n        }\n      ':
-    types.ReProcessFileDocument,
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n            }\n          }\n        ':
     types.DropFileDocument,
   '\n          mutation reProcessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ':
@@ -465,18 +459,6 @@ export function graphql(
 export function graphql(
   source: '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ',
 ): (typeof documents)['\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation dropFile($id: String!) {\n          dropFile(fileId: $id) {\n            id\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation dropFile($id: String!) {\n          dropFile(fileId: $id) {\n            id\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n        mutation reProcessFile($id: String!) {\n          processFile(fileId: $id) {\n            id\n            chunks\n            size\n            uploadedAt\n            processedAt\n            processingErrorMessage\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation reProcessFile($id: String!) {\n          processFile(fileId: $id) {\n            id\n            chunks\n            size\n            uploadedAt\n            processedAt\n            processingErrorMessage\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

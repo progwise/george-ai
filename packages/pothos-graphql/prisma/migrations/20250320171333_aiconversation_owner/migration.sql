@@ -5,7 +5,7 @@
 
 */
 -- AlterTable
-ALTER TABLE "AiConversation" ADD COLUMN     "ownerId" TEXT NOT NULL;
+ALTER TABLE "AiConversation" ADD COLUMN "ownerId" TEXT;
 
 -- Update conversations with a valid participant
 UPDATE "AiConversation" c
@@ -19,17 +19,10 @@ SET "ownerId" = (
 );
 
 -- Delete orphaned conversations
-DELETE FROM "AiConversation"
-WHERE id IN (
-  SELECT c.id
-  FROM "AiConversation" c
-  LEFT JOIN (
-    SELECT DISTINCT "conversationId"
-    FROM "AiConversationParticipant"
-    WHERE "userId" IS NOT NULL
-  ) p ON c.id = p."conversationId"
-  WHERE p."conversationId" IS NULL
-);
+DELETE FROM "AiConversation" where ownerId is null;
+
+-- Then set the NOT NULL constraint
+ALTER TABLE "AiConversation" ALTER COLUMN "ownerId" SET NOT NULL;
 
 -- AddForeignKey
 ALTER TABLE "AiConversation" ADD CONSTRAINT "AiConversation_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
