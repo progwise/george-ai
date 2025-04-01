@@ -190,7 +190,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
-
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraries],
     })
@@ -359,12 +358,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-
       {data?.aiLibraryFiles?.length === 0 ? (
         <div className="mt-4 text-center text-sm italic">{t('texts.noFilesFound') || 'No files found.'}</div>
       ) : (
         <>
-          <div className="block space-y-4 sm:hidden">
+          <div className="block space-y-4 lg:hidden">
             {data?.aiLibraryFiles.map((file, index) => (
               <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
                 <div className="flex items-center justify-between">
@@ -386,7 +384,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     </span>
                   </label>
                 </div>
-
                 <div className="mt-2 text-sm">
                   <div>
                     <strong>Size:</strong> {file.size ?? '-'}
@@ -398,13 +395,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <strong>Processed:</strong> {dateTimeString(file.processedAt, language) || '-'}
                   </div>
                 </div>
-
                 {file.processingErrorMessage && (
                   <div className="mt-2 flex items-center text-xs text-red-600">
-                    <ExclamationIcon /> <span className="ml-1">{file.processingErrorMessage}</span>
+                    <ExclamationIcon />
+                    <span className="ml-1">{file.processingErrorMessage}</span>
                   </div>
                 )}
-
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
@@ -426,7 +422,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               </div>
             ))}
           </div>
-          <div className="hidden overflow-x-auto sm:block">
+          <div className="hidden overflow-x-auto lg:block">
             <table className="table w-full">
               <thead>
                 <tr>
@@ -480,7 +476,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                         <ReprocessIcon />
                       </button>
                       {file.processingErrorMessage && (
-                        <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
+                        <span className="tooltip" data-tip={file.processingErrorMessage}>
                           <ExclamationIcon className="text-red-600" />
                         </span>
                       )}
