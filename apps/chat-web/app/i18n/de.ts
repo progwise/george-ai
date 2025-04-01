@@ -14,7 +14,7 @@ export default {
     save: 'Speichern',
     saving: 'Speichern...',
     sendConfirmationMail: 'Bestätigungsmail senden',
-    sendMessage: 'Nachricht senden',
+    sendMessage: 'Senden',
   },
   assistants: {
     addNew: 'Neuen Assistenten erstellen',

@@ -124,7 +124,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
   }
 
   return (
-    <div className="sticky bottom-2 z-50 mx-1 rounded-box border bg-base-100 p-3 text-base-content shadow-md">
+    <div className="sticky bottom-14 z-40 mx-1 mt-14 rounded-box border bg-base-100 p-3 text-base-content shadow-md lg:bottom-2 lg:mt-4">
       <form onSubmit={handleSubmit} className="flex flex-col items-end">
         <div className="relative mb-2 w-full">
           <div

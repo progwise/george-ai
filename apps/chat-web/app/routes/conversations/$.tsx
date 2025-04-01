@@ -166,7 +166,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
+    <div className="flex flex-col gap-2 lg:flex-row">
       {userId && (
         <div className="relative flex flex-col gap-2">
           <div className="flex items-center justify-between">
@@ -197,10 +197,10 @@ function RouteComponent() {
           </div>
         </div>
       )}
-      <article className="flex w-full flex-col gap-4">
+      <article className="mb-4 mt-[-8px] flex w-full flex-col">
         {selectedConversation?.aiConversation && (
           <>
-            <div className="flex items-center justify-between">
+            <div className="sticky top-[68px] z-40 flex items-center justify-end rounded-box">
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}

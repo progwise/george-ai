@@ -14,7 +14,7 @@ export default {
     save: 'Save',
     saving: 'Saving...',
     sendConfirmationMail: 'Send confirmation mail',
-    sendMessage: 'Send message',
+    sendMessage: 'Send',
   },
   assistants: {
     addNew: 'Create new assistant',

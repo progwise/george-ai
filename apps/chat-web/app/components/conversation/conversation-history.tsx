@@ -105,7 +105,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   }, [backend_url, selectedConversationId])
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-2">
       {messages.map((message) => (
         <ConversationMessage
           key={message.id}
