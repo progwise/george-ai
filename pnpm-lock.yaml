@@ -252,6 +252,9 @@ importers:
       '@langchain/openai':
         specifier: ^0.3.14
         version: 0.3.17(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
+      '@napi-rs/canvas':
+        specifier: ^0.1.68
+        version: 0.1.68
       langchain:
         specifier: ^0.3.7
         version: 0.3.19(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(@langchain/google-genai@0.1.11(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(zod@3.24.2))(@langchain/ollama@0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(axios@1.7.9)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
@@ -8332,7 +8335,6 @@ snapshots:
       '@napi-rs/canvas-linux-x64-gnu': 0.1.68
       '@napi-rs/canvas-linux-x64-musl': 0.1.68
       '@napi-rs/canvas-win32-x64-msvc': 0.1.68
-    optional: true
 
   '@netlify/functions@2.8.2':
     dependencies:

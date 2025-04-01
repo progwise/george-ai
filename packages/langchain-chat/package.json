@@ -16,6 +16,7 @@
     "@langchain/google-genai": "^0.1.11",
     "@langchain/ollama": "^0.2.0",
     "@langchain/openai": "^0.3.14",
+    "@napi-rs/canvas": "^0.1.68",
     "langchain": "^0.3.7",
     "mammoth": "^1.9.0",
     "openai": "^4.90.0",
