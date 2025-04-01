@@ -44,6 +44,7 @@ export default {
     signInForAssistants: 'Sign in to see your assistants',
   },
   auth: {
+    signInForGoogleAuth: 'Sign in to use Google authentication',
     signInWithGoogle: 'Sign in with Google',
     switchGoogleAccount: 'Switch Google Account',
   },
@@ -112,6 +113,7 @@ export default {
     addNewDescription: 'A library is a collection of files that can be used by assistants.',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
+    dropFileFailure: 'Failed to drop files:',
     googleDrive: 'Google Drive',
     lastUpdate: 'Last update',
     myLibraries: 'My libraries',
@@ -137,7 +139,6 @@ export default {
     changeParticipantsAnytime: 'You can change these participants any time.',
     deleteConversation: 'Delete conversation',
     deleteConversationConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
-    dropFileFailure: 'Failed to drop files:',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
     newConversation: 'New conversation',

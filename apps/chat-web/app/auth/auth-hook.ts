@@ -106,6 +106,7 @@ export const useAuth = () => {
     isAuthenticated: true,
     login: async () => {},
     logout: async () => {
+      localStorage.removeItem('google_drive_access_token')
       keycloak.logout()
     },
     user: currentUser,

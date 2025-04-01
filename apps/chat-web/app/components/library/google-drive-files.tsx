@@ -178,7 +178,7 @@ export const GoogleDriveFiles = ({
 
   const handleSwitchAccount = () => {
     localStorage.removeItem('google_drive_access_token')
-    window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}`
+    window.location.href = `/libraries/auth-google?prompt=select_account&redirectAfterAuth=${encodeURIComponent(window.location.href)}`
   }
 
   useEffect(() => {

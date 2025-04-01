@@ -250,24 +250,13 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
         })
       })
 
-      try {
-        await Promise.all(uploadPromises)
+      await Promise.all(uploadPromises)
 
-        // Dialog closes before reprocessing starts
-        if (completedUploads + canceledUploads >= totalFiles) {
-          dialogRef.current?.close()
-          if (onUploadComplete) {
-            await handleUploadComplete(uploadedFileIds)
-          }
-        }
-      } catch (err) {
-        console.error('Error during file upload:', err)
-        // Dialog closes before reprocessing starts
-        if (completedUploads + canceledUploads >= totalFiles) {
-          dialogRef.current?.close()
-          if (onUploadComplete) {
-            await handleUploadComplete(uploadedFileIds)
-          }
+      // Dialog closes before reprocessing starts
+      if (completedUploads + canceledUploads >= totalFiles) {
+        dialogRef.current?.close()
+        if (onUploadComplete) {
+          await handleUploadComplete(uploadedFileIds)
         }
       }
     },
