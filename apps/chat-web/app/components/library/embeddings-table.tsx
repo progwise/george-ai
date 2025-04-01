@@ -286,8 +286,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-      {!data?.aiLibraryFiles?.length && <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>}
-      {data?.aiLibraryFiles?.length > 0 && (
+      {!data?.aiLibraryFiles?.length ? (
+        <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
+      ) : (
         <table className="table w-full">
           <thead>
             <tr>
