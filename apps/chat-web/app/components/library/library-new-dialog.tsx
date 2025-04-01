@@ -80,19 +80,22 @@ export const LibraryNewDialog = () => {
         disabledSubmit={isPending}
       >
         <input type="hidden" name="ownerId" value={auth.user?.id} />
-        <Input
-          name="name"
-          type="text"
-          label={t('labels.name')}
-          placeholder={t('libraries.placeholders.name')}
-          required
-        />
-        <Input
-          name="description"
-          type="textarea"
-          label={t('labels.description')}
-          placeholder={t('libraries.placeholders.description')}
-        />
+        <div className="flex w-full flex-col gap-4">
+          <Input
+            name="name"
+            type="text"
+            label={t('labels.name')}
+            placeholder={t('libraries.placeholders.name')}
+            required
+          />
+          <Input
+            name="description"
+            type="textarea"
+            label={t('labels.description')}
+            placeholder={t('libraries.placeholders.description')}
+            className="min-h-32"
+          />
+        </div>
       </DialogForm>
     </>
   )

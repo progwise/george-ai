@@ -147,7 +147,7 @@ function RouteComponent() {
       </div>
 
       <div role="tablist" className="tabs tabs-bordered">
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Rules" />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Edit" />
         <div role="tabpanel" className="tab-content p-10">
           {auth.user?.id && (
             <LibraryForm library={aiLibrary} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
