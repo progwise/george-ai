@@ -90,7 +90,7 @@ function RouteComponent() {
             <thead className="hidden md:table-header-group">
               <tr>
                 <th>#</th>
-                <th>{t('libraries.name')}</th>
+                <th>{t('labels.name')}</th>
                 <th>{t('libraries.owner')}</th>
                 <th>{t('libraries.lastUpdate')}</th>
               </tr>

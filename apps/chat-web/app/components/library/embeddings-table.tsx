@@ -298,7 +298,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
           >
-            Clear
+            {t('actions.clearEmbeddings')}
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
@@ -306,7 +306,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
-            Google Drive
+            {t('libraries.googleDrive')}
           </button>
           <button
             type="button"
@@ -326,7 +326,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <div className="flex w-full justify-end text-sm">
             <span>
-              Remaining storage: {remainingStorage} / {userProfile?.freeStorage}
+              {t('labels.remainingStorage')}: {remainingStorage} / {userProfile?.freeStorage}
             </span>
           </div>
         </div>
@@ -358,7 +358,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-      <div className="overflow-x-auto">
+      {!data?.aiLibraryFiles?.length && <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>}
+      {data?.aiLibraryFiles?.length > 0 && (
         <table className="table w-full">
           <thead>
             <tr>
@@ -371,11 +372,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 />
               </th>
               <th></th>
-              <th>Name</th>
-              <th>#Size</th>
-              <th>#Chunks</th>
-              <th>Processed</th>
-              <th>Actions</th>
+              <th>{t('labels.name')}</th>
+              <th>#{t('labels.size')}</th>
+              <th>#{t('labels.chunks')}</th>
+              <th>{t('labels.processed')}</th>
+              <th>{t('labels.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -423,7 +424,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             ))}
           </tbody>
         </table>
-      </div>
+      )}
     </>
   )
 }

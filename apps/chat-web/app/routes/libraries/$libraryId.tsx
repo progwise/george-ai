@@ -147,19 +147,19 @@ function RouteComponent() {
       </div>
 
       <div role="tablist" className="tabs tabs-bordered">
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Edit" />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('actions.edit')} />
         <div role="tabpanel" className="tab-content p-10">
           {auth.user?.id && (
             <LibraryForm library={aiLibrary} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
           )}
         </div>
 
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Files" defaultChecked />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
         <div role="tabpanel" className="tab-content overflow-x-auto p-10">
           <EmbeddingsTable libraryId={aiLibrary.id} />
         </div>
 
-        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label="Query" />
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
         <div role="tabpanel" className="tab-content p-10">
           <LibraryQuery libraryId={aiLibrary.id} />
         </div>

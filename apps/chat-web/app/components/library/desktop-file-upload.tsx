@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
 import { graphql } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { FileUploadProgressList } from './file-upload-progress-list'
 import { LibraryFile, LibraryFileSchema } from './files-table'
@@ -84,6 +85,7 @@ const cancelFileUpload = createServerFn({ method: 'POST' })
 export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: DesktopFilesProps) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const dialogRef = useRef<HTMLDialogElement | null>(null)
+  const { t } = useTranslation()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   // Using Map instead of Record here for better performance and advanced operations like iteration and key order preservation
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(() => new Map())
@@ -303,7 +305,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
           }}
           disabled={disabled}
         >
-          Upload
+          {t('actions.upload')}
         </button>
         <input
           type="file"
