@@ -182,9 +182,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     if (googleDriveAccessToken) {
       dialogRef.current?.showModal()
     } else {
-      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(
-        window.location.href,
-      )}&googleDriveAuth=true`
+      window.location.href = `/libraries/auth-google?redirectAfterAuth=${encodeURIComponent(window.location.href)}&googleDriveAuth=true`
     }
   }
 
@@ -192,6 +190,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
+
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraries],
     })
@@ -290,7 +289,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </ul>
         </div>
       )}
-
       <nav className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -304,7 +302,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
-            onUploadComplete={handleUploadComplete}
+            onUploadComplete={(uploadedFileIds) => handleUploadComplete(uploadedFileIds)}
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
@@ -327,7 +325,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             {t('actions.reProcess')}
           </button>
         </div>
-
         <div className="text-right text-sm">
           <div className="font-semibold">Remaining Storage</div>
           <div>
@@ -335,7 +332,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </div>
         </div>
       </nav>
-
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
           <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
@@ -382,7 +378,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <span className="font-semibold">
                       {index + 1}.{' '}
                       {(() => {
-                        // Truncate if needed
                         const extension = file.name.split('.').pop()
                         const baseName = file.name.slice(0, file.name.lastIndexOf('.')) || file.name
                         const truncatedBaseName = baseName.length > 17 ? `${baseName.slice(0, 14)}...` : baseName
@@ -431,8 +426,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               </div>
             ))}
           </div>
-
-          {/* Desktop (table view) */}
           <div className="hidden overflow-x-auto sm:block">
             <table className="table w-full">
               <thead>
@@ -487,7 +480,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                         <ReprocessIcon />
                       </button>
                       {file.processingErrorMessage && (
-                        <span className="tooltip" data-tip={file.processingErrorMessage}>
+                        <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
                           <ExclamationIcon className="text-red-600" />
                         </span>
                       )}
