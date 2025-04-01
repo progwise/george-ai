@@ -76,7 +76,7 @@ const TopNavigation = () => {
               <li>
                 <Link to="/libraries" onClick={closeMenu}>
                   <AcademicCapIcon className="size-6" />
-                  {t('library')}
+                  {t('topNavigation.libraries')}
                 </Link>
               </li>
               {!user ? (

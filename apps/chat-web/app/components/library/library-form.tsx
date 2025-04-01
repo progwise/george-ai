@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { AiLibrary } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 
 export interface LibraryEditFormProps {
   library: AiLibrary
@@ -10,6 +11,7 @@ export interface LibraryEditFormProps {
 }
 
 export const LibraryForm = ({ library, ownerId, handleSubmit, disabled }: LibraryEditFormProps): React.ReactElement => {
+  const { t } = useTranslation()
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <input type="hidden" name="ownerId" value={ownerId} />
@@ -17,14 +19,14 @@ export const LibraryForm = ({ library, ownerId, handleSubmit, disabled }: Librar
       <input type="hidden" name="libraryId" value={library.id || ''} />
 
       <label className="input input-bordered flex items-center gap-2">
-        Name your Library:
+        {t('libraries.nameLibrary')}:
         <input
           key={library.name}
           name="name"
           type="text"
           defaultValue={library.name || ''}
           className="grow"
-          placeholder="Ancient Library of Alexandria"
+          placeholder={t('libraries.placeholders.name')}
           required
         />
       </label>
@@ -32,13 +34,13 @@ export const LibraryForm = ({ library, ownerId, handleSubmit, disabled }: Librar
         key={library.description}
         name="description"
         className="textarea textarea-bordered w-full flex-grow"
-        placeholder="The Alexandrian Library was one of the largest and most significant libraries of the ancient world."
+        placeholder={t('libraries.placeholders.description')}
         defaultValue={library.description || ''}
       ></textarea>
 
       <div className="flex items-center justify-end gap-4">
         <button disabled={disabled} type="submit" className="btn btn-primary btn-sm">
-          Save
+          {t('actions.save')}
         </button>
       </div>
     </form>
