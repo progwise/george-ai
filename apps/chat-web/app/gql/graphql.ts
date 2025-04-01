@@ -1128,6 +1128,16 @@ export type ProcessFileMutation = {
   } | null
 }
 
+export type CreateAiLibraryMutationVariables = Exact<{
+  ownerId: Scalars['String']['input']
+  data: AiLibraryInput
+}>
+
+export type CreateAiLibraryMutation = {
+  __typename?: 'Mutation'
+  createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+}
+
 export type UserProfileForm_UserProfileFragment = {
   __typename?: 'UserProfile'
   id: string
@@ -1312,16 +1322,6 @@ export type AiLibrariesQuery = {
     updatedAt?: string | null
     owner?: { __typename?: 'User'; id: string; name?: string | null } | null
   }> | null
-}
-
-export type CreateAiLibraryMutationVariables = Exact<{
-  ownerId: Scalars['String']['input']
-  data: AiLibraryInput
-}>
-
-export type CreateAiLibraryMutation = {
-  __typename?: 'Mutation'
-  createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
 export type UserProfileQueryVariables = Exact<{
@@ -3541,6 +3541,56 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
+export const CreateAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -4420,56 +4470,6 @@ export const AiLibrariesDocument = {
     },
   ],
 } as unknown as DocumentNode<AiLibrariesQuery, AiLibrariesQueryVariables>
-export const CreateAiLibraryDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createAiLibrary' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createAiLibrary' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'ownerId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

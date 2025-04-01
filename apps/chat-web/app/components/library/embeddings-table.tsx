@@ -9,9 +9,9 @@ import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { DropIcon } from '../../icons/drop-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { LoadingSpinner } from '../loading-spinner'
@@ -41,41 +41,6 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
         }
       `),
       { libraryId: ctx.data },
-    )
-  })
-
-const dropFile = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation dropFile($id: String!) {
-          dropFile(fileId: $id) {
-            id
-          }
-        }
-      `),
-      { id: ctx.data },
-    )
-  })
-
-const reProcessFile = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation reProcessFile($id: String!) {
-          processFile(fileId: $id) {
-            id
-            chunks
-            size
-            uploadedAt
-            processedAt
-            processingErrorMessage
-          }
-        }
-      `),
-      { id: ctx.data },
     )
   })
 
@@ -161,7 +126,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
-  const [showDropFileError, setShowDropFileError] = useState(true)
   const { t, language } = useTranslation()
   const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
     aiLibraryFilesQueryOptions(libraryId),
@@ -205,31 +169,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     },
   })
 
-  const {
-    mutate: dropFileMutation,
-    error: dropFileError,
-    isPending: dropFileIsPending,
-  } = useMutation({
-    mutationFn: async (fileId: string) => {
-      await dropFile({ data: fileId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
-
-  const reProcessFileMutation = useMutation({
-    mutationFn: async (fileId: string) => {
-      await reProcessFile({ data: fileId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-    onError: () => {
-      alert('An error occurred while reprocessing the file. Please try again later.')
-    },
-  })
-
   const dropAllFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
       await dropAllFiles({ data: fileIds })
@@ -269,26 +208,15 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     isLoading ||
     clearEmbeddingsMutation.isPending ||
     dropAllFilesMutation.isPending ||
-    reProcessAllFilesMutation.isPending ||
-    dropFileIsPending ||
-    reProcessFileMutation.isPending
+    reProcessAllFilesMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
-    await Promise.all(uploadedFiles)
+    reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      {dropFileError && showDropFileError && (
-        <div className="alert alert-error mb-4 cursor-pointer" role="alert" onClick={() => setShowDropFileError(false)}>
-          <span>{t('texts.dropFileFailure')}</span>
-          <ul className="list-disc pl-4">
-            <li>{dropFileError.message}</li>
-          </ul>
-        </div>
-      )}
       <nav className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex w-full flex-wrap gap-4">
           <button
@@ -298,7 +226,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
           >
-            Clear
+            {t('actions.clearEmbeddings')}
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
@@ -306,7 +234,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
-            Google Drive
+            {t('libraries.googleDrive')}
           </button>
           <button
             type="button"
@@ -326,7 +254,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <div className="flex w-full justify-end text-sm">
             <span>
-              Remaining storage: {remainingStorage} / {userProfile?.freeStorage}
+              {t('labels.remainingStorage')}: {remainingStorage} / {userProfile?.freeStorage}
             </span>
           </div>
         </div>
@@ -358,7 +286,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-      <div className="overflow-x-auto">
+      {!data?.aiLibraryFiles?.length ? (
+        <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
+      ) : (
         <table className="table w-full">
           <thead>
             <tr>
@@ -371,11 +301,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 />
               </th>
               <th></th>
-              <th>Name</th>
-              <th>#Size</th>
-              <th>#Chunks</th>
-              <th>Processed</th>
-              <th>Actions</th>
+              <th>{t('labels.name')}</th>
+              <th>#{t('labels.size')}</th>
+              <th>#{t('labels.chunks')}</th>
+              <th>{t('labels.processed')}</th>
+              <th>{t('labels.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -397,17 +327,17 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
-                    onClick={() => dropFileMutation(file.id)}
-                    disabled={dropFileIsPending}
+                    onClick={() => dropAllFilesMutation.mutate([file.id])}
+                    disabled={dropAllFilesMutation.isPending}
                     data-tip={t('tooltips.drop')}
                   >
-                    <DropIcon />
+                    <TrashIcon />
                   </button>
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
-                    onClick={() => reProcessFileMutation.mutate(file.id)}
-                    disabled={reProcessFileMutation.isPending}
+                    onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                    disabled={reProcessAllFilesMutation.isPending}
                     data-tip={t('tooltips.reProcess')}
                   >
                     <ReprocessIcon />
@@ -423,7 +353,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             ))}
           </tbody>
         </table>
-      </div>
+      )}
     </>
   )
 }
