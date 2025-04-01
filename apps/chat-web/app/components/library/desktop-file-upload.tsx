@@ -318,7 +318,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       </nav>
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
-          <h3 className="mb-2 text-lg font-bold">Uploading Files</h3>
+          <h3 className="mb-2 text-lg font-bold">{t('uploadingFiles')}</h3>
           <FileUploadProgressList
             selectedFiles={selectedFiles}
             uploadProgress={uploadProgress}
@@ -327,7 +327,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
           />
           <div className="modal-action justify-end">
             <button type="button" className="btn btn-sm" onClick={handleCancelAllUploads}>
-              Cancel
+              {t('actions.cancel')}
             </button>
           </div>
         </div>

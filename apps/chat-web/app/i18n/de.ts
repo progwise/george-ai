@@ -2,6 +2,7 @@ export default {
   actions: {
     add: 'Hinzufügen',
     cancel: 'Abbrechen',
+    cancelled: 'Abgebrochen',
     clearEmbeddings: 'Einbettungen löschen',
     create: 'Erstellen',
     delete: 'Löschen',
@@ -17,6 +18,7 @@ export default {
     sendConfirmationMail: 'Bestätigungsmail senden',
     sendMessage: 'Nachricht senden',
     upload: 'Hochladen',
+    uploaded: 'Hochgeladen',
   },
   assistants: {
     addNew: 'Neuen Assistenten erstellen',
@@ -150,6 +152,7 @@ export default {
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
+    uploadingFiles: 'Dateien hochladen...',
     with: 'mit',
   },
   tooltips: {
