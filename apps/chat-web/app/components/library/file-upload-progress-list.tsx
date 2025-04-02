@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { FileIcon } from '../../icons/file-icon'
 
@@ -16,6 +17,7 @@ export const FileUploadProgressList: React.FC<FileUploadProgressListProps> = ({
   fileIdMap,
   handleCancelUpload,
 }) => {
+  const { t } = useTranslation()
   return (
     <ul className="space-y-2">
       {selectedFiles.map((file) => {
@@ -33,9 +35,9 @@ export const FileUploadProgressList: React.FC<FileUploadProgressListProps> = ({
             <div className="flex items-center gap-2 text-sm text-info-content">
               <span>{fileSize}</span>
               {progress === -1 ? (
-                <span className="text-error">Cancelled</span>
+                <span className="text-error">{t('actions.cancelled')}</span>
               ) : progress === 100 ? (
-                <span className="text-success">Uploaded</span>
+                <span className="text-success">{t('actions.uploaded')}</span>
               ) : (
                 // Progress Bar
                 <div className="relative h-2 w-20 rounded bg-base-200">

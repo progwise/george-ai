@@ -1,8 +1,11 @@
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
+import { useAuth } from '../../auth/auth-hook'
 import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
+import { useTranslation } from '../../i18n/use-translation-hook'
 
 export const authGoogleSearchSchema = z.object({
   redirectAfterAuth: z.string().optional(),
@@ -18,25 +21,25 @@ export const Route = createFileRoute('/libraries/auth-google')({
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
-export const redirectForAccessCode = async (fullPath: string, search: Record<string, string | undefined>) => {
-  const redirect_url = window.location.origin + fullPath
-  if (!search.code) {
-    console.log('start login')
-    localStorage.setItem('google_login_progress', '1')
-    const newUrl = await getGoogleLoginUrl({
-      data: { redirect_url },
-    })
-    window.location.href = newUrl
-  }
-}
-
 function RouteComponent() {
+  const auth = useAuth()
   const search = Route.useSearch()
   const fullPath = Route.fullPath
+  const { t } = useTranslation()
+  const { data: redirectUrlQuery } = useQuery<string | null>({
+    queryKey: ['redirectUrl', fullPath, search],
+    queryFn: async (): Promise<string | null> => {
+      localStorage.setItem('google_login_progress', '1')
+      const redirect_url = window.location.origin + fullPath
+      return await getGoogleLoginUrl({ data: { redirect_url } })
+    },
+    enabled: !search.code,
+    staleTime: Infinity,
+  })
 
   useEffect(() => {
     if (search.redirectAfterAuth?.length) {
-      console.log('setting redirectAfterAuth', search.redirectAfterAuth)
+      console.log('Setting redirectAfterAuth:', search.redirectAfterAuth)
       localStorage.setItem('google_login_redirect_after', search.redirectAfterAuth)
     }
   }, [search.redirectAfterAuth])
@@ -47,7 +50,7 @@ function RouteComponent() {
       const accessToken = await getGoogleAccessToken({
         data: { access_code: search.code, redirect_url },
       })
-      console.log('got access token', accessToken)
+      console.log('Got access token', accessToken)
       localStorage.setItem('google_drive_access_token', JSON.stringify(accessToken))
       localStorage.setItem('google_drive_dialog_open', 'true')
       localStorage.removeItem('google_login_progress')
@@ -63,11 +66,27 @@ function RouteComponent() {
     }
   }, [search.code, getAccessToken])
 
+  const handleStartLogin = useCallback(() => {
+    if (redirectUrlQuery) {
+      window.location.href = redirectUrlQuery
+    }
+  }, [redirectUrlQuery])
+
+  const isLoggedIn = !!auth?.user
+
+  if (!isLoggedIn) {
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
+        {t('auth.signInForGoogleAuth')}
+      </button>
+    )
+  }
+
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mb-4 text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary" type="button" onClick={() => redirectForAccessCode(fullPath, search)}>
-        Start Google Login
+      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={!redirectUrlQuery}>
+        {redirectUrlQuery ? 'Start Google Login' : 'Loading...'}
       </button>
     </div>
   )

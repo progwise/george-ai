@@ -44,41 +44,6 @@ const clearEmbeddings = createServerFn({ method: 'GET' })
     )
   })
 
-const dropFile = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation dropFile($id: String!) {
-          dropFile(fileId: $id) {
-            id
-          }
-        }
-      `),
-      { id: ctx.data },
-    )
-  })
-
-const reProcessFile = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation reProcessFile($id: String!) {
-          processFile(fileId: $id) {
-            id
-            chunks
-            size
-            uploadedAt
-            processedAt
-            processingErrorMessage
-          }
-        }
-      `),
-      { id: ctx.data },
-    )
-  })
-
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
@@ -161,7 +126,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
-  const [showDropFileError, setShowDropFileError] = useState(true)
   const { t, language } = useTranslation()
   const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
     aiLibraryFilesQueryOptions(libraryId),
@@ -204,31 +168,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     },
   })
 
-  const {
-    mutate: dropFileMutation,
-    error: dropFileError,
-    isPending: dropFileIsPending,
-  } = useMutation({
-    mutationFn: async (fileId: string) => {
-      await dropFile({ data: fileId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
-
-  const reProcessFileMutation = useMutation({
-    mutationFn: async (fileId: string) => {
-      await reProcessFile({ data: fileId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-    onError: () => {
-      alert('An error occurred while reprocessing the file. Please try again later.')
-    },
-  })
-
   const dropAllFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
       await dropAllFiles({ data: fileIds })
@@ -268,26 +207,15 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     isLoading ||
     clearEmbeddingsMutation.isPending ||
     dropAllFilesMutation.isPending ||
-    reProcessAllFilesMutation.isPending ||
-    dropFileIsPending ||
-    reProcessFileMutation.isPending
+    reProcessAllFilesMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    const uploadedFiles = uploadedFileIds.map((fileId) => reProcessFileMutation.mutateAsync(fileId))
-    await Promise.all(uploadedFiles)
+    reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      {dropFileError && showDropFileError && (
-        <div className="alert alert-error mb-4 cursor-pointer" role="alert" onClick={() => setShowDropFileError(false)}>
-          <span>{t('texts.dropFileFailure')}</span>
-          <ul className="list-disc pl-4">
-            <li>{dropFileError.message}</li>
-          </ul>
-        </div>
-      )}
       <nav className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -297,7 +225,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
           >
-            Clear
+            {t('actions.clearEmbeddings')}
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
@@ -305,7 +233,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
-            Google Drive
+            {t('libraries.googleDrive')}
           </button>
           <button
             type="button"
@@ -325,7 +253,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
         </div>
         <div className="text-right text-sm">
-          <div className="font-semibold">Remaining Storage</div>
+          <div className="font-semibold">{t('labels.remainingStorage')}</div>
           <div>
             {remainingStorage} / {userProfile?.freeStorage}
           </div>
@@ -358,8 +286,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </form>
         </dialog>
       )}
-      {data?.aiLibraryFiles?.length === 0 ? (
-        <div className="mt-4 text-center text-sm italic">{t('texts.noFilesFound') || 'No files found.'}</div>
+      {!data?.aiLibraryFiles?.length ? (
+        <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
         <>
           <div className="block space-y-4 lg:hidden">
@@ -405,16 +333,16 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <button
                     type="button"
                     className="btn btn-xs"
-                    onClick={() => dropFileMutation(file.id)}
-                    disabled={dropFileIsPending}
+                    onClick={() => dropAllFilesMutation.mutate([file.id])}
+                    disabled={dropAllFilesMutation.isPending}
                   >
                     <TrashIcon />
                   </button>
                   <button
                     type="button"
                     className="btn btn-xs"
-                    onClick={() => reProcessFileMutation.mutate(file.id)}
-                    disabled={reProcessFileMutation.isPending}
+                    onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                    disabled={reProcessAllFilesMutation.isPending}
                   >
                     <ReprocessIcon />
                   </button>
@@ -435,11 +363,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     />
                   </th>
                   <th>#</th>
-                  <th>Name</th>
-                  <th>Size</th>
-                  <th>Chunks</th>
-                  <th>Processed</th>
-                  <th>Actions</th>
+                  <th>{t('labels.name')}</th>
+                  <th>#{t('labels.size')}</th>
+                  <th>#{t('labels.chunks')}</th>
+                  <th>{t('labels.processed')}</th>
+                  <th>{t('labels.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -462,22 +390,22 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       <button
                         type="button"
                         className="btn btn-xs"
-                        onClick={() => dropFileMutation(file.id)}
-                        disabled={dropFileIsPending}
+                        onClick={() => dropAllFilesMutation.mutate([file.id])}
+                        disabled={dropAllFilesMutation.isPending}
                       >
                         <TrashIcon />
                       </button>
                       <button
                         type="button"
                         className="btn btn-xs"
-                        onClick={() => reProcessFileMutation.mutate(file.id)}
-                        disabled={reProcessFileMutation.isPending}
+                        onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                        disabled={reProcessAllFilesMutation.isPending}
                       >
                         <ReprocessIcon />
                       </button>
                       {file.processingErrorMessage && (
                         <span className="tooltip" data-tip={file.processingErrorMessage}>
-                          <ExclamationIcon className="text-red-600" />
+                          <ExclamationIcon />
                         </span>
                       )}
                     </td>

@@ -1,15 +1,15 @@
 import { CSVLoader } from '@langchain/community/document_loaders/fs/csv'
 import { DocxLoader } from '@langchain/community/document_loaders/fs/docx'
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 
 import { getFileExtension } from './common'
+import { PDFLoaderAI } from './pdf-loader-ai'
 
 export const loadFile = async (file: { name: string; id: string; mimeType: string; path: string }) => {
   let documentLoader
   switch (file.mimeType) {
     case 'application/pdf':
-      documentLoader = new PDFLoader(file.path)
+      documentLoader = new PDFLoaderAI(file.path)
       break
     case 'text/plain':
       documentLoader = new TextLoader(file.path)

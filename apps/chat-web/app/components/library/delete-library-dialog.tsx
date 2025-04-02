@@ -89,8 +89,8 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
       </button>
       <dialog ref={dialogReference} className="modal">
         <div className="modal-box">
-          <h3 className="text-lg font-bold">{t('texts.deleteLibrary', { libraryName: library.name })}</h3>
-          <p className="py-4">{t('texts.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}</p>
+          <h3 className="text-lg font-bold">{t('libraries.deleteLibrary', { libraryName: library.name })}</h3>
+          <p className="py-4">{t('libraries.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}</p>
           <div className="modal-action">
             <form method="dialog">
               <button type="submit" className="btn btn-sm">
