@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -128,18 +128,6 @@ function RouteComponent() {
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
     queryFn: async () => (userId ? await getAssignableAssistants({ data: { ownerId: userId } }) : null),
   })
-
-  useEffect(() => {
-    if (selectedConversation?.aiConversation && !selectedConversationIsLoading) {
-      // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
-      setTimeout(() => {
-        window.scrollTo({
-          top: document.body.scrollHeight,
-          behavior: 'smooth',
-        })
-      }, 100)
-    }
-  }, [selectedConversation?.aiConversation, selectedConversationIsLoading])
 
   if (!userId) {
     return (

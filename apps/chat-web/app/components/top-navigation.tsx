@@ -6,6 +6,7 @@ import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
+import { CalendarIcon } from '../icons/calendar-icon'
 import { ConversationIcon } from '../icons/conversation-icon'
 import UserIcon from '../icons/user-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
@@ -24,21 +25,22 @@ const TopNavigation = () => {
 
   return (
     <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl">
-      <div className="flex w-full items-center justify-between lg:hidden">
-        <Link to="/" className="btn btn-ghost">
-          <BowlerLogoIcon className="size-8" />
-        </Link>
+      <div className="flex w-full justify-between lg:hidden">
+        <div className="flex items-center">
+          <Link to="/" className="btn btn-ghost">
+            <BowlerLogoIcon className="size-8" />
+          </Link>
 
-        <a
-          href="https://calendly.com/michael-vogt-progwise/30min"
-          target="_blank"
-          rel="noopener noreferrer"
-          type="button"
-          className="btn btn-accent"
-        >
-          {t('topNavigation.demo')}
-        </a>
-
+          <a
+            href="https://calendly.com/michael-vogt-progwise/30min"
+            target="_blank"
+            rel="noopener noreferrer"
+            type="button"
+            className="btn btn-accent"
+          >
+            <CalendarIcon className="size-6" />
+          </a>
+        </div>
         {user ? (
           <Link to="/profile" className="btn btn-ghost gap-2">
             {user.name}

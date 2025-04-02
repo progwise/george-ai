@@ -53,6 +53,15 @@ export const ConversationForm = (props: ConversationFormProps) => {
       queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, conversation.id],
       })
+
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.CurrentUserProfile],
+      })
+
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth',
+      })
     },
   })
   const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
@@ -140,7 +149,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
             aria-disabled={!!isPending}
           ></div>
           {showPlaceholder && (
-            <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">Ask anything</div>
+            <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">
+              {t('conversations.promptPlaceholder')}
+            </div>
           )}
         </div>
         <div className="flex w-full justify-between">

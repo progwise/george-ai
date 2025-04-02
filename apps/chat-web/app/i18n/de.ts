@@ -53,6 +53,7 @@ export default {
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
     humans: 'Benutzer',
+    promptPlaceholder: 'Stelle irgendeine Frage',
   },
   dialog: {
     cancel: 'Abbrechen',
