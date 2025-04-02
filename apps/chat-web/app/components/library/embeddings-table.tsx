@@ -290,6 +290,16 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
         <>
+          <label className="mb-4 flex items-center gap-2 lg:hidden">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+              onChange={handleSelectAll}
+            />
+            <span>Select All</span>
+          </label>
+
           <div className="block space-y-4 lg:hidden">
             {data?.aiLibraryFiles.map((file, index) => (
               <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
@@ -323,12 +333,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <strong>Processed:</strong> {dateTimeString(file.processedAt, language) || '-'}
                   </div>
                 </div>
-                {file.processingErrorMessage && (
-                  <div className="mt-2 flex items-center text-xs text-red-600">
-                    <ExclamationIcon />
-                    <span className="ml-1">{file.processingErrorMessage}</span>
-                  </div>
-                )}
                 <div className="mt-3 flex gap-2">
                   <button
                     type="button"
@@ -346,6 +350,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   >
                     <ReprocessIcon />
                   </button>
+                  {file.processingErrorMessage && <ExclamationIcon />}
                 </div>
               </div>
             ))}
@@ -357,7 +362,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <th>
                     <input
                       type="checkbox"
-                      className="checkbox"
+                      className="checkbox checkbox-sm"
                       checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
                       onChange={handleSelectAll}
                     />
@@ -376,7 +381,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <td>
                       <input
                         type="checkbox"
-                        className="checkbox"
+                        className="checkbox checkbox-sm"
                         checked={selectedFiles.includes(file.id)}
                         onChange={() => handleSelectFile(file.id)}
                       />
