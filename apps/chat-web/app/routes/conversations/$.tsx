@@ -9,7 +9,7 @@ import { ConversationForm } from '../../components/conversation/conversation-for
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
-import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
+import { DeleteLeaveConversationDialog } from '../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
@@ -164,6 +164,7 @@ function RouteComponent() {
             <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
+              isOpen={conversations?.aiConversations?.length === 0}
             />
           </div>
 
@@ -185,7 +186,7 @@ function RouteComponent() {
           </div>
         </div>
       )}
-      <article className="flex w-full flex-col gap-4">
+      <article className="flex w-full flex-col gap-1">
         {selectedConversation?.aiConversation && (
           <>
             <div className="flex items-center justify-between">
@@ -194,7 +195,7 @@ function RouteComponent() {
                 assistants={assignableAssistants.aiAssistants}
                 humans={assignableUsers.myConversationUsers}
               />
-              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
+              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
             </div>
             <ConversationHistory conversation={selectedConversation.aiConversation} />
             <ConversationForm conversation={selectedConversation.aiConversation} />
