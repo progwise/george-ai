@@ -154,6 +154,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraryFiles, libraryId],
     })
+
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraries],
     })
@@ -216,7 +217,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <nav className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -229,7 +230,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
-            onUploadComplete={(uploadedFileIds) => handleUploadComplete(uploadedFileIds)}
+            onUploadComplete={handleUploadComplete}
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
@@ -261,7 +262,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       </nav>
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
-          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
+          <div className="modal-box relative flex w-full max-w-lg flex-col space-y-4 p-6">
             <button
               type="button"
               className="btn btn-ghost btn-sm absolute right-2 top-2"
@@ -270,7 +271,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               <CrossIcon />
             </button>
             <h3 className="text-lg font-bold">{t('texts.addGoogleDriveFiles')}</h3>
-            <div className="flex-grow overflow-auto py-4">
+            <div className="flex-grow overflow-auto">
               <GoogleDriveFiles
                 libraryId={libraryId}
                 currentLocationHref={window.location.href}
@@ -287,7 +288,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         </dialog>
       )}
       {!data?.aiLibraryFiles?.length ? (
-        <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
+        <div className="mt-6 text-center text-base">{t('texts.noFilesFound')}</div>
       ) : (
         <>
           <label className="mb-4 flex items-center gap-2 lg:hidden">
@@ -297,10 +298,9 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
               onChange={handleSelectAll}
             />
-            <span>Select All</span>
+            <span className="text-sm font-medium">Select All</span>
           </label>
-
-          <div className="block space-y-4 lg:hidden">
+          <div className="flex flex-col gap-4 lg:hidden">
             {data?.aiLibraryFiles.map((file, index) => (
               <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
                 <div className="flex items-center justify-between">
@@ -322,18 +322,18 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     </span>
                   </label>
                 </div>
-                <div className="mt-2 text-sm">
+                <div className="mt-2 space-y-1 text-sm">
                   <div>
-                    <strong>Size:</strong> {file.size ?? '-'}
+                    <span className="font-medium">Size:</span> {file.size ?? '-'}
                   </div>
                   <div>
-                    <strong>Chunks:</strong> {file.chunks ?? '-'}
+                    <span className="font-medium">Chunks:</span> {file.chunks ?? '-'}
                   </div>
                   <div>
-                    <strong>Processed:</strong> {dateTimeString(file.processedAt, language) || '-'}
+                    <span className="font-medium">Processed:</span> {dateTimeString(file.processedAt, language) || '-'}
                   </div>
                 </div>
-                <div className="mt-3 flex gap-2">
+                <div className="flex items-center gap-2 p-2">
                   <button
                     type="button"
                     className="btn btn-xs"
@@ -356,10 +356,10 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             ))}
           </div>
           <div className="hidden overflow-x-auto lg:block">
-            <table className="table w-full">
-              <thead>
+            <table className="w-full table-auto border-collapse text-left">
+              <thead className="bg-base-200">
                 <tr>
-                  <th>
+                  <th className="p-2">
                     <input
                       type="checkbox"
                       className="checkbox checkbox-sm"
@@ -367,18 +367,18 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th>#</th>
-                  <th>{t('labels.name')}</th>
-                  <th>#{t('labels.size')}</th>
-                  <th>#{t('labels.chunks')}</th>
-                  <th>{t('labels.processed')}</th>
-                  <th>{t('labels.actions')}</th>
+                  <th className="p-2">#</th>
+                  <th className="p-2">{t('labels.name')}</th>
+                  <th className="p-2">{t('labels.size')}</th>
+                  <th className="p-2">{t('labels.chunks')}</th>
+                  <th className="p-2">{t('labels.processed')}</th>
+                  <th className="p-2">{t('labels.actions')}</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-base-300">
                 {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-                  <tr key={file.id}>
-                    <td>
+                  <tr key={file.id} className="hover:bg-base-100">
+                    <td className="p-2">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-sm"
@@ -386,12 +386,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                         onChange={() => handleSelectFile(file.id)}
                       />
                     </td>
-                    <td>{index + 1}</td>
-                    <td>{file.name}</td>
-                    <td>{file.size ?? '-'}</td>
-                    <td>{file.chunks ?? '-'}</td>
-                    <td>{dateTimeString(file.processedAt, language) || '-'}</td>
-                    <td className="flex items-center gap-2">
+                    <td className="p-2">{index + 1}</td>
+                    <td className="p-2">{file.name}</td>
+                    <td className="p-2">{file.size ?? '-'}</td>
+                    <td className="p-2">{file.chunks ?? '-'}</td>
+                    <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>
+                    <td className="flex items-center gap-2 p-2">
                       <button
                         type="button"
                         className="btn btn-xs"
