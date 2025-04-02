@@ -36,30 +36,36 @@ export const sendMessage = createServerFn({ method: 'POST' })
   )
 
 const CreateConversationDocument = graphql(`
-  mutation createConversation($data: AiConversationCreateInput!) {
-    createAiConversation(data: $data) {
+  mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {
+    createAiConversation(ownerId: $ownerId, data: $data) {
       id
     }
   }
 `)
 
 export const createConversation = createServerFn({ method: 'POST' })
-  .validator((data: { userIds: string[]; assistantIds: string[] }) =>
+  .validator((data: { userIds: string[]; assistantIds: string[]; ownerId: string }) =>
     z
       .object({
         userIds: z.array(z.string()),
         assistantIds: z.array(z.string()),
+        ownerId: z.string(),
       })
       .parse(data),
   )
-  .handler((ctx) =>
-    backendRequest(CreateConversationDocument, {
+  .handler((ctx) => {
+    if (!ctx.data.ownerId) {
+      throw new Error('ownerId is required')
+    }
+
+    return backendRequest(CreateConversationDocument, {
+      ownerId: ctx.data.ownerId,
       data: {
         assistantIds: ctx.data.assistantIds,
         userIds: ctx.data.userIds,
       },
-    }),
-  )
+    })
+  })
 
 const DeleteConversationDocument = graphql(`
   mutation deleteConversation($conversationId: String!) {
@@ -71,8 +77,23 @@ const DeleteConversationDocument = graphql(`
 
 export const deleteConversation = createServerFn({ method: 'POST' })
   .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
-  .handler((ctx) =>
-    backendRequest(DeleteConversationDocument, {
+  .handler(async (ctx) => {
+    return backendRequest(DeleteConversationDocument, {
       conversationId: ctx.data.conversationId,
+    })
+  })
+
+const LeaveConversationDocument = graphql(`
+  mutation leaveConversation($participantId: String!) {
+    leaveAiConversation(id: $participantId) {
+      id
+    }
+  }
+`)
+export const leaveConversation = createServerFn({ method: 'POST' })
+  .validator((data: { participantId: string }) => z.object({ participantId: z.string() }).parse(data))
+  .handler((ctx) =>
+    backendRequest(LeaveConversationDocument, {
+      participantId: ctx.data.participantId,
     }),
   )
