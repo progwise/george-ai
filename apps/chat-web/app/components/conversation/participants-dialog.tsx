@@ -138,11 +138,18 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     },
   })
 
+  useEffect(() => {
+    if (availableAssistants.length === 0 && availableHumans.length === 0) {
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setHasChecked(props.dialogMode === 'new')
+    }
+  }, [availableAssistants.length, availableHumans.length, props.dialogMode])
+
   const handleSubmit = (formData: FormData) => {
     const assistantIds = Array.from(formData.getAll('assistantIds')) as string[]
     const userIds = Array.from(formData.getAll('userIds')) as string[]
 
-    if (assistantIds.length === 0 && userIds.length === 0) return
+    if (props.dialogMode !== 'new' && assistantIds.length === 0 && userIds.length === 0) return
 
     if (props.dialogMode === 'new') {
       createNewConversation({ assistantIds, userIds })

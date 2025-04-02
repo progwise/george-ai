@@ -102,10 +102,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   const isPending = isDeletePending || isLeavePending
   const Icon = isOwner ? TrashIcon : LeaveIcon
 
-  const title = isOwner ? t('texts.deleteConversation') : t('texts.leaveConversation')
-  const description = isOwner ? t('texts.deleteConversationConfirmation') : t('texts.leaveConversationConfirmation')
+  const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${new Date(conversation.createdAt).toLocaleString().replace(',', '')})`
+  const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
   const submitButtonText = isOwner ? t('actions.delete') : t('actions.leave')
-  const buttonTooltip = isOwner ? t('tooltips.deleteConversation') : t('tooltips.leaveConversation')
+  const buttonTooltip = isOwner ? t('conversations.delete') : t('conversations.leave')
 
   return (
     <>
@@ -129,13 +129,14 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       >
         <div className="w-full">
           <div className="mb-4">
-            <time className="text-nowrap font-medium">
-              {new Date(conversation.createdAt).toLocaleString().replace(',', '')}
-            </time>{' '}
-            {t('texts.with')}{' '}
-            <span className="font-medium">
-              {conversation.assistants?.map((assistant) => assistant.name).join(', ')}
-            </span>
+            {conversation.assistants.length > 0 && (
+              <>
+                {t('texts.with')}{' '}
+                <span className="font-medium">
+                  {conversation.assistants.map((assistant) => assistant.name).join(', ')}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </DialogForm>
