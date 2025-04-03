@@ -161,6 +161,7 @@ export default {
     addNoParticipantsSelected: 'No assistant or user is selected',
     clearEmbeddings: 'Clear embeddings',
     deleteConversation: 'Delete conversation',
+    delete_file: 'Delete file',
     drop: 'Drop',
     hide: 'Hide',
     leaveConversation: 'Leave conversation',

@@ -262,7 +262,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       </nav>
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
-          <div className="modal-box relative flex w-full max-w-lg flex-col space-y-4 p-6">
+          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
             <button
               type="button"
               className="btn btn-ghost btn-sm absolute right-2 top-2"
@@ -288,13 +288,13 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         </dialog>
       )}
       {!data?.aiLibraryFiles?.length ? (
-        <div className="mt-6 text-center text-base">{t('texts.noFilesFound')}</div>
+        <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
         <>
           <label className="mb-4 flex items-center gap-2 lg:hidden">
             <input
               type="checkbox"
-              className="checkbox checkbox-sm"
+              className="checkbox checkbox-sm flex justify-center"
               checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
               onChange={handleSelectAll}
             />
@@ -307,22 +307,19 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-sm"
+                      className="checkbox checkbox-sm flex justify-center"
                       checked={selectedFiles.includes(file.id)}
                       onChange={() => handleSelectFile(file.id)}
                     />
                     <span className="font-semibold">
                       {index + 1}.{' '}
-                      {(() => {
-                        const extension = file.name.split('.').pop()
-                        const baseName = file.name.slice(0, file.name.lastIndexOf('.')) || file.name
-                        const truncatedBaseName = baseName.length > 17 ? `${baseName.slice(0, 14)}...` : baseName
-                        return `${truncatedBaseName}${extension ? '.' + extension : ''}`
-                      })()}
+                      {file.name.length > 18
+                        ? `${file.name.slice(0, 16)}...${file.name.slice(file.name.lastIndexOf('.'))}`
+                        : file.name}
                     </span>
                   </label>
                 </div>
-                <div className="mt-2 space-y-1 text-sm">
+                <div className="mt-2 space-y-1 pl-6 text-sm">
                   <div>
                     <span className="font-medium">Size:</span> {file.size ?? '-'}
                   </div>
@@ -336,7 +333,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 <div className="flex items-center gap-2 p-2">
                   <button
                     type="button"
-                    className="btn btn-xs"
+                    className="btn btn-xs lg:tooltip"
                     onClick={() => dropAllFilesMutation.mutate([file.id])}
                     disabled={dropAllFilesMutation.isPending}
                   >
@@ -368,11 +365,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     />
                   </th>
                   <th className="p-2">#</th>
-                  <th className="p-2">{t('labels.name')}</th>
-                  <th className="p-2">{t('labels.size')}</th>
-                  <th className="p-2">{t('labels.chunks')}</th>
-                  <th className="p-2">{t('labels.processed')}</th>
-                  <th className="p-2">{t('labels.actions')}</th>
+                  <th>{t('labels.name')}</th>
+                  <th>{t('labels.size')}</th>
+                  <th>{t('labels.chunks')}</th>
+                  <th>{t('labels.processed')}</th>
+                  <th>{t('labels.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-base-300">
@@ -387,14 +384,19 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       />
                     </td>
                     <td className="p-2">{index + 1}</td>
-                    <td className="p-2">{file.name}</td>
+                    <td className="font-semibold">
+                      {file.name.length > 79
+                        ? `${file.name.slice(0, 79)}...${file.name.slice(file.name.lastIndexOf('.'))}`
+                        : file.name}
+                    </td>
                     <td className="p-2">{file.size ?? '-'}</td>
                     <td className="p-2">{file.chunks ?? '-'}</td>
                     <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>
                     <td className="flex items-center gap-2 p-2">
                       <button
                         type="button"
-                        className="btn btn-xs"
+                        className="btn btn-xs lg:tooltip"
+                        data-tip={t('delete_file')}
                         onClick={() => dropAllFilesMutation.mutate([file.id])}
                         disabled={dropAllFilesMutation.isPending}
                       >
@@ -402,7 +404,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-xs"
+                        className="btn btn-xs lg:tooltip"
+                        data-tip="Reprocess file"
                         onClick={() => reProcessAllFilesMutation.mutate([file.id])}
                         disabled={reProcessAllFilesMutation.isPending}
                       >

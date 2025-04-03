@@ -170,6 +170,7 @@ export default {
     leaveConversation: 'Konversation verlassen',
     reProcess: 'Erneut verarbeiten',
     unhide: 'Einblenden',
+    delete_file: 'Datei löschen',
   },
   topNavigation: {
     assistants: 'Assistenten',
