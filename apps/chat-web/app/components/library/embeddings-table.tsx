@@ -214,10 +214,16 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
+  const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
+    return fileName.length > maxLength
+      ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
+      : fileName
+  }
+
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <nav className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -294,7 +300,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           <label className="mb-4 flex items-center gap-2 lg:hidden">
             <input
               type="checkbox"
-              className="checkbox checkbox-sm"
+              className="checkbox checkbox-sm flex justify-center"
               checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
               onChange={handleSelectAll}
             />
@@ -307,30 +313,27 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-sm"
+                      className="checkbox checkbox-xs flex justify-center"
                       checked={selectedFiles.includes(file.id)}
                       onChange={() => handleSelectFile(file.id)}
                     />
                     <span className="font-semibold">
-                      {index + 1}.{' '}
-                      {(() => {
-                        const extension = file.name.split('.').pop()
-                        const baseName = file.name.slice(0, file.name.lastIndexOf('.')) || file.name
-                        const truncatedBaseName = baseName.length > 17 ? `${baseName.slice(0, 14)}...` : baseName
-                        return `${truncatedBaseName}${extension ? '.' + extension : ''}`
-                      })()}
+                      {index + 1}. {truncateFileName(file.name, 25, 20)}
                     </span>
                   </label>
                 </div>
-                <div className="mt-2 space-y-1 text-sm">
-                  <div>
-                    <span className="font-medium">Size:</span> {file.size ?? '-'}
+                <div className="mt-2 flex flex-col space-y-1 text-sm">
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.size')}:</span>
+                    <span>{file.size ?? '-'}</span>
                   </div>
-                  <div>
-                    <span className="font-medium">Chunks:</span> {file.chunks ?? '-'}
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.chunks')}:</span>
+                    <span>{file.chunks ?? '-'}</span>
                   </div>
-                  <div>
-                    <span className="font-medium">Processed:</span> {dateTimeString(file.processedAt, language) || '-'}
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.processed')}:</span>
+                    <span>{dateTimeString(file.processedAt, language) || '-'}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-2">
@@ -362,15 +365,15 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <th className="p-2">
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-sm"
+                      className="checkbox checkbox-xs flex justify-center"
                       checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
                       onChange={handleSelectAll}
                     />
                   </th>
                   <th className="p-2">#</th>
                   <th className="p-2">{t('labels.name')}</th>
-                  <th className="p-2">{t('labels.size')}</th>
-                  <th className="p-2">{t('labels.chunks')}</th>
+                  <th className="p-2">#{t('labels.size')}</th>
+                  <th className="p-2">#{t('labels.chunks')}</th>
                   <th className="p-2">{t('labels.processed')}</th>
                   <th className="p-2">{t('labels.actions')}</th>
                 </tr>
@@ -381,13 +384,13 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <td className="p-2">
                       <input
                         type="checkbox"
-                        className="checkbox checkbox-sm"
+                        className="checkbox checkbox-xs flex justify-center"
                         checked={selectedFiles.includes(file.id)}
                         onChange={() => handleSelectFile(file.id)}
                       />
                     </td>
                     <td className="p-2">{index + 1}</td>
-                    <td className="p-2">{file.name}</td>
+                    <td className="p-2">{truncateFileName(file.name, 50, 40)}</td>
                     <td className="p-2">{file.size ?? '-'}</td>
                     <td className="p-2">{file.chunks ?? '-'}</td>
                     <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>

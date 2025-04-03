@@ -18,18 +18,18 @@ export const LibraryForm = ({ library, ownerId, handleSubmit, disabled }: Librar
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="libraryId" value={library.id || ''} />
 
-      <label className="input input-bordered flex items-center gap-2">
-        {t('libraries.nameLibrary')}:
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <label className="whitespace-nowrap">{t('libraries.nameLibrary')}:</label>
         <input
           key={library.name}
           name="name"
           type="text"
           defaultValue={library.name || ''}
-          className="grow"
+          className="input input-bordered grow"
           placeholder={t('libraries.placeholders.name')}
           required
         />
-      </label>
+      </div>
       <textarea
         key={library.description}
         name="description"
