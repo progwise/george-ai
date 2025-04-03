@@ -262,7 +262,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       </nav>
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
-          <div className="modal-box relative flex w-full max-w-lg flex-col space-y-4 p-6">
+          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
             <button
               type="button"
               className="btn btn-ghost btn-sm absolute right-2 top-2"
@@ -288,13 +288,13 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         </dialog>
       )}
       {!data?.aiLibraryFiles?.length ? (
-        <div className="mt-6 text-center text-base">{t('texts.noFilesFound')}</div>
+        <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
         <>
           <label className="mb-4 flex items-center gap-2 lg:hidden">
             <input
               type="checkbox"
-              className="checkbox checkbox-sm"
+              className="checkbox checkbox-sm flex justify-center"
               checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
               onChange={handleSelectAll}
             />
@@ -307,7 +307,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-sm"
+                      className="checkbox checkbox-sm flex justify-center"
                       checked={selectedFiles.includes(file.id)}
                       onChange={() => handleSelectFile(file.id)}
                     />
@@ -336,7 +336,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 <div className="flex items-center gap-2 p-2">
                   <button
                     type="button"
-                    className="btn btn-xs"
+                    className="btn btn-xs lg:tooltip"
                     onClick={() => dropAllFilesMutation.mutate([file.id])}
                     disabled={dropAllFilesMutation.isPending}
                   >
@@ -394,7 +394,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <td className="flex items-center gap-2 p-2">
                       <button
                         type="button"
-                        className="btn btn-xs"
+                        className="btn btn-xs lg:tooltip"
+                        data-tip="Delete file"
                         onClick={() => dropAllFilesMutation.mutate([file.id])}
                         disabled={dropAllFilesMutation.isPending}
                       >
@@ -402,7 +403,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-xs"
+                        className="btn btn-xs lg:tooltip"
+                        data-tip="Reprocess file"
                         onClick={() => reProcessAllFilesMutation.mutate([file.id])}
                         disabled={reProcessAllFilesMutation.isPending}
                       >
