@@ -13,10 +13,12 @@ export interface CurrentUser {
   given_name: string
   family_name: string
   createdAt: string
+  isAdmin: boolean
 }
 
 export interface AuthContext {
   isAuthenticated: boolean
+  isLoading: boolean
   login: () => Promise<void>
   logout: () => Promise<void>
   user: CurrentUser | null
@@ -32,7 +34,7 @@ export const useAuth = () => {
       const keycloak = new Keycloak(config)
 
       if (typeof window !== 'undefined' && !keycloak.didInitialize) {
-        keycloak.init({
+        await keycloak.init({
           onLoad: 'check-sso',
         })
       }
@@ -49,7 +51,7 @@ export const useAuth = () => {
     },
   })
 
-  const { data: currentUser } = useQuery({
+  const { data: currentUser, isLoading: userLoading } = useQuery({
     queryKey: [queryKeys.CurrentUser, keycloak, keycloak?.authenticated, keycloak?.token],
     staleTime: Infinity,
     enabled: !!keycloak && !keycloakIsLoading,
@@ -65,7 +67,7 @@ export const useAuth = () => {
         return null
       }
       const { login: user } = await ensureBackendUser({ data: token })
-      return { ...user }
+      return { ...user, isAdmin: user?.isAdmin || false }
     },
   })
 
@@ -81,9 +83,10 @@ export const useAuth = () => {
     },
   })
 
-  if (!keycloak) {
+  if (!keycloak || keycloakIsLoading || userLoading) {
     return {
       isAuthenticated: false,
+      isLoading: true,
       login: async () => {},
       logout: async () => {},
       user: null,
@@ -93,6 +96,7 @@ export const useAuth = () => {
   if (!currentUser) {
     return {
       isAuthenticated: false,
+      isLoading: false,
       login: async () => {
         keycloak.login()
       },
@@ -104,12 +108,16 @@ export const useAuth = () => {
 
   return {
     isAuthenticated: true,
+    isLoading: false,
     login: async () => {},
     logout: async () => {
       localStorage.removeItem('google_drive_access_token')
       keycloak.logout()
     },
-    user: currentUser,
+    user: {
+      ...currentUser,
+      isAdmin: currentUser.isAdmin,
+    },
     userProfile: currentUserProfile?.userProfile,
   }
 }

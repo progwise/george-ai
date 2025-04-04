@@ -159,19 +159,35 @@ builder.mutationField('sendConfirmationMail', (t) =>
       if (!profile) {
         throw new Error('Profile not found')
       }
+
+      // Send email to the user
       console.log('Sending confirmation email to', profile.email)
       const emailInfo = await sendMail(
         profile.email,
         'Please confirm your email',
-        'Thx for registering at george-ai.net. Enter the following URL in your browser to confirm your email: ' +
+        'Thank you for registering at george-ai.net. Enter the following URL in your browser to confirm your email: ' +
           confirmationUrl,
-        'Thx for registering at george-ai.net. Enter the following URL in your browser to confirm your email: <a href="' +
+        'Thank you for registering at george-ai.net. Enter the following URL in your browser to confirm your email: <a href="' +
           confirmationUrl +
           '">' +
           confirmationUrl +
           '</a>',
       )
       console.log('Email sent', emailInfo)
+
+      // Send email to the admin
+      const adminConfirmationUrl = confirmationUrl
+        .replace(profile.id, profile.userId)
+        .replace('/confirm', '/admin-confirm')
+      console.log('Sending admin confirmation email')
+      await sendMail(
+        //TODO: Change to info@george-ai.net
+        'yohannes.tesfay@george-ai.net',
+        'Admin Confirmation Required',
+        `A new user profile requires confirmation. User email: ${profile.email}. Confirm here: ${adminConfirmationUrl}`,
+        `<p>A new user profile requires confirmation. User email: ${profile.email}. Confirm here: <a href="${adminConfirmationUrl}">${adminConfirmationUrl}</a></p>`,
+      )
+
       return true
     },
   }),
@@ -188,6 +204,41 @@ builder.queryField('userProfile', (t) =>
         ...query,
         where: { userId },
       })
+    },
+  }),
+)
+
+builder.mutationField('adminConfirmUserProfile', (t) =>
+  t.prismaField({
+    type: 'UserProfile',
+    args: {
+      profileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { profileId }) => {
+      const userProfile = await prisma.userProfile.findUnique({
+        where: { id: profileId },
+      })
+
+      if (!userProfile) {
+        throw new Error('User profile not found')
+      }
+
+      const updatedProfile = await prisma.userProfile.update({
+        where: { id: profileId },
+        data: {
+          email: userProfile.email,
+        },
+      })
+
+      // Send email notification to admin
+      await sendMail(
+        'info@george-ai.net',
+        'User Profile Updated',
+        `The user profile with ID: ${updatedProfile.id} has been updated.`,
+        `<p>The user profile with ID: ${updatedProfile.id} has been updated.</p>`,
+      )
+
+      return updatedProfile
     },
   }),
 )

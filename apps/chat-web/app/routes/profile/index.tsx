@@ -148,7 +148,11 @@ function RouteComponent() {
   })
 
   if (!auth.user?.id) {
-    return <p>Login to use your profile</p>
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => auth.login()}>
+        {t('texts.signInForProfile')}
+      </button>
+    )
   }
   if (userProfileIsLoading) {
     return <LoadingSpinner />

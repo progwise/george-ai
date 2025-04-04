@@ -218,6 +218,7 @@ export type Mutation = {
   __typename?: 'Mutation'
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryUsage?: Maybe<AiLibraryUsage>
+  adminConfirmUserProfile?: Maybe<UserProfile>
   cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
@@ -262,6 +263,10 @@ export type MutationAddConversationParticipantsArgs = {
 export type MutationAddLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationAdminConfirmUserProfileArgs = {
+  profileId: Scalars['String']['input']
 }
 
 export type MutationCancelFileUploadArgs = {
@@ -491,6 +496,7 @@ export type User = {
   family_name?: Maybe<Scalars['String']['output']>
   given_name?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  isAdmin: Scalars['Boolean']['output']
   lastLogin?: Maybe<Scalars['DateTime']['output']>
   name?: Maybe<Scalars['String']['output']>
   profile?: Maybe<UserProfile>
@@ -733,6 +739,7 @@ export type LoginMutation = {
     given_name?: string | null
     family_name?: string | null
     createdAt: string
+    isAdmin: boolean
   } | null
 }
 
@@ -1566,6 +1573,7 @@ export type GetUserProfileQuery = {
   userProfile?: {
     __typename?: 'UserProfile'
     id: string
+    userId: string
     email: string
     firstName?: string | null
     lastName?: string | null
@@ -1576,6 +1584,25 @@ export type GetUserProfileQuery = {
     freeStorage: number
     usedStorage?: number | null
   } | null
+}
+
+export type UpdateUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  userProfileInput: UserProfileInput
+}>
+
+export type UpdateUserProfileMutation = {
+  __typename?: 'Mutation'
+  updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type AdminConfirmUserProfileMutationVariables = Exact<{
+  profileId: Scalars['String']['input']
+}>
+
+export type AdminConfirmUserProfileMutation = {
+  __typename?: 'Mutation'
+  adminConfirmUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export const AssistantBasecaseForm_AssistantFragmentDoc = {
@@ -2719,6 +2746,7 @@ export const LoginDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
               ],
             },
           },
@@ -5348,6 +5376,7 @@ export const GetUserProfileDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
@@ -5365,3 +5394,87 @@ export const GetUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>
+export const UpdateUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfileInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>
+export const AdminConfirmUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'adminConfirmUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'adminConfirmUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'profileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AdminConfirmUserProfileMutation, AdminConfirmUserProfileMutationVariables>

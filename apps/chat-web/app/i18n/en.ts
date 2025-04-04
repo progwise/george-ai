@@ -154,6 +154,7 @@ export default {
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
     signInForConversations: 'Sign in to use conversations.',
+    signInForProfile: 'Sign in to use your profile.',
     uploadingFiles: 'Uploading files...',
     with: 'with',
   },

@@ -27,6 +27,7 @@ const loginDocument = graphql(/* GraphQL */ `
       given_name
       family_name
       createdAt
+      isAdmin
     }
   }
 `)
@@ -36,6 +37,7 @@ export const ensureBackendUser = createServerFn({ method: 'POST' })
     return z.string().nonempty().parse(data)
   })
   .handler(async (ctx) => {
+    console.log('ctx.data', ctx.data)
     return await backendRequest(loginDocument, {
       jwtToken: ctx.data,
     })

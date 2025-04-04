@@ -13,7 +13,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
-const UserProfileForm_UserProfileFragment = graphql(`
+export const UserProfileForm_UserProfileFragment = graphql(`
   fragment UserProfileForm_UserProfile on UserProfile {
     id
     userId
@@ -83,6 +83,7 @@ const updateProfile = createServerFn({ method: 'POST' })
 interface UserProfileFormProps {
   userProfile: FragmentType<typeof UserProfileForm_UserProfileFragment>
   handleSendConfirmationMail: () => void
+  onSubmit?: (data: FormData) => void
 }
 
 export const UserProfileForm = (props: UserProfileFormProps) => {
@@ -115,7 +116,11 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         const formData = new FormData(event.currentTarget)
         const formValidation = validateForm({ formData, formSchema })
         if (formValidation.errors.length < 1) {
-          mutate(formData)
+          if (props.onSubmit) {
+            props.onSubmit(formData)
+          } else {
+            mutate(formData)
+          }
         } else {
           console.error('Form validation errors:', formValidation.errors)
           alert(formValidation.errors.join('\n'))

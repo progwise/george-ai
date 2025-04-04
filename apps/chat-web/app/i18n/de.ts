@@ -158,6 +158,7 @@ export default {
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
+    signInForProfile: 'Melden Sie sich an, um Ihr Profil zu nutzen',
     uploadingFiles: 'Dateien hochladen...',
     with: 'mit',
   },

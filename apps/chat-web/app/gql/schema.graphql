@@ -205,6 +205,7 @@ type Mutation {
     userIds: [String!]
   ): [AiConversationParticipant!]
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
+  adminConfirmUserProfile(profileId: String!): UserProfile
   cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
@@ -268,6 +269,7 @@ type User {
   family_name: String
   given_name: String
   id: ID!
+  isAdmin: Boolean!
   lastLogin: DateTime
   name: String
   profile: UserProfile
