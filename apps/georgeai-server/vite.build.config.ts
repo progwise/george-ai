@@ -1,4 +1,3 @@
-import { spawnSync } from 'child_process'
 import { defineConfig } from 'vite'
 import { VitePluginNode } from 'vite-plugin-node'
 

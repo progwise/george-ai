@@ -23,6 +23,8 @@ export async function convertToImages(pdfFilePath: string) {
     const page = await pdfDocument.getPage(i)
     const viewport = page.getViewport({ scale: 1.0 })
     const canvasFactory = pdfDocument.canvasFactory
+    // eslint-disable-next-line
+    // @ts-ignore
     const canvasAndContext = canvasFactory.create(viewport.width, viewport.height)
     const renderContext = {
       canvasContext: canvasAndContext.context,
