@@ -8,6 +8,7 @@ some issues only come up if the app is running in docker containers
 Building is tested from the project root.
 
 ```bash
+cd /workspaces/george-ai
 docker build -t gai-web-test -f ./apps/chat-web/Dockerfile .
 docker build -t gai-server-test -f ./apps/georgeai-server/Dockerfile .
 ```
@@ -20,6 +21,7 @@ can interact and the browser can interact with both as well.
 Do not run the containers from inside devcontainers because this may cause ambiguous network situations.
 
 ```bash
+cd /workspaces/george-ai
 docker run --env-file=.env  gai-web-test:latest
 docker run --env-file=.env  gai-server-test:latest
 ```
