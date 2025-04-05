@@ -38,14 +38,14 @@ export class PDFLoaderAI {
               Additionally you have to describe the images without any additional text.
               Please mention the page number in the text which now is the number of the image.
               You are not allowed to add any additional text. Please be careful and just repeat the text as it is in the images.
-              Please also describe the images without any additional text.`,
+              Please also describe the images without any additional text. Do not state that you can't do that. Just do your best.`,
             },
           ],
         },
       ],
     })
 
-    console.log('response', response.output_text)
+    console.log(`Rendering PDF response for ${this.filePath}`, response.output_text)
     const textLoader = new TextLoader(new Blob([response.output_text]))
 
     return await textLoader.load()

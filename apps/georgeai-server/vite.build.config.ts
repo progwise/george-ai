@@ -33,7 +33,6 @@ export default defineConfig({
   "private": true,
   "dependencies": {
     "canvas": "^3.1.0",
-    "@napi-rs/canvas": "^0.1.0",
     "pdfjs-dist": "^5.1.91"
   }
 }

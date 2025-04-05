@@ -2,8 +2,6 @@ import fs from 'fs'
 import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-// import { NodeCanvasFactory } from './pdf-canvas-factory'
-
 // Main conversion function
 export async function convertToImages(pdfFilePath: string) {
   const require = createRequire(import.meta.url)
@@ -13,7 +11,6 @@ export async function convertToImages(pdfFilePath: string) {
   console.log('converting pdf to images', pdfFilePath)
   const pdfData = new Uint8Array(fs.readFileSync(pdfFilePath))
 
-  //const canvasFactory = new NodeCanvasFactory()
   const pdfDocument = await getDocument({
     data: pdfData,
   }).promise
@@ -31,7 +28,6 @@ export async function convertToImages(pdfFilePath: string) {
       viewport,
     }
     await page.render(renderContext).promise
-    console.log('rendered page2', canvasAndContext)
     const buffer = canvasAndContext.canvas.toBuffer('image/png')
     pagesAsImagesBase64Strings.push(buffer.toString('base64'))
   }
