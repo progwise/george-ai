@@ -10,6 +10,7 @@ export default {
     edit: 'Bearbeiten',
     goToOverview: 'Zur Übersicht',
     increaseLimits: 'Grenzen erhöhen',
+    leave: 'Verlassen',
     new: 'Neue',
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
@@ -52,7 +53,13 @@ export default {
   conversations: {
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
+    delete: 'Konversation löschen',
+    deleteConfirmation:
+      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
     humans: 'Benutzer',
+    leave: 'Konversation verlassen',
+    leaveConfirmation:
+      'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
   },
   dialog: {
     cancel: 'Abbrechen',
@@ -138,9 +145,7 @@ export default {
     addParticipants: 'Teilnehmer hinzufügen',
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
-    deleteConversation: 'Konversation löschen',
-    deleteConversationConfirmation:
-      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',
@@ -162,6 +167,7 @@ export default {
     deleteConversation: 'Konversation löschen',
     drop: 'Entfernen',
     hide: 'Verbergen',
+    leaveConversation: 'Konversation verlassen',
     reProcess: 'Erneut verarbeiten',
     unhide: 'Einblenden',
   },

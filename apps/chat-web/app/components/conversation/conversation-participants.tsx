@@ -12,6 +12,7 @@ import { ParticipantsDialog } from './participants-dialog'
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {
     id
+    ownerId
     participants {
       id
       name
@@ -43,15 +44,19 @@ interface ConversationParticipantsProps {
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
   const authContext = useAuth()
   const user = authContext.user
-
   const queryClient = useQueryClient()
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
   const humans = useFragment(ConversationParticipants_HumanFragment, props.humans)
 
+  const isOwner = user?.id === conversation.ownerId
+
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
+      if (!isOwner) {
+        throw new Error('Only the owner can remove participants')
+      }
       return await removeConversationParticipant({ data: { participantId } })
     },
     onSettled: async () => {
@@ -62,6 +67,10 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   })
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
+    if (!isOwner) {
+      console.error('Only the conversation owner can remove participants')
+      return
+    }
     event.preventDefault()
     mutateRemove({ participantId })
   }
@@ -83,7 +92,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             participant.userId && 'badge-primary',
           )}
         >
-          {participant.userId !== user?.id && (
+          {participant.userId !== user?.id && isOwner && (
             <button
               type="button"
               className="btn btn-circle btn-ghost btn-xs"
@@ -95,8 +104,9 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
           {participant.name}
         </div>
       ))}
-
-      <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+      {isOwner && (
+        <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+      )}
     </div>
   )
 }
