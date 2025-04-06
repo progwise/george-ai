@@ -122,6 +122,12 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
   enabled: !!libraryId,
 })
 
+const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
+  return fileName.length > maxLength
+    ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
+    : fileName
+}
+
 export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
@@ -312,10 +318,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       onChange={() => handleSelectFile(file.id)}
                     />
                     <span className="font-semibold">
-                      {index + 1}.{' '}
-                      {file.name.length > 18
-                        ? `${file.name.slice(0, 16)}...${file.name.slice(file.name.lastIndexOf('.'))}`
-                        : file.name}
+                      {index + 1}. {truncateFileName(file.name, 20, 18)}
                     </span>
                   </label>
                 </div>
@@ -384,11 +387,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       />
                     </td>
                     <td className="p-2">{index + 1}</td>
-                    <td className="font-semibold">
-                      {file.name.length > 79
-                        ? `${file.name.slice(0, 79)}...${file.name.slice(file.name.lastIndexOf('.'))}`
-                        : file.name}
-                    </td>
+                    <td className="font-semibold">{truncateFileName(file.name, 79, 75)}</td>
                     <td className="p-2">{file.size ?? '-'}</td>
                     <td className="p-2">{file.chunks ?? '-'}</td>
                     <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>
@@ -396,7 +395,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       <button
                         type="button"
                         className="btn btn-xs lg:tooltip"
-                        data-tip={t('delete_file')}
+                        data-tip={t('tooltips.deleteFile')}
                         onClick={() => dropAllFilesMutation.mutate([file.id])}
                         disabled={dropAllFilesMutation.isPending}
                       >
