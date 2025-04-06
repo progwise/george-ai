@@ -32,13 +32,14 @@ export class PDFLoaderAI {
             ...images,
             {
               type: 'input_text',
-              text: `Please write a formatted text about what you can see in the attached images.
-              The images have been converted from the pages of a pdf file in advance. You have to read the content completely no matter of the text orientation.
-              You must write the text in the same order as it is in the images. Please be careful and just repeat the text as it is in the images.
-              Additionally you have to describe the images without any additional text.
-              Please mention the page number in the text which now is the number of the image.
-              You are not allowed to add any additional text. Please be careful and just repeat the text as it is in the images.
-              Please also describe the images without any additional text. Do not state that you can't do that. Just do your best.`,
+              text: `I have created some images from a PDF document to have a general purpose format of the document.
+              The images are in the same order as the pages of the PDF document.
+              I want you to read the document carefully and write the text in the same order as it is in the images.
+              I need you to give me the text you can read from the images.
+              You should also descripe the layout and non-text elements of the images.
+              The text you deliver will be used by myself to create a searchable index of the document.
+              Please do not include any other information or comments in your response that is not written in the images.
+              The goal is to extract the text word for word and describe the document as it is.`,
             },
           ],
         },
