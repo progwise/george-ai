@@ -122,12 +122,6 @@ const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
   enabled: !!libraryId,
 })
 
-const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
-  return fileName.length > maxLength
-    ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
-    : fileName
-}
-
 export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   const { userProfile } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
@@ -218,6 +212,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     reProcessAllFilesMutation.mutate(uploadedFileIds)
+  }
+
+  const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
+    return fileName.length > maxLength
+      ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
+      : fileName
   }
 
   return (
@@ -318,19 +318,22 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       onChange={() => handleSelectFile(file.id)}
                     />
                     <span className="font-semibold">
-                      {index + 1}. {truncateFileName(file.name, 20, 18)}
+                      {index + 1}. {truncateFileName(file.name, 25, 20)}
                     </span>
                   </label>
                 </div>
-                <div className="mt-2 space-y-1 pl-6 text-sm">
-                  <div>
-                    <span className="font-medium">Size:</span> {file.size ?? '-'}
+                <div className="mt-2 flex flex-col space-y-1 text-sm">
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.size')}:</span>
+                    <span>{file.size ?? '-'}</span>
                   </div>
-                  <div>
-                    <span className="font-medium">Chunks:</span> {file.chunks ?? '-'}
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.chunks')}:</span>
+                    <span>{file.chunks ?? '-'}</span>
                   </div>
-                  <div>
-                    <span className="font-medium">Processed:</span> {dateTimeString(file.processedAt, language) || '-'}
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.processed')}:</span>
+                    <span>{dateTimeString(file.processedAt, language) || '-'}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 p-2">
@@ -359,29 +362,29 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             <table className="w-full table-auto border-collapse text-left">
               <thead className="bg-base-200">
                 <tr>
-                  <th className="p-2">
+                  <th>
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-sm"
+                      className="checkbox checkbox-xs flex justify-center"
                       checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className="p-2">#</th>
+                  <th>#</th>
                   <th>{t('labels.name')}</th>
-                  <th>{t('labels.size')}</th>
-                  <th>{t('labels.chunks')}</th>
+                  <th>#{t('labels.size')}</th>
+                  <th>#{t('labels.chunks')}</th>
                   <th>{t('labels.processed')}</th>
                   <th>{t('labels.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-base-300">
                 {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-                  <tr key={file.id} className="hover:bg-base-100">
-                    <td className="p-2">
+                  <tr key={file.id} className="p-2 hover:bg-base-100">
+                    <td>
                       <input
                         type="checkbox"
-                        className="checkbox checkbox-sm"
+                        className="checkbox checkbox-xs flex justify-center"
                         checked={selectedFiles.includes(file.id)}
                         onChange={() => handleSelectFile(file.id)}
                       />
@@ -404,7 +407,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       <button
                         type="button"
                         className="btn btn-xs lg:tooltip"
-                        data-tip="Reprocess file"
+                        data-tip={t('tooltips.reProcess')}
                         onClick={() => reProcessAllFilesMutation.mutate([file.id])}
                         disabled={reProcessAllFilesMutation.isPending}
                       >
