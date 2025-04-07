@@ -36,10 +36,10 @@ const ParticipantsDialog_HumanFragment = graphql(`
   fragment ParticipantsDialog_Human on User {
     id
     username
+    email
     profile {
       business
       position
-      email
       firstName
       lastName
     }
@@ -92,11 +92,11 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       const filter = usersFilter.toLowerCase()
       return (
         human.username.toLowerCase().includes(filter) ||
+        human.email.toLowerCase().includes(filter) ||
         (human.profile?.firstName && human.profile.firstName.toLowerCase().includes(filter)) ||
         (human.profile?.lastName && human.profile.lastName.toLowerCase().includes(filter)) ||
         (human.profile?.business && human.profile.business.toLowerCase().includes(filter)) ||
-        (human.profile?.position && human.profile.position.toLowerCase().includes(filter)) ||
-        (human.profile?.email && human.profile.email.toLowerCase().includes(filter))
+        (human.profile?.position && human.profile.position.toLowerCase().includes(filter))
       )
     })
   }, [props.dialogMode, humans, existingParticipantIds, usersFilter])
@@ -282,7 +282,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     defaultChecked={false}
                     onChange={handleCheckboxChange}
                   />
-                  <span className="label-text">{human.username}</span>
+                  <span className="label-text">
+                    {`${human.username} (${human.email} ${human.profile ? '| ' + human.profile?.business : ''} )`}
+                  </span>
                 </label>
               ))}
             </div>

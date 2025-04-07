@@ -1006,11 +1006,11 @@ export type ParticipantsDialog_HumanFragment = {
   __typename?: 'User'
   id: string
   username: string
+  email: string
   profile?: {
     __typename?: 'UserProfile'
     business?: string | null
     position?: string | null
-    email: string
     firstName?: string | null
     lastName?: string | null
   } | null
@@ -1991,6 +1991,7 @@ export const ParticipantsDialog_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -1999,7 +2000,6 @@ export const ParticipantsDialog_HumanFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
               ],
@@ -2031,6 +2031,7 @@ export const ConversationParticipants_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -2039,7 +2040,6 @@ export const ConversationParticipants_HumanFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
               ],
@@ -2162,6 +2162,7 @@ export const NewConversationSelector_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -2170,7 +2171,6 @@ export const NewConversationSelector_HumanFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
               ],
@@ -4241,6 +4241,7 @@ export const GetAssignableUsersDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -4249,7 +4250,6 @@ export const GetAssignableUsersDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
               ],
