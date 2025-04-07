@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -84,8 +85,13 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
 
   return (
     <>
-      <button type="button" className="btn btn-error btn-sm" onClick={() => dialogReference.current?.showModal()}>
-        {t('actions.delete')}
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm lg:tooltip"
+        data-tip={t('tooltips.deleteLibrary')}
+        onClick={() => dialogReference.current?.showModal()}
+      >
+        <TrashIcon className="size-6" />
       </button>
       <dialog ref={dialogReference} className="modal">
         <div className="modal-box">
