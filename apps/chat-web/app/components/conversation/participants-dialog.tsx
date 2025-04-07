@@ -228,7 +228,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           <div className="w-1/2">
             <h4 className="underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
-              <p>t('texts.noAssistantsAvailable')</p>
+              <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
               availableAssistants.map((assistant) => (
                 <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
@@ -236,7 +236,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     name="assistants"
                     value={assistant.id}
-                    className="checkbos-sm checkbox-info checkbox"
+                    className="checkbox-info checkbox checkbox-sm"
                     defaultChecked={false}
                     onChange={handleCheckboxChange}
                   />
