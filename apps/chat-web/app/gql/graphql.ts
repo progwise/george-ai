@@ -1002,9 +1002,19 @@ export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant';
   ' $fragmentName'?: 'ParticipantsDialog_AssistantFragment'
 }
 
-export type ParticipantsDialog_HumanFragment = { __typename?: 'User'; id: string; username: string } & {
-  ' $fragmentName'?: 'ParticipantsDialog_HumanFragment'
-}
+export type ParticipantsDialog_HumanFragment = {
+  __typename?: 'User'
+  id: string
+  username: string
+  profile?: {
+    __typename?: 'UserProfile'
+    business?: string | null
+    position?: string | null
+    email: string
+    firstName?: string | null
+    lastName?: string | null
+  } | null
+} & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
 
 export type DropFilesMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -1981,6 +1991,20 @@ export const ParticipantsDialog_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -2007,6 +2031,20 @@ export const ConversationParticipants_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -2124,6 +2162,20 @@ export const NewConversationSelector_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -4189,6 +4241,20 @@ export const GetAssignableUsersDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },

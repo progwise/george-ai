@@ -10,6 +10,7 @@ import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
+import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
 const ParticipantsDialog_ConversationFragment = graphql(`
@@ -35,6 +36,13 @@ const ParticipantsDialog_HumanFragment = graphql(`
   fragment ParticipantsDialog_Human on User {
     id
     username
+    profile {
+      business
+      position
+      email
+      firstName
+      lastName
+    }
   }
 `)
 
@@ -49,6 +57,7 @@ interface ParticipantsDialogProps {
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
   const [hasChecked, setHasChecked] = useState(true)
+  const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -72,13 +81,25 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     [props.dialogMode, assistants, existingParticipantIds],
   )
 
-  const availableHumans = useMemo(
-    () =>
+  const availableHumans = useMemo(() => {
+    const list =
       props.dialogMode === 'new'
         ? humans || []
-        : humans?.filter((user) => !existingParticipantIds?.includes(user.id)) || [],
-    [props.dialogMode, humans, existingParticipantIds],
-  )
+        : humans?.filter((user) => !existingParticipantIds?.includes(user.id)) || []
+
+    return list.filter((human) => {
+      if (!usersFilter || usersFilter.length < 2) return false
+      const filter = usersFilter.toLowerCase()
+      return (
+        human.username.toLowerCase().includes(filter) ||
+        (human.profile?.firstName && human.profile.firstName.toLowerCase().includes(filter)) ||
+        (human.profile?.lastName && human.profile.lastName.toLowerCase().includes(filter)) ||
+        (human.profile?.business && human.profile.business.toLowerCase().includes(filter)) ||
+        (human.profile?.position && human.profile.position.toLowerCase().includes(filter)) ||
+        (human.profile?.email && human.profile.email.toLowerCase().includes(filter))
+      )
+    })
+  }, [props.dialogMode, humans, existingParticipantIds, usersFilter])
 
   const isOwner = user?.id === conversation?.ownerId
 
@@ -174,29 +195,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     }
   }, [props.isOpen])
 
-  const renderParticipantList = (
-    items: Array<{ id: string; name?: string | null; username?: string | null }>,
-    type: 'assistants' | 'users',
-  ) => {
-    const emptyMessage = type === 'assistants' ? 'texts.noAssistantsAvailable' : 'texts.noUsersAvailable'
-
-    if (items.length === 0) return <p>{t(emptyMessage)}</p>
-
-    return items.map((item) => (
-      <label key={item.id} className="label cursor-pointer justify-start gap-2">
-        <input
-          type="checkbox"
-          name={type === 'assistants' ? 'assistantIds' : 'userIds'}
-          value={item.id}
-          className="checkbox-info checkbox"
-          defaultChecked={true}
-          onChange={handleCheckboxChange}
-        />
-        <span className="label-text">{type === 'assistants' ? item.name : item.name || item.username}</span>
-      </label>
-    ))
-  }
-
   const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
     props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
@@ -229,11 +227,65 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         <div className="flex w-full gap-2">
           <div className="w-1/2">
             <h4 className="underline">{t('conversations.assistants')}</h4>
-            {renderParticipantList(availableAssistants, 'assistants')}
+            {availableAssistants.length < 1 ? (
+              <p>t('texts.noAssistantsAvailable')</p>
+            ) : (
+              availableAssistants.map((assistant) => (
+                <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    name="assistants"
+                    value={assistant.id}
+                    className="checkbos-sm checkbox-info checkbox"
+                    defaultChecked={false}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span className="label-text">{assistant.name}</span>
+                </label>
+              ))
+            )}
           </div>
           <div className="w-1/2">
             <h4 className="underline">{t('conversations.humans')}</h4>
-            {renderParticipantList(availableHumans, 'users')}
+
+            <Input
+              className="pb-2"
+              onChange={(event) => setUsersFilter(event.currentTarget.value)}
+              name={'userFilter'}
+              placeholder={t('placeholders.searchUsers')}
+            />
+            <div className="h-48 overflow-y-scroll">
+              <label className="label cursor-pointer justify-start gap-2">
+                <input
+                  type="checkbox"
+                  className="checkbox-info checkbox checkbox-sm"
+                  defaultChecked={false}
+                  onChange={(event) => {
+                    const value = event.target.checked
+                    const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>(
+                      'input[type="checkbox"][name="userIds"]',
+                    )
+                    checkboxes?.forEach((checkbox) => {
+                      checkbox.checked = value
+                    })
+                  }}
+                />
+                <span className="info label-text">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
+              </label>
+              {availableHumans.map((human) => (
+                <label key={human.id} className="label cursor-pointer justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    name="userIds"
+                    value={human.id}
+                    className="checkbox-info checkbox checkbox-sm"
+                    defaultChecked={false}
+                    onChange={handleCheckboxChange}
+                  />
+                  <span className="label-text">{human.username}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </DialogForm>
