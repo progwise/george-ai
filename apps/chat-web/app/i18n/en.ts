@@ -15,6 +15,7 @@ export default {
     reProcess: 'Re-Process',
     save: 'Save',
     saving: 'Saving...',
+    selectAll: 'Select all',
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send message',
     upload: 'Upload',

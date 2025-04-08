@@ -15,6 +15,7 @@ export default {
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
     saving: 'Speichern...',
+    selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',
     sendMessage: 'Nachricht senden',
     upload: 'Hochladen',

@@ -298,7 +298,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       ) : (
         <>
           {/* Mobile View */}
-          <div className="block max-lg:block lg:hidden">
+          <div className="block lg:hidden">
             <label className="mb-4 flex items-center gap-2">
               <input
                 type="checkbox"
@@ -306,10 +306,10 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
                 onChange={handleSelectAll}
               />
-              <span className="text-sm font-medium">Select All</span>
+              <span className="text-sm font-medium">{t('actions.selectAll')}</span>
             </label>
 
-            <div className="mx-auto grid max-w-screen-lg grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
                 <div key={file.id} className="relative rounded-md border border-base-300 p-3 shadow-sm">
                   <div className="absolute right-2 top-2 z-10 flex flex-col items-center gap-2">
@@ -330,7 +330,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       <ReprocessIcon />
                     </button>
                     {file.processingErrorMessage && (
-                      <span className="tooltip tooltip-left z-50" data-tip={file.processingErrorMessage}>
+                      <span className="tooltip tooltip-left" data-tip={file.processingErrorMessage}>
                         <ExclamationIcon />
                       </span>
                     )}
@@ -368,14 +368,14 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </div>
 
           {/* Desktop Table */}
-          <div className="hidden overflow-x-auto lg:block">
+          <div className="hidden lg:block">
             <table className="w-full table-auto border-collapse text-left">
               <thead className="bg-base-200">
                 <tr>
                   <th>
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-xs flex justify-center"
+                      className="checkbox checkbox-xs"
                       checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
                       onChange={handleSelectAll}
                     />
