@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -11,6 +10,7 @@ import { ConversationParticipants } from '../../components/conversation/conversa
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
 import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
 import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
+import { ParticipantsDialog } from '../../components/conversation/participants-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -38,6 +38,7 @@ const ConversationQueryDocument = graphql(`
       ...ConversationDelete_Conversation
       ...ConversationHistory_Conversation
       ...ConversationForm_Conversation
+      ...ParticipantsDialog_Conversation
     }
   }
 `)
@@ -51,6 +52,7 @@ const AssignableUsersDocument = graphql(`
     myConversationUsers(userId: $userId) {
       ...NewConversationSelector_Human
       ...ConversationParticipants_Human
+      ...ParticipantsDialog_Human
     }
   }
 `)
@@ -64,6 +66,7 @@ const AssignableAssistantsDocument = graphql(`
     aiAssistants(ownerId: $ownerId) {
       ...NewConversationSelector_Assistant
       ...ConversationParticipants_Assistant
+      ...ParticipantsDialog_Assistant
     }
   }
 `)
@@ -93,19 +96,12 @@ function RouteComponent() {
     queryFn: async () => (userId ? await getConversations({ data: { userId } }) : null),
   })
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const drawerCheckboxReference = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
-
-  const closeMenu = () => {
-    setIsMenuOpen(false)
-    if (drawerCheckboxReference.current) {
-      drawerCheckboxReference.current.checked = false
+  const handleConversationClick = () => {
+    const drawerCheckbox = document.getElementById('conversation-drawer') as HTMLInputElement
+    if (drawerCheckbox && window.innerWidth < 1024) {
+      drawerCheckbox.checked = false
     }
   }
 
@@ -154,53 +150,75 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex flex-col gap-2 lg:flex-row">
-      {userId && (
-        <div className="relative flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <button type="button" className="btn btn-sm mx-1 lg:hidden" onClick={toggleMenu}>
+    <div className="drawer lg:drawer-open lg:-mt-4">
+      <input id="conversation-drawer" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content flex flex-col">
+        <div className="sticky top-16 z-30 flex flex-row items-center justify-between bg-base-100 p-1 max-lg:pt-4">
+          <div className="flex">
+            <label htmlFor="conversation-drawer" className="btn drawer-button btn-sm mx-1 lg:hidden">
               <MenuIcon className="size-6" />
-            </button>
+            </label>
+            <div className="lg:hidden">
+              <NewConversationSelector
+                humans={assignableUsers.myConversationUsers}
+                assistants={assignableAssistants.aiAssistants}
+              />
+            </div>
+          </div>
+
+          {selectedConversation?.aiConversation && (
+            <div className="flex lg:hidden">
+              <ParticipantsDialog
+                conversation={selectedConversation.aiConversation}
+                assistants={assignableAssistants.aiAssistants}
+                humans={assignableUsers.myConversationUsers}
+                dialogMode="add"
+              />
+              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
+            </div>
+          )}
+        </div>
+
+        <div className="flex h-full flex-col">
+          {selectedConversation?.aiConversation && (
+            <>
+              <div className="sticky top-[116px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-[72px] lg:rounded-r-box">
+                <ConversationParticipants
+                  conversation={selectedConversation.aiConversation}
+                  assistants={assignableAssistants.aiAssistants}
+                  humans={assignableUsers.myConversationUsers}
+                />
+                <div className="hidden lg:flex">
+                  <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
+                </div>
+              </div>
+              <ConversationHistory conversation={selectedConversation.aiConversation} />
+              <ConversationForm conversation={selectedConversation.aiConversation} />
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-64px] lg:flex lg:h-screen lg:flex-col lg:pt-[64px]">
+        <label htmlFor="conversation-drawer" className="drawer-overlay" />
+        <div className="flex h-full w-80 flex-col items-center bg-base-200 lg:pt-2">
+          <div className="sticky z-50 border-b bg-base-200 py-2">
             <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
             />
           </div>
-
-          {isMenuOpen && <div className="fixed inset-0 z-10 lg:hidden" onClick={closeMenu} />}
-
-          <div
-            ref={menuRef}
-            className={`absolute z-20 w-72 rounded-md border shadow-md ${
-              isMenuOpen ? 'top-10 block' : 'hidden'
-            } lg:static lg:block`}
-          >
+          <div className="flex-1 overflow-scroll px-2">
             {conversations.aiConversations && (
               <ConversationSelector
                 conversations={conversations.aiConversations}
                 selectedConversationId={selectedConversationId}
-                onClick={closeMenu}
+                onClick={handleConversationClick}
               />
             )}
           </div>
         </div>
-      )}
-      <article className="mb-4 mt-[-8px] flex w-full flex-col">
-        {selectedConversation?.aiConversation && (
-          <>
-            <div className="sticky top-[68px] z-40 flex items-center justify-end rounded-box">
-              <ConversationParticipants
-                conversation={selectedConversation.aiConversation}
-                assistants={assignableAssistants.aiAssistants}
-                humans={assignableUsers.myConversationUsers}
-              />
-              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
-            </div>
-            <ConversationHistory conversation={selectedConversation.aiConversation} />
-            <ConversationForm conversation={selectedConversation.aiConversation} />
-          </>
-        )}
-      </article>
+      </div>
     </div>
   )
 }

@@ -71,9 +71,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   }
 
   return (
-    <div className="mx-1 flex flex-wrap gap-2">
+    <div className="no-scrollbar flex items-center gap-2 overflow-scroll lg:py-1">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
-
       {conversation.participants.map((participant) => (
         <div
           key={participant.id}
@@ -92,11 +91,12 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               <CrossIcon />
             </button>
           )}
-          {participant.name}
+          <span className="max-w-36 truncate">{participant.name}</span>
         </div>
       ))}
-
-      <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+      <div className="max-lg:hidden">
+        <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+      </div>
     </div>
   )
 }

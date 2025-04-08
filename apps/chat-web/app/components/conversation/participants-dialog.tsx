@@ -177,7 +177,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
   const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
   const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}...`
-  const buttonClass = props.dialogMode === 'new' ? 'btn btn-primary btn-sm mx-1' : 'btn btn-neutral btn-xs'
+  const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding
 
   if (!user) {
@@ -190,8 +190,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   return (
     <>
-      <button type="button" className={buttonClass} onClick={handleOpen}>
-        {props.dialogMode === 'new' ? null : <span className="plus-icon" />}
+      <button type="button" className={`${buttonClass} btn btn-sm`} onClick={handleOpen}>
         {buttonText}
       </button>
 

@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
 
@@ -30,6 +31,30 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const editableDivRef = useRef<HTMLDivElement>(null)
   const [message, setMessage] = useState('')
   const [showPlaceholder, setShowPlaceholder] = useState(true)
+  const [isAtBottom, setIsAtBottom] = useState(true)
+
+  const scrollToBottom = () => {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth',
+    })
+  }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.innerHeight + window.scrollY
+      const bodyHeight = document.body.offsetHeight
+
+      const atBottom = bodyHeight - scrollPosition < 100
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setIsAtBottom(atBottom)
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll)
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
@@ -58,10 +83,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
         queryKey: [queryKeys.CurrentUserProfile],
       })
 
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth',
-      })
+      scrollToBottom()
     },
   })
   const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
@@ -133,65 +155,99 @@ export const ConversationForm = (props: ConversationFormProps) => {
   }
 
   return (
-    <div className="sticky bottom-14 z-40 mx-1 mt-14 rounded-box border bg-base-100 p-3 text-base-content shadow-md lg:bottom-2 lg:mt-4">
-      <form onSubmit={handleSubmit} className="flex flex-col items-end">
-        <div className="relative mb-2 w-full">
-          <div
-            ref={editableDivRef}
-            contentEditable={!isPending && 'plaintext-only'}
-            className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
-            onKeyDown={handleKeyDown}
-            onInput={handleInput}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            role="textbox"
-            aria-multiline="true"
-            aria-disabled={!!isPending}
-          ></div>
-          {showPlaceholder && (
-            <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">
-              {t('conversations.promptPlaceholder')}
-            </div>
-          )}
-        </div>
-        <div className="flex w-full justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-content">
+    <>
+      {!isAtBottom && (
+        <button
+          onClick={scrollToBottom}
+          type="button"
+          className="btn btn-circle btn-sm sticky bottom-56 z-40 self-center lg:bottom-40"
+          aria-label={t('actions.scrollToBottom')}
+        >
+          <ChevronDownIcon />
+        </button>
+      )}
+
+      <div className="sticky bottom-20 z-40 mx-1 mt-6 rounded-box border bg-base-100 p-3 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <div className="relative mb-2 w-full">
+            <div
+              ref={editableDivRef}
+              contentEditable={!isPending && 'plaintext-only'}
+              className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
+              onKeyDown={handleKeyDown}
+              onInput={handleInput}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              role="textbox"
+              aria-multiline="true"
+              aria-disabled={!!isPending}
+            ></div>
+            {showPlaceholder && (
+              <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">
+                {t('conversations.promptPlaceholder')}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-1">
+            <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-content">
               {(user.name?.[0] || user.username?.[0])?.toUpperCase()}
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">{user.name || user.username}</span>
+            <div className="flex min-w-0 grow flex-col">
+              <span className="truncate text-sm font-semibold">{user.name || user.username}</span>
               <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {conversation.assistants?.map((assistant) => (
-              <label key={assistant.id} className="label cursor-pointer gap-2">
-                <input
-                  name="assistants"
-                  value={assistant.id}
-                  type="checkbox"
-                  defaultChecked
-                  className="checkbox-info checkbox checkbox-sm"
-                />
-                <span className="label-text">
-                  {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
-                </span>
-              </label>
-            ))}
+            <div className="hidden items-center gap-2 lg:flex">
+              {conversation.assistants?.map((assistant) => (
+                <label key={assistant.id} className="label cursor-pointer gap-2">
+                  <input
+                    name="assistants"
+                    value={assistant.id}
+                    type="checkbox"
+                    defaultChecked
+                    className="checkbox-info checkbox checkbox-sm"
+                  />
+                  <span className="label-text">
+                    {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            <div className="dropdown dropdown-end dropdown-top flex-none lg:hidden">
+              <div tabIndex={0} role="button" className="btn btn-ghost">
+                ...
+              </div>
+              <ul tabIndex={0} className="z-1 menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow">
+                {conversation.assistants?.map((assistant) => (
+                  <li key={assistant.id}>
+                    <label className="flex items-center gap-2">
+                      <input
+                        name="assistants"
+                        value={assistant.id}
+                        type="checkbox"
+                        defaultChecked
+                        className="checkbox-info checkbox checkbox-sm"
+                      />
+                      <span className="label-text">{assistant.name}</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             <button
               name="send"
               type="submit"
-              className="btn btn-primary btn-sm"
+              className="btn btn-primary btn-sm tooltip tooltip-left"
               disabled={isPending || remainingMessages < 1}
+              data-tip={`${remainingMessages} ${t('tooltips.remainingMessages')}`}
             >
-              {t('actions.sendMessage')} ({remainingMessages})
+              {t('actions.sendMessage')}
             </button>
           </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
+    </>
   )
 }

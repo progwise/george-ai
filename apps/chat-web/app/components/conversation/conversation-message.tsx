@@ -103,7 +103,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
   return (
     <div
       key={message.id}
-      className={twMerge('card mx-1 border p-3 text-base-content shadow-md', message.hidden && 'opacity-50')}
+      className={twMerge('card mx-1.5 border p-3 text-base-content shadow-md lg:mx-10', message.hidden && 'opacity-50')}
     >
       <div className="mb-2 flex items-center gap-3">
         <div
@@ -122,8 +122,8 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
           )}
         </div>
 
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">{message.sender.name}</span>
+        <div className="flex min-w-0 grow flex-col">
+          <span className="truncate text-sm font-semibold">{message.sender.name}</span>
           <span className="text-xs opacity-60">{dateTimeString(message.createdAt, language)}</span>
         </div>
         {isLoading && message.sender.isBot && (
@@ -133,7 +133,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
         )}
         <button
           type="button"
-          className="btn btn-ghost btn-xs ml-auto self-start lg:tooltip"
+          className="btn btn-ghost btn-xs ml-auto self-start lg:tooltip lg:tooltip-left"
           onClick={handleHideMessage}
           data-tip={message.hidden ? t('tooltips.unhide') : t('tooltips.hide')}
         >

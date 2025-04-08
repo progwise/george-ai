@@ -1,8 +1,8 @@
 import { QueryClient } from '@tanstack/react-query'
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
-import { HeadContent, Scripts } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
+import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import TopNavigation from '../components/top-navigation'
 import { getLanguage } from '../i18n'
 import appCss from '../index.css?url'
@@ -42,9 +42,11 @@ const RootDocument = () => {
       <head>
         <HeadContent />
       </head>
-      <body className="container mx-auto">
+      <body className="container mx-auto flex min-h-screen flex-col">
         <TopNavigation />
-        <Outlet />
+        <div className="flex grow flex-col">
+          <Outlet />
+        </div>
         <Scripts />
         <Suspense>
           <TanStackRouterDevtools />
@@ -52,6 +54,7 @@ const RootDocument = () => {
         <Suspense>
           <TanStackQueryDevtools />
         </Suspense>
+        <BottomNavigationMobile />
       </body>
     </html>
   )

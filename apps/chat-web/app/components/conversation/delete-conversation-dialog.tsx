@@ -54,7 +54,7 @@ export const DeleteConversationDialog = (props: DeleteConversationDialogProps) =
     <>
       <button
         type="button"
-        className="btn btn-square btn-ghost lg:tooltip"
+        className="btn btn-square btn-ghost btn-sm mx-1 lg:tooltip lg:tooltip-left"
         onClick={() => dialogReference.current?.showModal()}
         data-tip={t('tooltips.deleteConversation')}
       >

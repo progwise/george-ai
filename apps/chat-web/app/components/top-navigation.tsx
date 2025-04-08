@@ -24,7 +24,7 @@ const TopNavigation = () => {
   const { user, login, logout } = useAuth()
 
   return (
-    <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl">
+    <nav className="navbar sticky top-2 z-50 rounded-box bg-base-200 shadow-xl lg:mb-4">
       <div className="flex w-full justify-between lg:hidden">
         <div className="flex items-center">
           <Link to="/" className="btn btn-ghost">
@@ -43,51 +43,12 @@ const TopNavigation = () => {
         </div>
         {user ? (
           <Link to="/profile" className="btn btn-ghost gap-2">
-            {user.name}
+            <span className="max-w-48 truncate">{user.name}</span>
           </Link>
         ) : (
           <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
             <UserIcon className="size-6" />
             {t('topNavigation.signIn')}
-          </button>
-        )}
-      </div>
-
-      <div className="join fixed bottom-0 left-0 right-0 z-50 justify-around bg-base-200 lg:hidden">
-        <Link to="/conversations/$" className="join-item flex flex-col items-center">
-          <ConversationIcon className="size-6" />
-          <span className="dock-label">{t('topNavigation.conversations')}</span>
-        </Link>
-        <Link to="/assistants" className="join-item flex flex-col items-center">
-          <BowlerHatIcon className="size-6" />
-          {t('topNavigation.assistants')}
-        </Link>
-        <Link to="/libraries" className="join-item flex flex-col items-center">
-          <AcademicCapIcon className="size-6" />
-          {t('topNavigation.libraries')}
-        </Link>
-
-        {!user ? (
-          <button
-            type="button"
-            onClick={() => {
-              login()
-            }}
-            className="join-item flex flex-col items-center"
-          >
-            <UserIcon className="size-6" />
-            {t('topNavigation.signIn')}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              logout()
-            }}
-            className="join-item flex flex-col items-center"
-          >
-            <UserIcon className="size-6" />
-            {t('topNavigation.signOut')}
           </button>
         )}
       </div>
@@ -132,7 +93,9 @@ const TopNavigation = () => {
             </>
           ) : (
             <>
-              <TopNavigationLink to="/profile">{user?.name || 'no name'}</TopNavigationLink>
+              <TopNavigationLink to="/profile">
+                <span className="max-w-40 truncate">{user?.name || 'no name'}</span>
+              </TopNavigationLink>
               <button type="button" className="btn btn-ghost gap-2" onClick={() => logout()}>
                 <UserIcon className="size-6" />
                 {t('topNavigation.signOut')}
