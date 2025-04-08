@@ -298,7 +298,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       ) : (
         <>
           {/* Mobile View */}
-          {/* Card view for small and medium screens ONLY */}
           <div className="block max-lg:block lg:hidden">
             <label className="mb-4 flex items-center gap-2">
               <input
@@ -312,7 +311,31 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
             <div className="mx-auto grid max-w-screen-lg grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
-                <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
+                <div key={file.id} className="relative rounded-md border border-base-300 p-3 shadow-sm">
+                  <div className="absolute right-2 top-2 z-10 flex flex-col items-center gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-xs"
+                      onClick={() => dropAllFilesMutation.mutate([file.id])}
+                      disabled={dropAllFilesMutation.isPending}
+                    >
+                      <TrashIcon />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-xs"
+                      onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                      disabled={reProcessAllFilesMutation.isPending}
+                    >
+                      <ReprocessIcon />
+                    </button>
+                    {file.processingErrorMessage && (
+                      <span className="tooltip tooltip-left z-50" data-tip={file.processingErrorMessage}>
+                        <ExclamationIcon />
+                      </span>
+                    )}
+                  </div>
+
                   <label className="mb-2 flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -338,26 +361,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       <span className="w-24">{t('labels.processed')}:</span>
                       <span>{dateTimeString(file.processedAt, language) || '-'}</span>
                     </div>
-                  </div>
-
-                  <div className="mt-2 flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-xs"
-                      onClick={() => dropAllFilesMutation.mutate([file.id])}
-                      disabled={dropAllFilesMutation.isPending}
-                    >
-                      <TrashIcon />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-xs"
-                      onClick={() => reProcessAllFilesMutation.mutate([file.id])}
-                      disabled={reProcessAllFilesMutation.isPending}
-                    >
-                      <ReprocessIcon />
-                    </button>
-                    {file.processingErrorMessage && <ExclamationIcon />}
                   </div>
                 </div>
               ))}
