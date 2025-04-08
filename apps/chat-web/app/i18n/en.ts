@@ -161,6 +161,7 @@ export default {
     clearEmbeddings: 'Clear embeddings',
     deleteConversation: 'Delete conversation',
     deleteFile: 'Delete file',
+    deleteLibrary: 'Delete library',
     hide: 'Hide',
     goToOverview: 'Go to overview',
     leaveConversation: 'Leave conversation',

@@ -397,7 +397,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       />
                     </td>
                     <td className="p-2">{index + 1}</td>
-                    <td className="font-semibold">{truncateFileName(file.name, 79, 75)}</td>
+                    <td>{truncateFileName(file.name, 49, 45)}</td>
                     <td className="p-2">{file.size ?? '-'}</td>
                     <td className="p-2">{file.chunks ?? '-'}</td>
                     <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>
