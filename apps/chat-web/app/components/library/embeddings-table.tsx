@@ -297,67 +297,74 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
         <>
-          <label className="mb-4 flex items-center gap-2 lg:hidden">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-sm flex justify-center"
-              checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
-              onChange={handleSelectAll}
-            />
-            <span className="text-sm font-medium">Select All</span>
-          </label>
-          <div className="flex flex-col gap-4 lg:hidden">
-            {data?.aiLibraryFiles.map((file, index) => (
-              <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2">
+          {/* Mobile View */}
+          {/* Card view for small and medium screens ONLY */}
+          <div className="block max-lg:block lg:hidden">
+            <label className="mb-4 flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+                onChange={handleSelectAll}
+              />
+              <span className="text-sm font-medium">Select All</span>
+            </label>
+
+            <div className="mx-auto grid max-w-screen-lg grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2">
+              {data?.aiLibraryFiles.map((file, index) => (
+                <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
+                  <label className="mb-2 flex items-center gap-2">
                     <input
                       type="checkbox"
-                      className="checkbox checkbox-sm flex justify-center"
+                      className="checkbox checkbox-sm"
                       checked={selectedFiles.includes(file.id)}
                       onChange={() => handleSelectFile(file.id)}
                     />
-                    <span className="font-semibold">
+                    <span className="text-sm font-semibold">
                       {index + 1}. {truncateFileName(file.name, 25, 20)}
                     </span>
                   </label>
-                </div>
-                <div className="mt-2 flex flex-col space-y-1 text-sm">
-                  <div className="flex gap-2">
-                    <span className="w-24">{t('labels.size')}:</span>
-                    <span>{file.size ?? '-'}</span>
+
+                  <div className="space-y-1 text-sm">
+                    <div className="flex gap-2">
+                      <span className="w-24">{t('labels.size')}:</span>
+                      <span>{file.size ?? '-'}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="w-24">{t('labels.chunks')}:</span>
+                      <span>{file.chunks ?? '-'}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="w-24">{t('labels.processed')}:</span>
+                      <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <span className="w-24">{t('labels.chunks')}:</span>
-                    <span>{file.chunks ?? '-'}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="w-24">{t('labels.processed')}:</span>
-                    <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-xs"
+                      onClick={() => dropAllFilesMutation.mutate([file.id])}
+                      disabled={dropAllFilesMutation.isPending}
+                    >
+                      <TrashIcon />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-xs"
+                      onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                      disabled={reProcessAllFilesMutation.isPending}
+                    >
+                      <ReprocessIcon />
+                    </button>
+                    {file.processingErrorMessage && <ExclamationIcon />}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 p-2">
-                  <button
-                    type="button"
-                    className="btn btn-xs lg:tooltip"
-                    onClick={() => dropAllFilesMutation.mutate([file.id])}
-                    disabled={dropAllFilesMutation.isPending}
-                  >
-                    <TrashIcon />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-xs"
-                    onClick={() => reProcessAllFilesMutation.mutate([file.id])}
-                    disabled={reProcessAllFilesMutation.isPending}
-                  >
-                    <ReprocessIcon />
-                  </button>
-                  {file.processingErrorMessage && <ExclamationIcon />}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {/* Desktop Table */}
           <div className="hidden overflow-x-auto lg:block">
             <table className="w-full table-auto border-collapse text-left">
               <thead className="bg-base-200">
