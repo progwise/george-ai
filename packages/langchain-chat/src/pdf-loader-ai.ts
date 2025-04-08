@@ -32,11 +32,11 @@ export class PDFLoaderAI {
             ...images,
             {
               type: 'input_text',
-              text: `I have created some images from a PDF document to have a general purpose format of the document.
+              text: `I have created some images from a PDF document to have a general purpose format for the document.
               The images are in the same order as the pages of the PDF document.
               I want you to read the document carefully and write the text in the same order as it is in the images.
               I need you to give me the text you can read from the images.
-              You should also descripe the layout and non-text elements of the images.
+              You should also describe the layout and non-text elements of the images.
               The text you deliver will be used by myself to create a searchable index of the document.
               Please do not include any other information or comments in your response that is not written in the images.
               The goal is to extract the text word for word and describe the document as it is.`,
