@@ -8,9 +8,9 @@ export default {
     delete: 'Löschen',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
-    goToOverview: 'Zur Übersicht',
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue Konversation',
+    leave: 'Verlassen',
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
@@ -52,7 +52,13 @@ export default {
   conversations: {
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
+    delete: 'Konversation löschen',
+    deleteConfirmation:
+      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
     humans: 'Benutzer',
+    leave: 'Konversation verlassen',
+    leaveConfirmation:
+      'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     promptPlaceholder: 'Stelle irgendeine Frage',
   },
   dialog: {
@@ -139,9 +145,7 @@ export default {
     addParticipants: 'Teilnehmer hinzufügen',
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
-    deleteConversation: 'Konversation löschen',
-    deleteConversationConfirmation:
-      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',
@@ -162,10 +166,13 @@ export default {
     clearEmbeddings: 'Einbettungen löschen',
     deleteConversation: 'Konversation löschen',
     drop: 'Entfernen',
+    goToOverview: 'Zur Übersicht',
     hide: 'Verbergen',
+    leaveConversation: 'Konversation verlassen',
     remainingMessages: 'Nachrichten übrig',
     reProcess: 'Erneut verarbeiten',
     unhide: 'Einblenden',
+    deleteFile: 'Datei löschen',
   },
   topNavigation: {
     assistants: 'Assistenten',

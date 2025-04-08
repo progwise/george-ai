@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { addConversationParticipants } from '../../server-functions/participations'
@@ -14,6 +15,7 @@ import { LoadingSpinner } from '../loading-spinner'
 const ParticipantsDialog_ConversationFragment = graphql(`
   fragment ParticipantsDialog_Conversation on AiConversation {
     id
+    ownerId
     participants {
       id
       userId
@@ -41,6 +43,7 @@ interface ParticipantsDialogProps {
   assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
   humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
+  isOpen?: boolean
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -77,6 +80,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     [props.dialogMode, humans, existingParticipantIds],
   )
 
+  const isOwner = user?.id === conversation?.ownerId
+
   const { mutate: createNewConversation, isPending: isCreating } = useMutation({
     mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
       if (!user?.id) {
@@ -86,6 +91,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         data: {
           userIds: [...userIds, user.id],
           assistantIds: [...assistantIds],
+          ownerId: user.id,
         },
       })
     },
@@ -108,6 +114,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       if (!conversation) {
         throw new Error('Conversation not set')
       }
+      if (!isOwner) {
+        throw new Error('Only the owner can add participants')
+      }
+      if (!user?.id) {
+        throw new Error('User not set')
+      }
       return await addConversationParticipants({
         data: { conversationId: conversation.id, assistantIds, userIds },
       })
@@ -126,11 +138,18 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     },
   })
 
+  useEffect(() => {
+    if (availableAssistants.length === 0 && availableHumans.length === 0) {
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setHasChecked(props.dialogMode === 'new')
+    }
+  }, [availableAssistants.length, availableHumans.length, props.dialogMode])
+
   const handleSubmit = (formData: FormData) => {
     const assistantIds = Array.from(formData.getAll('assistantIds')) as string[]
     const userIds = Array.from(formData.getAll('userIds')) as string[]
 
-    if (assistantIds.length === 0 && userIds.length === 0) return
+    if (props.dialogMode !== 'new' && assistantIds.length === 0 && userIds.length === 0) return
 
     if (props.dialogMode === 'new') {
       createNewConversation({ assistantIds, userIds })
@@ -148,6 +167,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const handleOpen = () => {
     dialogRef.current?.showModal()
   }
+
+  useEffect(() => {
+    if (props.isOpen) {
+      dialogRef.current?.showModal()
+    }
+  }, [props.isOpen])
 
   const renderParticipantList = (
     items: Array<{ id: string; name?: string | null; username?: string | null }>,
@@ -181,16 +206,13 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const isPending = isCreating || isAdding
 
   if (!user) {
-    return (
-      <button type="button" className="btn btn-outline" onClick={() => authContext?.login()}>
-        {t('texts.signInForConversations')}
-      </button>
-    )
+    return null
   }
 
   return (
     <>
       <button type="button" className={`${buttonClass} btn btn-sm`} onClick={handleOpen}>
+        {props.dialogMode === 'add' && <PlusIcon />}
         {buttonText}
       </button>
 

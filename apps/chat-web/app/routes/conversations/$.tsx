@@ -8,7 +8,7 @@ import { ConversationForm } from '../../components/conversation/conversation-for
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
 import { ConversationSelector } from '../../components/conversation/conversation-selector'
-import { DeleteConversationDialog } from '../../components/conversation/delete-conversation-dialog'
+import { DeleteLeaveConversationDialog } from '../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
 import { ParticipantsDialog } from '../../components/conversation/participants-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
@@ -174,7 +174,7 @@ function RouteComponent() {
                 humans={assignableUsers.myConversationUsers}
                 dialogMode="add"
               />
-              <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
+              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
             </div>
           )}
         </div>
@@ -189,7 +189,7 @@ function RouteComponent() {
                   humans={assignableUsers.myConversationUsers}
                 />
                 <div className="hidden lg:flex">
-                  <DeleteConversationDialog conversation={selectedConversation.aiConversation} />
+                  <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
                 </div>
               </div>
               <ConversationHistory conversation={selectedConversation.aiConversation} />
@@ -206,6 +206,7 @@ function RouteComponent() {
             <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
+              isOpen={conversations?.aiConversations?.length === 0}
             />
           </div>
           <div className="flex-1 overflow-scroll px-2">

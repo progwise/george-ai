@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -11,6 +11,7 @@ import { AssistantSelector } from '../../components/assistant/assistant-selector
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql/gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { BackIcon } from '../../icons/back-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -55,6 +56,7 @@ export const Route = createFileRoute('/assistants/$assistantId')({
 
 function RouteComponent() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const { user } = useAuth()
   const ownerId = user?.id
   const { assistantId } = useParams({ strict: false })
@@ -83,9 +85,14 @@ function RouteComponent() {
           <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
         </div>
         <div className="flex gap-2">
-          <Link type="button" className="btn btn-primary btn-sm" to="..">
-            {t('actions.goToOverview')}
-          </Link>
+          <button
+            type="button"
+            className="btn btn-sm tooltip"
+            data-tip={t('tooltips.goToOverview')}
+            onClick={() => navigate({ to: '..' })}
+          >
+            <BackIcon />
+          </button>
         </div>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
