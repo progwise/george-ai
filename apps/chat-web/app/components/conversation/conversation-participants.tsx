@@ -83,27 +83,32 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     <div className="flex flex-wrap gap-2">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
 
-      {conversation.participants.map((participant) => (
-        <div
-          key={participant.id}
-          className={twMerge(
-            'badge badge-lg text-nowrap text-xs',
-            participant.assistantId && 'badge-secondary',
-            participant.userId && 'badge-primary',
-          )}
-        >
-          {participant.userId !== user?.id && isOwner && (
-            <button
-              type="button"
-              className="btn btn-circle btn-ghost btn-xs"
-              onClick={(event) => handleRemoveParticipant(event, participant.id)}
-            >
-              <CrossIcon />
-            </button>
-          )}
-          {participant.name}
-        </div>
-      ))}
+      {conversation.participants.map((participant) => {
+        const isParticipantOwner = participant.userId === conversation.ownerId
+        return (
+          <div
+            key={participant.id}
+            className={twMerge(
+              'badge badge-lg text-nowrap text-xs',
+              isParticipantOwner && 'badge-accent',
+              participant.userId && !isParticipantOwner && 'badge-primary',
+              participant.assistantId && 'badge-secondary',
+            )}
+          >
+            {participant.userId !== user?.id && isOwner && (
+              <button
+                type="button"
+                className="btn btn-circle btn-ghost btn-xs"
+                onClick={(event) => handleRemoveParticipant(event, participant.id)}
+              >
+                <CrossIcon />
+              </button>
+            )}
+            {participant.name}
+            {isParticipantOwner && <span className="pl-1 font-bold">(Owner)</span>}
+          </div>
+        )
+      })}
       {isOwner && (
         <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
       )}
