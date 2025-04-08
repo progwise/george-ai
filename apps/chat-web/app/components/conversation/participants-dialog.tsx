@@ -58,6 +58,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
   const [hasChecked, setHasChecked] = useState(true)
   const [usersFilter, setUsersFilter] = useState<string | null>(null)
+  const [selectAllState, setSelectAllState] = useState<'none' | 'some' | 'all'>('none')
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -183,6 +184,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
     const hasAnyChecked = checkboxes ? Array.from(checkboxes).some((checkbox) => checkbox.checked) : false
     setHasChecked(hasAnyChecked)
+    updateSelectAllState()
   }
 
   const handleOpen = () => {
@@ -194,6 +196,25 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       dialogRef.current?.showModal()
     }
   }, [props.isOpen])
+
+  const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"][name="userIds"]')
+
+  const updateSelectAllState = () => {
+    if (!checkboxes || checkboxes.length === 0) {
+      setSelectAllState('none')
+      return
+    }
+
+    const checkedCount = Array.from(checkboxes).filter((checkbox) => checkbox.checked).length
+
+    if (checkedCount === 0) {
+      setSelectAllState('none')
+    } else if (checkedCount === checkboxes.length) {
+      setSelectAllState('all')
+    } else {
+      setSelectAllState('some')
+    }
+  }
 
   const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
@@ -254,24 +275,35 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
             />
-            <div className="h-48 overflow-y-scroll">
+
+            {availableHumans.length < 1 ? (
+              <span className="info label-text">{t('texts.noUsersFound')}</span>
+            ) : (
               <label className="label cursor-pointer justify-start gap-2">
                 <input
                   type="checkbox"
-                  className="checkbox-info checkbox checkbox-sm"
-                  defaultChecked={false}
+                  name="selectAll"
+                  className="checkbox-primary checkbox checkbox-sm"
+                  checked={selectAllState === 'all'}
+                  ref={(element) => {
+                    if (element) {
+                      element.indeterminate = selectAllState === 'some'
+                    }
+                  }}
                   onChange={(event) => {
                     const value = event.target.checked
-                    const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>(
-                      'input[type="checkbox"][name="userIds"]',
-                    )
                     checkboxes?.forEach((checkbox) => {
                       checkbox.checked = value
                     })
+                    setSelectAllState(value ? 'all' : 'none')
+                    handleCheckboxChange()
                   }}
                 />
-                <span className="info label-text">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
+                <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
               </label>
+            )}
+
+            <div className="h-48 overflow-y-scroll">
               {availableHumans.map((human) => (
                 <label key={human.id} className="label cursor-pointer justify-start gap-2">
                   <input
