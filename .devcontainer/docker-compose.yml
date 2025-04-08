@@ -99,3 +99,16 @@ services:
       - gai-keycloak-db
     ports:
       - 8180:8080
+
+  gai-crawl4ai:
+    build: https://github.com/unclecode/crawl4ai.git#v0.5.0.post1
+    container_name: gai-crawl4ai
+    restart: unless-stopped
+    ports:
+      - '11235:8000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:11235/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
