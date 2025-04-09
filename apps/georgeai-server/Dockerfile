@@ -1,4 +1,4 @@
-FROM node:20-slim AS base
+FROM node:22-slim AS base
 
 RUN apt-get update \
     && apt-get install -y \
@@ -24,9 +24,9 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 
-RUN pnpm i --frozen-lockfile \
+RUN pnpm i --filter @george-ai/georgeai-server --frozen-lockfile \
     && cd apps/georgeai-server \
-    && pnpm run build
+    && pnpm --filter @george-ai/georgeai-server run build
 
 
 FROM base AS runner
