@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -105,7 +105,7 @@ export const Route = createFileRoute('/libraries/$libraryId')({
 
 function RouteComponent() {
   const auth = useAuth()
-  const { libraryId } = useParams({ strict: false })
+  const { libraryId } = Route.useParams()
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
   const { t } = useTranslation()
   const navigate = useNavigate()
