@@ -22,10 +22,7 @@ const aiLibraryEditQueryDocument = graphql(`
     aiLibrary(id: $id) {
       id
       name
-      createdAt
-      description
-      url
-      ownerId
+      ...LibraryFormFragment
       ...DeleteLibraryDialog_Library
     }
     aiLibraries(ownerId: $ownerId) {

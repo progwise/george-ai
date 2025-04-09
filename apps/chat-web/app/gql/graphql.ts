@@ -1148,6 +1148,13 @@ export type ProcessFileMutation = {
   } | null
 }
 
+export type LibraryFormFragmentFragment = {
+  __typename?: 'AiLibrary'
+  id: string
+  name: string
+  description?: string | null
+} & { ' $fragmentName'?: 'LibraryFormFragmentFragment' }
+
 export type CreateAiLibraryMutationVariables = Exact<{
   ownerId: Scalars['String']['input']
   data: AiLibraryInput
@@ -1305,15 +1312,12 @@ export type AiLibraryEditQueryVariables = Exact<{
 export type AiLibraryEditQuery = {
   __typename?: 'Query'
   aiLibrary?:
-    | ({
-        __typename?: 'AiLibrary'
-        id: string
-        name: string
-        createdAt: string
-        description?: string | null
-        url?: string | null
-        ownerId: string
-      } & { ' $fragmentRefs'?: { DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment } })
+    | ({ __typename?: 'AiLibrary'; id: string; name: string } & {
+        ' $fragmentRefs'?: {
+          LibraryFormFragmentFragment: LibraryFormFragmentFragment
+          DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment
+        }
+      })
     | null
   aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
@@ -2171,6 +2175,24 @@ export const DeleteLibraryDialog_LibraryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<DeleteLibraryDialog_LibraryFragment, unknown>
+export const LibraryFormFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryFormFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LibraryFormFragmentFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -4339,10 +4361,7 @@ export const AiLibraryEditDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryFormFragment' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
               ],
             },
@@ -4365,6 +4384,19 @@ export const AiLibraryEditDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryFormFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
         ],
       },
     },
