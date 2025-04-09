@@ -11,7 +11,6 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as LangchainChatImport } from './routes/langchain-chat'
 import { Route as ContactImport } from './routes/contact'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProfileIndexImport } from './routes/profile/index'
@@ -24,12 +23,6 @@ import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assis
 import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
 
 // Create/Update Routes
-
-const LangchainChatRoute = LangchainChatImport.update({
-  id: '/langchain-chat',
-  path: '/langchain-chat',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const ContactRoute = ContactImport.update({
   id: '/contact',
@@ -109,13 +102,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactImport
       parentRoute: typeof rootRoute
     }
-    '/langchain-chat': {
-      id: '/langchain-chat'
-      path: '/langchain-chat'
-      fullPath: '/langchain-chat'
-      preLoaderRoute: typeof LangchainChatImport
-      parentRoute: typeof rootRoute
-    }
     '/assistants/$assistantId': {
       id: '/assistants/$assistantId'
       path: '/assistants/$assistantId'
@@ -180,7 +166,6 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
-  '/langchain-chat': typeof LangchainChatRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
@@ -194,7 +179,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
-  '/langchain-chat': typeof LangchainChatRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
@@ -209,7 +193,6 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
-  '/langchain-chat': typeof LangchainChatRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
@@ -225,7 +208,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/contact'
-    | '/langchain-chat'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
@@ -238,7 +220,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/contact'
-    | '/langchain-chat'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
@@ -251,7 +232,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/contact'
-    | '/langchain-chat'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
@@ -266,7 +246,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
-  LangchainChatRoute: typeof LangchainChatRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   ConversationsSplatRoute: typeof ConversationsSplatRoute
   LibrariesLibraryIdRoute: typeof LibrariesLibraryIdRoute
@@ -280,7 +259,6 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
-  LangchainChatRoute: LangchainChatRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   ConversationsSplatRoute: ConversationsSplatRoute,
   LibrariesLibraryIdRoute: LibrariesLibraryIdRoute,
@@ -303,7 +281,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/contact",
-        "/langchain-chat",
         "/assistants/$assistantId",
         "/conversations/$",
         "/libraries/$libraryId",
@@ -319,9 +296,6 @@ export const routeTree = rootRoute
     },
     "/contact": {
       "filePath": "contact.tsx"
-    },
-    "/langchain-chat": {
-      "filePath": "langchain-chat.tsx"
     },
     "/assistants/$assistantId": {
       "filePath": "assistants/$assistantId.tsx"

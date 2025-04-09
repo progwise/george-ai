@@ -11,6 +11,7 @@ env:
   REGISTRY_PATH: ghcr.io/progwise/george-ai
   HOST: 82.165.141.156
   SSH_USER: swarm
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 jobs:
   deploy:
@@ -61,9 +62,10 @@ jobs:
           echo "Deploying to production server"
           ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/progwise -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/progwise/george-ai/chat-web:latest
-            docker pull ghcr.io/progwise/george-ai/backend:latest
-            docker pull ghcr.io/progwise/george-ai/pocketbase:latest
+            echo "Pulling images for gai TAG: ${{ env.BRANCH_NAME }}"
+            docker pull ghcr.io/progwise/george-ai/chat-web:${{env.BRANCH_NAME}}
+            docker pull ghcr.io/progwise/george-ai/backend:${{env.BRANCH_NAME}}
+            docker pull ghcr.io/progwise/george-ai/pocketbase:${{env.BRANCH_NAME}}
             docker stack deploy --with-registry-auth --compose-file /home/swarm/george-ai-stack.yml george-ai
           EOF
       - name: Run prisma migrations
