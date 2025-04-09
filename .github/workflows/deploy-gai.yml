@@ -62,8 +62,7 @@ jobs:
           echo "Deploying to production server"
           ssh -i ~/.ssh/id_rsa swarm@${{ env.HOST }} << EOF
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/progwise -u ${{ github.actor }} --password-stdin
-            GAI_TAG=${{ env.BRANCH_NAME }}
-            echo "Pulling images for gai TAG: $GAI_TAG"
+            echo "Pulling images for gai TAG: ${{ env.BRANCH_NAME }}"
             docker pull ghcr.io/progwise/george-ai/chat-web:${{env.BRANCH_NAME}}
             docker pull ghcr.io/progwise/george-ai/backend:${{env.BRANCH_NAME}}
             docker pull ghcr.io/progwise/george-ai/pocketbase:${{env.BRANCH_NAME}}
