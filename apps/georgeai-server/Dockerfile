@@ -24,8 +24,8 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 
-RUN pnpm i --filter @george-ai/georgeai-server --frozen-lockfile \
-    && pnpm --filter @george-ai/georgeai-server run build
+RUN pnpm i --filter @george-ai/server --frozen-lockfile \
+    && pnpm --filter @george-ai/server run build
 
 
 FROM base AS runner
