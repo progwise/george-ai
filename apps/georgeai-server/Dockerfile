@@ -25,7 +25,6 @@ WORKDIR /app
 COPY . .
 
 RUN pnpm i --filter @george-ai/georgeai-server --frozen-lockfile \
-    && cd apps/georgeai-server \
     && pnpm --filter @george-ai/georgeai-server run build
 
 

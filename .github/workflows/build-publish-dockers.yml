@@ -13,7 +13,7 @@ env:
   REGISTRY_PATH: ghcr.io/progwise/george-ai
 
 jobs:
-  george-ai:
+  george-ai-frontend:
     runs-on: ubuntu-22.04
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -69,6 +69,24 @@ jobs:
       #     subject-name: ${{ env.REGISTRY_PATH }}/chat-web
       #     subject-digest: ${{ steps.push-chat-web.outputs.digest }}
       #     push-to-registry: true
+  george-ai-backend:
+    runs-on: ubuntu-22.04
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata (tags, labels) for backend
         id: meta-backend
@@ -93,15 +111,6 @@ jobs:
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
-
-      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
-      # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
-      # - name: Generate artifact attestation for backend
-      #   uses: actions/attest-build-provenance@v2
-      #   with:
-      #     subject-name: ${{ env.REGISTRY_PATH }}/backend
-      #     subject-digest: ${{ steps.push-backend.outputs.digest }}
-      #     push-to-registry: true
 
   pocketbase:
     runs-on: ubuntu-22.04
@@ -145,12 +154,3 @@ jobs:
           push: true
           tags: ${{ steps.meta-pocketbase.outputs.tags }}
           labels: ${{ steps.meta-pocketbase.outputs.labels }}
-
-      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
-      # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
-      # - name: Generate artifact attestation for pocketbase
-      #   uses: actions/attest-build-provenance@v2
-      #   with:
-      #     subject-name: ${{ env.REGISTRY_PATH }}/pocketbase
-      #     subject-digest: ${{ steps.push-pocketbase.outputs.digest }}
-      #     push-to-registry: true
