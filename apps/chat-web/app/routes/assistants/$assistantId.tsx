@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
+import AssistantAiAct from '../../components/assistant/assistant-ai-act/assistant-ai-act'
 import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
@@ -105,6 +106,18 @@ function RouteComponent() {
           <AssistantBasecaseForm assistant={aiAssistant} />
         </div>
       </div>
+      <section className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+          <h3 className="text-lg font-bold">{t('assistants.aiActCheckList')}</h3>
+          <AssistantAiAct />
+        </div>
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+          <h3 className="text-lg font-bold">{t('assistants.aiAct')}</h3>
+          <p>{t('assistants.aiActDescription')}</p>
+          <div className="divider" />
+          <AssistantAiAct />
+        </div>
+      </section>
     </article>
   )
 }
