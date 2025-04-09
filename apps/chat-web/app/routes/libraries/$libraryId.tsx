@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { CrawlerTable } from '../../components/library/crawler/crawler-table'
 import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
 import { LibraryForm } from '../../components/library/library-form'
@@ -165,6 +166,11 @@ function RouteComponent() {
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
         <div role="tabpanel" className="tab-content p-10">
           <LibraryQuery libraryId={libraryId} />
+        </div>
+
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.crawlers')} />
+        <div role="tabpanel" className="tab-content p-10">
+          <CrawlerTable libraryId={libraryId} />
         </div>
       </div>
     </article>

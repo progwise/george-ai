@@ -1026,6 +1026,25 @@ export type ParticipantsDialog_HumanFragment = { __typename?: 'User'; id: string
   ' $fragmentName'?: 'ParticipantsDialog_HumanFragment'
 }
 
+export type CrawlerTableQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type CrawlerTableQuery = {
+  __typename?: 'Query'
+  aiLibrary?: {
+    __typename?: 'AiLibrary'
+    crawlers: Array<{
+      __typename?: 'AiLibraryCrawler'
+      id: string
+      url: string
+      maxDepth: number
+      maxPages: number
+      lastRun?: string | null
+    }>
+  } | null
+}
+
 export type DropFilesMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
@@ -3188,6 +3207,58 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const CrawlerTableDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CrawlerTable' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'crawlers' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CrawlerTableQuery, CrawlerTableQueryVariables>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [
