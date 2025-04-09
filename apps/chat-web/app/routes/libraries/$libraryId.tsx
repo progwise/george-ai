@@ -159,12 +159,12 @@ function RouteComponent() {
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
         <div role="tabpanel" className="tab-content overflow-x-auto p-10">
-          <EmbeddingsTable libraryId={aiLibrary.id} />
+          <EmbeddingsTable libraryId={libraryId} />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
         <div role="tabpanel" className="tab-content p-10">
-          <LibraryQuery libraryId={aiLibrary.id} />
+          <LibraryQuery libraryId={libraryId} />
         </div>
       </div>
     </article>
