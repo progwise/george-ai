@@ -1,3 +1,4 @@
+import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryCrawler')
@@ -20,3 +21,21 @@ builder.prismaObject('AiLibraryCrawler', {
     }),
   }),
 })
+
+builder.mutationField('createAiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    args: {
+      url: t.arg.string(),
+      maxDepth: t.arg.int(),
+      maxPages: t.arg.int(),
+      libraryId: t.arg.string(),
+    },
+    resolve: (query, _source, args) => {
+      return prisma.aiLibraryCrawler.create({
+        ...query,
+        data: args,
+      })
+    },
+  }),
+)

@@ -237,6 +237,7 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
+  createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -307,6 +308,13 @@ export type MutationCreateAiConversationArgs = {
 export type MutationCreateAiLibraryArgs = {
   data: AiLibraryInput
   ownerId: Scalars['String']['input']
+}
+
+export type MutationCreateAiLibraryCrawlerArgs = {
+  libraryId: Scalars['String']['input']
+  maxDepth: Scalars['Int']['input']
+  maxPages: Scalars['Int']['input']
+  url: Scalars['String']['input']
 }
 
 export type MutationCreateUserArgs = {
