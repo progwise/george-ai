@@ -118,6 +118,7 @@ export type AiConversationParticipant = {
 
 export type AiLibrary = {
   __typename?: 'AiLibrary'
+  crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   files?: Maybe<Array<AiLibraryFile>>
@@ -128,6 +129,17 @@ export type AiLibrary = {
   ownerId: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+}
+
+export type AiLibraryCrawler = {
+  __typename?: 'AiLibraryCrawler'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  lastRun?: Maybe<Scalars['DateTime']['output']>
+  maxDepth: Scalars['Int']['output']
+  maxPages: Scalars['Int']['output']
+  updatedAt: Scalars['DateTime']['output']
+  url: Scalars['String']['output']
 }
 
 export type AiLibraryFile = {
