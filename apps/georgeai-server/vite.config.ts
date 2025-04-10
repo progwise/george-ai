@@ -13,6 +13,17 @@ export default defineConfig({
       appPath: './src/server.ts',
       tsCompiler: 'esbuild',
     }),
+    {
+      name: 'vite-plugin-node-ssr',
+      apply: 'serve',
+      configureServer(server) {
+        server.watcher.on('all', (event, path) => {
+          console.log('File change detected, restarting server...')
+          console.log(`Event: ${event}, Path: ${path}`)
+          server.restart()
+        })
+      },
+    },
   ],
   ssr: {},
 })
