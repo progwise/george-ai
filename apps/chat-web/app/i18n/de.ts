@@ -59,6 +59,7 @@ export default {
     leave: 'Konversation verlassen',
     leaveConfirmation:
       'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    owner: 'Besitzer',
   },
   dialog: {
     cancel: 'Abbrechen',

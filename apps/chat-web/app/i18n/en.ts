@@ -57,6 +57,7 @@ export default {
     humans: 'Users',
     leave: 'Leave conversation',
     leaveConfirmation: 'You are about to leave this conversation. It cannot be undone. Please confirm.',
+    owner: 'Owner',
   },
   dialog: {
     cancel: 'Cancel',

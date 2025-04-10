@@ -66,16 +66,11 @@ export const ConversationSelector = ({
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >
-                    <div className="flex flex-col">
-                      {conversation.owner && (
-                        <span>
-                          {conversation.owner.name} <span className="font-bold">(Owner)</span>
-                        </span>
-                      )}
-                      <span className="mt-1 block">
-                        {conversation.assistants?.map((assistant) => assistant.name).join(', ') ||
-                          t('texts.noAssistant')}
-                      </span>
+                    <div>
+                      {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
+                    </div>
+                    <div className="mt-1 block">
+                      {conversation.assistants?.map((assistant) => assistant.name).join(', ') || t('texts.noAssistant')}
                     </div>
                   </Link>
                 </li>

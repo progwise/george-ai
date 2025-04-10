@@ -70,7 +70,7 @@ export type AiConversation = {
   humans: Array<User>
   id: Scalars['ID']['output']
   messages: Array<AiConversationMessage>
-  owner?: Maybe<User>
+  owner: User
   ownerId: Scalars['String']['output']
   participants: Array<AiConversationParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
@@ -965,7 +965,7 @@ export type ConversationSelector_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
   createdAt: string
-  owner?: { __typename?: 'User'; id: string; name?: string | null } | null
+  owner: { __typename?: 'User'; id: string; name?: string | null }
   assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
 } & { ' $fragmentName'?: 'ConversationSelector_ConversationFragment' }
 

@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
 import { removeConversationParticipant } from '../../server-functions/participations'
@@ -45,6 +46,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const authContext = useAuth()
   const user = authContext.user
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
@@ -90,8 +92,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             key={participant.id}
             className={twMerge(
               'badge badge-lg text-nowrap text-xs',
+              participant.userId && 'badge-primary',
               isParticipantOwner && 'badge-accent',
-              participant.userId && !isParticipantOwner && 'badge-primary',
               participant.assistantId && 'badge-secondary',
             )}
           >
@@ -105,7 +107,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               </button>
             )}
             {participant.name}
-            {isParticipantOwner && <span className="pl-1 font-bold">(Owner)</span>}
+            {isParticipantOwner && <span className="pl-1 font-bold">({t('conversations.owner')})</span>}
           </div>
         )
       })}
