@@ -99,3 +99,5 @@ services:
       - gai-keycloak-db
     ports:
       - 8180:8080
+    volumes:
+      - ../apps/keycloak/keycloak-themes:/opt/keycloak/themes

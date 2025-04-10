@@ -1,0 +1,107 @@
+:root {
+  --keycloak-logo-height: 100px;
+  --keycloak-logo-width: 100px;
+}
+
+.login-pf body {
+  background: white;
+  background-size: cover;
+  height: 100%;
+}
+
+div#kc-header-wrapper {
+  background: white;
+  color: black;
+}
+
+div.kc-logo-text {
+  height: var(--keycloak-logo-height);
+  width: var(--keycloak-logo-width);
+  background-repeat: no-repeat;
+  background-size: auto;
+  margin: 10 auto;
+  color: black;
+}
+
+div.kc-logo-text span {
+  display: none;
+}
+
+h1#kc-page-title {
+  display: flex;
+  justify-content: center;
+  margin: 1em;
+}
+
+div.pf-v5-c-form__group {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+span.pf-v5-c-form-control {
+  display: flex;
+  justify-content: end;
+  background: transparent;
+}
+
+span.pf-v5-c-form-control::before,
+span.pf-v5-c-form-control::after {
+  border: none;
+}
+
+input#username,
+input#password {
+  border: solid;
+  border-radius: 0.5em;
+  width: 10em;
+  border-color: black;
+}
+
+.pf-v5-c-button.pf-m-control,
+.show-password {
+  position: absolute;
+  right: 0em;
+  top: 6%;
+  background-color: transparent;
+  color: black;
+}
+
+.pf-v5-c-form__helper-text {
+  position: absolute;
+  transform: translateY(140%);
+}
+
+.pf-v5-c-form-control__utilities {
+  position: absolute;
+  left: 10.5em;
+}
+
+.pf-v5-c-button::after {
+  border: none;
+}
+
+.pf-v5-c-form__actions {
+  width: 100%;
+}
+
+.pf-v5-c-login__container {
+  display: flex;
+}
+
+.pf-v5-c-login__main {
+  box-shadow: none;
+  background: white;
+}
+
+.pf-v5-c-input-group__item {
+  border: none;
+}
+
+.pf-v5-c-login__main {
+  color: black;
+}
+
+svg {
+  fill: black !important;
+}
