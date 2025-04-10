@@ -14,7 +14,7 @@ export default defineConfig({
       tsCompiler: 'esbuild',
     }),
     {
-      name: 'vite-plugin-node-ssr',
+      name: 'vite-plugin-node-restart',
       apply: 'serve',
       configureServer(server) {
         server.watcher.on('all', (event, path) => {
