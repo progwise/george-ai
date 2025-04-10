@@ -11,7 +11,7 @@ import './graphql/chat'
 import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
-import './graphql/ai-act'
+import './graphql/ai-act-checklist'
 
 const schema = builder.toSchema()
 

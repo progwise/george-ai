@@ -2,6 +2,7 @@
   "name": "@george-ai/langchain-chat",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "packageManager": "pnpm@9.15.4",
   "author": "progwise.net",
   "private": true,

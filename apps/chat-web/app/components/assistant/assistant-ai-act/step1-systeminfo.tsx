@@ -119,38 +119,77 @@ const BasicSystemInfoAssessment = () => {
 
   // Handle response changes
   const handleResponseChange = (question: string, value: string) => {
-    switch(question) {
+    switch (question) {
       case 'systemType':
         if (value === 'ML' || value === 'Both' || value === null) {
           setSystemInfo((prev) => {
             const newSystemInfo = { ...prev }
             newSystemInfo.systemType.value = value
             return newSystemInfo
-          })}
-          else {
-            throw new Error('Invalid value for systemType')
-          }
-          break
+          })
+        } else {
+          throw new Error('Invalid value for systemType')
+        }
+        break
       case 'operationMode':
-        
-    setSystemInfo((prev) => ({
-      ...prev,
-      [question]: {
-        ...prev[question],
-        value,
-      },
-    }))
+        if (value === 'Autonomous' || value === 'Assisting' || value === null) {
+          setSystemInfo((prev) => {
+            const newSystemInfo = { ...prev }
+            newSystemInfo.operationMode.value = value
+            return newSystemInfo
+          })
+        } else {
+          throw new Error('Invalid value for operationMode')
+        }
+        break
+      case 'syntheticContent':
+        if (value === 'Yes' || value === 'No' || value === null) {
+          setSystemInfo((prev) => {
+            const newSystemInfo = { ...prev }
+            newSystemInfo.syntheticContent.value = value
+            return newSystemInfo
+          })
+        } else {
+          throw new Error('Invalid value for syntheticContent')
+        }
+        break
+      case 'gpaiModel':
+        if (value === 'Yes' || value === 'No' || value === 'Unsure' || value === null) {
+          setSystemInfo((prev) => {
+            const newSystemInfo = { ...prev }
+            newSystemInfo.gpaiModel.value = value
+            return newSystemInfo
+          })
+        } else {
+          throw new Error('Invalid value for gpaiModel')
+        }
+        break
+      case 'euOperation':
+        if (value === 'Yes' || value === 'No' || value === null) {
+          setSystemInfo((prev) => {
+            const newSystemInfo = { ...prev }
+            newSystemInfo.euOperation.value = value
+            return newSystemInfo
+          })
+        } else {
+          throw new Error('Invalid value for euOperation')
+        }
+        break
+      default:
+        throw new Error('Invalid question type')
+    }
   }
 
   // Handle notes changes
-  const handleNotesChange = (question, notes) => {
-    setSystemInfo((prev) => ({
-      ...prev,
-      [question]: {
-        ...prev[question],
-        notes,
-      },
-    }))
+  const handleNotesChange = (question: string, notes: string) => {
+    console.log('Notes changed for question:', question, 'New notes:', notes)
+    // setSystemInfo((prev) => ({
+    //   ...prev,
+    //   [question]: {
+    //     ...prev[question],
+    //     notes,
+    //   },
+    // }))
   }
 
   // Get risk indicator styling
@@ -338,13 +377,17 @@ const BasicSystemInfoAssessment = () => {
 
         <div className="mt-4 flex justify-between">
           <button
+            type="button"
             className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
             onClick={() => {
               // Reset all responses
-              const resetData = {}
-              Object.keys(systemInfo).forEach((key) => {
-                resetData[key] = { value: null, notes: '' }
-              })
+              const resetData: AiActSystemInfo = {
+                systemType: { value: null, notes: '' },
+                operationMode: { value: null, notes: '' },
+                syntheticContent: { value: null, notes: '' },
+                gpaiModel: { value: null, notes: '' },
+                euOperation: { value: null, notes: '' },
+              }
               setSystemInfo(resetData)
             }}
           >
@@ -352,6 +395,7 @@ const BasicSystemInfoAssessment = () => {
           </button>
 
           <button
+            type="button"
             className={`px-3 py-1 ${
               completionPercentage === 100
                 ? 'bg-blue-600 text-white hover:bg-blue-700'

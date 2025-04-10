@@ -226,6 +226,12 @@ importers:
 
   apps/pocketbase: {}
 
+  packages/ai-act:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.8.2
+
   packages/langchain-chat:
     dependencies:
       '@george-ai/pocketbase-client':
@@ -305,6 +311,9 @@ importers:
 
   packages/pothos-graphql:
     dependencies:
+      '@george-ai/ai-act':
+        specifier: workspace:*
+        version: link:../ai-act
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../langchain-chat

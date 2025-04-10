@@ -13,6 +13,18 @@ export default defineConfig({
       appPath: './src/server.ts',
       tsCompiler: 'esbuild',
     }),
+    {
+      name: 'vite-plugin-node-restart',
+      apply: 'serve',
+      configureServer(server) {
+        server.watcher.on('all', (event, path) => {
+          if (!path.endsWith('.ts') && !path.endsWith('.js')) return
+          console.log('File change detected, restarting server...')
+          console.log(`Event: ${event}, Path: ${path}`)
+          server.restart()
+        })
+      },
+    },
   ],
   ssr: {},
 })
