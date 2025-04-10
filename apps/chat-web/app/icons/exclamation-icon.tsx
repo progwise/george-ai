@@ -14,12 +14,7 @@ export const ExclamationIcon = ({ className }: IconProps) => {
         className="iconify iconify--emojione"
         preserveAspectRatio="xMidYMid meet"
       >
-        <path
-          d="M37 42.4H27L23 2h18z"
-          strokeWidth="0"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        ></path>
+        <path d="M37 42.4H27L23 2h18z" strokeWidth="0" strokeLinecap="round" strokeLinejoin="round"></path>
         <ellipse cx="32" cy="54.4" rx="7.7" ry="7.6"></ellipse>
       </svg>
     </div>
