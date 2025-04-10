@@ -1,8 +1,8 @@
 import { QueryClient } from '@tanstack/react-query'
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
-import { HeadContent, Scripts } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
+import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation from '../components/top-navigation'
 import { getLanguage } from '../i18n'
 import appCss from '../index.css?url'
@@ -53,6 +53,7 @@ const RootDocument = () => {
           <TanStackQueryDevtools />
         </Suspense>
       </body>
+      <GeorgeToaster />
     </html>
   )
 }

@@ -9,6 +9,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
+import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
 
@@ -152,7 +153,7 @@ export const GoogleDriveFiles = ({
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } = useMutation({
     mutationFn: (data: { libraryId: string; files: LibraryFile[]; access_token: string }) => embedFiles({ data }),
     onSuccess: () => {
-      alert('Files embedded successfully')
+      toastSuccess('Files embedded successfully')
       setSelectedFiles([])
       queryClient.invalidateQueries({
         queryKey: [queryKeys.AiLibraryFiles, libraryId],
@@ -164,7 +165,7 @@ export const GoogleDriveFiles = ({
       })
     },
     onError: (error) => {
-      alert(`Error embedding files: ${error.message}`)
+      toastError(`Error embedding files: ${error.message}`)
     },
   })
 
