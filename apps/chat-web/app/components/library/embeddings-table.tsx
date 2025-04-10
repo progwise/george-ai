@@ -29,6 +29,7 @@ interface AiLibraryFile {
   chunks?: number | null
   processedAt?: string | null
   processingErrorMessage?: string | null
+  dropError?: string | null
 }
 
 const clearEmbeddings = createServerFn({ method: 'GET' })
@@ -329,7 +330,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     className="btn btn-xs lg:tooltip"
                     onClick={() => dropAllFilesMutation.mutate([file.id])}
                     disabled={dropAllFilesMutation.isPending}
-                    data-tip={t('tooltips.drop')}
+                    data-tip={t('tooltips.delete')}
                   >
                     <TrashIcon />
                   </button>
@@ -346,6 +347,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   {file.processingErrorMessage ? (
                     <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
                       <ExclamationIcon />
+                    </span>
+                  ) : undefined}
+
+                  {file.dropError ? (
+                    <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
+                      <ExclamationIcon className={'fill-warning'}/>
                     </span>
                   ) : undefined}
                 </td>
