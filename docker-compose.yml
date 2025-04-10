@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  gai-backend:
+    build:
+      context: .
+      dockerfile: apps/georgeai-server/Dockerfile
+    env_file:
+      - .env
+    environment:
+      - BACKEND_URL=http://gai-backend:3003
+      - BACKEND_PUBLIC_URL=http://localhost:3003
+      - UPLOADS_PATH=./.uploads
+    volumes:
+      - ./apps/georgeai-server/.uploads:/app/.uploads
+    networks:
+      - george-ai_devcontainer_default
+    ports:
+      - '3003:3003'
+    restart: unless-stopped
+
+  gai-frontend:
+    build:
+      context: .
+      dockerfile: apps/chat-web/Dockerfile
+    env_file:
+      - .env
+    environment:
+      - BACKEND_URL=http://gai-backend:3003
+      - BACKEND_PUBLIC_URL=http://localhost:3003
+      - KEYCLOAK_REDIRECT_URL=http://localhost:3000
+      - KEYCLOAK_REALM=george-ai
+      - KEYCLOAK_URL=http://localhost:8180
+      - KEYCLOAK_CLIENT_ID=george-ai-web
+    networks:
+      - george-ai_devcontainer_default
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+
+networks:
+  george-ai_devcontainer_default:
+    external: true

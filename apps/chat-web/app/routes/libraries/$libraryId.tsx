@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -13,6 +13,7 @@ import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { BackIcon } from '../../icons/back-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -140,9 +141,14 @@ function RouteComponent() {
         </div>
         <div className="flex gap-2">
           <DeleteLibraryDialog library={aiLibrary} />
-          <Link type="button" className="btn btn-primary btn-sm" to="..">
-            {t('actions.goToOverview')}
-          </Link>
+          <button
+            type="button"
+            onClick={() => navigate({ to: '..' })}
+            className="btn btn-sm tooltip"
+            data-tip={t('tooltips.goToOverview')}
+          >
+            <BackIcon />
+          </button>
         </div>
       </div>
 

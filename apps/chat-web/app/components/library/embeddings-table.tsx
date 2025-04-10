@@ -215,11 +215,17 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
+  const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
+    return fileName.length > maxLength
+      ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
+      : fileName
+  }
+
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <nav className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex w-full flex-wrap gap-4">
+      <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             className="btn btn-xs lg:tooltip"
@@ -231,7 +237,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <DesktopFileUpload
             libraryId={libraryId}
-            onUploadComplete={(uploadedFileIds) => handleUploadComplete(uploadedFileIds)}
+            onUploadComplete={handleUploadComplete}
             disabled={remainingStorage < 1}
           />
           <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
@@ -253,10 +259,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           >
             {t('actions.reProcess')}
           </button>
-          <div className="flex w-full justify-end text-sm">
-            <span>
-              {t('labels.remainingStorage')}: {remainingStorage} / {userProfile?.freeStorage}
-            </span>
+        </div>
+        <div className="text-right text-sm">
+          <div className="font-semibold">{t('labels.remainingStorage')}</div>
+          <div>
+            {remainingStorage} / {userProfile?.freeStorage}
           </div>
         </div>
       </nav>
@@ -271,7 +278,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               <CrossIcon />
             </button>
             <h3 className="text-lg font-bold">{t('texts.addGoogleDriveFiles')}</h3>
-            <div className="flex-grow overflow-auto py-4">
+            <div className="flex-grow overflow-auto">
               <GoogleDriveFiles
                 libraryId={libraryId}
                 currentLocationHref={window.location.href}
@@ -290,41 +297,47 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       {!data?.aiLibraryFiles?.length ? (
         <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
-        <table className="table w-full">
-          <thead>
-            <tr>
-              <th>
-                <input
-                  type="checkbox"
-                  checked={selectedFiles.length === data?.aiLibraryFiles?.length}
-                  onChange={handleSelectAll}
-                  className="flex justify-center"
-                />
-              </th>
-              <th></th>
-              <th>{t('labels.name')}</th>
-              <th>#{t('labels.size')}</th>
-              <th>#{t('labels.chunks')}</th>
-              <th>{t('labels.processed')}</th>
-              <th>{t('labels.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-              <tr key={file.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedFiles.includes(file.id)}
-                    onChange={() => handleSelectFile(file.id)}
-                  />
-                </td>
-                <td>{index + 1}</td>
-                <td>{file.name}</td>
-                <td>{file.size}</td>
-                <td>{file.chunks}</td>
-                <td>{dateTimeString(file.processedAt, language)}</td>
-                <td className="flex flex-wrap items-center gap-2">
+        <>
+          <label className="mb-4 flex items-center gap-2 lg:hidden">
+            <input
+              type="checkbox"
+              className="checkbox checkbox-sm flex justify-center"
+              checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+              onChange={handleSelectAll}
+            />
+            <span className="text-sm font-medium">Select All</span>
+          </label>
+          <div className="flex flex-col gap-4 lg:hidden">
+            {data?.aiLibraryFiles.map((file, index) => (
+              <div key={file.id} className="rounded-md border border-base-300 p-3 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm flex justify-center"
+                      checked={selectedFiles.includes(file.id)}
+                      onChange={() => handleSelectFile(file.id)}
+                    />
+                    <span className="font-semibold">
+                      {index + 1}. {truncateFileName(file.name, 25, 20)}
+                    </span>
+                  </label>
+                </div>
+                <div className="mt-2 flex flex-col space-y-1 text-sm">
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.size')}:</span>
+                    <span>{file.size ?? '-'}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.chunks')}:</span>
+                    <span>{file.chunks ?? '-'}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="w-24">{t('labels.processed')}:</span>
+                    <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 p-2">
                   <button
                     type="button"
                     className="btn btn-xs lg:tooltip"
@@ -336,30 +349,90 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-xs lg:tooltip"
+                    className="btn btn-xs"
                     onClick={() => reProcessAllFilesMutation.mutate([file.id])}
                     disabled={reProcessAllFilesMutation.isPending}
-                    data-tip={t('tooltips.reProcess')}
                   >
                     <ReprocessIcon />
                   </button>
-
-                  {file.processingErrorMessage ? (
-                    <span className="lg:tooltip" data-tip={file.processingErrorMessage}>
-                      <ExclamationIcon />
-                    </span>
-                  ) : undefined}
-
-                  {file.dropError ? (
-                    <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
-                      <ExclamationIcon className={'fill-warning'} />
-                    </span>
-                  ) : undefined}
-                </td>
-              </tr>
+                  {file.processingErrorMessage && <ExclamationIcon />}
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+          <div className="hidden overflow-x-auto lg:block">
+            <table className="w-full table-auto border-collapse text-left">
+              <thead className="bg-base-200">
+                <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-xs flex justify-center"
+                      checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th>#</th>
+                  <th>{t('labels.name')}</th>
+                  <th>#{t('labels.size')}</th>
+                  <th>#{t('labels.chunks')}</th>
+                  <th>{t('labels.processed')}</th>
+                  <th>{t('labels.actions')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-base-300">
+                {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
+                  <tr key={file.id} className="p-2 hover:bg-base-100">
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-xs flex justify-center"
+                        checked={selectedFiles.includes(file.id)}
+                        onChange={() => handleSelectFile(file.id)}
+                      />
+                    </td>
+                    <td className="p-2">{index + 1}</td>
+                    <td className="font-semibold">{truncateFileName(file.name, 79, 75)}</td>
+                    <td className="p-2">{file.size ?? '-'}</td>
+                    <td className="p-2">{file.chunks ?? '-'}</td>
+                    <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>
+                    <td className="flex items-center gap-2 p-2">
+                      <button
+                        type="button"
+                        className="btn btn-xs lg:tooltip"
+                        data-tip={t('tooltips.deleteFile')}
+                        onClick={() => dropAllFilesMutation.mutate([file.id])}
+                        disabled={dropAllFilesMutation.isPending}
+                      >
+                        <TrashIcon />
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs lg:tooltip"
+                        data-tip="Reprocess file lg:tooltip"
+                        onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                        disabled={reProcessAllFilesMutation.isPending}
+                      >
+                        <ReprocessIcon />
+                      </button>
+                      {file.processingErrorMessage && (
+                        <span className="tooltip" data-tip={file.processingErrorMessage}>
+                          <ExclamationIcon />
+                        </span>
+                      )}
+
+                      {file.dropError ? (
+                        <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
+                          <ExclamationIcon className={'fill-warning'} />
+                        </span>
+                      ) : undefined}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </>
   )
