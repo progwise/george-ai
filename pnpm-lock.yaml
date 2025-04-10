@@ -226,6 +226,22 @@ importers:
 
   apps/pocketbase: {}
 
+  packages/crawl4ai-client:
+    dependencies:
+      openapi-fetch:
+        specifier: ^0.13.5
+        version: 0.13.5
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.13.8
+      openapi-typescript:
+        specifier: ^7.6.1
+        version: 7.6.1(typescript@5.8.2)
+      typescript:
+        specifier: ^5.7.2
+        version: 5.8.2
+
   packages/langchain-chat:
     dependencies:
       '@george-ai/pocketbase-client':
@@ -5286,8 +5302,14 @@ packages:
       zod:
         optional: true
 
+  openapi-fetch@0.13.5:
+    resolution: {integrity: sha512-AQK8T9GSKFREFlN1DBXTYsLjs7YV2tZcJ7zUWxbjMoQmj8dDSFRrzhLCbHPZWA1TMV3vACqfCxLEZcwf2wxV6Q==}
+
   openapi-types@12.1.3:
     resolution: {integrity: sha512-N4YtSYJqghVu4iek2ZUvcN/0aqH1kRDuNqzcycDxhOUpg7GdvLa2F3DgS6yBNhInhv2r/6I0Flkn7CqL8+nIcw==}
+
+  openapi-typescript-helpers@0.0.15:
+    resolution: {integrity: sha512-opyTPaunsklCBpTK8JGef6mfPhLSnyy5a0IN9vKtx3+4aExf+KxEqYwIy3hqkedXIB97u357uLMJsOnm3GVjsw==}
 
   openapi-typescript@7.6.1:
     resolution: {integrity: sha512-F7RXEeo/heF3O9lOXo2bNjCOtfp7u+D6W3a3VNEH2xE6v+fxLtn5nq0uvUcA1F5aT+CMhNeC5Uqtg5tlXFX/ag==}
@@ -11612,7 +11634,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -12777,7 +12799,13 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
+  openapi-fetch@0.13.5:
+    dependencies:
+      openapi-typescript-helpers: 0.0.15
+
   openapi-types@12.1.3: {}
+
+  openapi-typescript-helpers@0.0.15: {}
 
   openapi-typescript@7.6.1(typescript@5.8.2):
     dependencies:
@@ -13269,7 +13297,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 
