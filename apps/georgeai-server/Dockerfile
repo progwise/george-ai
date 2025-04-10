@@ -1,9 +1,14 @@
-FROM node:20-slim AS base
+FROM node:22-slim AS base
 
 RUN apt-get update \
     && apt-get install -y \
         python3 \
         make \
+        libcairo2-dev \
+        libjpeg62-turbo-dev \
+        libpango1.0-dev \
+        libgif-dev \
+        build-essential \
         g++ \
         sqlite3 \
         libsqlite3-dev \
@@ -20,8 +25,7 @@ WORKDIR /app
 COPY . .
 
 RUN pnpm i --frozen-lockfile \
-    && cd apps/georgeai-server \
-    && pnpm run build
+    && pnpm --filter @george-ai/server run build
 
 
 FROM base AS runner
