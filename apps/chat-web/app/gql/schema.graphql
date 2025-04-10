@@ -241,6 +241,7 @@ type Mutation {
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
+  runAiLibraryCrawler(id: String!): AiLibraryCrawler
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage

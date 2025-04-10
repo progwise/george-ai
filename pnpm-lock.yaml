@@ -321,6 +321,9 @@ importers:
 
   packages/pothos-graphql:
     dependencies:
+      '@george-ai/crawl4ai-client':
+        specifier: workspace:*
+        version: link:../crawl4ai-client
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../langchain-chat

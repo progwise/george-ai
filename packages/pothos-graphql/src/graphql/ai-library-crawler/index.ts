@@ -1,3 +1,5 @@
+import { crawl } from '@george-ai/crawl4ai-client'
+
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -36,6 +38,67 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
         ...query,
         data: args,
       })
+    },
+  }),
+)
+
+builder.mutationField('runAiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    args: {
+      id: t.arg.string(),
+    },
+    resolve: async (query, _source, { id }) => {
+      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id } })
+
+      const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId: id, endedAt: null } })
+
+      if (ongoingRun) {
+        throw new Error('Crawler is already running')
+      }
+
+      const newRun = await prisma.aiLibraryCrawlerRun.create({
+        data: {
+          crawlerId: id,
+          startedAt: new Date(),
+        },
+      })
+
+      try {
+        const crawledPages = await crawl({
+          url: crawler.url,
+          maxDepth: crawler.maxDepth,
+          maxPages: crawler.maxPages,
+        })
+
+        console.log('Crawler response:', crawledPages)
+
+        const endedAt = new Date()
+        await prisma.aiLibraryCrawlerRun.update({
+          where: { id: newRun.id },
+          data: {
+            endedAt,
+            success: true,
+            crawler: {
+              update: { lastRun: endedAt },
+            },
+            pagesCrawled: crawledPages.length,
+          },
+        })
+
+        return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id } })
+      } catch (error) {
+        console.error('Error during crawling:', error)
+        await prisma.aiLibraryCrawlerRun.update({
+          where: { id: newRun.id },
+          data: {
+            endedAt: new Date(),
+            success: false,
+          },
+        })
+
+        throw error
+      }
     },
   }),
 )

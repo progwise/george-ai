@@ -255,6 +255,7 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
+  runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
@@ -385,6 +386,10 @@ export type MutationRemoveLibraryUsageArgs = {
 
 export type MutationRemoveUserProfileArgs = {
   userId: Scalars['String']['input']
+}
+
+export type MutationRunAiLibraryCrawlerArgs = {
+  id: Scalars['String']['input']
 }
 
 export type MutationSendConfirmationMailArgs = {
