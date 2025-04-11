@@ -56,9 +56,11 @@ interface ParticipantsDialogProps {
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
-  const [hasChecked, setHasChecked] = useState(true)
+  // const [hasChecked, setHasChecked] = useState(true)
   const [usersFilter, setUsersFilter] = useState<string | null>(null)
-  const [selectAllState, setSelectAllState] = useState<'none' | 'some' | 'all'>('none')
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
+  const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
+
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -70,49 +72,59 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const assistants = useFragment(ParticipantsDialog_AssistantFragment, props.assistants)
   const humans = useFragment(ParticipantsDialog_HumanFragment, props.humans)
 
-  const existingParticipantIds = conversation?.participants.map(
-    (participant) => participant.userId || participant.assistantId,
+  const assignedAssistantIds = useMemo(
+    () =>
+      (conversation?.participants
+        .filter((participant) => participant.assistantId)
+        .map((participant) => participant.assistantId) as string[]) || [],
+    [conversation],
   )
 
   const availableAssistants = useMemo(
+    () => assistants?.filter((assistant) => !assignedAssistantIds?.includes(assistant.id)) || [],
+    [assistants, assignedAssistantIds],
+  )
+
+  const assignedUserIds = useMemo(
     () =>
-      props.dialogMode === 'new'
-        ? assistants || []
-        : assistants?.filter((assistant) => !existingParticipantIds?.includes(assistant.id)) || [],
-    [props.dialogMode, assistants, existingParticipantIds],
+      (conversation?.participants
+        .filter((participant) => participant.userId)
+        .map((participant) => participant.userId) as string[]) || [],
+    [conversation],
   )
 
   const availableHumans = useMemo(() => {
-    const list =
-      props.dialogMode === 'new'
-        ? humans || []
-        : humans?.filter((user) => !existingParticipantIds?.includes(user.id)) || []
+    if (!humans || !usersFilter || usersFilter.length < 2) {
+      setSelectedUserIds([])
+      return []
+    }
 
-    return list.filter((human) => {
-      if (!usersFilter || usersFilter.length < 2) return false
-      const filter = usersFilter.toLowerCase()
-      return (
-        human.username.toLowerCase().includes(filter) ||
-        human.email.toLowerCase().includes(filter) ||
-        (human.profile?.firstName && human.profile.firstName.toLowerCase().includes(filter)) ||
-        (human.profile?.lastName && human.profile.lastName.toLowerCase().includes(filter)) ||
-        (human.profile?.business && human.profile.business.toLowerCase().includes(filter)) ||
-        (human.profile?.position && human.profile.position.toLowerCase().includes(filter))
-      )
-    })
-  }, [props.dialogMode, humans, existingParticipantIds, usersFilter])
+    const filter = usersFilter.toLowerCase()
+    const list = humans.filter(
+      (user) =>
+        !assignedUserIds?.includes(user.id) &&
+        (user.username.toLowerCase().includes(filter) ||
+          user.email.toLowerCase().includes(filter) ||
+          (user.profile?.firstName && user.profile.firstName.toLowerCase().includes(filter)) ||
+          (user.profile?.lastName && user.profile.lastName.toLowerCase().includes(filter)) ||
+          (user.profile?.business && user.profile.business.toLowerCase().includes(filter)) ||
+          (user.profile?.position && user.profile.position.toLowerCase().includes(filter))),
+    )
+    setSelectedUserIds((prev) => prev.filter((id) => list.some((human) => human.id === id)))
+    return list
+  }, [humans, assignedUserIds, usersFilter])
 
   const isOwner = user?.id === conversation?.ownerId
 
   const { mutate: createNewConversation, isPending: isCreating } = useMutation({
-    mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
+    mutationFn: async () => {
       if (!user?.id) {
         throw new Error('User not set')
       }
       return await createConversation({
         data: {
-          userIds: [...userIds, user.id],
-          assistantIds: [...assistantIds],
+          userIds: [...selectedUserIds, user.id],
+          assistantIds: [...selectedAssistantIds],
           ownerId: user.id,
         },
       })
@@ -132,7 +144,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   })
 
   const { mutate: addParticipants, isPending: isAdding } = useMutation({
-    mutationFn: async ({ assistantIds, userIds }: { assistantIds: string[]; userIds: string[] }) => {
+    mutationFn: async () => {
       if (!conversation) {
         throw new Error('Conversation not set')
       }
@@ -143,7 +155,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         throw new Error('User not set')
       }
       return await addConversationParticipants({
-        data: { conversationId: conversation.id, assistantIds, userIds },
+        data: { conversationId: conversation.id, assistantIds: selectedAssistantIds, userIds: selectedUserIds },
       })
     },
     onSettled: async () => {
@@ -160,31 +172,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     },
   })
 
-  useEffect(() => {
-    if (availableAssistants.length === 0 && availableHumans.length === 0) {
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-      setHasChecked(props.dialogMode === 'new')
-    }
-  }, [availableAssistants.length, availableHumans.length, props.dialogMode])
-
-  const handleSubmit = (formData: FormData) => {
-    const assistantIds = Array.from(formData.getAll('assistantIds')) as string[]
-    const userIds = Array.from(formData.getAll('userIds')) as string[]
-
-    if (props.dialogMode !== 'new' && assistantIds.length === 0 && userIds.length === 0) return
-
+  const handleSubmit = () => {
     if (props.dialogMode === 'new') {
-      createNewConversation({ assistantIds, userIds })
+      createNewConversation()
     } else {
-      addParticipants({ assistantIds, userIds })
+      addParticipants()
     }
-  }
-
-  const handleCheckboxChange = () => {
-    const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
-    const hasAnyChecked = checkboxes ? Array.from(checkboxes).some((checkbox) => checkbox.checked) : false
-    setHasChecked(hasAnyChecked)
-    updateSelectAllState()
   }
 
   const handleOpen = () => {
@@ -196,25 +189,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       dialogRef.current?.showModal()
     }
   }, [props.isOpen])
-
-  const checkboxes = dialogRef.current?.querySelectorAll<HTMLInputElement>('input[type="checkbox"][name="userIds"]')
-
-  const updateSelectAllState = () => {
-    if (!checkboxes || checkboxes.length === 0) {
-      setSelectAllState('none')
-      return
-    }
-
-    const checkedCount = Array.from(checkboxes).filter((checkbox) => checkbox.checked).length
-
-    if (checkedCount === 0) {
-      setSelectAllState('none')
-    } else if (checkedCount === checkboxes.length) {
-      setSelectAllState('all')
-    } else {
-      setSelectAllState('some')
-    }
-  }
 
   const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
@@ -241,7 +215,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         title={title}
         description={description}
         onSubmit={handleSubmit}
-        disabledSubmit={!hasChecked}
+        disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
       >
@@ -258,8 +232,15 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     name="assistants"
                     value={assistant.id}
                     className="checkbox-info checkbox checkbox-sm"
-                    defaultChecked={false}
-                    onChange={handleCheckboxChange}
+                    checked={selectedAssistantIds.includes(assistant.id)}
+                    onChange={(event) => {
+                      const value = event.target.checked
+                      if (value) {
+                        setSelectedAssistantIds((prev) => [...prev, assistant.id])
+                      } else {
+                        setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
+                      }
+                    }}
                   />
                   <span className="label-text">{assistant.name}</span>
                 </label>
@@ -284,19 +265,19 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                   type="checkbox"
                   name="selectAll"
                   className="checkbox-primary checkbox checkbox-sm"
-                  checked={selectAllState === 'all'}
+                  checked={selectedUserIds.length > 0}
                   ref={(element) => {
-                    if (element) {
-                      element.indeterminate = selectAllState === 'some'
-                    }
+                    if (!element) return
+                    element.indeterminate =
+                      selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
                   }}
                   onChange={(event) => {
                     const value = event.target.checked
-                    checkboxes?.forEach((checkbox) => {
-                      checkbox.checked = value
-                    })
-                    setSelectAllState(value ? 'all' : 'none')
-                    handleCheckboxChange()
+                    if (value) {
+                      setSelectedUserIds(availableHumans.map((human) => human.id))
+                    } else {
+                      setSelectedUserIds([])
+                    }
                   }}
                 />
                 <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
@@ -311,8 +292,15 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     name="userIds"
                     value={human.id}
                     className="checkbox-info checkbox checkbox-sm"
-                    defaultChecked={false}
-                    onChange={handleCheckboxChange}
+                    checked={selectedUserIds.includes(human.id)}
+                    onChange={(event) => {
+                      const value = event.target.checked
+                      if (value) {
+                        setSelectedUserIds((prev) => [...prev, human.id])
+                      } else {
+                        setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
+                      }
+                    }}
                   />
                   <span className="label-text">
                     {`${human.username} (${human.email} ${human.profile ? '| ' + human.profile?.business : ''} )`}
