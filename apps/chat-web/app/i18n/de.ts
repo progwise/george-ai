@@ -59,6 +59,7 @@ export default {
     leave: 'Konversation verlassen',
     leaveConfirmation:
       'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    owner: 'Besitzer',
   },
   dialog: {
     cancel: 'Abbrechen',
@@ -120,6 +121,7 @@ export default {
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    dropFileError: 'Löschen der Datei fehlgeschlagen',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     googleDrive: 'Google Drive',
     lastUpdate: 'Letzte Aktualisierung',
@@ -137,6 +139,7 @@ export default {
     condition: 'Wenn',
     instruction: 'Dann',
     email: 'Ihre E-Mail-Adresse',
+    searchUsers: 'Benutzer suchen...',
   },
   resetConversation: 'Konversation zurücksetzen',
   texts: {
@@ -154,16 +157,19 @@ export default {
     noAssistantsAvailable: 'Keine Assistenten verfügbar',
     noFilesFound: 'Keine Dateien gefunden',
     noUsersAvailable: 'Keine Benutzer verfügbar',
+    noUsersFound: 'Keine Benutzer gefunden',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
     uploadingFiles: 'Dateien hochladen...',
+    usersFound: 'Benutzer gefunden',
     with: 'mit',
   },
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
     clearEmbeddings: 'Einbettungen löschen',
     deleteConversation: 'Konversation löschen',
+    delete: 'Löschen',
     drop: 'Entfernen',
     goToOverview: 'Zur Übersicht',
     hide: 'Verbergen',
