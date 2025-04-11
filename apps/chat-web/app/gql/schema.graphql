@@ -109,6 +109,7 @@ type AiLibrary {
 type AiLibraryCrawler {
   createdAt: DateTime!
   id: ID!
+  isRunning: Boolean!
   lastRun: DateTime
   maxDepth: Int!
   maxPages: Int!

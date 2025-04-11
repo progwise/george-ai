@@ -37,7 +37,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
               <td>{crawler.maxPages}</td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
               <td>
-                <RunCrawlerButton crawlerId={crawler.id} libraryId={libraryId} />
+                <RunCrawlerButton crawlerId={crawler.id} libraryId={libraryId} isRunning={crawler.isRunning} />
               </td>
             </tr>
           ))}

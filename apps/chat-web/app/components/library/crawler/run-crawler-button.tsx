@@ -10,6 +10,7 @@ import { getCrawlersQueryOptions } from './get-crawlers'
 interface RunCrawlerButtonProps {
   crawlerId: string
   libraryId: string
+  isRunning: boolean
 }
 
 const runCrawler = createServerFn({ method: 'POST' })
@@ -28,7 +29,7 @@ const runCrawler = createServerFn({ method: 'POST' })
     )
   })
 
-export const RunCrawlerButton = ({ crawlerId, libraryId }: RunCrawlerButtonProps) => {
+export const RunCrawlerButton = ({ crawlerId, libraryId, isRunning }: RunCrawlerButtonProps) => {
   const queryClient = useQueryClient()
   const runCrawlerMutation = useMutation({
     mutationFn: async () => {
@@ -48,7 +49,12 @@ export const RunCrawlerButton = ({ crawlerId, libraryId }: RunCrawlerButtonProps
   }
 
   return (
-    <button type="button" disabled={runCrawlerMutation.isPending} onClick={handleClick} className="btn btn-xs">
+    <button
+      type="button"
+      disabled={isRunning || runCrawlerMutation.isPending}
+      onClick={handleClick}
+      className="btn btn-xs"
+    >
       Crawl
     </button>
   )

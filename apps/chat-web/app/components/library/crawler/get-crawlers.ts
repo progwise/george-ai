@@ -19,6 +19,7 @@ const getCrawlers = createServerFn({ method: 'GET' })
               maxDepth
               maxPages
               lastRun
+              isRunning
             }
           }
         }

@@ -25,6 +25,16 @@ builder.prismaObject('AiLibraryCrawler', {
       type: 'DateTime',
       nullable: false,
     }),
+    isRunning: t.boolean({
+      nullable: false,
+      resolve: async (crawler) => {
+        const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({
+          where: { crawlerId: crawler.id, endedAt: null },
+        })
+
+        return Boolean(ongoingRun)
+      },
+    }),
   }),
 })
 

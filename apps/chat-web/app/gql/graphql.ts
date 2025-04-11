@@ -135,6 +135,7 @@ export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
+  isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<Scalars['DateTime']['output']>
   maxDepth: Scalars['Int']['output']
   maxPages: Scalars['Int']['output']
@@ -1058,6 +1059,7 @@ export type CrawlerTableQuery = {
       maxDepth: number
       maxPages: number
       lastRun?: string | null
+      isRunning: boolean
     }>
   } | null
 }
@@ -3341,6 +3343,7 @@ export const CrawlerTableDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
                     ],
                   },
                 },
