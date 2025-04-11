@@ -251,38 +251,37 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
             <h4 className="underline">{t('conversations.humans')}</h4>
 
             <Input
-              className="pb-2"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
             />
+            <label className="label cursor-pointer justify-start gap-2">
+              <input
+                disabled={availableHumans.length < 1}
+                type="checkbox"
+                name="selectAll"
+                className="checkbox-primary checkbox checkbox-sm"
+                checked={selectedUserIds.length > 0}
+                ref={(element) => {
+                  if (!element) return
+                  element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
+                }}
+                onChange={(event) => {
+                  const value = event.target.checked
+                  if (value) {
+                    setSelectedUserIds(availableHumans.map((human) => human.id))
+                  } else {
+                    setSelectedUserIds([])
+                  }
+                }}
+              />
 
-            {availableHumans.length < 1 ? (
-              <span className="info label-text">{t('texts.noUsersFound')}</span>
-            ) : (
-              <label className="label cursor-pointer justify-start gap-2">
-                <input
-                  type="checkbox"
-                  name="selectAll"
-                  className="checkbox-primary checkbox checkbox-sm"
-                  checked={selectedUserIds.length > 0}
-                  ref={(element) => {
-                    if (!element) return
-                    element.indeterminate =
-                      selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
-                  }}
-                  onChange={(event) => {
-                    const value = event.target.checked
-                    if (value) {
-                      setSelectedUserIds(availableHumans.map((human) => human.id))
-                    } else {
-                      setSelectedUserIds([])
-                    }
-                  }}
-                />
+              {availableHumans.length < 1 ? (
+                <span className="info label-text">{t('texts.noUsersFound')}</span>
+              ) : (
                 <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
-              </label>
-            )}
+              )}
+            </label>
 
             <div className="h-48 overflow-y-scroll">
               {availableHumans.map((human) => (
