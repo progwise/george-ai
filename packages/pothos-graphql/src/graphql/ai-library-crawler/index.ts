@@ -75,8 +75,6 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
           maxPages: crawler.maxPages,
         })
 
-        console.log('Crawler response:', crawledPages)
-
         const endedAt = new Date()
         await prisma.aiLibraryCrawlerRun.update({
           where: { id: newRun.id },
