@@ -58,6 +58,14 @@ export default {
     leave: 'Leave conversation',
     leaveConfirmation: 'You are about to leave this conversation. It cannot be undone. Please confirm.',
   },
+  crawlers: {
+    addNew: 'Create new crawler',
+    lastRun: 'Last Run',
+    maxDepth: 'Max Depth',
+    maxPages: 'Max Pages',
+    run: 'Crawl',
+    url: 'URL',
+  },
   dialog: {
     cancel: 'Cancel',
     confirm: 'Confirm',
@@ -86,6 +94,7 @@ export default {
     condition: 'Case',
     confirmationDate: 'Confirmed',
     confirmedAt: 'Confirmed',
+    crawlers: 'Crawlers',
     createdAt: 'Created',
     description: 'Description',
     email: 'Email',

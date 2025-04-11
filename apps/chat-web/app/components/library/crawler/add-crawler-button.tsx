@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
 import { Input } from '../../form/input'
@@ -41,6 +42,7 @@ interface AddCrwalerButtonProps {
 export const AddCrwalerButton = ({ libraryId }: AddCrwalerButtonProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   const addCrawlerMutation = useMutation({
     mutationFn: addCrawlerFunction,
@@ -58,23 +60,29 @@ export const AddCrwalerButton = ({ libraryId }: AddCrwalerButtonProps) => {
   return (
     <>
       <button className="btn btn-xs" type="button" onClick={() => dialogRef.current?.showModal()}>
-        Add Crawler
+        {t('crawlers.addNew')}
       </button>
 
       <DialogForm
         ref={dialogRef}
-        title="Create Crawler"
+        title={t('crawlers.addNew')}
         onSubmit={handleSubmit}
         disabledSubmit={isPending}
-        submitButtonText="Create"
+        submitButtonText={t('actions.create')}
       >
         <div className="flex w-full flex-col gap-4">
-          <Input name="url" placeholder="https://" label="Url" schema={createCrawlerFormSchema} readOnly={isPending} />
+          <Input
+            name="url"
+            placeholder="https://"
+            label={t('crawlers.url')}
+            schema={createCrawlerFormSchema}
+            readOnly={isPending}
+          />
           <Input
             name="maxDepth"
             type="number"
             value={2}
-            label="Max-Depth"
+            label={t('crawlers.maxDepth')}
             schema={createCrawlerFormSchema}
             readOnly={isPending}
           />
@@ -82,7 +90,7 @@ export const AddCrwalerButton = ({ libraryId }: AddCrwalerButtonProps) => {
             name="maxPages"
             type="number"
             value={10}
-            label="Max-Pages"
+            label={t('crawlers.maxPages')}
             schema={createCrawlerFormSchema}
             readOnly={isPending}
           />

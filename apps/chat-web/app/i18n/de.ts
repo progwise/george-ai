@@ -60,6 +60,14 @@ export default {
     leaveConfirmation:
       'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
   },
+  crawlers: {
+    addNew: 'Neuen Crawler erstellen',
+    lastRun: 'Letzter Lauf',
+    maxDepth: 'Max Tiefe',
+    maxPages: 'Max Anzahl an Seiten',
+    run: 'Crawler starten',
+    url: 'URL',
+  },
   dialog: {
     cancel: 'Abbrechen',
     confirm: 'Bestätigen',
@@ -88,6 +96,7 @@ export default {
     condition: 'Fall',
     confirmationDate: 'Bestätigt',
     confirmedAt: 'Bestätigt am',
+    crawlers: 'Crawler',
     createdAt: 'Erstellt',
     description: 'Beschreibung',
     email: 'E-Mail',

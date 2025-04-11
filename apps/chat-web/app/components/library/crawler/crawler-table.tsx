@@ -13,7 +13,7 @@ interface CrawlerTableProps {
 
 export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
   const { data } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
-  const { language } = useTranslation()
+  const { t, language } = useTranslation()
 
   return (
     <>
@@ -22,11 +22,11 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
       <table className="table">
         <thead>
           <tr>
-            <th>URL</th>
-            <th>Max Depth</th>
-            <th>Max Pages</th>
-            <th>Last run</th>
-            <th>Action</th>
+            <th>{t('crawlers.url')}</th>
+            <th>{t('crawlers.maxDepth')}</th>
+            <th>{t('crawlers.maxPages')}</th>
+            <th>{t('crawlers.lastRun')}</th>
+            <th>{t('labels.actions')}</th>
           </tr>
         </thead>
         <tbody>

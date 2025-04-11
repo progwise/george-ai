@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
 import { aiLibraryFilesQueryOptions } from '../embeddings-table'
 import { getCrawlersQueryOptions } from './get-crawlers'
@@ -43,6 +44,7 @@ export const RunCrawlerButton = ({ crawlerId, libraryId, isRunning }: RunCrawler
       queryClient.invalidateQueries(aiLibraryFilesQueryOptions(libraryId))
     },
   })
+  const { t } = useTranslation()
 
   const handleClick = () => {
     runCrawlerMutation.mutate()
@@ -55,7 +57,7 @@ export const RunCrawlerButton = ({ crawlerId, libraryId, isRunning }: RunCrawler
       onClick={handleClick}
       className="btn btn-xs"
     >
-      Crawl
+      {t('crawlers.run')}
     </button>
   )
 }
