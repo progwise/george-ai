@@ -48,6 +48,7 @@ type Documents = {
   '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n  }\n': typeof types.ParticipantsDialog_HumanFragmentDoc
   '\n        mutation createAiLibraryCrawler($libraryId: String!, $maxDepth: Int!, $maxPages: Int!, $url: String!) {\n          createAiLibraryCrawler(libraryId: $libraryId, maxDepth: $maxDepth, maxPages: $maxPages, url: $url) {\n            id\n          }\n        }\n      ': typeof types.CreateAiLibraryCrawlerDocument
   '\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(id: $libraryId) {\n            crawlers {\n              id\n              url\n              maxDepth\n              maxPages\n              lastRun\n            }\n          }\n        }\n      ': typeof types.CrawlerTableDocument
+  '\n        mutation runCrawler($id: String!) {\n          runAiLibraryCrawler(id: $id) {\n            id\n            lastRun\n          }\n        }\n      ': typeof types.RunCrawlerDocument
   '\n  mutation dropFiles($libraryId: String!) {\n    dropFiles(libraryId: $libraryId) {\n      id\n      libraryId\n    }\n  }\n': typeof types.DropFilesDocument
   '\n  mutation deleteAiLibrary($id: String!) {\n    deleteAiLibrary(id: $id) {\n      id\n    }\n  }\n': typeof types.DeleteAiLibraryDocument
   '\n  fragment DeleteLibraryDialog_Library on AiLibrary {\n    id\n    name\n    ownerId\n    filesCount\n    createdAt\n    description\n    url\n  }\n': typeof types.DeleteLibraryDialog_LibraryFragmentDoc
@@ -154,6 +155,8 @@ const documents: Documents = {
     types.CreateAiLibraryCrawlerDocument,
   '\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(id: $libraryId) {\n            crawlers {\n              id\n              url\n              maxDepth\n              maxPages\n              lastRun\n            }\n          }\n        }\n      ':
     types.CrawlerTableDocument,
+  '\n        mutation runCrawler($id: String!) {\n          runAiLibraryCrawler(id: $id) {\n            id\n            lastRun\n          }\n        }\n      ':
+    types.RunCrawlerDocument,
   '\n  mutation dropFiles($libraryId: String!) {\n    dropFiles(libraryId: $libraryId) {\n      id\n      libraryId\n    }\n  }\n':
     types.DropFilesDocument,
   '\n  mutation deleteAiLibrary($id: String!) {\n    deleteAiLibrary(id: $id) {\n      id\n    }\n  }\n':
@@ -444,6 +447,12 @@ export function graphql(
 export function graphql(
   source: '\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(id: $libraryId) {\n            crawlers {\n              id\n              url\n              maxDepth\n              maxPages\n              lastRun\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(id: $libraryId) {\n            crawlers {\n              id\n              url\n              maxDepth\n              maxPages\n              lastRun\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation runCrawler($id: String!) {\n          runAiLibraryCrawler(id: $id) {\n            id\n            lastRun\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation runCrawler($id: String!) {\n          runAiLibraryCrawler(id: $id) {\n            id\n            lastRun\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

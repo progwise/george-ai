@@ -5,6 +5,7 @@ import { dateTimeStringShort } from '@george-ai/web-utils'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { AddCrwalerButton } from './add-crawler-button'
 import { getCrawlersQueryOptions } from './get-crawlers'
+import { RunCrawlerButton } from './run-crawler-button'
 
 interface CrawlerTableProps {
   libraryId: string
@@ -25,6 +26,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
             <th>Max Depth</th>
             <th>Max Pages</th>
             <th>Last run</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -34,6 +36,9 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
               <td>{crawler.maxDepth}</td>
               <td>{crawler.maxPages}</td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
+              <td>
+                <RunCrawlerButton crawlerId={crawler.id} libraryId={libraryId} />
+              </td>
             </tr>
           ))}
         </tbody>

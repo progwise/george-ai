@@ -1062,6 +1062,15 @@ export type CrawlerTableQuery = {
   } | null
 }
 
+export type RunCrawlerMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type RunCrawlerMutation = {
+  __typename?: 'Mutation'
+  runAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; lastRun?: string | null } | null
+}
+
 export type DropFilesMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
@@ -3343,6 +3352,46 @@ export const CrawlerTableDocument = {
     },
   ],
 } as unknown as DocumentNode<CrawlerTableQuery, CrawlerTableQueryVariables>
+export const RunCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'runCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'runAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RunCrawlerMutation, RunCrawlerMutationVariables>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [
