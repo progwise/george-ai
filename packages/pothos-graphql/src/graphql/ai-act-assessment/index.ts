@@ -1,7 +1,7 @@
-import { AiActBasicSystemInfo, getDefaultBasicSystemInfo } from '@george-ai/ai-act'
+import { AiActChecklistStep, getDefaultBasicSystemInfo } from '@george-ai/ai-act'
 
 import { builder } from '../builder'
-import { AiActBasicSystemInfoRef } from './basic-system-info'
+import { AiActChecklistStepRef } from './basic-system-info'
 
 type AiActRiskIndicator = {
   level: 'high' | 'medium' | 'low' | 'nonApplicable' | 'undetermined'
@@ -22,7 +22,7 @@ const AiActRiskIndicatorRef = builder.objectRef<AiActRiskIndicator>('AiActRiskIn
 
 interface AiActAssessmentQuery {
   riskIndicator: AiActRiskIndicator
-  basicSystemInfo: AiActBasicSystemInfo
+  basicSystemInfo: AiActChecklistStep
 }
 
 const AiActAssessmentQuery = builder.objectRef<{ assistantId: string }>('AiActAssessmentQuery').implement({
@@ -40,7 +40,7 @@ const AiActAssessmentQuery = builder.objectRef<{ assistantId: string }>('AiActAs
       },
     }),
     basicSystemInfo: t.field({
-      type: AiActBasicSystemInfoRef,
+      type: AiActChecklistStepRef,
       resolve: (source) => {
         const basicSystemInfo = getDefaultBasicSystemInfo(source.assistantId)
         return basicSystemInfo
