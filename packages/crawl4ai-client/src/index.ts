@@ -29,9 +29,9 @@ export const crawl = async ({ url, maxDepth, maxPages }: CrawlOptions) => {
     },
   })
 
-  const data = result.data as ApiResponse
+  const data = result.data as ApiResponse | undefined
 
-  if (!data.success) {
+  if (!data?.success) {
     throw new Error('Crawl failed')
   }
 
