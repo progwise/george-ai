@@ -139,6 +139,7 @@ export default {
     condition: 'Wenn',
     instruction: 'Dann',
     email: 'Ihre E-Mail-Adresse',
+    searchUsers: 'Benutzer suchen...',
   },
   resetConversation: 'Konversation zurücksetzen',
   texts: {
@@ -156,10 +157,12 @@ export default {
     noAssistantsAvailable: 'Keine Assistenten verfügbar',
     noFilesFound: 'Keine Dateien gefunden',
     noUsersAvailable: 'Keine Benutzer verfügbar',
+    noUsersFound: 'Keine Benutzer gefunden',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen',
     uploadingFiles: 'Dateien hochladen...',
+    usersFound: 'Benutzer gefunden',
     with: 'mit',
   },
   tooltips: {

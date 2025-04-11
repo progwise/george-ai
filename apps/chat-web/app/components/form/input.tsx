@@ -96,7 +96,7 @@ export const Input = <T extends ZodRawShape>({
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered w-full',
+            'input input-sm input-bordered w-full focus:outline-none',
             readOnly && 'cursor-not-allowed text-base-content/50',
             type === 'number' && 'text-right',
             type === 'date' && 'text-center',
