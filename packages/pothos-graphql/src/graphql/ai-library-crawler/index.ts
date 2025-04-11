@@ -1,6 +1,10 @@
+import { promises as fs } from 'fs'
+
 import { crawl } from '@george-ai/crawl4ai-client'
 
+import { completeFileUpload, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
+import { processFile } from '../ai-library-file/process-file'
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryCrawler')
@@ -85,6 +89,30 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
             pagesCrawled: crawledPages.length,
           },
         })
+
+        const resultsFromUploadAndProcessing = await Promise.allSettled(
+          crawledPages.map(async (page) => {
+            const file = await prisma.aiLibraryFile.create({
+              data: {
+                name: `${page.url} - ${page.title}`,
+                originUri: page.url,
+                mimeType: 'text/markdown',
+                libraryId: crawler.libraryId,
+              },
+            })
+
+            await fs.writeFile(getFilePath(file.id), page.content)
+            await completeFileUpload(file.id)
+            await processFile(file.id)
+          }),
+        )
+
+        const hasUploadingOrProcessingErrors = resultsFromUploadAndProcessing.some(
+          (result) => result.status === 'rejected',
+        )
+        if (hasUploadingOrProcessingErrors) {
+          throw new Error('Some files failed to upload or to process')
+        }
 
         return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id } })
       } catch (error) {
