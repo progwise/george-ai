@@ -57,6 +57,7 @@ export default {
     humans: 'Users',
     leave: 'Leave conversation',
     leaveConfirmation: 'You are about to leave this conversation. It cannot be undone. Please confirm.',
+    owner: 'Owner',
   },
   dialog: {
     cancel: 'Cancel',
@@ -117,6 +118,7 @@ export default {
     addNewDescription: 'A library is a collection of files that can be used by assistants.',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
+    dropFileError: 'Failed to delete file',
     dropFileFailure: 'Failed to drop files:',
     googleDrive: 'Google Drive',
     lastUpdate: 'Last update',
@@ -162,6 +164,7 @@ export default {
   tooltips: {
     addNoParticipantsSelected: 'No assistant or user is selected',
     clearEmbeddings: 'Clear embeddings',
+    delete: 'Delete',
     deleteConversation: 'Delete conversation',
     deleteFile: 'Delete file',
     hide: 'Hide',
