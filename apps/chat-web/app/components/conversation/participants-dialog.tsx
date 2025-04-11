@@ -56,7 +56,6 @@ interface ParticipantsDialogProps {
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
-  // const [hasChecked, setHasChecked] = useState(true)
   const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
@@ -277,7 +276,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
               />
 
               {availableHumans.length < 1 ? (
-                <span className="info label-text">{t('texts.noUsersFound')}</span>
+                <span className="info label-text font-bold">{t('texts.noUsersFound')}</span>
               ) : (
                 <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
               )}
