@@ -421,11 +421,11 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                         </span>
                       )}
 
-                      {file.dropError ? (
+                      {file.dropError && (
                         <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
                           <ExclamationIcon className={'fill-warning'} />
                         </span>
-                      ) : undefined}
+                      )}
                     </td>
                   </tr>
                 ))}
