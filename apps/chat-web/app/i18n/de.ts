@@ -164,9 +164,7 @@ export default {
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
     clearEmbeddings: 'Einbettungen löschen',
-    deleteConversation: 'Konversation löschen',
-    deleteFile: 'Datei löschen',
-    deleteLibrary: 'Bibliothek löschen',
+    delete: 'Löschen',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
     leaveConversation: 'Konversation verlassen',

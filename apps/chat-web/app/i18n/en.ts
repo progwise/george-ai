@@ -160,9 +160,7 @@ export default {
   tooltips: {
     addNoParticipantsSelected: 'No assistant or user is selected',
     clearEmbeddings: 'Clear embeddings',
-    deleteConversation: 'Delete conversation',
-    deleteFile: 'Delete file',
-    deleteLibrary: 'Delete library',
+    delete: 'Delete',
     hide: 'Hide',
     goToOverview: 'Go to overview',
     leaveConversation: 'Leave conversation',

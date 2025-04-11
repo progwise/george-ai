@@ -363,7 +363,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
           {/* Desktop Table */}
           <div className="hidden lg:block">
-            <table className="w-full table-auto border-collapse text-left">
+            <table className="w-full text-left">
               <thead className="bg-base-200">
                 <tr>
                   <th>
@@ -382,27 +382,27 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                   <th>{t('labels.actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-base-300">
+              <tbody>
                 {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
-                  <tr key={file.id} className="p-2 hover:bg-base-100">
-                    <td>
+                  <tr key={file.id} className="hover:bg-base-200">
+                    <td className="pt-1 text-center">
                       <input
                         type="checkbox"
-                        className="checkbox checkbox-xs flex justify-center"
+                        className="checkbox checkbox-xs"
                         checked={selectedFiles.includes(file.id)}
                         onChange={() => handleSelectFile(file.id)}
                       />
                     </td>
-                    <td className="p-2">{index + 1}</td>
+                    <td>{index + 1}</td>
                     <td>{truncateFileName(file.name, 49, 45)}</td>
-                    <td className="p-2">{file.size ?? '-'}</td>
-                    <td className="p-2">{file.chunks ?? '-'}</td>
-                    <td className="p-2">{dateTimeString(file.processedAt, language) || '-'}</td>
-                    <td className="flex items-center gap-2 p-2">
+                    <td>{file.size ?? '-'}</td>
+                    <td>{file.chunks ?? '-'}</td>
+                    <td>{dateTimeString(file.processedAt, language) || '-'}</td>
+                    <td className="flex items-center gap-2">
                       <button
                         type="button"
                         className="btn btn-xs tooltip tooltip-left"
-                        data-tip={t('tooltips.deleteFile')}
+                        data-tip={t('tooltips.delete')}
                         onClick={() => dropAllFilesMutation.mutate([file.id])}
                         disabled={dropAllFilesMutation.isPending}
                       >
