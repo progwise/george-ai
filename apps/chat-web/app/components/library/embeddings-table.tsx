@@ -227,7 +227,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="btn btn-xs lg:tooltip"
+            className="btn btn-xs tooltip tooltip-left"
             data-tip={t('tooltips.clearEmbeddings')}
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
@@ -299,7 +299,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <>
           {/* Mobile View */}
           <div className="block lg:hidden">
-            <label className="mb-4 flex items-center gap-2">
+            <label className="mb-4 flex gap-2">
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm"
@@ -311,8 +311,8 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
-                <div key={file.id} className="relative rounded-md border border-base-300 p-3 shadow-sm">
-                  <div className="absolute right-2 top-2 z-10 flex flex-col items-center gap-2">
+                <div key={file.id} className="flex flex-col gap-2 rounded-md border border-base-300 p-3 shadow-sm">
+                  <div className="flex items-center justify-end gap-2">
                     <button
                       type="button"
                       className="btn btn-xs"
@@ -336,7 +336,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     )}
                   </div>
 
-                  <label className="mb-2 flex items-center gap-2">
+                  <label className="mb-2 flex gap-2">
                     <input
                       type="checkbox"
                       className="checkbox checkbox-sm"
@@ -348,19 +348,13 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     </span>
                   </label>
 
-                  <div className="space-y-1 text-sm">
-                    <div className="flex gap-2">
-                      <span className="w-24">{t('labels.size')}:</span>
-                      <span>{file.size ?? '-'}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="w-24">{t('labels.chunks')}:</span>
-                      <span>{file.chunks ?? '-'}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="w-24">{t('labels.processed')}:</span>
-                      <span>{dateTimeString(file.processedAt, language) || '-'}</span>
-                    </div>
+                  <div className="grid grid-cols-2 gap-1 text-sm">
+                    <span className="">{t('labels.size')}:</span>
+                    <span>{file.size ?? '-'}</span>
+                    <span className="">{t('labels.chunks')}:</span>
+                    <span>{file.chunks ?? '-'}</span>
+                    <span className="">{t('labels.processed')}:</span>
+                    <span>{dateTimeString(file.processedAt, language) || '-'}</span>
                   </div>
                 </div>
               ))}
@@ -407,7 +401,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     <td className="flex items-center gap-2 p-2">
                       <button
                         type="button"
-                        className="btn btn-xs lg:tooltip"
+                        className="btn btn-xs tooltip tooltip-left"
                         data-tip={t('tooltips.deleteFile')}
                         onClick={() => dropAllFilesMutation.mutate([file.id])}
                         disabled={dropAllFilesMutation.isPending}
@@ -416,7 +410,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-xs lg:tooltip"
+                        className="btn btn-xs tooltip tooltip-left"
                         data-tip={t('tooltips.reProcess')}
                         onClick={() => reProcessAllFilesMutation.mutate([file.id])}
                         disabled={reProcessAllFilesMutation.isPending}
