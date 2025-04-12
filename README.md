@@ -33,8 +33,21 @@ Use `env.example` files as the references.
 2. Create a Realm using `KEYCLOAK_REALM` from `.env` file.
 3. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
 4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
-5. Go to the **Users** section and create a user and set a password under the **Credentials** tab in the user view.
-6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
+5. Navigate to the **Users** section and create a new user. Under the **Credentials** tab, set a password for the user. Then, go to the **Details** tab and provide the following information:
+
+- **First Name**
+- **Last Name**
+- **Email Address**
+
+Ensure the email address is marked as verified by toggling the **Email Verified** option.
+
+6. You might need to create a new migration for your schema changes. If that is the case then go to `packages/pothos-graphql` use the command below:
+
+```bash
+pnpm prisma migrate dev
+```
+
+7. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
 
 Client Authentication has to be **off**.
 
@@ -48,7 +61,7 @@ Docs for setting up an OAuth app in:
 
 ### 5. Push Prisma Schema
 
-Navigate to `packages/pothos-graphql` and run:
+To apply the Prisma schema changes to your database, navigate to the `packages/pothos-graphql` directory and execute the following command:
 
 ```bash
 pnpm prisma db push
