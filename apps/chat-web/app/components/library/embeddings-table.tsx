@@ -29,6 +29,7 @@ interface AiLibraryFile {
   chunks?: number | null
   processedAt?: string | null
   processingErrorMessage?: string | null
+  dropError?: string | null
 }
 
 const clearEmbeddings = createServerFn({ method: 'GET' })
@@ -330,6 +331,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                         className="btn btn-xs"
                         onClick={() => dropAllFilesMutation.mutate([file.id])}
                         disabled={dropAllFilesMutation.isPending}
+                        data-tip={t('tooltips.delete')}
                       >
                         <TrashIcon />
                       </button>
@@ -349,18 +351,6 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                     </div>
                   </div>
 
-                  <label className="mb-2 flex gap-2">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-sm"
-                      checked={selectedFiles.includes(file.id)}
-                      onChange={() => handleSelectFile(file.id)}
-                    />
-                    <span className="text-sm font-semibold">
-                      {index + 1}. {truncateFileName(file.name, 25, 20)}
-                    </span>
-                  </label>
-
                   <div className="grid grid-cols-2 gap-1 text-sm">
                     <span className="">{t('labels.size')}:</span>
                     <span>{file.size ?? '-'}</span>
@@ -376,7 +366,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
           {/* Desktop Table */}
           <div className="hidden lg:block">
-            <table className="table w-full text-left">
+            <table className="table">
               <thead className="bg-base-200">
                 <tr>
                   <th>
@@ -433,6 +423,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                       {file.processingErrorMessage && (
                         <span className="tooltip" data-tip={file.processingErrorMessage}>
                           <ExclamationIcon />
+                        </span>
+                      )}
+
+                      {file.dropError && (
+                        <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
+                          <ExclamationIcon className="fill-warning" />
                         </span>
                       )}
                     </td>

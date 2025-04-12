@@ -3,6 +3,14 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:22
 ENV PNPM_VERSION=9.15.4
 
 RUN npm install -g pnpm@${PNPM_VERSION}
+
+RUN apt-get update \
+  && apt-get -y install --no-install-recommends  \
+    libcairo2-dev \
+    libjpeg62-turbo-dev \
+    libpango1.0-dev \
+    libgif-dev build-essential \
+    g++
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
