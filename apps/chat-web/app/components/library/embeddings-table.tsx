@@ -312,28 +312,41 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
                 <div key={file.id} className="flex flex-col gap-2 rounded-md border border-base-300 p-3 shadow-sm">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-xs"
-                      onClick={() => dropAllFilesMutation.mutate([file.id])}
-                      disabled={dropAllFilesMutation.isPending}
-                    >
-                      <TrashIcon />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-xs"
-                      onClick={() => reProcessAllFilesMutation.mutate([file.id])}
-                      disabled={reProcessAllFilesMutation.isPending}
-                    >
-                      <ReprocessIcon />
-                    </button>
-                    {file.processingErrorMessage && (
-                      <span className="tooltip tooltip-left" data-tip={file.processingErrorMessage}>
-                        <ExclamationIcon />
+                  <div className="flex justify-between">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={selectedFiles.includes(file.id)}
+                        onChange={() => handleSelectFile(file.id)}
+                      />
+                      <span className="text-sm font-semibold">
+                        {index + 1}. {truncateFileName(file.name, 25, 20)}
                       </span>
-                    )}
+                    </label>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        className="btn btn-xs"
+                        onClick={() => dropAllFilesMutation.mutate([file.id])}
+                        disabled={dropAllFilesMutation.isPending}
+                      >
+                        <TrashIcon />
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-xs"
+                        onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                        disabled={reProcessAllFilesMutation.isPending}
+                      >
+                        <ReprocessIcon />
+                      </button>
+                      {file.processingErrorMessage && (
+                        <span className="tooltip tooltip-left flex items-center" data-tip={file.processingErrorMessage}>
+                          <ExclamationIcon />
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <label className="mb-2 flex gap-2">
@@ -363,7 +376,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
           {/* Desktop Table */}
           <div className="hidden lg:block">
-            <table className="w-full text-left">
+            <table className="table w-full text-left">
               <thead className="bg-base-200">
                 <tr>
                   <th>
@@ -385,7 +398,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
               <tbody>
                 {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
                   <tr key={file.id} className="hover:bg-base-200">
-                    <td className="pt-1 text-center">
+                    <td>
                       <input
                         type="checkbox"
                         className="checkbox checkbox-xs"
