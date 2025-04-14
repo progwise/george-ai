@@ -23,6 +23,71 @@ export type Scalars = {
   Decimal: { input: number; output: number }
 }
 
+/** AI Act Checklist Navigation */
+export type AiActChecklistNavigation = {
+  __typename?: 'AIActChecklistNavigation'
+  hint?: Maybe<AiActString>
+  title?: Maybe<AiActString>
+}
+
+/** AI Act Assessment Query */
+export type AiActAssessmentQuery = {
+  __typename?: 'AiActAssessmentQuery'
+  basicSystemInfo?: Maybe<AiActChecklistStepRef>
+  riskIndicators?: Maybe<AiActRiskIndicator>
+}
+
+/** AI Act Assessment Basic System Info 2 */
+export type AiActChecklistStepRef = {
+  __typename?: 'AiActChecklistStepRef'
+  hint?: Maybe<AiActString>
+  id?: Maybe<Scalars['String']['output']>
+  navigation?: Maybe<AiActChecklistNavigation>
+  percentCompleted?: Maybe<Scalars['Int']['output']>
+  questions?: Maybe<Array<AiActQuestionsRef>>
+  riskIndicator?: Maybe<AiActRiskIndicator>
+  title?: Maybe<AiActString>
+}
+
+export type AiActOption = {
+  __typename?: 'AiActOption'
+  id: Scalars['String']['output']
+  risk?: Maybe<AiActOptionRiskRef>
+  title: AiActString
+}
+
+export type AiActOptionRiskRef = {
+  __typename?: 'AiActOptionRiskRef'
+  description: AiActString
+  points: Scalars['Int']['output']
+  riskLevel?: Maybe<Scalars['String']['output']>
+}
+
+/** AI Act Questions */
+export type AiActQuestionsRef = {
+  __typename?: 'AiActQuestionsRef'
+  hint: AiActString
+  id: Scalars['String']['output']
+  notes?: Maybe<Scalars['String']['output']>
+  options: Array<AiActOption>
+  title: AiActString
+  value?: Maybe<Scalars['String']['output']>
+}
+
+/** AI Act Risk Indicator */
+export type AiActRiskIndicator = {
+  __typename?: 'AiActRiskIndicator'
+  description?: Maybe<AiActString>
+  factors: Array<AiActString>
+  level?: Maybe<Scalars['String']['output']>
+}
+
+export type AiActString = {
+  __typename?: 'AiActString'
+  de: Scalars['String']['output']
+  en: Scalars['String']['output']
+}
+
 export type AiAssistant = {
   __typename?: 'AiAssistant'
   baseCases: Array<AiAssistantBaseCase>
@@ -242,11 +307,13 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
+  resetAssessmentAnswers?: Maybe<Scalars['DateTime']['output']>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
+  updateAssessmentQuestion?: Maybe<Scalars['DateTime']['output']>
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateMessage?: Maybe<AiConversationMessage>
   updateUserProfile?: Maybe<UserProfile>
@@ -367,6 +434,10 @@ export type MutationRemoveUserProfileArgs = {
   userId: Scalars['String']['input']
 }
 
+export type MutationResetAssessmentAnswersArgs = {
+  assistantId: Scalars['String']['input']
+}
+
 export type MutationSendConfirmationMailArgs = {
   confirmationUrl: Scalars['String']['input']
   userId: Scalars['String']['input']
@@ -391,6 +462,13 @@ export type MutationUpdateAiLibraryArgs = {
   id: Scalars['String']['input']
 }
 
+export type MutationUpdateAssessmentQuestionArgs = {
+  assistantId: Scalars['String']['input']
+  notes?: InputMaybe<Scalars['String']['input']>
+  questionId: Scalars['String']['input']
+  value?: InputMaybe<Scalars['String']['input']>
+}
+
 export type MutationUpdateLibraryUsageArgs = {
   id: Scalars['String']['input']
   usedFor?: InputMaybe<Scalars['String']['input']>
@@ -413,6 +491,7 @@ export type MutationUpsertAiBaseCasesArgs = {
 
 export type Query = {
   __typename?: 'Query'
+  AiActAssessmentQuery?: Maybe<AiActAssessmentQuery>
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
   aiConversation?: Maybe<AiConversation>
@@ -425,6 +504,10 @@ export type Query = {
   myConversationUsers: Array<User>
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
+}
+
+export type QueryAiActAssessmentQueryArgs = {
+  assistantId: Scalars['String']['input']
 }
 
 export type QueryAiAssistantArgs = {
@@ -733,6 +816,63 @@ export type LoginMutation = {
     given_name?: string | null
     family_name?: string | null
     createdAt: string
+  } | null
+}
+
+export type UpdateAssessmentQuestionMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+  questionId: Scalars['String']['input']
+  value?: InputMaybe<Scalars['String']['input']>
+  notes?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type UpdateAssessmentQuestionMutation = { __typename?: 'Mutation'; updateAssessmentQuestion?: string | null }
+
+export type ResetAssessmentAnswersMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+}>
+
+export type ResetAssessmentAnswersMutation = { __typename?: 'Mutation'; resetAssessmentAnswers?: string | null }
+
+export type AiActAssessmentQueryQueryVariables = Exact<{
+  assistantId: Scalars['String']['input']
+}>
+
+export type AiActAssessmentQueryQuery = {
+  __typename?: 'Query'
+  AiActAssessmentQuery?: {
+    __typename?: 'AiActAssessmentQuery'
+    basicSystemInfo?: {
+      __typename?: 'AiActChecklistStepRef'
+      percentCompleted?: number | null
+      questions?: Array<{
+        __typename?: 'AiActQuestionsRef'
+        id: string
+        notes?: string | null
+        value?: string | null
+        title: { __typename?: 'AiActString'; en: string; de: string }
+        hint: { __typename?: 'AiActString'; de: string; en: string }
+        options: Array<{
+          __typename?: 'AiActOption'
+          id: string
+          title: { __typename?: 'AiActString'; de: string; en: string }
+          risk?: {
+            __typename?: 'AiActOptionRiskRef'
+            riskLevel?: string | null
+            points: number
+            description: { __typename?: 'AiActString'; de: string; en: string }
+          } | null
+        }>
+      }> | null
+      title?: { __typename?: 'AiActString'; en: string; de: string } | null
+      hint?: { __typename?: 'AiActString'; en: string; de: string } | null
+      riskIndicator?: {
+        __typename?: 'AiActRiskIndicator'
+        level?: string | null
+        description?: { __typename?: 'AiActString'; de: string; en: string } | null
+        factors: Array<{ __typename?: 'AiActString'; de: string; en: string }>
+      } | null
+    } | null
   } | null
 }
 
@@ -2791,6 +2931,281 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const UpdateAssessmentQuestionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateAssessmentQuestion' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'questionId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'value' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'notes' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAssessmentQuestion' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'questionId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'questionId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'value' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'value' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'notes' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'notes' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAssessmentQuestionMutation, UpdateAssessmentQuestionMutationVariables>
+export const ResetAssessmentAnswersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'resetAssessmentAnswers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'resetAssessmentAnswers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ResetAssessmentAnswersMutation, ResetAssessmentAnswersMutationVariables>
+export const AiActAssessmentQueryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'AiActAssessmentQuery' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'AiActAssessmentQuery' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'basicSystemInfo' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'questions' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'title' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'notes' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'hint' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'options' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'title' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                      ],
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'risk' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        { kind: 'Field', name: { kind: 'Name', value: 'riskLevel' } },
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'description' },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                              { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                            ],
+                                          },
+                                        },
+                                        { kind: 'Field', name: { kind: 'Name', value: 'points' } },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'title' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                          ],
+                        },
+                      },
+                      { kind: 'Field', name: { kind: 'Name', value: 'percentCompleted' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'hint' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'riskIndicator' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'description' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'factors' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                            { kind: 'Field', name: { kind: 'Name', value: 'level' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiActAssessmentQueryQuery, AiActAssessmentQueryQueryVariables>
 export const UpsertAiBaseCasesDocument = {
   kind: 'Document',
   definitions: [

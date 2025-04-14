@@ -69,6 +69,8 @@ model AiAssistant {
   conversationParticipations AiConversationParticipant[]
   languageModel              String?                     @default("OpenAI")
   baseCases                  AiAssistantBaseCase[]
+
+  AiAssistantEUActAnswers AiAssistantEUActAnswers[]
 }
 
 model AiAssistantBaseCase {
@@ -80,6 +82,17 @@ model AiAssistantBaseCase {
   assistantId String
   condition   String?
   instruction String?
+}
+
+model AiAssistantEUActAnswers {
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  assistantId String
+  questionId  String
+  answer      String?
+  notes       String?
+  @@id([assistantId, questionId])
 }
 
 model AiLibrary {

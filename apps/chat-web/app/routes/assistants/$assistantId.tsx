@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
 import AssistantAiAct from '../../components/assistant/assistant-ai-act/assistant-ai-act'
+import BasicSystemInfoAssessment from '../../components/assistant/assistant-ai-act/basic-systeminfo'
 import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
@@ -115,7 +116,7 @@ function RouteComponent() {
           <h3 className="text-lg font-bold">{t('assistants.aiAct')}</h3>
           <p>{t('assistants.aiActDescription')}</p>
           <div className="divider" />
-          <AssistantAiAct />
+          <BasicSystemInfoAssessment />
         </div>
       </section>
     </article>

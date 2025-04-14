@@ -3,6 +3,73 @@ schema {
   mutation: Mutation
 }
 
+"""
+AI Act Checklist Navigation
+"""
+type AIActChecklistNavigation {
+  hint: AiActString
+  title: AiActString
+}
+
+"""
+AI Act Assessment Query
+"""
+type AiActAssessmentQuery {
+  basicSystemInfo: AiActChecklistStepRef
+  riskIndicators: AiActRiskIndicator
+}
+
+"""
+AI Act Assessment Basic System Info 2
+"""
+type AiActChecklistStepRef {
+  hint: AiActString
+  id: String
+  navigation: AIActChecklistNavigation
+  percentCompleted: Int
+  questions: [AiActQuestionsRef!]
+  riskIndicator: AiActRiskIndicator
+  title: AiActString
+}
+
+type AiActOption {
+  id: String!
+  risk: AiActOptionRiskRef
+  title: AiActString!
+}
+
+type AiActOptionRiskRef {
+  description: AiActString!
+  points: Int!
+  riskLevel: String
+}
+
+"""
+AI Act Questions
+"""
+type AiActQuestionsRef {
+  hint: AiActString!
+  id: String!
+  notes: String
+  options: [AiActOption!]!
+  title: AiActString!
+  value: String
+}
+
+"""
+AI Act Risk Indicator
+"""
+type AiActRiskIndicator {
+  description: AiActString
+  factors: [AiActString!]!
+  level: String
+}
+
+type AiActString {
+  de: String!
+  en: String!
+}
+
 type AiAssistant {
   baseCases: [AiAssistantBaseCase!]!
   createdAt: DateTime!
@@ -229,11 +296,13 @@ type Mutation {
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
+  resetAssessmentAnswers(assistantId: String!): DateTime
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
+  updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
@@ -241,6 +310,7 @@ type Mutation {
 }
 
 type Query {
+  AiActAssessmentQuery(assistantId: String!): AiActAssessmentQuery
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation

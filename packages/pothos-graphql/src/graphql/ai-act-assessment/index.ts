@@ -1,24 +1,10 @@
-import { AiActChecklistStep, getDefaultBasicSystemInfo } from '@george-ai/ai-act'
+import { AiActChecklistStep, AiActRiskIndicator, getDefaultBasicSystemInfo } from '@george-ai/ai-act'
 
 import { builder } from '../builder'
 import { AiActChecklistStepRef } from './basic-system-info'
+import { AiActRiskIndicatorRef } from './risk-indicator'
 
-type AiActRiskIndicator = {
-  level: 'high' | 'medium' | 'low' | 'nonApplicable' | 'undetermined'
-  description: string
-  factors?: string[]
-  calculated: Date
-}
-
-const AiActRiskIndicatorRef = builder.objectRef<AiActRiskIndicator>('AiActRiskIndicator').implement({
-  description: 'AI Act Risk Indicator',
-  fields: (t) => ({
-    level: t.exposeString('level'),
-    description: t.exposeString('description'),
-    factors: t.exposeStringList('factors', { nullable: true }),
-    calculated: t.expose('calculated', { type: 'DateTime' }),
-  }),
-})
+export * from './mutations'
 
 interface AiActAssessmentQuery {
   riskIndicator: AiActRiskIndicator
@@ -34,16 +20,15 @@ const AiActAssessmentQuery = builder.objectRef<{ assistantId: string }>('AiActAs
         console.log('Calculate risk indicator for assistant', source.assistantId)
         return {
           level: 'medium' as const,
-          description: 'Medium risk indicator description',
-          calculated: new Date(),
+          description: { de: 'Keine Antworten gesammelt', en: 'No answers collected' },
+          factors: [],
         }
       },
     }),
     basicSystemInfo: t.field({
       type: AiActChecklistStepRef,
       resolve: (source) => {
-        const basicSystemInfo = getDefaultBasicSystemInfo(source.assistantId)
-        return basicSystemInfo
+        return { ...getDefaultBasicSystemInfo(source.assistantId), assistantId: source.assistantId }
       },
     }),
   }),
