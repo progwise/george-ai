@@ -35,11 +35,11 @@ const addCrawlerFunction = createServerFn({ method: 'POST' })
     )
   })
 
-interface AddCrwalerButtonProps {
+interface AddCrawlerButtonProps {
   libraryId: string
 }
 
-export const AddCrwalerButton = ({ libraryId }: AddCrwalerButtonProps) => {
+export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const { t } = useTranslation()

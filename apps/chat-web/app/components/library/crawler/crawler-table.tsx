@@ -3,7 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { dateTimeStringShort } from '@george-ai/web-utils'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { AddCrwalerButton } from './add-crawler-button'
+import { AddCrawlerButton } from './add-crawler-button'
 import { getCrawlersQueryOptions } from './get-crawlers'
 import { RunCrawlerButton } from './run-crawler-button'
 
@@ -17,7 +17,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
 
   return (
     <>
-      <AddCrwalerButton libraryId={libraryId} />
+      <AddCrawlerButton libraryId={libraryId} />
 
       <table className="table">
         <thead>
