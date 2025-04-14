@@ -42,7 +42,7 @@ export default function TopNavigation() {
   const { t } = useTranslation()
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(getStoredTheme())
+  const [theme, setTheme] = useState(() => getStoredTheme())
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
 
@@ -163,16 +163,6 @@ export default function TopNavigation() {
       {/* Mobile Navigation */}
       <div className="flex w-full items-center justify-between lg:hidden">
         <div className="flex items-center gap-2">
-          <label className="swap swap-rotate" aria-label="Toggle theme">
-            <input
-              type="checkbox"
-              className="theme-controller"
-              checked={theme === 'dark'}
-              onChange={handleThemeToggle}
-            />
-            <SunIcon className="swap-off size-6 fill-current" />
-            <MoonIcon className="swap-on size-6 fill-current" />
-          </label>
           <Link to="/" className="btn btn-ghost" aria-label="Home">
             <BowlerLogoIcon className="size-8" />
           </Link>
@@ -188,6 +178,12 @@ export default function TopNavigation() {
             {t('topNavigation.signIn')}
           </button>
         )}
+
+        <label className="swap swap-rotate" aria-label="Toggle theme">
+          <input type="checkbox" className="theme-controller" checked={theme === 'dark'} onChange={handleThemeToggle} />
+          <SunIcon className="swap-off size-6 fill-current" />
+          <MoonIcon className="swap-on size-6 fill-current" />
+        </label>
 
         <div className="dropdown dropdown-end" ref={menuRef}>
           <label tabIndex={0} className="btn btn-ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
@@ -208,16 +204,6 @@ export default function TopNavigation() {
       {/* Desktop Navigation */}
       <div className="hidden w-full items-center justify-between lg:flex">
         <div className="flex items-center gap-4">
-          <label className="swap swap-rotate" aria-label="Toggle theme">
-            <input
-              type="checkbox"
-              className="theme-controller"
-              checked={theme === 'dark'}
-              onChange={handleThemeToggle}
-            />
-            <SunIcon className="swap-off size-6 fill-current" />
-            <MoonIcon className="swap-on size-6 fill-current" />
-          </label>
           <Link to="/" className="btn btn-ghost" aria-label="Home">
             <BowlerLogoIcon className="size-8" />
             {t('brand')}
@@ -243,6 +229,16 @@ export default function TopNavigation() {
           {user ? (
             <>
               <TopNavigationLink to="/profile">{user.name}</TopNavigationLink>
+              <label className="swap swap-rotate" aria-label="Toggle theme">
+                <input
+                  type="checkbox"
+                  className="theme-controller"
+                  checked={theme === 'dark'}
+                  onChange={handleThemeToggle}
+                />
+                <SunIcon className="swap-off size-6 fill-current" />
+                <MoonIcon className="swap-on size-6 fill-current" />
+              </label>
               <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
                 <UserIcon className="size-6" />
                 {t('topNavigation.signOut')}
@@ -258,6 +254,16 @@ export default function TopNavigation() {
               >
                 {t('topNavigation.demo')}
               </a>
+              <label className="swap swap-rotate" aria-label="Toggle theme">
+                <input
+                  type="checkbox"
+                  className="theme-controller"
+                  checked={theme === 'dark'}
+                  onChange={handleThemeToggle}
+                />
+                <SunIcon className="swap-off size-6 fill-current" />
+                <MoonIcon className="swap-on size-6 fill-current" />
+              </label>
               <button type="button" className="btn btn-ghost gap-2" onClick={login}>
                 <UserIcon className="size-6" />
                 {t('topNavigation.signIn')}
