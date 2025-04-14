@@ -126,7 +126,16 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
 
         return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id: crawlerId } })
       } catch (error) {
-        console.error('Error during crawling:', error)
+        console.error(
+          'Error during crawling. crawler id: ',
+          crawler.id,
+          ', crawler run id:',
+          newRun.id,
+          ', user id:',
+          userId,
+          ', error:',
+          error,
+        )
         await prisma.aiLibraryCrawlerRun.update({
           where: { id: newRun.id },
           data: {
