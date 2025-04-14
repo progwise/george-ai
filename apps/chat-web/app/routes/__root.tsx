@@ -52,8 +52,8 @@ const RootDocument = () => {
         <Suspense>
           <TanStackQueryDevtools />
         </Suspense>
+        <GeorgeToaster />
       </body>
-      <GeorgeToaster />
     </html>
   )
 }
