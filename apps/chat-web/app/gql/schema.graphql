@@ -47,7 +47,7 @@ type AiConversation {
   humans: [User!]!
   id: ID!
   messages: [AiConversationMessage!]!
-  owner: User
+  owner: User!
   ownerId: String!
   participants: [AiConversationParticipant!]!
   updatedAt: DateTime
