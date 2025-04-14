@@ -2,6 +2,7 @@
   "name": "@george-ai/crawl4ai-client",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "author": "progwise.net",
   "private": true,
   "scripts": {
