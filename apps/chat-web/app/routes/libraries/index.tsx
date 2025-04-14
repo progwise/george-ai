@@ -76,7 +76,7 @@ function RouteComponent() {
   }
 
   return (
-    <article className="flex w-full flex-col gap-4">
+    <article className="flex w-full flex-col gap-4 text-base-content">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
@@ -89,11 +89,11 @@ function RouteComponent() {
         ) : (
           <table className="table w-full">
             <thead className="hidden md:table-header-group">
-              <tr>
-                <th>#</th>
-                <th>{t('labels.name')}</th>
-                <th>{t('libraries.owner')}</th>
-                <th>{t('libraries.lastUpdate')}</th>
+              <tr className="border-b border-base-content/20">
+                <th className="text-base-content">#</th>
+                <th className="text-base-content">{t('labels.name')}</th>
+                <th className="text-base-content">{t('libraries.owner')}</th>
+                <th className="text-base-content">{t('libraries.lastUpdate')}</th>
               </tr>
             </thead>
 
@@ -105,8 +105,13 @@ function RouteComponent() {
                 return (
                   <tr
                     key={library.id}
-                    className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
-                    onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId: library.id } })}
+                    className="relative my-1 block border-b border-base-content/10 pr-20 leading-tight hover:bg-base-200 md:table-row"
+                    onClick={() =>
+                      navigate({
+                        to: '/libraries/$libraryId',
+                        params: { libraryId: library.id },
+                      })
+                    }
                   >
                     <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
                       {index + 1}

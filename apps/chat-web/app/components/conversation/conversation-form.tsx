@@ -82,7 +82,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
   }
 
   return (
-    <div className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
+    <div className="card border border-base-300 bg-base-200 p-4 text-base-content shadow-md">
       <div className="mb-2 flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-content">
           {user.name?.[0] || user.username?.[0]}

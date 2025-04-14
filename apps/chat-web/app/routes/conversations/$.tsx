@@ -172,7 +172,7 @@ function RouteComponent() {
 
           <div
             ref={menuRef}
-            className={`absolute z-20 w-72 rounded-md border shadow-md ${
+            className={`absolute z-20 w-72 rounded-md border border-base-300 shadow-md ${
               isMenuOpen ? 'top-10 block' : 'hidden'
             } lg:static lg:block`}
           >
@@ -205,3 +205,5 @@ function RouteComponent() {
     </div>
   )
 }
+
+export default RouteComponent

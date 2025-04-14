@@ -69,10 +69,6 @@ export default function TopNavigation() {
   )
 
   useEffect(() => {
-    setStoredTheme(theme)
-  }, [theme])
-
-  useEffect(() => {
     if (isMenuOpen) {
       document.addEventListener('click', handleOutsideClick)
     }
@@ -83,19 +79,19 @@ export default function TopNavigation() {
     (isMobile = false) => (
       <>
         <li>
-          <Link to="/conversations/$" onClick={isMobile ? closeMenu : undefined}>
+          <Link to="/conversations/$" onClick={isMobile ? closeMenu : undefined} className="flex items-center gap-2">
             <ConversationIcon className="size-6" />
             {t('topNavigation.conversations')}
           </Link>
         </li>
         <li>
-          <Link to="/assistants" onClick={isMobile ? closeMenu : undefined}>
+          <Link to="/assistants" onClick={isMobile ? closeMenu : undefined} className="flex items-center gap-2">
             <BowlerHatIcon className="size-6" />
             {t('topNavigation.assistants')}
           </Link>
         </li>
         <li>
-          <Link to="/libraries" onClick={isMobile ? closeMenu : undefined}>
+          <Link to="/libraries" onClick={isMobile ? closeMenu : undefined} className="flex items-center gap-2">
             <AcademicCapIcon className="size-6" />
             {t('topNavigation.libraries')}
           </Link>
@@ -123,6 +119,7 @@ export default function TopNavigation() {
                 logout()
                 if (isMobile) closeMenu()
               }}
+              className="flex items-center gap-2"
             >
               <UserIcon className="size-6" />
               {t('topNavigation.signOut')}
@@ -148,6 +145,7 @@ export default function TopNavigation() {
                 login()
                 if (isMobile) closeMenu()
               }}
+              className="flex items-center gap-2"
             >
               <UserIcon className="size-6" />
               {t('topNavigation.signIn')}
