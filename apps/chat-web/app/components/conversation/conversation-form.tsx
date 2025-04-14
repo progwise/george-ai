@@ -32,6 +32,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const [message, setMessage] = useState('')
   const [showPlaceholder, setShowPlaceholder] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
+  const form = useRef<HTMLFormElement>(null)
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -111,22 +112,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
-
-      if (remainingMessages < 1) {
-        alert('You have no more free messages left. Create your profile and ask for more...')
-        return
-      }
-
-      const checkedAssistants = document.querySelectorAll<HTMLInputElement>('input[name="assistants"]:checked')
-      const recipientAssistantIds = Array.from(checkedAssistants).map((input) => input.value)
-
-      mutate({ content: message, recipientAssistantIds })
-
-      if (editableDivRef.current) {
-        editableDivRef.current.innerHTML = ''
-        setMessage('')
-        setShowPlaceholder(true)
-      }
+      form.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
     }
   }
 
@@ -167,9 +153,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
         </button>
       )}
 
-      <div className="sticky bottom-20 z-40 mx-1 mt-6 rounded-box border bg-base-100 p-3 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
-        <form onSubmit={handleSubmit} className="flex flex-col">
-          <div className="relative mb-2 w-full">
+      <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
+        <form onSubmit={handleSubmit} className="flex flex-col" ref={form}>
+          <div className="relative w-full">
             <div
               ref={editableDivRef}
               contentEditable={!isPending && 'plaintext-only'}

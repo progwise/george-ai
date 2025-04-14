@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useRef } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
@@ -90,6 +91,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
+  const drawerCheckboxRef = useRef<HTMLInputElement>(null)
 
   const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.Conversations, userId],
@@ -99,9 +101,8 @@ function RouteComponent() {
   const { t } = useTranslation()
 
   const handleConversationClick = () => {
-    const drawerCheckbox = document.getElementById('conversation-drawer') as HTMLInputElement
-    if (drawerCheckbox && window.innerWidth < 1024) {
-      drawerCheckbox.checked = false
+    if (drawerCheckboxRef.current) {
+      drawerCheckboxRef.current.checked = false
     }
   }
 
@@ -150,10 +151,10 @@ function RouteComponent() {
   }
 
   return (
-    <div className="drawer lg:drawer-open lg:-mt-4">
-      <input id="conversation-drawer" type="checkbox" className="drawer-toggle" />
+    <div className="drawer grow lg:drawer-open lg:-mt-4">
+      <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
-        <div className="sticky top-16 z-30 flex flex-row items-center justify-between bg-base-100 p-1 max-lg:pt-4">
+        <div className="sticky top-20 z-30 flex flex-row items-center justify-between bg-base-100 p-1">
           <div className="flex">
             <label htmlFor="conversation-drawer" className="btn drawer-button btn-sm mx-1 lg:hidden">
               <MenuIcon className="size-6" />
@@ -182,7 +183,7 @@ function RouteComponent() {
         <div className="flex h-full flex-col">
           {selectedConversation?.aiConversation && (
             <>
-              <div className="sticky top-[116px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-[72px] lg:rounded-r-box">
+              <div className="sticky top-[120px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-[72px] lg:rounded-r-box">
                 <ConversationParticipants
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}

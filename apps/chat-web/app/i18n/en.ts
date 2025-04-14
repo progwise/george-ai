@@ -54,6 +54,7 @@ export default {
     assistants: 'Assistants',
     delete: 'Delete conversation',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
+    historyPlaceholder: 'No messages yet. Start the conversation!',
     humans: 'Users',
     leave: 'Leave conversation',
     leaveConfirmation: 'You are about to leave this conversation. It cannot be undone. Please confirm.',

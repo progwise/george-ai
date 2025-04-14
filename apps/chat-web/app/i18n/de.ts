@@ -55,6 +55,7 @@ export default {
     delete: 'Konversation löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
     humans: 'Benutzer',
     leave: 'Konversation verlassen',
     leaveConfirmation:

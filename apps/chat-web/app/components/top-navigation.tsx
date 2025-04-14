@@ -24,9 +24,9 @@ const TopNavigation = () => {
   const { user, login, logout } = useAuth()
 
   return (
-    <nav className="navbar sticky top-2 z-50 rounded-box bg-base-200 shadow-xl lg:mb-4">
+    <nav className="navbar sticky top-2 z-50 mb-4 rounded-box bg-base-200 shadow-xl">
       <div className="flex w-full justify-between lg:hidden">
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <Link to="/" className="btn btn-ghost">
             <BowlerLogoIcon className="size-8" />
           </Link>

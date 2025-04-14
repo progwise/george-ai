@@ -13,8 +13,8 @@ interface RouterContext {
 }
 
 const TanStackRouterDevtools =
-  process.env.NODE_ENV === 'production'
-    ? () => null // Render nothing in production
+  process.env.NODE_ENV === 'development'
+    ? () => null // Render nothing in development
     : React.lazy(() =>
         // Lazy load in development
         import('@tanstack/router-devtools').then((result) => ({
@@ -25,8 +25,8 @@ const TanStackRouterDevtools =
       )
 
 const TanStackQueryDevtools =
-  process.env.NODE_ENV === 'production'
-    ? () => null // Render nothing in production
+  process.env.NODE_ENV === 'development'
+    ? () => null // Render nothing in development
     : React.lazy(() =>
         // Lazy load in development
         import('@tanstack/react-query-devtools').then((result) => ({
@@ -42,7 +42,7 @@ const RootDocument = () => {
       <head>
         <HeadContent />
       </head>
-      <body className="container mx-auto flex min-h-screen flex-col">
+      <body className="container mx-auto flex min-h-screen flex-col px-1">
         <TopNavigation />
         <div className="flex grow flex-col">
           <Outlet />
