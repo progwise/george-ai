@@ -8,7 +8,7 @@ interface CrawlOptions {
 }
 
 export const crawl = async ({ url, maxDepth, maxPages }: CrawlOptions) => {
-  console.log('start crawling')
+  console.log('start crawling', url)
 
   const result = await client.POST('/crawl', {
     body: {
