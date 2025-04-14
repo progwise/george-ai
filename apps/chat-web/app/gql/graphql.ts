@@ -390,7 +390,8 @@ export type MutationRemoveUserProfileArgs = {
 }
 
 export type MutationRunAiLibraryCrawlerArgs = {
-  id: Scalars['String']['input']
+  crawlerId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationSendConfirmationMailArgs = {
@@ -1065,7 +1066,8 @@ export type CrawlerTableQuery = {
 }
 
 export type RunCrawlerMutationVariables = Exact<{
-  id: Scalars['String']['input']
+  crawlerId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }>
 
 export type RunCrawlerMutation = {
@@ -3365,7 +3367,12 @@ export const RunCrawlerDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -3378,8 +3385,13 @@ export const RunCrawlerDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {

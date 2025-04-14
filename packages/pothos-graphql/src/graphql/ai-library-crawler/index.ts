@@ -60,12 +60,13 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
   t.prismaField({
     type: 'AiLibraryCrawler',
     args: {
-      id: t.arg.string(),
+      crawlerId: t.arg.string(),
+      userId: t.arg.string(),
     },
-    resolve: async (query, _source, { id }) => {
-      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id } })
+    resolve: async (query, _source, { crawlerId, userId }) => {
+      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
 
-      const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId: id, endedAt: null } })
+      const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId, endedAt: null } })
 
       if (ongoingRun) {
         throw new Error('Crawler is already running')
@@ -73,8 +74,9 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
 
       const newRun = await prisma.aiLibraryCrawlerRun.create({
         data: {
-          crawlerId: id,
+          crawlerId,
           startedAt: new Date(),
+          runByUserId: userId,
         },
       })
 
@@ -122,7 +124,7 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
           throw new Error('Some files failed to upload or to process')
         }
 
-        return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id } })
+        return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id: crawlerId } })
       } catch (error) {
         console.error('Error during crawling:', error)
         await prisma.aiLibraryCrawlerRun.update({

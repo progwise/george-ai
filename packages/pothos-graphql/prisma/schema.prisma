@@ -36,6 +36,7 @@ model User {
   conversationParticipations AiConversationParticipant[]
   profile                    UserProfile?
   conversations              AiConversation[]
+  crawlerRuns                AiLibraryCrawlerRun[]
 }
 
 model UserProfile {
@@ -154,8 +155,10 @@ model AiLibraryCrawlerRun {
   endedAt      DateTime?
   success      Boolean?
   pagesCrawled Int?
+  runByUserId  String
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id])
+  runBy   User             @relation(fields: [runByUserId], references: [id])
 }
 
 model AiConversation {
