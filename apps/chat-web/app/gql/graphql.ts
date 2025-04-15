@@ -1100,6 +1100,7 @@ export type CrawlerTable_LibraryFragment = {
       maxDepth: number
       maxPages: number
       lastRun?: string | null
+      cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
   >
 } & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
@@ -2349,6 +2350,14 @@ export const CrawlerTable_LibraryFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -3547,6 +3556,14 @@ export const CrawlerTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
