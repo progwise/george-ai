@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
@@ -16,8 +16,30 @@ const QuestionCard = (props: QuestionCardProps) => {
   const { t } = useTranslation()
   const [showNotes, setShowNotes] = useState((props.notes?.length || 0) > 0)
   const [notes, setNotes] = useState(props.notes)
+  const [showPlaceholder, setShowPlaceholder] = useState(true)
+  const editableDivRef = useRef<HTMLDivElement>(null)
+
   const handleResponseChange = (optionValue: string) => {
     onResponseChange(optionValue, notes)
+  }
+
+  const handleInput = () => {
+    if (editableDivRef.current) {
+      const text = editableDivRef.current.innerText
+      setNotes(text)
+      setShowPlaceholder(text.length === 0)
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      handleInput()
+    }
+  }
+
+  const handleFocus = () => {
+    setShowPlaceholder(false)
   }
 
   return (
@@ -57,14 +79,24 @@ const QuestionCard = (props: QuestionCardProps) => {
       </div>
 
       {showNotes && (
-        <textarea
-          value={notes ?? ''}
-          placeholder={t('assistants.placeholders.euAiActNotePlaceholder')}
-          className="textarea textarea-bordered textarea-info"
-          rows={2}
-          onChange={(e) => setNotes(e.target.value)}
-          onBlur={() => handleResponseChange(selected!)}
-        />
+        <div className="relative">
+          <div
+            ref={editableDivRef}
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            contentEditable={true}
+            role="textbox"
+            aria-multiline="true"
+            className="textarea textarea-info focus:outline-none"
+            onBlur={() => handleResponseChange(selected!)}
+          />
+          {showPlaceholder && (
+            <div className="test-base-content pointer-events-none absolute left-4 top-3 text-sm opacity-50">
+              {t('assistants.placeholders.euAiActNotePlaceholder')}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
