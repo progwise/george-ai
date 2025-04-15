@@ -59,6 +59,7 @@ export default {
     humans: 'Users',
     leave: 'Leave conversation',
     leaveConfirmation: 'You are about to leave this conversation. It cannot be undone. Please confirm.',
+    noMessages: 'You have no more free messages left. Create your profile and ask for more...',
     owner: 'Owner',
     promptPlaceholder: 'Ask anything',
   },

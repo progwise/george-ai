@@ -37,6 +37,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const [recipientAssistantIds, setRecipientAssistantIds] = useState<string[]>([])
   const formRef = useRef<HTMLFormElement>(null)
 
+  const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
+
   useEffect(() => {
     if (conversation.assistants) {
       const initialSelectedIds = conversation.assistants.map((assistant) => assistant.id)
@@ -106,15 +108,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
       toastError(error.message)
     },
   })
-  const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
-    if (remainingMessages < 1) {
-      alert('You have no more free messages left. Create your profile and ask for more...')
-      return
-    }
 
     mutate({ content: message, recipientAssistantIds })
 
@@ -193,7 +189,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
               role="textbox"
               aria-multiline="true"
               aria-disabled={!!isPending}
-            ></div>
+            />
             {showPlaceholder && (
               <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">
                 {t('conversations.promptPlaceholder')}

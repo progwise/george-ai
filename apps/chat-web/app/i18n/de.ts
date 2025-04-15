@@ -61,6 +61,7 @@ export default {
     leave: 'Konversation verlassen',
     leaveConfirmation:
       'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    noMessages: 'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an ...',
     owner: 'Besitzer',
     promptPlaceholder: 'Stelle irgendeine Frage',
   },
