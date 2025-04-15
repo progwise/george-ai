@@ -140,10 +140,6 @@ builder.mutationField('dropFiles', (t) =>
         where: { libraryId },
       })
 
-      if (files.length === 0) {
-        throw new Error(`No files found for library: ${libraryId}`)
-      }
-
       const results = []
 
       for (const file of files) {
