@@ -1,0 +1,21 @@
+{
+  "name": "@george-ai/crawl4ai-client",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "type": "module",
+  "author": "progwise.net",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "codegen": "openapi-typescript http://gai-crawl4ai:8000/openapi.json -o ./src/generated/schema.d.ts && prettier --write ./src/generated"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "openapi-typescript": "^7.6.1",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.13.5"
+  }
+}

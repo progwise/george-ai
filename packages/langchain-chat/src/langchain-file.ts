@@ -12,6 +12,7 @@ export const loadFile = async (file: { name: string; id: string; mimeType: strin
       documentLoader = new PDFLoaderAI(file.path)
       break
     case 'text/plain':
+    case 'text/markdown':
       documentLoader = new TextLoader(file.path)
       break
     case 'text/csv':

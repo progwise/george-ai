@@ -1,9 +1,10 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { CrawlerTable } from '../../components/library/crawler/crawler-table'
 import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
 import { LibraryForm } from '../../components/library/library-form'
@@ -13,6 +14,7 @@ import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
 import { AiLibraryInputSchema } from '../../gql/validation'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { BackIcon } from '../../icons/back-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
@@ -21,10 +23,7 @@ const aiLibraryEditQueryDocument = graphql(`
     aiLibrary(id: $id) {
       id
       name
-      createdAt
-      description
-      url
-      ownerId
+      ...LibraryFormFragment
       ...DeleteLibraryDialog_Library
     }
     aiLibraries(ownerId: $ownerId) {
@@ -104,7 +103,7 @@ export const Route = createFileRoute('/libraries/$libraryId')({
 
 function RouteComponent() {
   const auth = useAuth()
-  const { libraryId } = useParams({ strict: false })
+  const { libraryId } = Route.useParams()
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -140,9 +139,14 @@ function RouteComponent() {
         </div>
         <div className="flex gap-2">
           <DeleteLibraryDialog library={aiLibrary} />
-          <Link type="button" className="btn btn-primary btn-sm" to="..">
-            {t('actions.goToOverview')}
-          </Link>
+          <button
+            type="button"
+            onClick={() => navigate({ to: '..' })}
+            className="btn btn-sm tooltip"
+            data-tip={t('tooltips.goToOverview')}
+          >
+            <BackIcon />
+          </button>
         </div>
       </div>
 
@@ -156,12 +160,17 @@ function RouteComponent() {
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
         <div role="tabpanel" className="tab-content overflow-x-auto p-10">
-          <EmbeddingsTable libraryId={aiLibrary.id} />
+          <EmbeddingsTable libraryId={libraryId} />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
         <div role="tabpanel" className="tab-content p-10">
-          <LibraryQuery libraryId={aiLibrary.id} />
+          <LibraryQuery libraryId={libraryId} />
+        </div>
+
+        <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.crawlers')} />
+        <div role="tabpanel" className="tab-content p-10">
+          <CrawlerTable libraryId={libraryId} />
         </div>
       </div>
     </article>

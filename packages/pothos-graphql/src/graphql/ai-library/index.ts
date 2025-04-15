@@ -28,6 +28,7 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
         return count
       },
     }),
+    crawlers: t.relation('crawlers', { nullable: false }),
   }),
 })
 
