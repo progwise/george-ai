@@ -197,6 +197,7 @@ interface AiConversationParticipant {
 }
 
 type AiLibrary {
+  crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
   files: [AiLibraryFile!]
@@ -207,6 +208,17 @@ type AiLibrary {
   ownerId: String!
   updatedAt: DateTime
   url: String
+}
+
+type AiLibraryCrawler {
+  createdAt: DateTime!
+  id: ID!
+  isRunning: Boolean!
+  lastRun: DateTime
+  maxDepth: Int!
+  maxPages: Int!
+  updatedAt: DateTime!
+  url: String!
 }
 
 type AiLibraryFile {
@@ -316,6 +328,7 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
+  createAiLibraryCrawler(libraryId: String!, maxDepth: Int!, maxPages: Int!, url: String!): AiLibraryCrawler
   createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
@@ -334,6 +347,7 @@ type Mutation {
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
   resetAssessmentAnswers(assistantId: String!): DateTime
+  runAiLibraryCrawler(crawlerId: String!, userId: String!): AiLibraryCrawler
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
