@@ -108,6 +108,7 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
                 originUri: page.url,
                 mimeType: 'text/markdown',
                 libraryId: crawler.libraryId,
+                crawledByCrawlerId: crawler.id,
               },
             })
 
