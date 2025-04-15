@@ -52,7 +52,8 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   httpRequest.pipe(filestream)
 
   httpRequest.on('end', () => {
-    filestream.close(() => {
+    filestream.close(async () => {
+      await completeFileUpload(file.id)
       httpResponse.end(JSON.stringify({ status: 'success' }))
     })
   })
@@ -69,7 +70,4 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
       }
     }
   })
-
-  await completeFileUpload(file.id)
-  httpResponse.status(200).send('File upload completed successfully')
 }
