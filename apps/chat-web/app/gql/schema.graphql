@@ -108,6 +108,7 @@ type AiLibrary {
 
 type AiLibraryCrawler {
   createdAt: DateTime!
+  cronJob: AiLibraryCrawlerCronJob
   id: ID!
   isRunning: Boolean!
   lastRun: DateTime
@@ -115,6 +116,22 @@ type AiLibraryCrawler {
   maxPages: Int!
   updatedAt: DateTime!
   url: String!
+}
+
+type AiLibraryCrawlerCronJob {
+  active: Boolean!
+  createdAt: DateTime!
+  friday: Boolean!
+  hour: Int!
+  id: ID!
+  minute: Int!
+  monday: Boolean!
+  saturday: Boolean!
+  sunday: Boolean!
+  thursday: Boolean!
+  tuesday: Boolean!
+  updatedAt: DateTime!
+  wednesday: Boolean!
 }
 
 type AiLibraryFile {

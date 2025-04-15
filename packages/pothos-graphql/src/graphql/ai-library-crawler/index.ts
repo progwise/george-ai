@@ -35,6 +35,7 @@ builder.prismaObject('AiLibraryCrawler', {
         return Boolean(ongoingRun)
       },
     }),
+    cronJob: t.relation('cronJob'),
   }),
 })
 

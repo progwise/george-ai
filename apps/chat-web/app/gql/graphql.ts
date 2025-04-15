@@ -134,6 +134,7 @@ export type AiLibrary = {
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
+  cronJob?: Maybe<AiLibraryCrawlerCronJob>
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<Scalars['DateTime']['output']>
@@ -141,6 +142,23 @@ export type AiLibraryCrawler = {
   maxPages: Scalars['Int']['output']
   updatedAt: Scalars['DateTime']['output']
   url: Scalars['String']['output']
+}
+
+export type AiLibraryCrawlerCronJob = {
+  __typename?: 'AiLibraryCrawlerCronJob'
+  active: Scalars['Boolean']['output']
+  createdAt: Scalars['DateTime']['output']
+  friday: Scalars['Boolean']['output']
+  hour: Scalars['Int']['output']
+  id: Scalars['ID']['output']
+  minute: Scalars['Int']['output']
+  monday: Scalars['Boolean']['output']
+  saturday: Scalars['Boolean']['output']
+  sunday: Scalars['Boolean']['output']
+  thursday: Scalars['Boolean']['output']
+  tuesday: Scalars['Boolean']['output']
+  updatedAt: Scalars['DateTime']['output']
+  wednesday: Scalars['Boolean']['output']
 }
 
 export type AiLibraryFile = {
