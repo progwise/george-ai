@@ -535,6 +535,8 @@ export type UserProfileInput = {
   business?: InputMaybe<Scalars['String']['input']>
   email: Scalars['String']['input']
   firstName?: InputMaybe<Scalars['String']['input']>
+  freeMessages?: InputMaybe<Scalars['Int']['input']>
+  freeStorage?: InputMaybe<Scalars['Int']['input']>
   lastName?: InputMaybe<Scalars['String']['input']>
   position?: InputMaybe<Scalars['String']['input']>
 }
@@ -1583,6 +1585,10 @@ export type GetUserProfileQuery = {
     usedMessages?: number | null
     freeStorage: number
     usedStorage?: number | null
+    createdAt: string
+    updatedAt?: string | null
+    confirmationDate?: string | null
+    expiresAt?: string | null
   } | null
 }
 
@@ -5386,6 +5392,10 @@ export const GetUserProfileDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
               ],
             },
           },

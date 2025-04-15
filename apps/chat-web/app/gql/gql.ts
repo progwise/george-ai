@@ -82,7 +82,7 @@ type Documents = {
   '\n  query myConversationUsers($userId: String!) {\n    myConversationUsers(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n    }\n  }\n': typeof types.MyConversationUsersDocument
   '\n        mutation sendConfirmationMail($userId: String!, $confirmationUrl: String!) {\n          sendConfirmationMail(userId: $userId, confirmationUrl: $confirmationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ConfirmUserProfileDocument
-  '\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n          }\n        }\n      ': typeof types.GetUserProfileDocument
+  '\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n            createdAt\n            updatedAt\n            confirmationDate\n            expiresAt\n          }\n        }\n      ': typeof types.GetUserProfileDocument
   '\n        mutation updateUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(userId: $userId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.UpdateUserProfileDocument
   '\n        mutation adminConfirmUserProfile($profileId: String!) {\n          adminConfirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.AdminConfirmUserProfileDocument
 }
@@ -221,7 +221,7 @@ const documents: Documents = {
     types.SendConfirmationMailDocument,
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ':
     types.ConfirmUserProfileDocument,
-  '\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n          }\n        }\n      ':
+  '\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n            createdAt\n            updatedAt\n            confirmationDate\n            expiresAt\n          }\n        }\n      ':
     types.GetUserProfileDocument,
   '\n        mutation updateUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(userId: $userId, input: $userProfileInput) {\n            id\n          }\n        }\n      ':
     types.UpdateUserProfileDocument,
@@ -649,8 +649,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n          }\n        }\n      ',
-): (typeof documents)['\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n          }\n        }\n      ']
+  source: '\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n            createdAt\n            updatedAt\n            confirmationDate\n            expiresAt\n          }\n        }\n      ',
+): (typeof documents)['\n        query getUserProfile($userId: String!) {\n          userProfile(userId: $userId) {\n            id\n            userId\n            email\n            firstName\n            lastName\n            business\n            position\n            freeMessages\n            usedMessages\n            freeStorage\n            usedStorage\n            createdAt\n            updatedAt\n            confirmationDate\n            expiresAt\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

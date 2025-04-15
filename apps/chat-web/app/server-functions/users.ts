@@ -95,6 +95,10 @@ export const getUserProfile = createServerFn({ method: 'GET' })
             usedMessages
             freeStorage
             usedStorage
+            createdAt
+            updatedAt
+            confirmationDate
+            expiresAt
           }
         }
       `),
@@ -138,6 +142,12 @@ export const updateUserProfile = createServerFn({ method: 'POST' })
       .parse(data)
   })
   .handler(async (ctx) => {
+    const userProfileInput = {
+      ...ctx.data.userProfileInput,
+      freeMessages: parseInt(ctx.data.userProfileInput.freeMessages as string, 10) || 0,
+      freeStorage: parseInt(ctx.data.userProfileInput.freeStorage as string, 10) || 0,
+    }
+
     return backendRequest(
       graphql(`
         mutation updateUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
@@ -148,7 +158,7 @@ export const updateUserProfile = createServerFn({ method: 'POST' })
       `),
       {
         userId: ctx.data.userId,
-        userProfileInput: ctx.data.userProfileInput,
+        userProfileInput,
       },
     )
   })

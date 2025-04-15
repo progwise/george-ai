@@ -25,8 +25,10 @@ function RouteComponent() {
       return await updateUserProfile({ data })
     },
     onSuccess: () => {
-      alert('Profile updated successfully!')
-      navigate({ to: '/profile' })
+      alert('Profile updated successfully.')
+    },
+    onError: (error) => {
+      alert('Failed to update profile: ' + error.message)
     },
   })
 
@@ -38,9 +40,11 @@ function RouteComponent() {
         },
       })
     },
-    onSettled: () => {
-      alert('User profile confirmation process completed!')
-      navigate({ to: '/profile' })
+    onSuccess: () => {
+      alert('User profile confirmation process completed.')
+    },
+    onError: (error) => {
+      alert('Failed to confirm profile: ' + error.message)
     },
   })
 
@@ -54,6 +58,18 @@ function RouteComponent() {
     return null
   }
 
+  if (!userProfile?.userProfile) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <h1>User profile not found</h1>
+        <p>The profile you are trying to confirm does not exist or has been deleted.</p>
+        <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate({ to: '/' })}>
+          Go Back
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div>
       <h1>Admin Profile Confirmation</h1>
@@ -61,17 +77,19 @@ function RouteComponent() {
         userProfile={userProfile?.userProfile as FragmentType<typeof UserProfileForm_UserProfileFragment>}
         handleSendConfirmationMail={() => {}}
         onSubmit={(data) => {
-          const userId = userProfile?.userProfile?.id || ''
+          const userId = userProfile?.userProfile?.userId || ''
           const userProfileInput = Object.fromEntries(data.entries())
+          delete userProfileInput.userId
           mutation.mutate({ userId, userProfileInput })
         }}
+        isEditable={true}
       />
       <button
         type="button"
-        className="btn btn-primary"
-        onClick={() => confirmMutation.mutate(userProfile?.userProfile?.id || '')}
+        className="btn btn-primary btn-sm"
+        onClick={() => confirmMutation.mutate(userProfile?.userProfile?.userId || '')}
       >
-        Confirm user
+        Confirm user profile
       </button>
       {mutation.isPending && <LoadingSpinner isLoading={true} />}
       {confirmMutation.isPending && <LoadingSpinner isLoading={true} />}

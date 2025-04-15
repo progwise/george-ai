@@ -60,6 +60,8 @@ const UserProfileInput = builder.inputType('UserProfileInput', {
     lastName: t.string({ required: false }),
     business: t.string({ required: false }),
     position: t.string({ required: false }),
+    freeMessages: t.int({ required: false }),
+    freeStorage: t.int({ required: false }),
   }),
 })
 
@@ -117,10 +119,20 @@ builder.mutationField('updateUserProfile', (t) =>
       input: t.arg({ type: UserProfileInput, required: true }),
     },
     resolve: async (query, _source, { userId, input }) => {
+      const existingProfile = await prisma.userProfile.findUnique({
+        where: { userId },
+      })
+
+      if (!existingProfile) {
+        throw new Error(`User profile not found for userId: ${userId}`)
+      }
+
       return prisma.userProfile.update({
         ...query,
         where: { userId },
-        data: input,
+        data: {
+          ...Object.fromEntries(Object.entries(input).filter(([, value]) => value !== null)),
+        },
       })
     },
   }),
@@ -226,16 +238,16 @@ builder.mutationField('adminConfirmUserProfile', (t) =>
       const updatedProfile = await prisma.userProfile.update({
         where: { id: profileId },
         data: {
-          email: userProfile.email,
+          confirmationDate: new Date(),
         },
       })
 
-      // Send email notification to admin
+      // Send email notification to the user
       await sendMail(
-        'info@george-ai.net',
-        'User Profile Updated',
-        `The user profile with ID: ${updatedProfile.id} has been updated.`,
-        `<p>The user profile with ID: ${updatedProfile.id} has been updated.</p>`,
+        userProfile.email,
+        'Profile Confirmed',
+        'Your profile has been confirmed by the admin.',
+        '<p>Your profile has been confirmed by the admin.</p>',
       )
 
       return updatedProfile

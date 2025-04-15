@@ -84,6 +84,7 @@ interface UserProfileFormProps {
   userProfile: FragmentType<typeof UserProfileForm_UserProfileFragment>
   handleSendConfirmationMail: () => void
   onSubmit?: (data: FormData) => void
+  isEditable?: boolean
 }
 
 export const UserProfileForm = (props: UserProfileFormProps) => {
@@ -116,10 +117,28 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         const formData = new FormData(event.currentTarget)
         const formValidation = validateForm({ formData, formSchema })
         if (formValidation.errors.length < 1) {
+          const allowedFields = [
+            'userId',
+            'email',
+            'firstName',
+            'lastName',
+            'business',
+            'position',
+            'freeMessages',
+            'freeStorage',
+          ]
+          const newFormData = new FormData()
+
+          Array.from(formData.entries())
+            .filter(([key]) => allowedFields.includes(key))
+            .forEach(([key, value]) =>
+              newFormData.append(key, key.match(/free/) ? String(parseInt(value as string, 10) || 0) : String(value)),
+            )
+
           if (props.onSubmit) {
-            props.onSubmit(formData)
+            props.onSubmit(newFormData)
           } else {
-            mutate(formData)
+            mutate(newFormData)
           }
         } else {
           console.error('Form validation errors:', formValidation.errors)
@@ -213,7 +232,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.freeStorage}
         className="col-span-1"
         type="number"
-        readOnly
+        readOnly={!props.isEditable}
       />
 
       <Input
@@ -222,7 +241,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.freeMessages}
         className="col-span-1"
         type="number"
-        readOnly
+        readOnly={!props.isEditable}
       />
       <Input
         name="usedStorage"
@@ -230,7 +249,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.usedStorage}
         className="col-span-1"
         type="number"
-        readOnly
+        readOnly={!props.isEditable}
       />
 
       <Input
@@ -239,7 +258,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.usedMessages}
         className="col-span-1"
         type="number"
-        readOnly
+        readOnly={!props.isEditable}
       />
       <div className="col-span-2 flex justify-end">
         <a

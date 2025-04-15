@@ -307,6 +307,8 @@ input UserProfileInput {
   business: String
   email: String!
   firstName: String
+  freeMessages: Int
+  freeStorage: Int
   lastName: String
   position: String
 }
