@@ -1,4 +1,5 @@
 import { builder } from '../builder'
+import { getCronExpression } from './get-cron-expression'
 
 console.log('Setting up: AiLibraryCrawlerCronJob')
 
@@ -20,6 +21,10 @@ builder.prismaObject('AiLibraryCrawlerCronJob', {
 
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+
+    cronExpression: t.string({
+      resolve: (cronJon) => getCronExpression(cronJon),
+    }),
   }),
 })
 

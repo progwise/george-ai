@@ -148,6 +148,7 @@ export type AiLibraryCrawlerCronJob = {
   __typename?: 'AiLibraryCrawlerCronJob'
   active: Scalars['Boolean']['output']
   createdAt: Scalars['DateTime']['output']
+  cronExpression?: Maybe<Scalars['String']['output']>
   friday: Scalars['Boolean']['output']
   hour: Scalars['Int']['output']
   id: Scalars['ID']['output']

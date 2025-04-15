@@ -121,6 +121,7 @@ type AiLibraryCrawler {
 type AiLibraryCrawlerCronJob {
   active: Boolean!
   createdAt: DateTime!
+  cronExpression: String
   friday: Boolean!
   hour: Int!
   id: ID!
