@@ -41,13 +41,7 @@ Use `env.example` files as the references.
 
 Ensure the email address is marked as verified by toggling the **Email Verified** option.
 
-6. You might need to create a new migration for your schema changes. If that is the case then go to `packages/pothos-graphql` use the command below:
-
-```bash
-pnpm prisma migrate dev
-```
-
-7. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
+6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
 
 Client Authentication has to be **off**.
 
@@ -61,10 +55,10 @@ Docs for setting up an OAuth app in:
 
 ### 5. Push Prisma Schema
 
-To apply the Prisma schema changes to your database, navigate to the `packages/pothos-graphql` directory and execute the following command:
+Navigate to `packages/pothos-graphql` and run:
 
 ```bash
-pnpm prisma db push
+pnpm prisma migrate dev
 ```
 
 ---
