@@ -53,7 +53,7 @@ Docs for setting up an OAuth app in:
 
 ---
 
-### 5. Push Prisma Schema
+### 5. Migrate Database
 
 Navigate to `packages/pothos-graphql` and run:
 
