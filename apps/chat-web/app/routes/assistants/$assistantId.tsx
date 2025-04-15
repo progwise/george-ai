@@ -80,7 +80,7 @@ function RouteComponent() {
   }
 
   return (
-    <article className="container flex w-full flex-col gap-4">
+    <div className="container flex w-full flex-col gap-4">
       <div className="flex justify-between">
         <div className="w-64">
           <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
@@ -107,10 +107,10 @@ function RouteComponent() {
         </div>
       </div>
       {assistantId && (
-        <section className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+        <div className="flex flex-col gap-2 md:flex-row md:gap-4">
           <AiActGuide assistantId={assistantId} />
-        </section>
+        </div>
       )}
-    </article>
+    </div>
   )
 }

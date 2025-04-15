@@ -127,12 +127,12 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
     <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow">
       <div className="flex items-center justify-between">
         <span className="text-xl font-bold">{basicSystemInfo.title[language]}</span>
-        <span className="rounded bg-base-200 p-2 text-sm">
+        <span className="whitespace-nowrap rounded bg-base-200 p-2 text-sm">
           {basicSystemInfo.percentCompleted}% {t('labels.completed')}
         </span>
       </div>
 
-      <div className="rounded border border-info bg-info/50 p-3 text-sm">{basicSystemInfo.hint[language]}</div>
+      <div className="rounded border border-info bg-info/40 p-3 text-sm">{basicSystemInfo.hint[language]}</div>
 
       <form ref={formRef} className="flex flex-col gap-2">
         <input type="hidden" name="assistantId" value={assistantId} />
