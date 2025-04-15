@@ -1056,24 +1056,35 @@ export type CreateAiLibraryCrawlerMutation = {
   createAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
 }
 
-export type CrawlerTableQueryVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type CrawlerTableQuery = {
-  __typename?: 'Query'
-  aiLibrary?: {
-    __typename?: 'AiLibrary'
-    crawlers: Array<{
+export type CrawlerTable_LibraryFragment = {
+  __typename?: 'AiLibrary'
+  crawlers: Array<
+    {
       __typename?: 'AiLibraryCrawler'
       id: string
       url: string
       maxDepth: number
       maxPages: number
       lastRun?: string | null
-      isRunning: boolean
-    }>
-  } | null
+    } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
+  >
+} & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
+
+export type CrawlerTableQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type CrawlerTableQuery = {
+  __typename?: 'Query'
+  aiLibrary?:
+    | ({ __typename?: 'AiLibrary' } & {
+        ' $fragmentRefs'?: { CrawlerTable_LibraryFragment: CrawlerTable_LibraryFragment }
+      })
+    | null
+}
+
+export type RunCrawlerButton_CrawlerFragment = { __typename?: 'AiLibraryCrawler'; id: string; isRunning: boolean } & {
+  ' $fragmentName'?: 'RunCrawlerButton_CrawlerFragment'
 }
 
 export type RunCrawlerMutationVariables = Exact<{
@@ -2266,6 +2277,65 @@ export const NewConversationSelector_HumanFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<NewConversationSelector_HumanFragment, unknown>
+export const RunCrawlerButton_CrawlerFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
+export const CrawlerTable_LibraryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerTable_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawlers' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CrawlerTable_LibraryFragment, unknown>
 export const DeleteLibraryDialog_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3397,22 +3467,43 @@ export const CrawlerTableDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'CrawlerTable_Library' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerTable_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawlers' },
+            selectionSet: {
+              kind: 'SelectionSet',
               selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'crawlers' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-                    ],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
           },

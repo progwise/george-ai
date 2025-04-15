@@ -13,14 +13,7 @@ const getCrawlers = createServerFn({ method: 'GET' })
       graphql(`
         query CrawlerTable($libraryId: String!) {
           aiLibrary(id: $libraryId) {
-            crawlers {
-              id
-              url
-              maxDepth
-              maxPages
-              lastRun
-              isRunning
-            }
+            ...CrawlerTable_Library
           }
         }
       `),

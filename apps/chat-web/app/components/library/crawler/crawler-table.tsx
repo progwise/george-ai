@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { dateTimeStringShort } from '@george-ai/web-utils'
 
+import { graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { AddCrawlerButton } from './add-crawler-button'
 import { getCrawlersQueryOptions } from './get-crawlers'
@@ -11,8 +12,22 @@ interface CrawlerTableProps {
   libraryId: string
 }
 
+const CrawlerTable_LibraryFragment = graphql(`
+  fragment CrawlerTable_Library on AiLibrary {
+    crawlers {
+      id
+      url
+      maxDepth
+      maxPages
+      lastRun
+      ...RunCrawlerButton_Crawler
+    }
+  }
+`)
+
 export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
   const { data } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
+  const aiLibrary = useFragment(CrawlerTable_LibraryFragment, data.aiLibrary)
   const { t, language } = useTranslation()
 
   return (
@@ -30,14 +45,14 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
           </tr>
         </thead>
         <tbody>
-          {data.aiLibrary?.crawlers.map((crawler) => (
+          {aiLibrary?.crawlers.map((crawler) => (
             <tr key={crawler.id}>
               <td>{crawler.url}</td>
               <td>{crawler.maxDepth}</td>
               <td>{crawler.maxPages}</td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
               <td>
-                <RunCrawlerButton crawlerId={crawler.id} libraryId={libraryId} isRunning={crawler.isRunning} />
+                <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
               </td>
             </tr>
           ))}
