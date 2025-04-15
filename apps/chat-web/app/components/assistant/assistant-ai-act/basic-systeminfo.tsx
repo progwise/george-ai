@@ -1,4 +1,3 @@
-/* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect */
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React from 'react'
 
@@ -29,8 +28,8 @@ const BasicSystemInfo_AssessmentFragment = graphql(`
       questions {
         id
         title {
-          en
           de
+          en
         }
         notes
         value
@@ -55,13 +54,13 @@ const BasicSystemInfo_AssessmentFragment = graphql(`
         }
       }
       title {
-        en
         de
+        en
       }
       percentCompleted
       hint {
-        en
         de
+        en
       }
       riskIndicator {
         description {
@@ -88,6 +87,7 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
   const assessment = useFragment(BasicSystemInfo_AssessmentFragment, props.assessment)
   const { assistantId, basicSystemInfo } = assessment
   const { language, t } = useTranslation()
+
   const { mutate: update } = useMutation({
     mutationFn: async (formData: FormData) => {
       return await updateBasicSystemInfo({ data: formData })
@@ -96,6 +96,7 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
       queryClient.invalidateQueries(getChecklistStep1QueryOptions(assistantId))
     },
   })
+
   const { mutate: reset } = useMutation({
     mutationFn: async () => {
       return await resetAssessment({ data: { assistantId } })
@@ -104,12 +105,12 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
       queryClient.invalidateQueries(getChecklistStep1QueryOptions(assistantId))
     },
   })
+
   const formRef = React.useRef<HTMLFormElement>(null)
 
   const riskIndicator = basicSystemInfo?.riskIndicator
   const navigation = basicSystemInfo?.navigation
 
-  // Handle response changes
   const handleResponseChange = (questionId: string, value?: string | null, notes?: string | null) => {
     const formData = new FormData(formRef.current!)
     formData.append('questionId', questionId)
@@ -123,67 +124,54 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-4 font-sans shadow">
-      <h1 className="mb-4 flex items-center justify-between text-xl font-bold text-gray-800">
-        <span>{basicSystemInfo.title[language]}</span>
-        <span className="rounded bg-gray-100 px-2 py-1 text-sm font-normal">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow">
+      <div className="flex items-center justify-between">
+        <span className="text-xl font-bold">{basicSystemInfo.title[language]}</span>
+        <span className="rounded bg-base-200 p-2 text-sm">
           {basicSystemInfo.percentCompleted}% {t('labels.completed')}
         </span>
-      </h1>
-
-      <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm text-gray-600">
-        {basicSystemInfo.hint[language]}
       </div>
 
-      {/* Basic System Information Questions */}
-      <div className="mb-6 space-y-4">
-        <form ref={formRef}>
-          <input type="hidden" name="assistantId" value={assistantId} />
-          {basicSystemInfo.questions?.map((question) => (
-            <QuestionCard
-              key={`${question.id}-${question.value}`}
-              question={question.title[language]}
-              hint={question.hint[language]}
-              options={question.options.map((option) => ({
-                value: option.id,
-                label: option.title[language],
-              }))}
-              selected={question.value}
-              notes={question.notes}
-              onResponseChange={(value, notes) => handleResponseChange(question.id, value, notes)}
-            />
-          ))}
-        </form>
-      </div>
+      <div className="rounded border border-info bg-info/50 p-3 text-sm">{basicSystemInfo.hint[language]}</div>
 
-      {/* Next Steps */}
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h2 className="text-md mb-2 font-semibold text-gray-700">{t('labels.nextSteps')}</h2>
-        <p className="mb-3 text-sm text-gray-600">{navigation.title[language]}</p>
-        <ul className="mb-4 list-inside list-disc space-y-1 text-sm text-gray-600">
+      <form ref={formRef} className="flex flex-col gap-2">
+        <input type="hidden" name="assistantId" value={assistantId} />
+        {basicSystemInfo.questions?.map((question) => (
+          <QuestionCard
+            key={`${question.id}-${question.value}`}
+            question={question.title[language]}
+            hint={question.hint[language]}
+            options={question.options.map((option) => ({
+              value: option.id,
+              label: option.title[language],
+            }))}
+            selected={question.value}
+            notes={question.notes}
+            onResponseChange={(value, notes) => handleResponseChange(question.id, value, notes)}
+          />
+        ))}
+      </form>
+
+      <div className="flex flex-col gap-2 rounded-lg border bg-base-200 p-3">
+        <h2 className="font-semibold">{t('labels.nextSteps')}</h2>
+        <p className="text-sm">{navigation.title[language]}</p>
+        <ul className="list-inside list-disc text-sm">
           {navigation.actions
             .filter((action) => action.level === riskIndicator.level)
             .map((action) => (
-              <li
-                key={`${action.level}_${action.description[language]}`}
-                className="text-sm font-semibold text-gray-700"
-              >
+              <li key={`${action.level}_${action.description[language]}`} className="font-semibold">
                 {action.description[language]}
               </li>
             ))}
         </ul>
-
-        <div className="mt-4x flex justify-between">
-          <button
-            type="button"
-            className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-            onClick={() => {
-              reset()
-            }}
-          >
-            {t('labels.reset')}
-          </button>
-        </div>
+        <input
+          type="reset"
+          value={t('labels.reset')}
+          className="btn btn-neutral btn-sm w-min"
+          onClick={() => {
+            reset()
+          }}
+        />
       </div>
     </div>
   )
