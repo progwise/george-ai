@@ -1081,6 +1081,7 @@ export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
   url: Scalars['String']['input']
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
 }>
 
 export type CreateAiLibraryCrawlerMutation = {
@@ -3431,6 +3432,11 @@ export const CreateAiLibraryCrawlerDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerCronJobInput' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -3458,6 +3464,11 @@ export const CreateAiLibraryCrawlerDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'url' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'cronJob' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
               },
             ],
             selectionSet: {
