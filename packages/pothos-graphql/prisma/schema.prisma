@@ -133,6 +133,8 @@ model AiLibraryFile {
   processingErrorMessage String?
   crawledByCrawlerId     String?
   crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+
+  @@unique([crawledByCrawlerId, originUri])
 }
 
 model AiLibraryCrawler {

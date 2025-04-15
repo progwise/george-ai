@@ -102,14 +102,25 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
 
         const resultsFromUploadAndProcessing = await Promise.allSettled(
           crawledPages.map(async (page) => {
-            const file = await prisma.aiLibraryFile.create({
-              data: {
-                name: `${page.url} - ${page.title}`,
+            const fileUpdateData = {
+              name: `${page.url} - ${page.title}`,
+              mimeType: 'text/markdown',
+              libraryId: crawler.libraryId,
+            }
+
+            const file = await prisma.aiLibraryFile.upsert({
+              where: {
+                crawledByCrawlerId_originUri: {
+                  crawledByCrawlerId: crawler.id,
+                  originUri: page.url,
+                },
+              },
+              create: {
+                ...fileUpdateData,
                 originUri: page.url,
-                mimeType: 'text/markdown',
-                libraryId: crawler.libraryId,
                 crawledByCrawlerId: crawler.id,
               },
+              update: fileUpdateData,
             })
 
             await fs.writeFile(getFilePath(file.id), page.content)
