@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Keycloak from 'keycloak-js'
 
+import { toastError } from '../components/georgeToaster'
 import { queryKeys } from '../query-keys'
 import { getUserProfile } from '../server-functions/users'
 import { ensureBackendUser, getKeycloakConfig } from './auth.server'
@@ -42,7 +43,7 @@ export const useAuth = () => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUser] })
       }
       keycloak.onAuthError = (error) => {
-        alert('Keycloak error: ' + error)
+        toastError('Keycloak error: ' + error)
       }
       keycloak.onAuthLogout = () => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUser] })

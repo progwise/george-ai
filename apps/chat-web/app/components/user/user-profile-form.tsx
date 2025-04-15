@@ -11,6 +11,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
+import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 
 export const UserProfileForm_UserProfileFragment = graphql(`
@@ -142,7 +143,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
           }
         } else {
           console.error('Form validation errors:', formValidation.errors)
-          alert(formValidation.errors.join('\n'))
+          toastError(formValidation.errors.join('\n'))
         }
       }}
       className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2"
