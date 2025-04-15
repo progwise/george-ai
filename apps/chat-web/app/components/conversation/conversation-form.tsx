@@ -33,6 +33,16 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const [showPlaceholder, setShowPlaceholder] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
   const form = useRef<HTMLFormElement>(null)
+  const [recipientAssistantIds, setRecipientAssistantIds] = useState<string[]>([])
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (conversation.assistants) {
+      const initialSelectedIds = conversation.assistants.map((assistant) => assistant.id)
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setRecipientAssistantIds(initialSelectedIds)
+    }
+  }, [conversation.assistants])
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -91,9 +101,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const form = event.currentTarget
-    const formData = new FormData(form)
-    const recipientAssistantIds = Array.from(formData.getAll('assistants')).map((formData) => formData.toString())
 
     if (remainingMessages < 1) {
       alert('You have no more free messages left. Create your profile and ask for more...')
@@ -136,6 +143,16 @@ export const ConversationForm = (props: ConversationFormProps) => {
     }
   }
 
+  const handleAssistantToggle = (assistantId: string) => {
+    setRecipientAssistantIds((prev) => {
+      if (prev.includes(assistantId)) {
+        return prev.filter((id) => id !== assistantId)
+      } else {
+        return [...prev, assistantId]
+      }
+    })
+  }
+
   if (!user) {
     return <h3>{t('texts.loginToUseSendMessages')}</h3>
   }
@@ -154,7 +171,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       )}
 
       <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
-        <form onSubmit={handleSubmit} className="flex flex-col" ref={form}>
+        <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <div className="relative w-full">
             <div
               ref={editableDivRef}
@@ -190,7 +207,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
                     name="assistants"
                     value={assistant.id}
                     type="checkbox"
-                    defaultChecked
+                    checked={recipientAssistantIds.includes(assistant.id)}
+                    onChange={() => handleAssistantToggle(assistant.id)}
                     className="checkbox-info checkbox checkbox-sm"
                   />
                   <span className="label-text">
@@ -212,7 +230,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
                         name="assistants"
                         value={assistant.id}
                         type="checkbox"
-                        defaultChecked
+                        checked={recipientAssistantIds.includes(assistant.id)}
+                        onChange={() => handleAssistantToggle(assistant.id)}
                         className="checkbox-info checkbox checkbox-sm"
                       />
                       <span className="label-text">{assistant.name}</span>
