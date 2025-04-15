@@ -156,10 +156,11 @@ model AiLibraryCrawlerRun {
   endedAt      DateTime?
   success      Boolean?
   pagesCrawled Int?
-  runByUserId  String
+  runByUserId  String?
+  runByCronJob Boolean   @default(false)
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id])
-  runBy   User             @relation(fields: [runByUserId], references: [id])
+  runBy   User?            @relation(fields: [runByUserId], references: [id])
 }
 
 model AiLibraryCrawlerCronJob {

@@ -1,12 +1,8 @@
-import { promises as fs } from 'fs'
-
-import { crawl } from '@george-ai/crawl4ai-client'
-
-import { completeFileUpload, getFilePath } from '../../file-upload'
+import { addCronJob } from '../../cron-jobs'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
-import { processFile } from '../ai-library-file/process-file'
 import { builder } from '../builder'
+import { runCrawler } from './run-crawler'
 
 console.log('Setting up: AiLibraryCrawler')
 
@@ -50,14 +46,20 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       libraryId: t.arg.string(),
       cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
     },
-    resolve: (query, _source, { cronJob, ...data }) => {
-      return prisma.aiLibraryCrawler.create({
-        ...query,
+    resolve: async (query, _source, { cronJob, ...data }) => {
+      const crawler = await prisma.aiLibraryCrawler.create({
+        include: { cronJob: true },
         data: {
           ...data,
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
       })
+
+      if (crawler.cronJob) {
+        addCronJob(crawler.cronJob)
+      }
+
+      return crawler
     },
   }),
 )
@@ -69,89 +71,6 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
       crawlerId: t.arg.string(),
       userId: t.arg.string(),
     },
-    resolve: async (query, _source, { crawlerId, userId }) => {
-      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
-
-      const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId, endedAt: null } })
-
-      if (ongoingRun) {
-        throw new Error('Crawler is already running')
-      }
-
-      const newRun = await prisma.aiLibraryCrawlerRun.create({
-        data: {
-          crawlerId,
-          startedAt: new Date(),
-          runByUserId: userId,
-        },
-      })
-
-      try {
-        const crawledPages = await crawl({
-          url: crawler.url,
-          maxDepth: crawler.maxDepth,
-          maxPages: crawler.maxPages,
-        })
-
-        const endedAt = new Date()
-        await prisma.aiLibraryCrawlerRun.update({
-          where: { id: newRun.id },
-          data: {
-            endedAt,
-            success: true,
-            crawler: {
-              update: { lastRun: endedAt },
-            },
-            pagesCrawled: crawledPages.length,
-          },
-        })
-
-        const resultsFromUploadAndProcessing = await Promise.allSettled(
-          crawledPages.map(async (page) => {
-            const file = await prisma.aiLibraryFile.create({
-              data: {
-                name: `${page.url} - ${page.title}`,
-                originUri: page.url,
-                mimeType: 'text/markdown',
-                libraryId: crawler.libraryId,
-              },
-            })
-
-            await fs.writeFile(getFilePath(file.id), page.content)
-            await completeFileUpload(file.id)
-            await processFile(file.id)
-          }),
-        )
-
-        const hasUploadingOrProcessingErrors = resultsFromUploadAndProcessing.some(
-          (result) => result.status === 'rejected',
-        )
-        if (hasUploadingOrProcessingErrors) {
-          throw new Error('Some files failed to upload or to process')
-        }
-
-        return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id: crawlerId } })
-      } catch (error) {
-        console.error(
-          'Error during crawling. crawler id: ',
-          crawler.id,
-          ', crawler run id:',
-          newRun.id,
-          ', user id:',
-          userId,
-          ', error:',
-          error,
-        )
-        await prisma.aiLibraryCrawlerRun.update({
-          where: { id: newRun.id },
-          data: {
-            endedAt: new Date(),
-            success: false,
-          },
-        })
-
-        throw error
-      }
-    },
+    resolve: async (_query, _source, { crawlerId, userId }) => runCrawler({ crawlerId, userId }),
   }),
 )
