@@ -36,6 +36,7 @@ model User {
   conversationParticipations AiConversationParticipant[]
   profile                    UserProfile?
   conversations              AiConversation[]
+  crawlerRuns                AiLibraryCrawlerRun[]
 }
 
 model UserProfile {
@@ -83,25 +84,26 @@ model AiAssistantBaseCase {
 }
 
 model AiLibrary {
-  id            String           @id @default(cuid())
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  id            String             @id @default(cuid())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
   name          String
   description   String?
   url           String?
   apiToken      String?
   lastProcessed DateTime?
-  owner         User             @relation(fields: [ownerId], references: [id])
+  owner         User               @relation(fields: [ownerId], references: [id])
   ownerId       String
-  isPublic      Boolean          @default(true)
+  isPublic      Boolean            @default(true)
   usages        AiLibraryUsage[]
   files         AiLibraryFile[]
+  crawlers      AiLibraryCrawler[]
 }
 
 model AiLibraryUsage {
   id          String      @id @default(cuid())
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt @default(now())
+  updatedAt   DateTime    @default(now()) @updatedAt
   assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
   assistantId String
   library     AiLibrary   @relation(fields: [libraryId], references: [id], onDelete: Cascade)
@@ -129,6 +131,34 @@ model AiLibraryFile {
   processingEndedAt      DateTime?
   processingErrorAt      DateTime?
   processingErrorMessage String?
+}
+
+model AiLibraryCrawler {
+  id        String    @id @default(cuid())
+  url       String
+  libraryId String
+  lastRun   DateTime?
+  maxDepth  Int
+  maxPages  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  library AiLibrary             @relation(fields: [libraryId], references: [id])
+  runs    AiLibraryCrawlerRun[]
+}
+
+model AiLibraryCrawlerRun {
+  id           String    @id @default(cuid())
+  crawlerId    String
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+  success      Boolean?
+  pagesCrawled Int?
+  runByUserId  String
+
+  crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id])
+  runBy   User             @relation(fields: [runByUserId], references: [id])
 }
 
 model AiConversation {
