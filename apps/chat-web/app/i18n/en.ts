@@ -20,6 +20,20 @@ export default {
     upload: 'Upload',
     uploaded: 'Uploaded',
   },
+  aiAct: {
+    applicableHeadline:
+      'Based on your answers, we recommend reviewing the following areas in the detailed assessment. You can adjust the selection',
+    identifiedRisks: 'Identified risk factors',
+    notApplicableHeadline: 'The EU AI Act is likely not applicable to your system.',
+    notApplicableText:
+      'Since your system is not operated in the EU and does not affect EU citizens, a detailed compliance check according to the EU AI Act is not required. However, it is recommended to regularly check applicability in case the use of your system changes.',
+    notesOnApplicabilityHeadline: 'Note on applicability',
+    notesOnApplicability:
+      'Since your system is not operated in the EU and does not affect people in the EU, the EU AI Act may not be applicable. However, monitor changes in your business model that could lead to applicability.',
+    suggestedDetailedEvaluationHeadline: 'Recommended areas for detailed evaluation',
+    summaryInitialAssessment: 'Summary of initial assessment',
+    systemProperties: 'System properties',
+  },
   assistants: {
     addNew: 'Create new assistant',
     addNewButton: 'Create assistant',
@@ -86,6 +100,7 @@ export default {
     chunks: 'Chunks',
     condition: 'Case',
     confirmationDate: 'Confirmed',
+    completed: 'completed',
     confirmedAt: 'Confirmed',
     createdAt: 'Created',
     description: 'Description',
@@ -102,11 +117,14 @@ export default {
     name: 'Name',
     never: 'Never',
     nextCondition: 'New Case',
+    nextSteps: 'Next Steps',
     notConfirmed: 'Not confirmed',
+    note: 'Note',
     position: 'Position',
     processed: 'Processed',
     query: 'Query',
     remainingStorage: 'Remaining Storage',
+    reset: 'Reset',
     size: 'Size',
     updatedAt: 'Updated',
     usedMessages: 'Used Messages',

@@ -2,9 +2,14 @@ import { AiActQuestion } from './question'
 import { AiActRiskIndicator } from './risk-indicator'
 import { AiActString } from './translated-string'
 
+export interface AiActChecklistAction {
+  level: 'high' | 'medium' | 'low' | 'nonApplicable' | 'undetermined'
+  description: AiActString
+}
+
 export interface AiActChecklistStepNavigation {
   title: AiActString
-  hint: AiActString
+  actions: Array<AiActChecklistAction>
 }
 
 export interface AiActChecklistStep {

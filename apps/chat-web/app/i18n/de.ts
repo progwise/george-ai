@@ -20,6 +20,20 @@ export default {
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
   },
+  aiAct: {
+    applicableHeadline:
+      'Basierend auf Ihren Antworten empfehlen wir, die folgenden Bereiche in der detaillierten Bewertung zu prüfen. Sie können die Auswahl anpassen',
+    identifiedRisks: 'Identifizierte Risikofaktoren',
+    notApplicableHeadline: 'Der EU AI Act ist für Ihr System wahrscheinlich nicht anwendbar.',
+    notApplicableText:
+      'Da Ihr System nicht in der EU betrieben wird und keine EU-Bürger betrifft, ist eine detaillierte Compliance-Prüfung gemäß EU AI Act nicht erforderlich. Es wird jedoch empfohlen, die Anwendbarkeit regelmäßig zu überprüfen, falls sich die Nutzung Ihres Systems ändert.',
+    notesOnApplicabilityHeadline: 'Hinweis zur Anwendbarkeit',
+    notesOnApplicability:
+      'Da Ihr System nicht in der EU betrieben wird und keine Personen in der EU betrifft, ist der EU AI Act möglicherweise nicht anwendbar. Überwachen Sie jedoch Änderungen in Ihrem Geschäftsmodell, die zu einer Anwendbarkeit führen könnten.',
+    suggestedDetailedEvaluationHeadline: 'Empfohlene Bereiche für die detaillierte Bewertung',
+    summaryInitialAssessment: 'Zusammenfassung der Erstbewertung',
+    systemProperties: 'Systemeigenschaften',
+  },
   assistants: {
     addNew: 'Neuen Assistenten erstellen',
     addNewButton: 'Assistent erstellen',
@@ -86,6 +100,7 @@ export default {
     behavior: 'Verhaltensfälle',
     business: 'Unternehmen',
     chunks: 'Chunks',
+    completed: 'abgeschlossen',
     condition: 'Fall',
     confirmationDate: 'Bestätigt',
     confirmedAt: 'Bestätigt am',
@@ -105,11 +120,14 @@ export default {
     name: 'Name',
     never: 'Nie',
     nextCondition: 'Neuer Fall',
+    nextSteps: 'Nächste Schritte',
     notConfirmed: 'Nicht bestätigt',
+    note: 'Notiz',
     position: 'Position',
     processed: 'Verarbeitet',
     query: 'Abfrage',
     remainingStorage: 'Verbleibender Speicher',
+    reset: 'Zurücksetzen',
     size: 'Größe',
     updatedAt: 'Geändert',
     usedMessages: 'Vorhandene Nachrichten',

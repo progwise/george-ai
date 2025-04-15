@@ -23,20 +23,26 @@ export const performRiskAssessment = (step: AiActChecklistStep) => {
   // Set risk level based on points
   if (riskPoints >= 8) {
     return {
-      level: 'high',
-      description: 'Potenziell hohes Risiko - detaillierte Prüfung erforderlich',
+      level: 'high' as const,
+      description: {
+        de: 'Potenziell hohes Risiko - detaillierte Prüfung erforderlich',
+        en: 'Higher risk - detailed review required',
+      },
       factors: riskFactors,
     }
   } else if (riskPoints >= 5) {
     return {
-      level: 'medium',
-      description: 'Mittleres Risiko - weitere Analyse notwendig',
+      level: 'medium' as const,
+      description: { de: 'Mittleres Risiko - weitere Analyse notwendig', en: 'Medium risk - further analysis needed' },
       factors: riskFactors,
     }
   } else {
     return {
-      level: 'low',
-      description: 'Niedriges Risiko - Basis-Compliance wahrscheinlich ausreichend',
+      level: 'low' as const,
+      description: {
+        de: 'Niedriges Risiko - Basis-Compliance wahrscheinlich ausreichend',
+        en: 'Low risk - basic compliance likely sufficient',
+      },
       factors: riskFactors,
     }
   }

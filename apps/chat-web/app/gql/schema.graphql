@@ -4,32 +4,69 @@ schema {
 }
 
 """
+AI Act Checklist Action
+"""
+type AIActChecklistAction {
+  description: AiActString!
+  level: String!
+}
+
+"""
 AI Act Checklist Navigation
 """
 type AIActChecklistNavigation {
-  hint: AiActString
-  title: AiActString
+  actions: [AIActChecklistAction!]!
+  title: AiActString!
+}
+
+"""
+AI Act Legal Disclaimer
+"""
+type AIActLegalDisclaimer {
+  text: AiActString!
+  title: AiActString!
 }
 
 """
 AI Act Assessment Query
 """
-type AiActAssessmentQuery {
-  basicSystemInfo: AiActChecklistStepRef
+type AiActAssessment {
+  assistantId: String!
+  basicSystemInfo: AiActBasicSystemInf!
+  identifyRiskInfo: AiActIdentifyRisksInfo!
   riskIndicators: AiActRiskIndicator
 }
 
 """
-AI Act Assessment Basic System Info 2
+AI Act Assessment Basic System Info
 """
-type AiActChecklistStepRef {
-  hint: AiActString
-  id: String
+type AiActBasicSystemInf {
+  assistantId: String!
+  hint: AiActString!
+  id: String!
   navigation: AIActChecklistNavigation
   percentCompleted: Int
   questions: [AiActQuestionsRef!]
   riskIndicator: AiActRiskIndicator
-  title: AiActString
+  title: AiActString!
+}
+
+"""
+AI Act Compliance Area
+"""
+type AiActComplianceArea {
+  description: AiActString!
+  id: String!
+  title: AiActString!
+}
+
+"""
+AI Act Identify Risks Info
+"""
+type AiActIdentifyRisksInfo {
+  complianceAreas: [AiActComplianceArea!]!
+  legalDisclaimer: AIActLegalDisclaimer!
+  title: AiActString!
 }
 
 type AiActOption {
@@ -310,7 +347,7 @@ type Mutation {
 }
 
 type Query {
-  AiActAssessmentQuery(assistantId: String!): AiActAssessmentQuery
+  AiActAssessmentQuery(assistantId: String!): AiActAssessment
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation

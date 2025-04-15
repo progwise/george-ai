@@ -1,7 +1,7 @@
 import { AiActRiskIndicator } from '@george-ai/ai-act'
 
 import { builder } from '../builder'
-import { AiActStringRef } from './basic-system-info'
+import { AiActStringRef } from './multilingual-string'
 
 export const AiActRiskIndicatorRef = builder.objectRef<AiActRiskIndicator>('AiActRiskIndicator').implement({
   description: 'AI Act Risk Indicator',

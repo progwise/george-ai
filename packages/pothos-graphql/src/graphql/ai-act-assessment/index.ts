@@ -1,17 +1,23 @@
-import { AiActChecklistStep, AiActRiskIndicator, getDefaultBasicSystemInfo } from '@george-ai/ai-act'
+import {
+  AiActChecklistStep,
+  AiActRiskIndicator,
+  getDefaultBasicSystemInfo,
+  getDefaultIdentifyRisks,
+} from '@george-ai/ai-act'
 
 import { builder } from '../builder'
-import { AiActChecklistStepRef } from './basic-system-info'
+import { AiActBasicSystemInfoRef } from './basic-system-info'
+import { AiActIdentifyRisksInfoRef } from './identify-risks-info'
 import { AiActRiskIndicatorRef } from './risk-indicator'
 
 export * from './mutations'
 
-interface AiActAssessmentQuery {
+interface AiActAssessment {
   riskIndicator: AiActRiskIndicator
   basicSystemInfo: AiActChecklistStep
 }
 
-const AiActAssessmentQuery = builder.objectRef<{ assistantId: string }>('AiActAssessmentQuery').implement({
+const AiActAssessment = builder.objectRef<{ assistantId: string }>('AiActAssessment').implement({
   description: 'AI Act Assessment Query',
   fields: (t) => ({
     riskIndicators: t.field({
@@ -25,10 +31,19 @@ const AiActAssessmentQuery = builder.objectRef<{ assistantId: string }>('AiActAs
         }
       },
     }),
+    assistantId: t.exposeString('assistantId', { nullable: false }),
     basicSystemInfo: t.field({
-      type: AiActChecklistStepRef,
+      type: AiActBasicSystemInfoRef,
+      nullable: false,
       resolve: (source) => {
         return { ...getDefaultBasicSystemInfo(source.assistantId), assistantId: source.assistantId }
+      },
+    }),
+    identifyRiskInfo: t.field({
+      type: AiActIdentifyRisksInfoRef,
+      nullable: false,
+      resolve: () => {
+        return getDefaultIdentifyRisks()
       },
     }),
   }),
@@ -39,7 +54,7 @@ builder.queryField('AiActAssessmentQuery', (t) =>
     args: {
       assistantId: t.arg.string({ required: true }),
     },
-    type: AiActAssessmentQuery,
+    type: AiActAssessment,
     resolve: (_parent, args) => {
       return { assistantId: args.assistantId }
     },

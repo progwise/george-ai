@@ -1,16 +1,16 @@
-import { AiActChecklistStep, AiActOption, AiActOptionRisk, AiActQuestion, AiActString } from '@george-ai/ai-act'
+import {
+  AiActChecklistStep,
+  AiActOption,
+  AiActOptionRisk,
+  AiActQuestion,
+  performRiskAssessment,
+} from '@george-ai/ai-act'
 
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+import { AiActStringRef } from './multilingual-string'
 import { AIActChecklistNavigationRef } from './navigation'
 import { AiActRiskIndicatorRef } from './risk-indicator'
-
-export const AiActStringRef = builder.objectRef<AiActString>('AiActString').implement({
-  fields: (t) => ({
-    en: t.exposeString('en', { nullable: false }),
-    de: t.exposeString('de', { nullable: false }),
-  }),
-})
 
 export const AiActOptionRiskRef = builder.objectRef<AiActOptionRisk>('AiActOptionRiskRef').implement({
   fields: (t) => ({
@@ -54,14 +54,15 @@ const AiActQuestionsRef = builder.objectRef<AiActQuestion>('AiActQuestionsRef').
   }),
 })
 
-export const AiActChecklistStepRef = builder
-  .objectRef<AiActChecklistStep & { assistantId: string }>('AiActChecklistStepRef')
+export const AiActBasicSystemInfoRef = builder
+  .objectRef<AiActChecklistStep & { assistantId: string }>('AiActBasicSystemInf')
   .implement({
-    description: 'AI Act Assessment Basic System Info 2',
+    description: 'AI Act Assessment Basic System Info',
     fields: (t) => ({
-      title: t.expose('title', { type: AiActStringRef }),
-      hint: t.expose('hint', { type: AiActStringRef }),
-      id: t.exposeString('id'),
+      title: t.expose('title', { type: AiActStringRef, nullable: false }),
+      hint: t.expose('hint', { type: AiActStringRef, nullable: false }),
+      assistantId: t.exposeString('assistantId', { nullable: false }),
+      id: t.exposeString('id', { nullable: false }),
       percentCompleted: t.field({
         type: 'Int',
         resolve: async (source) => {
@@ -91,28 +92,28 @@ export const AiActChecklistStepRef = builder
       riskIndicator: t.field({
         type: AiActRiskIndicatorRef,
         resolve: async (source) => {
-          const answeredQuestions = await prisma.aiAssistantEUActAnswers.findMany({
+          const answers = await prisma.aiAssistantEUActAnswers.findMany({
             where: { assistantId: source.assistantId },
           })
-          if (answeredQuestions.length < source.questions.length) {
+          if (answers.length < source.questions.length) {
             return {
               level: 'undetermined' as const,
               description: { de: 'Keine Antworten gesammelt', en: 'No answers collected' },
               factors: [],
             }
           }
-          const riskPoints = answeredQuestions.reduce((acc, question) => {
-            const option = source.questions
-              .find((q) => q.id === question.questionId)
-              ?.options.find((o) => o.id === question.answer)
-            return acc + (option?.risk?.points ?? 0)
-          }, 0)
-          const riskLevel = riskPoints > 10 ? 'high' : riskPoints > 5 ? 'medium' : 'low'
-          return {
-            level: riskLevel,
-            description: { de: 'Noch nicht vollständig implementiert', en: 'Not fully implemented yet' },
-            factors: [],
-          }
+
+          source.questions = source.questions.map((question) => {
+            const answer = answers.find((answer) => answer.questionId === question.id)
+            return {
+              ...question,
+              value: answer?.answer ?? null,
+              notes: answer?.notes ?? null,
+            }
+          })
+
+          const riskIndicator = performRiskAssessment(source)
+          return riskIndicator
         },
       }),
       navigation: t.field({

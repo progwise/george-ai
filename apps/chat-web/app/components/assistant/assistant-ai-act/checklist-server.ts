@@ -14,56 +14,8 @@ const getAiAssistantChecklistStep1 = createServerFn({ method: 'GET' })
       graphql(`
         query AiActAssessmentQuery($assistantId: String!) {
           AiActAssessmentQuery(assistantId: $assistantId) {
-            basicSystemInfo {
-              questions {
-                id
-                title {
-                  en
-                  de
-                }
-                notes
-                value
-                hint {
-                  de
-                  en
-                }
-                options {
-                  id
-                  title {
-                    de
-                    en
-                  }
-                  risk {
-                    riskLevel
-                    description {
-                      de
-                      en
-                    }
-                    points
-                  }
-                }
-              }
-              title {
-                en
-                de
-              }
-              percentCompleted
-              hint {
-                en
-                de
-              }
-              riskIndicator {
-                description {
-                  de
-                  en
-                }
-                factors {
-                  de
-                  en
-                }
-                level
-              }
-            }
+            ...RiskAreasIdentification_Assessment
+            ...BasicSystemInfo_Assessment
           }
         }
       `),
@@ -76,4 +28,48 @@ export const getChecklistStep1QueryOptions = (assistantId?: string) =>
     queryKey: ['AiChecklist', assistantId],
     queryFn: () => (assistantId ? getAiAssistantChecklistStep1({ data: assistantId }) : null),
     enabled: !!assistantId,
+  })
+
+export const updateBasicSystemInfo = createServerFn({ method: 'POST' })
+  .validator((data: FormData) => {
+    const entries = Object.fromEntries(data)
+    return z
+      .object({
+        assistantId: z.string().nonempty(),
+        questionId: z.string().nonempty(),
+        value: z.string().optional(),
+        notes: z.string().optional(),
+      })
+      .parse(entries)
+  })
+  .handler(async (ctx) => {
+    const { assistantId, questionId, value, notes } = ctx.data
+    return backendRequest(
+      graphql(`
+        mutation updateAssessmentQuestion($assistantId: String!, $questionId: String!, $value: String, $notes: String) {
+          updateAssessmentQuestion(assistantId: $assistantId, questionId: $questionId, value: $value, notes: $notes)
+        }
+      `),
+      { assistantId, questionId, value, notes },
+    )
+  })
+
+export const resetAssessment = createServerFn({ method: 'POST' })
+  .validator((data: { assistantId: unknown }) => {
+    return z
+      .object({
+        assistantId: z.string().nonempty(),
+      })
+      .parse(data)
+  })
+  .handler(async (ctx) => {
+    const { assistantId } = ctx.data
+    return backendRequest(
+      graphql(`
+        mutation resetAssessmentAnswers($assistantId: String!) {
+          resetAssessmentAnswers(assistantId: $assistantId)
+        }
+      `),
+      { assistantId },
+    )
   })
