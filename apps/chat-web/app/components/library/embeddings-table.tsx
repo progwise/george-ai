@@ -228,7 +228,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="btn btn-xs tooltip tooltip-left"
+            className="btn btn-primary btn-xs tooltip tooltip-left"
             data-tip={t('tooltips.clearEmbeddings')}
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
@@ -240,12 +240,12 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             onUploadComplete={handleUploadComplete}
             disabled={remainingStorage < 1}
           />
-          <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
+          <button type="button" className="btn btn-primary btn-xs" onClick={handleGoogleDriveClick}>
             {t('libraries.googleDrive')}
           </button>
           <button
             type="button"
-            className="btn btn-xs"
+            className="btn btn-primary btn-xs"
             onClick={() => dropAllFilesMutation.mutate(selectedFiles)}
             disabled={selectedFiles.length === 0}
           >
@@ -253,7 +253,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <button
             type="button"
-            className="btn btn-xs"
+            className="btn btn-primary btn-xs"
             onClick={() => reProcessAllFilesMutation.mutate(selectedFiles)}
             disabled={selectedFiles.length === 0}
           >
