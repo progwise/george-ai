@@ -70,7 +70,7 @@ export type AiConversation = {
   humans: Array<User>
   id: Scalars['ID']['output']
   messages: Array<AiConversationMessage>
-  owner?: Maybe<User>
+  owner: User
   ownerId: Scalars['String']['output']
   participants: Array<AiConversationParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
@@ -118,6 +118,7 @@ export type AiConversationParticipant = {
 
 export type AiLibrary = {
   __typename?: 'AiLibrary'
+  crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   files?: Maybe<Array<AiLibraryFile>>
@@ -128,6 +129,18 @@ export type AiLibrary = {
   ownerId: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+}
+
+export type AiLibraryCrawler = {
+  __typename?: 'AiLibraryCrawler'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  isRunning: Scalars['Boolean']['output']
+  lastRun?: Maybe<Scalars['DateTime']['output']>
+  maxDepth: Scalars['Int']['output']
+  maxPages: Scalars['Int']['output']
+  updatedAt: Scalars['DateTime']['output']
+  url: Scalars['String']['output']
 }
 
 export type AiLibraryFile = {
@@ -225,6 +238,7 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
+  createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -242,6 +256,7 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
+  runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
@@ -295,6 +310,13 @@ export type MutationCreateAiConversationArgs = {
 export type MutationCreateAiLibraryArgs = {
   data: AiLibraryInput
   ownerId: Scalars['String']['input']
+}
+
+export type MutationCreateAiLibraryCrawlerArgs = {
+  libraryId: Scalars['String']['input']
+  maxDepth: Scalars['Int']['input']
+  maxPages: Scalars['Int']['input']
+  url: Scalars['String']['input']
 }
 
 export type MutationCreateUserArgs = {
@@ -364,6 +386,11 @@ export type MutationRemoveLibraryUsageArgs = {
 }
 
 export type MutationRemoveUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
+export type MutationRunAiLibraryCrawlerArgs = {
+  crawlerId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
 
@@ -965,6 +992,7 @@ export type ConversationSelector_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
   createdAt: string
+  owner: { __typename?: 'User'; id: string; name?: string | null }
   assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
 } & { ' $fragmentName'?: 'ConversationSelector_ConversationFragment' }
 
@@ -1002,8 +1030,71 @@ export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant';
   ' $fragmentName'?: 'ParticipantsDialog_AssistantFragment'
 }
 
-export type ParticipantsDialog_HumanFragment = { __typename?: 'User'; id: string; username: string } & {
-  ' $fragmentName'?: 'ParticipantsDialog_HumanFragment'
+export type ParticipantsDialog_HumanFragment = {
+  __typename?: 'User'
+  id: string
+  username: string
+  email: string
+  profile?: {
+    __typename?: 'UserProfile'
+    business?: string | null
+    position?: string | null
+    firstName?: string | null
+    lastName?: string | null
+  } | null
+} & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
+
+export type CreateAiLibraryCrawlerMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  maxDepth: Scalars['Int']['input']
+  maxPages: Scalars['Int']['input']
+  url: Scalars['String']['input']
+}>
+
+export type CreateAiLibraryCrawlerMutation = {
+  __typename?: 'Mutation'
+  createAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
+}
+
+export type CrawlerTable_LibraryFragment = {
+  __typename?: 'AiLibrary'
+  crawlers: Array<
+    {
+      __typename?: 'AiLibraryCrawler'
+      id: string
+      url: string
+      maxDepth: number
+      maxPages: number
+      lastRun?: string | null
+    } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
+  >
+} & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
+
+export type CrawlerTableQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type CrawlerTableQuery = {
+  __typename?: 'Query'
+  aiLibrary?:
+    | ({ __typename?: 'AiLibrary' } & {
+        ' $fragmentRefs'?: { CrawlerTable_LibraryFragment: CrawlerTable_LibraryFragment }
+      })
+    | null
+}
+
+export type RunCrawlerButton_CrawlerFragment = { __typename?: 'AiLibraryCrawler'; id: string; isRunning: boolean } & {
+  ' $fragmentName'?: 'RunCrawlerButton_CrawlerFragment'
+}
+
+export type RunCrawlerMutationVariables = Exact<{
+  crawlerId: Scalars['String']['input']
+  userId: Scalars['String']['input']
+}>
+
+export type RunCrawlerMutation = {
+  __typename?: 'Mutation'
+  runAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; lastRun?: string | null } | null
 }
 
 export type DropFilesMutationVariables = Exact<{
@@ -1127,6 +1218,13 @@ export type ProcessFileMutation = {
     processedAt?: string | null
   } | null
 }
+
+export type LibraryFormFragmentFragment = {
+  __typename?: 'AiLibrary'
+  id: string
+  name: string
+  description?: string | null
+} & { ' $fragmentName'?: 'LibraryFormFragmentFragment' }
 
 export type CreateAiLibraryMutationVariables = Exact<{
   ownerId: Scalars['String']['input']
@@ -1285,15 +1383,12 @@ export type AiLibraryEditQueryVariables = Exact<{
 export type AiLibraryEditQuery = {
   __typename?: 'Query'
   aiLibrary?:
-    | ({
-        __typename?: 'AiLibrary'
-        id: string
-        name: string
-        createdAt: string
-        description?: string | null
-        url?: string | null
-        ownerId: string
-      } & { ' $fragmentRefs'?: { DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment } })
+    | ({ __typename?: 'AiLibrary'; id: string; name: string } & {
+        ' $fragmentRefs'?: {
+          LibraryFormFragmentFragment: LibraryFormFragmentFragment
+          DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment
+        }
+      })
     | null
   aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
 }
@@ -1981,6 +2076,20 @@ export const ParticipantsDialog_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -2007,6 +2116,20 @@ export const ConversationParticipants_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -2024,6 +2147,17 @@ export const ConversationSelector_ConversationFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'owner' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'assistants' },
@@ -2124,11 +2258,84 @@ export const NewConversationSelector_HumanFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
   ],
 } as unknown as DocumentNode<NewConversationSelector_HumanFragment, unknown>
+export const RunCrawlerButton_CrawlerFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
+export const CrawlerTable_LibraryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerTable_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawlers' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CrawlerTable_LibraryFragment, unknown>
 export const DeleteLibraryDialog_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2151,6 +2358,24 @@ export const DeleteLibraryDialog_LibraryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<DeleteLibraryDialog_LibraryFragment, unknown>
+export const LibraryFormFragmentFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryFormFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LibraryFormFragmentFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3146,6 +3371,197 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const CreateAiLibraryCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createAiLibraryCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'maxDepth' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'maxPages' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'url' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateAiLibraryCrawlerMutation, CreateAiLibraryCrawlerMutationVariables>
+export const CrawlerTableDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CrawlerTable' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'CrawlerTable_Library' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerTable_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawlers' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CrawlerTableQuery, CrawlerTableQueryVariables>
+export const RunCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'runCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'runAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RunCrawlerMutation, RunCrawlerMutationVariables>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -3943,6 +4359,17 @@ export const GetUserConversationsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
+            name: { kind: 'Name', value: 'owner' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
             name: { kind: 'Name', value: 'assistants' },
             selectionSet: {
               kind: 'SelectionSet',
@@ -4189,6 +4616,20 @@ export const GetAssignableUsersDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -4319,10 +4760,7 @@ export const AiLibraryEditDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryFormFragment' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
               ],
             },
@@ -4345,6 +4783,19 @@ export const AiLibraryEditDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryFormFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
         ],
       },
     },
