@@ -3,6 +3,7 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanst
 import React, { Suspense } from 'react'
 
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
+import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation from '../components/top-navigation'
 import { getLanguage } from '../i18n'
 import appCss from '../index.css?url'
@@ -54,6 +55,7 @@ const RootDocument = () => {
         <Suspense>
           <TanStackQueryDevtools />
         </Suspense>
+        <GeorgeToaster />
         <BottomNavigationMobile />
       </body>
     </html>
