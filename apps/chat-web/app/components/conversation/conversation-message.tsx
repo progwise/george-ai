@@ -104,7 +104,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
     <div
       key={message.id}
       className={twMerge(
-        'bg-base-350 card border border-base-300 p-4 text-base-content shadow-md',
+        'bg-base-350 card border border-base-content p-4 text-base-content shadow-md',
         message.hidden && 'opacity-50',
       )}
     >
