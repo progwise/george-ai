@@ -193,8 +193,7 @@ builder.mutationField('sendConfirmationMail', (t) =>
         .replace('/confirm', '/admin-confirm')
       console.log('Sending admin confirmation email')
       await sendMail(
-        //TODO: Change to info@george-ai.net
-        'yohannes.tesfay@george-ai.net',
+        'info@george-ai.net',
         'Admin Confirmation Required',
         `A new user profile requires confirmation. User email: ${profile.email}. Confirm here: ${adminConfirmationUrl}`,
         `<p>A new user profile requires confirmation. User email: ${profile.email}. Confirm here: <a href="${adminConfirmationUrl}">${adminConfirmationUrl}</a></p>`,
