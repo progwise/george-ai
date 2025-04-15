@@ -64,13 +64,7 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
 
   const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
     mutationFn: async () => {
-      try {
-        await deleteFiles({ data: library.id })
-      } catch (e: unknown) {
-        if (e instanceof Error && !e.message.includes('No files found for library:')) {
-          throw new Error(e.message)
-        }
-      }
+      await deleteFiles({ data: library.id })
       await deleteLibrary({ data: library.id })
     },
     onSettled: async () => {
