@@ -32,7 +32,7 @@ export const useAuth = () => {
       const keycloak = new Keycloak(config)
 
       if (typeof window !== 'undefined' && !keycloak.didInitialize) {
-        keycloak.init({
+        await keycloak.init({
           onLoad: 'check-sso',
         })
       }

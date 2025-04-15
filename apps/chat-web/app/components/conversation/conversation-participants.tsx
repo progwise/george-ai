@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
 import { removeConversationParticipant } from '../../server-functions/participations'
@@ -45,6 +46,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const authContext = useAuth()
   const user = authContext.user
   const queryClient = useQueryClient()
+  const { t } = useTranslation()
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
@@ -82,27 +84,32 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   return (
     <div className="no-scrollbar flex items-center gap-2 overflow-scroll lg:py-1">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
-      {conversation.participants.map((participant) => (
-        <div
-          key={participant.id}
-          className={twMerge(
-            'badge badge-lg text-nowrap text-xs',
-            participant.assistantId && 'badge-secondary',
-            participant.userId && 'badge-primary',
-          )}
-        >
-          {participant.userId !== user?.id && isOwner && (
-            <button
-              type="button"
-              className="btn btn-circle btn-ghost btn-xs"
-              onClick={(event) => handleRemoveParticipant(event, participant.id)}
-            >
-              <CrossIcon />
-            </button>
-          )}
-          <span className="max-w-36 truncate">{participant.name}</span>
-        </div>
-      ))}
+      {conversation.participants.map((participant) => {
+        const isParticipantOwner = participant.userId === conversation.ownerId
+        return (
+          <div
+            key={participant.id}
+            className={twMerge(
+              'badge badge-lg text-nowrap text-xs',
+              participant.userId && 'badge-primary',
+              isParticipantOwner && 'badge-accent',
+              participant.assistantId && 'badge-secondary',
+            )}
+          >
+            {participant.userId !== user?.id && isOwner && (
+              <button
+                type="button"
+                className="btn btn-circle btn-ghost btn-xs"
+                onClick={(event) => handleRemoveParticipant(event, participant.id)}
+              >
+                <CrossIcon />
+              </button>
+            )}
+            <span className="max-w-36 truncate">{participant.name}</span>
+            {isParticipantOwner && <span className="pl-1 font-bold">({t('conversations.owner')})</span>}
+          </div>
+        )
+      })}
       {isOwner && (
         <div className="max-lg:hidden">
           <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />

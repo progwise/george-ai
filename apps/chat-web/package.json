@@ -13,7 +13,6 @@
     "codegen": "graphql-codegen"
   },
   "dependencies": {
-    "@george-ai/langchain-chat": "workspace:*",
     "@george-ai/web-utils": "workspace:*",
     "@headlessui/react": "^2.2.0",
     "@tanstack/react-query": "5.66.9",

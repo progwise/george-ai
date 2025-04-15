@@ -10,6 +10,10 @@ const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
     id
     createdAt
+    owner {
+      id
+      name
+    }
     assistants {
       id
       name
@@ -62,9 +66,12 @@ export const ConversationSelector = ({
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >
-                    <span className="mt-1 block">
+                    <div>
+                      {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
+                    </div>
+                    <div className="mt-1 block">
                       {conversation.assistants?.map((assistant) => assistant.name).join(', ') || t('texts.noAssistant')}
-                    </span>
+                    </div>
                   </Link>
                 </li>
               ))}

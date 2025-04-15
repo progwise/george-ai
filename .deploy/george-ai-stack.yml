@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   gai-chatweb:
-    image: ghcr.io/progwise/george-ai/chat-web:latest
+    image: ghcr.io/progwise/george-ai/chat-web:${TAG:-latest}
     environment:
       KEYCLOAK_REDIRECT_URL: https://chat.george-ai.net
       KEYCLOAK_REALM: george-ai
@@ -34,7 +34,7 @@ services:
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-backend:
-    image: ghcr.io/progwise/george-ai/backend:latest
+    image: ghcr.io/progwise/george-ai/backend:${TAG:-latest}
     environment:
       UPLOADS_PATH: ./.uploads
       TYPESENSE_API_HOST: gai-typesense
@@ -200,7 +200,7 @@ services:
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-pocketbase:
-    image: ghcr.io/progwise/george-ai/pocketbase:latest
+    image: ghcr.io/progwise/george-ai/pocketbase:${TAG:-latest}
     environment:
       - GAI_WEBHOOK_URL=http://gai-chatweb:3000/api/process-documents
     networks:

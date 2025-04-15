@@ -125,6 +125,7 @@ export const embedFile = async (
     path: string
   },
 ) => {
+  console.log('embedding file:', file.name)
   await ensureVectorStore(libraryId)
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
@@ -135,6 +136,7 @@ export const embedFile = async (
   })
 
   await removeFileByName(libraryId, file.name)
+
   const fileParts = await loadFile(file)
 
   const splitDocument = await splitter.splitDocuments(fileParts)
@@ -184,10 +186,11 @@ export const removeFileById = async (libraryId: string, fileId: string) => {
 }
 
 export const removeFileByName = async (libraryId: string, fileName: string) => {
+  console.log('removing file:', fileName)
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
-    .delete({ filter_by: `docName:=${fileName}` })
+    .delete({ filter_by: `docName:=\`${fileName}\`` })
 }
 
 const removeFilesByDocumentIds = async (documentIds: string[]) => {

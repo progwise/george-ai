@@ -19,7 +19,10 @@
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "eslint.workingDirectories": [{ "mode": "auto" }],
-        "remote.autoForwardPorts": true
+        "remote.autoForwardPorts": true,
+        "[prisma]": {
+          "editor.defaultFormatter": "Prisma.prisma"
+        }
       }
     }
   },
