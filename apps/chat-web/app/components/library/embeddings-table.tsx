@@ -14,6 +14,7 @@ import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { GoogleDriveFiles } from './google-drive-files'
@@ -189,7 +190,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       invalidateQueries()
     },
     onError: () => {
-      alert('An error occurred while reprocessing the files. Please try again later.')
+      toastError('An error occurred while reprocessing the files. Please try again later.')
     },
   })
 
