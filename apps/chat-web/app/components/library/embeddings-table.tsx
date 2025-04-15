@@ -110,7 +110,7 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
     )
   })
 
-const aiLibraryFilesQueryOptions = (libraryId?: string) => ({
+export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
   queryKey: [queryKeys.AiLibraryFiles, libraryId],
   queryFn: async () => {
     if (!libraryId) {

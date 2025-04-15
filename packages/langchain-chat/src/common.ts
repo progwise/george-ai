@@ -12,6 +12,8 @@ export const getFileExtension = (mimeType: string) => {
       return 'txt'
     case 'text/csv':
       return 'csv'
+    case 'text/markdown':
+      return 'md'
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       return 'docx'
     default:
