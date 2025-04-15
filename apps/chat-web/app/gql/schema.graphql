@@ -134,6 +134,19 @@ type AiLibraryCrawlerCronJob {
   wednesday: Boolean!
 }
 
+input AiLibraryCrawlerCronJobInput {
+  active: Boolean!
+  friday: Boolean!
+  hour: Int!
+  minute: Int!
+  monday: Boolean!
+  saturday: Boolean!
+  sunday: Boolean!
+  thursday: Boolean!
+  tuesday: Boolean!
+  wednesday: Boolean!
+}
+
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
@@ -241,7 +254,13 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
-  createAiLibraryCrawler(libraryId: String!, maxDepth: Int!, maxPages: Int!, url: String!): AiLibraryCrawler
+  createAiLibraryCrawler(
+    cronJob: AiLibraryCrawlerCronJobInput
+    libraryId: String!
+    maxDepth: Int!
+    maxPages: Int!
+    url: String!
+  ): AiLibraryCrawler
   createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant

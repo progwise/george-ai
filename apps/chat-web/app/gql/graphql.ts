@@ -161,6 +161,19 @@ export type AiLibraryCrawlerCronJob = {
   wednesday: Scalars['Boolean']['output']
 }
 
+export type AiLibraryCrawlerCronJobInput = {
+  active: Scalars['Boolean']['input']
+  friday: Scalars['Boolean']['input']
+  hour: Scalars['Int']['input']
+  minute: Scalars['Int']['input']
+  monday: Scalars['Boolean']['input']
+  saturday: Scalars['Boolean']['input']
+  sunday: Scalars['Boolean']['input']
+  thursday: Scalars['Boolean']['input']
+  tuesday: Scalars['Boolean']['input']
+  wednesday: Scalars['Boolean']['input']
+}
+
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
@@ -331,6 +344,7 @@ export type MutationCreateAiLibraryArgs = {
 }
 
 export type MutationCreateAiLibraryCrawlerArgs = {
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   libraryId: Scalars['String']['input']
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']

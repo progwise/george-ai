@@ -4,6 +4,7 @@ import { crawl } from '@george-ai/crawl4ai-client'
 
 import { completeFileUpload, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
+import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { processFile } from '../ai-library-file/process-file'
 import { builder } from '../builder'
 
@@ -47,11 +48,15 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       maxDepth: t.arg.int(),
       maxPages: t.arg.int(),
       libraryId: t.arg.string(),
+      cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
     },
-    resolve: (query, _source, args) => {
+    resolve: (query, _source, { cronJob, ...data }) => {
       return prisma.aiLibraryCrawler.create({
         ...query,
-        data: args,
+        data: {
+          ...data,
+          cronJob: cronJob ? { create: cronJob } : undefined,
+        },
       })
     },
   }),

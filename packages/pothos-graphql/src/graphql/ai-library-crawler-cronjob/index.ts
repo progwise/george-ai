@@ -22,3 +22,18 @@ builder.prismaObject('AiLibraryCrawlerCronJob', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
   }),
 })
+
+export const AiLibraryCrawlerCronJobInput = builder.inputType('AiLibraryCrawlerCronJobInput', {
+  fields: (t) => ({
+    active: t.boolean({ required: true }),
+    hour: t.int({ required: true }),
+    minute: t.int({ required: true }),
+    monday: t.boolean({ required: true }),
+    tuesday: t.boolean({ required: true }),
+    wednesday: t.boolean({ required: true }),
+    thursday: t.boolean({ required: true }),
+    friday: t.boolean({ required: true }),
+    saturday: t.boolean({ required: true }),
+    sunday: t.boolean({ required: true }),
+  }),
+})
