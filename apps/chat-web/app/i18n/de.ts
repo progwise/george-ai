@@ -72,6 +72,7 @@ export default {
     maxPages: 'Max Anzahl an Seiten',
     run: 'Crawler starten',
     url: 'URL',
+    utcHint: 'UTC-Zeitzone',
   },
   dialog: {
     cancel: 'Abbrechen',

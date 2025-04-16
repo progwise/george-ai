@@ -167,6 +167,9 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
                 required={crawlerActive}
                 defaultValue="00:00"
               />
+              <div className="label">
+                <span className="label-text-alt">{t('crawlers.utcHint')}</span>
+              </div>
             </label>
 
             <div className="from-control">

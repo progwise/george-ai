@@ -70,6 +70,7 @@ export default {
     maxPages: 'Max Pages',
     run: 'Crawl',
     url: 'URL',
+    utcHint: 'UTC time',
   },
   dialog: {
     cancel: 'Cancel',
