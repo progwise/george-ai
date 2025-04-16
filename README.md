@@ -29,23 +29,46 @@ Use `env.example` files as the references.
 
 ### 4. Set Up Keycloak
 
-1. Navigate to `http://localhost:8180` and log in with the credentials `admin` and `admin`.
-2. Create a Realm using `KEYCLOAK_REALM` from `.env` file.
-3. In the left sidebar under **Manage** click on the **Clients** and then from the **Clients list** tab and then under the **Client ID** column click on **account**.
+1. Open `http://localhost:8180` in your browser and log in using the credentials:
 
-4. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
-5. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
-6. Navigate to the **Users** section and create a new user and then click on the **Create** at the bottom. Once the user is created, under the **Credentials** tab, set a password for the user. Then, go to the **Details** tab and provide the following information:
+   - **Username:** `admin`
+   - **Password:** `admin`
 
-- **First Name**
-- **Last Name**
-- **Email Address**
+2. Create a new Realm using the value of `KEYCLOAK_REALM` from your `.env` file.
 
-Ensure the email address is marked as verified by toggling the **Email Verified** option.
+3. In the left sidebar, under **Manage**, click **Clients**.  
+   Then, in the **Clients list** tab, click on the **account** link under the **Client ID** column.
 
-6. From the left sidebar, go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
+4. Update the **Client ID** with the value from `KEYCLOAK_CLIENT_ID` in your `.env` file.
 
-Client Authentication has to be **off**.
+5. In the **account** client settings, add the following URLs to the fields below:
+
+   - **Valid Redirect URIs:**  
+     `http://localhost:3001`,  
+     `http://localhost:3001/*`
+   - **Valid Post Logout Redirect URIs:**  
+     `http://localhost:3001`,  
+     `http://localhost:3001/*`
+   - **Web Origins:**  
+     `http://localhost:3001`,  
+     `http://localhost:3001/*`
+
+**Note**: Client Authentication has to be **off**.
+
+6. Navigate to the **Users** section and click **Add User**.  
+   Fill in the required fields, then click **Create** at the bottom of the form.
+
+7. After the user is created:
+
+   - Go to the **Credentials** tab, set a password, and ensure **Temporary** is set to **Off**.
+   - Go to the **Details** tab and provide:
+     - **First Name**
+     - **Last Name**
+     - **Email**
+     - Enable **Email Verified** by toggling the switch.
+
+8. In the left sidebar, go to **Identity Providers**.  
+   Choose a provider (e.g., Google, GitHub, or OpenID Connect) and configure it using the required credentials (e.g., **Client ID** and **Client Secret**).
 
 Docs for setting up an OAuth app in:
 
