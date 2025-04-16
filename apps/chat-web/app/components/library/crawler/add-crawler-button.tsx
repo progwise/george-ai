@@ -144,7 +144,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
 
           <div className="from-control">
             <label className="label cursor-pointer">
-              <span className="label-text">{t('crawlers.cronjobActive')}</span>
+              <span className="label-text">{t('crawlers.cronJobActive')}</span>
               <input
                 name="cronjob.active"
                 defaultChecked={crawlerActive}
@@ -158,7 +158,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
           <fieldset className={crawlerActive ? undefined : 'hidden'}>
             <label className="form-control">
               <div className="label">
-                <span className="label-text">{t('crawlers.time')}</span>
+                <span className="label-text">{t('crawlers.cronJobTime')}</span>
               </div>
               <input
                 type="time"
