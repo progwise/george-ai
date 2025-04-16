@@ -31,9 +31,11 @@ Use `env.example` files as the references.
 
 1. Navigate to `http://localhost:8180` and log in with the credentials `admin` and `admin`.
 2. Create a Realm using `KEYCLOAK_REALM` from `.env` file.
-3. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
-4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
-5. Navigate to the **Users** section and create a new user. Under the **Credentials** tab, set a password for the user. Then, go to the **Details** tab and provide the following information:
+3. In the left sidebar under **Manage** click on the **Clients** and then from the **Clients list** tab and then under the **Client ID** column click on **account**.
+
+4. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
+5. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
+6. Navigate to the **Users** section and create a new user and then click on the **Create** at the bottom. Once the user is created, under the **Credentials** tab, set a password for the user. Then, go to the **Details** tab and provide the following information:
 
 - **First Name**
 - **Last Name**
@@ -41,7 +43,7 @@ Use `env.example` files as the references.
 
 Ensure the email address is marked as verified by toggling the **Email Verified** option.
 
-6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
+6. From the left sidebar, go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
 
 Client Authentication has to be **off**.
 
