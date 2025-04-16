@@ -34,7 +34,7 @@ const RiskAreasIdentification_AssessmentFragment = graphql(`
         id
       }
     }
-    basicSystemInfo {
+    assistantSurvey {
       questions {
         id
         title {
@@ -81,8 +81,8 @@ interface RiskAreasIdentificationProps {
 export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => {
   const { t, language } = useTranslation()
   const assessment = useFragment(RiskAreasIdentification_AssessmentFragment, props.assessment)
-  const basicInfo = assessment.basicSystemInfo
-  const riskIndicator = assessment.basicSystemInfo?.riskIndicator
+  const basicInfo = assessment.assistantSurvey
+  const riskIndicator = basicInfo?.riskIndicator
   const questions = basicInfo.questions
   const identifyRiskInfo = assessment.identifyRiskInfo
   const complianceAreas = identifyRiskInfo?.complianceAreas

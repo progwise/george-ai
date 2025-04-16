@@ -1,8 +1,8 @@
-import { AiActChecklistStep } from './checklist'
+import { AiActAssistantSurvey } from './assistant-survey'
 import { AiActString } from './translated-string'
 
 // Perform a preliminary risk assessment based on basic info
-export const performRiskAssessment = (step: AiActChecklistStep) => {
+export const performRiskAssessment = (step: AiActAssistantSurvey) => {
   let riskPoints = 0
   const riskFactors: AiActString[] = []
   step.questions.forEach((question) => {

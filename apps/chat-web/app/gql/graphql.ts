@@ -23,20 +23,6 @@ export type Scalars = {
   Decimal: { input: number; output: number }
 }
 
-/** AI Act Checklist Action */
-export type AiActChecklistAction = {
-  __typename?: 'AIActChecklistAction'
-  description: AiActString
-  level: Scalars['String']['output']
-}
-
-/** AI Act Checklist Navigation */
-export type AiActChecklistNavigation = {
-  __typename?: 'AIActChecklistNavigation'
-  actions: Array<AiActChecklistAction>
-  title: AiActString
-}
-
 /** AI Act Legal Disclaimer */
 export type AiActLegalDisclaimer = {
   __typename?: 'AIActLegalDisclaimer'
@@ -48,20 +34,21 @@ export type AiActLegalDisclaimer = {
 export type AiActAssessment = {
   __typename?: 'AiActAssessment'
   assistantId: Scalars['String']['output']
-  basicSystemInfo: AiActBasicSystemInf
+  assistantSurvey: AiActAssistantSurvey
   identifyRiskInfo: AiActIdentifyRisksInfo
   riskIndicators?: Maybe<AiActRiskIndicator>
 }
 
 /** AI Act Assessment Basic System Info */
-export type AiActBasicSystemInf = {
-  __typename?: 'AiActBasicSystemInf'
+export type AiActAssistantSurvey = {
+  __typename?: 'AiActAssistantSurvey'
+  actions?: Maybe<Array<AiActRecommendedAction>>
+  actionsTitle: AiActString
   assistantId: Scalars['String']['output']
   hint: AiActString
   id: Scalars['String']['output']
-  navigation?: Maybe<AiActChecklistNavigation>
   percentCompleted?: Maybe<Scalars['Int']['output']>
-  questions?: Maybe<Array<AiActQuestionsRef>>
+  questions?: Maybe<Array<AiActQuestions>>
   riskIndicator?: Maybe<AiActRiskIndicator>
   title: AiActString
 }
@@ -85,26 +72,33 @@ export type AiActIdentifyRisksInfo = {
 export type AiActOption = {
   __typename?: 'AiActOption'
   id: Scalars['String']['output']
-  risk?: Maybe<AiActOptionRiskRef>
+  risk?: Maybe<AiActOptionRisk>
   title: AiActString
 }
 
-export type AiActOptionRiskRef = {
-  __typename?: 'AiActOptionRiskRef'
+export type AiActOptionRisk = {
+  __typename?: 'AiActOptionRisk'
   description: AiActString
   points: Scalars['Int']['output']
   riskLevel?: Maybe<Scalars['String']['output']>
 }
 
 /** AI Act Questions */
-export type AiActQuestionsRef = {
-  __typename?: 'AiActQuestionsRef'
+export type AiActQuestions = {
+  __typename?: 'AiActQuestions'
   hint: AiActString
   id: Scalars['String']['output']
   notes?: Maybe<Scalars['String']['output']>
   options: Array<AiActOption>
   title: AiActString
   value?: Maybe<Scalars['String']['output']>
+}
+
+/** AI Act Checklist Action */
+export type AiActRecommendedAction = {
+  __typename?: 'AiActRecommendedAction'
+  description: AiActString
+  level: Scalars['String']['output']
 }
 
 /** AI Act Risk Indicator */
@@ -879,23 +873,20 @@ export type LoginMutation = {
   } | null
 }
 
-export type BasicSystemInfo_AssessmentFragment = {
+export type AssistantSurvey_AssessmentFragment = {
   __typename?: 'AiActAssessment'
   assistantId: string
-  basicSystemInfo: {
-    __typename?: 'AiActBasicSystemInf'
+  assistantSurvey: {
+    __typename?: 'AiActAssistantSurvey'
     percentCompleted?: number | null
-    navigation?: {
-      __typename?: 'AIActChecklistNavigation'
-      title: { __typename?: 'AiActString'; de: string; en: string }
-      actions: Array<{
-        __typename?: 'AIActChecklistAction'
-        level: string
-        description: { __typename?: 'AiActString'; de: string; en: string }
-      }>
-    } | null
+    actionsTitle: { __typename?: 'AiActString'; de: string; en: string }
+    actions?: Array<{
+      __typename?: 'AiActRecommendedAction'
+      level: string
+      description: { __typename?: 'AiActString'; de: string; en: string }
+    }> | null
     questions?: Array<{
-      __typename?: 'AiActQuestionsRef'
+      __typename?: 'AiActQuestions'
       id: string
       notes?: string | null
       value?: string | null
@@ -906,7 +897,7 @@ export type BasicSystemInfo_AssessmentFragment = {
         id: string
         title: { __typename?: 'AiActString'; de: string; en: string }
         risk?: {
-          __typename?: 'AiActOptionRiskRef'
+          __typename?: 'AiActOptionRisk'
           riskLevel?: string | null
           points: number
           description: { __typename?: 'AiActString'; de: string; en: string }
@@ -922,7 +913,7 @@ export type BasicSystemInfo_AssessmentFragment = {
       factors: Array<{ __typename?: 'AiActString'; de: string; en: string }>
     } | null
   }
-} & { ' $fragmentName'?: 'BasicSystemInfo_AssessmentFragment' }
+} & { ' $fragmentName'?: 'AssistantSurvey_AssessmentFragment' }
 
 export type AiActAssessmentQueryQueryVariables = Exact<{
   assistantId: Scalars['String']['input']
@@ -934,7 +925,7 @@ export type AiActAssessmentQueryQuery = {
     | ({ __typename?: 'AiActAssessment' } & {
         ' $fragmentRefs'?: {
           RiskAreasIdentification_AssessmentFragment: RiskAreasIdentification_AssessmentFragment
-          BasicSystemInfo_AssessmentFragment: BasicSystemInfo_AssessmentFragment
+          AssistantSurvey_AssessmentFragment: AssistantSurvey_AssessmentFragment
         }
       })
     | null
@@ -972,10 +963,10 @@ export type RiskAreasIdentification_AssessmentFragment = {
       description: { __typename?: 'AiActString'; de: string; en: string }
     }>
   }
-  basicSystemInfo: {
-    __typename?: 'AiActBasicSystemInf'
+  assistantSurvey: {
+    __typename?: 'AiActAssistantSurvey'
     questions?: Array<{
-      __typename?: 'AiActQuestionsRef'
+      __typename?: 'AiActQuestions'
       id: string
       notes?: string | null
       value?: string | null
@@ -985,7 +976,7 @@ export type RiskAreasIdentification_AssessmentFragment = {
         id: string
         title: { __typename?: 'AiActString'; de: string; en: string }
         risk?: {
-          __typename?: 'AiActOptionRiskRef'
+          __typename?: 'AiActOptionRisk'
           riskLevel?: string | null
           points: number
           description: { __typename?: 'AiActString'; de: string; en: string }
@@ -1911,12 +1902,12 @@ export type GetUserProfileQuery = {
   } | null
 }
 
-export const BasicSystemInfo_AssessmentFragmentDoc = {
+export const AssistantSurvey_AssessmentFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'BasicSystemInfo_Assessment' },
+      name: { kind: 'Name', value: 'AssistantSurvey_Assessment' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActAssessment' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -1924,45 +1915,36 @@ export const BasicSystemInfo_AssessmentFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'basicSystemInfo' },
+            name: { kind: 'Name', value: 'assistantSurvey' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'navigation' },
+                  name: { kind: 'Name', value: 'actionsTitle' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'actions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'level' } },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
+                        name: { kind: 'Name', value: 'description' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'de' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'actions' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'level' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'description' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
                           ],
                         },
                       },
@@ -2108,7 +2090,7 @@ export const BasicSystemInfo_AssessmentFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<BasicSystemInfo_AssessmentFragment, unknown>
+} as unknown as DocumentNode<AssistantSurvey_AssessmentFragment, unknown>
 export const RiskAreasIdentification_AssessmentFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2204,7 +2186,7 @@ export const RiskAreasIdentification_AssessmentFragmentDoc = {
           },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'basicSystemInfo' },
+            name: { kind: 'Name', value: 'assistantSurvey' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -3624,7 +3606,7 @@ export const AiActAssessmentQueryDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RiskAreasIdentification_Assessment' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'BasicSystemInfo_Assessment' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantSurvey_Assessment' } },
               ],
             },
           },
@@ -3723,7 +3705,7 @@ export const AiActAssessmentQueryDocument = {
           },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'basicSystemInfo' },
+            name: { kind: 'Name', value: 'assistantSurvey' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -3833,7 +3815,7 @@ export const AiActAssessmentQueryDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'BasicSystemInfo_Assessment' },
+      name: { kind: 'Name', value: 'AssistantSurvey_Assessment' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActAssessment' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3841,45 +3823,36 @@ export const AiActAssessmentQueryDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'basicSystemInfo' },
+            name: { kind: 'Name', value: 'assistantSurvey' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'navigation' },
+                  name: { kind: 'Name', value: 'actionsTitle' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'actions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'level' } },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
+                        name: { kind: 'Name', value: 'description' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'de' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'actions' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'level' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'description' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
                           ],
                         },
                       },

@@ -15,7 +15,7 @@ const getAiAssistantChecklistStep1 = createServerFn({ method: 'GET' })
         query AiActAssessmentQuery($assistantId: String!) {
           AiActAssessmentQuery(assistantId: $assistantId) {
             ...RiskAreasIdentification_Assessment
-            ...BasicSystemInfo_Assessment
+            ...AssistantSurvey_Assessment
           }
         }
       `),

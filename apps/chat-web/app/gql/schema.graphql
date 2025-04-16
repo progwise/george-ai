@@ -4,22 +4,6 @@ schema {
 }
 
 """
-AI Act Checklist Action
-"""
-type AIActChecklistAction {
-  description: AiActString!
-  level: String!
-}
-
-"""
-AI Act Checklist Navigation
-"""
-type AIActChecklistNavigation {
-  actions: [AIActChecklistAction!]!
-  title: AiActString!
-}
-
-"""
 AI Act Legal Disclaimer
 """
 type AIActLegalDisclaimer {
@@ -32,7 +16,7 @@ AI Act Assessment Query
 """
 type AiActAssessment {
   assistantId: String!
-  basicSystemInfo: AiActBasicSystemInf!
+  assistantSurvey: AiActAssistantSurvey!
   identifyRiskInfo: AiActIdentifyRisksInfo!
   riskIndicators: AiActRiskIndicator
 }
@@ -40,13 +24,14 @@ type AiActAssessment {
 """
 AI Act Assessment Basic System Info
 """
-type AiActBasicSystemInf {
+type AiActAssistantSurvey {
+  actions: [AiActRecommendedAction!]
+  actionsTitle: AiActString!
   assistantId: String!
   hint: AiActString!
   id: String!
-  navigation: AIActChecklistNavigation
   percentCompleted: Int
-  questions: [AiActQuestionsRef!]
+  questions: [AiActQuestions!]
   riskIndicator: AiActRiskIndicator
   title: AiActString!
 }
@@ -71,11 +56,11 @@ type AiActIdentifyRisksInfo {
 
 type AiActOption {
   id: String!
-  risk: AiActOptionRiskRef
+  risk: AiActOptionRisk
   title: AiActString!
 }
 
-type AiActOptionRiskRef {
+type AiActOptionRisk {
   description: AiActString!
   points: Int!
   riskLevel: String
@@ -84,13 +69,21 @@ type AiActOptionRiskRef {
 """
 AI Act Questions
 """
-type AiActQuestionsRef {
+type AiActQuestions {
   hint: AiActString!
   id: String!
   notes: String
   options: [AiActOption!]!
   title: AiActString!
   value: String
+}
+
+"""
+AI Act Checklist Action
+"""
+type AiActRecommendedAction {
+  description: AiActString!
+  level: String!
 }
 
 """

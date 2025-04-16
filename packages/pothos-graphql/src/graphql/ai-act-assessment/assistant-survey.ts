@@ -1,5 +1,5 @@
 import {
-  AiActChecklistStep,
+  AiActAssistantSurvey,
   AiActOption,
   AiActOptionRisk,
   AiActQuestion,
@@ -9,10 +9,10 @@ import {
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 import { AiActStringRef } from './multilingual-string'
-import { AIActChecklistNavigationRef } from './navigation'
+import { AiActRecommendedActionRef } from './recommended-action'
 import { AiActRiskIndicatorRef } from './risk-indicator'
 
-export const AiActOptionRiskRef = builder.objectRef<AiActOptionRisk>('AiActOptionRiskRef').implement({
+export const AiActOptionRiskRef = builder.objectRef<AiActOptionRisk>('AiActOptionRisk').implement({
   fields: (t) => ({
     points: t.exposeInt('points', { nullable: false }),
     description: t.expose('description', { type: AiActStringRef, nullable: false }),
@@ -42,7 +42,7 @@ export const AiActOptionRef = builder.objectRef<AiActOption>('AiActOption').impl
   }),
 })
 
-const AiActQuestionsRef = builder.objectRef<AiActQuestion>('AiActQuestionsRef').implement({
+const AiActQuestionsRef = builder.objectRef<AiActQuestion>('AiActQuestions').implement({
   description: 'AI Act Questions',
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
@@ -54,8 +54,8 @@ const AiActQuestionsRef = builder.objectRef<AiActQuestion>('AiActQuestionsRef').
   }),
 })
 
-export const AiActBasicSystemInfoRef = builder
-  .objectRef<AiActChecklistStep & { assistantId: string }>('AiActBasicSystemInf')
+export const AiActAssistantSurveyRef = builder
+  .objectRef<AiActAssistantSurvey & { assistantId: string }>('AiActAssistantSurvey')
   .implement({
     description: 'AI Act Assessment Basic System Info',
     fields: (t) => ({
@@ -116,9 +116,15 @@ export const AiActBasicSystemInfoRef = builder
           return riskIndicator
         },
       }),
-      navigation: t.field({
-        type: AIActChecklistNavigationRef,
-        resolve: (source) => source.navigation,
+      actionsTitle: t.expose('actionsTitle', { type: AiActStringRef, nullable: false }),
+      actions: t.field({
+        type: [AiActRecommendedActionRef],
+        resolve: (source) => {
+          return source.actions.map((action) => ({
+            level: action.level,
+            description: action.description,
+          }))
+        },
       }),
     }),
   })

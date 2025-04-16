@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 
 import { LoadingSpinner } from '../../loading-spinner'
-import { BasicSystemInfoAssessment } from './basic-systeminfo'
+import { AssistantSurvey } from './assistant-survey'
 import { getChecklistStep1QueryOptions } from './checklist-server'
 import { RiskAreasIdentification } from './risk-identification'
 
@@ -17,7 +17,7 @@ export const AiActGuide = ({ assistantId }: AiActGuideProps) => {
   return (
     <>
       <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
-        <BasicSystemInfoAssessment assessment={data.AiActAssessmentQuery} />
+        <AssistantSurvey assessment={data.AiActAssessmentQuery} />
       </div>
       <div className="card grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
         <RiskAreasIdentification assessment={data.AiActAssessmentQuery} />
