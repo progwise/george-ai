@@ -9,9 +9,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const DATA_PATH = path.resolve(__dirname, '../data', 'mag_example1.pdf')
-const CHUNK_SIZE = 1000
-const CHUNK_OVERLAP = 100
-const LOCAL_RETRIEVAL_K = 4
+const CHUNK_SIZE = 700
+const CHUNK_OVERLAP = 150
+const LOCAL_RETRIEVAL_K = 10
 
 let memoryVectorStore: MemoryVectorStore | null
 

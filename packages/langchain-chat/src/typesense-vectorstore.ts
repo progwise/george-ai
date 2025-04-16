@@ -10,8 +10,8 @@ import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocket
 
 import { loadFile } from './langchain-file'
 
-const CHUNK_SIZE = 1000 // Increased for better context
-const CHUNK_OVERLAP = 100
+const CHUNK_SIZE = 1500
+const CHUNK_OVERLAP = 500
 
 const vectorTypesenseClient = new Client({
   nodes: [
