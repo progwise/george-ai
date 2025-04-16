@@ -8,8 +8,8 @@ import { prisma } from './prisma'
 
 const cronJobByIds = new Map<string, CronJob<() => void, null>>()
 
-const loadCronJobsFromDatabase = async () => {
-  console.log('Loading cron jobs from database')
+const restoreCronJobsFromDatabase = async () => {
+  console.log('Restore cron jobs from database')
   const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({ where: { active: true } })
 
   for (const cronJob of activeCronJobs) {
@@ -57,4 +57,5 @@ const stopCronJob = (cronJob: AiLibraryCrawlerCronJob) => {
   }
 }
 
-loadCronJobsFromDatabase()
+// After the server starts, restore all cron jobs from the database
+restoreCronJobsFromDatabase()
