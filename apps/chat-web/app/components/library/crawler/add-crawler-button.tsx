@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
@@ -155,7 +156,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
             </label>
           </div>
 
-          <fieldset className={crawlerActive ? undefined : 'hidden'}>
+          <fieldset className={twMerge('contents', !crawlerActive && 'hidden')}>
             <label className="form-control">
               <div className="label">
                 <span className="label-text">{t('crawlers.cronJobTime')}</span>
@@ -172,53 +173,55 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
               </div>
             </label>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.monday')}</span>
-                <input name="cronjob.monday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
-            </div>
+            <div>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.monday')}</span>
+                  <input name="cronjob.monday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.tuesday')}</span>
-                <input name="cronjob.tuesday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
-            </div>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.tuesday')}</span>
+                  <input name="cronjob.tuesday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.wednesday')}</span>
-                <input name="cronjob.wednesday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
-            </div>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.wednesday')}</span>
+                  <input name="cronjob.wednesday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.thursday')}</span>
-                <input name="cronjob.thursday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
-            </div>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.thursday')}</span>
+                  <input name="cronjob.thursday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.friday')}</span>
-                <input name="cronjob.friday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
-            </div>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.friday')}</span>
+                  <input name="cronjob.friday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.saturday')}</span>
-                <input name="cronjob.saturday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
-            </div>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.saturday')}</span>
+                  <input name="cronjob.saturday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
 
-            <div className="from-control">
-              <label className="label cursor-pointer">
-                <span className="label-text">{t('labels.sunday')}</span>
-                <input name="cronjob.sunday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
-              </label>
+              <div className="from-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">{t('labels.sunday')}</span>
+                  <input name="cronjob.sunday" type="checkbox" className="checkbox checkbox-sm" defaultChecked />
+                </label>
+              </div>
             </div>
           </fieldset>
 
