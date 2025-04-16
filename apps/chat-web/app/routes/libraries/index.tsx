@@ -105,7 +105,7 @@ function RouteComponent() {
                 return (
                   <tr
                     key={library.id}
-                    className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
+                    className="relative my-1 block border-b pr-20 leading-tight hover:bg-base-300 md:table-row"
                     onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId: library.id } })}
                   >
                     <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
