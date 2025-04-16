@@ -33,7 +33,7 @@ export const Listbox = <T extends { id: string; name: string }>({
         <ListboxButton
           disabled={disabled}
           aria-required={required}
-          className="grid w-full cursor-default grid-cols-1 rounded-lg bg-base-100 py-1 pl-3 pr-2 text-left text-sm text-base-content outline outline-1 outline-offset-[-1] outline-base-content/30 focus:outline focus:outline-2 focus:outline-offset-[-2] focus:outline-primary"
+          className="grid w-full cursor-default grid-cols-1 rounded-lg border bg-base-100 px-2 py-1 text-sm focus:outline focus:outline-2 focus:outline-primary"
         >
           <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
             {selectedItem ? (
@@ -51,19 +51,19 @@ export const Listbox = <T extends { id: string; name: string }>({
         <ListboxOptions
           anchor="bottom"
           transition
-          className="z-10 mt-1 overflow-auto rounded-lg bg-base-100 text-base shadow-lg ring-1 ring-base-content/20 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+          className="z-10 mt-1 overflow-auto rounded-lg border bg-base-100 shadow-lg focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
         >
           {items.map((item) => (
             <ListboxOption
               key={item.id}
               value={item}
-              className="group relative cursor-default select-none py-2 pl-3 pr-9 text-base-content data-[focus]:rounded-lg data-[focus]:bg-primary data-[focus]:text-white data-[focus]:outline-none"
+              className="group relative cursor-default select-none p-2 pr-12 data-[focus]:rounded-lg data-[focus]:bg-primary data-[focus]:text-primary-content"
             >
               <div className="flex items-center">
                 <span className="ml-3 block truncate font-normal group-data-[selected]:font-semibold">{item.name}</span>
               </div>
 
-              <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-primary group-[&:not([data-selected])]:hidden group-data-[focus]:text-white">
+              <span className="absolute inset-y-0 right-0 flex items-center pr-4 group-[&:not([data-selected])]:hidden group-data-[focus]:text-primary-content">
                 <CheckIcon aria-hidden="true" className="size-5" />
               </span>
             </ListboxOption>
