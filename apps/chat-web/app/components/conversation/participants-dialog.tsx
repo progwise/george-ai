@@ -203,7 +203,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   return (
     <>
-      <button type="button" className={`${buttonClass} text-neutral-content`} onClick={handleOpen}>
+      <button type="button" className={buttonClass} onClick={handleOpen}>
         {props.dialogMode === 'new' ? null : <PlusIcon />}
         {buttonText}
       </button>
