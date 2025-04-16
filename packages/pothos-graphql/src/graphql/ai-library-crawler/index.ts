@@ -56,7 +56,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       })
 
       if (crawler.cronJob) {
-        addCronJob(crawler.cronJob)
+        await addCronJob(crawler.cronJob)
       }
 
       return crawler

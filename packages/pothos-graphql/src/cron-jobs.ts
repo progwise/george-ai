@@ -13,12 +13,12 @@ const restoreCronJobsFromDatabase = async () => {
   const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({ where: { active: true } })
 
   for (const cronJob of activeCronJobs) {
-    addCronJob(cronJob)
+    await addCronJob(cronJob)
   }
 }
 
-export const addCronJob = (cronJob: AiLibraryCrawlerCronJob) => {
-  stopCronJob(cronJob)
+export const addCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
+  await stopCronJob(cronJob)
 
   if (!cronJob.active) {
     return
@@ -48,11 +48,11 @@ export const addCronJob = (cronJob: AiLibraryCrawlerCronJob) => {
   cronJobByIds.set(cronJob.id, job)
 }
 
-const stopCronJob = (cronJob: AiLibraryCrawlerCronJob) => {
+const stopCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
   const job = cronJobByIds.get(cronJob.id)
 
   if (job) {
-    job.stop()
+    await job.stop()
     cronJobByIds.delete(cronJob.id)
   }
 }
