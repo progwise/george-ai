@@ -58,6 +58,20 @@ input AiConversationCreateInput {
   userIds: [String!]!
 }
 
+type AiConversationInvitation {
+  allowDifferentEmailAddress: Boolean!
+  allowMultipleParticipants: Boolean!
+  confirmationDate: DateTime
+  conversation: AiConversation!
+  createdAt: DateTime!
+  date: DateTime!
+  email: String!
+  id: ID!
+  inviter: User!
+  link: String
+  updatedAt: DateTime
+}
+
 type AiConversationMessage {
   content: String
   conversation: AiConversation
@@ -184,6 +198,13 @@ type ChatAnswer {
   source: String
 }
 
+input ConversationInvitationInput {
+  allowDifferentEmailAddress: Boolean!
+  allowMultipleParticipants: Boolean!
+  email: String!
+  language: String
+}
+
 """
 A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -220,11 +241,21 @@ type Mutation {
   cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
+  confirmConversationInvitation(
+    conversationId: String!
+    invitationId: String!
+    userId: String!
+  ): AiConversationParticipant
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createAiLibraryCrawler(libraryId: String!, maxDepth: Int!, maxPages: Int!, url: String!): AiLibraryCrawler
+  createConversationInvitation(
+    conversationId: String!
+    data: ConversationInvitationInput!
+    inviterId: String!
+  ): AiConversationInvitation
   createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant

@@ -1,16 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { z } from 'zod'
 
 import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { getLanguage } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
+import { createConversationInvitation } from '../../server-functions/participations'
 import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
+import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 
 const ParticipantsDialog_ConversationFragment = graphql(`
@@ -59,6 +63,11 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [allowDifferentEmail, setAllowDifferentEmail] = useState(false)
+  const [allowMultiple, setAllowMultiple] = useState(false)
+  const [language, setLanguage] = useState('en')
 
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
@@ -171,6 +180,42 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     },
   })
 
+  const { mutate: createInvitation, isPending: isCreatingInvitation } = useMutation({
+    mutationFn: async (data: {
+      email: string
+      allowDifferentEmail: boolean
+      allowMultiple: boolean
+      language: string
+    }) => {
+      if (!conversation) {
+        throw new Error('Conversation not set')
+      }
+      if (!user?.id) {
+        throw new Error('User not set')
+      }
+
+      return await createConversationInvitation({
+        data: {
+          conversationId: conversation.id,
+          inviterId: user.id,
+          data: {
+            email: data.email,
+            allowDifferentEmailAddress: data.allowDifferentEmail,
+            allowMultipleParticipants: data.allowMultiple,
+            language: language,
+          },
+        },
+      })
+    },
+    onSettled: async (invitationResult) => {
+      if (invitationResult?.link) {
+        toastSuccess(`Invitation sent successfully! Here is the link: ${invitationResult.link}`)
+      } else {
+        toastError('Failed to create invitation')
+      }
+    },
+  })
+
   const handleSubmit = () => {
     if (props.dialogMode === 'new') {
       createNewConversation()
@@ -183,11 +228,42 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     dialogRef.current?.showModal()
   }
 
+  const handleSendInvitation = async () => {
+    const emails = email.split(',').map((e) => e.trim())
+    const invalidEmails = emails.filter((e) => !z.string().email().safeParse(e).success)
+
+    if (invalidEmails.length > 0) {
+      setEmailError(t('errors.invalidEmail'))
+      return
+    }
+
+    const detectedLanguage = await getLanguage()
+
+    emails.forEach((email) => {
+      createInvitation({
+        email,
+        allowDifferentEmail,
+        allowMultiple,
+        language: detectedLanguage,
+      })
+    })
+
+    setEmail('')
+    setEmailError(null)
+  }
+
   useEffect(() => {
     if (props.isOpen) {
       dialogRef.current?.showModal()
     }
   }, [props.isOpen])
+
+  useEffect(() => {
+    ;(async () => {
+      const detectedLanguage = await getLanguage()
+      setLanguage(detectedLanguage)
+    })()
+  }, [])
 
   const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
@@ -217,15 +293,19 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
+        style={{
+          maxWidth: '90vw',
+          width: 'auto',
+        }}
       >
-        <div className="flex w-full gap-2">
-          <div className="w-1/2">
-            <h4 className="underline">{t('conversations.assistants')}</h4>
+        <div className="flex w-full gap-4">
+          <div className="flex-1">
+            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
               <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
               availableAssistants.map((assistant) => (
-                <label key={assistant.id} className="label cursor-pointer justify-start gap-2">
+                <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
                   <input
                     type="checkbox"
                     name="assistants"
@@ -246,15 +326,15 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
               ))
             )}
           </div>
-          <div className="w-1/2">
-            <h4 className="underline">{t('conversations.humans')}</h4>
 
+          <div className="flex-1">
+            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
             <Input
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
             />
-            <label className="label cursor-pointer justify-start gap-2">
+            <label className="label cursor-pointer items-center justify-start gap-2">
               <input
                 disabled={availableHumans.length < 1}
                 type="checkbox"
@@ -274,17 +354,15 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                   }
                 }}
               />
-
               {availableHumans.length < 1 ? (
                 <span className="info label-text font-bold">{t('texts.noUsersFound')}</span>
               ) : (
                 <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
               )}
             </label>
-
             <div className="h-48 overflow-y-scroll">
               {availableHumans.map((human) => (
-                <label key={human.id} className="label cursor-pointer justify-start gap-2">
+                <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
                   <input
                     type="checkbox"
                     name="userIds"
@@ -305,6 +383,52 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                   </span>
                 </label>
               ))}
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <h4 className="mb-2 text-lg font-semibold underline">{t('labels.invitation')}</h4>
+            <Input
+              name="email"
+              type="text"
+              placeholder={t('placeholders.emailToInvite')}
+              value={email}
+              onChange={(event) => {
+                const value = event.target.value
+                setEmail(value)
+                setEmailError(null)
+              }}
+              required
+              autoFocus
+            />
+            {emailError && <p className="text-sm text-red-500">{emailError}</p>}
+            <div className="mt-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={allowDifferentEmail}
+                  onChange={(event) => setAllowDifferentEmail(event.target.checked)}
+                />
+                <span>{t('labels.allowDifferentEmail')}</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={allowMultiple}
+                  onChange={(event) => setAllowMultiple(event.target.checked)}
+                />
+                <span>{t('labels.allowMultipleParticipants')}</span>
+              </label>
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="btn btn-primary btn-sm mt-4"
+                onClick={handleSendInvitation}
+                disabled={isCreatingInvitation}
+              >
+                {t('actions.sendInvitation')}
+              </button>
             </div>
           </div>
         </div>

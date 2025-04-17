@@ -7,6 +7,7 @@ import {
   AiConversationMessageInput,
   AiLibraryFileInput,
   AiLibraryInput,
+  ConversationInvitationInput,
   RetrievalFlow,
   UserInput,
   UserProfileInput,
@@ -73,6 +74,15 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function ConversationInvitationInputSchema(): z.ZodObject<Properties<ConversationInvitationInput>> {
+  return z.object({
+    allowDifferentEmailAddress: z.boolean(),
+    allowMultipleParticipants: z.boolean(),
+    email: z.string(),
+    language: z.string().nullish(),
   })
 }
 
