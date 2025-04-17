@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
 
 import { useAuth } from '../../auth/auth-hook'
+import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm, UserProfileForm_UserProfileFragment } from '../../components/user/user-profile-form'
 import { FragmentType } from '../../gql'
@@ -25,10 +26,10 @@ function RouteComponent() {
       return await updateUserProfile({ data })
     },
     onSuccess: () => {
-      alert('Profile updated successfully.')
+      toastSuccess('Profile updated successfully.')
     },
     onError: (error) => {
-      alert('Failed to update profile: ' + error.message)
+      toastError('Failed to update profile: ' + error.message)
     },
   })
 
@@ -41,10 +42,10 @@ function RouteComponent() {
       })
     },
     onSuccess: () => {
-      alert('User profile confirmation process completed.')
+      toastSuccess('User profile confirmation process completed.')
     },
     onError: (error) => {
-      alert('Failed to confirm profile: ' + error.message)
+      toastError('Failed to confirm profile: ' + error.message)
     },
   })
 
@@ -53,7 +54,7 @@ function RouteComponent() {
   }
 
   if (!auth.user || !auth.user.isAdmin) {
-    alert('Access denied: Admins only')
+    toastError('Access denied: Admins only')
     navigate({ to: '/' })
     return null
   }
