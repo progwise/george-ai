@@ -42,7 +42,11 @@ export default function TopNavigation() {
   const { t } = useTranslation()
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(() => getStoredTheme())
+  const [theme, setTheme] = useState(() => {
+    const storedTheme = getStoredTheme()
+    setStoredTheme(storedTheme)
+    return storedTheme
+  })
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
 
