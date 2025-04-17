@@ -21,6 +21,7 @@ import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId
 import { Route as ConversationsSplatImport } from './routes/conversations/$'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
+import { Route as ConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/conversations/$conversationId.confirm-invitation.$invitationId'
 
 // Create/Update Routes
 
@@ -83,6 +84,13 @@ const ProfileProfileIdConfirmRoute = ProfileProfileIdConfirmImport.update({
   path: '/profile/$profileId/confirm',
   getParentRoute: () => rootRoute,
 } as any)
+
+const ConversationsConversationIdConfirmInvitationInvitationIdRoute =
+  ConversationsConversationIdConfirmInvitationInvitationIdImport.update({
+    id: '/conversations/$conversationId/confirm-invitation/$invitationId',
+    path: '/conversations/$conversationId/confirm-invitation/$invitationId',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -158,6 +166,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileProfileIdConfirmImport
       parentRoute: typeof rootRoute
     }
+    '/conversations/$conversationId/confirm-invitation/$invitationId': {
+      id: '/conversations/$conversationId/confirm-invitation/$invitationId'
+      path: '/conversations/$conversationId/confirm-invitation/$invitationId'
+      fullPath: '/conversations/$conversationId/confirm-invitation/$invitationId'
+      preLoaderRoute: typeof ConversationsConversationIdConfirmInvitationInvitationIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -174,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
   '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
+  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -187,6 +203,7 @@ export interface FileRoutesByTo {
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
   '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
+  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 export interface FileRoutesById {
@@ -201,6 +218,7 @@ export interface FileRoutesById {
   '/libraries/': typeof LibrariesIndexRoute
   '/profile/': typeof ProfileIndexRoute
   '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
+  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 export interface FileRouteTypes {
@@ -216,6 +234,7 @@ export interface FileRouteTypes {
     | '/libraries'
     | '/profile'
     | '/profile/$profileId/confirm'
+    | '/conversations/$conversationId/confirm-invitation/$invitationId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -228,6 +247,7 @@ export interface FileRouteTypes {
     | '/libraries'
     | '/profile'
     | '/profile/$profileId/confirm'
+    | '/conversations/$conversationId/confirm-invitation/$invitationId'
   id:
     | '__root__'
     | '/'
@@ -240,6 +260,7 @@ export interface FileRouteTypes {
     | '/libraries/'
     | '/profile/'
     | '/profile/$profileId/confirm'
+    | '/conversations/$conversationId/confirm-invitation/$invitationId'
   fileRoutesById: FileRoutesById
 }
 
@@ -254,6 +275,7 @@ export interface RootRouteChildren {
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
   ProfileProfileIdConfirmRoute: typeof ProfileProfileIdConfirmRoute
+  ConversationsConversationIdConfirmInvitationInvitationIdRoute: typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -267,6 +289,8 @@ const rootRouteChildren: RootRouteChildren = {
   LibrariesIndexRoute: LibrariesIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
   ProfileProfileIdConfirmRoute: ProfileProfileIdConfirmRoute,
+  ConversationsConversationIdConfirmInvitationInvitationIdRoute:
+    ConversationsConversationIdConfirmInvitationInvitationIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -288,7 +312,8 @@ export const routeTree = rootRoute
         "/assistants/",
         "/libraries/",
         "/profile/",
-        "/profile/$profileId/confirm"
+        "/profile/$profileId/confirm",
+        "/conversations/$conversationId/confirm-invitation/$invitationId"
       ]
     },
     "/": {
@@ -320,6 +345,9 @@ export const routeTree = rootRoute
     },
     "/profile/$profileId/confirm": {
       "filePath": "profile/$profileId.confirm.tsx"
+    },
+    "/conversations/$conversationId/confirm-invitation/$invitationId": {
+      "filePath": "conversations/$conversationId.confirm-invitation.$invitationId.tsx"
     }
   }
 }
