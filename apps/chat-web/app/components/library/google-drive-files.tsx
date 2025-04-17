@@ -160,11 +160,6 @@ export const GoogleDriveFiles = ({
       queryClient.invalidateQueries({
         queryKey: [queryKeys.AiLibraryFiles, libraryId],
       })
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraryFiles, libraryId],
-      })
 
       queryClient.invalidateQueries({
         queryKey: [queryKeys.CurrentUserProfile, user?.id],
