@@ -28,6 +28,7 @@ export const UserProfileForm_UserProfileFragment = graphql(`
     createdAt
     updatedAt
     confirmationDate
+    activationDate
     expiresAt
     business
     position
@@ -86,6 +87,7 @@ interface UserProfileFormProps {
   handleSendConfirmationMail: () => void
   onSubmit?: (data: FormData) => void
   isEditable?: boolean
+  saveButton?: React.ReactNode
 }
 
 export const UserProfileForm = (props: UserProfileFormProps) => {
@@ -195,6 +197,15 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         className="col-span-1"
         readOnly
       />
+      <Input
+        name="activationDate"
+        type="date"
+        label={t('labels.activationDate')}
+        value={userProfile.activationDate ? dateTimeString(userProfile.activationDate, language) : ''}
+        placeholder={!userProfile.activationDate ? t('labels.awaitingActivation') : undefined}
+        className="col-span-2"
+        readOnly
+      />
       <hr className="col-span-2 my-2" />
       <Input schema={formSchema} name={'email'} label="Email*" value={userProfile.email} className="col-span-2" />
       <Input
@@ -270,9 +281,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         </a>
       </div>
       <hr className="col-span-2 my-2" />
-      <div className="col-span-2 flex justify-end">
-        <input type="submit" value={t('actions.save')} className="btn btn-primary btn-sm" />
-      </div>
+      {React.isValidElement(props.saveButton) && <div className="col-span-2 flex justify-end">{props.saveButton}</div>}
     </form>
   )
 }

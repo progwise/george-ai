@@ -6,7 +6,8 @@ import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm, UserProfileForm_UserProfileFragment } from '../../components/user/user-profile-form'
 import { FragmentType } from '../../gql'
-import { adminConfirmUserProfile, getUserProfile, updateUserProfile } from '../../server-functions/users'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { activateUserProfile, getUserProfile, updateUserProfile } from '../../server-functions/users'
 
 export const Route = createFileRoute('/profile/$profileId/admin-confirm')({
   component: RouteComponent,
@@ -20,6 +21,7 @@ function RouteComponent() {
   const auth = useAuth()
   const navigate = useNavigate()
   const userProfile = useLoaderData({ strict: false })
+  const { t } = useTranslation()
 
   const mutation = useMutation({
     mutationFn: async (data: { userId: string; userProfileInput: Record<string, unknown> }) => {
@@ -35,17 +37,17 @@ function RouteComponent() {
 
   const confirmMutation = useMutation({
     mutationFn: async (profileId: string) => {
-      return await adminConfirmUserProfile({
+      return await activateUserProfile({
         data: {
           profileId,
         },
       })
     },
     onSuccess: () => {
-      toastSuccess('User profile confirmation process completed.')
+      toastSuccess('User profile activated successfully.')
     },
     onError: (error) => {
-      toastError('Failed to confirm profile: ' + error.message)
+      toastError('Failed to activate profile: ' + error.message)
     },
   })
 
@@ -63,7 +65,7 @@ function RouteComponent() {
     return (
       <div className="flex flex-col items-center gap-4">
         <h1>User profile not found</h1>
-        <p>The profile you are trying to confirm does not exist or has been deleted.</p>
+        <p>The profile you are trying to activate does not exist or has been deleted.</p>
         <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate({ to: '/' })}>
           Go Back
         </button>
@@ -72,8 +74,8 @@ function RouteComponent() {
   }
 
   return (
-    <div>
-      <h1>Admin Profile Confirmation</h1>
+    <article className="flex w-full flex-col items-center gap-4">
+      <h1>Admin Profile Activation</h1>
       <UserProfileForm
         userProfile={userProfile?.userProfile as FragmentType<typeof UserProfileForm_UserProfileFragment>}
         handleSendConfirmationMail={() => {}}
@@ -84,16 +86,18 @@ function RouteComponent() {
           mutation.mutate({ userId, userProfileInput })
         }}
         isEditable={true}
+        saveButton={
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => confirmMutation.mutate(userProfile?.userProfile?.id || '')}
+          >
+            {t('actions.activateProfile')}
+          </button>
+        }
       />
-      <button
-        type="button"
-        className="btn btn-primary btn-sm"
-        onClick={() => confirmMutation.mutate(userProfile?.userProfile?.userId || '')}
-      >
-        Confirm user profile
-      </button>
       {mutation.isPending && <LoadingSpinner isLoading={true} />}
       {confirmMutation.isPending && <LoadingSpinner isLoading={true} />}
-    </div>
+    </article>
   )
 }

@@ -229,9 +229,9 @@ export type HumanParticipant = AiConversationParticipant & {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  activateUserProfile?: Maybe<UserProfile>
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryUsage?: Maybe<AiLibraryUsage>
-  adminConfirmUserProfile?: Maybe<UserProfile>
   cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
@@ -269,6 +269,10 @@ export type Mutation = {
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
 }
 
+export type MutationActivateUserProfileArgs = {
+  profileId: Scalars['String']['input']
+}
+
 export type MutationAddConversationParticipantsArgs = {
   assistantIds?: InputMaybe<Array<Scalars['String']['input']>>
   conversationId: Scalars['String']['input']
@@ -278,10 +282,6 @@ export type MutationAddConversationParticipantsArgs = {
 export type MutationAddLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type MutationAdminConfirmUserProfileArgs = {
-  profileId: Scalars['String']['input']
 }
 
 export type MutationCancelFileUploadArgs = {
@@ -541,6 +541,7 @@ export type UserInput = {
 
 export type UserProfile = {
   __typename?: 'UserProfile'
+  activationDate?: Maybe<Scalars['DateTime']['output']>
   business?: Maybe<Scalars['String']['output']>
   confirmationDate?: Maybe<Scalars['DateTime']['output']>
   createdAt: Scalars['DateTime']['output']
@@ -1259,6 +1260,7 @@ export type UserProfileForm_UserProfileFragment = {
   createdAt: string
   updatedAt?: string | null
   confirmationDate?: string | null
+  activationDate?: string | null
   expiresAt?: string | null
   business?: string | null
   position?: string | null
@@ -1683,6 +1685,7 @@ export type GetUserProfileQuery = {
     createdAt: string
     updatedAt?: string | null
     confirmationDate?: string | null
+    activationDate?: string | null
     expiresAt?: string | null
   } | null
 }
@@ -1697,13 +1700,13 @@ export type UpdateUserProfileMutation = {
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
-export type AdminConfirmUserProfileMutationVariables = Exact<{
+export type ActivateUserProfileMutationVariables = Exact<{
   profileId: Scalars['String']['input']
 }>
 
-export type AdminConfirmUserProfileMutation = {
+export type ActivateUserProfileMutation = {
   __typename?: 'Mutation'
-  adminConfirmUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+  activateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export const AssistantBasecaseForm_AssistantFragmentDoc = {
@@ -2431,6 +2434,7 @@ export const UserProfileForm_UserProfileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'business' } },
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
@@ -5012,6 +5016,7 @@ export const UserProfileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'business' } },
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
@@ -5846,6 +5851,7 @@ export const GetUserProfileDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
               ],
             },
@@ -5902,13 +5908,13 @@ export const UpdateUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>
-export const AdminConfirmUserProfileDocument = {
+export const ActivateUserProfileDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'adminConfirmUserProfile' },
+      name: { kind: 'Name', value: 'activateUserProfile' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -5921,7 +5927,7 @@ export const AdminConfirmUserProfileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'adminConfirmUserProfile' },
+            name: { kind: 'Name', value: 'activateUserProfile' },
             arguments: [
               {
                 kind: 'Argument',
@@ -5938,4 +5944,4 @@ export const AdminConfirmUserProfileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AdminConfirmUserProfileMutation, AdminConfirmUserProfileMutationVariables>
+} as unknown as DocumentNode<ActivateUserProfileMutation, ActivateUserProfileMutationVariables>

@@ -20,6 +20,7 @@ builder.prismaObject('UserProfile', {
     business: t.exposeString('business', { nullable: true }),
     position: t.exposeString('position', { nullable: true }),
     confirmationDate: t.expose('confirmationDate', { type: 'DateTime' }),
+    activationDate: t.expose('activationDate', { type: 'DateTime' }),
     usedMessages: t.field({
       type: 'Int',
       resolve: async (source) => {
@@ -131,7 +132,9 @@ builder.mutationField('updateUserProfile', (t) =>
         ...query,
         where: { userId },
         data: {
-          ...Object.fromEntries(Object.entries(input).filter(([, value]) => value !== null)),
+          ...input,
+          freeMessages: input.freeMessages ?? undefined,
+          freeStorage: input.freeStorage ?? undefined,
         },
       })
     },
@@ -173,8 +176,7 @@ builder.mutationField('sendConfirmationMail', (t) =>
       }
 
       // Send email to the user
-      console.log('Sending confirmation email to', profile.email)
-      const emailInfo = await sendMail(
+      await sendMail(
         profile.email,
         'Please confirm your email',
         'Thank you for registering at george-ai.net. Enter the following URL in your browser to confirm your email: ' +
@@ -185,15 +187,13 @@ builder.mutationField('sendConfirmationMail', (t) =>
           confirmationUrl +
           '</a>',
       )
-      console.log('Email sent', emailInfo)
 
       // Send email to the admin
       const adminConfirmationUrl = confirmationUrl
         .replace(profile.id, profile.userId)
         .replace('/confirm', '/admin-confirm')
-      console.log('Sending admin confirmation email')
       await sendMail(
-        'info@george-ai.net',
+        'yohannes.tesfay@george-ai.net',
         'Admin Confirmation Required',
         `A new user profile requires confirmation. User email: ${profile.email}. Confirm here: ${adminConfirmationUrl}`,
         `<p>A new user profile requires confirmation. User email: ${profile.email}. Confirm here: <a href="${adminConfirmationUrl}">${adminConfirmationUrl}</a></p>`,
@@ -219,34 +219,36 @@ builder.queryField('userProfile', (t) =>
   }),
 )
 
-builder.mutationField('adminConfirmUserProfile', (t) =>
+builder.mutationField('activateUserProfile', (t) =>
   t.prismaField({
     type: 'UserProfile',
     args: {
       profileId: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { profileId }) => {
-      const userProfile = await prisma.userProfile.findUnique({
-        where: { id: profileId },
+      const userProfile = await prisma.userProfile.findFirst({
+        where: {
+          OR: [{ id: profileId }, { userId: profileId }],
+        },
       })
 
       if (!userProfile) {
-        throw new Error('User profile not found')
+        throw new Error(`User profile not found for profileId: ${profileId}`)
       }
 
       const updatedProfile = await prisma.userProfile.update({
-        where: { id: profileId },
+        where: { id: userProfile.id },
         data: {
-          confirmationDate: new Date(),
+          activationDate: new Date(),
         },
       })
 
       // Send email notification to the user
       await sendMail(
         userProfile.email,
-        'Profile Confirmed',
-        'Your profile has been confirmed by the admin.',
-        '<p>Your profile has been confirmed by the admin.</p>',
+        'Profile Activation Successful',
+        'Your profile has been successfully activated by the admin. You can now access all features.',
+        '<p>Your profile has been successfully activated by the admin. You can now access all features.</p>',
       )
 
       return updatedProfile

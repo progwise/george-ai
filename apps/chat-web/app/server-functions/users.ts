@@ -98,6 +98,7 @@ export const getUserProfile = createServerFn({ method: 'GET' })
             createdAt
             updatedAt
             confirmationDate
+            activationDate
             expiresAt
           }
         }
@@ -123,7 +124,7 @@ export const sendAdminNotificationMail = createServerFn({ method: 'POST' })
       throw new Error('User profile not found')
     }
 
-    await adminConfirmUserProfile({
+    await activateUserProfile({
       data: {
         profileId: userProfile.userProfile.id,
       },
@@ -163,7 +164,7 @@ export const updateUserProfile = createServerFn({ method: 'POST' })
     )
   })
 
-export const adminConfirmUserProfile = createServerFn({ method: 'POST' })
+export const activateUserProfile = createServerFn({ method: 'POST' })
   .validator((data: { profileId: string }) => {
     return z
       .object({
@@ -174,8 +175,8 @@ export const adminConfirmUserProfile = createServerFn({ method: 'POST' })
   .handler((ctx) =>
     backendRequest(
       graphql(`
-        mutation adminConfirmUserProfile($profileId: String!) {
-          adminConfirmUserProfile(profileId: $profileId) {
+        mutation activateUserProfile($profileId: String!) {
+          activateUserProfile(profileId: $profileId) {
             id
           }
         }

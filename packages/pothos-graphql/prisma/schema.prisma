@@ -55,6 +55,7 @@ model UserProfile {
   user             User      @relation(fields: [userId], references: [id])
   userId           String    @unique
   confirmationDate DateTime?
+  activationDate   DateTime?
 }
 
 model AiAssistant {

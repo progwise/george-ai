@@ -211,13 +211,13 @@ type HumanParticipant implements AiConversationParticipant {
 }
 
 type Mutation {
+  activateUserProfile(profileId: String!): UserProfile
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  adminConfirmUserProfile(profileId: String!): UserProfile
   cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
@@ -300,6 +300,7 @@ input UserInput {
 }
 
 type UserProfile {
+  activationDate: DateTime
   business: String
   confirmationDate: DateTime
   createdAt: DateTime!

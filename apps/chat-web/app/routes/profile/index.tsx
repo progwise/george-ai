@@ -190,7 +190,15 @@ function RouteComponent() {
       <LoadingSpinner isLoading={createIsPending} message="Generating user profile" />
       <LoadingSpinner isLoading={removeIsPending} message="Removing user profile" />
       <LoadingSpinner isLoading={sendConfirmationMailIsPending} message="Sending email" />
-      <UserProfileForm userProfile={userProfile.userProfile} handleSendConfirmationMail={handleSendConfirmationMail} />
+      <UserProfileForm
+        userProfile={userProfile.userProfile}
+        handleSendConfirmationMail={handleSendConfirmationMail}
+        saveButton={
+          <button type="submit" className="btn btn-primary btn-sm">
+            {t('actions.saveProfile')}
+          </button>
+        }
+      />
     </article>
   )
 }

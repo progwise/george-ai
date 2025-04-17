@@ -1,6 +1,7 @@
 export default {
   actions: {
     add: 'Hinzufügen',
+    activateProfile: 'Profil aktivieren',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
     clearEmbeddings: 'Einbettungen löschen',
@@ -14,6 +15,7 @@ export default {
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
+    saveProfile: 'Profil speichern',
     saving: 'Speichern...',
     selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',
@@ -93,6 +95,8 @@ export default {
   },
   labels: {
     actions: 'Aktionen',
+    activationDate: 'Aktiviert',
+    awaitingActivation: 'Warten auf Aktivierung',
     behavior: 'Verhaltensfälle',
     business: 'Unternehmen',
     chunks: 'Chunks',
