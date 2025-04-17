@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
+import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -131,6 +132,7 @@ export const GoogleDriveFiles = ({
   noFreeUploads,
   dialogRef,
 }: GoogleDriveFilesProps) => {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
@@ -162,6 +164,10 @@ export const GoogleDriveFiles = ({
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [queryKeys.AiLibraryFiles, libraryId],
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.CurrentUserProfile, user?.id],
       })
     },
     onError: (error) => {
