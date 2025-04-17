@@ -202,6 +202,7 @@ model AiConversationMessage {
 model AiConversationInvitation {
   id                         String    @id @default(cuid())
   email                      String
+  link                       String?
   date                       DateTime  @default(now())
   confirmationDate           DateTime?
   conversationId             String
