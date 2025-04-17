@@ -11,7 +11,7 @@ interface AiActGuideProps {
 
 export const AiActGuide = ({ assistantId }: AiActGuideProps) => {
   const { data, isLoading } = useSuspenseQuery(getChecklistStep1QueryOptions(assistantId))
-  if (isLoading || !data || !data.AiActAssessmentQuery) {
+  if (isLoading || !data) {
     return <LoadingSpinner />
   }
   return (

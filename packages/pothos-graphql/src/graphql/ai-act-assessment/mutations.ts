@@ -6,6 +6,7 @@ import { builder } from '../builder'
 builder.mutationField('resetAssessmentAnswers', (t) =>
   t.field({
     type: 'DateTime',
+    nullable: false,
     args: {
       assistantId: t.arg.string({ required: true }),
     },
@@ -24,6 +25,7 @@ builder.mutationField('resetAssessmentAnswers', (t) =>
 builder.mutationField('updateAssessmentQuestion', (t) =>
   t.field({
     type: 'DateTime',
+    nullable: false,
     args: {
       assistantId: t.arg.string({ required: true }),
       questionId: t.arg.string({ required: true }),

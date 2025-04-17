@@ -63,8 +63,8 @@ export const AiActAssistantSurveyRef = builder
       hint: t.expose('hint', { type: AiActStringRef, nullable: false }),
       assistantId: t.exposeString('assistantId', { nullable: false }),
       id: t.exposeString('id', { nullable: false }),
-      percentCompleted: t.field({
-        type: 'Int',
+      percentCompleted: t.int({
+        nullable: false,
         resolve: async (source) => {
           const answerCount = await prisma.aiAssistantEUActAnswers.count({
             where: { assistantId: source.assistantId },
@@ -74,6 +74,7 @@ export const AiActAssistantSurveyRef = builder
       }),
       questions: t.field({
         type: [AiActQuestionsRef],
+        nullable: false,
         resolve: async (source) => {
           const answers = await prisma.aiAssistantEUActAnswers.findMany({
             where: { assistantId: source.assistantId },
@@ -91,6 +92,7 @@ export const AiActAssistantSurveyRef = builder
       }),
       riskIndicator: t.field({
         type: AiActRiskIndicatorRef,
+        nullable: false,
         resolve: async (source) => {
           const answers = await prisma.aiAssistantEUActAnswers.findMany({
             where: { assistantId: source.assistantId },
@@ -119,6 +121,7 @@ export const AiActAssistantSurveyRef = builder
       actionsTitle: t.expose('actionsTitle', { type: AiActStringRef, nullable: false }),
       actions: t.field({
         type: [AiActRecommendedActionRef],
+        nullable: false,
         resolve: (source) => {
           return source.actions.map((action) => ({
             level: action.level,

@@ -42,14 +42,14 @@ export type AiActAssessment = {
 /** AI Act Assessment Basic System Info */
 export type AiActAssistantSurvey = {
   __typename?: 'AiActAssistantSurvey'
-  actions?: Maybe<Array<AiActRecommendedAction>>
+  actions: Array<AiActRecommendedAction>
   actionsTitle: AiActString
   assistantId: Scalars['String']['output']
   hint: AiActString
   id: Scalars['String']['output']
-  percentCompleted?: Maybe<Scalars['Int']['output']>
-  questions?: Maybe<Array<AiActQuestions>>
-  riskIndicator?: Maybe<AiActRiskIndicator>
+  percentCompleted: Scalars['Int']['output']
+  questions: Array<AiActQuestions>
+  riskIndicator: AiActRiskIndicator
   title: AiActString
 }
 
@@ -104,9 +104,9 @@ export type AiActRecommendedAction = {
 /** AI Act Risk Indicator */
 export type AiActRiskIndicator = {
   __typename?: 'AiActRiskIndicator'
-  description?: Maybe<AiActString>
+  description: AiActString
   factors: Array<AiActString>
-  level?: Maybe<Scalars['String']['output']>
+  level: Scalars['String']['output']
 }
 
 export type AiActString = {
@@ -348,14 +348,14 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
-  resetAssessmentAnswers?: Maybe<Scalars['DateTime']['output']>
+  resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
-  updateAssessmentQuestion?: Maybe<Scalars['DateTime']['output']>
+  updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateMessage?: Maybe<AiConversationMessage>
   updateUserProfile?: Maybe<UserProfile>
@@ -545,7 +545,7 @@ export type MutationUpsertAiBaseCasesArgs = {
 
 export type Query = {
   __typename?: 'Query'
-  AiActAssessmentQuery?: Maybe<AiActAssessment>
+  AiActAssessmentQuery: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
   aiConversation?: Maybe<AiConversation>
@@ -878,14 +878,14 @@ export type AssistantSurvey_AssessmentFragment = {
   assistantId: string
   assistantSurvey: {
     __typename?: 'AiActAssistantSurvey'
-    percentCompleted?: number | null
+    percentCompleted: number
     actionsTitle: { __typename?: 'AiActString'; de: string; en: string }
-    actions?: Array<{
+    actions: Array<{
       __typename?: 'AiActRecommendedAction'
       level: string
       description: { __typename?: 'AiActString'; de: string; en: string }
-    }> | null
-    questions?: Array<{
+    }>
+    questions: Array<{
       __typename?: 'AiActQuestions'
       id: string
       notes?: string | null
@@ -903,15 +903,15 @@ export type AssistantSurvey_AssessmentFragment = {
           description: { __typename?: 'AiActString'; de: string; en: string }
         } | null
       }>
-    }> | null
+    }>
     title: { __typename?: 'AiActString'; en: string; de: string }
     hint: { __typename?: 'AiActString'; en: string; de: string }
-    riskIndicator?: {
+    riskIndicator: {
       __typename?: 'AiActRiskIndicator'
-      level?: string | null
-      description?: { __typename?: 'AiActString'; de: string; en: string } | null
+      level: string
+      description: { __typename?: 'AiActString'; de: string; en: string }
       factors: Array<{ __typename?: 'AiActString'; de: string; en: string }>
-    } | null
+    }
   }
 } & { ' $fragmentName'?: 'AssistantSurvey_AssessmentFragment' }
 
@@ -921,14 +921,12 @@ export type AiActAssessmentQueryQueryVariables = Exact<{
 
 export type AiActAssessmentQueryQuery = {
   __typename?: 'Query'
-  AiActAssessmentQuery?:
-    | ({ __typename?: 'AiActAssessment' } & {
-        ' $fragmentRefs'?: {
-          RiskAreasIdentification_AssessmentFragment: RiskAreasIdentification_AssessmentFragment
-          AssistantSurvey_AssessmentFragment: AssistantSurvey_AssessmentFragment
-        }
-      })
-    | null
+  AiActAssessmentQuery: { __typename?: 'AiActAssessment' } & {
+    ' $fragmentRefs'?: {
+      RiskAreasIdentification_AssessmentFragment: RiskAreasIdentification_AssessmentFragment
+      AssistantSurvey_AssessmentFragment: AssistantSurvey_AssessmentFragment
+    }
+  }
 }
 
 export type UpdateAssessmentQuestionMutationVariables = Exact<{
@@ -938,13 +936,13 @@ export type UpdateAssessmentQuestionMutationVariables = Exact<{
   notes?: InputMaybe<Scalars['String']['input']>
 }>
 
-export type UpdateAssessmentQuestionMutation = { __typename?: 'Mutation'; updateAssessmentQuestion?: string | null }
+export type UpdateAssessmentQuestionMutation = { __typename?: 'Mutation'; updateAssessmentQuestion: string }
 
 export type ResetAssessmentAnswersMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
 }>
 
-export type ResetAssessmentAnswersMutation = { __typename?: 'Mutation'; resetAssessmentAnswers?: string | null }
+export type ResetAssessmentAnswersMutation = { __typename?: 'Mutation'; resetAssessmentAnswers: string }
 
 export type RiskAreasIdentification_AssessmentFragment = {
   __typename?: 'AiActAssessment'
@@ -965,7 +963,7 @@ export type RiskAreasIdentification_AssessmentFragment = {
   }
   assistantSurvey: {
     __typename?: 'AiActAssistantSurvey'
-    questions?: Array<{
+    questions: Array<{
       __typename?: 'AiActQuestions'
       id: string
       notes?: string | null
@@ -982,13 +980,13 @@ export type RiskAreasIdentification_AssessmentFragment = {
           description: { __typename?: 'AiActString'; de: string; en: string }
         } | null
       }>
-    }> | null
-    riskIndicator?: {
+    }>
+    riskIndicator: {
       __typename?: 'AiActRiskIndicator'
-      level?: string | null
-      description?: { __typename?: 'AiActString'; de: string; en: string } | null
+      level: string
+      description: { __typename?: 'AiActString'; de: string; en: string }
       factors: Array<{ __typename?: 'AiActString'; de: string; en: string }>
-    } | null
+    }
   }
 } & { ' $fragmentName'?: 'RiskAreasIdentification_AssessmentFragment' }
 
