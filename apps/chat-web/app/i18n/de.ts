@@ -4,6 +4,7 @@ export default {
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
     clearEmbeddings: 'Einbettungen löschen',
+    confirm: 'Bestätigen',
     create: 'Erstellen',
     delete: 'Löschen',
     drop: 'Entfernen',
@@ -17,6 +18,7 @@ export default {
     saving: 'Speichern...',
     selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',
+    sendInvitation: 'Einladung senden',
     sendMessage: 'Nachricht senden',
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
@@ -61,6 +63,7 @@ export default {
     leaveConfirmation:
       'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     owner: 'Besitzer',
+    signInToJoin: 'Melden Sie sich an, um der Konversation beizutreten',
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
@@ -76,6 +79,7 @@ export default {
     done: 'Fertig',
   },
   errors: {
+    emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     llmTemperatureToHigh: '<= 1.0',
     llmTemperatureToLow: '>= 0.0',
@@ -90,8 +94,20 @@ export default {
     altImage: 'George KI',
     btnText: 'KI-Training starten',
   },
+  invitations: {
+    confirmDescription: 'Sind Sie sicher, dass Sie die Einladung bestätigen möchten?',
+    confirmTitle: 'Einladung bestätigen',
+    joinLinkHtml:
+      '<p>Sie wurden eingeladen, an einer Konversation bei George-Ai teilzunehmen. Verwenden Sie diesen Link, um beizutreten: {PUBLIC_APP_URL}/conversations/{conversationId}/confirm-invitation/{invitationId}</p>',
+    joinLinkText:
+      'Sie wurden eingeladen, an einer Konversation bei George-Ai teilzunehmen. Verwenden Sie diesen Link, um beizutreten: {PUBLIC_APP_URL}/conversations/{conversationId}/confirm-invitation/{invitationId}',
+    invitationLanguage: 'Einladungssprache',
+    invitationSubject: 'Sie sind zu einer Konversation bei George-Ai eingeladen',
+  },
   labels: {
     actions: 'Aktionen',
+    allowDifferentEmail: 'Andere E-Mail-Adresse zulassen',
+    allowMultipleParticipants: 'Mehrere Teilnehmer zulassen',
     behavior: 'Verhaltensfälle',
     business: 'Unternehmen',
     chunks: 'Chunks',
@@ -109,6 +125,7 @@ export default {
     freeStorage: 'Freier Speicher',
     icon: 'Icon',
     instructions: 'Anweisungen',
+    invitation: 'Einladung',
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',
     llmTemperature: 'LLM Temperatur',
@@ -149,6 +166,8 @@ export default {
     condition: 'Wenn',
     instruction: 'Dann',
     email: 'Ihre E-Mail-Adresse',
+    emailToInvite: 'E-Mail-Adresse zum Einladen',
+    multipleEmailsHint: 'Mehrere E-Mail-Adressen mit Komma trennen',
     searchUsers: 'Benutzer suchen...',
   },
   resetConversation: 'Konversation zurücksetzen',
@@ -177,7 +196,6 @@ export default {
   },
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
-    clearEmbeddings: 'Einbettungen löschen',
     delete: 'Löschen',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
