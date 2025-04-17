@@ -229,8 +229,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="btn btn-xs tooltip tooltip-left"
-            data-tip={t('tooltips.clearEmbeddings')}
+            className="btn btn-xs"
             onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
             disabled={clearEmbeddingsMutation.isPending}
           >

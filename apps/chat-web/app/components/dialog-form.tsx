@@ -11,6 +11,7 @@ export interface DialogFormProps {
   disabledSubmit?: boolean
   submitButtonText?: string
   submitButtonTooltipText?: string
+  style?: React.CSSProperties
 }
 
 export const DialogForm = ({
@@ -22,6 +23,7 @@ export const DialogForm = ({
   disabledSubmit,
   submitButtonText,
   submitButtonTooltipText,
+  style,
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +38,7 @@ export const DialogForm = ({
 
   return (
     <dialog className="modal" ref={ref}>
-      <div className="modal-box">
+      <div className="modal-box" style={style}>
         <h3 className="text-lg font-bold">{title}</h3>
         {description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>

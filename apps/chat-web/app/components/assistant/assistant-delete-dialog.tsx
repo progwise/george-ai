@@ -94,7 +94,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
       <DialogForm
         ref={dialogRef}
         title={t('assistants.delete')}
-        description={t('assistants.deleteDescription').replace('{assistant.name}', assistant.name)} // TODO: add assistant name as soon as templates are available for translations
+        description={t('assistants.deleteDescription').replace('{assistant.name}', assistant.name)}
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >
