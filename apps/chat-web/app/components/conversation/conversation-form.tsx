@@ -7,6 +7,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
+import { toastError } from '../georgeToaster'
 
 const ConversationForm_ConversationFragment = graphql(`
   fragment ConversationForm_Conversation on AiConversation {
@@ -35,6 +36,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
       if (!data.content || data.content.trim().length < 3) {
         throw new Error('Message must be at least 3 characters')
       }
+
+      if (remainingMessages < 1) {
+        throw new Error('You have no more free messages left. Create your profile and ask for more...')
+      }
+
       const result = await sendMessage({
         data: {
           userId: user.id,
@@ -50,6 +56,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
         queryKey: [queryKeys.Conversation, conversation.id],
       })
     },
+    onError: (error) => {
+      toastError(error.message)
+    },
   })
   const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
 
@@ -60,12 +69,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     const content = formData.get('message') as string
     const recipientAssistantIds = Array.from(formData.getAll('assistants')).map((formData) => formData.toString())
 
-    if (remainingMessages < 1) {
-      alert('You have no more free messages left. Create your profile and ask for more...')
-      return
-    }
     form.reset()
-
     mutate({ content, recipientAssistantIds })
   }
 

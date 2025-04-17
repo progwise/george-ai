@@ -114,10 +114,10 @@ model AiLibraryUsage {
 }
 
 model AiLibraryFile {
-  id                     String    @id @default(cuid())
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-  library                AiLibrary @relation(fields: [libraryId], references: [id])
+  id                     String            @id @default(cuid())
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  library                AiLibrary         @relation(fields: [libraryId], references: [id])
   libraryId              String
   name                   String
   originUri              String?
@@ -131,6 +131,10 @@ model AiLibraryFile {
   processingEndedAt      DateTime?
   processingErrorAt      DateTime?
   processingErrorMessage String?
+  crawledByCrawlerId     String?
+  crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+
+  @@unique([crawledByCrawlerId, originUri])
 }
 
 model AiLibraryCrawler {
@@ -146,6 +150,7 @@ model AiLibraryCrawler {
 
   library AiLibrary                @relation(fields: [libraryId], references: [id])
   runs    AiLibraryCrawlerRun[]
+  files   AiLibraryFile[]
   cronJob AiLibraryCrawlerCronJob?
 }
 
