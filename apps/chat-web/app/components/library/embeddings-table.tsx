@@ -125,7 +125,7 @@ export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
 })
 
 export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
-  const { userProfile } = useAuth()
+  const { userProfile, user } = useAuth()
   const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
@@ -159,6 +159,10 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
 
     queryClient.invalidateQueries({
       queryKey: [queryKeys.AiLibraries],
+    })
+
+    queryClient.invalidateQueries({
+      queryKey: [queryKeys.CurrentUserProfile, user?.id],
     })
   }
 
@@ -240,7 +244,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
             onUploadComplete={handleUploadComplete}
             disabled={remainingStorage < 1}
           />
-          <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick}>
+          <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick} disabled={remainingStorage < 1}>
             {t('libraries.googleDrive')}
           </button>
           <button
