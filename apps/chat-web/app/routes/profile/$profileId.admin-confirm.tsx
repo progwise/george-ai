@@ -4,10 +4,14 @@ import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-rou
 import { useAuth } from '../../auth/auth-hook'
 import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
-import { UserProfileForm, UserProfileForm_UserProfileFragment } from '../../components/user/user-profile-form'
+import {
+  UserProfileForm,
+  UserProfileForm_UserProfileFragment,
+  updateProfile,
+} from '../../components/user/user-profile-form'
 import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { activateUserProfile, getUserProfile, updateUserProfile } from '../../server-functions/users'
+import { activateUserProfile, getUserProfile } from '../../server-functions/users'
 
 export const Route = createFileRoute('/profile/$profileId/admin-confirm')({
   component: RouteComponent,
@@ -23,9 +27,9 @@ function RouteComponent() {
   const userProfile = useLoaderData({ strict: false })
   const { t } = useTranslation()
 
-  const mutation = useMutation({
-    mutationFn: async (data: { userId: string; userProfileInput: Record<string, unknown> }) => {
-      return await updateUserProfile({ data })
+  const updateProfileMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return await updateProfile({ data: formData })
     },
     onSuccess: () => {
       toastSuccess('Profile updated successfully.')
@@ -35,8 +39,8 @@ function RouteComponent() {
     },
   })
 
-  const confirmMutation = useMutation({
-    mutationFn: async (profileId: string) => {
+  const activateProfileMutation = useMutation({
+    mutationFn: async ({ profileId }: { profileId: string }) => {
       return await activateUserProfile({
         data: {
           profileId,
@@ -80,24 +84,37 @@ function RouteComponent() {
         userProfile={userProfile?.userProfile as FragmentType<typeof UserProfileForm_UserProfileFragment>}
         handleSendConfirmationMail={() => {}}
         onSubmit={(data) => {
-          const userId = userProfile?.userProfile?.userId || ''
-          const userProfileInput = Object.fromEntries(data.entries())
-          delete userProfileInput.userId
-          mutation.mutate({ userId, userProfileInput })
+          updateProfileMutation.mutate(data)
         }}
         isEditable={true}
         saveButton={
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
-            onClick={() => confirmMutation.mutate(userProfile?.userProfile?.id || '')}
-          >
-            {t('actions.activateProfile')}
-          </button>
+          <div className="flex w-full justify-between">
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() =>
+                activateProfileMutation.mutate({
+                  profileId: userProfile?.userProfile?.id || '',
+                })
+              }
+            >
+              {t('actions.activateProfile')}
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={() => {
+                const formData = new FormData(document.querySelector('form')!)
+                updateProfileMutation.mutate(formData)
+              }}
+            >
+              {t('actions.save')}
+            </button>
+          </div>
         }
       />
-      {mutation.isPending && <LoadingSpinner isLoading={true} />}
-      {confirmMutation.isPending && <LoadingSpinner isLoading={true} />}
+      {updateProfileMutation.isPending && <LoadingSpinner isLoading={true} />}
+      {activateProfileMutation.isPending && <LoadingSpinner isLoading={true} />}
     </article>
   )
 }

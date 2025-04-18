@@ -133,8 +133,8 @@ builder.mutationField('updateUserProfile', (t) =>
         where: { userId },
         data: {
           ...input,
-          freeMessages: input.freeMessages ?? undefined,
-          freeStorage: input.freeStorage ?? undefined,
+          freeMessages: input.freeMessages ?? existingProfile.freeMessages,
+          freeStorage: input.freeStorage ?? existingProfile.freeStorage,
         },
       })
     },
@@ -167,7 +167,6 @@ builder.mutationField('sendConfirmationMail', (t) =>
       confirmationUrl: t.arg.string({ required: true }),
     },
     resolve: async (_parent, { userId, confirmationUrl }) => {
-      // send email
       const profile = await prisma.userProfile.findFirst({
         where: { userId },
       })
@@ -189,14 +188,12 @@ builder.mutationField('sendConfirmationMail', (t) =>
       )
 
       // Send email to the admin
-      const adminConfirmationUrl = confirmationUrl
-        .replace(profile.id, profile.userId)
-        .replace('/confirm', '/admin-confirm')
+      const activationUrl = confirmationUrl.replace(profile.id, profile.userId).replace('/confirm', '/admin-confirm')
       await sendMail(
-        'yohannes.tesfay@george-ai.net',
-        'Admin Confirmation Required',
-        `A new user profile requires confirmation. User email: ${profile.email}. Confirm here: ${adminConfirmationUrl}`,
-        `<p>A new user profile requires confirmation. User email: ${profile.email}. Confirm here: <a href="${adminConfirmationUrl}">${adminConfirmationUrl}</a></p>`,
+        'info@george-ai.net',
+        'Admin Activation Required',
+        `A new user profile requires activation. User email: ${profile.email}. Confirm here: ${activationUrl}`,
+        `<p>A new user profile requires activation. User email: ${profile.email}. Confirm here: <a href="${activationUrl}">${activationUrl}</a></p>`,
       )
 
       return true
@@ -243,12 +240,12 @@ builder.mutationField('activateUserProfile', (t) =>
         },
       })
 
-      // Send email notification to the user
+      // Send email activation notification to the user
       await sendMail(
         userProfile.email,
         'Profile Activation Successful',
-        'Your profile has been successfully activated by the admin. You can now access all features.',
-        '<p>Your profile has been successfully activated by the admin. You can now access all features.</p>',
+        'Your profile has been successfully activated. You can now access all features.',
+        '<p>Your profile has been successfully activated. You can now access all features.</p>',
       )
 
       return updatedProfile

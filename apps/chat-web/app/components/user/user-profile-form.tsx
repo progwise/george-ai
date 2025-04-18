@@ -46,18 +46,21 @@ const getFormSchema = (language: 'en' | 'de') =>
     lastName: z.string().min(1, translate('errors.requiredField', language)),
     business: z.string().min(1, translate('errors.requiredField', language)),
     position: z.string().min(1, translate('errors.requiredField', language)),
+    freeMessages: z.preprocess((value) => parseInt(String(value), 10), z.number().optional()),
+    freeStorage: z.preprocess((value) => parseInt(String(value), 10), z.number().optional()),
   })
 
-const updateProfile = createServerFn({ method: 'POST' })
+export const updateProfile = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     if (!(data instanceof FormData)) {
       throw new Error('Invalid form data')
     }
 
-    const o = Object.fromEntries(data)
+    const formDataObject = Object.fromEntries(data)
     const language = await getLanguage()
     const schema = getFormSchema(language)
-    return schema.parse(o)
+
+    return schema.parse(formDataObject)
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -77,6 +80,8 @@ const updateProfile = createServerFn({ method: 'POST' })
           lastName: data.lastName,
           business: data.business,
           position: data.position,
+          freeMessages: data.freeMessages,
+          freeStorage: data.freeStorage,
         },
       },
     )
@@ -87,7 +92,7 @@ interface UserProfileFormProps {
   handleSendConfirmationMail: () => void
   onSubmit?: (data: FormData) => void
   isEditable?: boolean
-  saveButton?: React.ReactNode
+  saveButton?: React.ReactElement | null
 }
 
 export const UserProfileForm = (props: UserProfileFormProps) => {
@@ -111,6 +116,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
   if (!language) {
     return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
   }
+
   const formSchema = getFormSchema(language)
 
   return (
@@ -120,29 +126,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         const formData = new FormData(event.currentTarget)
         const formValidation = validateForm({ formData, formSchema })
         if (formValidation.errors.length < 1) {
-          const allowedFields = [
-            'userId',
-            'email',
-            'firstName',
-            'lastName',
-            'business',
-            'position',
-            'freeMessages',
-            'freeStorage',
-          ]
-          const newFormData = new FormData()
-
-          Array.from(formData.entries())
-            .filter(([key]) => allowedFields.includes(key))
-            .forEach(([key, value]) =>
-              newFormData.append(key, key.match(/free/) ? String(parseInt(value as string, 10) || 0) : String(value)),
-            )
-
-          if (props.onSubmit) {
-            props.onSubmit(newFormData)
-          } else {
-            mutate(newFormData)
-          }
+          mutate(formData)
         } else {
           console.error('Form validation errors:', formValidation.errors)
           toastError(formValidation.errors.join('\n'))
@@ -281,7 +265,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         </a>
       </div>
       <hr className="col-span-2 my-2" />
-      {React.isValidElement(props.saveButton) && <div className="col-span-2 flex justify-end">{props.saveButton}</div>}
+      {props.saveButton && <div className="col-span-2 flex justify-end">{props.saveButton}</div>}
     </form>
   )
 }

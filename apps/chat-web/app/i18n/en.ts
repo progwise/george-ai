@@ -15,7 +15,6 @@ export default {
     removeProfile: 'Remove user profile',
     reProcess: 'Re-Process',
     save: 'Save',
-    saveProfile: 'Save Profile',
     saving: 'Saving...',
     selectAll: 'Select all',
     sendConfirmationMail: 'Send confirmation mail',

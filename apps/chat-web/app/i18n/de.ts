@@ -15,7 +15,6 @@ export default {
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
-    saveProfile: 'Profil speichern',
     saving: 'Speichern...',
     selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',

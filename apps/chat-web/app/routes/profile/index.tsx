@@ -195,7 +195,7 @@ function RouteComponent() {
         handleSendConfirmationMail={handleSendConfirmationMail}
         saveButton={
           <button type="submit" className="btn btn-primary btn-sm">
-            {t('actions.saveProfile')}
+            {t('actions.save')}
           </button>
         }
       />
