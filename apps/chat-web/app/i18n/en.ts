@@ -19,6 +19,7 @@ export default {
     selectAll: 'Select all',
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send message',
+    signIn: 'Sign in',
     upload: 'Upload',
     uploaded: 'Uploaded',
   },
@@ -80,6 +81,7 @@ export default {
     llmTemperatureToHigh: '<= 1.0',
     llmTemperatureToLow: '>= 0.0',
     requiredField: 'required',
+    businessAndPositionRequired: 'Business and Position are required.',
   },
   flowLocal: 'Flow: Only Local',
   flowParallel: 'Flow: Parallel',
@@ -93,6 +95,7 @@ export default {
   labels: {
     actions: 'Actions',
     activationDate: 'Activated',
+    adminProfileActivation: 'Admin Profile Activation',
     awaitingActivation: 'Awaiting activation',
     behavior: 'Behavior Cases',
     business: 'Business',

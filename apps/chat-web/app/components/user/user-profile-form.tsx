@@ -110,6 +110,10 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
 
   const handleSendConfirmationMail = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+    if (!userProfile.business || !userProfile.position) {
+      toastError(t('errors.businessAndPositionRequired'))
+      return
+    }
     props.handleSendConfirmationMail()
   }
 

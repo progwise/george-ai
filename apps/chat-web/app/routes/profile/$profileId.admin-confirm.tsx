@@ -59,7 +59,25 @@ function RouteComponent() {
     return <LoadingSpinner isLoading={true} />
   }
 
-  if (!auth.user || !auth.user.isAdmin) {
+  if (!auth.user) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <p>You must be logged in to activate the profile.</p>
+        <button
+          type="button"
+          className="btn btn-primary btn-sm"
+          onClick={() => {
+            localStorage.setItem('redirectAfterLogin', `/profile/${userProfile?.userProfile?.id}/admin-confirm`)
+            auth.login()
+          }}
+        >
+          {t('actions.signIn')}
+        </button>
+      </div>
+    )
+  }
+
+  if (!auth.user.isAdmin) {
     toastError('Access denied: Admins only')
     navigate({ to: '/' })
     return null
@@ -79,7 +97,7 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
-      <h1>Admin Profile Activation</h1>
+      <h1>{t('labels.adminProfileActivation')}</h1>
       <UserProfileForm
         userProfile={userProfile?.userProfile as FragmentType<typeof UserProfileForm_UserProfileFragment>}
         handleSendConfirmationMail={() => {}}

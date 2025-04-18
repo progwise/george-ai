@@ -134,19 +134,22 @@ export const sendAdminNotificationMail = createServerFn({ method: 'POST' })
   })
 
 export const updateUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; userProfileInput: Record<string, unknown> }) => {
+  .validator((data: { userId: string; userProfileInput: { freeMessages?: number; freeStorage?: number } }) => {
     return z
       .object({
         userId: z.string().nonempty(),
-        userProfileInput: z.record(z.unknown()),
+        userProfileInput: z.object({
+          freeMessages: z.number().optional(),
+          freeStorage: z.number().optional(),
+        }),
       })
       .parse(data)
   })
   .handler(async (ctx) => {
     const userProfileInput = {
       ...ctx.data.userProfileInput,
-      freeMessages: parseInt(ctx.data.userProfileInput.freeMessages as string, 10) || 0,
-      freeStorage: parseInt(ctx.data.userProfileInput.freeStorage as string, 10) || 0,
+      freeMessages: ctx.data.userProfileInput.freeMessages ?? 0,
+      freeStorage: ctx.data.userProfileInput.freeStorage ?? 0,
     }
 
     return backendRequest(

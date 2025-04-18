@@ -19,6 +19,7 @@ export default {
     selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',
     sendMessage: 'Nachricht senden',
+    signIn: 'Anmelden',
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
   },
@@ -82,6 +83,7 @@ export default {
     llmTemperatureToHigh: '<= 1.0',
     llmTemperatureToLow: '>= 0.0',
     requiredField: 'erforderlich',
+    businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
   },
   flowLocal: 'Ablauf: Nur Lokal',
   flowParallel: 'Ablauf: Parallel',
@@ -95,6 +97,7 @@ export default {
   labels: {
     actions: 'Aktionen',
     activationDate: 'Aktiviert',
+    adminProfileActivation: 'Admin-Profilaktivierung',
     awaitingActivation: 'Warten auf Aktivierung',
     behavior: 'Verhaltensfälle',
     business: 'Unternehmen',
