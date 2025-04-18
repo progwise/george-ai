@@ -2,6 +2,8 @@ import { RunnableLambda, RunnableSequence, RunnableWithMessageHistory } from '@l
 import { ChatOpenAI } from '@langchain/openai'
 import * as z from 'zod'
 
+// import { getPDFContentForQuestion } from './memory-vectorstore'
+import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getMessageHistory } from './message-history'
 import {
   apologyPromptLocalAndWeb,
@@ -11,8 +13,6 @@ import {
   searchQueryPrompt,
   webPrompt,
 } from './prompts'
-// import { getPDFContentForQuestion } from './memory-vectorstore'
-import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 
 const outputSchema = z.object({
