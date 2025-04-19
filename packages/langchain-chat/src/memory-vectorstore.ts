@@ -5,68 +5,36 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { DEFAULT_ADAPTIVE_CONFIG, calculateChunkParams, calculateRetrievalK } from './vectorstore-settings'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-
 const DATA_PATH = path.resolve(__dirname, '../data', 'mag_example1.pdf')
 
-// Parameter settings
-const MIN_CHUNK_SIZE = 500
-const MAX_CHUNK_SIZE = 2000
-const OVERLAP_RATIO = 0.1
-const LINEAR_RETRIEVAL_THRESHOLD = 10
-
 let memoryVectorStore: MemoryVectorStore | null = null
-let totalChunkCount = 0
+let lastChunkCount = 0
 
-const getPDFVectorStore = async () => {
-  if (memoryVectorStore) {
-    return memoryVectorStore
-  }
-  console.log('Loading PDF document...')
+export const getPDFVectorStore = async (): Promise<MemoryVectorStore> => {
+  if (memoryVectorStore) return memoryVectorStore
   const loader = new PDFLoader(DATA_PATH)
-  const rawDocuments = await loader.load()
-  console.log(`Loaded ${rawDocuments.length} pages from PDF`)
-
-  const calculateChunkParameters = (
-    minSize: number,
-    maxSize: number,
-    overlapRatio: number,
-    documents: { pageContent: string }[],
-  ) => {
-    const totalLength = documents.reduce((sum, doc) => sum + doc.pageContent.length, 0)
-    const avgLength = totalLength / documents.length
-    const chunkSize = Math.round(Math.min(maxSize, Math.max(minSize, avgLength)))
-    const chunkOverlap = Math.round(chunkSize * overlapRatio)
-    return { chunkSize, chunkOverlap }
-  }
-
-  const { chunkSize, chunkOverlap } = calculateChunkParameters(
-    MIN_CHUNK_SIZE,
-    MAX_CHUNK_SIZE,
-    OVERLAP_RATIO,
-    rawDocuments,
-  )
-
+  const rawDocs = await loader.load()
+  const { chunkSize, chunkOverlap } = calculateChunkParams(rawDocs, DEFAULT_ADAPTIVE_CONFIG)
   const splitter = new RecursiveCharacterTextSplitter({ chunkSize, chunkOverlap })
-  const splitDocuments = await splitter.splitDocuments(rawDocuments)
-  console.log(`Split into ${splitDocuments.length} chunks (chunkSize=${chunkSize}, chunkOverlap=${chunkOverlap})`)
-
-  totalChunkCount = splitDocuments.length
+  const splitDocs = await splitter.splitDocuments(rawDocs)
+  lastChunkCount = splitDocs.length
   const embeddings = new OpenAIEmbeddings()
-  memoryVectorStore = await MemoryVectorStore.fromDocuments(splitDocuments, embeddings)
+  memoryVectorStore = await MemoryVectorStore.fromDocuments(splitDocs, embeddings)
   return memoryVectorStore
 }
 
-export const getPDFContentForQuestion = async (question: string) => {
+export const getPDFContentForQuestion = async (question: string): Promise<string> => {
   try {
-    const vectorStore = await getPDFVectorStore()
-    const k = totalChunkCount <= LINEAR_RETRIEVAL_THRESHOLD ? totalChunkCount : Math.ceil(Math.sqrt(totalChunkCount))
-    const retriever = vectorStore.asRetriever(k)
+    const store = await getPDFVectorStore()
+    const k = calculateRetrievalK(lastChunkCount, DEFAULT_ADAPTIVE_CONFIG)
+    const retriever = store.asRetriever(k)
     const docs = await retriever.invoke(question)
-    return docs.map((document_) => document_.pageContent).join('\n\n')
-  } catch (error) {
-    console.error('Error retrieving PDF content:', error)
+    return docs.map((d) => d.pageContent).join('\n\n')
+  } catch {
     return ''
   }
 }
