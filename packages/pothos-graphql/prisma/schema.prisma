@@ -37,7 +37,7 @@ model User {
   profile                    UserProfile?
   conversations              AiConversation[]
   crawlerRuns                AiLibraryCrawlerRun[]
-  ConversationInvitation     AiConversationInvitation[]
+  conversationInvitation     AiConversationInvitation[]
 }
 
 model UserProfile {
@@ -168,14 +168,16 @@ model AiLibraryCrawlerRun {
 }
 
 model AiConversation {
-  id                     String                      @id @default(cuid())
-  createdAt              DateTime                    @default(now())
-  updatedAt              DateTime                    @updatedAt
+  id      String @id @default(cuid())
+  ownerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   messages               AiConversationMessage[]
   participants           AiConversationParticipant[]
   owner                  User                        @relation(fields: [ownerId], references: [id])
-  ownerId                String
-  ConversationInvitation AiConversationInvitation[]
+  conversationInvitation AiConversationInvitation?   @relation(name: "AiConversationToAiConversationInvitation")
 }
 
 model AiConversationParticipant {
@@ -206,11 +208,11 @@ model AiConversationMessage {
 
 model AiConversationInvitation {
   id                         String    @id @default(cuid())
-  email                      String
+  email                      String   
   link                       String?
   date                       DateTime  @default(now())
   confirmationDate           DateTime?
-  conversationId             String
+  conversationId             String    @unique
   inviterId                  String
   allowDifferentEmailAddress Boolean   @default(false)
   allowMultipleParticipants  Boolean   @default(false)
@@ -218,6 +220,6 @@ model AiConversationInvitation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   inviter      User           @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  conversation AiConversation @relation(name: "AiConversationToAiConversationInvitation", fields: [conversationId], references: [id], onDelete: Cascade)
 }
