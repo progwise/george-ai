@@ -174,10 +174,8 @@ builder.mutationField('confirmConversationInvitation', (t) =>
       }
 
       // Enforce email validation for single-use (allowMultipleParticipants option) invitations
-      if (!invitation.allowMultipleParticipants) {
-        if (!email || invitation.email.toLowerCase() !== email.toLowerCase()) {
-          throw new Error('Email address does not match the invitation for this single-use invitation')
-        }
+      if (!email || invitation.email.toLowerCase() !== email.toLowerCase()) {
+        throw new Error('Email address does not match the invitation for this single-use invitation')
       } else if (!invitation.allowDifferentEmailAddress && email) {
         // Check if the email matches for multi-use invitations without allowing different emails
         if (invitation.email.toLowerCase() !== email.toLowerCase()) {

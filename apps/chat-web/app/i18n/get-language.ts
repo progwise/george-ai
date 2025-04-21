@@ -33,4 +33,4 @@ const translate = (key: string, language: 'en' | 'de') => {
   return getTranslatedValue(key, language === 'de' ? 'de' : 'en')
 }
 
-export { translate, getLanguage, getTranslatedValueServer }
+export { translate, getLanguage, getTranslatedValueServer, getLanguageString }
