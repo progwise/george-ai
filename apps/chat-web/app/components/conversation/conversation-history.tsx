@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { getBackendPublicUrl } from '../../server-functions/backend'
 import { ConversationMessage } from './conversation-message'
@@ -56,6 +57,8 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   })
   const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
+  const { t } = useTranslation()
+
   const messages = conversation.messages
   const selectedConversationId = conversation.id
 
@@ -103,9 +106,15 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
       evtSource.close()
     }
   }, [backend_url, selectedConversationId])
-
+  if (messages.length < 1 && newMessages.length < 1) {
+    return (
+      <div className="flex grow flex-col justify-center gap-2 lg:mt-3">
+        <div className="text-center text-sm opacity-50">{t('conversations.historyPlaceholder')}</div>
+      </div>
+    )
+  }
   return (
-    <section className="flex flex-col gap-4">
+    <div className="mt-2 flex grow flex-col gap-2">
       {messages.map((message) => (
         <ConversationMessage
           key={message.id}
@@ -146,6 +155,6 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
           }}
         />
       ))}
-    </section>
+    </div>
   )
 }
