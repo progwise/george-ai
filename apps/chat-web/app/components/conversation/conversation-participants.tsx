@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
@@ -40,11 +39,10 @@ interface ConversationParticipantsProps {
   conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
   assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
   humans: FragmentType<typeof ConversationParticipants_HumanFragment>[]
+  userId?: string
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
-  const authContext = useAuth()
-  const user = authContext.user
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
@@ -52,7 +50,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
   const humans = useFragment(ConversationParticipants_HumanFragment, props.humans)
 
-  const isOwner = user?.id === conversation.ownerId
+  const isOwner = props.userId === conversation.ownerId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
@@ -67,7 +65,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
       })
 
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, user?.id],
+        queryKey: [queryKeys.Conversations, props.userId],
       })
     },
   })
@@ -81,7 +79,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     mutateRemove({ participantId })
   }
 
-  if (!user) {
+  if (!props.userId) {
     return null
   }
 
@@ -101,7 +99,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               participant.assistantId && 'badge-secondary',
             )}
           >
-            {participant.userId !== user?.id && isOwner && (
+            {participant.userId !== props.userId && isOwner && (
               <button
                 type="button"
                 className="btn btn-circle btn-ghost btn-xs"
@@ -116,7 +114,13 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
         )
       })}
       {isOwner && (
-        <ParticipantsDialog conversation={conversation} assistants={assistants} humans={humans} dialogMode="add" />
+        <ParticipantsDialog
+          conversation={conversation}
+          assistants={assistants}
+          humans={humans}
+          dialogMode="add"
+          userId={props.userId}
+        />
       )}
     </div>
   )

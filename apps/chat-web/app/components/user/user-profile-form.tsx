@@ -5,10 +5,10 @@ import { z } from 'zod'
 
 import { dateTimeString, validateForm } from '@george-ai/web-utils'
 
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
@@ -93,9 +93,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => updateProfile({ data }),
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.CurrentUserProfile, userProfile.userId],
-      })
+      queryClient.invalidateQueries(getProfileQueryOptions(userProfile.userId))
     },
   })
 

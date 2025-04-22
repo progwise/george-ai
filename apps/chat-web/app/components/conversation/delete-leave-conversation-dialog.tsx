@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { LeaveIcon } from '../../icons/leave-icon'
@@ -29,6 +28,7 @@ const ConversationDelete_ConversationFragment = graphql(`
 
 interface DeleteLeaveConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
+  userId?: string
 }
 
 export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDialogProps) => {
@@ -37,14 +37,11 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
 
-  const authContext = useAuth()
-  const user = authContext.user
-
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
-  const isOwner = user?.id === conversation.ownerId
-  const userParticipant = user?.id
-    ? conversation.participants.find((participant) => participant.userId === user.id)
+  const isOwner = props.userId === conversation.ownerId
+  const userParticipant = props.userId
+    ? conversation.participants.find((participant) => participant.userId === props.userId)
     : null
   const isParticipant = !!userParticipant
 
@@ -55,10 +52,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!user?.id) return
+      if (!props.userId) return
 
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, user.id],
+        queryKey: [queryKeys.Conversations, props.userId],
       })
       navigate({ to: '..' })
     },
@@ -74,10 +71,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!user?.id) return
+      if (!props.userId) return
 
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, user.id],
+        queryKey: [queryKeys.Conversations, props.userId],
       })
       navigate({ to: '..' })
     },
@@ -95,7 +92,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     dialogRef.current?.showModal()
   }
 
-  if (!user?.id) {
+  if (!props.userId) {
     return null
   }
 

@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { CurrentUser, useAuth } from '../../auth/auth-hook'
 import { CrawlerTable } from '../../components/library/crawler/crawler-table'
 import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
@@ -88,23 +87,16 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
 
 export const Route = createFileRoute('/libraries/$libraryId')({
   component: RouteComponent,
-  beforeLoad: async ({ params, context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
-    return {
-      libraryId: params.libraryId,
-      ownerId: currentUser?.id,
-    }
-  },
-  loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId, context.libraryId))
+  loader: async ({ context, params }) => {
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.user?.id, params.libraryId))
   },
   staleTime: 0,
 })
 
 function RouteComponent() {
-  const auth = useAuth()
   const { libraryId } = Route.useParams()
-  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id, libraryId))
+  const { user } = Route.useRouteContext()
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user?.id, libraryId))
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
@@ -124,7 +116,7 @@ function RouteComponent() {
     saveLibrary(formData)
   }
 
-  const disabled = !auth?.isAuthenticated
+  const disabled = !user
 
   if (!aiLibrary || !aiLibraries || isLoading) {
     return <LoadingSpinner />
@@ -153,14 +145,14 @@ function RouteComponent() {
       <div role="tablist" className="tabs tabs-bordered">
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('actions.edit')} />
         <div role="tabpanel" className="tab-content p-10">
-          {auth.user?.id && (
-            <LibraryForm library={aiLibrary} ownerId={auth.user.id} handleSubmit={handleSubmit} disabled={disabled} />
+          {user?.id && (
+            <LibraryForm library={aiLibrary} ownerId={user.id} handleSubmit={handleSubmit} disabled={disabled} />
           )}
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
         <div role="tabpanel" className="tab-content overflow-x-auto p-10">
-          <EmbeddingsTable libraryId={libraryId} />
+          <EmbeddingsTable libraryId={libraryId} userId={user?.id} />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
@@ -170,7 +162,7 @@ function RouteComponent() {
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.crawlers')} />
         <div role="tabpanel" className="tab-content p-10">
-          <CrawlerTable libraryId={libraryId} />
+          <CrawlerTable libraryId={libraryId} userId={user!.id} />
         </div>
       </div>
     </article>

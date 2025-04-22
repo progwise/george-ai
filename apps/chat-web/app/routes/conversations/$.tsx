@@ -1,10 +1,11 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef, useState } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { ConversationForm } from '../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
@@ -82,11 +83,14 @@ export const Route = createFileRoute('/conversations/$')({
 })
 
 function RouteComponent() {
-  const authContext = useAuth()
-  const userId = authContext.user?.id
+  const { login } = useAuth()
+  const { user } = Route.useRouteContext()
+  const userId = user?.id
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
+
+  const { data: profile } = useQuery(getProfileQueryOptions(userId))
 
   const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.Conversations, userId],
@@ -131,7 +135,7 @@ function RouteComponent() {
 
   if (!userId) {
     return (
-      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
         {t('texts.signInForConversations')}
       </button>
     )
@@ -165,6 +169,7 @@ function RouteComponent() {
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
               isOpen={conversations?.aiConversations?.length === 0}
+              userId={userId}
             />
           </div>
 
@@ -194,11 +199,16 @@ function RouteComponent() {
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
                 humans={assignableUsers.myConversationUsers}
+                userId={userId}
               />
-              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
+              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
             </div>
             <ConversationHistory conversation={selectedConversation.aiConversation} />
-            <ConversationForm conversation={selectedConversation.aiConversation} />
+            <ConversationForm
+              conversation={selectedConversation.aiConversation}
+              user={user}
+              profile={profile ?? undefined}
+            />
           </>
         )}
       </article>

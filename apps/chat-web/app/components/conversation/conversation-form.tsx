@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { User, UserProfile } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
@@ -21,16 +21,17 @@ const ConversationForm_ConversationFragment = graphql(`
 
 interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
+  user?: Pick<User, 'id' | 'name' | 'username'>
+  profile?: Pick<UserProfile, 'id' | 'freeMessages' | 'usedMessages'>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
   const { t, language } = useTranslation()
   const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
-  const { user, userProfile } = useAuth()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
-      if (!user?.id) {
+      if (!props.user?.id) {
         throw new Error('User not set')
       }
       if (!data.content || data.content.trim().length < 3) {
@@ -43,7 +44,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       const result = await sendMessage({
         data: {
-          userId: user.id,
+          userId: props.user.id,
           conversationId: conversation.id!,
           ...data,
         },
@@ -60,7 +61,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       toastError(error.message)
     },
   })
-  const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
+  const remainingMessages = (props.profile?.freeMessages || 0) - (props.profile?.usedMessages || 0)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -81,19 +82,21 @@ export const ConversationForm = (props: ConversationFormProps) => {
     }
   }
 
-  if (!user) {
+  if (!props.user) {
     return <h3>{t('texts.loginToUseSendMessages')}</h3>
   }
+
+  const name = props.user.name || props.user.username
 
   return (
     <div className="bg-base-350 card border border-base-300 p-4 text-base-content shadow-md">
       <div className="mb-2 flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-content">
-          {user.name?.[0] || user.username?.[0]}
+          {name.at(0)}
         </div>
 
         <div className="flex flex-col">
-          <span className="text-sm font-semibold">{user.name || user.username}</span>
+          <span className="text-sm font-semibold">{name}</span>
           <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
         </div>
       </div>

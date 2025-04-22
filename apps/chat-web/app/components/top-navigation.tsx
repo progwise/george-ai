@@ -2,7 +2,8 @@ import { Link } from '@tanstack/react-router'
 import { ReactNode } from 'react'
 import { useRef, useState } from 'react'
 
-import { useAuth } from '../auth/auth-hook'
+import { useAuth } from '../auth/auth'
+import { User } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
@@ -20,9 +21,13 @@ const TopNavigationLink = ({ to, children }: { to: keyof FileRoutesByTo; childre
   )
 }
 
-const TopNavigation = () => {
+interface TopNavigationProps {
+  user?: Pick<User, 'id' | 'name'>
+}
+
+const TopNavigation = ({ user }: TopNavigationProps) => {
   const { t } = useTranslation()
-  const { user, login, logout } = useAuth()
+  const { login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxReference = useRef<HTMLInputElement>(null)
