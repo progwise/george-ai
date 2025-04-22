@@ -267,6 +267,7 @@ type Query {
   myConversationUsers(userId: String!): [User!]!
   user(email: String!): User
   userProfile(userId: String!): UserProfile
+  version: String
 }
 
 enum RetrievalFlow {

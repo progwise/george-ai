@@ -12,6 +12,7 @@ import './graphql/chat'
 import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
+import './graphql/version'
 
 const schema = builder.toSchema()
 

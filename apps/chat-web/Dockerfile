@@ -3,6 +3,10 @@ FROM node:22-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
+# for displaying the latest commit hash in the UI
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
+
 RUN apt-get update \
     && apt-get install -y \
         python3 \

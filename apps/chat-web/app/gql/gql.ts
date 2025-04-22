@@ -46,6 +46,7 @@ type Documents = {
   '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n': typeof types.ParticipantsDialog_ConversationFragmentDoc
   '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.ParticipantsDialog_AssistantFragmentDoc
   '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n    email\n    profile {\n      business\n      position\n      firstName\n      lastName\n    }\n  }\n': typeof types.ParticipantsDialog_HumanFragmentDoc
+  '\n      query version {\n        version\n      }\n    ': typeof types.VersionDocument
   '\n        mutation createAiLibraryCrawler($libraryId: String!, $maxDepth: Int!, $maxPages: Int!, $url: String!) {\n          createAiLibraryCrawler(libraryId: $libraryId, maxDepth: $maxDepth, maxPages: $maxPages, url: $url) {\n            id\n          }\n        }\n      ': typeof types.CreateAiLibraryCrawlerDocument
   '\n  fragment CrawlerTable_Library on AiLibrary {\n    crawlers {\n      id\n      url\n      maxDepth\n      maxPages\n      lastRun\n      ...RunCrawlerButton_Crawler\n    }\n  }\n': typeof types.CrawlerTable_LibraryFragmentDoc
   '\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(id: $libraryId) {\n            ...CrawlerTable_Library\n          }\n        }\n      ': typeof types.CrawlerTableDocument
@@ -153,6 +154,7 @@ const documents: Documents = {
     types.ParticipantsDialog_AssistantFragmentDoc,
   '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n    email\n    profile {\n      business\n      position\n      firstName\n      lastName\n    }\n  }\n':
     types.ParticipantsDialog_HumanFragmentDoc,
+  '\n      query version {\n        version\n      }\n    ': types.VersionDocument,
   '\n        mutation createAiLibraryCrawler($libraryId: String!, $maxDepth: Int!, $maxPages: Int!, $url: String!) {\n          createAiLibraryCrawler(libraryId: $libraryId, maxDepth: $maxDepth, maxPages: $maxPages, url: $url) {\n            id\n          }\n        }\n      ':
     types.CreateAiLibraryCrawlerDocument,
   '\n  fragment CrawlerTable_Library on AiLibrary {\n    crawlers {\n      id\n      url\n      maxDepth\n      maxPages\n      lastRun\n      ...RunCrawlerButton_Crawler\n    }\n  }\n':
@@ -441,6 +443,12 @@ export function graphql(
 export function graphql(
   source: '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n    email\n    profile {\n      business\n      position\n      firstName\n      lastName\n    }\n  }\n',
 ): (typeof documents)['\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n    email\n    profile {\n      business\n      position\n      firstName\n      lastName\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query version {\n        version\n      }\n    ',
+): (typeof documents)['\n      query version {\n        version\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
