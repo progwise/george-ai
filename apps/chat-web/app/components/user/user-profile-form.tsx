@@ -1,17 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import React from 'react'
+import { ReactElement, RefObject } from 'react'
 import { z } from 'zod'
 
-import { dateTimeString, validateForm } from '@george-ai/web-utils'
+import { dateTimeString } from '@george-ai/web-utils'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
-import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 
 export const UserProfileForm_UserProfileFragment = graphql(`
@@ -35,7 +32,7 @@ export const UserProfileForm_UserProfileFragment = graphql(`
   }
 `)
 
-const getFormSchema = (language: 'en' | 'de') =>
+export const getFormSchema = (language: 'en' | 'de') =>
   z.object({
     userId: z.string().min(1, translate('errors.requiredField', language)),
     email: z
@@ -91,31 +88,16 @@ export const updateProfile = createServerFn({ method: 'POST' })
 
 interface UserProfileFormProps {
   userProfile: FragmentType<typeof UserProfileForm_UserProfileFragment>
-  handleSendConfirmationMail: () => void
+  handleSendConfirmationMail: (formData: FormData) => void
   onSubmit?: (data: FormData) => void
   isAdmin?: boolean
-  saveButton?: React.ReactElement | null
+  saveButton?: ReactElement | null
+  formRef?: RefObject<HTMLFormElement | null>
 }
 
 export const UserProfileForm = (props: UserProfileFormProps) => {
   const { t, language } = useTranslation()
   const userProfile = useFragment(UserProfileForm_UserProfileFragment, props.userProfile)
-  const queryClient = useQueryClient()
-  const { mutate, isPending } = useMutation({
-    mutationFn: (formData: FormData) => {
-      return updateProfile({ data: { formData, isAdmin: props.isAdmin || false } })
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.CurrentUserProfile, userProfile.userId],
-      })
-    },
-  })
-
-  const handleSendConfirmationMail = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    props.handleSendConfirmationMail()
-  }
 
   if (!language) {
     return <LoadingSpinner isLoading={true} message={t('actions.loading')} />
@@ -125,20 +107,14 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
 
   return (
     <form
+      ref={props.formRef}
       onSubmit={(event) => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
-        const formValidation = validateForm({ formData, formSchema })
-        if (formValidation.errors.length < 1) {
-          mutate(formData)
-        } else {
-          console.error('Form validation errors:', formValidation.errors)
-          toastError(formValidation.errors.join('\n'))
-        }
+        props.onSubmit?.(formData)
       }}
       className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2"
     >
-      <LoadingSpinner isLoading={isPending} message={t('actions.saving')} />
       <input type="hidden" name="id" value={userProfile.id} />
       <input type="hidden" name="userId" value={userProfile.userId} />
 
@@ -158,24 +134,19 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         className="col-span-1"
         readOnly
       />
-      {userProfile.confirmationDate ? (
-        <Input
-          name="confirmationDate"
-          type="text"
-          label={t('labels.confirmedAt')}
-          value={dateTimeString(userProfile.confirmationDate, language)}
-          className="col-span-1"
-          readOnly
-        />
-      ) : (
-        <label className="col-span-1 flex w-full flex-col">
-          <span className="text-sm text-slate-400">{t('labels.notConfirmed')}</span>
-          <button type="button" className="btn btn-sm col-span-1" onClick={handleSendConfirmationMail}>
-            {t('actions.sendConfirmationMail')}
-          </button>
-        </label>
-      )}
-
+      <Input
+        name="confirmationDate"
+        type="text"
+        label={t('labels.confirmedAt')}
+        value={
+          userProfile.confirmationDate
+            ? dateTimeString(userProfile.confirmationDate, language)
+            : t('labels.awaitingConfirmation')
+        }
+        placeholder={!userProfile.confirmationDate ? t('labels.awaitingConfirmation') : undefined}
+        className="col-span-1"
+        readOnly
+      />
       <Input
         name="expiresAt"
         type="text"
@@ -188,8 +159,12 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       <Input
         name="activationDate"
         type="text"
-        label={t('labels.activationDate')}
-        value={userProfile.activationDate ? dateTimeString(userProfile.activationDate, language) : ''}
+        label={t('labels.activatedAt')}
+        value={
+          userProfile.activationDate
+            ? dateTimeString(userProfile.activationDate, language)
+            : t('labels.awaitingActivation')
+        }
         placeholder={!userProfile.activationDate ? t('labels.awaitingActivation') : undefined}
         className="col-span-2"
         readOnly
@@ -217,6 +192,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.business')}
         value={userProfile.business}
         className="col-span-2"
+        required
       />
       <Input
         schema={formSchema}
@@ -224,6 +200,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.position')}
         value={userProfile.position}
         className="col-span-2"
+        required
       />
       <hr className="col-span-2 my-2" />
       <Input

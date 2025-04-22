@@ -1437,7 +1437,7 @@ export type UserProfileQueryVariables = Exact<{
 export type UserProfileQuery = {
   __typename?: 'Query'
   userProfile?:
-    | ({ __typename?: 'UserProfile'; id: string } & {
+    | ({ __typename?: 'UserProfile'; id: string; confirmationDate?: string | null } & {
         ' $fragmentRefs'?: { UserProfileForm_UserProfileFragment: UserProfileForm_UserProfileFragment }
       })
     | null
@@ -4990,6 +4990,7 @@ export const UserProfileDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UserProfileForm_UserProfile' } },
               ],
             },

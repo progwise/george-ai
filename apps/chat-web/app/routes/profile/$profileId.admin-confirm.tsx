@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
+import { useRef } from 'react'
 
 import { useAuth } from '../../auth/auth-hook'
 import { toastError, toastSuccess } from '../../components/georgeToaster'
@@ -26,6 +27,7 @@ function RouteComponent() {
   const navigate = useNavigate()
   const userProfile = useLoaderData({ strict: false })
   const { t } = useTranslation()
+  const formRef = useRef<HTMLFormElement | null>(null)
 
   const updateProfileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -109,6 +111,7 @@ function RouteComponent() {
         onSubmit={(data) => {
           updateProfileMutation.mutate(data)
         }}
+        formRef={formRef}
         isAdmin={true}
         saveButton={
           <div className="flex w-full justify-between">
@@ -127,8 +130,10 @@ function RouteComponent() {
               type="button"
               className="btn btn-primary btn-sm"
               onClick={() => {
-                const formData = new FormData(document.querySelector('form')!)
-                updateProfileMutation.mutate(formData)
+                if (formRef.current) {
+                  const formData = new FormData(formRef.current)
+                  updateProfileMutation.mutate(formData)
+                }
               }}
             >
               {t('actions.save')}
