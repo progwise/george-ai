@@ -37,7 +37,9 @@ Use `env.example` files as the references.
 2. Create a new Realm using the value of `KEYCLOAK_REALM` from your `.env` file.
 
 3. In the left sidebar, under **Manage**, click **Clients**.  
-   Then, in the **Clients list** tab, click on the **account** link under the **Client ID** column.
+    Then, in the **Clients list** tab, click on the **account** link under the **Client ID** column.
+   Then, click **Create Client** to add a new client. Use the value of `KEYCLOAK_CLIENT_ID` from your `.env` file as the **Client ID**.  
+   After creating the client, click on its name in the **Clients list** tab to configure it.
 
 4. Update the **Client ID** with the value from `KEYCLOAK_CLIENT_ID` in your `.env` file.
 
