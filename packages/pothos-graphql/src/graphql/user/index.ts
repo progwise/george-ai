@@ -136,3 +136,15 @@ builder.queryField('myConversationUsers', (t) =>
     },
   }),
 )
+
+builder.queryField('users', (t) =>
+  t.prismaField({
+    type: ['User'],
+    nullable: { list: false, items: false },
+    resolve: async (query) => {
+      return prisma.user.findMany({
+        ...query,
+      })
+    },
+  }),
+)

@@ -452,6 +452,7 @@ export type Query = {
   myConversationUsers: Array<User>
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
+  users: Array<User>
 }
 
 export type QueryAiAssistantArgs = {
@@ -1263,6 +1264,21 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type UsersQueryVariables = Exact<{ [key: string]: never }>
+
+export type UsersQuery = {
+  __typename?: 'Query'
+  users: Array<{
+    __typename?: 'User'
+    id: string
+    name?: string | null
+    username: string
+    email: string
+    lastLogin?: string | null
+    profile?: { __typename?: 'UserProfile'; business?: string | null; position?: string | null } | null
+  }>
 }
 
 export type AiAssistantDetailsQueryVariables = Exact<{
@@ -4054,6 +4070,46 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const UsersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'users' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'users' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'profile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UsersQuery, UsersQueryVariables>
 export const AiAssistantDetailsDocument = {
   kind: 'Document',
   definitions: [

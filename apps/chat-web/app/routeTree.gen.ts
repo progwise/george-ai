@@ -12,14 +12,17 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as ContactImport } from './routes/contact'
+import { Route as AdminRouteImport } from './routes/admin/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProfileIndexImport } from './routes/profile/index'
 import { Route as LibrariesIndexImport } from './routes/libraries/index'
 import { Route as AssistantsIndexImport } from './routes/assistants/index'
+import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
 import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
 import { Route as ConversationsSplatImport } from './routes/conversations/$'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
+import { Route as AdminUsersImport } from './routes/admin/users'
 import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
 
 // Create/Update Routes
@@ -27,6 +30,12 @@ import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profil
 const ContactRoute = ContactImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminRouteRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -54,6 +63,12 @@ const AssistantsIndexRoute = AssistantsIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AdminIndexRoute = AdminIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
 const LibrariesAuthGoogleRoute = LibrariesAuthGoogleImport.update({
   id: '/libraries/auth-google',
   path: '/libraries/auth-google',
@@ -78,6 +93,12 @@ const AssistantsAssistantIdRoute = AssistantsAssistantIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AdminUsersRoute = AdminUsersImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+
 const ProfileProfileIdConfirmRoute = ProfileProfileIdConfirmImport.update({
   id: '/profile/$profileId/confirm',
   path: '/profile/$profileId/confirm',
@@ -95,12 +116,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactImport
       parentRoute: typeof rootRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersImport
+      parentRoute: typeof AdminRouteImport
     }
     '/assistants/$assistantId': {
       id: '/assistants/$assistantId'
@@ -129,6 +164,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/libraries/auth-google'
       preLoaderRoute: typeof LibrariesAuthGoogleImport
       parentRoute: typeof rootRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexImport
+      parentRoute: typeof AdminRouteImport
     }
     '/assistants/': {
       id: '/assistants/'
@@ -163,13 +205,30 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface AdminRouteRouteChildren {
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/contact': typeof ContactRoute
+  '/admin/users': typeof AdminUsersRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
+  '/admin/': typeof AdminIndexRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
@@ -179,10 +238,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
+  '/admin/users': typeof AdminUsersRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
+  '/admin': typeof AdminIndexRoute
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
@@ -192,11 +253,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/contact': typeof ContactRoute
+  '/admin/users': typeof AdminUsersRoute
   '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
   '/conversations/$': typeof ConversationsSplatRoute
   '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
   '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
+  '/admin/': typeof AdminIndexRoute
   '/assistants/': typeof AssistantsIndexRoute
   '/libraries/': typeof LibrariesIndexRoute
   '/profile/': typeof ProfileIndexRoute
@@ -207,11 +271,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/contact'
+    | '/admin/users'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
+    | '/admin/'
     | '/assistants'
     | '/libraries'
     | '/profile'
@@ -220,10 +287,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/contact'
+    | '/admin/users'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
+    | '/admin'
     | '/assistants'
     | '/libraries'
     | '/profile'
@@ -231,11 +300,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/contact'
+    | '/admin/users'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
     | '/libraries/auth-google'
+    | '/admin/'
     | '/assistants/'
     | '/libraries/'
     | '/profile/'
@@ -245,6 +317,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   ContactRoute: typeof ContactRoute
   AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
   ConversationsSplatRoute: typeof ConversationsSplatRoute
@@ -258,6 +331,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   ContactRoute: ContactRoute,
   AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
   ConversationsSplatRoute: ConversationsSplatRoute,
@@ -280,6 +354,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/admin",
         "/contact",
         "/assistants/$assistantId",
         "/conversations/$",
@@ -294,8 +369,19 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
+    "/admin": {
+      "filePath": "admin/route.tsx",
+      "children": [
+        "/admin/users",
+        "/admin/"
+      ]
+    },
     "/contact": {
       "filePath": "contact.tsx"
+    },
+    "/admin/users": {
+      "filePath": "admin/users.tsx",
+      "parent": "/admin"
     },
     "/assistants/$assistantId": {
       "filePath": "assistants/$assistantId.tsx"
@@ -308,6 +394,10 @@ export const routeTree = rootRoute
     },
     "/libraries/auth-google": {
       "filePath": "libraries/auth-google.tsx"
+    },
+    "/admin/": {
+      "filePath": "admin/index.tsx",
+      "parent": "/admin"
     },
     "/assistants/": {
       "filePath": "assistants/index.tsx"
