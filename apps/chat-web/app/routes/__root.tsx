@@ -14,8 +14,8 @@ interface RouterContext {
 }
 
 const TanStackRouterDevtools =
-  process.env.NODE_ENV === 'development'
-    ? () => null // Render nothing in development
+  process.env.NODE_ENV === 'production'
+    ? () => null // Render nothing in production
     : React.lazy(() =>
         // Lazy load in development
         import('@tanstack/router-devtools').then((result) => ({
@@ -26,8 +26,8 @@ const TanStackRouterDevtools =
       )
 
 const TanStackQueryDevtools =
-  process.env.NODE_ENV === 'development'
-    ? () => null // Render nothing in development
+  process.env.NODE_ENV === 'production'
+    ? () => null // Render nothing in production
     : React.lazy(() =>
         // Lazy load in development
         import('@tanstack/react-query-devtools').then((result) => ({

@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { useTranslation } from '../i18n/use-translation-hook'
-
 export interface EditableDivProps {
   onSubmit: () => void
   onChange: (value: string) => void
   disabled: boolean
   value: string
+  placeholder?: string
 }
 
-export const EditableDiv = ({ onSubmit, onChange, disabled, value }: EditableDivProps) => {
-  const { t } = useTranslation()
+export const EditableDiv = ({ onSubmit, onChange, disabled, value, placeholder }: EditableDivProps) => {
   const editableDivRef = useRef<HTMLDivElement>(null)
   const [showPlaceholder, setShowPlaceholder] = useState(value.length === 0)
 
@@ -65,10 +63,8 @@ export const EditableDiv = ({ onSubmit, onChange, disabled, value }: EditableDiv
         aria-multiline="true"
         aria-disabled={!!disabled}
       />
-      {showPlaceholder && (
-        <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">
-          {t('conversations.promptPlaceholder')}
-        </div>
+      {showPlaceholder && placeholder && (
+        <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">{placeholder}</div>
       )}
     </div>
   )
