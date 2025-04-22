@@ -6,7 +6,6 @@ import { useAuth } from '../../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
-import { toastError } from '../../georgeToaster'
 import { aiLibraryFilesQueryOptions } from '../embeddings-table'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
@@ -54,7 +53,7 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
       return await runCrawler({ data: { crawlerId: id, userId: user!.id! } })
     },
     onError: () => {
-      toastError(t('errors.crawlerRunFailed'))
+      // TODO: add alert
     },
     onSettled: () => {
       queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))

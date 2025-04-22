@@ -76,7 +76,6 @@ export default {
     done: 'Done',
   },
   errors: {
-    crawlerRunFailed: 'Failed to run crawler',
     invalidEmail: 'Invalid email',
     llmTemperatureToHigh: '<= 1.0',
     llmTemperatureToLow: '>= 0.0',

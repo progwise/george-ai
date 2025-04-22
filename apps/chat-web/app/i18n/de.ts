@@ -78,7 +78,6 @@ export default {
     done: 'Fertig',
   },
   errors: {
-    crawlerRunFailed: 'Crawler-Start fehlgeschlagen',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     llmTemperatureToHigh: '<= 1.0',
     llmTemperatureToLow: '>= 0.0',
