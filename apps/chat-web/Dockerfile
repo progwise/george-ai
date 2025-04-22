@@ -22,7 +22,7 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 
-RUN pnpm i --frozen-lockfile \
+RUN pnpm --filter @george-ai/chat-web i --frozen-lockfile \
     && pnpm --filter @george-ai/chat-web run build
   
 
