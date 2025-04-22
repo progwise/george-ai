@@ -1,21 +1,13 @@
-// import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 
-// import { ImportError } from 'typesense/lib/Typesense/Errors'
-
 import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
 
 import { loadFile } from './langchain-file'
-import { DEFAULT_ADAPTIVE_CONFIG, calculateChunkParams, calculateRetrievalK } from './vectorstore-settings'
-
-const retrievalParams = DEFAULT_ADAPTIVE_CONFIG
-
-// const CHUNK_SIZE = 1000 // Increased for better context
-// const CHUNK_OVERLAP = 100
+import { calculateChunkParams, calculateRetrievalK } from './vectorstore-settings'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -135,7 +127,7 @@ export const embedFile = async (
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
   const fileParts = await loadFile(file)
-  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts, retrievalParams)
+  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
 
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize,
@@ -280,7 +272,7 @@ export const similaritySearch = async (
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .search({ q: '*', query_by: 'text', per_page: 1 })
-  const retrievalK = calculateRetrievalK(found, retrievalParams)
+  const retrievalK = calculateRetrievalK(found)
   const store = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
   const documents = await store.similaritySearch(question, retrievalK)
   return documents.map((document) => ({
@@ -291,7 +283,6 @@ export const similaritySearch = async (
 
 // retrieves content from the vector store similar to the question
 export const getPDFContentForQuestion = async (question: string) => {
-  await ensureVectorStore('common')
   try {
     console.log('searching for:', question)
     const documents = await typesenseVectorStore.similaritySearch(question)
