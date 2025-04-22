@@ -1349,6 +1349,7 @@ export type GetConversationQuery = {
           ConversationDelete_ConversationFragment: ConversationDelete_ConversationFragment
           ConversationHistory_ConversationFragment: ConversationHistory_ConversationFragment
           ConversationForm_ConversationFragment: ConversationForm_ConversationFragment
+          ParticipantsDialog_ConversationFragment: ParticipantsDialog_ConversationFragment
         }
       })
     | null
@@ -1365,6 +1366,7 @@ export type GetAssignableUsersQuery = {
       ' $fragmentRefs'?: {
         NewConversationSelector_HumanFragment: NewConversationSelector_HumanFragment
         ConversationParticipants_HumanFragment: ConversationParticipants_HumanFragment
+        ParticipantsDialog_HumanFragment: ParticipantsDialog_HumanFragment
       }
     }
   >
@@ -1381,6 +1383,7 @@ export type GetAssignableAssistantsQuery = {
       ' $fragmentRefs'?: {
         NewConversationSelector_AssistantFragment: NewConversationSelector_AssistantFragment
         ConversationParticipants_AssistantFragment: ConversationParticipants_AssistantFragment
+        ParticipantsDialog_AssistantFragment: ParticipantsDialog_AssistantFragment
       }
     }
   >
@@ -4456,6 +4459,7 @@ export const GetConversationDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationDelete_Conversation' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationHistory_Conversation' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationForm_Conversation' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Conversation' } },
               ],
             },
           },
@@ -4639,6 +4643,7 @@ export const GetAssignableUsersDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'NewConversationSelector_Human' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipants_Human' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Human' } },
               ],
             },
           },
@@ -4723,6 +4728,7 @@ export const GetAssignableAssistantsDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'NewConversationSelector_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipants_Assistant' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistant' } },
               ],
             },
           },
