@@ -211,11 +211,7 @@ type HumanParticipant implements AiConversationParticipant {
 }
 
 type Mutation {
-  addConversationParticipants(
-    assistantIds: [String!]
-    conversationId: String!
-    userIds: [String!]
-  ): [AiConversationParticipant!]
+  addConversationParticipants(assistantIds: [String!], conversationId: String!, userIds: [String!]): [AiConversationParticipant!]
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
