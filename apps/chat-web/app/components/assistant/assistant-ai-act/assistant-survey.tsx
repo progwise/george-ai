@@ -3,26 +3,23 @@ import React from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { LoadingSpinner } from '../../loading-spinner'
 import { getChecklistStep1QueryOptions, resetAssessment, updateBasicSystemInfo } from './checklist-server'
 import QuestionCard from './question-card'
 
-const BasicSystemInfo_AssessmentFragment = graphql(`
-  fragment BasicSystemInfo_Assessment on AiActAssessment {
+const AssistantSurvey_AssessmentFragment = graphql(`
+  fragment AssistantSurvey_Assessment on AiActAssessment {
     assistantId
 
-    basicSystemInfo {
-      navigation {
-        title {
+    assistantSurvey {
+      actionsTitle {
+        de
+        en
+      }
+      actions {
+        level
+        description {
           de
           en
-        }
-        actions {
-          level
-          description {
-            de
-            en
-          }
         }
       }
       questions {
@@ -77,15 +74,15 @@ const BasicSystemInfo_AssessmentFragment = graphql(`
   }
 `)
 
-export interface BasicSystemInfoAssessmentProps {
-  assessment: FragmentType<typeof BasicSystemInfo_AssessmentFragment>
+export interface AssistantSurveyProps {
+  assessment: FragmentType<typeof AssistantSurvey_AssessmentFragment>
 }
 
 // Basic System Info component for initial AI Act risk assessment
-export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps) => {
+export const AssistantSurvey = (props: AssistantSurveyProps) => {
   const queryClient = useQueryClient()
-  const assessment = useFragment(BasicSystemInfo_AssessmentFragment, props.assessment)
-  const { assistantId, basicSystemInfo } = assessment
+  const assessment = useFragment(AssistantSurvey_AssessmentFragment, props.assessment)
+  const { assistantId, assistantSurvey } = assessment
   const { language, t } = useTranslation()
 
   const { mutate: update } = useMutation({
@@ -108,8 +105,7 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
 
   const formRef = React.useRef<HTMLFormElement>(null)
 
-  const riskIndicator = basicSystemInfo?.riskIndicator
-  const navigation = basicSystemInfo?.navigation
+  const riskIndicator = assistantSurvey.riskIndicator
 
   const handleResponseChange = (questionId: string, value?: string | null, notes?: string | null) => {
     const formData = new FormData(formRef.current!)
@@ -119,24 +115,20 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
     update(formData)
   }
 
-  if (!basicSystemInfo || !riskIndicator || !navigation) {
-    return <LoadingSpinner />
-  }
-
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow">
       <div className="flex items-center justify-between">
-        <span className="text-xl font-bold">{basicSystemInfo.title[language]}</span>
+        <span className="text-xl font-bold">{assistantSurvey.title[language]}</span>
         <span className="whitespace-nowrap rounded bg-base-200 p-2 text-sm">
-          {basicSystemInfo.percentCompleted}% {t('labels.completed')}
+          {assistantSurvey.percentCompleted}% {t('labels.completed')}
         </span>
       </div>
 
-      <div className="rounded border border-info bg-info/40 p-3 text-sm">{basicSystemInfo.hint[language]}</div>
+      <div className="rounded border border-info bg-info/40 p-3 text-sm">{assistantSurvey.hint[language]}</div>
 
       <form ref={formRef} className="flex flex-col gap-2">
         <input type="hidden" name="assistantId" value={assistantId} />
-        {basicSystemInfo.questions?.map((question) => (
+        {assistantSurvey.questions.map((question) => (
           <QuestionCard
             key={`${question.id}-${question.value}`}
             question={question.title[language]}
@@ -154,9 +146,9 @@ export const BasicSystemInfoAssessment = (props: BasicSystemInfoAssessmentProps)
 
       <div className="flex flex-col gap-2 rounded-lg border bg-base-200 p-3">
         <h2 className="font-semibold">{t('labels.nextSteps')}</h2>
-        <p className="text-sm">{navigation.title[language]}</p>
+        <p className="text-sm">{assistantSurvey.actionsTitle[language]}</p>
         <ul className="list-inside list-disc text-sm">
-          {navigation.actions
+          {assistantSurvey.actions
             .filter((action) => action.level === riskIndicator.level)
             .map((action) => (
               <li key={`${action.level}_${action.description[language]}`} className="font-semibold">

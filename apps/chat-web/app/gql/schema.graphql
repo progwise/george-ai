@@ -4,22 +4,6 @@ schema {
 }
 
 """
-AI Act Checklist Action
-"""
-type AIActChecklistAction {
-  description: AiActString!
-  level: String!
-}
-
-"""
-AI Act Checklist Navigation
-"""
-type AIActChecklistNavigation {
-  actions: [AIActChecklistAction!]!
-  title: AiActString!
-}
-
-"""
 AI Act Legal Disclaimer
 """
 type AIActLegalDisclaimer {
@@ -32,7 +16,7 @@ AI Act Assessment Query
 """
 type AiActAssessment {
   assistantId: String!
-  basicSystemInfo: AiActBasicSystemInf!
+  assistantSurvey: AiActAssistantSurvey!
   identifyRiskInfo: AiActIdentifyRisksInfo!
   riskIndicators: AiActRiskIndicator
 }
@@ -40,14 +24,15 @@ type AiActAssessment {
 """
 AI Act Assessment Basic System Info
 """
-type AiActBasicSystemInf {
+type AiActAssistantSurvey {
+  actions: [AiActRecommendedAction!]!
+  actionsTitle: AiActString!
   assistantId: String!
   hint: AiActString!
   id: String!
-  navigation: AIActChecklistNavigation
-  percentCompleted: Int
-  questions: [AiActQuestionsRef!]
-  riskIndicator: AiActRiskIndicator
+  percentCompleted: Int!
+  questions: [AiActQuestions!]!
+  riskIndicator: AiActRiskIndicator!
   title: AiActString!
 }
 
@@ -71,11 +56,11 @@ type AiActIdentifyRisksInfo {
 
 type AiActOption {
   id: String!
-  risk: AiActOptionRiskRef
+  risk: AiActOptionRisk
   title: AiActString!
 }
 
-type AiActOptionRiskRef {
+type AiActOptionRisk {
   description: AiActString!
   points: Int!
   riskLevel: String
@@ -84,7 +69,7 @@ type AiActOptionRiskRef {
 """
 AI Act Questions
 """
-type AiActQuestionsRef {
+type AiActQuestions {
   hint: AiActString!
   id: String!
   notes: String
@@ -94,12 +79,20 @@ type AiActQuestionsRef {
 }
 
 """
+AI Act Checklist Action
+"""
+type AiActRecommendedAction {
+  description: AiActString!
+  level: String!
+}
+
+"""
 AI Act Risk Indicator
 """
 type AiActRiskIndicator {
-  description: AiActString
+  description: AiActString!
   factors: [AiActString!]!
-  level: String
+  level: String!
 }
 
 type AiActString {
@@ -346,14 +339,14 @@ type Mutation {
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
-  resetAssessmentAnswers(assistantId: String!): DateTime
+  resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!, userId: String!): AiLibraryCrawler
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
-  updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime
+  updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
@@ -361,7 +354,7 @@ type Mutation {
 }
 
 type Query {
-  AiActAssessmentQuery(assistantId: String!): AiActAssessment
+  AiActAssessmentQuery(assistantId: String!): AiActAssessment!
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation

@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { LoadingSpinner } from '../../loading-spinner'
 import { ComplianceArea } from './compliance-area'
 
 const RiskAreasIdentification_AssessmentFragment = graphql(`
@@ -34,7 +33,7 @@ const RiskAreasIdentification_AssessmentFragment = graphql(`
         id
       }
     }
-    basicSystemInfo {
+    assistantSurvey {
       questions {
         id
         title {
@@ -81,15 +80,15 @@ interface RiskAreasIdentificationProps {
 export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => {
   const { t, language } = useTranslation()
   const assessment = useFragment(RiskAreasIdentification_AssessmentFragment, props.assessment)
-  const basicInfo = assessment.basicSystemInfo
-  const riskIndicator = assessment.basicSystemInfo?.riskIndicator
+  const basicInfo = assessment.assistantSurvey
+  const riskIndicator = basicInfo.riskIndicator
   const questions = basicInfo.questions
   const identifyRiskInfo = assessment.identifyRiskInfo
-  const complianceAreas = identifyRiskInfo?.complianceAreas
+  const complianceAreas = identifyRiskInfo.complianceAreas
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
 
   const euOperation = useMemo(
-    () => questions?.find((q) => q.id === 'euOperation')?.value === 'Yes' || false,
+    () => questions.find((q) => q.id === 'euOperation')?.value === 'Yes' || false,
     [questions],
   )
 
@@ -100,16 +99,14 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
       return areas
     }
 
-    if (riskIndicator) {
-      if (riskIndicator.level === 'high') {
-        areas.add('documentation')
-        areas.add('governance')
-      } else if (riskIndicator.level === 'medium') {
-        areas.add('documentation')
-      }
+    if (riskIndicator.level === 'high') {
+      areas.add('documentation')
+      areas.add('governance')
+    } else if (riskIndicator.level === 'medium') {
+      areas.add('documentation')
     }
 
-    questions?.forEach((q) => {
+    questions.forEach((q) => {
       switch (q.id) {
         case 'systemType':
           if (q.value === 'ML' || q.value === 'Both') {
@@ -142,10 +139,6 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
 
     return areas
   }, [euOperation, questions, riskIndicator, selectedAreas])
-
-  if (!basicInfo || !riskIndicator || !questions || !identifyRiskInfo || !complianceAreas) {
-    return <LoadingSpinner />
-  }
 
   const handleAreaChange = (area: string) => {
     setSelectedAreas((prev) => {
@@ -203,7 +196,7 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
         <div className="flex gap-2">
           <span className="text-xl">{getRiskIcon()}</span>
           <div className="flex flex-col gap-2">
-            <p className="text-lg font-medium">{riskIndicator.description?.[language]}</p>
+            <p className="text-lg font-medium">{riskIndicator.description[language]}</p>
 
             {!euOperation && (
               <div className="rounded bg-base-300 p-3 text-base-content opacity-80">

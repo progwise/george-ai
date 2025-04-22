@@ -1,6 +1,23 @@
-import { AiActChecklistStep } from './checklist'
+import { AiActQuestion } from './question'
+import { AiActRiskIndicator } from './risk-indicator'
+import { AiActString } from './translated-string'
 
-export const getDefaultBasicSystemInfo = (assistantId: string): AiActChecklistStep => {
+export interface AiActRecommendedAction {
+  level: 'high' | 'medium' | 'low' | 'nonApplicable' | 'undetermined'
+  description: AiActString
+}
+
+export interface AiActAssistantSurvey {
+  id: string
+  title: AiActString
+  hint: AiActString
+  questions: AiActQuestion[]
+  riskIndicator: AiActRiskIndicator
+  actionsTitle: AiActString
+  actions: Array<AiActRecommendedAction>
+}
+
+export const getDefaultAssistantSurvey = (assistantId: string): AiActAssistantSurvey => {
   console.log('Get default basic system info for assistant', assistantId)
   return {
     id: 'aiActBasicSystemInfo',
@@ -141,111 +158,109 @@ export const getDefaultBasicSystemInfo = (assistantId: string): AiActChecklistSt
       },
       factors: [],
     },
-    navigation: {
-      title: {
-        de: 'Basierend auf Ihren Antworten sollten Sie folgende Maßnahmen in Betracht ziehen:',
-        en: 'Based on your answers, you should consider the following actions:',
-      },
-      actions: [
-        {
-          level: 'high' as const,
-          description: {
-            de: 'Vollständige Analyse aller Anforderungen des EU AI Acts durchführen',
-            en: 'Conduct a complete analysis of all requirements of the EU AI Act',
-          },
-        },
-        {
-          level: 'high' as const,
-          description: {
-            de: 'Detaillierte Dokumentation des Systems vorbereiten',
-            en: 'Prepare detailed documentation of the system',
-          },
-        },
-        {
-          level: 'high' as const,
-          description: {
-            de: 'Risikomanagementsystem einrichten',
-            en: 'Set up a risk management system',
-          },
-        },
-        {
-          level: 'high' as const,
-          description: {
-            de: 'Rechtliche Beratung in Anspruch nehmen',
-            en: 'Seek legal advice',
-          },
-        },
-        {
-          level: 'medium' as const,
-          description: {
-            de: 'Transparenzanforderungen implementieren',
-            en: 'Implement transparency requirements',
-          },
-        },
-        {
-          level: 'medium' as const,
-          description: {
-            de: 'Risikobewertung dokumentieren',
-            en: 'Document risk assessment',
-          },
-        },
-        {
-          level: 'medium' as const,
-          description: {
-            de: 'Spezifische Anforderungen basierend auf Ihrer Anwendung prüfen',
-            en: 'Check specific requirements based on your application',
-          },
-        },
-        {
-          level: 'low' as const,
-          description: {
-            de: 'Basis-Compliance-Maßnahmen umsetzen',
-            en: 'Implement basic compliance measures',
-          },
-        },
-        {
-          level: 'low' as const,
-          description: {
-            de: 'Transparenzanforderungen prüfen',
-            en: 'Check transparency requirements',
-          },
-        },
-        {
-          level: 'low' as const,
-          description: {
-            de: 'System regelmäßig neu bewerten',
-            en: 'Reassess the system regularly',
-          },
-        },
-        {
-          level: 'nonApplicable' as const,
-          description: {
-            de: 'Prüfen Sie, ob indirekte Auswirkungen auf EU-Bürger bestehen',
-            en: 'Check if there are indirect effects on EU citizens',
-          },
-        },
-        {
-          level: 'nonApplicable' as const,
-          description: {
-            de: 'Dokumentieren Sie Ihre Einschätzung zur Nicht-Anwendbarkeit',
-            en: 'Document your assessment of non-applicability',
-          },
-        },
-        {
-          level: 'nonApplicable' as const,
-          description: {
-            de: 'Beobachten Sie Änderungen in der Anwendung Ihres Systems',
-            en: 'Monitor changes in the application of your system',
-          },
-        },
-        {
-          level: 'undetermined' as const,
-          description: {
-            de: 'Bitte beantworten Sie alle Fragen für eine Ersteinschätzung',
-            en: 'Please answer all questions for a preliminary assessment',
-          },
-        },
-      ],
+    actionsTitle: {
+      de: 'Basierend auf Ihren Antworten sollten Sie folgende Maßnahmen in Betracht ziehen:',
+      en: 'Based on your answers, you should consider the following actions:',
     },
+    actions: [
+      {
+        level: 'high' as const,
+        description: {
+          de: 'Vollständige Analyse aller Anforderungen des EU AI Acts durchführen',
+          en: 'Conduct a complete analysis of all requirements of the EU AI Act',
+        },
+      },
+      {
+        level: 'high' as const,
+        description: {
+          de: 'Detaillierte Dokumentation des Systems vorbereiten',
+          en: 'Prepare detailed documentation of the system',
+        },
+      },
+      {
+        level: 'high' as const,
+        description: {
+          de: 'Risikomanagementsystem einrichten',
+          en: 'Set up a risk management system',
+        },
+      },
+      {
+        level: 'high' as const,
+        description: {
+          de: 'Rechtliche Beratung in Anspruch nehmen',
+          en: 'Seek legal advice',
+        },
+      },
+      {
+        level: 'medium' as const,
+        description: {
+          de: 'Transparenzanforderungen implementieren',
+          en: 'Implement transparency requirements',
+        },
+      },
+      {
+        level: 'medium' as const,
+        description: {
+          de: 'Risikobewertung dokumentieren',
+          en: 'Document risk assessment',
+        },
+      },
+      {
+        level: 'medium' as const,
+        description: {
+          de: 'Spezifische Anforderungen basierend auf Ihrer Anwendung prüfen',
+          en: 'Check specific requirements based on your application',
+        },
+      },
+      {
+        level: 'low' as const,
+        description: {
+          de: 'Basis-Compliance-Maßnahmen umsetzen',
+          en: 'Implement basic compliance measures',
+        },
+      },
+      {
+        level: 'low' as const,
+        description: {
+          de: 'Transparenzanforderungen prüfen',
+          en: 'Check transparency requirements',
+        },
+      },
+      {
+        level: 'low' as const,
+        description: {
+          de: 'System regelmäßig neu bewerten',
+          en: 'Reassess the system regularly',
+        },
+      },
+      {
+        level: 'nonApplicable' as const,
+        description: {
+          de: 'Prüfen Sie, ob indirekte Auswirkungen auf EU-Bürger bestehen',
+          en: 'Check if there are indirect effects on EU citizens',
+        },
+      },
+      {
+        level: 'nonApplicable' as const,
+        description: {
+          de: 'Dokumentieren Sie Ihre Einschätzung zur Nicht-Anwendbarkeit',
+          en: 'Document your assessment of non-applicability',
+        },
+      },
+      {
+        level: 'nonApplicable' as const,
+        description: {
+          de: 'Beobachten Sie Änderungen in der Anwendung Ihres Systems',
+          en: 'Monitor changes in the application of your system',
+        },
+      },
+      {
+        level: 'undetermined' as const,
+        description: {
+          de: 'Bitte beantworten Sie alle Fragen für eine Ersteinschätzung',
+          en: 'Please answer all questions for a preliminary assessment',
+        },
+      },
+    ],
   }
 }

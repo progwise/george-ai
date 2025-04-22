@@ -1,12 +1,12 @@
 import {
-  AiActChecklistStep,
+  AiActAssistantSurvey,
   AiActRiskIndicator,
-  getDefaultBasicSystemInfo,
+  getDefaultAssistantSurvey,
   getDefaultIdentifyRisks,
 } from '@george-ai/ai-act'
 
 import { builder } from '../builder'
-import { AiActBasicSystemInfoRef } from './basic-system-info'
+import { AiActAssistantSurveyRef } from './assistant-survey'
 import { AiActIdentifyRisksInfoRef } from './identify-risks-info'
 import { AiActRiskIndicatorRef } from './risk-indicator'
 
@@ -14,7 +14,7 @@ export * from './mutations'
 
 interface AiActAssessment {
   riskIndicator: AiActRiskIndicator
-  basicSystemInfo: AiActChecklistStep
+  basicSystemInfo: AiActAssistantSurvey
 }
 
 const AiActAssessment = builder.objectRef<{ assistantId: string }>('AiActAssessment').implement({
@@ -32,11 +32,11 @@ const AiActAssessment = builder.objectRef<{ assistantId: string }>('AiActAssessm
       },
     }),
     assistantId: t.exposeString('assistantId', { nullable: false }),
-    basicSystemInfo: t.field({
-      type: AiActBasicSystemInfoRef,
+    assistantSurvey: t.field({
+      type: AiActAssistantSurveyRef,
       nullable: false,
       resolve: (source) => {
-        return { ...getDefaultBasicSystemInfo(source.assistantId), assistantId: source.assistantId }
+        return { ...getDefaultAssistantSurvey(source.assistantId), assistantId: source.assistantId }
       },
     }),
     identifyRiskInfo: t.field({
@@ -55,6 +55,7 @@ builder.queryField('AiActAssessmentQuery', (t) =>
       assistantId: t.arg.string({ required: true }),
     },
     type: AiActAssessment,
+    nullable: false,
     resolve: (_parent, args) => {
       return { assistantId: args.assistantId }
     },
