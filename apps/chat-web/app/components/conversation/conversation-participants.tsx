@@ -65,6 +65,10 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, conversation.id],
       })
+
+      await queryClient.invalidateQueries({
+        queryKey: [queryKeys.Conversations, user?.id],
+      })
     },
   })
 
