@@ -32,18 +32,13 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const { user, userProfile } = useAuth()
   const [message, setMessage] = useState('')
   const [isAtBottom, setIsAtBottom] = useState(true)
-  const [recipientAssistantIds, setRecipientAssistantIds] = useState<string[]>([])
+
+  // store the unselected ids, so when an assistant gets added it is automatically selected
+  const [unselectedAssistantIds, setUnselectedAssistantIds] = useState<string[]>([])
+
   const formRef = useRef<HTMLFormElement>(null)
 
   const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
-
-  useEffect(() => {
-    if (conversation.assistants) {
-      const initialSelectedIds = conversation.assistants.map((assistant) => assistant.id)
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-      setRecipientAssistantIds(initialSelectedIds)
-    }
-  }, [conversation.assistants])
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -110,12 +105,17 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    mutate({ content: message, recipientAssistantIds })
+    mutate({
+      content: message,
+      recipientAssistantIds: conversation.assistants
+        .map(({ id }) => id)
+        .filter((id) => !unselectedAssistantIds.includes(id)),
+    })
     setMessage('')
   }
 
   const handleAssistantToggle = (assistantId: string) => {
-    setRecipientAssistantIds((prev) => {
+    setUnselectedAssistantIds((prev) => {
       if (prev.includes(assistantId)) {
         return prev.filter((id) => id !== assistantId)
       } else {
@@ -164,7 +164,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
                     name="assistants"
                     value={assistant.id}
                     type="checkbox"
-                    checked={recipientAssistantIds.includes(assistant.id)}
+                    checked={!unselectedAssistantIds.includes(assistant.id)}
                     onChange={() => handleAssistantToggle(assistant.id)}
                     className="checkbox-info checkbox checkbox-sm"
                   />
@@ -180,14 +180,14 @@ export const ConversationForm = (props: ConversationFormProps) => {
                 ...
               </div>
               <ul tabIndex={0} className="z-1 menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow">
-                {conversation.assistants?.map((assistant) => (
+                {conversation.assistants.map((assistant) => (
                   <li key={assistant.id}>
                     <label className="flex items-center gap-2">
                       <input
                         name="assistants"
                         value={assistant.id}
                         type="checkbox"
-                        checked={recipientAssistantIds.includes(assistant.id)}
+                        checked={!unselectedAssistantIds.includes(assistant.id)}
                         onChange={() => handleAssistantToggle(assistant.id)}
                         className="checkbox-info checkbox checkbox-sm"
                       />
