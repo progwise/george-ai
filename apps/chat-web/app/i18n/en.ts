@@ -163,6 +163,7 @@ export default {
     dropFileFailure: 'Failed to drop files:',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
+    mustBeLoggedInToActivateProfile: 'You must be logged in to activate the profile.',
     newConversation: 'New conversation',
     newConversationConfirmation: 'You are about to start a new conversation with the selected users and assistants.',
     noAssistant: 'No assistant',

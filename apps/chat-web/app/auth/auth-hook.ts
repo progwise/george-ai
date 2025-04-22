@@ -115,10 +115,7 @@ export const useAuth = () => {
       localStorage.removeItem('google_drive_access_token')
       keycloak.logout()
     },
-    user: {
-      ...currentUser,
-      isAdmin: currentUser.isAdmin,
-    },
+    user: currentUser,
     userProfile: currentUserProfile?.userProfile,
   }
 }

@@ -51,16 +51,16 @@ const getFormSchema = (language: 'en' | 'de') =>
   })
 
 export const updateProfile = createServerFn({ method: 'POST' })
-  .validator(async (data: FormData) => {
-    if (!(data instanceof FormData)) {
+  .validator(async (data: { formData: FormData; isAdmin: boolean }) => {
+    if (!(data.formData instanceof FormData)) {
       throw new Error('Invalid form data')
     }
 
-    const formDataObject = Object.fromEntries(data)
+    const formDataObject = Object.fromEntries(data.formData)
     const language = await getLanguage()
     const schema = getFormSchema(language)
 
-    return schema.parse(formDataObject)
+    return { ...schema.parse(formDataObject), isAdmin: data.isAdmin }
   })
   .handler(async (ctx) => {
     const data = await ctx.data
@@ -80,8 +80,10 @@ export const updateProfile = createServerFn({ method: 'POST' })
           lastName: data.lastName,
           business: data.business,
           position: data.position,
-          freeMessages: data.freeMessages,
-          freeStorage: data.freeStorage,
+          ...(data.isAdmin && {
+            freeMessages: data.freeMessages,
+            freeStorage: data.freeStorage,
+          }),
         },
       },
     )
@@ -91,7 +93,7 @@ interface UserProfileFormProps {
   userProfile: FragmentType<typeof UserProfileForm_UserProfileFragment>
   handleSendConfirmationMail: () => void
   onSubmit?: (data: FormData) => void
-  isEditable?: boolean
+  isAdmin?: boolean
   saveButton?: React.ReactElement | null
 }
 
@@ -100,7 +102,9 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
   const userProfile = useFragment(UserProfileForm_UserProfileFragment, props.userProfile)
   const queryClient = useQueryClient()
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: FormData) => updateProfile({ data }),
+    mutationFn: (formData: FormData) => {
+      return updateProfile({ data: { formData, isAdmin: props.isAdmin || false } })
+    },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: [queryKeys.CurrentUserProfile, userProfile.userId],
@@ -110,10 +114,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
 
   const handleSendConfirmationMail = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
-    if (!userProfile.business || !userProfile.position) {
-      toastError(t('errors.businessAndPositionRequired'))
-      return
-    }
     props.handleSendConfirmationMail()
   }
 
@@ -144,7 +144,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
 
       <Input
         name="createdAt"
-        type="date"
+        type="text"
         label={t('labels.createdAt')}
         value={dateTimeString(userProfile.createdAt, language)}
         className="col-span-1"
@@ -152,7 +152,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       />
       <Input
         name="updatedAt"
-        type="date"
+        type="text"
         label={t('labels.updatedAt')}
         value={dateTimeString(userProfile.updatedAt, language)}
         className="col-span-1"
@@ -161,7 +161,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       {userProfile.confirmationDate ? (
         <Input
           name="confirmationDate"
-          type="date"
+          type="text"
           label={t('labels.confirmedAt')}
           value={dateTimeString(userProfile.confirmationDate, language)}
           className="col-span-1"
@@ -178,7 +178,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
 
       <Input
         name="expiresAt"
-        type="date"
+        type="text"
         label={t('labels.expiresAt')}
         value={dateTimeString(userProfile.expiresAt, language)}
         valueNotSet={t('labels.never')}
@@ -187,7 +187,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       />
       <Input
         name="activationDate"
-        type="date"
+        type="text"
         label={t('labels.activationDate')}
         value={userProfile.activationDate ? dateTimeString(userProfile.activationDate, language) : ''}
         placeholder={!userProfile.activationDate ? t('labels.awaitingActivation') : undefined}
@@ -232,7 +232,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.freeStorage}
         className="col-span-1"
         type="number"
-        readOnly={!props.isEditable}
+        readOnly={!props.isAdmin}
       />
 
       <Input
@@ -241,7 +241,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.freeMessages}
         className="col-span-1"
         type="number"
-        readOnly={!props.isEditable}
+        readOnly={!props.isAdmin}
       />
       <Input
         name="usedStorage"
@@ -249,7 +249,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.usedStorage}
         className="col-span-1"
         type="number"
-        readOnly={!props.isEditable}
+        readOnly={!props.isAdmin}
       />
 
       <Input
@@ -258,7 +258,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         value={userProfile.usedMessages}
         className="col-span-1"
         type="number"
-        readOnly={!props.isEditable}
+        readOnly={!props.isAdmin}
       />
       <div className="col-span-2 flex justify-end">
         <a

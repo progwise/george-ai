@@ -29,7 +29,12 @@ function RouteComponent() {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return await updateProfile({ data: formData })
+      return await updateProfile({
+        data: {
+          formData,
+          isAdmin: auth.user?.isAdmin || false,
+        },
+      })
     },
     onSuccess: () => {
       toastSuccess('Profile updated successfully.')
@@ -62,7 +67,7 @@ function RouteComponent() {
   if (!auth.user) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <p>You must be logged in to activate the profile.</p>
+        <p>{t('texts.mustBeLoggedInToActivateProfile')}</p>
         <button
           type="button"
           className="btn btn-primary btn-sm"
@@ -104,7 +109,7 @@ function RouteComponent() {
         onSubmit={(data) => {
           updateProfileMutation.mutate(data)
         }}
-        isEditable={true}
+        isAdmin={true}
         saveButton={
           <div className="flex w-full justify-between">
             <button

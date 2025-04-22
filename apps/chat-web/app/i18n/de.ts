@@ -166,6 +166,7 @@ export default {
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
+    mustBeLoggedInToActivateProfile: 'Sie müssen angemeldet sein, um das Profil zu aktivieren.',
     newConversation: 'Neue Konversation',
     newConversationConfirmation:
       'Sie sind dabei, eine neue Unterhaltung mit den ausgewählten Benutzern und Assistenten zu beginnen. Sie können diese Teilnehmer jederzeit ändern.',
