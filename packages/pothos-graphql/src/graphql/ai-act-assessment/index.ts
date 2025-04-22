@@ -55,6 +55,7 @@ builder.queryField('AiActAssessmentQuery', (t) =>
       assistantId: t.arg.string({ required: true }),
     },
     type: AiActAssessment,
+    nullable: false,
     resolve: (_parent, args) => {
       return { assistantId: args.assistantId }
     },

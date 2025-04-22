@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { LoadingSpinner } from '../../loading-spinner'
 import { ComplianceArea } from './compliance-area'
 
 const RiskAreasIdentification_AssessmentFragment = graphql(`
@@ -82,17 +81,17 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
   const { t, language } = useTranslation()
   const assessment = useFragment(RiskAreasIdentification_AssessmentFragment, props.assessment)
   const basicInfo = assessment.assistantSurvey
-  const riskIndicator = basicInfo?.riskIndicator
+  const riskIndicator = basicInfo.riskIndicator
   const questions = basicInfo.questions
   const identifyRiskInfo = assessment.identifyRiskInfo
-  const complianceAreas = identifyRiskInfo?.complianceAreas
+  const complianceAreas = identifyRiskInfo.complianceAreas
 
   // State for selected compliance areas
   const [selectedAreas, setSelectedAreas] = useState<string[]>([])
 
   // Determine EU AI Act applicability
   const euOperation = useMemo(
-    () => questions?.find((q) => q.id === 'euOperation')?.value === 'Yes' || false,
+    () => questions.find((q) => q.id === 'euOperation')?.value === 'Yes' || false,
     [questions],
   )
 
@@ -103,16 +102,14 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
       return areas
     }
 
-    if (riskIndicator) {
-      if (riskIndicator.level === 'high') {
-        areas.add('documentation')
-        areas.add('governance')
-      } else if (riskIndicator.level === 'medium') {
-        areas.add('documentation')
-      }
+    if (riskIndicator.level === 'high') {
+      areas.add('documentation')
+      areas.add('governance')
+    } else if (riskIndicator.level === 'medium') {
+      areas.add('documentation')
     }
 
-    questions?.forEach((q) => {
+    questions.forEach((q) => {
       switch (q.id) {
         case 'systemType':
           if (q.value === 'ML' || q.value === 'Both') {
@@ -147,10 +144,6 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
 
     return areas
   }, [euOperation, questions, riskIndicator, selectedAreas])
-
-  if (!basicInfo || !riskIndicator || !questions || !identifyRiskInfo || !complianceAreas) {
-    return <LoadingSpinner />
-  }
 
   // Handle area selection change
   const handleAreaChange = (area: string) => {
@@ -214,7 +207,7 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
         <div className="flex items-start">
           <span className="mr-3 mt-1 text-2xl">{getRiskIcon()}</span>
           <div className="flex-1">
-            <p className="text-lg font-medium">{riskIndicator.description?.[language]}</p>
+            <p className="text-lg font-medium">{riskIndicator.description[language]}</p>
 
             {!euOperation && (
               <div className="mt-3 rounded bg-white bg-opacity-50 p-3">

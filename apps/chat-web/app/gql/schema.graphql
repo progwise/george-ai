@@ -25,14 +25,14 @@ type AiActAssessment {
 AI Act Assessment Basic System Info
 """
 type AiActAssistantSurvey {
-  actions: [AiActRecommendedAction!]
+  actions: [AiActRecommendedAction!]!
   actionsTitle: AiActString!
   assistantId: String!
   hint: AiActString!
   id: String!
-  percentCompleted: Int
-  questions: [AiActQuestions!]
-  riskIndicator: AiActRiskIndicator
+  percentCompleted: Int!
+  questions: [AiActQuestions!]!
+  riskIndicator: AiActRiskIndicator!
   title: AiActString!
 }
 
@@ -90,9 +90,9 @@ type AiActRecommendedAction {
 AI Act Risk Indicator
 """
 type AiActRiskIndicator {
-  description: AiActString
+  description: AiActString!
   factors: [AiActString!]!
-  level: String
+  level: String!
 }
 
 type AiActString {
@@ -339,14 +339,14 @@ type Mutation {
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
-  resetAssessmentAnswers(assistantId: String!): DateTime
+  resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!, userId: String!): AiLibraryCrawler
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
   sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
-  updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime
+  updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
@@ -354,7 +354,7 @@ type Mutation {
 }
 
 type Query {
-  AiActAssessmentQuery(assistantId: String!): AiActAssessment
+  AiActAssessmentQuery(assistantId: String!): AiActAssessment!
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation

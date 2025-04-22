@@ -4,7 +4,6 @@ import React from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { LoadingSpinner } from '../../loading-spinner'
 import { getChecklistStep1QueryOptions, resetAssessment, updateBasicSystemInfo } from './checklist-server'
 import QuestionCard from './question-card'
 
@@ -104,7 +103,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
   })
   const formRef = React.useRef<HTMLFormElement>(null)
 
-  const riskIndicator = assistantSurvey?.riskIndicator
+  const riskIndicator = assistantSurvey.riskIndicator
 
   // Handle response changes
   const handleResponseChange = (questionId: string, value?: string | null, notes?: string | null) => {
@@ -113,10 +112,6 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
     formData.append('value', value ?? '')
     formData.append('notes', notes ?? '')
     update(formData)
-  }
-
-  if (!assistantSurvey || !riskIndicator) {
-    return <LoadingSpinner />
   }
 
   return (
@@ -136,7 +131,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
       <div className="mb-6 space-y-4">
         <form ref={formRef}>
           <input type="hidden" name="assistantId" value={assistantId} />
-          {assistantSurvey.questions?.map((question) => (
+          {assistantSurvey.questions.map((question) => (
             <QuestionCard
               key={`${question.id}-${question.value}`}
               question={question.title[language]}
@@ -159,7 +154,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
         <p className="mb-3 text-sm text-gray-600">{assistantSurvey.actionsTitle[language]}</p>
         <ul className="mb-4 list-inside list-disc space-y-1 text-sm text-gray-600">
           {assistantSurvey.actions
-            ?.filter((action) => action.level === riskIndicator.level)
+            .filter((action) => action.level === riskIndicator.level)
             .map((action) => (
               <li
                 key={`${action.level}_${action.description[language]}`}
