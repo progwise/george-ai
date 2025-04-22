@@ -147,7 +147,13 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
-          <EditableDiv disabled={isPending} onSubmit={handleSubmitMessage} value={message} onChange={setMessage} />
+          <EditableDiv
+            disabled={isPending}
+            onSubmit={handleSubmitMessage}
+            value={message}
+            onChange={setMessage}
+            placeholder={t('conversations.promptPlaceholder')}
+          />
           <div className="flex items-center justify-between gap-1">
             <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-content">
               {(user.name?.[0] || user.username?.[0])?.toUpperCase()}
