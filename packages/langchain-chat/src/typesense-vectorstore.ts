@@ -12,7 +12,7 @@ import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocket
 import { loadFile } from './langchain-file'
 import { DEFAULT_ADAPTIVE_CONFIG, calculateChunkParams, calculateRetrievalK } from './vectorstore-settings'
 
-const cfg = DEFAULT_ADAPTIVE_CONFIG
+const retrievalParams = DEFAULT_ADAPTIVE_CONFIG
 
 // const CHUNK_SIZE = 1000 // Increased for better context
 // const CHUNK_OVERLAP = 100
@@ -135,7 +135,7 @@ export const embedFile = async (
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
   const fileParts = await loadFile(file)
-  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts, cfg)
+  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts, retrievalParams)
 
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize,
@@ -258,12 +258,12 @@ export const loadUprocessedDocumentsIntoVectorStore = async (): Promise<void> =>
   await ensureVectorStore('common')
   const documents = await getUnprocessedDocuments()
   await Promise.all(
-    documents.map((d) =>
+    documents.map((document) =>
       embedFile('common', {
-        id: d.documentId,
-        name: d.fileName,
-        originUri: d.url,
-        mimeType: (d.blob as Blob).type || 'application/pdf',
+        id: document.documentId,
+        name: document.fileName,
+        originUri: document.url,
+        mimeType: (document.blob as Blob).type || 'application/pdf',
         path: '',
       }),
     ),
@@ -280,10 +280,13 @@ export const similaritySearch = async (
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .search({ q: '*', query_by: 'text', per_page: 1 })
-  const k = calculateRetrievalK(found, cfg)
+  const retrievalK = calculateRetrievalK(found, retrievalParams)
   const store = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
-  const docs = await store.similaritySearch(question, k)
-  return docs.map((d) => ({ pageContent: d.pageContent, docName: d.metadata.docName.toString() }))
+  const documents = await store.similaritySearch(question, retrievalK)
+  return documents.map((document) => ({
+    pageContent: document.pageContent,
+    docName: document.metadata.docName.toString() as string,
+  }))
 }
 
 // retrieves content from the vector store similar to the question
