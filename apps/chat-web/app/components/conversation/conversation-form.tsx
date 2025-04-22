@@ -9,6 +9,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
+import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
 
 const ConversationForm_ConversationFragment = graphql(`
@@ -29,11 +30,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
   const { user, userProfile } = useAuth()
-  const editableDivRef = useRef<HTMLDivElement>(null)
   const [message, setMessage] = useState('')
-  const [showPlaceholder, setShowPlaceholder] = useState(true)
   const [isAtBottom, setIsAtBottom] = useState(true)
-  const form = useRef<HTMLFormElement>(null)
   const [recipientAssistantIds, setRecipientAssistantIds] = useState<string[]>([])
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -113,39 +111,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     event.preventDefault()
 
     mutate({ content: message, recipientAssistantIds })
-
-    if (editableDivRef.current) {
-      editableDivRef.current.innerHTML = ''
-      setMessage('')
-      setShowPlaceholder(true)
-    }
-  }
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault()
-      form.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-    }
-  }
-
-  const handleInput = () => {
-    if (editableDivRef.current) {
-      const text = editableDivRef.current.innerText
-      setMessage(text)
-      setShowPlaceholder(text.length === 0)
-    }
-  }
-
-  const handleFocus = () => {
-    if (showPlaceholder) {
-      setShowPlaceholder(false)
-    }
-  }
-
-  const handleBlur = () => {
-    if (editableDivRef.current && editableDivRef.current.innerText.trim() === '') {
-      setShowPlaceholder(true)
-    }
+    setMessage('')
   }
 
   const handleAssistantToggle = (assistantId: string) => {
@@ -156,6 +122,10 @@ export const ConversationForm = (props: ConversationFormProps) => {
         return [...prev, assistantId]
       }
     })
+  }
+
+  const handleSubmitMessage = () => {
+    formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   }
 
   if (!user) {
@@ -177,25 +147,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
-          <div className="relative w-full">
-            <div
-              ref={editableDivRef}
-              contentEditable={!isPending && 'plaintext-only'}
-              className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
-              onKeyDown={handleKeyDown}
-              onInput={handleInput}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              role="textbox"
-              aria-multiline="true"
-              aria-disabled={!!isPending}
-            />
-            {showPlaceholder && (
-              <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">
-                {t('conversations.promptPlaceholder')}
-              </div>
-            )}
-          </div>
+          <EditableDiv disabled={isPending} onSubmit={handleSubmitMessage} value={message} onChange={setMessage} />
           <div className="flex items-center justify-between gap-1">
             <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-content">
               {(user.name?.[0] || user.username?.[0])?.toUpperCase()}
