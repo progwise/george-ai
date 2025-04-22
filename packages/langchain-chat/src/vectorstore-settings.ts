@@ -14,5 +14,7 @@ export const calculateChunkParams = (documents: Document[]): { chunkSize: number
 }
 
 export const calculateRetrievalK = (totalChunks: number): number => {
-  return totalChunks <= linearRetrievalThreshold ? totalChunks : Math.ceil(Math.sqrt(totalChunks))
+  return totalChunks <= linearRetrievalThreshold
+    ? totalChunks
+    : Math.ceil(Math.sqrt(totalChunks) + linearRetrievalThreshold)
 }
