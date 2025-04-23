@@ -3,7 +3,7 @@ import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm } from '../../components/user/user-profile-form'
 import { graphql } from '../../gql'
@@ -83,19 +83,19 @@ export const Route = createFileRoute('/profile/')({
 function RouteComponent() {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
-  const auth = useAuth()
+  const { user } = Route.useRouteContext()
 
   const {
     data: userProfile,
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfileForEdit, auth.user?.id],
+    queryKey: [queryKeys.UserProfileForEdit, user?.id],
     queryFn: async () => {
-      if (!auth.user?.id) {
+      if (!user?.id) {
         return null
       }
-      return await getUserProfile({ data: auth.user.id })
+      return await getUserProfile({ data: user.id })
     },
   })
 
@@ -106,38 +106,38 @@ function RouteComponent() {
 
   const { mutate: create, isPending: createIsPending } = useMutation({
     mutationFn: async () => {
-      if (!auth.user?.id) {
+      if (!user?.id) {
         throw new Error('No user id found')
       }
-      return await createUserProfile({ data: { userId: auth.user.id } })
+      return await createUserProfile({ data: { userId: user.id } })
     },
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, auth.user?.id] })
+      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
     },
   })
 
   const { mutate: remove, isPending: removeIsPending } = useMutation({
     mutationFn: async () => {
-      if (!auth.user?.id) {
+      if (!user?.id) {
         throw new Error('No user id found')
       }
-      return await removeUserProfile({ data: { userId: auth.user.id } })
+      return await removeUserProfile({ data: { userId: user.id } })
     },
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, auth.user?.id] })
+      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
     },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async () => {
-      if (!auth.user?.id) {
+      if (!user?.id) {
         throw new Error('No user id found')
       }
       return await sendConfirmationMail({
         data: {
-          userId: auth.user.id,
+          userId: user.id,
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
         },
       })
@@ -147,7 +147,7 @@ function RouteComponent() {
     },
   })
 
-  if (!auth.user?.id) {
+  if (!user?.id) {
     return <p>Login to use your profile</p>
   }
   if (userProfileIsLoading) {
@@ -157,7 +157,7 @@ function RouteComponent() {
     return (
       <article className="flex w-full flex-col items-center gap-4">
         <p>
-          {t('texts.profileNotFoundFor')} {auth.user?.name}
+          {t('texts.profileNotFoundFor')} {user.name}
         </p>
         <button type="button" className="btn btn-primary w-48" onClick={() => create()}>
           Create Profile
@@ -173,7 +173,7 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <p className="flex items-center gap-2">
-        {t('texts.profileFoundFor')} {auth.user?.name}
+        {t('texts.profileFoundFor')} {user.name}
         <button
           type="button"
           className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"

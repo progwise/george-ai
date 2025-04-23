@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
-import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
 import { LibraryNewDialog } from '../../components/library/library-new-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
@@ -46,26 +46,23 @@ const librariesQueryOptions = (ownerId?: string) =>
 
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
-    return { ownerId: currentUser?.id }
-  },
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId))
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.user?.id))
   },
 })
 
 function RouteComponent() {
-  const auth = useAuth()
+  const { login } = useAuth()
+  const { user } = Route.useRouteContext()
   const navigate = useNavigate()
-  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
-  const isLoggedIn = !!auth?.user
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user?.id))
+  const isLoggedIn = !!user
 
   const { t, language } = useTranslation()
 
   if (!isLoggedIn) {
     return (
-      <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
         {t('libraries.signInForLibraries')}
       </button>
     )
@@ -80,7 +77,7 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
-        {isLoggedIn && <LibraryNewDialog />}
+        {isLoggedIn && <LibraryNewDialog userId={user.id} />}
       </div>
 
       <div className="overflow-x-auto">

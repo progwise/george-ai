@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth-hook'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { User, UserProfile } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { queryKeys } from '../../query-keys'
@@ -24,12 +25,13 @@ const ConversationForm_ConversationFragment = graphql(`
 
 interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
+  user?: Pick<User, 'id' | 'name' | 'username'>
+  profile?: Pick<UserProfile, 'id' | 'freeMessages' | 'usedMessages'>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
   const { t, language } = useTranslation()
   const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
-  const { user, userProfile } = useAuth()
   const [message, setMessage] = useState('')
   const [isAtBottom, setIsAtBottom] = useState(true)
 
@@ -38,7 +40,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const formRef = useRef<HTMLFormElement>(null)
 
-  const remainingMessages = (userProfile?.freeMessages || 0) - (userProfile?.usedMessages || 0)
+  const remainingMessages = (props.profile?.freeMessages || 0) - (props.profile?.usedMessages || 0)
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -65,7 +67,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
-      if (!user?.id) {
+      if (!props.user?.id) {
         throw new Error('User not set')
       }
       if (!data.content || data.content.trim().length < 3) {
@@ -78,7 +80,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       const result = await sendMessage({
         data: {
-          userId: user.id,
+          userId: props.user.id,
           conversationId: conversation.id!,
           ...data,
         },
@@ -91,9 +93,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
         queryKey: [queryKeys.Conversation, conversation.id],
       })
 
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.CurrentUserProfile],
-      })
+      queryClient.invalidateQueries(getProfileQueryOptions(props.user?.id))
 
       scrollToBottom()
     },
@@ -128,9 +128,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
     formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   }
 
-  if (!user) {
+  if (!props.user) {
     return <h3>{t('texts.loginToUseSendMessages')}</h3>
   }
+
+  const name = props.user.name || props.user.username
 
   return (
     <>
@@ -156,11 +158,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
           />
           <div className="flex items-center justify-between gap-1">
             <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-content">
-              {(user.name?.[0] || user.username?.[0])?.toUpperCase()}
+              {name[0].toUpperCase()}
             </div>
 
             <div className="flex min-w-0 grow flex-col">
-              <span className="truncate text-sm font-semibold">{user.name || user.username}</span>
+              <span className="truncate text-sm font-semibold">{name}</span>
               <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
             </div>
             <div className="hidden items-center gap-2 lg:flex">

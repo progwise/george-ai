@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { useAuth } from '../../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
@@ -19,6 +18,7 @@ const RunCrawlerButton_CrawlerFragment = graphql(`
 interface RunCrawlerButtonProps {
   libraryId: string
   crawler: FragmentType<typeof RunCrawlerButton_CrawlerFragment>
+  userId: string
 }
 
 const runCrawler = createServerFn({ method: 'POST' })
@@ -44,13 +44,13 @@ const runCrawler = createServerFn({ method: 'POST' })
     )
   })
 
-export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) => {
+export const RunCrawlerButton = ({ libraryId, crawler, userId }: RunCrawlerButtonProps) => {
   const { id, isRunning } = useFragment(RunCrawlerButton_CrawlerFragment, crawler)
   const queryClient = useQueryClient()
-  const { user } = useAuth()
+
   const runCrawlerMutation = useMutation({
     mutationFn: async () => {
-      return await runCrawler({ data: { crawlerId: id, userId: user!.id! } })
+      return await runCrawler({ data: { crawlerId: id, userId } })
     },
     onError: () => {
       // TODO: add alert
