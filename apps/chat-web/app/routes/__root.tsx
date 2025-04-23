@@ -1,9 +1,11 @@
 import { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { getCookie } from '@tanstack/react-start/server'
 import React, { Suspense } from 'react'
 
 import { GeorgeToaster } from '../components/georgeToaster'
-import TopNavigation from '../components/top-navigation'
+import TopNavigation, { getTheme } from '../components/top-navigation'
 import { getLanguage } from '../i18n'
 import appCss from '../index.css?url'
 
@@ -37,13 +39,14 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
+  const { theme } = Route.useRouteContext()
   return (
     <html>
       <head>
         <HeadContent />
       </head>
       <body className="container mx-auto">
-        <TopNavigation />
+        <TopNavigation theme={theme} />
         <Outlet />
         <Scripts />
         <Suspense>
@@ -60,8 +63,12 @@ const RootDocument = () => {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
+    const theme = await getTheme()
     const language = await getLanguage()
+    // const theme = getCookie('theme') //todo: use const
+
     return {
+      theme: theme,
       language: language,
     }
   },

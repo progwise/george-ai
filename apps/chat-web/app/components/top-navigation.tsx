@@ -1,4 +1,6 @@
 import { Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { getCookie } from '@tanstack/react-start/server'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAuth } from '../auth/auth-hook'
@@ -15,6 +17,10 @@ import { FileRoutesByTo } from '../routeTree.gen'
 
 const THEME_KEY = 'theme'
 const DEFAULT_THEME = 'light'
+
+export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie('theme'))
+
+const getCookieValue = (name: string) => document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
 
 const getStoredTheme = () => {
   if (typeof window === 'undefined') return DEFAULT_THEME
@@ -38,22 +44,22 @@ const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
   </Link>
 )
 
-export default function TopNavigation() {
+interface TopNavigationProps {
+  theme?: string
+}
+
+export default function TopNavigation({ theme: initialTheme }: TopNavigationProps) {
   const { t } = useTranslation()
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(() => {
-    const storedTheme = getStoredTheme()
-    setStoredTheme(storedTheme)
-    return storedTheme
-  })
+  const [theme, setTheme] = useState(initialTheme ?? DEFAULT_THEME)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
 
   const handleThemeToggle = useCallback(() => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
     setTheme(newTheme)
-    setStoredTheme(newTheme)
+    // document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`
   }, [theme])
 
   const closeMenu = useCallback(() => {
