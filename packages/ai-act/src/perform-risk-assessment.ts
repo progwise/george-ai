@@ -13,9 +13,6 @@ export const performRiskAssessment = (questions: AiActQuestion[]) => {
     }
     riskPoints += questionRisk.points
     riskFactors.push(questionRisk.description)
-    if (questionRisk.riskLevel === 'nonApplicable') {
-      return questionRisk
-    }
   })
 
   // Set risk level based on points
