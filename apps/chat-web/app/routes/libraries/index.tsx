@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
-import { CurrentUser, useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
 import { LibraryNewDialog } from '../../components/library/library-new-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { graphql } from '../../gql'
@@ -46,27 +46,24 @@ const librariesQueryOptions = (ownerId?: string) =>
 
 export const Route = createFileRoute('/libraries/')({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
-    const currentUser = context.queryClient.getQueryData<CurrentUser>([queryKeys.CurrentUser])
-    return { ownerId: currentUser?.id }
-  },
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(librariesQueryOptions(context.ownerId))
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.user?.id))
   },
 })
 
 function RouteComponent() {
-  const auth = useAuth()
+  const { login } = useAuth()
+  const { user } = Route.useRouteContext()
   const navigate = useNavigate()
-  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(auth.user?.id))
-  const isLoggedIn = !!auth?.user
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user?.id))
+  const isLoggedIn = !!user
 
   const { t, language } = useTranslation()
 
   if (!isLoggedIn) {
     return (
-      <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
-        {t('libraries.signInForLibraries')}
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
+        {t('actions.signInForLibraries')}
       </button>
     )
   }
@@ -80,61 +77,54 @@ function RouteComponent() {
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
         {isLoading && <span className="loading loading-ring loading-md"></span>}
-        {isLoggedIn && <LibraryNewDialog />}
+        {isLoggedIn && <LibraryNewDialog userId={user.id} />}
       </div>
 
-      <div className="overflow-x-auto">
-        {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
-          <h3>{t('libraries.noLibrariesFound')}</h3>
-        ) : (
-          <table className="table w-full">
-            <thead className="hidden md:table-header-group">
-              <tr>
-                <th>#</th>
-                <th>{t('labels.name')}</th>
-                <th>{t('libraries.owner')}</th>
-                <th>{t('libraries.lastUpdate')}</th>
-              </tr>
-            </thead>
+      {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
+        <h3>{t('libraries.noLibrariesFound')}</h3>
+      ) : (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{t('labels.name')}</th>
+              <th>{t('libraries.owner')}</th>
+              <th>{t('libraries.lastUpdate')}</th>
+            </tr>
+          </thead>
 
-            <tbody>
-              {data?.aiLibraries?.map((library, index) => {
-                const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
-                const timePart = timeString(library.updatedAt ?? library.createdAt, language)
+          <tbody>
+            {data?.aiLibraries?.map((library, index) => {
+              const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
+              const timePart = timeString(library.updatedAt ?? library.createdAt, language)
 
-                return (
-                  <tr
-                    key={library.id}
-                    className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
-                    onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId: library.id } })}
-                  >
-                    <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
-                      {index + 1}
-                    </td>
-                    <td data-label="Name" className="block py-1 md:table-cell md:py-2">
-                      <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }}>
-                        <span className="font-bold hover:underline">{library.name}</span>
-                      </Link>
-                    </td>
-                    <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
-                      {library.owner?.name}
-                    </td>
-                    <td
-                      data-label="Last update"
-                      className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
-                    >
-                      <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
-                        <span>{datePart}</span>
-                        <span>{timePart}</span>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+              return (
+                <tr
+                  key={library.id}
+                  className="hover:bg-base-200"
+                  onClick={() =>
+                    navigate({
+                      to: '/libraries/$libraryId',
+                      params: { libraryId: library.id },
+                    })
+                  }
+                >
+                  <td data-label="#">{index + 1}</td>
+                  <td data-label="Name">
+                    <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }}>
+                      <span className="font-bold hover:underline">{library.name}</span>
+                    </Link>
+                  </td>
+                  <td data-label="Owner">{library.owner?.name}</td>
+                  <td data-label="Last update">
+                    {datePart} {timePart}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      )}
     </article>
   )
 }

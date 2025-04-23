@@ -17,6 +17,7 @@ const AssistantCard_AssistantFragment = graphql(`
 
 export interface AssistantCardProps {
   assistant: FragmentType<typeof AssistantCard_AssistantFragment>
+  userId?: string
 }
 
 export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
@@ -30,9 +31,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
           <div className="h-36 w-full overflow-hidden rounded-lg text-center">
             {!assistant.iconUrl ? (
               <div className="flex h-full w-full items-center justify-center bg-base-300 text-base-content/50">
-                {
-                  t('assistants.hasNoIcon').replace('{assistant.name}', assistant.name) // TODO: assistant.name
-                }
+                {t('assistants.hasNoIcon').replace('{assistant.name}', assistant.name)}
               </div>
             ) : (
               <img
@@ -56,7 +55,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
               <div className="badge badge-outline">Sequential</div>
             </div>
             <div className="flex w-full place-content-between">
-              <AssistantDeleteDialog assistant={assistant} />
+              <AssistantDeleteDialog assistant={assistant} userId={props.userId} />
               <Link
                 type="button"
                 className="btn btn-ghost btn-secondary btn-sm"

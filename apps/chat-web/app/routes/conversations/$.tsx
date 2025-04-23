@@ -1,10 +1,11 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { ConversationForm } from '../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../components/conversation/conversation-participants'
@@ -86,12 +87,15 @@ export const Route = createFileRoute('/conversations/$')({
 })
 
 function RouteComponent() {
-  const authContext = useAuth()
-  const userId = authContext.user?.id
+  const { login } = useAuth()
+  const { user } = Route.useRouteContext()
+  const userId = user?.id
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
+
+  const { data: profile } = useQuery(getProfileQueryOptions(userId))
 
   const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.Conversations, userId],
@@ -128,8 +132,8 @@ function RouteComponent() {
 
   if (!userId) {
     return (
-      <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
-        {t('texts.signInForConversations')}
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
+        {t('actions.signInForConversations')}
       </button>
     )
   }
@@ -163,6 +167,7 @@ function RouteComponent() {
               <NewConversationSelector
                 humans={assignableUsers.myConversationUsers}
                 assistants={assignableAssistants.aiAssistants}
+                userId={userId}
               />
             </div>
           </div>
@@ -174,8 +179,9 @@ function RouteComponent() {
                 assistants={assignableAssistants.aiAssistants}
                 humans={assignableUsers.myConversationUsers}
                 dialogMode="add"
+                userId={userId}
               />
-              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
+              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
             </div>
           )}
         </div>
@@ -188,13 +194,18 @@ function RouteComponent() {
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
                   humans={assignableUsers.myConversationUsers}
+                  userId={userId}
                 />
                 <div className="hidden lg:flex">
-                  <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} />
+                  <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
                 </div>
               </div>
               <ConversationHistory conversation={selectedConversation.aiConversation} />
-              <ConversationForm conversation={selectedConversation.aiConversation} />
+              <ConversationForm
+                conversation={selectedConversation.aiConversation}
+                user={user}
+                profile={profile ?? undefined}
+              />
             </>
           )}
         </div>
@@ -208,6 +219,7 @@ function RouteComponent() {
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}
               isOpen={conversations?.aiConversations?.length === 0}
+              userId={userId}
             />
           </div>
           <div className="flex-1 overflow-scroll px-2">

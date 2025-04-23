@@ -123,6 +123,7 @@ type AiLibrary {
 
 type AiLibraryCrawler {
   createdAt: DateTime!
+  cronJob: AiLibraryCrawlerCronJob
   id: ID!
   isRunning: Boolean!
   lastRun: DateTime
@@ -130,6 +131,36 @@ type AiLibraryCrawler {
   maxPages: Int!
   updatedAt: DateTime!
   url: String!
+}
+
+type AiLibraryCrawlerCronJob {
+  active: Boolean!
+  createdAt: DateTime!
+  cronExpression: String
+  friday: Boolean!
+  hour: Int!
+  id: ID!
+  minute: Int!
+  monday: Boolean!
+  saturday: Boolean!
+  sunday: Boolean!
+  thursday: Boolean!
+  tuesday: Boolean!
+  updatedAt: DateTime!
+  wednesday: Boolean!
+}
+
+input AiLibraryCrawlerCronJobInput {
+  active: Boolean!
+  friday: Boolean!
+  hour: Int!
+  minute: Int!
+  monday: Boolean!
+  saturday: Boolean!
+  sunday: Boolean!
+  thursday: Boolean!
+  tuesday: Boolean!
+  wednesday: Boolean!
 }
 
 type AiLibraryFile {
@@ -233,6 +264,7 @@ type HumanParticipant implements AiConversationParticipant {
 }
 
 type Mutation {
+  activateUserProfile(profileId: String!): UserProfile
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -252,7 +284,13 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
-  createAiLibraryCrawler(libraryId: String!, maxDepth: Int!, maxPages: Int!, url: String!): AiLibraryCrawler
+  createAiLibraryCrawler(
+    cronJob: AiLibraryCrawlerCronJobInput
+    libraryId: String!
+    maxDepth: Int!
+    maxPages: Int!
+    url: String!
+  ): AiLibraryCrawler
   createConversationInvitation(
     conversationId: String!
     data: ConversationInvitationInput!
@@ -315,6 +353,7 @@ type User {
   family_name: String
   given_name: String
   id: ID!
+  isAdmin: Boolean!
   lastLogin: DateTime
   name: String
   profile: UserProfile
@@ -331,6 +370,7 @@ input UserInput {
 }
 
 type UserProfile {
+  activationDate: DateTime
   business: String
   confirmationDate: DateTime
   createdAt: DateTime!
@@ -352,6 +392,8 @@ input UserProfileInput {
   business: String
   email: String!
   firstName: String
+  freeMessages: Int
+  freeStorage: Int
   lastName: String
   position: String
 }

@@ -4,7 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -19,6 +19,7 @@ export interface GoogleDriveFilesProps {
   libraryId: string
   noFreeUploads: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
+  userId?: string
 }
 
 interface GoogleDriveResponse {
@@ -131,8 +132,8 @@ export const GoogleDriveFiles = ({
   currentLocationHref,
   noFreeUploads,
   dialogRef,
+  userId,
 }: GoogleDriveFilesProps) => {
-  const { user } = useAuth()
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
@@ -161,9 +162,7 @@ export const GoogleDriveFiles = ({
         queryKey: [queryKeys.AiLibraryFiles, libraryId],
       })
 
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.CurrentUserProfile, user?.id],
-      })
+      queryClient.invalidateQueries(getProfileQueryOptions(userId))
     },
     onError: (error) => {
       toastError(`Error embedding files: ${error.message}`)
@@ -201,19 +200,19 @@ export const GoogleDriveFiles = ({
               to="/libraries/auth-google"
               search={{ redirectAfterAuth: currentLocationHref }}
             >
-              {t('auth.signInWithGoogle')}
+              {t('actions.signInWithGoogle')}
             </Link>
           )}
           {googleDriveAccessToken.access_token && (
-            <button type="button" className="btn btn-xs" onClick={handleSwitchAccount}>
-              {t('auth.switchGoogleAccount')}
+            <button type="button" className="btn btn-primary btn-xs" onClick={handleSwitchAccount}>
+              {t('actions.switchGoogleAccount')}
             </button>
           )}
           {googleDriveAccessToken.access_token && (
             <button
               type="button"
               disabled={!selectedFiles.length || embedFilesIsPending || noFreeUploads}
-              className="btn btn-xs"
+              className="btn btn-primary btn-xs"
               onClick={async () => {
                 await handleEmbedFiles(selectedFiles)
               }}

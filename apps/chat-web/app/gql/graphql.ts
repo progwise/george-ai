@@ -150,6 +150,7 @@ export type AiLibrary = {
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
+  cronJob?: Maybe<AiLibraryCrawlerCronJob>
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<Scalars['DateTime']['output']>
@@ -157,6 +158,37 @@ export type AiLibraryCrawler = {
   maxPages: Scalars['Int']['output']
   updatedAt: Scalars['DateTime']['output']
   url: Scalars['String']['output']
+}
+
+export type AiLibraryCrawlerCronJob = {
+  __typename?: 'AiLibraryCrawlerCronJob'
+  active: Scalars['Boolean']['output']
+  createdAt: Scalars['DateTime']['output']
+  cronExpression?: Maybe<Scalars['String']['output']>
+  friday: Scalars['Boolean']['output']
+  hour: Scalars['Int']['output']
+  id: Scalars['ID']['output']
+  minute: Scalars['Int']['output']
+  monday: Scalars['Boolean']['output']
+  saturday: Scalars['Boolean']['output']
+  sunday: Scalars['Boolean']['output']
+  thursday: Scalars['Boolean']['output']
+  tuesday: Scalars['Boolean']['output']
+  updatedAt: Scalars['DateTime']['output']
+  wednesday: Scalars['Boolean']['output']
+}
+
+export type AiLibraryCrawlerCronJobInput = {
+  active: Scalars['Boolean']['input']
+  friday: Scalars['Boolean']['input']
+  hour: Scalars['Int']['input']
+  minute: Scalars['Int']['input']
+  monday: Scalars['Boolean']['input']
+  saturday: Scalars['Boolean']['input']
+  sunday: Scalars['Boolean']['input']
+  thursday: Scalars['Boolean']['input']
+  tuesday: Scalars['Boolean']['input']
+  wednesday: Scalars['Boolean']['input']
 }
 
 export type AiLibraryFile = {
@@ -252,6 +284,7 @@ export type HumanParticipant = AiConversationParticipant & {
 
 export type Mutation = {
   __typename?: 'Mutation'
+  activateUserProfile?: Maybe<UserProfile>
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryUsage?: Maybe<AiLibraryUsage>
   cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
@@ -291,6 +324,10 @@ export type Mutation = {
   updateMessage?: Maybe<AiConversationMessage>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
+}
+
+export type MutationActivateUserProfileArgs = {
+  profileId: Scalars['String']['input']
 }
 
 export type MutationAddConversationParticipantsArgs = {
@@ -346,6 +383,7 @@ export type MutationCreateAiLibraryArgs = {
 }
 
 export type MutationCreateAiLibraryCrawlerArgs = {
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   libraryId: Scalars['String']['input']
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
@@ -557,6 +595,7 @@ export type User = {
   family_name?: Maybe<Scalars['String']['output']>
   given_name?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  isAdmin: Scalars['Boolean']['output']
   lastLogin?: Maybe<Scalars['DateTime']['output']>
   name?: Maybe<Scalars['String']['output']>
   profile?: Maybe<UserProfile>
@@ -574,6 +613,7 @@ export type UserInput = {
 
 export type UserProfile = {
   __typename?: 'UserProfile'
+  activationDate?: Maybe<Scalars['DateTime']['output']>
   business?: Maybe<Scalars['String']['output']>
   confirmationDate?: Maybe<Scalars['DateTime']['output']>
   createdAt: Scalars['DateTime']['output']
@@ -595,6 +635,8 @@ export type UserProfileInput = {
   business?: InputMaybe<Scalars['String']['input']>
   email: Scalars['String']['input']
   firstName?: InputMaybe<Scalars['String']['input']>
+  freeMessages?: InputMaybe<Scalars['Int']['input']>
+  freeStorage?: InputMaybe<Scalars['Int']['input']>
   lastName?: InputMaybe<Scalars['String']['input']>
   position?: InputMaybe<Scalars['String']['input']>
 }
@@ -799,6 +841,7 @@ export type LoginMutation = {
     given_name?: string | null
     family_name?: string | null
     createdAt: string
+    isAdmin: boolean
   } | null
 }
 
@@ -1088,6 +1131,7 @@ export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
   url: Scalars['String']['input']
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
 }>
 
 export type CreateAiLibraryCrawlerMutation = {
@@ -1105,6 +1149,7 @@ export type CrawlerTable_LibraryFragment = {
       maxDepth: number
       maxPages: number
       lastRun?: string | null
+      cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
   >
 } & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
@@ -1289,6 +1334,7 @@ export type UserProfileForm_UserProfileFragment = {
   createdAt: string
   updatedAt?: string | null
   confirmationDate?: string | null
+  activationDate?: string | null
   expiresAt?: string | null
   business?: string | null
   position?: string | null
@@ -1468,7 +1514,7 @@ export type UserProfileQueryVariables = Exact<{
 export type UserProfileQuery = {
   __typename?: 'Query'
   userProfile?:
-    | ({ __typename?: 'UserProfile'; id: string } & {
+    | ({ __typename?: 'UserProfile'; id: string; confirmationDate?: string | null } & {
         ' $fragmentRefs'?: { UserProfileForm_UserProfileFragment: UserProfileForm_UserProfileFragment }
       })
     | null
@@ -1737,6 +1783,7 @@ export type GetUserProfileQuery = {
   userProfile?: {
     __typename?: 'UserProfile'
     id: string
+    userId: string
     email: string
     firstName?: string | null
     lastName?: string | null
@@ -1746,7 +1793,31 @@ export type GetUserProfileQuery = {
     usedMessages?: number | null
     freeStorage: number
     usedStorage?: number | null
+    createdAt: string
+    updatedAt?: string | null
+    confirmationDate?: string | null
+    activationDate?: string | null
+    expiresAt?: string | null
   } | null
+}
+
+export type UpdateUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  userProfileInput: UserProfileInput
+}>
+
+export type UpdateUserProfileMutation = {
+  __typename?: 'Mutation'
+  updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type ActivateUserProfileMutationVariables = Exact<{
+  profileId: Scalars['String']['input']
+}>
+
+export type ActivateUserProfileMutation = {
+  __typename?: 'Mutation'
+  activateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export const AssistantBasecaseForm_AssistantFragmentDoc = {
@@ -2391,6 +2462,14 @@ export const CrawlerTable_LibraryFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -2474,6 +2553,7 @@ export const UserProfileForm_UserProfileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'business' } },
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
@@ -3020,6 +3100,7 @@ export const LoginDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
               ],
             },
           },
@@ -3475,6 +3556,11 @@ export const CreateAiLibraryCrawlerDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerCronJobInput' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -3502,6 +3588,11 @@ export const CreateAiLibraryCrawlerDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'url' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'cronJob' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
               },
             ],
             selectionSet: {
@@ -3579,6 +3670,14 @@ export const CrawlerTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -5031,6 +5130,7 @@ export const UserProfileDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UserProfileForm_UserProfile' } },
               ],
             },
@@ -5057,6 +5157,7 @@ export const UserProfileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'business' } },
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
@@ -6003,6 +6104,7 @@ export const GetUserProfileDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
@@ -6012,6 +6114,11 @@ export const GetUserProfileDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
               ],
             },
           },
@@ -6020,3 +6127,87 @@ export const GetUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserProfileQuery, GetUserProfileQueryVariables>
+export const UpdateUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfileInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userProfileInput' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>
+export const ActivateUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'activateUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'activateUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'profileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ActivateUserProfileMutation, ActivateUserProfileMutationVariables>

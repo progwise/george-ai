@@ -3,9 +3,13 @@ import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { validateForm } from '@george-ai/web-utils'
+
+import { useAuth } from '../../auth/auth'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
+import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
-import { UserProfileForm } from '../../components/user/user-profile-form'
+import { UserProfileForm, getFormSchema, updateProfile } from '../../components/user/user-profile-form'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -13,10 +17,11 @@ import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { sendConfirmationMail } from '../../server-functions/users'
 
-const userProfileQueryDocument = graphql(/* GraphQL */ `
+const userProfileQueryDocument = graphql(`
   query userProfile($userId: String!) {
     userProfile(userId: $userId) {
       id
+      confirmationDate
       ...UserProfileForm_UserProfile
     }
   }
@@ -32,7 +37,7 @@ export const getUserProfile = createServerFn({ method: 'GET' })
     })
   })
 
-const createUserProfileMutationDocument = graphql(/* GraphQL */ `
+const createUserProfileMutationDocument = graphql(`
   mutation createUserProfile($userId: String!) {
     createUserProfile(userId: $userId) {
       id
@@ -54,7 +59,7 @@ export const createUserProfile = createServerFn({ method: 'POST' })
     })
   })
 
-const removeUserProfileDocument = graphql(/* GraphQL */ `
+const removeUserProfileDocument = graphql(`
   mutation removeUserProfile($userId: String!) {
     removeUserProfile(userId: $userId) {
       id
@@ -82,20 +87,22 @@ export const Route = createFileRoute('/profile/')({
 
 function RouteComponent() {
   const queryClient = useQueryClient()
-  const { t } = useTranslation()
-  const auth = useAuth()
+  const { t, language } = useTranslation()
+  const { user } = Route.useRouteContext()
+  const { login } = useAuth()
+
+  const userId = user?.id || ''
+  const formSchema = getFormSchema(language)
 
   const {
     data: userProfile,
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfileForEdit, auth.user?.id],
+    queryKey: [queryKeys.UserProfileForEdit, userId],
     queryFn: async () => {
-      if (!auth.user?.id) {
-        return null
-      }
-      return await getUserProfile({ data: auth.user.id })
+      if (!userId) return null
+      return await getUserProfile({ data: userId })
     },
   })
 
@@ -104,89 +111,168 @@ function RouteComponent() {
     params: { profileId: userProfile?.userProfile?.id || 'no_profile_id' },
   })
 
-  const { mutate: create, isPending: createIsPending } = useMutation({
+  const { mutate: createProfileMutation, isPending: createProfileIsPending } = useMutation({
     mutationFn: async () => {
-      if (!auth.user?.id) {
-        throw new Error('No user id found')
-      }
-      return await createUserProfile({ data: { userId: auth.user.id } })
+      return await createUserProfile({ data: { userId } })
     },
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, auth.user?.id] })
+      queryClient.invalidateQueries(getProfileQueryOptions(userId))
     },
   })
 
-  const { mutate: remove, isPending: removeIsPending } = useMutation({
+  const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
     mutationFn: async () => {
-      if (!auth.user?.id) {
-        throw new Error('No user id found')
-      }
-      return await removeUserProfile({ data: { userId: auth.user.id } })
+      return await removeUserProfile({ data: { userId } })
     },
-    onSettled: () => {
+    onSuccess: () => {
+      toastSuccess(t('texts.removedProfile'))
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, auth.user?.id] })
+      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
+    },
+    onError: (error) => {
+      toastError('Failed to remove profile: ' + error.message)
     },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
-    mutationFn: async () => {
-      if (!auth.user?.id) {
-        throw new Error('No user id found')
-      }
+    mutationFn: async (formData: FormData) => {
+      const userIdFromForm = formData.get('userId') as string
+
+      // Update the profile
+      await updateProfile({
+        data: {
+          formData,
+          isAdmin: user?.isAdmin || false,
+        },
+      })
+
+      // Send the confirmation email
       return await sendConfirmationMail({
         data: {
-          userId: auth.user.id,
+          userId: userIdFromForm || userId,
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
         },
       })
     },
-    onSettled: () => {
+    onSuccess: () => {
+      toastSuccess(t('texts.sentConfirmationMail'))
       refetchProfile()
+    },
+    onError: (error) => {
+      toastError('Failed to send confirmation email: ' + error.message)
     },
   })
 
-  if (!auth.user?.id) {
-    return <p>Login to use your profile</p>
+  const handleSendConfirmationMail = (formData: FormData) => {
+    const formValidation = validateForm({ formData, formSchema })
+    if (formValidation.errors.length < 1) {
+      sendConfirmationMailMutation(formData)
+    } else {
+      toastError(formValidation.errors.join('\n'))
+    }
   }
-  if (userProfileIsLoading) {
-    return <LoadingSpinner />
+
+  const handleSaveChanges = async (formData: FormData) => {
+    const formValidation = validateForm({ formData, formSchema })
+    if (formValidation.errors.length < 1) {
+      await updateProfile({
+        data: {
+          formData,
+          isAdmin: user?.isAdmin || false,
+        },
+      })
+      toastSuccess(t('texts.profileSaved'))
+      refetchProfile()
+    } else {
+      toastError(formValidation.errors.join('\n'))
+    }
   }
+
+  const handleFormSubmission = (formData: FormData) => {
+    if (userProfile?.userProfile?.confirmationDate) {
+      handleSaveChanges(formData)
+    } else {
+      handleSendConfirmationMail(formData)
+    }
+  }
+
+  const handleFormSubmit = (formData: FormData) => {
+    handleFormSubmission(formData)
+  }
+
+  const handleButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const form = event.currentTarget.closest('form') as HTMLFormElement
+    const formData = new FormData(form)
+    handleFormSubmission(formData)
+  }
+
+  const isLoading =
+    userProfileIsLoading || createProfileIsPending || sendConfirmationMailIsPending || removeProfileIsPending
+
+  if (isLoading) {
+    return <LoadingSpinner isLoading={true} />
+  }
+
+  if (!userId) {
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
+        {t('actions.signInForProfile')}
+      </button>
+    )
+  }
+
   if (!userProfile?.userProfile) {
     return (
       <article className="flex w-full flex-col items-center gap-4">
         <p>
-          {t('texts.profileNotFoundFor')} {auth.user?.name}
+          {t('texts.profileNotFoundFor')} {user?.name}
         </p>
-        <button type="button" className="btn btn-primary w-48" onClick={() => create()}>
-          Create Profile
+        <button type="button" className="btn btn-primary btn-sm w-48" onClick={() => createProfileMutation()}>
+          {t('actions.createProfile')}
         </button>
       </article>
     )
   }
 
-  const handleSendConfirmationMail = () => {
-    sendConfirmationMailMutation()
-  }
-
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <p className="flex items-center gap-2">
-        {t('texts.profileFoundFor')} {auth.user?.name}
+        {t('texts.profileFoundFor')} {user?.name}
         <button
           type="button"
           className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
-          onClick={() => remove()}
-          data-tip={t('actions.removeProfile')}
+          onClick={() => {
+            removeProfileMutation()
+          }}
+          data-tip={t('tooltips.removeProfile')}
         >
           <TrashIcon className="size-6" />
         </button>
       </p>
-      <LoadingSpinner isLoading={createIsPending} message="Generating user profile" />
-      <LoadingSpinner isLoading={removeIsPending} message="Removing user profile" />
-      <LoadingSpinner isLoading={sendConfirmationMailIsPending} message="Sending email" />
-      <UserProfileForm userProfile={userProfile.userProfile} handleSendConfirmationMail={handleSendConfirmationMail} />
+      {userProfile?.userProfile && (
+        <UserProfileForm
+          userProfile={userProfile.userProfile}
+          handleSendConfirmationMail={(formData: FormData) => handleSendConfirmationMail(formData)}
+          onSubmit={(formData: FormData) => {
+            handleFormSubmit(formData)
+          }}
+          saveButton={
+            <button
+              type="button"
+              className="btn btn-primary btn-sm tooltip"
+              data-tip={
+                !userProfile.userProfile.confirmationDate ? t('tooltips.saveAndSendConfirmationMail') : undefined
+              }
+              onClick={(event) => {
+                handleButtonClick(event)
+              }}
+            >
+              {userProfile.userProfile.confirmationDate ? t('actions.save') : t('actions.sendConfirmationMail')}
+            </button>
+          }
+        />
+      )}
     </article>
   )
 }

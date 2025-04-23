@@ -2,15 +2,18 @@ import { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
+import { AuthProvider } from '../auth/auth'
+import { getUser } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
-import TopNavigation from '../components/top-navigation'
+import TopNavigation, { getTheme } from '../components/top-navigation'
 import { getLanguage } from '../i18n'
 import appCss from '../index.css?url'
 
 interface RouterContext {
   queryClient: QueryClient
   language: 'en' | 'de'
+  theme: 'light' | 'dark' | null
 }
 
 const TanStackRouterDevtools =
@@ -38,24 +41,30 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
+  const { user, theme, language } = Route.useRouteContext()
+
   return (
-    <html>
+    <html data-theme={theme ?? 'light'} lang={language}>
       <head>
         <HeadContent />
       </head>
       <body className="container mx-auto flex min-h-screen flex-col px-1">
-        <TopNavigation />
-        <div className="flex grow flex-col">
-          <Outlet />
-        </div>
-        <Scripts />
-        <Suspense>
-          <TanStackRouterDevtools />
-        </Suspense>
-        <Suspense>
-          <TanStackQueryDevtools />
-        </Suspense>
-        <GeorgeToaster />
+        <AuthProvider>
+          <>
+            <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
+            <div className="flex grow flex-col">
+              <Outlet />
+            </div>
+            <Scripts />
+            <Suspense>
+              <TanStackRouterDevtools />
+            </Suspense>
+            <Suspense>
+              <TanStackQueryDevtools />
+            </Suspense>
+            <GeorgeToaster />
+          </>
+        </AuthProvider>
         <BottomNavigationMobile />
       </body>
     </html>
@@ -64,9 +73,12 @@ const RootDocument = () => {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
-    const language = await getLanguage()
+    const [theme, language] = await Promise.all([getTheme(), getLanguage()])
+    const user = await getUser()
     return {
-      language: language,
+      language,
+      user,
+      theme,
     }
   },
   head: () => ({

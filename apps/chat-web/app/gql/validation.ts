@@ -5,6 +5,7 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
+  AiLibraryCrawlerCronJobInput,
   AiLibraryFileInput,
   AiLibraryInput,
   ConversationInvitationInput,
@@ -59,6 +60,21 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
   })
 }
 
+export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCronJobInput>> {
+  return z.object({
+    active: z.boolean(),
+    friday: z.boolean(),
+    hour: z.number(),
+    minute: z.number(),
+    monday: z.boolean(),
+    saturday: z.boolean(),
+    sunday: z.boolean(),
+    thursday: z.boolean(),
+    tuesday: z.boolean(),
+    wednesday: z.boolean(),
+  })
+}
+
 export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFileInput>> {
   return z.object({
     libraryId: z.string(),
@@ -100,6 +116,8 @@ export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInpu
     business: z.string().nullish(),
     email: z.string(),
     firstName: z.string().nullish(),
+    freeMessages: z.number().nullish(),
+    freeStorage: z.number().nullish(),
     lastName: z.string().nullish(),
     position: z.string().nullish(),
   })
