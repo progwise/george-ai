@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
+import cronstrue from 'cronstrue'
 
 import { dateTimeStringShort } from '@george-ai/web-utils'
 
@@ -7,6 +8,9 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { AddCrawlerButton } from './add-crawler-button'
 import { getCrawlersQueryOptions } from './get-crawlers'
 import { RunCrawlerButton } from './run-crawler-button'
+
+// Import the German locale
+import 'cronstrue/locales/de'
 
 interface CrawlerTableProps {
   libraryId: string
@@ -20,6 +24,9 @@ const CrawlerTable_LibraryFragment = graphql(`
       maxDepth
       maxPages
       lastRun
+      cronJob {
+        cronExpression
+      }
       ...RunCrawlerButton_Crawler
     }
   }
@@ -40,6 +47,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
             <th>{t('crawlers.url')}</th>
             <th>{t('crawlers.maxDepth')}</th>
             <th>{t('crawlers.maxPages')}</th>
+            <th>{t('crawlers.cronJob')}</th>
             <th>{t('crawlers.lastRun')}</th>
             <th>{t('labels.actions')}</th>
           </tr>
@@ -50,6 +58,10 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
               <td>{crawler.url}</td>
               <td>{crawler.maxDepth}</td>
               <td>{crawler.maxPages}</td>
+              <td>
+                {crawler.cronJob?.cronExpression &&
+                  cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })}
+              </td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
               <td>
                 <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
