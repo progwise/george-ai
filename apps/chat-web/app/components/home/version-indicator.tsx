@@ -21,7 +21,7 @@ const getVersions = createServerFn({ method: 'GET' }).handler(async () => {
   }
 })
 
-export const VerstionIndicator = () => {
+export const VersionIndicator = () => {
   const { data } = useQuery({
     queryKey: ['versions'],
     queryFn: () => getVersions(),
