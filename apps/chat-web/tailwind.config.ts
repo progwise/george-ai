@@ -5,7 +5,7 @@ import { type Config } from 'tailwindcss'
 export default {
   content: ['./app/**/*.{ts,tsx}'],
   daisyui: {
-    themes: ['light'],
+    themes: ['light', 'dark'],
   },
   plugins: [typography, daisyui],
 } satisfies Config
