@@ -52,7 +52,7 @@ export default {
     noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
-      euAiActNotePlaceholder: 'Zusätliche Information oder Kontext...',
+      euAiActNotePlaceholder: 'Zusätzliche Information oder Kontext...',
       languageModel: 'Wählen Sie das Sprachmodell',
       llmTemperature: 'Zwischen 0.0 und 1.0',
       name: 'Name Ihres Assistenten',
