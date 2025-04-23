@@ -242,6 +242,7 @@ type HumanParticipant implements AiConversationParticipant {
 }
 
 type Mutation {
+  activateUserProfile(profileId: String!): UserProfile
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -319,6 +320,7 @@ type User {
   family_name: String
   given_name: String
   id: ID!
+  isAdmin: Boolean!
   lastLogin: DateTime
   name: String
   profile: UserProfile
@@ -335,6 +337,7 @@ input UserInput {
 }
 
 type UserProfile {
+  activationDate: DateTime
   business: String
   confirmationDate: DateTime
   createdAt: DateTime!
@@ -356,6 +359,8 @@ input UserProfileInput {
   business: String
   email: String!
   firstName: String
+  freeMessages: Int
+  freeStorage: Int
   lastName: String
   position: String
 }

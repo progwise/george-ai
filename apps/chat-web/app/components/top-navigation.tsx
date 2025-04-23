@@ -118,7 +118,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               className="flex items-center gap-2"
             >
               <UserIcon className="size-6" />
-              {t('topNavigation.signOut')}
+              {t('actions.signOut')}
             </button>
           </li>
         </>
@@ -144,7 +144,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               className="flex items-center gap-2"
             >
               <UserIcon className="size-6" />
-              {t('topNavigation.signIn')}
+              {t('actions.signIn')}
             </button>
           </li>
         </>
@@ -168,7 +168,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
         ) : (
           <button type="button" className="btn btn-ghost gap-2" onClick={login}>
             <UserIcon className="size-6" />
-            {t('topNavigation.signIn')}
+            {t('actions.signIn')}
           </button>
         )}
 
@@ -244,7 +244,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
 
               <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
                 <UserIcon className="size-6" />
-                {t('topNavigation.signOut')}
+                {t('actions.signOut')}
               </button>
             </>
           ) : (
@@ -272,7 +272,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
 
               <button type="button" className="btn btn-ghost gap-2" onClick={login}>
                 <UserIcon className="size-6" />
-                {t('topNavigation.signIn')}
+                {t('actions.signIn')}
               </button>
             </>
           )}
