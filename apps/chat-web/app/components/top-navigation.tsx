@@ -93,7 +93,7 @@ const TopNavigation = ({ user }: TopNavigationProps) => {
 
               <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
                 <UserIcon className="size-6" />
-                {t('topNavigation.signIn')}
+                {t('actions.signIn')}
               </button>
             </>
           ) : (

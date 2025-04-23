@@ -78,7 +78,7 @@ function RouteComponent() {
   if (!isLoggedIn) {
     return (
       <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('auth.signInForGoogleAuth')}
+        {t('actions.signInForGoogleAuth')}
       </button>
     )
   }

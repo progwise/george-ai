@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
 
+import { useAuth } from '../../auth/auth'
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
@@ -88,8 +89,9 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
   const { user } = Route.useRouteContext()
+  const { login } = useAuth()
 
-  const userId = auth.user?.id || ''
+  const userId = user?.id || ''
   const formSchema = getFormSchema(language)
 
   const {
@@ -141,7 +143,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: auth.user?.isAdmin || false,
+          isAdmin: user?.isAdmin || false,
         },
       })
 
@@ -177,7 +179,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: auth.user?.isAdmin || false,
+          isAdmin: user?.isAdmin || false,
         },
       })
       toastSuccess(t('texts.profileSaved'))
@@ -206,11 +208,7 @@ function RouteComponent() {
   }
 
   const isLoading =
-    auth.isLoading ||
-    userProfileIsLoading ||
-    createProfileIsPending ||
-    sendConfirmationMailIsPending ||
-    removeProfileIsPending
+    userProfileIsLoading || createProfileIsPending || sendConfirmationMailIsPending || removeProfileIsPending
 
   if (isLoading) {
     return <LoadingSpinner isLoading={true} />
@@ -218,12 +216,9 @@ function RouteComponent() {
 
   if (!userId) {
     return (
-      <div className="flex flex-col items-center gap-4">
-        <p>{t('texts.signInForProfile')}</p>
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => auth.login()}>
-          {t('actions.signIn')}
-        </button>
-      </div>
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
+        {t('actions.signInForProfile')}
+      </button>
     )
   }
 
@@ -231,7 +226,7 @@ function RouteComponent() {
     return (
       <article className="flex w-full flex-col items-center gap-4">
         <p>
-          {t('texts.profileNotFoundFor')} {user.name}
+          {t('texts.profileNotFoundFor')} {user?.name}
         </p>
         <button type="button" className="btn btn-primary btn-sm w-48" onClick={() => createProfileMutation()}>
           {t('actions.createProfile')}
@@ -243,7 +238,7 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <p className="flex items-center gap-2">
-        {t('texts.profileFoundFor')} {user.name}
+        {t('texts.profileFoundFor')} {user?.name}
         <button
           type="button"
           className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"

@@ -200,12 +200,12 @@ export const GoogleDriveFiles = ({
               to="/libraries/auth-google"
               search={{ redirectAfterAuth: currentLocationHref }}
             >
-              {t('auth.signInWithGoogle')}
+              {t('actions.signInWithGoogle')}
             </Link>
           )}
           {googleDriveAccessToken.access_token && (
             <button type="button" className="btn btn-xs" onClick={handleSwitchAccount}>
-              {t('auth.switchGoogleAccount')}
+              {t('actions.switchGoogleAccount')}
             </button>
           )}
           {googleDriveAccessToken.access_token && (

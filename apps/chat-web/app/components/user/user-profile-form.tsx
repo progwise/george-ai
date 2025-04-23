@@ -5,7 +5,6 @@ import { z } from 'zod'
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { useAuth } from '../../auth/auth'
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -208,7 +207,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.usedStorage')}
         value={userProfile.usedStorage}
         type="number"
-        readOnly={!props.isAdmin}
+        readOnly
       />
 
       <Input
@@ -216,7 +215,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.usedMessages')}
         value={userProfile.usedMessages}
         type="number"
-        readOnly={!props.isAdmin}
+        readOnly
       />
       <div className="col-span-2 flex justify-end">
         <a

@@ -47,17 +47,19 @@ function RouteComponent() {
   })
   const isLoggendIn = !!user
 
+  if (!isLoggendIn) {
+    return (
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
+        {t('actions.signInForAssistants')}
+      </button>
+    )
+  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
-          {!isLoggendIn ? (
-            <button type="button" className="btn btn-ghost" onClick={() => login()}>
-              {t('assistants.signInForAssistants')}
-            </button>
-          ) : (
-            <span>{t('assistants.myAssistants')}</span>
-          )}
+          <span>{t('assistants.myAssistants')}</span>
         </h3>
         {isLoggendIn && <AssistantNewDialog userId={user.id} />}
       </div>

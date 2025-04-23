@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
 import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import {
@@ -12,6 +12,7 @@ import {
 } from '../../components/user/user-profile-form'
 import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { SaveIcon } from '../../icons/save-icon'
 import { activateUserProfile, getUserProfile } from '../../server-functions/users'
 
 export const Route = createFileRoute('/profile/$profileId/admin-confirm')({
@@ -23,7 +24,8 @@ export const Route = createFileRoute('/profile/$profileId/admin-confirm')({
 })
 
 function RouteComponent() {
-  const auth = useAuth()
+  const { user } = Route.useRouteContext()
+  const { login } = useAuth()
   const navigate = useNavigate()
   const userProfile = useLoaderData({ strict: false })
   const { t } = useTranslation()
@@ -34,7 +36,7 @@ function RouteComponent() {
       return await updateProfile({
         data: {
           formData,
-          isAdmin: auth.user?.isAdmin || false,
+          isAdmin: user?.isAdmin || false,
         },
       })
     },
@@ -62,29 +64,22 @@ function RouteComponent() {
     },
   })
 
-  if (auth.isLoading) {
-    return <LoadingSpinner isLoading={true} />
-  }
-
-  if (!auth.user) {
+  if (!user) {
     return (
-      <div className="flex flex-col items-center gap-4">
-        <p>{t('texts.mustBeLoggedInToActivateProfile')}</p>
-        <button
-          type="button"
-          className="btn btn-primary btn-sm"
-          onClick={() => {
-            localStorage.setItem('redirectAfterLogin', `/profile/${userProfile?.userProfile?.id}/admin-confirm`)
-            auth.login()
-          }}
-        >
-          {t('actions.signIn')}
-        </button>
-      </div>
+      <button
+        type="button"
+        className="btn btn-ghost"
+        onClick={() => {
+          localStorage.setItem('redirectAfterLogin', `/profile/${userProfile?.userProfile?.id}/admin-confirm`)
+          login()
+        }}
+      >
+        {t('actions.signInToActivateProfile')}
+      </button>
     )
   }
 
-  if (!auth.user.isAdmin) {
+  if (!user.isAdmin) {
     toastError('Access denied: Admins only')
     navigate({ to: '/' })
     return null
@@ -114,7 +109,20 @@ function RouteComponent() {
         formRef={formRef}
         isAdmin={true}
         saveButton={
-          <div className="flex w-full justify-between">
+          <div className="flex w-full gap-2">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm tooltip"
+              data-tip={t('actions.save')}
+              onClick={() => {
+                if (formRef.current) {
+                  const formData = new FormData(formRef.current)
+                  updateProfileMutation.mutate(formData)
+                }
+              }}
+            >
+              <SaveIcon className="size-6" />
+            </button>
             <button
               type="button"
               className="btn btn-primary btn-sm"
@@ -125,18 +133,6 @@ function RouteComponent() {
               }
             >
               {t('actions.activateProfile')}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                if (formRef.current) {
-                  const formData = new FormData(formRef.current)
-                  updateProfileMutation.mutate(formData)
-                }
-              }}
-            >
-              {t('actions.save')}
             </button>
           </div>
         }
