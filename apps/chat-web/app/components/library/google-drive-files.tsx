@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -18,6 +19,7 @@ export interface GoogleDriveFilesProps {
   libraryId: string
   noFreeUploads: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
+  userId?: string
 }
 
 interface GoogleDriveResponse {
@@ -130,6 +132,7 @@ export const GoogleDriveFiles = ({
   currentLocationHref,
   noFreeUploads,
   dialogRef,
+  userId,
 }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -158,11 +161,8 @@ export const GoogleDriveFiles = ({
       queryClient.invalidateQueries({
         queryKey: [queryKeys.AiLibraryFiles, libraryId],
       })
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraryFiles, libraryId],
-      })
+
+      queryClient.invalidateQueries(getProfileQueryOptions(userId))
     },
     onError: (error) => {
       toastError(`Error embedding files: ${error.message}`)

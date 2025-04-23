@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "vitest run"
   },
   "dependencies": {
     "@george-ai/crawl4ai-client": "workspace:*",
@@ -18,6 +19,7 @@
     "@pothos/plugin-prisma": "^4.4.0",
     "@pothos/plugin-simple-objects": "^4.1.0",
     "@prisma/client": "^6.4.1",
+    "cron": "^4.3.0",
     "graphql": "^16.9.0",
     "graphql-request": "^6.1.0",
     "graphql-scalars": "^1.24.0",
@@ -31,6 +33,7 @@
     "eslint": "^9.17.0",
     "prisma": "^6.4.1",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0"
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^3.1.1"
   }
 }

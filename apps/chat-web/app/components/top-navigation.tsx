@@ -3,7 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
-import { useAuth } from '../auth/auth-hook'
+import { useAuth } from '../auth/auth'
+import { User } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
@@ -32,12 +33,13 @@ const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
 )
 
 interface TopNavigationProps {
+  user?: Pick<User, 'id' | 'name'>
   theme?: string
 }
 
-export default function TopNavigation({ theme: initialTheme }: TopNavigationProps) {
+export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
   const { t } = useTranslation()
-  const { user, login, logout } = useAuth()
+  const { login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -159,10 +161,9 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
             <BowlerLogoIcon className="size-8" />
           </Link>
         </div>
-
         {user ? (
           <Link to="/profile" className="btn btn-ghost gap-2">
-            {user.name}
+            <span className="max-w-48 truncate">{user.name}</span>
           </Link>
         ) : (
           <button type="button" className="btn btn-ghost gap-2" onClick={login}>
@@ -226,8 +227,9 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
         <div className="flex items-center gap-4">
           {user ? (
             <>
-              <TopNavigationLink to="/profile">{user.name}</TopNavigationLink>
-
+              <TopNavigationLink to="/profile">
+                <span className="max-w-40 truncate">{user?.name || 'no name'}</span>
+              </TopNavigationLink>
               <label className="swap swap-rotate" aria-label="Toggle theme">
                 <input
                   type="checkbox"

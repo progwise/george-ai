@@ -3,7 +3,6 @@ import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { AssistantBasecaseForm } from '../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../components/assistant/assistant-libraries'
@@ -57,8 +56,7 @@ export const Route = createFileRoute('/assistants/$assistantId')({
 function RouteComponent() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const ownerId = user?.id
+  const ownerId = Route.useRouteContext().user?.id
   const { assistantId } = useParams({ strict: false })
   const { data, isLoading } = useQuery({
     queryKey: [queryKeys.AiAssistantForEdit, assistantId, ownerId],
@@ -74,7 +72,7 @@ function RouteComponent() {
 
   const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}
 
-  if (!user?.id || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
+  if (!ownerId || !aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
   }
 
@@ -97,12 +95,12 @@ function RouteComponent() {
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
         <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
-          <AssistantForm assistant={aiAssistant} disabled={!user} />
+          <AssistantForm assistant={aiAssistant} disabled={!ownerId} userId={ownerId} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
         <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
-          <AssistantBasecaseForm assistant={aiAssistant} />
+          <AssistantBasecaseForm assistant={aiAssistant} userId={ownerId} />
         </div>
       </div>
     </article>

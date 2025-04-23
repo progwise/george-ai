@@ -2,6 +2,9 @@ import { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
+import { AuthProvider } from '../auth/auth'
+import { getUser } from '../auth/get-user'
+import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation, { getTheme } from '../components/top-navigation'
 import { getLanguage } from '../i18n'
@@ -38,24 +41,31 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
-  const { theme, language } = Route.useRouteContext()
+  const { user, theme, language } = Route.useRouteContext()
 
   return (
     <html data-theme={theme ?? 'light'} lang={language}>
       <head>
         <HeadContent />
       </head>
-      <body className="container mx-auto">
-        <TopNavigation theme={theme ?? undefined} />
-        <Outlet />
-        <Scripts />
-        <Suspense>
-          <TanStackRouterDevtools />
-        </Suspense>
-        <Suspense>
-          <TanStackQueryDevtools />
-        </Suspense>
-        <GeorgeToaster />
+      <body className="container mx-auto flex min-h-screen flex-col px-1">
+        <AuthProvider>
+          <>
+            <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
+            <div className="flex grow flex-col">
+              <Outlet />
+            </div>
+            <Scripts />
+            <Suspense>
+              <TanStackRouterDevtools />
+            </Suspense>
+            <Suspense>
+              <TanStackQueryDevtools />
+            </Suspense>
+            <GeorgeToaster />
+          </>
+        </AuthProvider>
+        <BottomNavigationMobile />
       </body>
     </html>
   )
@@ -64,7 +74,12 @@ const RootDocument = () => {
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
     const [theme, language] = await Promise.all([getTheme(), getLanguage()])
-    return { theme, language }
+    const user = await getUser()
+    return {
+      language,
+      user,
+      theme,
+    }
   },
   head: () => ({
     meta: [
