@@ -105,7 +105,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
 
   return (
     <>
-      <button className="btn btn-xs" type="button" onClick={() => dialogRef.current?.showModal()}>
+      <button className="btn btn-primary btn-xs" type="button" onClick={() => dialogRef.current?.showModal()}>
         {t('crawlers.addNew')}
       </button>
 
