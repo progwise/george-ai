@@ -18,7 +18,6 @@ type AiActAssessment {
   assistantId: String!
   assistantSurvey: AiActAssistantSurvey!
   identifyRiskInfo: AiActIdentifyRisksInfo!
-  riskIndicators: AiActRiskIndicator
 }
 
 """
@@ -31,7 +30,7 @@ type AiActAssistantSurvey {
   hint: AiActString!
   id: String!
   percentCompleted: Int!
-  questions: [AiActQuestions!]!
+  questions: [AiActQuestion!]!
   riskIndicator: AiActRiskIndicator!
   title: AiActString!
 }
@@ -42,6 +41,7 @@ AI Act Compliance Area
 type AiActComplianceArea {
   description: AiActString!
   id: String!
+  mandatory: Boolean!
   title: AiActString!
 }
 
@@ -69,7 +69,7 @@ type AiActOptionRisk {
 """
 AI Act Questions
 """
-type AiActQuestions {
+type AiActQuestion {
   hint: AiActString!
   id: String!
   notes: String

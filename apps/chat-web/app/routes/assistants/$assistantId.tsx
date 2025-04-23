@@ -104,11 +104,7 @@ function RouteComponent() {
           <AssistantBasecaseForm assistant={aiAssistant} userId={ownerId} />
         </div>
       </div>
-      {assistantId && (
-        <section className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-          <AiActGuide assistantId={assistantId} />
-        </section>
-      )}
+      {assistantId && <AiActGuide assistantId={assistantId} />}
     </article>
   )
 }

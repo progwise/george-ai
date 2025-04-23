@@ -16,13 +16,13 @@ export const AiActGuide = ({ assistantId }: AiActGuideProps) => {
   }
   const assessment = data.aiActAssessment
   return (
-    <>
-      <div className="rounded-box bg-base-200 p-3 sm:w-1/2">
+    <section className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4">
+      <div className="rounded-box bg-base-200 p-3">
         <AssistantSurvey assessment={assessment} />
       </div>
-      <div className="rounded-box bg-base-200 p-3 sm:w-1/2">
+      <div className="rounded-box bg-base-200 p-3">
         <RiskAreasIdentification assessment={assessment} />
       </div>
-    </>
+    </section>
   )
 }

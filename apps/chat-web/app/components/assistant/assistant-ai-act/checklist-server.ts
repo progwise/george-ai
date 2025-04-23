@@ -30,8 +30,7 @@ export const getAiActAssessmentQueryOptions = (assistantId: string) =>
   })
 
 export const updateBasicSystemInfo = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    const entries = Object.fromEntries(data)
+  .validator((data: unknown) => {
     return z
       .object({
         assistantId: z.string().nonempty(),
@@ -39,7 +38,7 @@ export const updateBasicSystemInfo = createServerFn({ method: 'POST' })
         value: z.string().optional(),
         notes: z.string().optional(),
       })
-      .parse(entries)
+      .parse(data)
   })
   .handler(async (ctx) => {
     const { assistantId, questionId, value, notes } = ctx.data

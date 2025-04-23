@@ -24,31 +24,7 @@ const AssistantSurvey_AssessmentFragment = graphql(`
       }
       questions {
         id
-        title {
-          de
-          en
-        }
-        notes
-        value
-        hint {
-          de
-          en
-        }
-        options {
-          id
-          title {
-            de
-            en
-          }
-          risk {
-            riskLevel
-            description {
-              de
-              en
-            }
-            points
-          }
-        }
+        ...QuestionCard_question
       }
       title {
         de
@@ -82,8 +58,8 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
   const { language, t } = useTranslation()
 
   const { mutate: update } = useMutation({
-    mutationFn: async (formData: FormData) => {
-      return await updateBasicSystemInfo({ data: formData })
+    mutationFn: async ({ questionId, value, notes }: { questionId: string; value?: string; notes?: string }) => {
+      return await updateBasicSystemInfo({ data: { assistantId, questionId, value, notes } })
     },
     onSettled: () => {
       queryClient.invalidateQueries(getAiActAssessmentQueryOptions(assistantId))
@@ -100,16 +76,6 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
   })
   const formRef = React.useRef<HTMLFormElement>(null)
 
-  const riskIndicator = assistantSurvey.riskIndicator
-
-  const handleResponseChange = (questionId: string, value?: string | null, notes?: string | null) => {
-    const formData = new FormData(formRef.current!)
-    formData.append('questionId', questionId)
-    formData.append('value', value ?? '')
-    formData.append('notes', notes ?? '')
-    update(formData)
-  }
-
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow">
       <h3 className="flex items-center justify-between">
@@ -125,16 +91,11 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
         <input type="hidden" name="assistantId" value={assistantId} />
         {assistantSurvey.questions.map((question) => (
           <QuestionCard
-            key={`${question.id}-${question.value}`}
-            question={question.title[language]}
-            hint={question.hint[language]}
-            options={question.options.map((option) => ({
-              value: option.id,
-              label: option.title[language],
-            }))}
-            selected={question.value}
-            notes={question.notes}
-            onResponseChange={(value, notes) => handleResponseChange(question.id, value, notes)}
+            key={`${question.id}`}
+            question={question}
+            onResponseChange={(value, notes) =>
+              update({ questionId: question.id, value: value || undefined, notes: notes || undefined })
+            }
           />
         ))}
       </form>
@@ -144,13 +105,11 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
         <h2 className="font-semibold">{t('labels.nextSteps')}</h2>
         <p className="text-sm">{assistantSurvey.actionsTitle[language]}</p>
         <ul className="list-inside list-disc text-sm">
-          {assistantSurvey.actions
-            .filter((action) => action.level === riskIndicator.level)
-            .map((action) => (
-              <li key={`${action.level}_${action.description[language]}`} className="font-semibold">
-                {action.description[language]}
-              </li>
-            ))}
+          {assistantSurvey.actions.map((action) => (
+            <li key={`${action.level}_${action.description[language]}`} className="font-semibold">
+              {action.description[language]}
+            </li>
+          ))}
         </ul>
 
         <button

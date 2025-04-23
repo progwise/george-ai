@@ -8,6 +8,7 @@ import {
 
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+import { getQuestionsWithAnswers } from './answers'
 import { AiActStringRef } from './multilingual-string'
 import { AiActRecommendedActionRef } from './recommended-action'
 import { AiActRiskIndicatorRef } from './risk-indicator'
@@ -42,7 +43,7 @@ export const AiActOptionRef = builder.objectRef<AiActOption>('AiActOption').impl
   }),
 })
 
-const AiActQuestionsRef = builder.objectRef<AiActQuestion>('AiActQuestions').implement({
+const AiActQuestionRef = builder.objectRef<AiActQuestion>('AiActQuestion').implement({
   description: 'AI Act Questions',
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
@@ -73,18 +74,16 @@ export const AiActAssistantSurveyRef = builder
         },
       }),
       questions: t.field({
-        type: [AiActQuestionsRef],
+        type: [AiActQuestionRef],
         nullable: false,
         resolve: async (source) => {
-          const answers = await prisma.aiAssistantEUActAnswers.findMany({
-            where: { assistantId: source.assistantId },
-          })
+          const answeredQuestions = await getQuestionsWithAnswers(source.assistantId, source.questions)
 
           return source.questions.map((question) => {
-            const answer = answers.find((answer) => answer.questionId === question.id)
+            const answer = answeredQuestions.find((answeredQuestions) => answeredQuestions.id === question.id)
             return {
               ...question,
-              value: answer?.answer ?? null,
+              value: answer?.value ?? null,
               notes: answer?.notes ?? null,
             }
           })
@@ -94,27 +93,8 @@ export const AiActAssistantSurveyRef = builder
         type: AiActRiskIndicatorRef,
         nullable: false,
         resolve: async (source) => {
-          const answers = await prisma.aiAssistantEUActAnswers.findMany({
-            where: { assistantId: source.assistantId },
-          })
-          if (answers.length < source.questions.length) {
-            return {
-              level: 'undetermined' as const,
-              description: { de: 'Keine Antworten gesammelt', en: 'No answers collected' },
-              factors: [],
-            }
-          }
-
-          source.questions = source.questions.map((question) => {
-            const answer = answers.find((answer) => answer.questionId === question.id)
-            return {
-              ...question,
-              value: answer?.answer ?? null,
-              notes: answer?.notes ?? null,
-            }
-          })
-
-          const riskIndicator = performRiskAssessment(source)
+          const answeredQuestions = await getQuestionsWithAnswers(source.assistantId, source.questions)
+          const riskIndicator = performRiskAssessment(answeredQuestions)
           return riskIndicator
         },
       }),
@@ -122,8 +102,11 @@ export const AiActAssistantSurveyRef = builder
       actions: t.field({
         type: [AiActRecommendedActionRef],
         nullable: false,
-        resolve: (source) => {
-          return source.actions.map((action) => ({
+        resolve: async (source) => {
+          const answeredQuestions = await getQuestionsWithAnswers(source.assistantId, source.questions)
+          const riskIndicator = performRiskAssessment(answeredQuestions)
+          const actions = source.actions.filter((action) => action.level === riskIndicator.level)
+          return actions.map((action) => ({
             level: action.level,
             description: action.description,
           }))

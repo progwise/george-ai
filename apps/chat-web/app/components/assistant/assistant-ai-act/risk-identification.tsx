@@ -22,15 +22,8 @@ const RiskAreasIdentification_AssessmentFragment = graphql(`
         }
       }
       complianceAreas {
-        title {
-          de
-          en
-        }
-        description {
-          de
-          en
-        }
         id
+        ...ComplianceArea_Compliance
       }
     }
     assistantSurvey {
@@ -86,56 +79,6 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
     () => questions.find((q) => q.id === 'euOperation')?.value === 'Yes' || false,
     [questions],
   )
-
-  const mandatoryAreas = useMemo(() => {
-    const areas = new Set<string>()
-    if (!euOperation) {
-      return areas
-    }
-    if (riskIndicator.level === 'high') {
-      areas.add('documentation')
-      areas.add('governance')
-    } else if (riskIndicator.level === 'medium') {
-      areas.add('documentation')
-    }
-    questions.forEach((q) => {
-      switch (q.id) {
-        case 'systemType':
-          if (q.value === 'ML' || q.value === 'Both') {
-            areas.add('dataQuality')
-            areas.add('documentation')
-          }
-          break
-        case 'operationMode':
-          if (q.value === 'Autonomous') {
-            areas.add('humanOversight')
-            areas.add('security')
-          }
-          break
-        case 'syntheticContent':
-          if (q.value === 'Yes') {
-            areas.add('transparency')
-            areas.add('fundamentalRights')
-          }
-          break
-        case 'gpaiModel':
-          if (q.value === 'Yes' || q.value === 'Unsure') {
-            areas.add('governance')
-            areas.add('specificRequirements')
-          }
-          break
-        default:
-          break
-      }
-    })
-    return areas
-  }, [euOperation, questions, riskIndicator.level])
-
-  const effectiveAreas = useMemo(() => {
-    const areas = new Set<string>([...selectedAreas, ...mandatoryAreas])
-
-    return areas
-  }, [mandatoryAreas, selectedAreas])
 
   // Handle area selection change
   const handleAreaChange = (area: string) => {
@@ -259,12 +202,9 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
           {complianceAreas.map((area) => (
             <ComplianceArea
               key={area.id}
-              id={area.id}
-              title={area.title[language]}
-              description={area.description[language]}
-              isSelected={effectiveAreas.has(area.id)}
-              isMandatory={mandatoryAreas.has(area.id)}
+              area={area}
               onChange={() => handleAreaChange(area.id)}
+              selected={selectedAreas.some((a) => area.id === a)}
             />
           ))}
         </div>

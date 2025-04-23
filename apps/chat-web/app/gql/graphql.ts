@@ -36,7 +36,6 @@ export type AiActAssessment = {
   assistantId: Scalars['String']['output']
   assistantSurvey: AiActAssistantSurvey
   identifyRiskInfo: AiActIdentifyRisksInfo
-  riskIndicators?: Maybe<AiActRiskIndicator>
 }
 
 /** AI Act Assessment Basic System Info */
@@ -48,7 +47,7 @@ export type AiActAssistantSurvey = {
   hint: AiActString
   id: Scalars['String']['output']
   percentCompleted: Scalars['Int']['output']
-  questions: Array<AiActQuestions>
+  questions: Array<AiActQuestion>
   riskIndicator: AiActRiskIndicator
   title: AiActString
 }
@@ -58,6 +57,7 @@ export type AiActComplianceArea = {
   __typename?: 'AiActComplianceArea'
   description: AiActString
   id: Scalars['String']['output']
+  mandatory: Scalars['Boolean']['output']
   title: AiActString
 }
 
@@ -84,8 +84,8 @@ export type AiActOptionRisk = {
 }
 
 /** AI Act Questions */
-export type AiActQuestions = {
-  __typename?: 'AiActQuestions'
+export type AiActQuestion = {
+  __typename?: 'AiActQuestion'
   hint: AiActString
   id: Scalars['String']['output']
   notes?: Maybe<Scalars['String']['output']>
@@ -918,25 +918,11 @@ export type AssistantSurvey_AssessmentFragment = {
       level: string
       description: { __typename?: 'AiActString'; de: string; en: string }
     }>
-    questions: Array<{
-      __typename?: 'AiActQuestions'
-      id: string
-      notes?: string | null
-      value?: string | null
-      title: { __typename?: 'AiActString'; de: string; en: string }
-      hint: { __typename?: 'AiActString'; de: string; en: string }
-      options: Array<{
-        __typename?: 'AiActOption'
-        id: string
-        title: { __typename?: 'AiActString'; de: string; en: string }
-        risk?: {
-          __typename?: 'AiActOptionRisk'
-          riskLevel?: string | null
-          points: number
-          description: { __typename?: 'AiActString'; de: string; en: string }
-        } | null
-      }>
-    }>
+    questions: Array<
+      { __typename?: 'AiActQuestion'; id: string } & {
+        ' $fragmentRefs'?: { QuestionCard_QuestionFragment: QuestionCard_QuestionFragment }
+      }
+    >
     title: { __typename?: 'AiActString'; de: string; en: string }
     hint: { __typename?: 'AiActString'; de: string; en: string }
     riskIndicator: {
@@ -976,6 +962,27 @@ export type ResetAssessmentAnswersMutationVariables = Exact<{
 
 export type ResetAssessmentAnswersMutation = { __typename?: 'Mutation'; resetAssessmentAnswers: string }
 
+export type ComplianceArea_ComplianceFragment = {
+  __typename?: 'AiActComplianceArea'
+  mandatory: boolean
+  title: { __typename?: 'AiActString'; de: string; en: string }
+  description: { __typename?: 'AiActString'; de: string; en: string }
+} & { ' $fragmentName'?: 'ComplianceArea_ComplianceFragment' }
+
+export type QuestionCard_QuestionFragment = {
+  __typename?: 'AiActQuestion'
+  id: string
+  notes?: string | null
+  value?: string | null
+  title: { __typename?: 'AiActString'; de: string; en: string }
+  hint: { __typename?: 'AiActString'; de: string; en: string }
+  options: Array<{
+    __typename?: 'AiActOption'
+    id: string
+    title: { __typename?: 'AiActString'; de: string; en: string }
+  }>
+} & { ' $fragmentName'?: 'QuestionCard_QuestionFragment' }
+
 export type RiskAreasIdentification_AssessmentFragment = {
   __typename?: 'AiActAssessment'
   identifyRiskInfo: {
@@ -986,17 +993,16 @@ export type RiskAreasIdentification_AssessmentFragment = {
       title: { __typename?: 'AiActString'; de: string; en: string }
       text: { __typename?: 'AiActString'; de: string; en: string }
     }
-    complianceAreas: Array<{
-      __typename?: 'AiActComplianceArea'
-      id: string
-      title: { __typename?: 'AiActString'; de: string; en: string }
-      description: { __typename?: 'AiActString'; de: string; en: string }
-    }>
+    complianceAreas: Array<
+      { __typename?: 'AiActComplianceArea'; id: string } & {
+        ' $fragmentRefs'?: { ComplianceArea_ComplianceFragment: ComplianceArea_ComplianceFragment }
+      }
+    >
   }
   assistantSurvey: {
     __typename?: 'AiActAssistantSurvey'
     questions: Array<{
-      __typename?: 'AiActQuestions'
+      __typename?: 'AiActQuestion'
       id: string
       notes?: string | null
       value?: string | null
@@ -1931,6 +1937,67 @@ export type GetUserProfileQuery = {
   } | null
 }
 
+export const QuestionCard_QuestionFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'QuestionCard_question' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActQuestion' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'title' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'notes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'hint' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'options' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'title' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<QuestionCard_QuestionFragment, unknown>
 export const AssistantSurvey_AssessmentFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -1987,73 +2054,7 @@ export const AssistantSurvey_AssessmentFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'notes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'hint' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'options' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'title' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'risk' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'riskLevel' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'description' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                      ],
-                                    },
-                                  },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'points' } },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'QuestionCard_question' } },
                     ],
                   },
                 },
@@ -2107,8 +2108,102 @@ export const AssistantSurvey_AssessmentFragmentDoc = {
         ],
       },
     },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'QuestionCard_question' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActQuestion' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'title' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'notes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'hint' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'options' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'title' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
   ],
 } as unknown as DocumentNode<AssistantSurvey_AssessmentFragment, unknown>
+export const ComplianceArea_ComplianceFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ComplianceArea_Compliance' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActComplianceArea' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'title' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'description' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'mandatory' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ComplianceArea_ComplianceFragment, unknown>
 export const RiskAreasIdentification_AssessmentFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2173,29 +2268,8 @@ export const RiskAreasIdentification_AssessmentFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'description' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ComplianceArea_Compliance' } },
                     ],
                   },
                 },
@@ -2287,6 +2361,39 @@ export const RiskAreasIdentification_AssessmentFragmentDoc = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ComplianceArea_Compliance' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActComplianceArea' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'title' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'description' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'mandatory' } },
         ],
       },
     },
@@ -3619,6 +3726,95 @@ export const AiActAssessmentQueryDocument = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ComplianceArea_Compliance' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActComplianceArea' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'title' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'description' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'mandatory' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'QuestionCard_question' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActQuestion' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'title' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'notes' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'value' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'hint' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'options' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'title' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'RiskAreasIdentification_Assessment' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiActAssessment' } },
       selectionSet: {
@@ -3678,29 +3874,8 @@ export const AiActAssessmentQueryDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'description' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ComplianceArea_Compliance' } },
                     ],
                   },
                 },
@@ -3848,73 +4023,7 @@ export const AiActAssessmentQueryDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'title' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'notes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'value' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'hint' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'options' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'title' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'risk' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'riskLevel' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'description' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                      ],
-                                    },
-                                  },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'points' } },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'QuestionCard_question' } },
                     ],
                   },
                 },

@@ -1,11 +1,11 @@
-import { AiActAssistantSurvey } from './assistant-survey'
+import { AiActQuestion } from './question'
 import { AiActString } from './translated-string'
 
 // Perform a preliminary risk assessment based on basic info
-export const performRiskAssessment = (step: AiActAssistantSurvey) => {
+export const performRiskAssessment = (questions: AiActQuestion[]) => {
   let riskPoints = 0
   const riskFactors: AiActString[] = []
-  step.questions.forEach((question) => {
+  questions.forEach((question) => {
     const questionValue = question.value
     const questionRisk = question.options.find((option) => option.id === questionValue)?.risk
     if (!questionRisk) {

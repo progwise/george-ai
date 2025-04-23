@@ -1,27 +1,43 @@
-// Component for each compliance area with checkbox
+import { FragmentType, graphql, useFragment } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+
+const ComplianceArea_Fragment = graphql(`
+  fragment ComplianceArea_Compliance on AiActComplianceArea {
+    title {
+      de
+      en
+    }
+    description {
+      de
+      en
+    }
+    mandatory
+  }
+`)
+
 interface ComplianceAreaProps {
-  id: string
-  title: string
-  description: string
-  isSelected: boolean
-  isMandatory: boolean
+  area: FragmentType<typeof ComplianceArea_Fragment>
+  selected: boolean
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export const ComplianceArea = ({ id, title, description, isSelected, onChange, isMandatory }: ComplianceAreaProps) => {
+export const ComplianceArea = (props: ComplianceAreaProps) => {
+  const { language } = useTranslation()
+  const area = useFragment(ComplianceArea_Fragment, props.area)
+  const { title, description, mandatory } = area
   return (
-    <div key={id} className={`rounded-lg border p-3 ${isSelected && 'border-info bg-info/20'}`}>
+    <div className={`rounded-lg border p-3 ${mandatory && 'border-info bg-info/20'}`}>
       <label className="flex cursor-pointer items-center gap-3">
         <input
-          disabled={isMandatory}
+          disabled={mandatory}
           type="checkbox"
-          checked={isSelected}
-          onChange={onChange}
+          checked={mandatory}
+          onChange={props.onChange}
           className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         <div>
-          <span className="text-sm font-medium">{title}</span>
-          <p className="mt-1 text-xs">{description}</p>
+          <span className="text-sm font-medium">{title[language]}</span>
+          <p className="mt-1 text-xs">{description[language]}</p>
         </div>
       </label>
     </div>

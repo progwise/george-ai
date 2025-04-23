@@ -1,38 +1,59 @@
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
+const QuestionCard_questionFragment = graphql(`
+  fragment QuestionCard_question on AiActQuestion {
+    id
+    title {
+      de
+      en
+    }
+    notes
+    value
+    hint {
+      de
+      en
+    }
+    options {
+      id
+      title {
+        de
+        en
+      }
+    }
+  }
+`)
+
 interface QuestionCardProps {
-  question: string
-  hint?: string
-  options: { value: string; label: string }[]
-  selected?: string | null
-  notes?: string | null
+  question: FragmentType<typeof QuestionCard_questionFragment>
   onResponseChange: (value?: string | null, notes?: string | null) => void
 }
 
 const QuestionCard = (props: QuestionCardProps) => {
-  const { t } = useTranslation()
-  const { question, hint, options, onResponseChange, selected } = props
-  const [showNotes, setShowNotes] = useState((props.notes?.length || 0) > 0)
-  const [notes, setNotes] = useState(props.notes === null ? '' : props.notes)
+  const { t, language } = useTranslation()
+  const question = useFragment(QuestionCard_questionFragment, props.question)
+  const { title, notes, value, hint, options } = question
+  const [showNotes, setShowNotes] = useState((notes?.length || 0) > 0)
+  const [editedNotes, setEditedNotes] = useState(notes === null ? '' : notes)
   const editableDivRef = useRef<HTMLDivElement>(null)
 
   const handleResponseChange = (optionValue: string) => {
-    const sanitizedNotes = !notes ? notes : notes.trim()
-    onResponseChange(optionValue, sanitizedNotes)
+    const sanitizedNotes = !editedNotes ? editedNotes : editedNotes.trim()
+    props.onResponseChange(optionValue, sanitizedNotes)
   }
 
   useEffect(() => {
-    if (!editableDivRef.current || !props.notes) return
-    editableDivRef.current.innerText = props.notes || ''
-  }, [props.notes])
+    if (!editableDivRef.current || !notes) return
+    editableDivRef.current.innerText = notes || ''
+  }, [notes])
 
   const handleInput = () => {
     if (editableDivRef.current) {
       const text = editableDivRef.current.innerText
-      setNotes(text)
+      setEditedNotes(text)
     }
   }
 
@@ -47,9 +68,9 @@ const QuestionCard = (props: QuestionCardProps) => {
     <div className="flex flex-col gap-3 rounded-lg border p-3">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">
-          {question}{' '}
+          {title[language]}{' '}
           {hint && (
-            <div className="tooltip cursor-help" data-tip={hint}>
+            <div className="tooltip cursor-help" data-tip={hint[language]}>
               ℹ️
             </div>
           )}
@@ -66,16 +87,16 @@ const QuestionCard = (props: QuestionCardProps) => {
 
       <div className="flex gap-3">
         {options.map((option) => (
-          <label key={option.value} className="flex items-center text-sm">
+          <label key={option.id} className="flex items-center text-sm">
             <input
               type="radio"
-              checked={selected === option.value}
+              checked={value === option.id}
               onChange={() => {
-                handleResponseChange(option.value)
+                handleResponseChange(option.id)
               }}
               className="radio-info radio radio-xs"
             />
-            <span className="ml-1">{option.label}</span>
+            <span className="ml-1">{option.title[language]}</span>
           </label>
         ))}
       </div>
@@ -89,7 +110,7 @@ const QuestionCard = (props: QuestionCardProps) => {
           role="textbox"
           aria-multiline="true"
           className={twMerge('textarea textarea-info focus:outline-none', showNotes ? 'block' : 'hidden')}
-          onBlur={() => handleResponseChange(selected!)}
+          onBlur={() => handleResponseChange(value!)}
           onFocus={({ currentTarget }) => {
             currentTarget.innerText = notes ? notes.trim() : ''
             const selection = window.getSelection()

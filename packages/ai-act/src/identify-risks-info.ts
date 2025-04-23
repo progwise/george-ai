@@ -9,6 +9,7 @@ export interface AiActComplianceArea {
   id: string
   title: AiActString
   description: AiActString
+  mandatory: boolean
 }
 export interface AiActIdentifyRisks {
   title: AiActString
@@ -35,6 +36,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
     complianceAreas: [
       {
         id: 'transparency',
+        mandatory: false,
         title: {
           de: 'Transparenz & Kennzeichnung',
           en: 'Transparency & Labeling',
@@ -46,6 +48,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'dataQuality',
+        mandatory: false,
         title: {
           de: 'Datenqualität & Training',
           en: 'Data Quality & Training',
@@ -57,6 +60,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'documentation',
+        mandatory: false,
         title: {
           de: 'Dokumentation & Technische Robustheit',
           en: 'Documentation & Technical Robustness',
@@ -68,6 +72,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'governance',
+        mandatory: false,
         title: {
           de: 'Governance & Qualitätsmanagement',
           en: 'Governance & Quality Management',
@@ -79,6 +84,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'humanOversight',
+        mandatory: false,
         title: {
           de: 'Menschliche Aufsicht',
           en: 'Human Oversight',
@@ -90,6 +96,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'security',
+        mandatory: false,
         title: {
           de: 'Cybersicherheit & Resilienz',
           en: 'Cybersecurity & Resilience',
@@ -101,6 +108,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'fundamentalRights',
+        mandatory: false,
         title: {
           de: 'Grundrechte & Nicht-Diskriminierung',
           en: 'Fundamental Rights & Non-Discrimination',
@@ -112,6 +120,7 @@ export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
       },
       {
         id: 'specificRequirements',
+        mandatory: false,
         title: {
           de: 'Spezifische Anforderungen',
           en: 'Specific Requirements',
