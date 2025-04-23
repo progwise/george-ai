@@ -71,7 +71,7 @@ export const RunCrawlerButton = ({ libraryId, crawler, userId }: RunCrawlerButto
       type="button"
       disabled={isRunning || runCrawlerMutation.isPending}
       onClick={handleClick}
-      className="btn btn-xs"
+      className="btn btn-primary btn-xs"
     >
       {t('crawlers.run')}
     </button>
