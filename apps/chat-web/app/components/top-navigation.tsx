@@ -48,7 +48,7 @@ const TopNavigation = () => {
         ) : (
           <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
             <UserIcon className="size-6" />
-            {t('topNavigation.signIn')}
+            {t('actions.signIn')}
           </button>
         )}
       </div>
@@ -98,7 +98,7 @@ const TopNavigation = () => {
               </TopNavigationLink>
               <button type="button" className="btn btn-ghost gap-2" onClick={() => logout()}>
                 <UserIcon className="size-6" />
-                {t('topNavigation.signOut')}
+                {t('actions.signOut')}
               </button>
             </>
           )}

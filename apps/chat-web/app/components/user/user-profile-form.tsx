@@ -178,7 +178,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.business')}
         value={userProfile.business}
         className="col-span-2"
-        required
       />
       <Input
         schema={formSchema}
@@ -186,7 +185,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.position')}
         value={userProfile.position}
         className="col-span-2"
-        required
       />
       <hr className="col-span-2 my-2" />
       <Input
@@ -238,7 +236,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
           }}
           className="btn btn-outline btn-neutral btn-sm"
         >
-          {t('topNavigation.signOut')}
+          {t('actions.signOut')}
         </button>
       </div>
     </form>

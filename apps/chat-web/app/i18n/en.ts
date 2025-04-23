@@ -21,6 +21,7 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send',
     signIn: 'Sign in',
+    signOut: 'Sign out',
     upload: 'Upload',
     uploaded: 'Uploaded',
   },
@@ -207,8 +208,6 @@ export default {
     demo: 'Online-Demo Appointment',
     home: 'Homepage',
     libraries: 'Libraries',
-    signIn: 'Sign in',
-    signOut: 'Sign out',
     users: 'Users',
   },
 }

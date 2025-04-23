@@ -21,6 +21,7 @@ export default {
     sendConfirmationMail: 'Bestätigungsmail senden',
     sendMessage: 'Senden',
     signIn: 'Anmelden',
+    signOut: 'Abmelden',
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
   },
@@ -211,8 +212,6 @@ export default {
     demo: 'Online-Demo Termin',
     home: 'Startseite',
     libraries: 'Bibliotheken',
-    signIn: 'Anmelden',
-    signOut: 'Abmelden',
     users: 'Benutzer',
   },
 }
