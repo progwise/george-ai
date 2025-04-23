@@ -66,6 +66,7 @@ export type AiBaseCaseInputType = {
 export type AiConversation = {
   __typename?: 'AiConversation'
   assistants: Array<AiAssistant>
+  conversationInvitation?: Maybe<AiConversationInvitation>
   createdAt: Scalars['DateTime']['output']
   humans: Array<User>
   id: Scalars['ID']['output']
@@ -319,6 +320,7 @@ export type MutationClearEmbeddedFilesArgs = {
 
 export type MutationConfirmConversationInvitationArgs = {
   conversationId: Scalars['String']['input']
+  email?: InputMaybe<Scalars['String']['input']>
   invitationId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
@@ -334,6 +336,7 @@ export type MutationCreateAiAssistantArgs = {
 
 export type MutationCreateAiConversationArgs = {
   data: AiConversationCreateInput
+  email?: InputMaybe<Scalars['String']['input']>
   ownerId: Scalars['String']['input']
 }
 

@@ -43,6 +43,7 @@ input AiBaseCaseInputType {
 
 type AiConversation {
   assistants: [AiAssistant!]!
+  conversationInvitation: AiConversationInvitation
   createdAt: DateTime!
   humans: [User!]!
   id: ID!
@@ -243,12 +244,13 @@ type Mutation {
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(
     conversationId: String!
+    email: String
     invitationId: String!
     userId: String!
   ): AiConversationParticipant
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
-  createAiConversation(data: AiConversationCreateInput!, ownerId: String!): AiConversation
+  createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createAiLibraryCrawler(libraryId: String!, maxDepth: Int!, maxPages: Int!, url: String!): AiLibraryCrawler
   createConversationInvitation(
