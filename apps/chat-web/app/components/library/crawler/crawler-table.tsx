@@ -14,6 +14,7 @@ import 'cronstrue/locales/de'
 
 interface CrawlerTableProps {
   libraryId: string
+  userId: string
 }
 
 const CrawlerTable_LibraryFragment = graphql(`
@@ -32,7 +33,7 @@ const CrawlerTable_LibraryFragment = graphql(`
   }
 `)
 
-export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
+export const CrawlerTable = ({ libraryId, userId }: CrawlerTableProps) => {
   const { data } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
   const aiLibrary = useFragment(CrawlerTable_LibraryFragment, data.aiLibrary)
   const { t, language } = useTranslation()
@@ -64,7 +65,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
               </td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
               <td>
-                <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
+                <RunCrawlerButton libraryId={libraryId} crawler={crawler} userId={userId} />
               </td>
             </tr>
           ))}

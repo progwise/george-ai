@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
 import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
 import { useTranslation } from '../../i18n/use-translation-hook'
 
@@ -22,8 +22,9 @@ export const Route = createFileRoute('/libraries/auth-google')({
 })
 
 function RouteComponent() {
-  const auth = useAuth()
+  const { login } = useAuth()
   const search = Route.useSearch()
+  const { user } = Route.useRouteContext()
   const fullPath = Route.fullPath
   const { t } = useTranslation()
   const { data: redirectUrlQuery } = useQuery<string | null>({
@@ -72,11 +73,11 @@ function RouteComponent() {
     }
   }, [redirectUrlQuery])
 
-  const isLoggedIn = !!auth?.user
+  const isLoggedIn = !!user
 
   if (!isLoggedIn) {
     return (
-      <button type="button" className="btn btn-ghost" onClick={() => auth?.login()}>
+      <button type="button" className="btn btn-ghost" onClick={() => login()}>
         {t('auth.signInForGoogleAuth')}
       </button>
     )

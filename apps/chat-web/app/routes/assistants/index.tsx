@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
 import { AssistantCard } from '../../components/assistant/assistant-card'
 import { AssistantNewDialog } from '../../components/assistant/assistant-new-dialog'
 import { LoadingSpinner } from '../../components/loading-spinner'
@@ -35,37 +35,40 @@ export const Route = createFileRoute('/assistants/')({
 })
 
 function RouteComponent() {
-  const authContext = useAuth()
+  const { login } = useAuth()
+  const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.MyAiAssistants, authContext?.user?.id],
+    queryKey: [queryKeys.MyAiAssistants, user?.id],
     queryFn: async () => {
-      return getMyAiAssistants({ data: authContext.user!.id! })
+      return getMyAiAssistants({ data: user!.id! })
     },
-    enabled: !!authContext?.user?.id,
+    enabled: !!user?.id,
   })
-  const isLoggendIn = !!authContext?.user
+  const isLoggendIn = !!user
 
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">
           {!isLoggendIn ? (
-            <button type="button" className="btn btn-ghost" onClick={() => authContext?.login()}>
+            <button type="button" className="btn btn-ghost" onClick={() => login()}>
               {t('assistants.signInForAssistants')}
             </button>
           ) : (
             <span>{t('assistants.myAssistants')}</span>
           )}
         </h3>
-        {isLoggendIn && <AssistantNewDialog />}
+        {isLoggendIn && <AssistantNewDialog userId={user.id} />}
       </div>
 
       <div className="flex flex-wrap gap-4">
         {!data?.aiAssistants || isLoading ? (
           <LoadingSpinner />
         ) : (
-          data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)
+          data?.aiAssistants?.map((assistant) => (
+            <AssistantCard key={assistant.id} assistant={assistant} userId={user?.id} />
+          ))
         )}
       </div>
     </article>

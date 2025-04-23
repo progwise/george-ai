@@ -4,7 +4,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
@@ -42,9 +41,12 @@ const createNewLibrary = createServerFn({ method: 'POST' })
     )
   })
 
-export const LibraryNewDialog = () => {
+interface LibraryNewDialogProps {
+  userId?: string
+}
+
+export const LibraryNewDialog = ({ userId }: LibraryNewDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const auth = useAuth()
   const { t } = useTranslation()
   const navigate = useNavigate()
 
@@ -79,7 +81,7 @@ export const LibraryNewDialog = () => {
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >
-        <input type="hidden" name="ownerId" value={auth.user?.id} />
+        <input type="hidden" name="ownerId" value={userId} />
         <div className="flex w-full flex-col gap-4">
           <Input
             name="name"
