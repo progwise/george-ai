@@ -4,7 +4,7 @@ import { useRef } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { LeaveIcon } from '../../icons/leave-icon'
+import { ExitIcon } from '../../icons/exit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { deleteConversation, leaveConversation } from '../../server-functions/conversations'
@@ -97,7 +97,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   }
 
   const isPending = isDeletePending || isLeavePending
-  const Icon = isOwner ? TrashIcon : LeaveIcon
+  const Icon = isOwner ? TrashIcon : ExitIcon
 
   const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${new Date(conversation.createdAt).toLocaleString().replace(',', '')})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
@@ -108,7 +108,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     <>
       <button
         type="button"
-        className="btn btn-square btn-ghost btn-sm lg:tooltip"
+        className="btn btn-square btn-ghost btn-sm mx-1 lg:tooltip lg:tooltip-left"
         onClick={handleOpen}
         data-tip={buttonTooltip}
       >

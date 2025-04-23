@@ -16,7 +16,7 @@ export const NewConversationSelector_HumanFragment = graphql(`
 interface NewConversationSelectorProps {
   assistants: FragmentType<typeof NewConversationSelector_AssistantFragment>[]
   humans: FragmentType<typeof NewConversationSelector_HumanFragment>[]
-  isOpen: boolean
+  isOpen?: boolean
   userId?: string
 }
 

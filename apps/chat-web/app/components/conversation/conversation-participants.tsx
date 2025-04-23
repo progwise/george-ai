@@ -84,9 +84,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="no-scrollbar flex items-center gap-2 overflow-scroll lg:py-1">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
-
       {conversation.participants.map((participant) => {
         const isParticipantOwner = participant.userId === conversation.ownerId
         return (
@@ -108,19 +107,21 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
                 <CrossIcon />
               </button>
             )}
-            {participant.name}
+            <span className="max-w-36 truncate">{participant.name}</span>
             {isParticipantOwner && <span className="pl-1 font-bold">({t('conversations.owner')})</span>}
           </div>
         )
       })}
       {isOwner && (
-        <ParticipantsDialog
-          conversation={conversation}
-          assistants={assistants}
-          humans={humans}
-          dialogMode="add"
-          userId={props.userId}
-        />
+        <div className="max-lg:hidden">
+          <ParticipantsDialog
+            conversation={conversation}
+            assistants={assistants}
+            humans={humans}
+            dialogMode="add"
+            userId={props.userId}
+          />
+        </div>
       )}
     </div>
   )

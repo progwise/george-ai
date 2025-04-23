@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { CrawlerTable } from '../../components/library/crawler/crawler-table'
 import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
 import { EmbeddingsTable } from '../../components/library/embeddings-table'
@@ -97,6 +98,7 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { user } = Route.useRouteContext()
   const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user?.id, libraryId))
+  const { data: profile } = useSuspenseQuery(getProfileQueryOptions(user?.id))
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
@@ -152,7 +154,7 @@ function RouteComponent() {
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
         <div role="tabpanel" className="tab-content overflow-x-auto p-10">
-          <EmbeddingsTable libraryId={libraryId} userId={user?.id} />
+          <EmbeddingsTable libraryId={libraryId} userId={user?.id} profile={profile ?? undefined} />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
