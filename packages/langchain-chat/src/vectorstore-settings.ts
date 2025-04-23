@@ -1,20 +1,20 @@
 import { Document } from 'langchain/document'
 
-const minChunkSize = 500
-const maxChunkSize = 2000
-const overlapRatio = 0.1
-const linearRetrievalThreshold = 10
+export const MIN_CHUNK_SIZE = 500
+export const MAX_CHUNK_SIZE = 2000
+export const OVERLAP_RATIO = 0.1
+export const LINEAR_RETRIEVAL_THRESHOLD = 10
 
 export const calculateChunkParams = (documents: Document[]): { chunkSize: number; chunkOverlap: number } => {
   const totalLength = documents.reduce((sum, doc) => sum + doc.pageContent.length, 0)
   const avgLength = totalLength / documents.length
-  const chunkSize = Math.round(Math.min(maxChunkSize, Math.max(minChunkSize, avgLength)))
-  const chunkOverlap = Math.round(chunkSize * overlapRatio)
+  const chunkSize = Math.round(Math.min(MAX_CHUNK_SIZE, Math.max(MIN_CHUNK_SIZE, avgLength)))
+  const chunkOverlap = Math.round(chunkSize * OVERLAP_RATIO)
   return { chunkSize, chunkOverlap }
 }
 
 export const calculateRetrievalK = (totalChunks: number): number => {
-  return totalChunks <= linearRetrievalThreshold
+  return totalChunks <= LINEAR_RETRIEVAL_THRESHOLD
     ? totalChunks
-    : Math.ceil(Math.sqrt(totalChunks) + linearRetrievalThreshold)
+    : Math.ceil(Math.sqrt(totalChunks) + LINEAR_RETRIEVAL_THRESHOLD)
 }
