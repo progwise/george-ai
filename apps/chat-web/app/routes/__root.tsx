@@ -10,6 +10,7 @@ import appCss from '../index.css?url'
 interface RouterContext {
   queryClient: QueryClient
   language: 'en' | 'de'
+  theme: 'light' | 'dark' | null
 }
 
 const TanStackRouterDevtools =
@@ -37,14 +38,15 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
-  const { theme } = Route.useRouteContext()
+  const { theme, language } = Route.useRouteContext()
+
   return (
-    <html>
+    <html data-theme={theme ?? 'light'} lang={language}>
       <head>
         <HeadContent />
       </head>
       <body className="container mx-auto">
-        <TopNavigation theme={theme} />
+        <TopNavigation theme={theme ?? undefined} />
         <Outlet />
         <Scripts />
         <Suspense>
@@ -61,14 +63,8 @@ const RootDocument = () => {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
-    const theme = await getTheme()
-    const language = await getLanguage()
-    // const theme = getCookie('theme') //todo: use const
-
-    return {
-      theme: theme,
-      language: language,
-    }
+    const [theme, language] = await Promise.all([getTheme(), getLanguage()])
+    return { theme, language }
   },
   head: () => ({
     meta: [

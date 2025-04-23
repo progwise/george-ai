@@ -20,19 +20,6 @@ const DEFAULT_THEME = 'light'
 
 export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie(THEME_KEY))
 
-const getCookieValue = (name: string) => document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
-
-const getStoredTheme = () => {
-  if (typeof window === 'undefined') return DEFAULT_THEME
-  return localStorage.getItem(THEME_KEY) || DEFAULT_THEME
-}
-
-const setStoredTheme = (theme: string) => {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(THEME_KEY, theme)
-  document.documentElement.setAttribute('data-theme', theme)
-}
-
 interface TopNavigationLinkProps {
   to: keyof FileRoutesByTo
   children: ReactNode
@@ -52,22 +39,20 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
   const { t } = useTranslation()
   const { user, login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(initialTheme ?? DEFAULT_THEME)
+  const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
   const menuRef = useRef<HTMLDivElement>(null)
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
 
-  const handleThemeToggle = useCallback(() => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-
-    setTheme(newTheme)
-    document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    document.cookie = `${THEME_KEY}=${theme}; path=/; max-age=31536000`
   }, [theme])
+
+  const handleThemeToggle = useCallback(() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light')), [])
 
   const closeMenu = useCallback(() => {
     setIsMenuOpen(false)
-    if (drawerCheckboxRef.current) {
-      drawerCheckboxRef.current.checked = false
-    }
+    if (drawerCheckboxRef.current) drawerCheckboxRef.current.checked = false
   }, [])
 
   const handleOutsideClick = useCallback(
@@ -80,9 +65,7 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
   )
 
   useEffect(() => {
-    if (isMenuOpen) {
-      document.addEventListener('click', handleOutsideClick)
-    }
+    if (isMenuOpen) document.addEventListener('click', handleOutsideClick)
     return () => document.removeEventListener('click', handleOutsideClick)
   }, [isMenuOpen, handleOutsideClick])
 
@@ -169,7 +152,7 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
 
   return (
     <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
-      {/* Mobile Navigation */}
+      {/******************* Mobile ******************  */}
       <div className="flex w-full items-center justify-between lg:hidden">
         <div className="flex items-center gap-2">
           <Link to="/" className="btn btn-ghost" aria-label="Home">
@@ -189,7 +172,13 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
         )}
 
         <label className="swap swap-rotate" aria-label="Toggle theme">
-          <input type="checkbox" className="theme-controller" checked={theme === 'dark'} onChange={handleThemeToggle} />
+          <input
+            type="checkbox"
+            className="theme-controller"
+            value="dark" /* DaisyUI applies this theme when checked */
+            checked={theme === 'dark'}
+            onChange={handleThemeToggle}
+          />
           <SunIcon className="swap-off size-6 fill-current" />
           <MoonIcon className="swap-on size-6 fill-current" />
         </label>
@@ -210,7 +199,7 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
         </div>
       </div>
 
-      {/* Desktop Navigation */}
+      {/******************* Desktop ******************  */}
       <div className="hidden w-full items-center justify-between lg:flex">
         <div className="flex items-center gap-4">
           <Link to="/" className="btn btn-ghost" aria-label="Home">
@@ -238,17 +227,19 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
           {user ? (
             <>
               <TopNavigationLink to="/profile">{user.name}</TopNavigationLink>
+
               <label className="swap swap-rotate" aria-label="Toggle theme">
                 <input
                   type="checkbox"
                   className="theme-controller"
+                  value="dark"
                   checked={theme === 'dark'}
                   onChange={handleThemeToggle}
-                  value="dark"
                 />
                 <SunIcon className="swap-off size-6 fill-current" />
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
+
               <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
                 <UserIcon className="size-6" />
                 {t('topNavigation.signOut')}
@@ -264,17 +255,19 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
               >
                 {t('topNavigation.demo')}
               </a>
+
               <label className="swap swap-rotate" aria-label="Toggle theme">
                 <input
                   type="checkbox"
                   className="theme-controller"
+                  value="dark"
                   checked={theme === 'dark'}
                   onChange={handleThemeToggle}
-                  value="dark"
                 />
                 <SunIcon className="swap-off size-6 fill-current" />
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
+
               <button type="button" className="btn btn-ghost gap-2" onClick={login}>
                 <UserIcon className="size-6" />
                 {t('topNavigation.signIn')}
