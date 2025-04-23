@@ -80,58 +80,51 @@ function RouteComponent() {
         {isLoggedIn && <LibraryNewDialog userId={user.id} />}
       </div>
 
-      <div className="overflow-x-auto">
-        {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
-          <h3>{t('libraries.noLibrariesFound')}</h3>
-        ) : (
-          <table className="table w-full">
-            <thead className="hidden md:table-header-group">
-              <tr>
-                <th>#</th>
-                <th>{t('labels.name')}</th>
-                <th>{t('libraries.owner')}</th>
-                <th>{t('libraries.lastUpdate')}</th>
-              </tr>
-            </thead>
+      {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
+        <h3>{t('libraries.noLibrariesFound')}</h3>
+      ) : (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{t('labels.name')}</th>
+              <th>{t('libraries.owner')}</th>
+              <th>{t('libraries.lastUpdate')}</th>
+            </tr>
+          </thead>
 
-            <tbody>
-              {data?.aiLibraries?.map((library, index) => {
-                const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
-                const timePart = timeString(library.updatedAt ?? library.createdAt, language)
+          <tbody>
+            {data?.aiLibraries?.map((library, index) => {
+              const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
+              const timePart = timeString(library.updatedAt ?? library.createdAt, language)
 
-                return (
-                  <tr
-                    key={library.id}
-                    className="relative my-1 block border-b pr-20 leading-tight hover:bg-gray-100 md:table-row"
-                    onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId: library.id } })}
-                  >
-                    <td data-label="#" className="hidden py-1 md:table-cell md:py-2">
-                      {index + 1}
-                    </td>
-                    <td data-label="Name" className="block py-1 md:table-cell md:py-2">
-                      <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }}>
-                        <span className="font-bold hover:underline">{library.name}</span>
-                      </Link>
-                    </td>
-                    <td data-label="Owner" className="block py-1 md:table-cell md:py-2">
-                      {library.owner?.name}
-                    </td>
-                    <td
-                      data-label="Last update"
-                      className="absolute right-0 top-0 block py-1 text-right md:static md:table-cell md:py-2"
-                    >
-                      <div className="flex flex-col items-end leading-tight md:flex-row md:gap-2">
-                        <span>{datePart}</span>
-                        <span>{timePart}</span>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+              return (
+                <tr
+                  key={library.id}
+                  className="hover:bg-base-200"
+                  onClick={() =>
+                    navigate({
+                      to: '/libraries/$libraryId',
+                      params: { libraryId: library.id },
+                    })
+                  }
+                >
+                  <td data-label="#">{index + 1}</td>
+                  <td data-label="Name">
+                    <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }}>
+                      <span className="font-bold hover:underline">{library.name}</span>
+                    </Link>
+                  </td>
+                  <td data-label="Owner">{library.owner?.name}</td>
+                  <td data-label="Last update">
+                    {datePart} {timePart}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      )}
     </article>
   )
 }
