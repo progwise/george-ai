@@ -150,9 +150,10 @@ model AiLibraryCrawler {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  library AiLibrary             @relation(fields: [libraryId], references: [id])
+  library AiLibrary                @relation(fields: [libraryId], references: [id])
   runs    AiLibraryCrawlerRun[]
   files   AiLibraryFile[]
+  cronJob AiLibraryCrawlerCronJob?
 }
 
 model AiLibraryCrawlerRun {
@@ -162,10 +163,31 @@ model AiLibraryCrawlerRun {
   endedAt      DateTime?
   success      Boolean?
   pagesCrawled Int?
-  runByUserId  String
+  runByUserId  String?
+  runByCronJob Boolean   @default(false)
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id])
-  runBy   User             @relation(fields: [runByUserId], references: [id])
+  runBy   User?            @relation(fields: [runByUserId], references: [id])
+}
+
+model AiLibraryCrawlerCronJob {
+  id        String  @id @default(cuid())
+  active    Boolean @default(true)
+  hour      Int     @default(0)
+  minute    Int     @default(0)
+  monday    Boolean @default(true)
+  tuesday   Boolean @default(true)
+  wednesday Boolean @default(true)
+  thursday  Boolean @default(true)
+  friday    Boolean @default(true)
+  saturday  Boolean @default(true)
+  sunday    Boolean @default(true)
+  crawlerId String  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
 }
 
 model AiConversation {

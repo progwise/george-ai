@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -64,11 +63,11 @@ const updateAssistant = createServerFn({ method: 'POST' })
 export interface AssistantEditFormProps {
   assistant?: FragmentType<typeof AssistantForm_AssistantFragment>
   disabled: boolean
+  userId?: string
 }
 
 export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement => {
-  const { user } = useAuth()
-  const ownerId = user?.id
+  const ownerId = props.userId
   const formRef = React.useRef<HTMLFormElement>(null)
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()

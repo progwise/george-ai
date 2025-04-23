@@ -4,7 +4,8 @@ import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth-hook'
+import { useAuth } from '../../auth/auth'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'

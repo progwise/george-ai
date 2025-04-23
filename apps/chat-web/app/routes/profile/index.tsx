@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth-hook'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm, getFormSchema, updateProfile } from '../../components/user/user-profile-form'
@@ -87,7 +87,7 @@ export const Route = createFileRoute('/profile/')({
 function RouteComponent() {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
-  const auth = useAuth()
+  const { user } = Route.useRouteContext()
 
   const userId = auth.user?.id || ''
   const formSchema = getFormSchema(language)
@@ -115,7 +115,7 @@ function RouteComponent() {
     },
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, userId] })
+      queryClient.invalidateQueries(getProfileQueryOptions(userId))
     },
   })
 
@@ -126,7 +126,7 @@ function RouteComponent() {
     onSuccess: () => {
       toastSuccess(t('texts.removedProfile'))
       refetchProfile()
-      queryClient.invalidateQueries({ queryKey: [queryKeys.CurrentUserProfile, userId] })
+      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
     },
     onError: (error) => {
       toastError('Failed to remove profile: ' + error.message)
@@ -216,7 +216,7 @@ function RouteComponent() {
     return <LoadingSpinner isLoading={true} />
   }
 
-  if (!auth.user?.id) {
+  if (!userId) {
     return (
       <div className="flex flex-col items-center gap-4">
         <p>{t('texts.signInForProfile')}</p>
@@ -231,7 +231,7 @@ function RouteComponent() {
     return (
       <article className="flex w-full flex-col items-center gap-4">
         <p>
-          {t('texts.profileNotFoundFor')} {auth.user?.name}
+          {t('texts.profileNotFoundFor')} {user.name}
         </p>
         <button type="button" className="btn btn-primary btn-sm w-48" onClick={() => createProfileMutation()}>
           {t('actions.createProfile')}
@@ -243,7 +243,7 @@ function RouteComponent() {
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <p className="flex items-center gap-2">
-        {t('texts.profileFoundFor')} {auth.user?.name}
+        {t('texts.profileFoundFor')} {user.name}
         <button
           type="button"
           className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
