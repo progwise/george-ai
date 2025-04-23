@@ -131,7 +131,6 @@ export default {
     name: 'Name',
     never: 'Never',
     nextCondition: 'New Case',
-    notConfirmed: 'Not confirmed',
     position: 'Position',
     processed: 'Processed',
     query: 'Query',

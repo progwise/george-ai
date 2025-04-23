@@ -134,7 +134,6 @@ export default {
     name: 'Name',
     never: 'Nie',
     nextCondition: 'Neuer Fall',
-    notConfirmed: 'Nicht bestätigt',
     position: 'Position',
     processed: 'Verarbeitet',
     query: 'Abfrage',
