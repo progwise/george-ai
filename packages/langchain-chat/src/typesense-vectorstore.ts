@@ -9,7 +9,7 @@ import { ImportError } from 'typesense/lib/Typesense/Errors'
 import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
 
 import { loadFile } from './langchain-file'
-import { calculateChunkParams } from './vectorstore-settings'
+import { calculateChunkParams, calculateRetrievalK } from './vectorstore-settings'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -37,6 +37,19 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
     { name: 'docId', type: 'string' },
   ],
   default_sorting_field: 'points',
+})
+
+const getConfig = (lib: string): TypesenseConfig => ({
+  typesenseClient: vectorTypesenseClient,
+  schemaName: getTypesenseSchemaName(lib),
+  columnNames: { vector: 'vec', pageContent: 'text', metadataColumnNames: ['points', 'docName', 'docType', 'docId'] },
+  searchParams: { q: '*', filter_by: '', query_by: 'text' },
+  import: async <T extends Record<string, unknown>>(data: T[], collectionName: string) => {
+    await vectorTypesenseClient
+      .collections(collectionName)
+      .documents()
+      .import(data, { action: 'emplace', dirty_values: 'drop' })
+  },
 })
 
 /*
@@ -264,14 +277,19 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
   await loadDocuments(documents)
 }
 
-export const similaritySearch = async (question: string, libraryId: string) => {
-  await ensureVectorStore(libraryId)
-  const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
-  const documents = await typesenseVectorStore.similaritySearch(question)
-  return documents.map((document) => ({
-    pageContent: document.pageContent,
-    docName: document.metadata.docName.toString() as string,
-  }))
+export const similaritySearch = async (
+  question: string,
+  library: string,
+): Promise<{ pageContent: string; docName: string }[]> => {
+  await ensureVectorStore(library)
+  const { found } = await vectorTypesenseClient
+    .collections(getTypesenseSchemaName(library))
+    .documents()
+    .search({ q: '*', query_by: 'text', per_page: 1 })
+  const k = calculateRetrievalK(found)
+  const store = new Typesense(embeddings, getConfig(library))
+  const docs = await store.similaritySearch(question, k)
+  return docs.map((d) => ({ pageContent: d.pageContent, docName: d.metadata.docName.toString() }))
 }
 
 // retrieves content from the vector store similar to the question

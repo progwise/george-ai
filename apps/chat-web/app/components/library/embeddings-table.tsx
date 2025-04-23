@@ -5,8 +5,9 @@ import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth-hook'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
+import { UserProfile } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
@@ -21,6 +22,8 @@ import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
+  profile?: Pick<UserProfile, 'freeStorage' | 'usedStorage'>
+  userId?: string
 }
 
 interface AiLibraryFile {
@@ -124,9 +127,8 @@ export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
   enabled: !!libraryId,
 })
 
-export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
-  const { userProfile, user } = useAuth()
-  const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
+export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {
+  const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
   const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
@@ -161,9 +163,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       queryKey: [queryKeys.AiLibraries],
     })
 
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.CurrentUserProfile, user?.id],
-    })
+    queryClient.invalidateQueries(getProfileQueryOptions(userId))
   }
 
   const clearEmbeddingsMutation = useMutation({
@@ -268,7 +268,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="text-right text-sm">
           <div className="font-semibold">{t('labels.remainingStorage')}</div>
           <div>
-            {remainingStorage} / {userProfile?.freeStorage}
+            {remainingStorage} / {profile?.freeStorage}
           </div>
         </div>
       </nav>
@@ -289,6 +289,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 currentLocationHref={window.location.href}
                 noFreeUploads={remainingStorage < 100}
                 dialogRef={dialogRef}
+                userId={userId}
               />
             </div>
           </div>

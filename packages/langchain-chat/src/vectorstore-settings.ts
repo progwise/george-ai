@@ -5,7 +5,7 @@ export const MAX_CHUNK_SIZE = 2000
 export const OVERLAP_RATIO = 0.1
 export const LINEAR_RETRIEVAL_THRESHOLD = 10
 
-export const calculateChunkParams = (documents: Document[]): { chunkSize: number; chunkOverlap: number } => {
+export const calculateChunkParams = (documents: Document[]) => {
   const totalLength = documents.reduce((sum, doc) => sum + doc.pageContent.length, 0)
   const avgLength = totalLength / documents.length
   const chunkSize = Math.round(Math.min(MAX_CHUNK_SIZE, Math.max(MIN_CHUNK_SIZE, avgLength)))

@@ -29,21 +29,42 @@ Use `env.example` files as the references.
 
 ### 4. Set Up Keycloak
 
-1. Navigate to `http://localhost:8180` and log in with the credentials `admin` and `admin`.
-2. Create a Realm using `KEYCLOAK_REALM` from `.env` file.
-3. Set **Client ID** from `KEYCLOAK_CLIENT_ID`.
-4. Add `http://localhost:3001` and `http://localhost:3001/*` to Valid Redirect URIs, Valid Post Logout Redirect URIs and Web Origins.
-5. Navigate to the **Users** section and create a new user. Under the **Credentials** tab, set a password for the user. Then, go to the **Details** tab and provide the following information:
+1. Open `http://localhost:8180` in your browser and log in using the credentials:
 
-- **First Name**
-- **Last Name**
-- **Email Address**
+   - **Username:** `admin`
+   - **Password:** `admin`
 
-Ensure the email address is marked as verified by toggling the **Email Verified** option.
+2. Create a new Realm using the value of `KEYCLOAK_REALM` from your `.env` file.
 
-6. Go to the **Identity Providers** section and select **Provider** (e.g., Google, GitHub, or OpenID Connect). Configure the provider with the required details (e.g.Client ID and Client Secret).
+3. In the left sidebar, click **Clients** and then click **Create Client**.
+   Use the value of `KEYCLOAK_CLIENT_ID` from your `.env` file as the **Client ID**.
 
-Client Authentication has to be **off**.
+   Add the following URLs to the fields below:
+
+   - **Valid Redirect URIs:**
+     `http://localhost:3001`,
+     `http://localhost:3001/*`
+   - **Valid Post Logout Redirect URIs:**
+     `http://localhost:3001`,
+     `http://localhost:3001/*`
+   - **Web Origins:**
+     `http://localhost:3001`,
+     `http://localhost:3001/*`
+
+4. Navigate to the **Users** section and click **Add User**.
+   Fill in the required fields, then click **Create** at the bottom of the form.
+
+5. After the user is created:
+
+   - Go to the **Credentials** tab, set a password, and ensure **Temporary** is set to **Off**.
+   - Go to the **Details** tab and provide:
+     - **First Name**
+     - **Last Name**
+     - **Email**
+     - Enable **Email Verified** by toggling the switch.
+
+6. In the left sidebar, go to **Identity Providers**.
+   Choose a provider (e.g., Google, GitHub, or OpenID Connect) and configure it using the required credentials (e.g., **Client ID** and **Client Secret**).
 
 Docs for setting up an OAuth app in:
 

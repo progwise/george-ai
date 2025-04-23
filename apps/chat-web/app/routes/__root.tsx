@@ -2,6 +2,9 @@ import { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
+import { AuthProvider } from '../auth/auth'
+import { getUser } from '../auth/get-user'
+import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation from '../components/top-navigation'
 import { getLanguage } from '../i18n'
@@ -37,22 +40,31 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
+  const { user } = Route.useRouteContext()
+
   return (
     <html>
       <head>
         <HeadContent />
       </head>
-      <body className="container mx-auto">
-        <TopNavigation />
-        <Outlet />
-        <Scripts />
-        <Suspense>
-          <TanStackRouterDevtools />
-        </Suspense>
-        <Suspense>
-          <TanStackQueryDevtools />
-        </Suspense>
-        <GeorgeToaster />
+      <body className="container mx-auto flex min-h-screen flex-col px-1">
+        <AuthProvider>
+          <>
+            <TopNavigation user={user ?? undefined} />
+            <div className="flex grow flex-col">
+              <Outlet />
+            </div>
+            <Scripts />
+            <Suspense>
+              <TanStackRouterDevtools />
+            </Suspense>
+            <Suspense>
+              <TanStackQueryDevtools />
+            </Suspense>
+            <GeorgeToaster />
+          </>
+        </AuthProvider>
+        <BottomNavigationMobile />
       </body>
     </html>
   )
@@ -61,8 +73,10 @@ const RootDocument = () => {
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async () => {
     const language = await getLanguage()
+    const user = await getUser()
     return {
-      language: language,
+      language,
+      user,
     }
   },
   head: () => ({

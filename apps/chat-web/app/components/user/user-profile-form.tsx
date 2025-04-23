@@ -5,10 +5,11 @@ import { z } from 'zod'
 
 import { dateTimeString, validateForm } from '@george-ai/web-utils'
 
+import { useAuth } from '../../auth/auth'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
@@ -90,12 +91,12 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
   const { t, language } = useTranslation()
   const userProfile = useFragment(UserProfileForm_UserProfileFragment, props.userProfile)
   const queryClient = useQueryClient()
+  const { logout } = useAuth()
+
   const { mutate, isPending } = useMutation({
     mutationFn: (data: FormData) => updateProfile({ data }),
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.CurrentUserProfile, userProfile.userId],
-      })
+      queryClient.invalidateQueries(getProfileQueryOptions(userProfile.userId))
     },
   })
 
@@ -133,7 +134,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         type="date"
         label={t('labels.createdAt')}
         value={dateTimeString(userProfile.createdAt, language)}
-        className="col-span-1"
         readOnly
       />
       <Input
@@ -141,7 +141,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         type="date"
         label={t('labels.updatedAt')}
         value={dateTimeString(userProfile.updatedAt, language)}
-        className="col-span-1"
         readOnly
       />
       {userProfile.confirmationDate ? (
@@ -150,7 +149,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
           type="date"
           label={t('labels.confirmedAt')}
           value={dateTimeString(userProfile.confirmationDate, language)}
-          className="col-span-1"
           readOnly
         />
       ) : (
@@ -168,25 +166,12 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.expiresAt')}
         value={dateTimeString(userProfile.expiresAt, language)}
         valueNotSet={t('labels.never')}
-        className="col-span-1"
         readOnly
       />
       <hr className="col-span-2 my-2" />
       <Input schema={formSchema} name={'email'} label="Email*" value={userProfile.email} className="col-span-2" />
-      <Input
-        schema={formSchema}
-        name="firstName"
-        label={t('labels.firstName')}
-        value={userProfile.firstName}
-        className="col-span-1"
-      />
-      <Input
-        schema={formSchema}
-        name="lastName"
-        label={t('labels.lastName')}
-        value={userProfile.lastName}
-        className="col-span-1"
-      />
+      <Input schema={formSchema} name="firstName" label={t('labels.firstName')} value={userProfile.firstName} />
+      <Input schema={formSchema} name="lastName" label={t('labels.lastName')} value={userProfile.lastName} />
       <hr className="col-span-2 my-2" />
       <Input
         schema={formSchema}
@@ -207,7 +192,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="freeStorage"
         label={t('labels.freeStorage')}
         value={userProfile.freeStorage}
-        className="col-span-1"
         type="number"
         readOnly
       />
@@ -216,7 +200,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="freeMessages"
         label={t('labels.freeMessages')}
         value={userProfile.freeMessages}
-        className="col-span-1"
         type="number"
         readOnly
       />
@@ -224,7 +207,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="usedStorage"
         label={t('labels.usedStorage')}
         value={userProfile.usedStorage}
-        className="col-span-1"
         type="number"
         readOnly
       />
@@ -233,7 +215,6 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         name="usedMessages"
         label={t('labels.usedMessages')}
         value={userProfile.usedMessages}
-        className="col-span-1"
         type="number"
         readOnly
       />
@@ -246,8 +227,18 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         </a>
       </div>
       <hr className="col-span-2 my-2" />
-      <div className="col-span-2 flex justify-end">
+      <div className="col-span-2 flex justify-between">
         <input type="submit" value={t('actions.save')} className="btn btn-primary btn-sm" />
+
+        <button
+          type="button"
+          onClick={() => {
+            logout()
+          }}
+          className="btn btn-outline btn-neutral btn-sm"
+        >
+          {t('topNavigation.signOut')}
+        </button>
       </div>
     </form>
   )

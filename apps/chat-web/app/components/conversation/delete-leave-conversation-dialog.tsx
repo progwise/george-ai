@@ -2,10 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { LeaveIcon } from '../../icons/leave-icon'
+import { ExitIcon } from '../../icons/exit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { deleteConversation, leaveConversation } from '../../server-functions/conversations'
@@ -29,6 +28,7 @@ const ConversationDelete_ConversationFragment = graphql(`
 
 interface DeleteLeaveConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
+  userId?: string
 }
 
 export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDialogProps) => {
@@ -37,14 +37,11 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
 
-  const authContext = useAuth()
-  const user = authContext.user
-
   const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
 
-  const isOwner = user?.id === conversation.ownerId
-  const userParticipant = user?.id
-    ? conversation.participants.find((participant) => participant.userId === user.id)
+  const isOwner = props.userId === conversation.ownerId
+  const userParticipant = props.userId
+    ? conversation.participants.find((participant) => participant.userId === props.userId)
     : null
   const isParticipant = !!userParticipant
 
@@ -55,10 +52,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!user?.id) return
+      if (!props.userId) return
 
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, user.id],
+        queryKey: [queryKeys.Conversations, props.userId],
       })
       navigate({ to: '..' })
     },
@@ -74,10 +71,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!user?.id) return
+      if (!props.userId) return
 
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, user.id],
+        queryKey: [queryKeys.Conversations, props.userId],
       })
       navigate({ to: '..' })
     },
@@ -95,12 +92,12 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     dialogRef.current?.showModal()
   }
 
-  if (!user?.id) {
+  if (!props.userId) {
     return null
   }
 
   const isPending = isDeletePending || isLeavePending
-  const Icon = isOwner ? TrashIcon : LeaveIcon
+  const Icon = isOwner ? TrashIcon : ExitIcon
 
   const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${new Date(conversation.createdAt).toLocaleString().replace(',', '')})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
@@ -111,7 +108,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     <>
       <button
         type="button"
-        className="btn btn-square btn-ghost btn-sm lg:tooltip"
+        className="btn btn-square btn-ghost btn-sm mx-1 lg:tooltip lg:tooltip-left"
         onClick={handleOpen}
         data-tip={buttonTooltip}
       >

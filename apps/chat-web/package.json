@@ -22,6 +22,7 @@
     "@tanstack/react-start": "1.112.3",
     "@tanstack/start": "1.112.3",
     "autoprefixer": "^10.4.20",
+    "cronstrue": "^2.59.0",
     "graphql": "^16.7.1",
     "graphql-request": "^6.1.0",
     "keycloak-js": "^26.0.7",

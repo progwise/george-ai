@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
@@ -52,6 +51,7 @@ interface ParticipantsDialogProps {
   humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
+  userId?: string
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -63,9 +63,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-
-  const authContext = useAuth()
-  const user = authContext.user
 
   const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
   const assistants = useFragment(ParticipantsDialog_AssistantFragment, props.assistants)
@@ -113,27 +110,27 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     return list
   }, [humans, assignedUserIds, usersFilter])
 
-  const isOwner = user?.id === conversation?.ownerId
+  const isOwner = props.userId === conversation?.ownerId
 
   const { mutate: createNewConversation, isPending: isCreating } = useMutation({
     mutationFn: async () => {
-      if (!user?.id) {
+      if (!props.userId) {
         throw new Error('User not set')
       }
       return await createConversation({
         data: {
-          userIds: [...selectedUserIds, user.id],
+          userIds: [...selectedUserIds, props.userId],
           assistantIds: [...selectedAssistantIds],
-          ownerId: user.id,
+          ownerId: props.userId,
         },
       })
     },
     onSettled: (result) => {
-      if (!user) {
+      if (!props.userId) {
         throw new Error('User not set')
       }
 
-      queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, user.id] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
       if (result?.createAiConversation) {
         navigate({ to: `/conversations/${result.createAiConversation.id}` })
       }
@@ -150,7 +147,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       if (!isOwner) {
         throw new Error('Only the owner can add participants')
       }
-      if (!user?.id) {
+      if (!props.userId) {
         throw new Error('User not set')
       }
       return await addConversationParticipants({
@@ -158,13 +155,13 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       })
     },
     onSettled: async () => {
-      if (!conversation || !user) return
+      if (!conversation || !props.userId) return
 
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, conversation.id],
       })
       await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, user.id],
+        queryKey: [queryKeys.Conversations, props.userId],
       })
 
       dialogRef.current?.close()
@@ -194,17 +191,17 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
   const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
   const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}...`
-  const buttonClass = props.dialogMode === 'new' ? 'btn btn-primary btn-sm' : 'btn btn-neutral btn-xs'
+  const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding
 
-  if (!user) {
+  if (!props.userId) {
     return null
   }
 
   return (
     <>
-      <button type="button" className={buttonClass} onClick={handleOpen}>
-        {props.dialogMode === 'new' ? null : <PlusIcon />}
+      <button type="button" className={`${buttonClass} btn btn-sm`} onClick={handleOpen}>
+        {props.dialogMode === 'add' && <PlusIcon />}
         {buttonText}
       </button>
 
