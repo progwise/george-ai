@@ -49,7 +49,7 @@ export const ConversationSelector = ({
   )
 
   return (
-    <ul className="menu w-72 rounded-lg bg-base-200">
+    <ul className="menu w-72">
       {groupedConversations &&
         Object.entries(groupedConversations).map(([date, conversations]) => (
           <li key={date}>

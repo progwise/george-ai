@@ -134,6 +134,7 @@ export type AiLibrary = {
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
+  cronJob?: Maybe<AiLibraryCrawlerCronJob>
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<Scalars['DateTime']['output']>
@@ -141,6 +142,37 @@ export type AiLibraryCrawler = {
   maxPages: Scalars['Int']['output']
   updatedAt: Scalars['DateTime']['output']
   url: Scalars['String']['output']
+}
+
+export type AiLibraryCrawlerCronJob = {
+  __typename?: 'AiLibraryCrawlerCronJob'
+  active: Scalars['Boolean']['output']
+  createdAt: Scalars['DateTime']['output']
+  cronExpression?: Maybe<Scalars['String']['output']>
+  friday: Scalars['Boolean']['output']
+  hour: Scalars['Int']['output']
+  id: Scalars['ID']['output']
+  minute: Scalars['Int']['output']
+  monday: Scalars['Boolean']['output']
+  saturday: Scalars['Boolean']['output']
+  sunday: Scalars['Boolean']['output']
+  thursday: Scalars['Boolean']['output']
+  tuesday: Scalars['Boolean']['output']
+  updatedAt: Scalars['DateTime']['output']
+  wednesday: Scalars['Boolean']['output']
+}
+
+export type AiLibraryCrawlerCronJobInput = {
+  active: Scalars['Boolean']['input']
+  friday: Scalars['Boolean']['input']
+  hour: Scalars['Int']['input']
+  minute: Scalars['Int']['input']
+  monday: Scalars['Boolean']['input']
+  saturday: Scalars['Boolean']['input']
+  sunday: Scalars['Boolean']['input']
+  thursday: Scalars['Boolean']['input']
+  tuesday: Scalars['Boolean']['input']
+  wednesday: Scalars['Boolean']['input']
 }
 
 export type AiLibraryFile = {
@@ -313,6 +345,7 @@ export type MutationCreateAiLibraryArgs = {
 }
 
 export type MutationCreateAiLibraryCrawlerArgs = {
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   libraryId: Scalars['String']['input']
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
@@ -1054,6 +1087,7 @@ export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
   url: Scalars['String']['input']
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
 }>
 
 export type CreateAiLibraryCrawlerMutation = {
@@ -1071,6 +1105,7 @@ export type CrawlerTable_LibraryFragment = {
       maxDepth: number
       maxPages: number
       lastRun?: string | null
+      cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
   >
 } & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
@@ -1343,6 +1378,7 @@ export type GetConversationQuery = {
           ConversationDelete_ConversationFragment: ConversationDelete_ConversationFragment
           ConversationHistory_ConversationFragment: ConversationHistory_ConversationFragment
           ConversationForm_ConversationFragment: ConversationForm_ConversationFragment
+          ParticipantsDialog_ConversationFragment: ParticipantsDialog_ConversationFragment
         }
       })
     | null
@@ -1359,6 +1395,7 @@ export type GetAssignableUsersQuery = {
       ' $fragmentRefs'?: {
         NewConversationSelector_HumanFragment: NewConversationSelector_HumanFragment
         ConversationParticipants_HumanFragment: ConversationParticipants_HumanFragment
+        ParticipantsDialog_HumanFragment: ParticipantsDialog_HumanFragment
       }
     }
   >
@@ -1375,6 +1412,7 @@ export type GetAssignableAssistantsQuery = {
       ' $fragmentRefs'?: {
         NewConversationSelector_AssistantFragment: NewConversationSelector_AssistantFragment
         ConversationParticipants_AssistantFragment: ConversationParticipants_AssistantFragment
+        ParticipantsDialog_AssistantFragment: ParticipantsDialog_AssistantFragment
       }
     }
   >
@@ -2320,6 +2358,14 @@ export const CrawlerTable_LibraryFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -3415,6 +3461,11 @@ export const CreateAiLibraryCrawlerDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerCronJobInput' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -3442,6 +3493,11 @@ export const CreateAiLibraryCrawlerDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'url' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'cronJob' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
               },
             ],
             selectionSet: {
@@ -3519,6 +3575,14 @@ export const CrawlerTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
+                  },
+                },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -4434,6 +4498,7 @@ export const GetConversationDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationDelete_Conversation' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationHistory_Conversation' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationForm_Conversation' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Conversation' } },
               ],
             },
           },
@@ -4617,6 +4682,7 @@ export const GetAssignableUsersDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'NewConversationSelector_Human' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipants_Human' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Human' } },
               ],
             },
           },
@@ -4701,6 +4767,7 @@ export const GetAssignableAssistantsDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'NewConversationSelector_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipants_Assistant' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ParticipantsDialog_Assistant' } },
               ],
             },
           },
