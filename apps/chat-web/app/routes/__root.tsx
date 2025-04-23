@@ -1,7 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { getCookie } from '@tanstack/react-start/server'
 import React, { Suspense } from 'react'
 
 import { GeorgeToaster } from '../components/georgeToaster'

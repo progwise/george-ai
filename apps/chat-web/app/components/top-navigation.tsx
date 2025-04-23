@@ -18,7 +18,7 @@ import { FileRoutesByTo } from '../routeTree.gen'
 const THEME_KEY = 'theme'
 const DEFAULT_THEME = 'light'
 
-export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie('theme'))
+export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie(THEME_KEY))
 
 const getCookieValue = (name: string) => document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
 
@@ -58,8 +58,9 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
 
   const handleThemeToggle = useCallback(() => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
+
     setTheme(newTheme)
-    // document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`
+    document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`
   }, [theme])
 
   const closeMenu = useCallback(() => {
@@ -243,6 +244,7 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
                   className="theme-controller"
                   checked={theme === 'dark'}
                   onChange={handleThemeToggle}
+                  value="dark"
                 />
                 <SunIcon className="swap-off size-6 fill-current" />
                 <MoonIcon className="swap-on size-6 fill-current" />
@@ -268,6 +270,7 @@ export default function TopNavigation({ theme: initialTheme }: TopNavigationProp
                   className="theme-controller"
                   checked={theme === 'dark'}
                   onChange={handleThemeToggle}
+                  value="dark"
                 />
                 <SunIcon className="swap-off size-6 fill-current" />
                 <MoonIcon className="swap-on size-6 fill-current" />
