@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import Keycloak from 'keycloak-js'
 import { createContext, use, useCallback, useEffect, useMemo, useRef } from 'react'
@@ -7,8 +8,6 @@ import { getKeycloakConfig } from './auth.server'
 
 export const KEYCLOAK_TOKEN_COOKIE_NAME = 'keycloak-token'
 const isClientSide = typeof window !== 'undefined'
-
-const config = await getKeycloakConfig()
 
 const AuthContext = createContext<{
   login: () => Promise<void>
@@ -25,6 +24,11 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const keycloakRef = useRef<Keycloak | undefined>(undefined)
+  const { data: keycloakConfig } = useQuery({
+    queryKey: ['keycloakConfig'],
+    queryFn: () => getKeycloakConfig(),
+    staleTime: Infinity,
+  })
 
   const updateTokenInCookie = useCallback(async () => {
     const tokenInCookie = document.cookie
@@ -52,8 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [router])
 
   useEffect(() => {
-    if (isClientSide && !keycloakRef.current?.didInitialize) {
-      keycloakRef.current = new Keycloak(config)
+    if (isClientSide && !keycloakRef.current?.didInitialize && keycloakConfig) {
+      keycloakRef.current = new Keycloak(keycloakConfig)
 
       keycloakRef.current.onReady = () => {
         updateTokenInCookie()
@@ -80,7 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
       })
     }
-  }, [updateTokenInCookie])
+  }, [updateTokenInCookie, keycloakConfig])
 
   const contextValue = useMemo(
     () => ({
