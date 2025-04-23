@@ -10,7 +10,7 @@ import { AiActAssistantSurveyRef } from './assistant-survey'
 import { AiActIdentifyRisksInfoRef } from './identify-risks-info'
 import { AiActRiskIndicatorRef } from './risk-indicator'
 
-export * from './mutations'
+import './mutations'
 
 interface AiActAssessment {
   riskIndicator: AiActRiskIndicator
@@ -49,7 +49,7 @@ const AiActAssessment = builder.objectRef<{ assistantId: string }>('AiActAssessm
   }),
 })
 
-builder.queryField('AiActAssessmentQuery', (t) =>
+builder.queryField('aiActAssessment', (t) =>
   t.field({
     args: {
       assistantId: t.arg.string({ required: true }),

@@ -1,10 +1,9 @@
-/* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect */
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { getChecklistStep1QueryOptions, resetAssessment, updateBasicSystemInfo } from './checklist-server'
+import { getAiActAssessmentQueryOptions, resetAssessment, updateBasicSystemInfo } from './checklist-server'
 import QuestionCard from './question-card'
 
 const AssistantSurvey_AssessmentFragment = graphql(`
@@ -65,10 +64,6 @@ const AssistantSurvey_AssessmentFragment = graphql(`
           de
           en
         }
-        factors {
-          de
-          en
-        }
         level
       }
     }
@@ -91,7 +86,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
       return await updateBasicSystemInfo({ data: formData })
     },
     onSettled: () => {
-      queryClient.invalidateQueries(getChecklistStep1QueryOptions(assistantId))
+      queryClient.invalidateQueries(getAiActAssessmentQueryOptions(assistantId))
     },
   })
 
@@ -100,7 +95,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
       return await resetAssessment({ data: { assistantId } })
     },
     onSettled: () => {
-      queryClient.invalidateQueries(getChecklistStep1QueryOptions(assistantId))
+      queryClient.invalidateQueries(getAiActAssessmentQueryOptions(assistantId))
     },
   })
   const formRef = React.useRef<HTMLFormElement>(null)

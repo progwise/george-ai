@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getAiAssistantChecklistStep1 = createServerFn({ method: 'GET' })
+const getAiActAssessment = createServerFn({ method: 'GET' })
   .validator((data: string) => {
     return z.string().parse(data)
   })
@@ -13,7 +13,7 @@ const getAiAssistantChecklistStep1 = createServerFn({ method: 'GET' })
     return backendRequest(
       graphql(`
         query AiActAssessmentQuery($assistantId: String!) {
-          AiActAssessmentQuery(assistantId: $assistantId) {
+          aiActAssessment(assistantId: $assistantId) {
             ...RiskAreasIdentification_Assessment
             ...AssistantSurvey_Assessment
           }
@@ -23,11 +23,10 @@ const getAiAssistantChecklistStep1 = createServerFn({ method: 'GET' })
     )
   })
 
-export const getChecklistStep1QueryOptions = (assistantId?: string) =>
+export const getAiActAssessmentQueryOptions = (assistantId: string) =>
   queryOptions({
     queryKey: ['AiChecklist', assistantId],
-    queryFn: () => (assistantId ? getAiAssistantChecklistStep1({ data: assistantId }) : null),
-    enabled: !!assistantId,
+    queryFn: () => getAiActAssessment({ data: assistantId }),
   })
 
 export const updateBasicSystemInfo = createServerFn({ method: 'POST' })

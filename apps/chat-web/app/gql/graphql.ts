@@ -545,7 +545,7 @@ export type MutationUpsertAiBaseCasesArgs = {
 
 export type Query = {
   __typename?: 'Query'
-  AiActAssessmentQuery: AiActAssessment
+  aiActAssessment: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
   aiConversation?: Maybe<AiConversation>
@@ -560,7 +560,7 @@ export type Query = {
   userProfile?: Maybe<UserProfile>
 }
 
-export type QueryAiActAssessmentQueryArgs = {
+export type QueryAiActAssessmentArgs = {
   assistantId: Scalars['String']['input']
 }
 
@@ -910,7 +910,6 @@ export type AssistantSurvey_AssessmentFragment = {
       __typename?: 'AiActRiskIndicator'
       level: string
       description: { __typename?: 'AiActString'; de: string; en: string }
-      factors: Array<{ __typename?: 'AiActString'; de: string; en: string }>
     }
   }
 } & { ' $fragmentName'?: 'AssistantSurvey_AssessmentFragment' }
@@ -921,7 +920,7 @@ export type AiActAssessmentQueryQueryVariables = Exact<{
 
 export type AiActAssessmentQueryQuery = {
   __typename?: 'Query'
-  AiActAssessmentQuery: { __typename?: 'AiActAssessment' } & {
+  aiActAssessment: { __typename?: 'AiActAssessment' } & {
     ' $fragmentRefs'?: {
       RiskAreasIdentification_AssessmentFragment: RiskAreasIdentification_AssessmentFragment
       AssistantSurvey_AssessmentFragment: AssistantSurvey_AssessmentFragment
@@ -973,12 +972,6 @@ export type RiskAreasIdentification_AssessmentFragment = {
         __typename?: 'AiActOption'
         id: string
         title: { __typename?: 'AiActString'; de: string; en: string }
-        risk?: {
-          __typename?: 'AiActOptionRisk'
-          riskLevel?: string | null
-          points: number
-          description: { __typename?: 'AiActString'; de: string; en: string }
-        } | null
       }>
     }>
     riskIndicator: {
@@ -2069,17 +2062,6 @@ export const AssistantSurvey_AssessmentFragmentDoc = {
                           ],
                         },
                       },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'factors' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
                       { kind: 'Field', name: { kind: 'Name', value: 'level' } },
                     ],
                   },
@@ -2226,28 +2208,6 @@ export const RiskAreasIdentification_AssessmentFragmentDoc = {
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'de' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'risk' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'riskLevel' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'description' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                      ],
-                                    },
-                                  },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'points' } },
                                 ],
                               },
                             },
@@ -3595,7 +3555,7 @@ export const AiActAssessmentQueryDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'AiActAssessmentQuery' },
+            name: { kind: 'Name', value: 'aiActAssessment' },
             arguments: [
               {
                 kind: 'Argument',
@@ -3745,28 +3705,6 @@ export const AiActAssessmentQueryDocument = {
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'de' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'risk' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'riskLevel' } },
-                                  {
-                                    kind: 'Field',
-                                    name: { kind: 'Name', value: 'description' },
-                                    selectionSet: {
-                                      kind: 'SelectionSet',
-                                      selections: [
-                                        { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                                        { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                                      ],
-                                    },
-                                  },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'points' } },
                                 ],
                               },
                             },
@@ -3969,17 +3907,6 @@ export const AiActAssessmentQueryDocument = {
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'description' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'factors' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [

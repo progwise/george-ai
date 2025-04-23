@@ -48,14 +48,6 @@ const RiskAreasIdentification_AssessmentFragment = graphql(`
             de
             en
           }
-          risk {
-            riskLevel
-            description {
-              de
-              en
-            }
-            points
-          }
         }
       }
       riskIndicator {
@@ -216,7 +208,7 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
               </div>
             )}
 
-            {riskIndicator.factors && riskIndicator.factors.length > 0 && (
+            {riskIndicator.factors.length > 0 && (
               <div>
                 <p className="font-semibold">{t('aiAct.identifiedRisks')}:</p>
                 <ul className="list-inside list-disc">

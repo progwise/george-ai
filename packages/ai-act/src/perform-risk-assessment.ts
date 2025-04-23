@@ -13,10 +13,8 @@ export const performRiskAssessment = (step: AiActAssistantSurvey) => {
     }
     riskPoints += questionRisk.points
     riskFactors.push(questionRisk.description)
-    if (questionRisk.riskLevel) {
-      if (questionRisk.riskLevel === 'nonApplicable') {
-        return questionRisk
-      }
+    if (questionRisk.riskLevel === 'nonApplicable') {
+      return questionRisk
     }
   })
 

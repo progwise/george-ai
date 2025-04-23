@@ -354,7 +354,7 @@ type Mutation {
 }
 
 type Query {
-  AiActAssessmentQuery(assistantId: String!): AiActAssessment!
+  aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(id: String!): AiAssistant
   aiAssistants(ownerId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation

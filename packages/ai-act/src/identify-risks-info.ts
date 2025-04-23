@@ -19,17 +19,17 @@ export interface AiActIdentifyRisks {
 export const getDefaultIdentifyRisks = (): AiActIdentifyRisks => {
   return {
     title: {
-      en: 'EU AI Act - Step 2: Identify Relevant Risk Areas',
       de: 'EU AI Act - Schritt 2: Identifikation relevanter Risikobereiche',
+      en: 'EU AI Act - Step 2: Identify Relevant Risk Areas',
     },
     legalDisclaimer: {
       title: {
-        en: 'Legal Disclaimer',
         de: 'Rechtlicher Hinweis',
+        en: 'Legal Disclaimer',
       },
       text: {
-        en: 'This analysis is for informational purposes only and does not constitute legal advice. For a comprehensive legal assessment of your AI system under the EU AI Act, you should seek qualified legal counsel.',
         de: 'Diese Analyse dient nur zu Informationszwecken und stellt keine rechtliche Beratung dar. Für eine umfassende rechtliche Beurteilung Ihres KI-Systems gemäß dem EU AI Act sollten Sie qualifizierte Rechtsberatung in Anspruch nehmen.',
+        en: 'This analysis is for informational purposes only and does not constitute legal advice. For a comprehensive legal assessment of your AI system under the EU AI Act, you should seek qualified legal counsel.',
       },
     },
     complianceAreas: [
