@@ -92,3 +92,20 @@ it('returns three consecutively days, a day off and two consecutivly days as one
 
   expect(expression).toBe('30 2 * * 1-3,5,6')
 })
+
+it('returns seven days as a *', () => {
+  const expression = getCronExpression({
+    ...defaultValues,
+    hour: 2,
+    minute: 30,
+    monday: true,
+    tuesday: true,
+    wednesday: true,
+    thursday: true,
+    friday: true,
+    saturday: true,
+    sunday: true,
+  })
+
+  expect(expression).toBe('30 2 * * *')
+})

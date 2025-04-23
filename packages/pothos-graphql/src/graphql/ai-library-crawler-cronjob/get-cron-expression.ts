@@ -33,6 +33,13 @@ export const getCronExpression = (cronJob: AiLibraryCrawlerCronJob) => {
       return
     }
 
+    // all days of the week
+    if (segment.length === 7) {
+      segments.push('*')
+      segment = []
+      return
+    }
+
     // segments with three or more days will be a range
     const start = segment[0]
     const end = segment[segment.length - 1]
