@@ -17,7 +17,7 @@ interface NewConversationSelectorProps {
   assistants: FragmentType<typeof NewConversationSelector_AssistantFragment>[]
   humans: FragmentType<typeof NewConversationSelector_HumanFragment>[]
   isOpen?: boolean
-  userId?: string
+  userId: string
 }
 
 export const NewConversationSelector = (props: NewConversationSelectorProps) => {

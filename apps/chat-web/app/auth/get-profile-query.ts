@@ -11,9 +11,8 @@ const getProfileServerFn = createServerFn({ method: 'GET' })
     return userProfile
   })
 
-export const getProfileQueryOptions = (userId?: string) =>
+export const getProfileQueryOptions = (userId: string) =>
   queryOptions({
     queryKey: ['getProfile', userId],
-    queryFn: () => getProfileServerFn({ data: userId! }),
-    enabled: !!userId,
+    queryFn: () => getProfileServerFn({ data: userId }),
   })

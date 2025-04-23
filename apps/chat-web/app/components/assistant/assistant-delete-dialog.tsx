@@ -48,7 +48,7 @@ const AssistantDelete_AssistantFragment = graphql(`
 
 export interface AssistantDeleteDialogProps {
   assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
-  userId?: string
+  userId: string
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {

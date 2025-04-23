@@ -1,0 +1,52 @@
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-adapter'
+import { z } from 'zod'
+
+import { useAuth } from '../auth/auth'
+import { useTranslation } from '../i18n/use-translation-hook'
+
+const loginSearchSchema = z.object({
+  redirect: z.string().optional(),
+})
+
+export const Route = createFileRoute('/login')({
+  component: RouteComponent,
+  validateSearch: zodValidator(loginSearchSchema),
+  beforeLoad: ({ context, search }) => {
+    // If the user is already logged in, redirect them to the home page or the page they were trying to access before logging in
+    if (context.user) {
+      throw redirect({
+        to: search.redirect ?? '/',
+      })
+    }
+  },
+})
+
+function RouteComponent() {
+  const { redirect } = Route.useSearch()
+  const { login } = useAuth()
+  const { t } = useTranslation()
+
+  let loginText
+
+  switch (true) {
+    case redirect?.startsWith('/conversations'):
+      loginText = t('texts.signInForConversations')
+      break
+    case redirect?.startsWith('/assistants'):
+      loginText = t('assistants.signInForAssistants')
+      break
+    case redirect?.startsWith('/libraries'):
+      loginText = t('libraries.signInForLibraries')
+      break
+    default:
+      loginText = t('texts.signInToContinue')
+      break
+  }
+
+  return (
+    <button type="button" className="btn btn-ghost" onClick={() => login()}>
+      {loginText}
+    </button>
+  )
+}

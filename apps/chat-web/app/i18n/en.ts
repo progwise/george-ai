@@ -181,6 +181,7 @@ export default {
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
     signInForConversations: 'Sign in to use conversations.',
+    signInToContinue: 'Sign in to continue',
     uploadingFiles: 'Uploading files...',
     usersFound: 'Users found',
     with: 'with',

@@ -3,15 +3,15 @@ import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { UserProfileForm } from '../../components/user/user-profile-form'
-import { graphql } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-import { sendConfirmationMail } from '../../server-functions/users'
+import { getProfileQueryOptions } from '../../../auth/get-profile-query'
+import { LoadingSpinner } from '../../../components/loading-spinner'
+import { UserProfileForm } from '../../../components/user/user-profile-form'
+import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
+import { sendConfirmationMail } from '../../../server-functions/users'
 
 const userProfileQueryDocument = graphql(/* GraphQL */ `
   query userProfile($userId: String!) {
@@ -76,7 +76,7 @@ export const removeUserProfile = createServerFn({ method: 'POST' })
     })
   })
 
-export const Route = createFileRoute('/profile/')({
+export const Route = createFileRoute('/_authenticated/profile/')({
   component: RouteComponent,
 })
 
@@ -90,13 +90,8 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfileForEdit, user?.id],
-    queryFn: async () => {
-      if (!user?.id) {
-        return null
-      }
-      return await getUserProfile({ data: user.id })
-    },
+    queryKey: [queryKeys.UserProfileForEdit, user.id],
+    queryFn: () => getUserProfile({ data: user.id }),
   })
 
   const confirmationLink = useLinkProps({
@@ -105,51 +100,34 @@ function RouteComponent() {
   })
 
   const { mutate: create, isPending: createIsPending } = useMutation({
-    mutationFn: async () => {
-      if (!user?.id) {
-        throw new Error('No user id found')
-      }
-      return await createUserProfile({ data: { userId: user.id } })
-    },
+    mutationFn: async () => createUserProfile({ data: { userId: user.id } }),
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
+      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
     },
   })
 
   const { mutate: remove, isPending: removeIsPending } = useMutation({
-    mutationFn: async () => {
-      if (!user?.id) {
-        throw new Error('No user id found')
-      }
-      return await removeUserProfile({ data: { userId: user.id } })
-    },
+    mutationFn: async () => removeUserProfile({ data: { userId: user.id } }),
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
+      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
     },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
-    mutationFn: async () => {
-      if (!user?.id) {
-        throw new Error('No user id found')
-      }
-      return await sendConfirmationMail({
+    mutationFn: () =>
+      sendConfirmationMail({
         data: {
           userId: user.id,
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
         },
-      })
-    },
+      }),
     onSettled: () => {
       refetchProfile()
     },
   })
 
-  if (!user?.id) {
-    return <p>Login to use your profile</p>
-  }
   if (userProfileIsLoading) {
     return <LoadingSpinner />
   }

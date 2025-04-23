@@ -10,7 +10,7 @@ export const KEYCLOAK_TOKEN_COOKIE_NAME = 'keycloak-token'
 const isClientSide = typeof window !== 'undefined'
 
 const AuthContext = createContext<{
-  login: () => Promise<void>
+  login: (redirectUri?: string) => Promise<void>
   logout: () => Promise<void>
 }>({
   login: () => Promise.resolve(),
@@ -88,7 +88,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const contextValue = useMemo(
     () => ({
-      login: async (): Promise<void> => (isClientSide ? await keycloakRef.current?.login() : undefined),
+      login: async (redirectUri?: string): Promise<void> =>
+        isClientSide ? await keycloakRef.current?.login({ redirectUri }) : undefined,
       logout: async (): Promise<void> => {
         if (!isClientSide) {
           return
