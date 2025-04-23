@@ -82,19 +82,11 @@ function RouteComponent() {
   if (!user.isAdmin) {
     toastError('Access denied: Admins only')
     navigate({ to: '/' })
-    return null
   }
 
   if (!userProfile?.userProfile) {
-    return (
-      <div className="flex flex-col items-center gap-4">
-        <h1>User profile not found</h1>
-        <p>The profile you are trying to activate does not exist or has been deleted.</p>
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate({ to: '/' })}>
-          Go Back
-        </button>
-      </div>
-    )
+    toastError(t('errors.profileNotFound'))
+    navigate({ to: '/' })
   }
 
   return (
