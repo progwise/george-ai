@@ -36,31 +36,25 @@ Use `env.example` files as the references.
 
 2. Create a new Realm using the value of `KEYCLOAK_REALM` from your `.env` file.
 
-3. In the left sidebar, under **Manage**, click **Clients**.  
-    Then, in the **Clients list** tab, click on the **account** link under the **Client ID** column.
-   Then, click **Create Client** to add a new client. Use the value of `KEYCLOAK_CLIENT_ID` from your `.env` file as the **Client ID**.  
-   After creating the client, click on its name in the **Clients list** tab to configure it.
+3. In the left sidebar, click **Clients** and then click **Create Client**.
+   Use the value of `KEYCLOAK_CLIENT_ID` from your `.env` file as the **Client ID**.
 
-4. Update the **Client ID** with the value from `KEYCLOAK_CLIENT_ID` in your `.env` file.
+   Add the following URLs to the fields below:
 
-5. In the **account** client settings, add the following URLs to the fields below:
-
-   - **Valid Redirect URIs:**  
-     `http://localhost:3001`,  
+   - **Valid Redirect URIs:**
+     `http://localhost:3001`,
      `http://localhost:3001/*`
-   - **Valid Post Logout Redirect URIs:**  
-     `http://localhost:3001`,  
+   - **Valid Post Logout Redirect URIs:**
+     `http://localhost:3001`,
      `http://localhost:3001/*`
-   - **Web Origins:**  
-     `http://localhost:3001`,  
+   - **Web Origins:**
+     `http://localhost:3001`,
      `http://localhost:3001/*`
 
-**Note**: Client Authentication has to be **off**.
-
-6. Navigate to the **Users** section and click **Add User**.  
+4. Navigate to the **Users** section and click **Add User**.
    Fill in the required fields, then click **Create** at the bottom of the form.
 
-7. After the user is created:
+5. After the user is created:
 
    - Go to the **Credentials** tab, set a password, and ensure **Temporary** is set to **Off**.
    - Go to the **Details** tab and provide:
@@ -69,7 +63,7 @@ Use `env.example` files as the references.
      - **Email**
      - Enable **Email Verified** by toggling the switch.
 
-8. In the left sidebar, go to **Identity Providers**.  
+6. In the left sidebar, go to **Identity Providers**.
    Choose a provider (e.g., Google, GitHub, or OpenID Connect) and configure it using the required credentials (e.g., **Client ID** and **Client Secret**).
 
 Docs for setting up an OAuth app in:
