@@ -4,27 +4,24 @@ interface ComplianceAreaProps {
   title: string
   description: string
   isSelected: boolean
+  isMandatory: boolean
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export const ComplianceArea = ({ id, title, description, isSelected, onChange }: ComplianceAreaProps) => {
+export const ComplianceArea = ({ id, title, description, isSelected, onChange, isMandatory }: ComplianceAreaProps) => {
   return (
-    <div
-      key={id}
-      className={`rounded-lg border p-3 ${isSelected ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'}`}
-    >
-      <label className="flex cursor-pointer items-start">
-        <div className="mt-0.5 flex h-5 items-center">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={onChange}
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-        </div>
-        <div className="ml-3">
-          <span className={`text-sm font-medium ${isSelected ? 'text-blue-800' : 'text-gray-700'}`}>{title}</span>
-          <p className={`mt-1 text-xs ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>{description}</p>
+    <div key={id} className={`rounded-lg border p-3 ${isSelected && 'border-info bg-info/20'}`}>
+      <label className="flex cursor-pointer items-center gap-3">
+        <input
+          disabled={isMandatory}
+          type="checkbox"
+          checked={isSelected}
+          onChange={onChange}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <div>
+          <span className="text-sm font-medium">{title}</span>
+          <p className="mt-1 text-xs">{description}</p>
         </div>
       </label>
     </div>

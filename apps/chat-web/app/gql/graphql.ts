@@ -890,7 +890,7 @@ export type AssistantSurvey_AssessmentFragment = {
       id: string
       notes?: string | null
       value?: string | null
-      title: { __typename?: 'AiActString'; en: string; de: string }
+      title: { __typename?: 'AiActString'; de: string; en: string }
       hint: { __typename?: 'AiActString'; de: string; en: string }
       options: Array<{
         __typename?: 'AiActOption'
@@ -904,8 +904,8 @@ export type AssistantSurvey_AssessmentFragment = {
         } | null
       }>
     }>
-    title: { __typename?: 'AiActString'; en: string; de: string }
-    hint: { __typename?: 'AiActString'; en: string; de: string }
+    title: { __typename?: 'AiActString'; de: string; en: string }
+    hint: { __typename?: 'AiActString'; de: string; en: string }
     riskIndicator: {
       __typename?: 'AiActRiskIndicator'
       level: string
@@ -1962,8 +1962,8 @@ export const AssistantSurvey_AssessmentFragmentDoc = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                           ],
                         },
                       },
@@ -2032,8 +2032,8 @@ export const AssistantSurvey_AssessmentFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                     ],
                   },
                 },
@@ -2044,8 +2044,8 @@ export const AssistantSurvey_AssessmentFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                     ],
                   },
                 },
@@ -3870,8 +3870,8 @@ export const AiActAssessmentQueryDocument = {
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                           ],
                         },
                       },
@@ -3940,8 +3940,8 @@ export const AiActAssessmentQueryDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                     ],
                   },
                 },
@@ -3952,8 +3952,8 @@ export const AiActAssessmentQueryDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'en' } },
                     ],
                   },
                 },

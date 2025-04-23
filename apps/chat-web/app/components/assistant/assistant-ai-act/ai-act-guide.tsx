@@ -16,10 +16,10 @@ export const AiActGuide = ({ assistantId }: AiActGuideProps) => {
   }
   return (
     <>
-      <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+      <div className="rounded-box bg-base-200 p-3 sm:w-1/2">
         <AssistantSurvey assessment={data.AiActAssessmentQuery} />
       </div>
-      <div className="card grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+      <div className="rounded-box bg-base-200 p-3 sm:w-1/2">
         <RiskAreasIdentification assessment={data.AiActAssessmentQuery} />
       </div>
     </>

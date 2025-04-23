@@ -95,20 +95,17 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
     [questions],
   )
 
-  const effectiveAreas = useMemo(() => {
-    const areas = new Set<string>(selectedAreas)
-
+  const mandatoryAreas = useMemo(() => {
+    const areas = new Set<string>()
     if (!euOperation) {
       return areas
     }
-
     if (riskIndicator.level === 'high') {
       areas.add('documentation')
       areas.add('governance')
     } else if (riskIndicator.level === 'medium') {
       areas.add('documentation')
     }
-
     questions.forEach((q) => {
       switch (q.id) {
         case 'systemType':
@@ -139,11 +136,14 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
           break
       }
     })
+    return areas
+  }, [euOperation, questions, riskIndicator.level])
 
-    // Preselect areas based on risk level
+  const effectiveAreas = useMemo(() => {
+    const areas = new Set<string>([...selectedAreas, ...mandatoryAreas])
 
     return areas
-  }, [euOperation, questions, riskIndicator, selectedAreas])
+  }, [mandatoryAreas, selectedAreas])
 
   // Handle area selection change
   const handleAreaChange = (area: string) => {
@@ -162,15 +162,15 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
   const getRiskStyle = () => {
     switch (riskIndicator.level) {
       case 'high':
-        return 'bg-orange-100 border-orange-500 text-orange-700'
+        return 'bg-error/10 border-error'
       case 'medium':
-        return 'bg-yellow-100 border-yellow-500 text-yellow-700'
+        return 'bg-warning/10 border-warning'
       case 'low':
-        return 'bg-green-100 border-green-500 text-green-700'
+        return 'bg-success/10 border-success'
       case 'minimal':
-        return 'bg-blue-100 border-blue-500 text-blue-700'
+        return 'bg-info border-info'
       default:
-        return 'bg-gray-100 border-gray-300 text-gray-700'
+        return 'bg-neutral border-neutral text-neutral-content'
     }
   }
 
@@ -178,7 +178,7 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
   const getRiskIcon = () => {
     switch (riskIndicator.level) {
       case 'high':
-        return '🟧'
+        return '🟥'
       case 'medium':
         return '🟨'
       case 'low':
@@ -189,37 +189,37 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-4 font-sans shadow">
-      <h1 className="mb-4 flex items-center justify-between text-xl font-bold text-gray-800">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow">
+      <h3 className="text-xl font-bold">
         <span>{identifyRiskInfo.title[language]}</span>
-      </h1>
+      </h3>
 
       {/* Legal disclaimer */}
-      <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-xs text-gray-600">
+      <div className="rounded border border-error bg-error/40 p-3 text-sm">
         <p className="font-bold">{identifyRiskInfo.legalDisclaimer.title[language]}:</p>
         <p>{identifyRiskInfo.legalDisclaimer.text[language]}</p>
       </div>
 
       {/* Risk assessment summary */}
-      <div className={`mb-6 rounded-lg border p-4 ${getRiskStyle()}`}>
-        <h2 className="mb-3 text-lg font-semibold">{t('aiAct.summaryInitialAssessment')}</h2>
+      <div className={`flex flex-col gap-2 rounded-lg border p-4 ${getRiskStyle()}`}>
+        <h4 className="text-lg font-semibold">{t('aiAct.summaryInitialAssessment')}</h4>
 
-        <div className="flex items-start">
-          <span className="mr-3 mt-1 text-2xl">{getRiskIcon()}</span>
-          <div className="flex-1">
+        <div className="flex gap-2">
+          <span>{getRiskIcon()}</span>
+          <div className="flex flex-col gap-2">
             <p className="text-lg font-medium">{riskIndicator.description[language]}</p>
 
             {!euOperation && (
-              <div className="mt-3 rounded bg-white bg-opacity-50 p-3">
+              <div className="rounded bg-base-300 bg-opacity-80 p-3 text-base-content">
                 <p className="font-semibold">{t('aiAct.notesOnApplicabilityHeadline')}:</p>
                 <p>{t('aiAct.notesOnApplicability')}</p>
               </div>
             )}
 
             {riskIndicator.factors && riskIndicator.factors.length > 0 && (
-              <div className="mt-3">
-                <p className="font-medium">{t('aiAct.identifiedRisks')}:</p>
-                <ul className="mt-1 list-inside list-disc">
+              <div>
+                <p className="font-semibold">{t('aiAct.identifiedRisks')}:</p>
+                <ul className="list-inside list-disc">
                   {riskIndicator.factors.map((factor) => (
                     <li key={factor[language]}>{factor[language]}</li>
                   ))}
@@ -231,20 +231,18 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
       </div>
 
       {/* System characteristics summary */}
-      <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h2 className="text-md mb-3 font-semibold">{t('aiAct.systemProperties')}</h2>
+      <div className="rounded-lg border bg-base-200 p-4">
+        <h4 className="text-md mb-3 font-semibold">{t('aiAct.systemProperties')}</h4>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {questions.map((question) => {
             // Find selected option
             const selectedOption = question.options.find((opt) => opt.id === question.value)
             return (
-              <div key={question.id} className="rounded-lg border border-gray-200 bg-white p-3">
-                <p className="text-sm font-medium">{question.title[language]}</p>
-                <p className="mt-1 text-sm text-blue-600">
-                  {selectedOption ? selectedOption.title[language] : question.value}
-                </p>
+              <div key={question.id} className="flex flex-col gap-2 rounded-lg border bg-base-100 p-3 text-sm">
+                <p className="font-medium">{question.title[language]}</p>
+                <p className="text-info">{selectedOption ? selectedOption.title[language] : question.value}</p>
                 {question.notes && (
-                  <p className="mt-1 text-xs italic text-gray-600">
+                  <p className="text-xs italic text-base-content opacity-70">
                     {t('labels.note')}: {question.notes}
                   </p>
                 )}
@@ -255,31 +253,30 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
       </div>
 
       {/* Recommended compliance areas */}
-      <div className="mb-6">
-        <h2 className="mb-4 text-lg font-semibold">{t('aiAct.suggestedDetailedEvaluationHeadline')}</h2>
+      <h2 className="text-lg font-semibold">{t('aiAct.suggestedDetailedEvaluationHeadline')}</h2>
 
-        {!euOperation ? (
-          <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-            <p className="font-medium">{t('aiAct.notApplicableHeadline')}</p>
-            <p className="mt-2 text-sm">{t('aiAct.notApplicableText')}</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="mb-3 text-sm text-gray-600">{t('aiAct.applicableHeadline')}:</p>
+      {!euOperation ? (
+        <div className="rounded-lg border border-info bg-info/40 p-4">
+          <p className="font-medium">{t('aiAct.notApplicableHeadline')}</p>
+          <p className="mt-2 text-sm">{t('aiAct.notApplicableText')}</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm">{t('aiAct.applicableHeadline')}:</p>
 
-            {complianceAreas.map((area) => (
-              <ComplianceArea
-                key={area.id}
-                id={area.id}
-                title={area.title[language]}
-                description={area.description[language]}
-                isSelected={effectiveAreas.has(area.id)}
-                onChange={() => handleAreaChange(area.id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+          {complianceAreas.map((area) => (
+            <ComplianceArea
+              key={area.id}
+              id={area.id}
+              title={area.title[language]}
+              description={area.description[language]}
+              isSelected={effectiveAreas.has(area.id)}
+              isMandatory={mandatoryAreas.has(area.id)}
+              onChange={() => handleAreaChange(area.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

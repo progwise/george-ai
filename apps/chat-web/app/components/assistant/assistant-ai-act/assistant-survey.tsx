@@ -26,8 +26,8 @@ const AssistantSurvey_AssessmentFragment = graphql(`
       questions {
         id
         title {
-          en
           de
+          en
         }
         notes
         value
@@ -52,13 +52,13 @@ const AssistantSurvey_AssessmentFragment = graphql(`
         }
       }
       title {
-        en
         de
+        en
       }
       percentCompleted
       hint {
-        en
         de
+        en
       }
       riskIndicator {
         description {
@@ -85,6 +85,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
   const assessment = useFragment(AssistantSurvey_AssessmentFragment, props.assessment)
   const { assistantId, assistantSurvey } = assessment
   const { language, t } = useTranslation()
+
   const { mutate: update } = useMutation({
     mutationFn: async (formData: FormData) => {
       return await updateBasicSystemInfo({ data: formData })
@@ -93,6 +94,7 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
       queryClient.invalidateQueries(getChecklistStep1QueryOptions(assistantId))
     },
   })
+
   const { mutate: reset } = useMutation({
     mutationFn: async () => {
       return await resetAssessment({ data: { assistantId } })
@@ -105,7 +107,6 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
 
   const riskIndicator = assistantSurvey.riskIndicator
 
-  // Handle response changes
   const handleResponseChange = (questionId: string, value?: string | null, notes?: string | null) => {
     const formData = new FormData(formRef.current!)
     formData.append('questionId', questionId)
@@ -115,67 +116,57 @@ export const AssistantSurvey = (props: AssistantSurveyProps) => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-4 font-sans shadow">
-      <h1 className="mb-4 flex items-center justify-between text-xl font-bold text-gray-800">
-        <span>{assistantSurvey.title[language]}</span>
-        <span className="rounded bg-gray-100 px-2 py-1 text-sm font-normal">
-          {assistantSurvey.percentCompleted}% {t('labels.completed')}
-        </span>
-      </h1>
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 rounded-lg bg-base-100 p-4 shadow">
+      <h3 className="flex items-center justify-between">
+        <span className="text-xl font-bold">{assistantSurvey.title[language]}</span>
+        <span className="min-w-[4em] rounded bg-base-200 p-2 text-sm">{assistantSurvey.percentCompleted}%</span>
+      </h3>
 
-      <div className="mb-4 rounded border border-blue-200 bg-blue-50 p-3 text-sm text-gray-600">
-        {assistantSurvey.hint[language]}
-      </div>
+      <div className="rounded border border-info bg-info/40 p-3 text-sm">{assistantSurvey.hint[language]}</div>
 
       {/* Basic System Information Questions */}
-      <div className="mb-6 space-y-4">
-        <form ref={formRef}>
-          <input type="hidden" name="assistantId" value={assistantId} />
-          {assistantSurvey.questions.map((question) => (
-            <QuestionCard
-              key={`${question.id}-${question.value}`}
-              question={question.title[language]}
-              hint={question.hint[language]}
-              options={question.options.map((option) => ({
-                value: option.id,
-                label: option.title[language],
-              }))}
-              selected={question.value}
-              notes={question.notes}
-              onResponseChange={(value, notes) => handleResponseChange(question.id, value, notes)}
-            />
-          ))}
-        </form>
-      </div>
+
+      <form ref={formRef} className="flex flex-col gap-2">
+        <input type="hidden" name="assistantId" value={assistantId} />
+        {assistantSurvey.questions.map((question) => (
+          <QuestionCard
+            key={`${question.id}-${question.value}`}
+            question={question.title[language]}
+            hint={question.hint[language]}
+            options={question.options.map((option) => ({
+              value: option.id,
+              label: option.title[language],
+            }))}
+            selected={question.value}
+            notes={question.notes}
+            onResponseChange={(value, notes) => handleResponseChange(question.id, value, notes)}
+          />
+        ))}
+      </form>
 
       {/* Next Steps */}
-      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-        <h2 className="text-md mb-2 font-semibold text-gray-700">{t('labels.nextSteps')}</h2>
-        <p className="mb-3 text-sm text-gray-600">{assistantSurvey.actionsTitle[language]}</p>
-        <ul className="mb-4 list-inside list-disc space-y-1 text-sm text-gray-600">
+      <div className="flex flex-col gap-2 rounded-lg border bg-base-200 p-3">
+        <h2 className="font-semibold">{t('labels.nextSteps')}</h2>
+        <p className="text-sm">{assistantSurvey.actionsTitle[language]}</p>
+        <ul className="list-inside list-disc text-sm">
           {assistantSurvey.actions
             .filter((action) => action.level === riskIndicator.level)
             .map((action) => (
-              <li
-                key={`${action.level}_${action.description[language]}`}
-                className="text-sm font-semibold text-gray-700"
-              >
+              <li key={`${action.level}_${action.description[language]}`} className="font-semibold">
                 {action.description[language]}
               </li>
             ))}
         </ul>
 
-        <div className="mt-4x flex justify-between">
-          <button
-            type="button"
-            className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-            onClick={() => {
-              reset()
-            }}
-          >
-            {t('labels.reset')}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="btn btn-neutral btn-sm w-min self-end"
+          onClick={() => {
+            reset()
+          }}
+        >
+          {t('labels.reset')}
+        </button>
       </div>
     </div>
   )

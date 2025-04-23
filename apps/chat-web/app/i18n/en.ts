@@ -1,6 +1,7 @@
 export default {
   actions: {
     add: 'Add',
+    addNotes: 'Add notes',
     cancel: 'Cancel',
     cancelled: 'Cancelled',
     clearEmbeddings: 'Clear embeddings',
@@ -8,6 +9,7 @@ export default {
     delete: 'Delete',
     drop: 'Drop',
     edit: 'Edit',
+    hideNotes: 'Hide notes',
     increaseLimits: 'Increase limits',
     leave: 'Leave',
     new: 'New',
@@ -50,6 +52,7 @@ export default {
     noLibrariesToAdd: 'All libraries added',
     placeholders: {
       description: 'Describe your assistant',
+      euAiActNotePlaceholder: 'Additional information or context...',
       languageModel: 'Select the language model',
       llmTemperature: 'Between 0.0 and 1.0',
       name: 'Name your assistant',

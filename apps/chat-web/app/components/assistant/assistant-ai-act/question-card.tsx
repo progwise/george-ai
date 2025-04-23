@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
+
+import { useTranslation } from '../../../i18n/use-translation-hook'
 
 interface QuestionCardProps {
   question: string
@@ -10,65 +13,94 @@ interface QuestionCardProps {
 }
 
 const QuestionCard = (props: QuestionCardProps) => {
+  const { t } = useTranslation()
   const { question, hint, options, onResponseChange, selected } = props
   const [showNotes, setShowNotes] = useState((props.notes?.length || 0) > 0)
-  const [notes, setNotes] = useState(props.notes)
+  const [notes, setNotes] = useState(props.notes === null ? '' : props.notes)
+  const editableDivRef = useRef<HTMLDivElement>(null)
+
   const handleResponseChange = (optionValue: string) => {
-    onResponseChange(optionValue, notes)
+    const sanitizedNotes = !notes ? notes : notes.trim()
+    onResponseChange(optionValue, sanitizedNotes)
+  }
+
+  useEffect(() => {
+    if (!editableDivRef.current || !props.notes) return
+    editableDivRef.current.innerText = props.notes || ''
+  }, [props.notes])
+
+  const handleInput = () => {
+    if (editableDivRef.current) {
+      const text = editableDivRef.current.innerText
+      setNotes(text)
+    }
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      handleInput()
+    }
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
-      <div className="flex flex-col space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start">
-            <span className="text-sm font-medium text-gray-700">{question}</span>
-            {hint && (
-              <div className="group relative ml-1">
-                <span className="cursor-help text-xs text-gray-400">ℹ️</span>
-                <div className="invisible absolute left-0 z-10 mt-1 w-64 rounded bg-gray-800 p-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:visible group-hover:opacity-100">
-                  {hint}
-                </div>
-              </div>
-            )}
-          </div>
+    <div className="flex flex-col gap-3 rounded-lg border p-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">
+          {question}{' '}
+          {hint && (
+            <div className="tooltip cursor-help" data-tip={hint}>
+              ℹ️
+            </div>
+          )}
+        </span>
 
-          <button
-            type="button"
-            onClick={() => setShowNotes(!showNotes)}
-            className="rounded px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 hover:text-blue-800"
-          >
-            {showNotes ? 'Notizen verbergen' : 'Notizen hinzufügen'}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowNotes(!showNotes)}
+          className="btn btn-ghost no-animation btn-sm w-min"
+        >
+          {showNotes ? t('actions.hideNotes') : t('actions.addNotes')}
+        </button>
+      </div>
 
-        <div className="flex flex-wrap gap-3">
-          {options.map((option) => (
-            <label key={option.value} className="inline-flex items-center text-sm">
-              <input
-                type="radio"
-                checked={selected === option.value}
-                onChange={() => {
-                  handleResponseChange(option.value)
-                }}
-                className="form-radio h-4 w-4 text-blue-600"
-              />
-              <span className="ml-2 text-gray-700">{option.label}</span>
-            </label>
-          ))}
-        </div>
-
-        {/* Notes field */}
-        {showNotes && (
-          <div className="mt-2">
-            <textarea
-              value={notes ?? ''}
-              placeholder="Zusätzliche Informationen oder Kontext..."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              rows={2}
-              onChange={(e) => setNotes(e.target.value)}
-              onBlur={() => handleResponseChange(selected!)}
+      <div className="flex gap-3">
+        {options.map((option) => (
+          <label key={option.value} className="flex items-center text-sm">
+            <input
+              type="radio"
+              checked={selected === option.value}
+              onChange={() => {
+                handleResponseChange(option.value)
+              }}
+              className="radio-info radio radio-xs"
             />
+            <span className="ml-1">{option.label}</span>
+          </label>
+        ))}
+      </div>
+
+      <div className="relative">
+        <div
+          ref={editableDivRef}
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          contentEditable={true}
+          role="textbox"
+          aria-multiline="true"
+          className={twMerge('textarea textarea-info focus:outline-none', showNotes ? 'block' : 'hidden')}
+          onBlur={() => handleResponseChange(selected!)}
+          onFocus={({ currentTarget }) => {
+            currentTarget.innerText = notes ? notes.trim() : ''
+            const selection = window.getSelection()
+            selection?.selectAllChildren(currentTarget)
+            selection?.collapseToEnd()
+          }}
+        />
+
+        {showNotes && (!notes || notes.length < 1) && (
+          <div className="test-base-content pointer-events-none absolute left-4 top-3 text-sm opacity-50">
+            {t('assistants.placeholders.euAiActNotePlaceholder')}
           </div>
         )}
       </div>

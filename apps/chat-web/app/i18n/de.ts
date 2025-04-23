@@ -1,6 +1,7 @@
 export default {
   actions: {
     add: 'Hinzufügen',
+    addNotes: 'Notizen hinzufügen',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
     clearEmbeddings: 'Einbettungen löschen',
@@ -8,6 +9,7 @@ export default {
     delete: 'Löschen',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
+    hideNotes: 'Notizen ausblenden',
     increaseLimits: 'Grenzen erhöhen',
     leave: 'Verlassen',
     new: 'Neue',
@@ -50,6 +52,7 @@ export default {
     noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
+      euAiActNotePlaceholder: 'Zusätliche Information oder Kontext...',
       languageModel: 'Wählen Sie das Sprachmodell',
       llmTemperature: 'Zwischen 0.0 und 1.0',
       name: 'Name Ihres Assistenten',
