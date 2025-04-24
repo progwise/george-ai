@@ -100,27 +100,34 @@ export const createConversationInvitation = createServerFn({ method: 'POST' })
   })
 
 const ConfirmInvitationDocument = graphql(`
-  mutation confirmInvitation($conversationId: String!, $invitationId: String!, $userId: String!) {
-    confirmConversationInvitation(conversationId: $conversationId, invitationId: $invitationId, userId: $userId) {
+  mutation confirmInvitation($conversationId: String!, $invitationId: String!, $userId: String!, $email: String) {
+    confirmConversationInvitation(
+      conversationId: $conversationId
+      invitationId: $invitationId
+      userId: $userId
+      email: $email
+    ) {
       id
     }
   }
 `)
 
 export const confirmInvitation = createServerFn({ method: 'POST' })
-  .validator((data: { conversationId: string; invitationId: string; userId: string }) =>
+  .validator((data: { conversationId: string; invitationId: string; userId: string; email?: string }) =>
     z
       .object({
         conversationId: z.string(),
         invitationId: z.string(),
         userId: z.string(),
+        email: z.string().email().optional(),
       })
       .parse(data),
   )
-  .handler((ctx) =>
-    backendRequest(ConfirmInvitationDocument, {
+  .handler(async (ctx) => {
+    return await backendRequest(ConfirmInvitationDocument, {
       conversationId: ctx.data.conversationId,
       invitationId: ctx.data.invitationId,
       userId: ctx.data.userId,
-    }),
-  )
+      email: ctx.data.email ?? null,
+    })
+  })
