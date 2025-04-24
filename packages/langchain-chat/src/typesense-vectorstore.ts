@@ -4,6 +4,7 @@ import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
+import type { SearchResponseHit } from 'typesense/lib/Typesense/Documents'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
 
 import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
@@ -270,26 +271,37 @@ export const similaritySearch = async (
 ): Promise<{ pageContent: string; docName: string }[]> => {
   const questionAsVector = await embeddings.embedQuery(question)
   await ensureVectorStore(library)
-  const searchResponse = await vectorTypesenseClient.multiSearch.perform({
+
+  interface HitDocument {
+    text: string
+    docName: string
+  }
+  type Hit = SearchResponseHit<HitDocument>
+  type MultiSearchResponse<T> = { results: T }
+
+  type ResultBlock = {
+    hits: Hit[]
+    found: number
+  }
+
+  type MyMultiSearch = MultiSearchResponse<ResultBlock[]>
+
+  const searchResponse = (await vectorTypesenseClient.multiSearch.perform({
     searches: [
       {
         collection: getTypesenseSchemaName(library),
         q: question,
-        query_by: 'text, docName',
+        query_by: 'text,docName',
         vector_query: `vec:([${questionAsVector.join(',')}])`,
         sort_by: '_text_match:desc',
         per_page: 100,
       },
     ],
-  })
+  })) as MyMultiSearch
 
-  // TODO: Find the right typings
   const docs = searchResponse.results
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    .flatMap((result: unknown) => result.hits)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any
-    .map((hit: any) => ({
+    .flatMap((result: ResultBlock) => result.hits)
+    .map((hit: Hit) => ({
       pageContent: hit.document.text,
       docName: hit.document.docName,
     }))
