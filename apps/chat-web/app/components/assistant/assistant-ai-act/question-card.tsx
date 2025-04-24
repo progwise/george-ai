@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import { twMerge } from 'tailwind-merge'
+import { useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { EditableDiv } from '../../editable-div'
 
 const QuestionCard_questionFragment = graphql(`
   fragment QuestionCard_question on AiActQuestion {
@@ -37,31 +37,10 @@ const QuestionCard = (props: QuestionCardProps) => {
   const question = useFragment(QuestionCard_questionFragment, props.question)
   const { title, notes, value, hint, options } = question
   const [showNotes, setShowNotes] = useState((notes?.length || 0) > 0)
-  const [editedNotes, setEditedNotes] = useState(notes === null ? '' : notes)
-  const editableDivRef = useRef<HTMLDivElement>(null)
 
-  const handleResponseChange = (optionValue: string) => {
-    const sanitizedNotes = !editedNotes ? editedNotes : editedNotes.trim()
+  const handleResponseChange = (optionValue?: string, notes?: string) => {
+    const sanitizedNotes = !notes ? notes : notes.trim()
     props.onResponseChange(optionValue, sanitizedNotes)
-  }
-
-  useEffect(() => {
-    if (!editableDivRef.current || !notes) return
-    editableDivRef.current.innerText = notes || ''
-  }, [notes])
-
-  const handleInput = () => {
-    if (editableDivRef.current) {
-      const text = editableDivRef.current.innerText
-      setEditedNotes(text)
-    }
-  }
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault()
-      handleInput()
-    }
   }
 
   return (
@@ -92,7 +71,7 @@ const QuestionCard = (props: QuestionCardProps) => {
               type="radio"
               checked={value === option.id}
               onChange={() => {
-                handleResponseChange(option.id)
+                handleResponseChange(option.id, notes ?? '')
               }}
               className="radio-info radio radio-xs"
             />
@@ -101,30 +80,18 @@ const QuestionCard = (props: QuestionCardProps) => {
         ))}
       </div>
 
-      <div className="relative">
-        <div
-          ref={editableDivRef}
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          contentEditable={true}
-          role="textbox"
-          aria-multiline="true"
-          className={twMerge('textarea textarea-info focus:outline-none', showNotes ? 'block' : 'hidden')}
-          onBlur={() => handleResponseChange(value!)}
-          onFocus={({ currentTarget }) => {
-            currentTarget.innerText = notes ? notes.trim() : ''
-            const selection = window.getSelection()
-            selection?.selectAllChildren(currentTarget)
-            selection?.collapseToEnd()
-          }}
-        />
-
-        {showNotes && (!notes || notes.length < 1) && (
-          <div className="test-base-content pointer-events-none absolute left-4 top-3 text-sm opacity-50">
-            {t('assistants.placeholders.euAiActNotePlaceholder')}
-          </div>
-        )}
-      </div>
+      <EditableDiv
+        className="textarea textarea-info focus:outline-none"
+        onSubmit={function (): void {
+          throw new Error('Function not implemented.')
+        }}
+        onBlur={(newNotes) => handleResponseChange(value ?? undefined, newNotes)}
+        disabled={false}
+        value={notes ?? ''}
+        hidden={!showNotes}
+        placeholder={t('assistants.placeholders.euAiActNotePlaceholder')}
+        placeholderClassName="test-base-content pointer-events-none absolute left-4 top-3 text-sm opacity-50"
+      />
     </div>
   )
 }

@@ -1,52 +1,80 @@
 import { useEffect, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export interface EditableDivProps {
-  onSubmit: () => void
-  onChange: (value: string) => void
+  onSubmit?: () => void
+  onChange?: (value: string) => void
+  onBlur?: (value: string) => void
   disabled: boolean
   value: string
   placeholder?: string
+  hidden?: boolean
+  className?: string
+  placeholderClassName?: string
 }
 
-export const EditableDiv = ({ onSubmit, onChange, disabled, value, placeholder }: EditableDivProps) => {
+export const EditableDiv = ({
+  onSubmit,
+  onChange,
+  onBlur,
+  disabled,
+  value,
+  placeholder,
+  hidden,
+  className,
+  placeholderClassName,
+}: EditableDivProps) => {
   const editableDivRef = useRef<HTMLDivElement>(null)
   const [showPlaceholder, setShowPlaceholder] = useState(value.length === 0)
 
   useEffect(() => {
-    if (editableDivRef.current) {
-      if (value === '' && editableDivRef.current.innerText !== '') {
-        editableDivRef.current.innerText = ''
-        // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
-        setShowPlaceholder(true)
-      }
+    if (!editableDivRef.current) return
+
+    if (value === '' && editableDivRef.current.innerText !== '') {
+      editableDivRef.current.innerText = ''
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setShowPlaceholder(true)
+    } else if (value !== '' && editableDivRef.current.innerText !== value) {
+      editableDivRef.current.innerText = value.trim()
+      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+      setShowPlaceholder(false)
     }
   }, [value])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
-      onSubmit()
+      onSubmit?.()
     }
   }
 
   const handleInput = () => {
     if (editableDivRef.current) {
       const text = editableDivRef.current.innerText
-      onChange(text)
+      onChange?.(text)
       setShowPlaceholder(text.length === 0)
     }
   }
 
-  const handleFocus = () => {
+  const handleFocus = (event: React.FocusEvent<HTMLDivElement>) => {
     if (showPlaceholder) {
       setShowPlaceholder(false)
     }
+    const currentTarget = event.currentTarget
+    const value = currentTarget.innerText
+    currentTarget.innerText = value ? value.trim() : ''
+    const selection = window.getSelection()
+    selection?.selectAllChildren(currentTarget)
+    selection?.collapseToEnd()
   }
 
   const handleBlur = () => {
-    if (editableDivRef.current && editableDivRef.current.innerText.trim() === '') {
+    if (!editableDivRef.current) return
+    if (editableDivRef.current.innerText.trim() === '') {
       setShowPlaceholder(true)
     }
+    const text = editableDivRef.current.innerText
+    onBlur?.(text)
   }
 
   return (
@@ -54,7 +82,7 @@ export const EditableDiv = ({ onSubmit, onChange, disabled, value, placeholder }
       <div
         ref={editableDivRef}
         contentEditable={!disabled && 'plaintext-only'}
-        className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
+        className={twMerge(className, hidden ? 'hidden' : 'block')}
         onKeyDown={handleKeyDown}
         onInput={handleInput}
         onFocus={handleFocus}
@@ -63,8 +91,15 @@ export const EditableDiv = ({ onSubmit, onChange, disabled, value, placeholder }
         aria-multiline="true"
         aria-disabled={!!disabled}
       />
-      {showPlaceholder && placeholder && (
-        <div className="pointer-events-none absolute left-2 top-2 text-base-content opacity-50">{placeholder}</div>
+      {showPlaceholder && placeholder && !hidden && (
+        <div
+          className={twMerge(
+            'pointer-events-none absolute left-2 top-2 text-base-content opacity-50',
+            placeholderClassName,
+          )}
+        >
+          {placeholder}
+        </div>
       )}
     </div>
   )

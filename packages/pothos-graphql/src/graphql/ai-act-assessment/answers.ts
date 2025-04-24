@@ -6,10 +6,8 @@ export const getQuestionsWithAnswers = async (assistantId: string, questions: Ai
   const answers = await prisma.aiAssistantEUActAnswers.findMany({
     where: { assistantId },
   })
-  if (answers.length < questions.length) {
-    return questions
-  }
-  return questions.map((question) => {
+
+  const questionsWithAnswers = questions.map((question) => {
     const answer = answers.find((answer) => answer.questionId === question.id)
     return {
       ...question,
@@ -17,4 +15,5 @@ export const getQuestionsWithAnswers = async (assistantId: string, questions: Ai
       notes: answer?.notes ?? null,
     }
   })
+  return questionsWithAnswers
 }
