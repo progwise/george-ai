@@ -176,14 +176,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         },
       })
     },
-    // onSettled: (result) => {
-    //   queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
-    //   if (result?.createAiConversation) {
-    //     navigate({ to: `/conversations/${result.createAiConversation.id}` })
-    //   }
-
-    //   dialogRef.current?.close()
-    // },
   })
 
   const { mutate: addParticipants, isPending: isAdding } = useMutation({
@@ -203,7 +195,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     },
     onSettled: async () => {
       if (conversation) {
-        // if (!conversation) return
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversation.id] })
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
       }

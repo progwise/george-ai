@@ -28,6 +28,7 @@ export default {
     signInForGoogleAuth: 'Melden Sie sich an, um die Google-Authentifizierung zu verwenden.',
     signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
     signInForProfile: 'Melden Sie sich an, um Ihr Profil zu nutzen.',
+    signInToConfirmInvitation: 'Melden Sie sich an, um die Konversationseinladung zu bestätigen.',
     signInToContinue: 'Melden Sie sich an, um fortzufahren',
     signInWithGoogle: 'Mit Google anmelden',
     signOut: 'Abmelden',
@@ -104,7 +105,6 @@ export default {
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
-    userNotSet: 'Benutzer nicht festgelegt',
   },
   flowLocal: 'Ablauf: Nur Lokal',
   flowParallel: 'Ablauf: Parallel',
@@ -118,8 +118,8 @@ export default {
   invitations: {
     alreadyParticipant: 'Sie sind bereits Teilnehmer dieser Konversation.',
     cannotSendInvitation: 'Einladungen können erst gesendet werden, wenn die Konversation erstellt wurde.',
-    confirmDescription: 'Bitte bestätigen Sie die Einladung. Sie können die Konversation jederzeit verlassen.',
-    confirmInvitation: 'Einladung bestätigen',
+    confirmDescription:
+      'Bitte bestätigen Sie die Konversationseinladung. Sie können die Konversation jederzeit verlassen.',
     conversationNotFound: 'Konversation nicht gefunden.',
     emailMismatch:
       'Die E-Mail-Adresse stimmt nicht mit der Einladung überein. Unterschiedliche E-Mails sind nicht erlaubt.',

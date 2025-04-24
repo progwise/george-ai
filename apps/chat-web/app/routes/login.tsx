@@ -30,6 +30,9 @@ function RouteComponent() {
   let loginText
 
   switch (true) {
+    case redirect?.startsWith('/conversations') && redirect?.includes('/confirm-invitation'):
+      loginText = t('actions.signInToConfirmInvitation')
+      break
     case redirect?.startsWith('/conversations'):
       loginText = t('actions.signInForConversations')
       break

@@ -24,6 +24,7 @@ import { Route as AuthenticatedConversationsSplatImport } from './routes/_authen
 import { Route as AuthenticatedAssistantsAssistantIdImport } from './routes/_authenticated/assistants/$assistantId'
 import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
 import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './routes/_authenticated/profile/$profileId.admin-confirm'
+import { Route as AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/_authenticated/conversations/$conversationId.confirm-invitation.$invitationId'
 
 // Create/Update Routes
 
@@ -111,6 +112,15 @@ const AuthenticatedProfileProfileIdAdminConfirmRoute =
     path: '/profile/$profileId/admin-confirm',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+
+const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute =
+  AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport.update(
+    {
+      id: '/conversations/$conversationId/confirm-invitation/$invitationId',
+      path: '/conversations/$conversationId/confirm-invitation/$invitationId',
+      getParentRoute: () => AuthenticatedRouteRoute,
+    } as any,
+  )
 
 // Populate the FileRoutesByPath interface
 
@@ -207,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileProfileIdConfirmImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId': {
+      id: '/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId'
+      path: '/conversations/$conversationId/confirm-invitation/$invitationId'
+      fullPath: '/conversations/$conversationId/confirm-invitation/$invitationId'
+      preLoaderRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
   }
 }
 
@@ -222,6 +239,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
   AuthenticatedProfileProfileIdAdminConfirmRoute: typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   AuthenticatedProfileProfileIdConfirmRoute: typeof AuthenticatedProfileProfileIdConfirmRoute
+  AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -237,6 +255,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedProfileProfileIdAdminConfirmRoute,
   AuthenticatedProfileProfileIdConfirmRoute:
     AuthenticatedProfileProfileIdConfirmRoute,
+  AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute:
+    AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -256,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -272,6 +293,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 export interface FileRoutesById {
@@ -289,6 +311,7 @@ export interface FileRoutesById {
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 export interface FileRouteTypes {
@@ -339,6 +362,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/'
     | '/_authenticated/profile/$profileId/admin-confirm'
     | '/_authenticated/profile/$profileId/confirm'
+    | '/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId'
   fileRoutesById: FileRoutesById
 }
 
@@ -386,7 +410,8 @@ export const routeTree = rootRoute
         "/_authenticated/libraries/",
         "/_authenticated/profile/",
         "/_authenticated/profile/$profileId/admin-confirm",
-        "/_authenticated/profile/$profileId/confirm"
+        "/_authenticated/profile/$profileId/confirm",
+        "/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId"
       ]
     },
     "/contact": {
@@ -429,6 +454,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/profile/$profileId/confirm": {
       "filePath": "_authenticated/profile/$profileId.confirm.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId": {
+      "filePath": "_authenticated/conversations/$conversationId.confirm-invitation.$invitationId.tsx",
       "parent": "/_authenticated"
     }
   }
