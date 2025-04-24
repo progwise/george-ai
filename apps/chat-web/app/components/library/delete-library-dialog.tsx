@@ -88,7 +88,7 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
       <button
         type="button"
         className="btn btn-ghost btn-sm lg:tooltip"
-        data-tip={t('tooltips.deleteLibrary')}
+        data-tip={t('tooltips.delete')}
         onClick={() => dialogReference.current?.showModal()}
       >
         <TrashIcon className="size-6" />

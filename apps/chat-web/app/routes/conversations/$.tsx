@@ -133,7 +133,7 @@ function RouteComponent() {
   if (!userId) {
     return (
       <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('texts.signInForConversations')}
+        {t('actions.signInForConversations')}
       </button>
     )
   }
