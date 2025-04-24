@@ -63,7 +63,7 @@ function RouteComponent() {
   if (!isLoggedIn) {
     return (
       <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('libraries.signInForLibraries')}
+        {t('actions.signInForLibraries')}
       </button>
     )
   }

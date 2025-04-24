@@ -31,6 +31,7 @@ model User {
   name                       String?
   given_name                 String?
   family_name                String?
+  isAdmin                    Boolean                     @default(false)
   assistants                 AiAssistant[]
   libraries                  AiLibrary[]
   conversationParticipations AiConversationParticipant[]
@@ -54,6 +55,7 @@ model UserProfile {
   user             User      @relation(fields: [userId], references: [id])
   userId           String    @unique
   confirmationDate DateTime?
+  activationDate   DateTime?
 }
 
 model AiAssistant {
