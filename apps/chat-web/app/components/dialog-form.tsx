@@ -45,14 +45,14 @@ export const DialogForm = ({
           <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
           <div className="modal-action">
             <button type="button" className="btn btn-sm" onClick={handleClose}>
-              {t('dialog.cancel')}
+              {t('actions.cancel')}
             </button>
             <div
               className={` ${disabledSubmit ? 'lg:tooltip lg:tooltip-left' : ''} `}
               data-tip={submitButtonTooltipText}
             >
               <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
-                {submitButtonText || t('dialog.confirm')}
+                {submitButtonText || t('actions.confirm')}
               </button>
             </div>
           </div>

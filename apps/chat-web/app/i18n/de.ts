@@ -20,7 +20,6 @@ export default {
     saving: 'Speichern...',
     selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',
-    sendInvitation: 'Einladung senden',
     sendMessage: 'Senden',
     signIn: 'Anmelden',
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen.',
@@ -77,7 +76,6 @@ export default {
     noMessages: 'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an ...',
     owner: 'Besitzer',
     promptPlaceholder: 'Stelle irgendeine Frage',
-    signInToJoin: 'Melden Sie sich an, um der Konversation beizutreten',
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
@@ -90,11 +88,6 @@ export default {
     run: 'Crawler starten',
     url: 'URL',
     utcHint: 'UTC-Zeitzone',
-  },
-  dialog: {
-    cancel: 'Abbrechen',
-    confirm: 'Bestätigen',
-    done: 'Fertig',
   },
   errors: {
     copyFailed: 'Kopieren fehlgeschlagen',
@@ -198,7 +191,6 @@ export default {
     instruction: 'Dann',
     email: 'Ihre E-Mail-Adresse',
     emailToInvite: 'E-Mail-Adresse zum Einladen',
-    multipleEmailsHint: 'Mehrere E-Mail-Adressen mit Komma trennen',
     searchUsers: 'Benutzer suchen...',
   },
   resetConversation: 'Konversation zurücksetzen',

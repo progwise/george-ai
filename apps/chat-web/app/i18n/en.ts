@@ -20,7 +20,6 @@ export default {
     saving: 'Saving...',
     selectAll: 'Select all',
     sendConfirmationMail: 'Send confirmation mail',
-    sendInvitation: 'Send invitation',
     sendMessage: 'Send',
     signIn: 'Sign in',
     signInForAssistants: 'Sign in to see your assistants.',
@@ -75,7 +74,6 @@ export default {
     noMessages: 'You have no more free messages left. Create your profile and ask for more...',
     owner: 'Owner',
     promptPlaceholder: 'Ask anything',
-    signInToJoin: 'Sign in to join the conversation',
   },
   crawlers: {
     addNew: 'Create new crawler',
@@ -88,11 +86,6 @@ export default {
     run: 'Crawl',
     url: 'URL',
     utcHint: 'UTC time',
-  },
-  dialog: {
-    cancel: 'Cancel',
-    confirm: 'Confirm',
-    done: 'Done',
   },
   errors: {
     copyFailed: 'Copy failed',
@@ -194,7 +187,6 @@ export default {
     instruction: 'then',
     email: 'Your email address',
     emailToInvite: 'Email address to invite',
-    multipleEmailsHint: 'Separate multiple email addresses with a comma',
     searchUsers: 'Search users...',
   },
   resetConversation: 'Reset conversation',
