@@ -39,6 +39,9 @@ function RouteComponent() {
     case redirect?.startsWith('/libraries'):
       loginText = t('actions.signInForLibraries')
       break
+    case redirect?.startsWith('/profile'):
+      loginText = t('actions.signInForProfile')
+      break
     default:
       loginText = t('actions.signInToContinue')
       break
