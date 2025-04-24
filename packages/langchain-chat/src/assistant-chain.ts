@@ -23,6 +23,7 @@ export async function* askAssistantChain(input: {
     id: string
     name: string
     description: string
+    usedFor: string
   }[]
 }) {
   const model = getModel(input.assistant.languageModel)
@@ -59,7 +60,8 @@ export async function* askAssistantChain(input: {
       new SystemMessage({
         content: `You have access to the following library:
       name: ${library.name}
-      description: ${library.description}`,
+      description: ${library.description}
+      usedFor: ${library.usedFor}`,
       }),
   )
 
