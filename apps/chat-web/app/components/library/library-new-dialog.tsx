@@ -42,7 +42,7 @@ const createNewLibrary = createServerFn({ method: 'POST' })
   })
 
 interface LibraryNewDialogProps {
-  userId?: string
+  userId: string
 }
 
 export const LibraryNewDialog = ({ userId }: LibraryNewDialogProps) => {

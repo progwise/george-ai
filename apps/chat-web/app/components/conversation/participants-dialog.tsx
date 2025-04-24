@@ -51,7 +51,7 @@ interface ParticipantsDialogProps {
   humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
-  userId?: string
+  userId: string
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -114,9 +114,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const { mutate: createNewConversation, isPending: isCreating } = useMutation({
     mutationFn: async () => {
-      if (!props.userId) {
-        throw new Error('User not set')
-      }
       return await createConversation({
         data: {
           userIds: [...selectedUserIds, props.userId],
@@ -126,10 +123,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       })
     },
     onSettled: (result) => {
-      if (!props.userId) {
-        throw new Error('User not set')
-      }
-
       queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
       if (result?.createAiConversation) {
         navigate({ to: `/conversations/${result.createAiConversation.id}` })
@@ -147,15 +140,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       if (!isOwner) {
         throw new Error('Only the owner can add participants')
       }
-      if (!props.userId) {
-        throw new Error('User not set')
-      }
       return await addConversationParticipants({
         data: { conversationId: conversation.id, assistantIds: selectedAssistantIds, userIds: selectedUserIds },
       })
     },
     onSettled: async () => {
-      if (!conversation || !props.userId) return
+      if (!conversation) return
 
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, conversation.id],
@@ -193,10 +183,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}...`
   const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding
-
-  if (!props.userId) {
-    return null
-  }
 
   return (
     <>

@@ -67,7 +67,7 @@ const AssistantBasecaseForm_AssistantFragment = graphql(`
 
 export interface AssistantBaseCaseFormProps {
   assistant: FragmentType<typeof AssistantBasecaseForm_AssistantFragment>
-  userId?: string
+  userId: string
 }
 
 export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {

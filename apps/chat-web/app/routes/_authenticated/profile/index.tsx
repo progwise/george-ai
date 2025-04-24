@@ -5,17 +5,16 @@ import { z } from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth'
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
-import { toastError, toastSuccess } from '../../components/georgeToaster'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { UserProfileForm, getFormSchema, updateProfile } from '../../components/user/user-profile-form'
-import { graphql } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-import { sendConfirmationMail } from '../../server-functions/users'
+import { getProfileQueryOptions } from '../../../auth/get-profile-query'
+import { toastError, toastSuccess } from '../../../components/georgeToaster'
+import { LoadingSpinner } from '../../../components/loading-spinner'
+import { UserProfileForm, getFormSchema, updateProfile } from '../../../components/user/user-profile-form'
+import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
+import { sendConfirmationMail } from '../../../server-functions/users'
 
 const userProfileQueryDocument = graphql(`
   query userProfile($userId: String!) {
@@ -81,7 +80,7 @@ export const removeUserProfile = createServerFn({ method: 'POST' })
     })
   })
 
-export const Route = createFileRoute('/profile/')({
+export const Route = createFileRoute('/_authenticated/profile/')({
   component: RouteComponent,
 })
 
@@ -89,7 +88,6 @@ function RouteComponent() {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
   const { user } = Route.useRouteContext()
-  const { login } = useAuth()
 
   const userId = user?.id || ''
   const formSchema = getFormSchema(language)
@@ -99,11 +97,8 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfileForEdit, userId],
-    queryFn: async () => {
-      if (!userId) return null
-      return await getUserProfile({ data: userId })
-    },
+    queryKey: [queryKeys.UserProfileForEdit, user.id],
+    queryFn: () => getUserProfile({ data: user.id }),
   })
 
   const confirmationLink = useLinkProps({
@@ -112,23 +107,19 @@ function RouteComponent() {
   })
 
   const { mutate: createProfileMutation, isPending: createProfileIsPending } = useMutation({
-    mutationFn: async () => {
-      return await createUserProfile({ data: { userId } })
-    },
+    mutationFn: async () => createUserProfile({ data: { userId: user.id } }),
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(userId))
+      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
     },
   })
 
   const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
-    mutationFn: async () => {
-      return await removeUserProfile({ data: { userId } })
-    },
-    onSuccess: () => {
+    mutationFn: async () => removeUserProfile({ data: { userId: user.id } }),
+    onSettled: () => {
       toastSuccess(t('texts.removedProfile'))
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user?.id))
+      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
     },
     onError: (error) => {
       toastError('Failed to remove profile: ' + error.message)
@@ -143,7 +134,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
 
@@ -212,14 +203,6 @@ function RouteComponent() {
 
   if (isLoading) {
     return <LoadingSpinner isLoading={true} />
-  }
-
-  if (!userId) {
-    return (
-      <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('actions.signInForProfile')}
-      </button>
-    )
   }
 
   if (!userProfile?.userProfile) {

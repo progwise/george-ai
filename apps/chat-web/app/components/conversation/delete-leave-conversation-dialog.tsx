@@ -28,7 +28,7 @@ const ConversationDelete_ConversationFragment = graphql(`
 
 interface DeleteLeaveConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
-  userId?: string
+  userId: string
 }
 
 export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDialogProps) => {
@@ -52,8 +52,6 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!props.userId) return
-
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversations, props.userId],
       })
@@ -71,8 +69,6 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!props.userId) return
-
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversations, props.userId],
       })
@@ -90,10 +86,6 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
 
   const handleOpen = () => {
     dialogRef.current?.showModal()
-  }
-
-  if (!props.userId) {
-    return null
   }
 
   const isPending = isDeletePending || isLeavePending

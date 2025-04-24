@@ -39,7 +39,7 @@ interface ConversationParticipantsProps {
   conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
   assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
   humans: FragmentType<typeof ConversationParticipants_HumanFragment>[]
-  userId?: string
+  userId: string
 }
 
 export const ConversationParticipants = (props: ConversationParticipantsProps) => {
@@ -77,10 +77,6 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     }
     event.preventDefault()
     mutateRemove({ participantId })
-  }
-
-  if (!props.userId) {
-    return null
   }
 
   return (
