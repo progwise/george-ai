@@ -60,11 +60,10 @@ export const EditableDiv = ({
     if (showPlaceholder) {
       setShowPlaceholder(false)
     }
-    const currentTarget = event.currentTarget
-    const value = currentTarget.innerText
-    currentTarget.innerText = value ? value.trim() : ''
+
+    // set the cursor to the end of the text
     const selection = window.getSelection()
-    selection?.selectAllChildren(currentTarget)
+    selection?.selectAllChildren(event.currentTarget)
     selection?.collapseToEnd()
   }
 
