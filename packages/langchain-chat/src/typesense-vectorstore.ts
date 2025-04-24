@@ -39,19 +39,6 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   default_sorting_field: 'points',
 })
 
-const getConfig = (lib: string): TypesenseConfig => ({
-  typesenseClient: vectorTypesenseClient,
-  schemaName: getTypesenseSchemaName(lib),
-  columnNames: { vector: 'vec', pageContent: 'text', metadataColumnNames: ['points', 'docName', 'docType', 'docId'] },
-  searchParams: { q: '*', filter_by: '', query_by: 'text' },
-  import: async <T extends Record<string, unknown>>(data: T[], collectionName: string) => {
-    await vectorTypesenseClient
-      .collections(collectionName)
-      .documents()
-      .import(data, { action: 'emplace', dirty_values: 'drop' })
-  },
-})
-
 /*
 curl --location 'http://localhost:8108/collections' \
 --header 'Content-Type: application/json' \
@@ -88,7 +75,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   searchParams: {
     q: '*',
     filter_by: '',
-    query_by: '',
+    query_by: 'text',
   },
   import: async (data, collectionName) => {
     await vectorTypesenseClient
@@ -287,7 +274,7 @@ export const similaritySearch = async (
     .documents()
     .search({ q: '*', query_by: 'text', per_page: 1 })
   const k = calculateRetrievalK(found)
-  const store = new Typesense(embeddings, getConfig(library))
+  const store = new Typesense(embeddings, getTypesenseVectorStoreConfig(library))
   const docs = await store.similaritySearch(question, k)
   return docs.map((d) => ({ pageContent: d.pageContent, docName: d.metadata.docName.toString() }))
 }
