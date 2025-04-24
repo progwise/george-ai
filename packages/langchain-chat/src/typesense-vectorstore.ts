@@ -9,7 +9,7 @@ import { ImportError } from 'typesense/lib/Typesense/Errors'
 import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
 
 import { loadFile } from './langchain-file'
-import { calculateChunkParams, calculateRetrievalK } from './vectorstore-settings'
+import { calculateChunkParams } from './vectorstore-settings'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -268,15 +268,32 @@ export const similaritySearch = async (
   question: string,
   library: string,
 ): Promise<{ pageContent: string; docName: string }[]> => {
+  const questionAsVector = await embeddings.embedQuery(question)
   await ensureVectorStore(library)
-  const { found } = await vectorTypesenseClient
-    .collections(getTypesenseSchemaName(library))
-    .documents()
-    .search({ q: '*', query_by: 'text', per_page: 1 })
-  const k = calculateRetrievalK(found)
-  const store = new Typesense(embeddings, getTypesenseVectorStoreConfig(library))
-  const docs = await store.similaritySearch(question, k)
-  return docs.map((d) => ({ pageContent: d.pageContent, docName: d.metadata.docName.toString() }))
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform({
+    searches: [
+      {
+        collection: getTypesenseSchemaName(library),
+        q: question,
+        query_by: 'text, docName',
+        vector_query: `vec:([${questionAsVector.join(',')}])`,
+        sort_by: '_text_match:desc',
+        per_page: 100,
+      },
+    ],
+  })
+
+  // TODO: Find the right typings
+  const docs = searchResponse.results
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    .flatMap((result: unknown) => result.hits)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment, @typescript-eslint/no-explicit-any
+    .map((hit: any) => ({
+      pageContent: hit.document.text,
+      docName: hit.document.docName,
+    }))
+  return docs
 }
 
 // retrieves content from the vector store similar to the question

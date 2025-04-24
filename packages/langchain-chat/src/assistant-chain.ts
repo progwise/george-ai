@@ -100,7 +100,6 @@ export async function* askAssistantChain(input: {
     })
 
     const libraryPromptResult = await model.invoke(libraryPrompt, {})
-    console.log('libraryPromptResult', libraryPromptResult.content.toString())
     const libraryPromptResultJson = JSON.parse(libraryPromptResult.content.toString())
 
     if (!libraryPromptResultJson.isRelevant) {
