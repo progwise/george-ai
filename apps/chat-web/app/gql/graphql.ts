@@ -1076,6 +1076,14 @@ export type ConversationSelector_ConversationFragment = {
   createdAt: string
   owner: { __typename?: 'User'; id: string; name?: string | null }
   assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
+  conversationInvitation?: {
+    __typename?: 'AiConversationInvitation'
+    id: string
+    link?: string | null
+    allowMultipleParticipants: boolean
+    allowDifferentEmailAddress: boolean
+    confirmationDate?: string | null
+  } | null
 } & { ' $fragmentName'?: 'ConversationSelector_ConversationFragment' }
 
 export type ConversationDelete_ConversationFragment = {
@@ -1106,6 +1114,12 @@ export type ParticipantsDialog_ConversationFragment = {
     | { __typename?: 'AssistantParticipant'; id: string; userId?: string | null; assistantId?: string | null }
     | { __typename?: 'HumanParticipant'; id: string; userId?: string | null; assistantId?: string | null }
   >
+  conversationInvitation?: {
+    __typename?: 'AiConversationInvitation'
+    link?: string | null
+    allowDifferentEmailAddress: boolean
+    allowMultipleParticipants: boolean
+  } | null
 } & { ' $fragmentName'?: 'ParticipantsDialog_ConversationFragment' }
 
 export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
@@ -1732,6 +1746,7 @@ export type ConfirmInvitationMutationVariables = Exact<{
   conversationId: Scalars['String']['input']
   invitationId: Scalars['String']['input']
   userId: Scalars['String']['input']
+  email?: InputMaybe<Scalars['String']['input']>
 }>
 
 export type ConfirmInvitationMutation = {
@@ -2108,6 +2123,18 @@ export const ParticipantsDialog_ConversationFragmentDoc = {
               ],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'conversationInvitation' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -2160,6 +2187,18 @@ export const ConversationParticipants_ConversationFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'conversationInvitation' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
               ],
             },
           },
@@ -2313,6 +2352,20 @@ export const ConversationSelector_ConversationFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'conversationInvitation' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
               ],
             },
           },
@@ -4554,6 +4607,20 @@ export const GetUserConversationsDocument = {
               ],
             },
           },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'conversationInvitation' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -4618,6 +4685,18 @@ export const GetConversationDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'conversationInvitation' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
               ],
             },
           },
@@ -5916,6 +5995,11 @@ export const ConfirmInvitationDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -5938,6 +6022,11 @@ export const ConfirmInvitationDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'email' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
               },
             ],
             selectionSet: {
