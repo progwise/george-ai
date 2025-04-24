@@ -462,7 +462,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                   setEmail(value)
                   setEmailError(null)
                 }}
-                autoFocus
               />
               {emailError && <p className="text-sm text-error">{emailError}</p>}
               <div className="mt-2">

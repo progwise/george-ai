@@ -12,7 +12,6 @@ interface InputProps<T extends ZodRawShape> {
   placeholder?: string
   required?: boolean
   readOnly?: boolean
-  autoFocus?: boolean
   schema?: z.ZodObject<T>
   onChange?: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => void
@@ -29,7 +28,6 @@ export const Input = <T extends ZodRawShape>({
   placeholder,
   required,
   readOnly,
-  autoFocus,
   schema,
   onChange,
   onBlur,
@@ -77,7 +75,6 @@ export const Input = <T extends ZodRawShape>({
       {type === 'textarea' ? (
         <textarea
           ref={ref as React.Ref<HTMLTextAreaElement>}
-          key={value}
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
@@ -93,7 +90,6 @@ export const Input = <T extends ZodRawShape>({
       ) : (
         <input
           ref={ref as React.Ref<HTMLInputElement>}
-          key={value}
           name={name}
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
@@ -106,7 +102,6 @@ export const Input = <T extends ZodRawShape>({
           placeholder={placeholder || ''}
           required={required}
           readOnly={readOnly}
-          autoFocus={autoFocus}
           onChange={handleChange}
           onBlur={handleBlur}
         />
