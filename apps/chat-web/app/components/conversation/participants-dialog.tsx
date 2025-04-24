@@ -481,7 +481,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     checked={allowDifferentEmailAddress}
                     onChange={(event) => setAllowDifferentEmailAddress(event.target.checked)}
                   />
-                  <span>{t('labels.allowDifferentEmail')}</span>
+                  {t('texts.allowDifferentEmail')}
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -489,7 +489,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     checked={allowMultipleParticipants}
                     onChange={(event) => setAllowMultipleParticipants(event.target.checked)}
                   />
-                  <span>{t('labels.allowMultipleParticipants')}</span>
+                  {t('texts.allowMultipleParticipants')}
                 </label>
               </div>
               <div className="mt-4 flex items-center justify-end">

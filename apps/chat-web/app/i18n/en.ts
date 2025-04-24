@@ -130,8 +130,6 @@ export default {
     actions: 'Actions',
     activatedAt: 'Activated at',
     adminProfileActivation: 'Admin Profile Activation',
-    allowDifferentEmail: 'Allow different email address',
-    allowMultipleParticipants: 'Allow multiple participants',
     awaitingActivation: 'Awaiting activation',
     awaitingConfirmation: 'Awaiting confirmation',
     behavior: 'Behavior Cases',
@@ -206,6 +204,8 @@ export default {
     addParticipants: 'Add participants',
     addParticipantsConfirmation:
       'You can add participants to the current conversation. You can change these participants any time.',
+    allowDifferentEmail: 'Allow different email address',
+    allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
     copiedToClipboard: 'Copied to clipboard',
     dropFileFailure: 'Failed to drop files:',

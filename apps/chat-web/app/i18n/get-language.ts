@@ -1,4 +1,4 @@
-import { getTranslatedValue, getTranslatedValue as getTranslatedValueServer } from './translation-utils'
+import { getTranslatedValue } from './use-translation-hook'
 
 const getLanguageString = (languages: readonly string[]) => {
   for (const language of languages) {
@@ -33,4 +33,4 @@ const translate = (key: string, language: 'en' | 'de') => {
   return getTranslatedValue(key, language === 'de' ? 'de' : 'en')
 }
 
-export { translate, getLanguage, getTranslatedValueServer }
+export { translate, getLanguage }
