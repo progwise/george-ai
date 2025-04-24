@@ -12,9 +12,7 @@ export const loadFile = async (file: { name: string; id: string; mimeType: strin
   switch (file.mimeType) {
     case 'application/pdf':
       // documentLoader = new PDFLoaderAI(file.path)
-      documentLoader = new PDFLoader(file.path, {
-        pdfjs: () => import('pdfjs-dist'),
-      })
+      documentLoader = new PDFLoader(file.path)
       break
     case 'text/plain':
     case 'text/markdown':
