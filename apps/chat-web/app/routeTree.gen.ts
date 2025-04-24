@@ -21,6 +21,7 @@ import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId
 import { Route as ConversationsSplatImport } from './routes/conversations/$'
 import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
 import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
+import { Route as ProfileProfileIdAdminConfirmImport } from './routes/profile/$profileId.admin-confirm'
 
 // Create/Update Routes
 
@@ -83,6 +84,13 @@ const ProfileProfileIdConfirmRoute = ProfileProfileIdConfirmImport.update({
   path: '/profile/$profileId/confirm',
   getParentRoute: () => rootRoute,
 } as any)
+
+const ProfileProfileIdAdminConfirmRoute =
+  ProfileProfileIdAdminConfirmImport.update({
+    id: '/profile/$profileId/admin-confirm',
+    path: '/profile/$profileId/admin-confirm',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -151,6 +159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIndexImport
       parentRoute: typeof rootRoute
     }
+    '/profile/$profileId/admin-confirm': {
+      id: '/profile/$profileId/admin-confirm'
+      path: '/profile/$profileId/admin-confirm'
+      fullPath: '/profile/$profileId/admin-confirm'
+      preLoaderRoute: typeof ProfileProfileIdAdminConfirmImport
+      parentRoute: typeof rootRoute
+    }
     '/profile/$profileId/confirm': {
       id: '/profile/$profileId/confirm'
       path: '/profile/$profileId/confirm'
@@ -173,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof ProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
@@ -186,6 +202,7 @@ export interface FileRoutesByTo {
   '/assistants': typeof AssistantsIndexRoute
   '/libraries': typeof LibrariesIndexRoute
   '/profile': typeof ProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof ProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
@@ -200,6 +217,7 @@ export interface FileRoutesById {
   '/assistants/': typeof AssistantsIndexRoute
   '/libraries/': typeof LibrariesIndexRoute
   '/profile/': typeof ProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof ProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
 }
 
@@ -215,6 +233,7 @@ export interface FileRouteTypes {
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -227,6 +246,7 @@ export interface FileRouteTypes {
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
   id:
     | '__root__'
@@ -239,6 +259,7 @@ export interface FileRouteTypes {
     | '/assistants/'
     | '/libraries/'
     | '/profile/'
+    | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
   fileRoutesById: FileRoutesById
 }
@@ -253,6 +274,7 @@ export interface RootRouteChildren {
   AssistantsIndexRoute: typeof AssistantsIndexRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   ProfileIndexRoute: typeof ProfileIndexRoute
+  ProfileProfileIdAdminConfirmRoute: typeof ProfileProfileIdAdminConfirmRoute
   ProfileProfileIdConfirmRoute: typeof ProfileProfileIdConfirmRoute
 }
 
@@ -266,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   AssistantsIndexRoute: AssistantsIndexRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
   ProfileIndexRoute: ProfileIndexRoute,
+  ProfileProfileIdAdminConfirmRoute: ProfileProfileIdAdminConfirmRoute,
   ProfileProfileIdConfirmRoute: ProfileProfileIdConfirmRoute,
 }
 
@@ -288,6 +311,7 @@ export const routeTree = rootRoute
         "/assistants/",
         "/libraries/",
         "/profile/",
+        "/profile/$profileId/admin-confirm",
         "/profile/$profileId/confirm"
       ]
     },
@@ -317,6 +341,9 @@ export const routeTree = rootRoute
     },
     "/profile/": {
       "filePath": "profile/index.tsx"
+    },
+    "/profile/$profileId/admin-confirm": {
+      "filePath": "profile/$profileId.admin-confirm.tsx"
     },
     "/profile/$profileId/confirm": {
       "filePath": "profile/$profileId.confirm.tsx"
