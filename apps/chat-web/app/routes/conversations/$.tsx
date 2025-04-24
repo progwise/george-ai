@@ -228,6 +228,7 @@ function RouteComponent() {
                 conversations={conversations.aiConversations}
                 selectedConversationId={selectedConversationId}
                 onClick={handleConversationClick}
+                userId={userId}
               />
             )}
           </div>

@@ -13,7 +13,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-const librariesDocument = graphql(/* GraphQL */ `
+const librariesDocument = graphql(`
   query aiLibraries($ownerId: String!) {
     aiLibraries(ownerId: $ownerId) {
       id
@@ -76,7 +76,6 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
-        {isLoading && <span className="loading loading-ring loading-md"></span>}
         {isLoggedIn && <LibraryNewDialog userId={user.id} />}
       </div>
 

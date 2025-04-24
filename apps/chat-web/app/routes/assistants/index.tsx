@@ -16,7 +16,7 @@ const getMyAiAssistants = createServerFn({ method: 'GET' })
   .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
   .handler((ctx) =>
     backendRequest(
-      graphql(/* GraphQL */ `
+      graphql(`
         query aiAssistantCards($ownerId: String!) {
           aiAssistants(ownerId: $ownerId) {
             id
@@ -37,17 +37,18 @@ export const Route = createFileRoute('/assistants/')({
 function RouteComponent() {
   const { login } = useAuth()
   const { user } = Route.useRouteContext()
+  const userId = user?.id
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.MyAiAssistants, user?.id],
+    queryKey: [queryKeys.MyAiAssistants, userId],
     queryFn: async () => {
-      return getMyAiAssistants({ data: user!.id! })
+      return getMyAiAssistants({ data: userId! })
     },
-    enabled: !!user?.id,
+    enabled: !!userId,
   })
-  const isLoggendIn = !!user
+  const isLoggedIn = !!user
 
-  if (!isLoggendIn) {
+  if (!isLoggedIn) {
     return (
       <button type="button" className="btn btn-ghost" onClick={() => login()}>
         {t('actions.signInForAssistants')}
@@ -65,7 +66,7 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           <span>{t('assistants.myAssistants')}</span>
         </h3>
-        {isLoggendIn && <AssistantNewDialog userId={user.id} />}
+        {isLoggedIn && <AssistantNewDialog userId={userId} />}
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -73,7 +74,7 @@ function RouteComponent() {
           <h3>{t('assistants.noAssistantsFound')}</h3>
         ) : (
           data?.aiAssistants?.map((assistant) => (
-            <AssistantCard key={assistant.id} assistant={assistant} userId={user?.id} />
+            <AssistantCard key={assistant.id} assistant={assistant} userId={userId} />
           ))
         )}
       </div>
