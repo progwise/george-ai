@@ -23,6 +23,7 @@ import { Route as AuthenticatedLibrariesLibraryIdImport } from './routes/_authen
 import { Route as AuthenticatedConversationsSplatImport } from './routes/_authenticated/conversations/$'
 import { Route as AuthenticatedAssistantsAssistantIdImport } from './routes/_authenticated/assistants/$assistantId'
 import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
+import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './routes/_authenticated/profile/$profileId.admin-confirm'
 
 // Create/Update Routes
 
@@ -101,6 +102,13 @@ const AuthenticatedProfileProfileIdConfirmRoute =
   AuthenticatedProfileProfileIdConfirmImport.update({
     id: '/profile/$profileId/confirm',
     path: '/profile/$profileId/confirm',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedProfileProfileIdAdminConfirmRoute =
+  AuthenticatedProfileProfileIdAdminConfirmImport.update({
+    id: '/profile/$profileId/admin-confirm',
+    path: '/profile/$profileId/admin-confirm',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -185,6 +193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/profile/$profileId/admin-confirm': {
+      id: '/_authenticated/profile/$profileId/admin-confirm'
+      path: '/profile/$profileId/admin-confirm'
+      fullPath: '/profile/$profileId/admin-confirm'
+      preLoaderRoute: typeof AuthenticatedProfileProfileIdAdminConfirmImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/profile/$profileId/confirm': {
       id: '/_authenticated/profile/$profileId/confirm'
       path: '/profile/$profileId/confirm'
@@ -205,6 +220,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAssistantsIndexRoute: typeof AuthenticatedAssistantsIndexRoute
   AuthenticatedLibrariesIndexRoute: typeof AuthenticatedLibrariesIndexRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
+  AuthenticatedProfileProfileIdAdminConfirmRoute: typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   AuthenticatedProfileProfileIdConfirmRoute: typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
@@ -217,6 +233,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAssistantsIndexRoute: AuthenticatedAssistantsIndexRoute,
   AuthenticatedLibrariesIndexRoute: AuthenticatedLibrariesIndexRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
+  AuthenticatedProfileProfileIdAdminConfirmRoute:
+    AuthenticatedProfileProfileIdAdminConfirmRoute,
   AuthenticatedProfileProfileIdConfirmRoute:
     AuthenticatedProfileProfileIdConfirmRoute,
 }
@@ -236,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
@@ -251,6 +270,7 @@ export interface FileRoutesByTo {
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
@@ -267,6 +287,7 @@ export interface FileRoutesById {
   '/_authenticated/assistants/': typeof AuthenticatedAssistantsIndexRoute
   '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
@@ -284,6 +305,7 @@ export interface FileRouteTypes {
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -298,6 +320,7 @@ export interface FileRouteTypes {
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
   id:
     | '__root__'
@@ -312,6 +335,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistants/'
     | '/_authenticated/libraries/'
     | '/_authenticated/profile/'
+    | '/_authenticated/profile/$profileId/admin-confirm'
     | '/_authenticated/profile/$profileId/confirm'
   fileRoutesById: FileRoutesById
 }
@@ -359,6 +383,7 @@ export const routeTree = rootRoute
         "/_authenticated/assistants/",
         "/_authenticated/libraries/",
         "/_authenticated/profile/",
+        "/_authenticated/profile/$profileId/admin-confirm",
         "/_authenticated/profile/$profileId/confirm"
       ]
     },
@@ -394,6 +419,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/profile/": {
       "filePath": "_authenticated/profile/index.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/profile/$profileId/admin-confirm": {
+      "filePath": "_authenticated/profile/$profileId.admin-confirm.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/profile/$profileId/confirm": {

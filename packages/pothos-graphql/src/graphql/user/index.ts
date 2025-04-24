@@ -12,6 +12,7 @@ builder.prismaObject('User', {
     name: t.exposeString('name', { nullable: true }),
     given_name: t.exposeString('given_name', { nullable: true }),
     family_name: t.exposeString('family_name', { nullable: true }),
+    isAdmin: t.exposeBoolean('isAdmin', { nullable: false }),
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
@@ -93,6 +94,7 @@ builder.mutationField('login', (t) =>
           createdAt: true,
           updatedAt: true,
           profile: true,
+          isAdmin: true,
         },
       })
       return user

@@ -151,7 +151,7 @@ function RouteComponent() {
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
-        <div role="tabpanel" className="tab-content overflow-x-auto p-10">
+        <div role="tabpanel" className="tab-content p-10">
           <EmbeddingsTable libraryId={libraryId} userId={user.id} profile={profile ?? undefined} />
         </div>
 
