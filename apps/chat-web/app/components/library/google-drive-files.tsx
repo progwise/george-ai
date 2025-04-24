@@ -200,19 +200,19 @@ export const GoogleDriveFiles = ({
               to="/libraries/auth-google"
               search={{ redirectAfterAuth: currentLocationHref }}
             >
-              {t('auth.signInWithGoogle')}
+              {t('actions.signInWithGoogle')}
             </Link>
           )}
           {googleDriveAccessToken.access_token && (
-            <button type="button" className="btn btn-xs" onClick={handleSwitchAccount}>
-              {t('auth.switchGoogleAccount')}
+            <button type="button" className="btn btn-primary btn-xs" onClick={handleSwitchAccount}>
+              {t('actions.switchGoogleAccount')}
             </button>
           )}
           {googleDriveAccessToken.access_token && (
             <button
               type="button"
               disabled={!selectedFiles.length || embedFilesIsPending || noFreeUploads}
-              className="btn btn-xs"
+              className="btn btn-primary btn-xs"
               onClick={async () => {
                 await handleEmbedFiles(selectedFiles)
               }}

@@ -60,7 +60,7 @@ function RouteComponent() {
   const { assistantId } = Route.useParams()
   const { data, isLoading } = useQuery({
     queryKey: [queryKeys.AiAssistantForEdit, assistantId, ownerId],
-    queryFn: async () => getAssistant({ data: { ownerId, assistantId } }),
+    queryFn: () => getAssistant({ data: { ownerId, assistantId } }),
   })
 
   const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}

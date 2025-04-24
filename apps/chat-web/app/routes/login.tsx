@@ -31,16 +31,19 @@ function RouteComponent() {
 
   switch (true) {
     case redirect?.startsWith('/conversations'):
-      loginText = t('texts.signInForConversations')
+      loginText = t('actions.signInForConversations')
       break
     case redirect?.startsWith('/assistants'):
-      loginText = t('assistants.signInForAssistants')
+      loginText = t('actions.signInForAssistants')
       break
     case redirect?.startsWith('/libraries'):
-      loginText = t('libraries.signInForLibraries')
+      loginText = t('actions.signInForLibraries')
+      break
+    case redirect?.startsWith('/profile'):
+      loginText = t('actions.signInForProfile')
       break
     default:
-      loginText = t('texts.signInToContinue')
+      loginText = t('actions.signInToContinue')
       break
   }
 

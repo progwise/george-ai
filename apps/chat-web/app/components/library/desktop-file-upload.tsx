@@ -287,7 +287,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       <nav className="flex flex-col gap-4">
         <button
           type="button"
-          className="btn btn-xs"
+          className="btn btn-primary btn-xs"
           onClick={() => {
             resetFileInput()
             fileInputRef.current?.click()
