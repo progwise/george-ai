@@ -596,6 +596,7 @@ export type Query = {
   myConversationUsers: Array<User>
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
+  version?: Maybe<Scalars['String']['output']>
 }
 
 export type QueryAiActAssessmentArgs = {
@@ -1312,6 +1313,10 @@ export type ParticipantsDialog_HumanFragment = {
     lastName?: string | null
   } | null
 } & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
+
+export type VersionQueryVariables = Exact<{ [key: string]: never }>
+
+export type VersionQuery = { __typename?: 'Query'; version?: string | null }
 
 export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -4632,6 +4637,17 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const VersionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'version' },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }] },
+    },
+  ],
+} as unknown as DocumentNode<VersionQuery, VersionQueryVariables>
 export const CreateAiLibraryCrawlerDocument = {
   kind: 'Document',
   definitions: [

@@ -28,7 +28,7 @@ export default {
     signInForGoogleAuth: 'Melden Sie sich an, um die Google-Authentifizierung zu verwenden.',
     signInForLibraries: 'Melden Sie sich an, um Ihre Bibliotheken zu sehen.',
     signInForProfile: 'Melden Sie sich an, um Ihr Profil zu nutzen.',
-    signInToActivateProfile: 'Sie müssen angemeldet sein, um das Profil zu aktivieren.',
+    signInToContinue: 'Melden Sie sich an, um fortzufahren',
     signInWithGoogle: 'Mit Google anmelden',
     signOut: 'Abmelden',
     switchGoogleAccount: 'Google-Konto wechseln',

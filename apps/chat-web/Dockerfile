@@ -2,7 +2,10 @@ FROM node:22-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-# Update Corepack to the version with the fix and enable PNPM
+
+# for displaying the latest commit hash in the UI
+ARG GIT_COMMIT_SHA
+ENV GIT_COMMIT_SHA="${GIT_COMMIT_SHA}"
 
 RUN apt-get update \
     && apt-get install -y \
@@ -13,6 +16,7 @@ RUN apt-get update \
         libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Update Corepack to the version with the fix and enable PNPM
 RUN npm install -g corepack@0.31.0 && \
     corepack enable && \
     corepack prepare pnpm@9.15.4 --activate

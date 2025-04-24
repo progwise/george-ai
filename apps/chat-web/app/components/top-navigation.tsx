@@ -166,7 +166,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             <span className="max-w-48 truncate">{user.name}</span>
           </Link>
         ) : (
-          <button type="button" className="btn btn-ghost gap-2" onClick={login}>
+          <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
             <UserIcon className="size-6" />
             {t('actions.signIn')}
           </button>
@@ -270,7 +270,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
 
-              <button type="button" className="btn btn-ghost gap-2" onClick={login}>
+              <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
                 <UserIcon className="size-6" />
                 {t('actions.signIn')}
               </button>

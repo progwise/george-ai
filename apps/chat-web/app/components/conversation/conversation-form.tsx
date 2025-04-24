@@ -25,7 +25,7 @@ const ConversationForm_ConversationFragment = graphql(`
 
 interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
-  user?: Pick<User, 'id' | 'name' | 'username'>
+  user: Pick<User, 'id' | 'name' | 'username'>
   profile?: Pick<UserProfile, 'id' | 'freeMessages' | 'usedMessages'>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
@@ -67,9 +67,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
-      if (!props.user?.id) {
-        throw new Error('User not set')
-      }
       if (!data.content || data.content.trim().length < 3) {
         throw new Error('Message must be at least 3 characters')
       }
@@ -93,7 +90,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
         queryKey: [queryKeys.Conversation, conversation.id],
       })
 
-      queryClient.invalidateQueries(getProfileQueryOptions(props.user?.id))
+      queryClient.invalidateQueries(getProfileQueryOptions(props.user.id))
 
       scrollToBottom()
     },
@@ -126,10 +123,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const handleSubmitMessage = () => {
     formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
-  }
-
-  if (!props.user) {
-    return <h3>{t('texts.loginToUseSendMessages')}</h3>
   }
 
   const name = props.user.name || props.user.username
