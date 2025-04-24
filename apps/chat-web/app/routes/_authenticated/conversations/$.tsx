@@ -117,12 +117,12 @@ function RouteComponent() {
 
   const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableUsers, userId],
-    queryFn: async () => getAssignableHumans({ data: { userId } }),
+    queryFn: () => getAssignableHumans({ data: { userId } }),
   })
 
   const { data: assignableAssistants, isLoading: assignableAssistantsIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-    queryFn: async () => getAssignableAssistants({ data: { ownerId: userId } }),
+    queryFn: () => getAssignableAssistants({ data: { ownerId: userId } }),
   })
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
