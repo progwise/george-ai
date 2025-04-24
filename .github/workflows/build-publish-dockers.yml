@@ -60,6 +60,8 @@ jobs:
             TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}
           tags: ${{ steps.meta-chat-web.outputs.tags }}
           labels: ${{ steps.meta-chat-web.outputs.labels }}
+          build-args: |
+            GIT_COMMIT_SHA=${{ github.sha }}
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built.
       # It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)."
@@ -111,6 +113,8 @@ jobs:
           push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
+          build-args: |
+            GIT_COMMIT_SHA=${{ github.sha }}
 
   pocketbase:
     runs-on: ubuntu-22.04
