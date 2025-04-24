@@ -1,5 +1,3 @@
-import { getLanguageString } from '../../../../../apps/chat-web/app/i18n/get-language'
-import { getTranslatedValue } from '../../../../../apps/chat-web/app/i18n/translation-utils'
 import { sendMail } from '../../mailer'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
@@ -29,38 +27,21 @@ const conversationInvitationInput = builder.inputType('ConversationInvitationInp
     email: t.string({ required: true }),
     allowDifferentEmailAddress: t.boolean({ required: true }),
     allowMultipleParticipants: t.boolean({ required: true }),
-    language: t.string({ required: false }),
   }),
 })
 
 const sendInvitationEmail = async ({
   email,
-  language,
   conversationId,
   invitationId,
 }: {
   email: string
-  language: string
   conversationId: string
   invitationId: string
 }) => {
-  // Ensure the language is valid using getLanguageString
-  const resolvedLanguage = getLanguageString([language])
-
-  const getTranslatedContent = (key: string, placeholders?: Record<string, string | number>) =>
-    getTranslatedValue(key, resolvedLanguage, placeholders)
-
-  const subject = getTranslatedContent('invitations.invitationSubject')
-  const text = getTranslatedContent('invitations.joinLinkText', {
-    PUBLIC_APP_URL: process.env.PUBLIC_APP_URL || '',
-    conversationId,
-    invitationId,
-  })
-  const html = getTranslatedContent('invitations.joinLinkHtml', {
-    PUBLIC_APP_URL: process.env.PUBLIC_APP_URL || '',
-    conversationId,
-    invitationId,
-  })
+  const subject = 'You are invited to a conversation at George-Ai'
+  const text = `You have been invited to join a conversation at George-Ai (george-ai.net). Use this link to join: ${process.env.PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}`
+  const html = `<p>You have been invited to join a conversation at George-Ai (george-ai.net). Use this link to join: <a href="${process.env.PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}">${process.env.PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}</a></p>`
 
   await sendMail(email, subject, text, html)
 }
@@ -117,7 +98,6 @@ builder.mutationField('createConversationInvitation', (t) =>
       try {
         await sendInvitationEmail({
           email: data.email.trim(),
-          language: getLanguageString([data.language || 'en']),
           conversationId,
           invitationId: invitation.id,
         })

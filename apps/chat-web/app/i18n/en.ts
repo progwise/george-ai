@@ -125,11 +125,6 @@ export default {
     invalidInvitation: 'Invalid invitation for this conversation',
     invitationNotFound: 'Invitation not found or has already been used',
     invitationSent: 'Invitation sent',
-    invitationSubject: 'You are invited to a conversation at George-Ai',
-    joinLinkHtml:
-      '<p>You have been invited to join a conversation at George-Ai. Use this link to join: {PUBLIC_APP_URL}/conversations/{conversationId}/confirm-invitation/{invitationId}</p>',
-    joinLinkText:
-      'You have been invited to join a conversation at George-Ai. Use this link to join: {PUBLIC_APP_URL}/conversations/{conversationId}/confirm-invitation/{invitationId}',
   },
   labels: {
     actions: 'Actions',

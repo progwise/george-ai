@@ -128,11 +128,6 @@ export default {
     invalidInvitation: 'Ungültige Einladung für diese Konversation',
     invitationNotFound: 'Einladung nicht gefunden oder bereits verwendet',
     invitationSent: 'Einladung gesendet',
-    invitationSubject: 'Sie sind zu einer Konversation bei George-Ai eingeladen',
-    joinLinkHtml:
-      '<p>Sie wurden eingeladen, an einer Konversation bei George-Ai teilzunehmen. Verwenden Sie diesen Link, um beizutreten: {PUBLIC_APP_URL}/conversations/{conversationId}/confirm-invitation/{invitationId}</p>',
-    joinLinkText:
-      'Sie wurden eingeladen, an einer Konversation bei George-Ai teilzunehmen. Verwenden Sie diesen Link, um beizutreten: {PUBLIC_APP_URL}/conversations/{conversationId}/confirm-invitation/{invitationId}',
   },
   labels: {
     actions: 'Aktionen',

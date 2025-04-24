@@ -73,7 +73,6 @@ export const createConversationInvitation = createServerFn({ method: 'POST' })
         email: string
         allowDifferentEmailAddress: boolean
         allowMultipleParticipants: boolean
-        language?: string
       }
     }) =>
       z
@@ -84,7 +83,6 @@ export const createConversationInvitation = createServerFn({ method: 'POST' })
             email: z.string().email(),
             allowDifferentEmailAddress: z.boolean(),
             allowMultipleParticipants: z.boolean(),
-            language: z.string().optional(),
           }),
         })
         .parse(data),

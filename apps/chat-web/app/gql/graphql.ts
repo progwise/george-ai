@@ -264,7 +264,6 @@ export type ConversationInvitationInput = {
   allowDifferentEmailAddress: Scalars['Boolean']['input']
   allowMultipleParticipants: Scalars['Boolean']['input']
   email: Scalars['String']['input']
-  language?: InputMaybe<Scalars['String']['input']>
 }
 
 export type HumanParticipant = AiConversationParticipant & {

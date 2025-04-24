@@ -137,13 +137,11 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       email,
       allowDifferentEmailAddress,
       allowMultipleParticipants,
-      language,
       conversationId,
     }: {
       email: string
       allowDifferentEmailAddress: boolean
       allowMultipleParticipants: boolean
-      language: string
       conversationId: string
     }) => {
       if (!email || email.trim() === '') {
@@ -159,7 +157,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
             email: email.trim().toLowerCase(),
             allowDifferentEmailAddress,
             allowMultipleParticipants,
-            language,
           },
         },
       })

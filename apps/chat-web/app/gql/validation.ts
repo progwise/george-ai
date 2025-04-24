@@ -98,7 +98,6 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
     email: z.string(),
-    language: z.string().nullish(),
   })
 }
 
