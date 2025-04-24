@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -18,6 +18,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
@@ -114,13 +115,14 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
     )
   })
 
-export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
-  queryKey: [queryKeys.AiLibraryFiles, libraryId],
-  queryFn: async () => {
-    const result = await getLibraryFiles({ data: { libraryId } })
-    return { aiLibraryFiles: result?.aiLibraryFiles || [] }
-  },
-})
+export const aiLibraryFilesQueryOptions = (libraryId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.AiLibraryFiles, libraryId],
+    queryFn: async () => {
+      const result = await getLibraryFiles({ data: { libraryId } })
+      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
+    },
+  })
 
 export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {
   const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
@@ -150,14 +152,8 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
   }
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraryFiles, libraryId],
-    })
-
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraries],
-    })
-
+    queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
+    queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
     queryClient.invalidateQueries(getProfileQueryOptions(userId))
   }
 

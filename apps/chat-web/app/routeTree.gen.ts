@@ -19,10 +19,14 @@ import { Route as AuthenticatedProfileIndexImport } from './routes/_authenticate
 import { Route as AuthenticatedLibrariesIndexImport } from './routes/_authenticated/libraries/index'
 import { Route as AuthenticatedAssistantsIndexImport } from './routes/_authenticated/assistants/index'
 import { Route as AuthenticatedLibrariesAuthGoogleImport } from './routes/_authenticated/libraries/auth-google'
-import { Route as AuthenticatedLibrariesLibraryIdImport } from './routes/_authenticated/libraries/$libraryId'
 import { Route as AuthenticatedConversationsSplatImport } from './routes/_authenticated/conversations/$'
 import { Route as AuthenticatedAssistantsAssistantIdImport } from './routes/_authenticated/assistants/$assistantId'
+import { Route as AuthenticatedLibrariesLibraryIdRouteImport } from './routes/_authenticated/libraries/$libraryId/route'
+import { Route as AuthenticatedLibrariesLibraryIdIndexImport } from './routes/_authenticated/libraries/$libraryId/index'
 import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
+import { Route as AuthenticatedLibrariesLibraryIdQueryImport } from './routes/_authenticated/libraries/$libraryId/query'
+import { Route as AuthenticatedLibrariesLibraryIdEditImport } from './routes/_authenticated/libraries/$libraryId/edit'
+import { Route as AuthenticatedLibrariesLibraryIdCrawlersImport } from './routes/_authenticated/libraries/$libraryId/crawlers'
 
 // Create/Update Routes
 
@@ -76,13 +80,6 @@ const AuthenticatedLibrariesAuthGoogleRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
-const AuthenticatedLibrariesLibraryIdRoute =
-  AuthenticatedLibrariesLibraryIdImport.update({
-    id: '/libraries/$libraryId',
-    path: '/libraries/$libraryId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-
 const AuthenticatedConversationsSplatRoute =
   AuthenticatedConversationsSplatImport.update({
     id: '/conversations/$',
@@ -97,11 +94,46 @@ const AuthenticatedAssistantsAssistantIdRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedLibrariesLibraryIdRouteRoute =
+  AuthenticatedLibrariesLibraryIdRouteImport.update({
+    id: '/libraries/$libraryId',
+    path: '/libraries/$libraryId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdIndexRoute =
+  AuthenticatedLibrariesLibraryIdIndexImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
+
 const AuthenticatedProfileProfileIdConfirmRoute =
   AuthenticatedProfileProfileIdConfirmImport.update({
     id: '/profile/$profileId/confirm',
     path: '/profile/$profileId/confirm',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdQueryRoute =
+  AuthenticatedLibrariesLibraryIdQueryImport.update({
+    id: '/query',
+    path: '/query',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdEditRoute =
+  AuthenticatedLibrariesLibraryIdEditImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdCrawlersRoute =
+  AuthenticatedLibrariesLibraryIdCrawlersImport.update({
+    id: '/crawlers',
+    path: '/crawlers',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -136,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated/libraries/$libraryId': {
+      id: '/_authenticated/libraries/$libraryId'
+      path: '/libraries/$libraryId'
+      fullPath: '/libraries/$libraryId'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/assistants/$assistantId': {
       id: '/_authenticated/assistants/$assistantId'
       path: '/assistants/$assistantId'
@@ -148,13 +187,6 @@ declare module '@tanstack/react-router' {
       path: '/conversations/$'
       fullPath: '/conversations/$'
       preLoaderRoute: typeof AuthenticatedConversationsSplatImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
-    '/_authenticated/libraries/$libraryId': {
-      id: '/_authenticated/libraries/$libraryId'
-      path: '/libraries/$libraryId'
-      fullPath: '/libraries/$libraryId'
-      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdImport
       parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/libraries/auth-google': {
@@ -185,6 +217,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/libraries/$libraryId/crawlers': {
+      id: '/_authenticated/libraries/$libraryId/crawlers'
+      path: '/crawlers'
+      fullPath: '/libraries/$libraryId/crawlers'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdCrawlersImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
+    '/_authenticated/libraries/$libraryId/edit': {
+      id: '/_authenticated/libraries/$libraryId/edit'
+      path: '/edit'
+      fullPath: '/libraries/$libraryId/edit'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdEditImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
+    '/_authenticated/libraries/$libraryId/query': {
+      id: '/_authenticated/libraries/$libraryId/query'
+      path: '/query'
+      fullPath: '/libraries/$libraryId/query'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdQueryImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
     '/_authenticated/profile/$profileId/confirm': {
       id: '/_authenticated/profile/$profileId/confirm'
       path: '/profile/$profileId/confirm'
@@ -192,15 +245,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileProfileIdConfirmImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/libraries/$libraryId/': {
+      id: '/_authenticated/libraries/$libraryId/'
+      path: '/'
+      fullPath: '/libraries/$libraryId/'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdIndexImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedLibrariesLibraryIdRouteRouteChildren {
+  AuthenticatedLibrariesLibraryIdCrawlersRoute: typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
+  AuthenticatedLibrariesLibraryIdEditRoute: typeof AuthenticatedLibrariesLibraryIdEditRoute
+  AuthenticatedLibrariesLibraryIdQueryRoute: typeof AuthenticatedLibrariesLibraryIdQueryRoute
+  AuthenticatedLibrariesLibraryIdIndexRoute: typeof AuthenticatedLibrariesLibraryIdIndexRoute
+}
+
+const AuthenticatedLibrariesLibraryIdRouteRouteChildren: AuthenticatedLibrariesLibraryIdRouteRouteChildren =
+  {
+    AuthenticatedLibrariesLibraryIdCrawlersRoute:
+      AuthenticatedLibrariesLibraryIdCrawlersRoute,
+    AuthenticatedLibrariesLibraryIdEditRoute:
+      AuthenticatedLibrariesLibraryIdEditRoute,
+    AuthenticatedLibrariesLibraryIdQueryRoute:
+      AuthenticatedLibrariesLibraryIdQueryRoute,
+    AuthenticatedLibrariesLibraryIdIndexRoute:
+      AuthenticatedLibrariesLibraryIdIndexRoute,
+  }
+
+const AuthenticatedLibrariesLibraryIdRouteRouteWithChildren =
+  AuthenticatedLibrariesLibraryIdRouteRoute._addFileChildren(
+    AuthenticatedLibrariesLibraryIdRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedLibrariesLibraryIdRouteRoute: typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   AuthenticatedAssistantsAssistantIdRoute: typeof AuthenticatedAssistantsAssistantIdRoute
   AuthenticatedConversationsSplatRoute: typeof AuthenticatedConversationsSplatRoute
-  AuthenticatedLibrariesLibraryIdRoute: typeof AuthenticatedLibrariesLibraryIdRoute
   AuthenticatedLibrariesAuthGoogleRoute: typeof AuthenticatedLibrariesAuthGoogleRoute
   AuthenticatedAssistantsIndexRoute: typeof AuthenticatedAssistantsIndexRoute
   AuthenticatedLibrariesIndexRoute: typeof AuthenticatedLibrariesIndexRoute
@@ -209,10 +293,11 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedLibrariesLibraryIdRouteRoute:
+    AuthenticatedLibrariesLibraryIdRouteRouteWithChildren,
   AuthenticatedAssistantsAssistantIdRoute:
     AuthenticatedAssistantsAssistantIdRoute,
   AuthenticatedConversationsSplatRoute: AuthenticatedConversationsSplatRoute,
-  AuthenticatedLibrariesLibraryIdRoute: AuthenticatedLibrariesLibraryIdRoute,
   AuthenticatedLibrariesAuthGoogleRoute: AuthenticatedLibrariesAuthGoogleRoute,
   AuthenticatedAssistantsIndexRoute: AuthenticatedAssistantsIndexRoute,
   AuthenticatedLibrariesIndexRoute: AuthenticatedLibrariesIndexRoute,
@@ -229,14 +314,18 @@ export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$': typeof AuthenticatedConversationsSplatRoute
-  '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
+  '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
+  '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -246,12 +335,15 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$': typeof AuthenticatedConversationsSplatRoute
-  '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
+  '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
+  '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -260,14 +352,18 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/_authenticated/conversations/$': typeof AuthenticatedConversationsSplatRoute
-  '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRoute
   '/_authenticated/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/_authenticated/assistants/': typeof AuthenticatedAssistantsIndexRoute
   '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
+  '/_authenticated/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
+  '/_authenticated/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/_authenticated/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -277,14 +373,18 @@ export interface FileRouteTypes {
     | ''
     | '/contact'
     | '/login'
+    | '/libraries/$libraryId'
     | '/assistants/$assistantId'
     | '/conversations/$'
-    | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/libraries/$libraryId/crawlers'
+    | '/libraries/$libraryId/edit'
+    | '/libraries/$libraryId/query'
     | '/profile/$profileId/confirm'
+    | '/libraries/$libraryId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -293,26 +393,33 @@ export interface FileRouteTypes {
     | '/login'
     | '/assistants/$assistantId'
     | '/conversations/$'
-    | '/libraries/$libraryId'
     | '/libraries/auth-google'
     | '/assistants'
     | '/libraries'
     | '/profile'
+    | '/libraries/$libraryId/crawlers'
+    | '/libraries/$libraryId/edit'
+    | '/libraries/$libraryId/query'
     | '/profile/$profileId/confirm'
+    | '/libraries/$libraryId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/contact'
     | '/login'
+    | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/assistants/$assistantId'
     | '/_authenticated/conversations/$'
-    | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/libraries/auth-google'
     | '/_authenticated/assistants/'
     | '/_authenticated/libraries/'
     | '/_authenticated/profile/'
+    | '/_authenticated/libraries/$libraryId/crawlers'
+    | '/_authenticated/libraries/$libraryId/edit'
+    | '/_authenticated/libraries/$libraryId/query'
     | '/_authenticated/profile/$profileId/confirm'
+    | '/_authenticated/libraries/$libraryId/'
   fileRoutesById: FileRoutesById
 }
 
@@ -352,9 +459,9 @@ export const routeTree = rootRoute
     "/_authenticated": {
       "filePath": "_authenticated/route.tsx",
       "children": [
+        "/_authenticated/libraries/$libraryId",
         "/_authenticated/assistants/$assistantId",
         "/_authenticated/conversations/$",
-        "/_authenticated/libraries/$libraryId",
         "/_authenticated/libraries/auth-google",
         "/_authenticated/assistants/",
         "/_authenticated/libraries/",
@@ -368,16 +475,22 @@ export const routeTree = rootRoute
     "/login": {
       "filePath": "login.tsx"
     },
+    "/_authenticated/libraries/$libraryId": {
+      "filePath": "_authenticated/libraries/$libraryId/route.tsx",
+      "parent": "/_authenticated",
+      "children": [
+        "/_authenticated/libraries/$libraryId/crawlers",
+        "/_authenticated/libraries/$libraryId/edit",
+        "/_authenticated/libraries/$libraryId/query",
+        "/_authenticated/libraries/$libraryId/"
+      ]
+    },
     "/_authenticated/assistants/$assistantId": {
       "filePath": "_authenticated/assistants/$assistantId.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/conversations/$": {
       "filePath": "_authenticated/conversations/$.tsx",
-      "parent": "/_authenticated"
-    },
-    "/_authenticated/libraries/$libraryId": {
-      "filePath": "_authenticated/libraries/$libraryId.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/libraries/auth-google": {
@@ -396,9 +509,25 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/profile/index.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/libraries/$libraryId/crawlers": {
+      "filePath": "_authenticated/libraries/$libraryId/crawlers.tsx",
+      "parent": "/_authenticated/libraries/$libraryId"
+    },
+    "/_authenticated/libraries/$libraryId/edit": {
+      "filePath": "_authenticated/libraries/$libraryId/edit.tsx",
+      "parent": "/_authenticated/libraries/$libraryId"
+    },
+    "/_authenticated/libraries/$libraryId/query": {
+      "filePath": "_authenticated/libraries/$libraryId/query.tsx",
+      "parent": "/_authenticated/libraries/$libraryId"
+    },
     "/_authenticated/profile/$profileId/confirm": {
       "filePath": "_authenticated/profile/$profileId.confirm.tsx",
       "parent": "/_authenticated"
+    },
+    "/_authenticated/libraries/$libraryId/": {
+      "filePath": "_authenticated/libraries/$libraryId/index.tsx",
+      "parent": "/_authenticated/libraries/$libraryId"
     }
   }
 }

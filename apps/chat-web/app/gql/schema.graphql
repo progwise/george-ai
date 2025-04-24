@@ -297,7 +297,7 @@ type Query {
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
   aiConversations(userId: String!): [AiConversation!]!
-  aiLibraries(ownerId: String!): [AiLibrary!]
+  aiLibraries(ownerId: String!): [AiLibrary!]!
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
