@@ -3,20 +3,20 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
-import { CrawlerTable } from '../../components/library/crawler/crawler-table'
-import { DeleteLibraryDialog } from '../../components/library/delete-library-dialog'
-import { EmbeddingsTable } from '../../components/library/embeddings-table'
-import { LibraryForm } from '../../components/library/library-form'
-import { LibraryQuery } from '../../components/library/library-query'
-import { LibrarySelector } from '../../components/library/library-selector'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { graphql } from '../../gql'
-import { AiLibraryInputSchema } from '../../gql/validation'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { BackIcon } from '../../icons/back-icon'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { getProfileQueryOptions } from '../../../auth/get-profile-query'
+import { CrawlerTable } from '../../../components/library/crawler/crawler-table'
+import { DeleteLibraryDialog } from '../../../components/library/delete-library-dialog'
+import { EmbeddingsTable } from '../../../components/library/embeddings-table'
+import { LibraryForm } from '../../../components/library/library-form'
+import { LibraryQuery } from '../../../components/library/library-query'
+import { LibrarySelector } from '../../../components/library/library-selector'
+import { LoadingSpinner } from '../../../components/loading-spinner'
+import { graphql } from '../../../gql'
+import { AiLibraryInputSchema } from '../../../gql/validation'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { BackIcon } from '../../../icons/back-icon'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
 
 const aiLibraryEditQueryDocument = graphql(`
   query aiLibraryEdit($id: String!, $ownerId: String!) {
@@ -86,10 +86,10 @@ const librariesQueryOptions = (ownerId?: string, libraryId?: string) => ({
   enabled: !!ownerId || !!libraryId,
 })
 
-export const Route = createFileRoute('/libraries/$libraryId')({
+export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    context.queryClient.ensureQueryData(librariesQueryOptions(context.user?.id, params.libraryId))
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.user.id, params.libraryId))
   },
   staleTime: 0,
 })
@@ -97,8 +97,8 @@ export const Route = createFileRoute('/libraries/$libraryId')({
 function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { user } = Route.useRouteContext()
-  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user?.id, libraryId))
-  const { data: profile } = useSuspenseQuery(getProfileQueryOptions(user?.id))
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user.id, libraryId))
+  const { data: profile } = useSuspenseQuery(getProfileQueryOptions(user.id))
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
@@ -147,14 +147,12 @@ function RouteComponent() {
       <div role="tablist" className="tabs tabs-bordered">
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('actions.edit')} />
         <div role="tabpanel" className="tab-content p-10">
-          {user?.id && (
-            <LibraryForm library={aiLibrary} ownerId={user.id} handleSubmit={handleSubmit} disabled={disabled} />
-          )}
+          <LibraryForm library={aiLibrary} ownerId={user.id} handleSubmit={handleSubmit} disabled={disabled} />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.files')} defaultChecked />
         <div role="tabpanel" className="tab-content p-10">
-          <EmbeddingsTable libraryId={libraryId} userId={user?.id} profile={profile ?? undefined} />
+          <EmbeddingsTable libraryId={libraryId} userId={user.id} profile={profile ?? undefined} />
         </div>
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.query')} />
@@ -164,7 +162,7 @@ function RouteComponent() {
 
         <input type="radio" name="my_tabs_1" role="tab" className="tab" aria-label={t('labels.crawlers')} />
         <div role="tabpanel" className="tab-content p-10">
-          <CrawlerTable libraryId={libraryId} userId={user!.id} />
+          <CrawlerTable libraryId={libraryId} userId={user.id} />
         </div>
       </div>
     </article>

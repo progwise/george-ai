@@ -3,9 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth'
-import { getGoogleAccessToken, getGoogleLoginUrl } from '../../components/data-sources/login-google-server'
-import { useTranslation } from '../../i18n/use-translation-hook'
+import { getGoogleAccessToken, getGoogleLoginUrl } from '../../../components/data-sources/login-google-server'
 
 export const authGoogleSearchSchema = z.object({
   redirectAfterAuth: z.string().optional(),
@@ -16,17 +14,14 @@ export const authGoogleSearchSchema = z.object({
   prompt: z.string().optional(),
 })
 
-export const Route = createFileRoute('/libraries/auth-google')({
+export const Route = createFileRoute('/_authenticated/libraries/auth-google')({
   component: RouteComponent,
   validateSearch: (search) => authGoogleSearchSchema.parse(search),
 })
 
 function RouteComponent() {
-  const { login } = useAuth()
   const search = Route.useSearch()
-  const { user } = Route.useRouteContext()
   const fullPath = Route.fullPath
-  const { t } = useTranslation()
   const { data: redirectUrlQuery } = useQuery<string | null>({
     queryKey: ['redirectUrl', fullPath, search],
     queryFn: async (): Promise<string | null> => {
@@ -72,16 +67,6 @@ function RouteComponent() {
       window.location.href = redirectUrlQuery
     }
   }, [redirectUrlQuery])
-
-  const isLoggedIn = !!user
-
-  if (!isLoggedIn) {
-    return (
-      <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('actions.signInForGoogleAuth')}
-      </button>
-    )
-  }
 
   return (
     <div className="flex flex-col items-center justify-center">

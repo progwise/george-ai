@@ -4,21 +4,19 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth'
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
-import { ConversationForm } from '../../components/conversation/conversation-form'
-import { ConversationHistory } from '../../components/conversation/conversation-history'
-import { ConversationParticipants } from '../../components/conversation/conversation-participants'
-import { ConversationSelector } from '../../components/conversation/conversation-selector'
-import { DeleteLeaveConversationDialog } from '../../components/conversation/delete-leave-conversation-dialog'
-import { NewConversationSelector } from '../../components/conversation/new-conversation-selector'
-import { ParticipantsDialog } from '../../components/conversation/participants-dialog'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { graphql } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { MenuIcon } from '../../icons/menu-icon'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { getProfileQueryOptions } from '../../../auth/get-profile-query'
+import { ConversationForm } from '../../../components/conversation/conversation-form'
+import { ConversationHistory } from '../../../components/conversation/conversation-history'
+import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
+import { ConversationSelector } from '../../../components/conversation/conversation-selector'
+import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
+import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
+import { ParticipantsDialog } from '../../../components/conversation/participants-dialog'
+import { LoadingSpinner } from '../../../components/loading-spinner'
+import { graphql } from '../../../gql'
+import { MenuIcon } from '../../../icons/menu-icon'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
 
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
@@ -77,7 +75,7 @@ export const getAssignableAssistants = createServerFn({ method: 'GET' })
   .validator((data: { ownerId: string }) => z.object({ ownerId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(AssignableAssistantsDocument, ctx.data))
 
-export const Route = createFileRoute('/conversations/$')({
+export const Route = createFileRoute('/_authenticated/conversations/$')({
   component: RouteComponent,
   beforeLoad: async ({ params }) => {
     return {
@@ -87,9 +85,8 @@ export const Route = createFileRoute('/conversations/$')({
 })
 
 function RouteComponent() {
-  const { login } = useAuth()
   const { user } = Route.useRouteContext()
-  const userId = user?.id
+  const userId = user.id
   const navigate = useNavigate()
   const { _splat } = useParams({ strict: false })
   const selectedConversationId = _splat as string
@@ -99,10 +96,8 @@ function RouteComponent() {
 
   const { data: conversations, isLoading: conversationsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.Conversations, userId],
-    queryFn: async () => (userId ? await getConversations({ data: { userId } }) : null),
+    queryFn: () => getConversations({ data: { userId } }),
   })
-
-  const { t } = useTranslation()
 
   const handleConversationClick = () => {
     if (drawerCheckboxRef.current) {
@@ -122,21 +117,13 @@ function RouteComponent() {
 
   const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableUsers, userId],
-    queryFn: async () => (userId ? await getAssignableHumans({ data: { userId } }) : null),
+    queryFn: () => getAssignableHumans({ data: { userId } }),
   })
 
   const { data: assignableAssistants, isLoading: assignableAssistantsIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-    queryFn: async () => (userId ? await getAssignableAssistants({ data: { ownerId: userId } }) : null),
+    queryFn: () => getAssignableAssistants({ data: { ownerId: userId } }),
   })
-
-  if (!userId) {
-    return (
-      <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('actions.signInForConversations')}
-      </button>
-    )
-  }
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
     navigate({ to: `/conversations/${conversations?.aiConversations?.[0].id}` })

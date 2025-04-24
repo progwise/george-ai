@@ -63,7 +63,7 @@ interface ParticipantsDialogProps {
   humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
-  userId?: string
+  userId: string
 }
 
 export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -168,11 +168,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const { mutateAsync: createNewConversation, isPending: isCreating } = useMutation({
     mutationFn: async () => {
-      if (!props.userId) {
-        toastError(t('errors.userNotSet'))
-        return
-      }
-
       return await createConversation({
         data: {
           userIds: [...selectedUserIds, props.userId],
@@ -181,11 +176,19 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         },
       })
     },
+    // onSettled: (result) => {
+    //   queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
+    //   if (result?.createAiConversation) {
+    //     navigate({ to: `/conversations/${result.createAiConversation.id}` })
+    //   }
+
+    //   dialogRef.current?.close()
+    // },
   })
 
   const { mutate: addParticipants, isPending: isAdding } = useMutation({
     mutationFn: async () => {
-      if (!conversation || !props.userId || !isOwner) {
+      if (!conversation || !isOwner) {
         toastError(t('errors.notAllowed'))
         return
       }
@@ -199,7 +202,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       })
     },
     onSettled: async () => {
-      if (conversation && props.userId) {
+      if (conversation) {
+        // if (!conversation) return
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversation.id] })
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
       }
@@ -347,10 +351,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}...`
   const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding || isSendingInvitation
-
-  if (!props.userId) {
-    return null
-  }
 
   return (
     <>

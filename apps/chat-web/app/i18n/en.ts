@@ -28,7 +28,7 @@ export default {
     signInForGoogleAuth: 'Sign in to use Google authentication.',
     signInForLibraries: 'Sign in to see your libraries.',
     signInForProfile: 'Sign in to use your profile.',
-    signInToActivateProfile: 'You must be logged in to activate the profile.',
+    signInToContinue: 'Sign in to continue',
     signInWithGoogle: 'Sign in with Google',
     signOut: 'Sign out',
     switchGoogleAccount: 'Switch Google Account',

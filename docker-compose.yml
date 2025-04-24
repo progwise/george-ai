@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: apps/georgeai-server/Dockerfile
+      args:
+        - GIT_COMMIT_SHA=1a2b3c
     env_file:
       - .env
     environment:
@@ -23,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: apps/chat-web/Dockerfile
+      args:
+        - GIT_COMMIT_SHA=1a2b3c
     env_file:
       - .env
     environment:

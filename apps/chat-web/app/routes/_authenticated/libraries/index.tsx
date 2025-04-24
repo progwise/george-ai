@@ -5,13 +5,12 @@ import { z } from 'zod'
 
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth'
-import { LibraryNewDialog } from '../../components/library/library-new-dialog'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { graphql } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { LibraryNewDialog } from '../../../components/library/library-new-dialog'
+import { LoadingSpinner } from '../../../components/loading-spinner'
+import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
 
 const librariesDocument = graphql(`
   query aiLibraries($ownerId: String!) {
@@ -44,29 +43,19 @@ const librariesQueryOptions = (ownerId?: string) =>
     enabled: !!ownerId,
   })
 
-export const Route = createFileRoute('/libraries/')({
+export const Route = createFileRoute('/_authenticated/libraries/')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(librariesQueryOptions(context.user?.id))
+    context.queryClient.ensureQueryData(librariesQueryOptions(context.user.id))
   },
 })
 
 function RouteComponent() {
-  const { login } = useAuth()
   const { user } = Route.useRouteContext()
   const navigate = useNavigate()
-  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user?.id))
-  const isLoggedIn = !!user
+  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user.id))
 
   const { t, language } = useTranslation()
-
-  if (!isLoggedIn) {
-    return (
-      <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('actions.signInForLibraries')}
-      </button>
-    )
-  }
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -76,7 +65,7 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
-        {isLoggedIn && <LibraryNewDialog userId={user.id} />}
+        <LibraryNewDialog userId={user.id} />
       </div>
 
       {!data?.aiLibraries || data.aiLibraries.length < 1 ? (

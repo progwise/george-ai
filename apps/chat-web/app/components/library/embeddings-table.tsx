@@ -23,7 +23,7 @@ import { GoogleDriveFiles } from './google-drive-files'
 interface EmbeddingsTableProps {
   libraryId: string
   profile?: Pick<UserProfile, 'freeStorage' | 'usedStorage'>
-  userId?: string
+  userId: string
 }
 
 interface AiLibraryFile {
@@ -117,14 +117,9 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
 export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
   queryKey: [queryKeys.AiLibraryFiles, libraryId],
   queryFn: async () => {
-    if (!libraryId) {
-      return { aiLibraryFiles: [] }
-    } else {
-      const result = await getLibraryFiles({ data: { libraryId } })
-      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
-    }
+    const result = await getLibraryFiles({ data: { libraryId } })
+    return { aiLibraryFiles: result?.aiLibraryFiles || [] }
   },
-  enabled: !!libraryId,
 })
 
 export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {

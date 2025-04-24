@@ -11,24 +11,36 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as LoginImport } from './routes/login'
 import { Route as ContactImport } from './routes/contact'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as ProfileIndexImport } from './routes/profile/index'
-import { Route as LibrariesIndexImport } from './routes/libraries/index'
-import { Route as AssistantsIndexImport } from './routes/assistants/index'
-import { Route as LibrariesAuthGoogleImport } from './routes/libraries/auth-google'
-import { Route as LibrariesLibraryIdImport } from './routes/libraries/$libraryId'
-import { Route as ConversationsSplatImport } from './routes/conversations/$'
-import { Route as AssistantsAssistantIdImport } from './routes/assistants/$assistantId'
-import { Route as ProfileProfileIdConfirmImport } from './routes/profile/$profileId.confirm'
-import { Route as ProfileProfileIdAdminConfirmImport } from './routes/profile/$profileId.admin-confirm'
-import { Route as ConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/conversations/$conversationId.confirm-invitation.$invitationId'
+import { Route as AuthenticatedProfileIndexImport } from './routes/_authenticated/profile/index'
+import { Route as AuthenticatedLibrariesIndexImport } from './routes/_authenticated/libraries/index'
+import { Route as AuthenticatedAssistantsIndexImport } from './routes/_authenticated/assistants/index'
+import { Route as AuthenticatedLibrariesAuthGoogleImport } from './routes/_authenticated/libraries/auth-google'
+import { Route as AuthenticatedLibrariesLibraryIdImport } from './routes/_authenticated/libraries/$libraryId'
+import { Route as AuthenticatedConversationsSplatImport } from './routes/_authenticated/conversations/$'
+import { Route as AuthenticatedAssistantsAssistantIdImport } from './routes/_authenticated/assistants/$assistantId'
+import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
+import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './routes/_authenticated/profile/$profileId.admin-confirm'
 
 // Create/Update Routes
+
+const LoginRoute = LoginImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const ContactRoute = ContactImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -38,67 +50,67 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ProfileIndexRoute = ProfileIndexImport.update({
+const AuthenticatedProfileIndexRoute = AuthenticatedProfileIndexImport.update({
   id: '/profile/',
   path: '/profile/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
-const LibrariesIndexRoute = LibrariesIndexImport.update({
-  id: '/libraries/',
-  path: '/libraries/',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedLibrariesIndexRoute =
+  AuthenticatedLibrariesIndexImport.update({
+    id: '/libraries/',
+    path: '/libraries/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const AssistantsIndexRoute = AssistantsIndexImport.update({
-  id: '/assistants/',
-  path: '/assistants/',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedAssistantsIndexRoute =
+  AuthenticatedAssistantsIndexImport.update({
+    id: '/assistants/',
+    path: '/assistants/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const LibrariesAuthGoogleRoute = LibrariesAuthGoogleImport.update({
-  id: '/libraries/auth-google',
-  path: '/libraries/auth-google',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedLibrariesAuthGoogleRoute =
+  AuthenticatedLibrariesAuthGoogleImport.update({
+    id: '/libraries/auth-google',
+    path: '/libraries/auth-google',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const LibrariesLibraryIdRoute = LibrariesLibraryIdImport.update({
-  id: '/libraries/$libraryId',
-  path: '/libraries/$libraryId',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedLibrariesLibraryIdRoute =
+  AuthenticatedLibrariesLibraryIdImport.update({
+    id: '/libraries/$libraryId',
+    path: '/libraries/$libraryId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const ConversationsSplatRoute = ConversationsSplatImport.update({
-  id: '/conversations/$',
-  path: '/conversations/$',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedConversationsSplatRoute =
+  AuthenticatedConversationsSplatImport.update({
+    id: '/conversations/$',
+    path: '/conversations/$',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const AssistantsAssistantIdRoute = AssistantsAssistantIdImport.update({
-  id: '/assistants/$assistantId',
-  path: '/assistants/$assistantId',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedAssistantsAssistantIdRoute =
+  AuthenticatedAssistantsAssistantIdImport.update({
+    id: '/assistants/$assistantId',
+    path: '/assistants/$assistantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const ProfileProfileIdConfirmRoute = ProfileProfileIdConfirmImport.update({
-  id: '/profile/$profileId/confirm',
-  path: '/profile/$profileId/confirm',
-  getParentRoute: () => rootRoute,
-} as any)
+const AuthenticatedProfileProfileIdConfirmRoute =
+  AuthenticatedProfileProfileIdConfirmImport.update({
+    id: '/profile/$profileId/confirm',
+    path: '/profile/$profileId/confirm',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
-const ProfileProfileIdAdminConfirmRoute =
-  ProfileProfileIdAdminConfirmImport.update({
+const AuthenticatedProfileProfileIdAdminConfirmRoute =
+  AuthenticatedProfileProfileIdAdminConfirmImport.update({
     id: '/profile/$profileId/admin-confirm',
     path: '/profile/$profileId/admin-confirm',
-    getParentRoute: () => rootRoute,
-} as any)
-
-const ConversationsConversationIdConfirmInvitationInvitationIdRoute =
-  ConversationsConversationIdConfirmInvitationInvitationIdImport.update({
-    id: '/conversations/$conversationId/confirm-invitation/$invitationId',
-    path: '/conversations/$conversationId/confirm-invitation/$invitationId',
-    getParentRoute: () => rootRoute,
-    } as any)
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -111,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -118,132 +137,167 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactImport
       parentRoute: typeof rootRoute
     }
-    '/assistants/$assistantId': {
-      id: '/assistants/$assistantId'
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/assistants/$assistantId': {
+      id: '/_authenticated/assistants/$assistantId'
       path: '/assistants/$assistantId'
       fullPath: '/assistants/$assistantId'
-      preLoaderRoute: typeof AssistantsAssistantIdImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedAssistantsAssistantIdImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/conversations/$': {
-      id: '/conversations/$'
+    '/_authenticated/conversations/$': {
+      id: '/_authenticated/conversations/$'
       path: '/conversations/$'
       fullPath: '/conversations/$'
-      preLoaderRoute: typeof ConversationsSplatImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedConversationsSplatImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/libraries/$libraryId': {
-      id: '/libraries/$libraryId'
+    '/_authenticated/libraries/$libraryId': {
+      id: '/_authenticated/libraries/$libraryId'
       path: '/libraries/$libraryId'
       fullPath: '/libraries/$libraryId'
-      preLoaderRoute: typeof LibrariesLibraryIdImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/libraries/auth-google': {
-      id: '/libraries/auth-google'
+    '/_authenticated/libraries/auth-google': {
+      id: '/_authenticated/libraries/auth-google'
       path: '/libraries/auth-google'
       fullPath: '/libraries/auth-google'
-      preLoaderRoute: typeof LibrariesAuthGoogleImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedLibrariesAuthGoogleImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/assistants/': {
-      id: '/assistants/'
+    '/_authenticated/assistants/': {
+      id: '/_authenticated/assistants/'
       path: '/assistants'
       fullPath: '/assistants'
-      preLoaderRoute: typeof AssistantsIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedAssistantsIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/libraries/': {
-      id: '/libraries/'
+    '/_authenticated/libraries/': {
+      id: '/_authenticated/libraries/'
       path: '/libraries'
       fullPath: '/libraries'
-      preLoaderRoute: typeof LibrariesIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedLibrariesIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/profile/': {
-      id: '/profile/'
+    '/_authenticated/profile/': {
+      id: '/_authenticated/profile/'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof ProfileIndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedProfileIndexImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/profile/$profileId/admin-confirm': {
-      id: '/profile/$profileId/admin-confirm'
+    '/_authenticated/profile/$profileId/admin-confirm': {
+      id: '/_authenticated/profile/$profileId/admin-confirm'
       path: '/profile/$profileId/admin-confirm'
       fullPath: '/profile/$profileId/admin-confirm'
-      preLoaderRoute: typeof ProfileProfileIdAdminConfirmImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedProfileProfileIdAdminConfirmImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
-    '/profile/$profileId/confirm': {
-      id: '/profile/$profileId/confirm'
+    '/_authenticated/profile/$profileId/confirm': {
+      id: '/_authenticated/profile/$profileId/confirm'
       path: '/profile/$profileId/confirm'
       fullPath: '/profile/$profileId/confirm'
-      preLoaderRoute: typeof ProfileProfileIdConfirmImport
-      parentRoute: typeof rootRoute
-    }
-    '/conversations/$conversationId/confirm-invitation/$invitationId': {
-      id: '/conversations/$conversationId/confirm-invitation/$invitationId'
-      path: '/conversations/$conversationId/confirm-invitation/$invitationId'
-      fullPath: '/conversations/$conversationId/confirm-invitation/$invitationId'
-      preLoaderRoute: typeof ConversationsConversationIdConfirmInvitationInvitationIdImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedProfileProfileIdConfirmImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAssistantsAssistantIdRoute: typeof AuthenticatedAssistantsAssistantIdRoute
+  AuthenticatedConversationsSplatRoute: typeof AuthenticatedConversationsSplatRoute
+  AuthenticatedLibrariesLibraryIdRoute: typeof AuthenticatedLibrariesLibraryIdRoute
+  AuthenticatedLibrariesAuthGoogleRoute: typeof AuthenticatedLibrariesAuthGoogleRoute
+  AuthenticatedAssistantsIndexRoute: typeof AuthenticatedAssistantsIndexRoute
+  AuthenticatedLibrariesIndexRoute: typeof AuthenticatedLibrariesIndexRoute
+  AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
+  AuthenticatedProfileProfileIdAdminConfirmRoute: typeof AuthenticatedProfileProfileIdAdminConfirmRoute
+  AuthenticatedProfileProfileIdConfirmRoute: typeof AuthenticatedProfileProfileIdConfirmRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAssistantsAssistantIdRoute:
+    AuthenticatedAssistantsAssistantIdRoute,
+  AuthenticatedConversationsSplatRoute: AuthenticatedConversationsSplatRoute,
+  AuthenticatedLibrariesLibraryIdRoute: AuthenticatedLibrariesLibraryIdRoute,
+  AuthenticatedLibrariesAuthGoogleRoute: AuthenticatedLibrariesAuthGoogleRoute,
+  AuthenticatedAssistantsIndexRoute: AuthenticatedAssistantsIndexRoute,
+  AuthenticatedLibrariesIndexRoute: AuthenticatedLibrariesIndexRoute,
+  AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
+  AuthenticatedProfileProfileIdAdminConfirmRoute:
+    AuthenticatedProfileProfileIdAdminConfirmRoute,
+  AuthenticatedProfileProfileIdConfirmRoute:
+    AuthenticatedProfileProfileIdConfirmRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteRouteWithChildren
   '/contact': typeof ContactRoute
-  '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
-  '/conversations/$': typeof ConversationsSplatRoute
-  '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
-  '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
-  '/assistants': typeof AssistantsIndexRoute
-  '/libraries': typeof LibrariesIndexRoute
-  '/profile': typeof ProfileIndexRoute
-  '/profile/$profileId/admin-confirm': typeof ProfileProfileIdAdminConfirmRoute
-  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
-  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
+  '/login': typeof LoginRoute
+  '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
+  '/conversations/$': typeof AuthenticatedConversationsSplatRoute
+  '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRoute
+  '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
+  '/assistants': typeof AuthenticatedAssistantsIndexRoute
+  '/libraries': typeof AuthenticatedLibrariesIndexRoute
+  '/profile': typeof AuthenticatedProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
+  '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteRouteWithChildren
   '/contact': typeof ContactRoute
-  '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
-  '/conversations/$': typeof ConversationsSplatRoute
-  '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
-  '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
-  '/assistants': typeof AssistantsIndexRoute
-  '/libraries': typeof LibrariesIndexRoute
-  '/profile': typeof ProfileIndexRoute
-  '/profile/$profileId/admin-confirm': typeof ProfileProfileIdAdminConfirmRoute
-  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
-  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
+  '/login': typeof LoginRoute
+  '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
+  '/conversations/$': typeof AuthenticatedConversationsSplatRoute
+  '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRoute
+  '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
+  '/assistants': typeof AuthenticatedAssistantsIndexRoute
+  '/libraries': typeof AuthenticatedLibrariesIndexRoute
+  '/profile': typeof AuthenticatedProfileIndexRoute
+  '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
+  '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/contact': typeof ContactRoute
-  '/assistants/$assistantId': typeof AssistantsAssistantIdRoute
-  '/conversations/$': typeof ConversationsSplatRoute
-  '/libraries/$libraryId': typeof LibrariesLibraryIdRoute
-  '/libraries/auth-google': typeof LibrariesAuthGoogleRoute
-  '/assistants/': typeof AssistantsIndexRoute
-  '/libraries/': typeof LibrariesIndexRoute
-  '/profile/': typeof ProfileIndexRoute
-  '/profile/$profileId/admin-confirm': typeof ProfileProfileIdAdminConfirmRoute
-  '/profile/$profileId/confirm': typeof ProfileProfileIdConfirmRoute
-  '/conversations/$conversationId/confirm-invitation/$invitationId': typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
+  '/login': typeof LoginRoute
+  '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
+  '/_authenticated/conversations/$': typeof AuthenticatedConversationsSplatRoute
+  '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRoute
+  '/_authenticated/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
+  '/_authenticated/assistants/': typeof AuthenticatedAssistantsIndexRoute
+  '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
+  '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
+  '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | ''
     | '/contact'
+    | '/login'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
@@ -257,7 +311,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | ''
     | '/contact'
+    | '/login'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/$libraryId'
@@ -271,49 +327,33 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/contact'
-    | '/assistants/$assistantId'
-    | '/conversations/$'
-    | '/libraries/$libraryId'
-    | '/libraries/auth-google'
-    | '/assistants/'
-    | '/libraries/'
-    | '/profile/'
-    | '/profile/$profileId/admin-confirm'
-    | '/profile/$profileId/confirm'
-    | '/conversations/$conversationId/confirm-invitation/$invitationId'
+    | '/login'
+    | '/_authenticated/assistants/$assistantId'
+    | '/_authenticated/conversations/$'
+    | '/_authenticated/libraries/$libraryId'
+    | '/_authenticated/libraries/auth-google'
+    | '/_authenticated/assistants/'
+    | '/_authenticated/libraries/'
+    | '/_authenticated/profile/'
+    | '/_authenticated/profile/$profileId/admin-confirm'
+    | '/_authenticated/profile/$profileId/confirm'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ContactRoute: typeof ContactRoute
-  AssistantsAssistantIdRoute: typeof AssistantsAssistantIdRoute
-  ConversationsSplatRoute: typeof ConversationsSplatRoute
-  LibrariesLibraryIdRoute: typeof LibrariesLibraryIdRoute
-  LibrariesAuthGoogleRoute: typeof LibrariesAuthGoogleRoute
-  AssistantsIndexRoute: typeof AssistantsIndexRoute
-  LibrariesIndexRoute: typeof LibrariesIndexRoute
-  ProfileIndexRoute: typeof ProfileIndexRoute
-  ProfileProfileIdAdminConfirmRoute: typeof ProfileProfileIdAdminConfirmRoute
-  ProfileProfileIdConfirmRoute: typeof ProfileProfileIdConfirmRoute
-  ConversationsConversationIdConfirmInvitationInvitationIdRoute: typeof ConversationsConversationIdConfirmInvitationInvitationIdRoute
+  LoginRoute: typeof LoginRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ContactRoute: ContactRoute,
-  AssistantsAssistantIdRoute: AssistantsAssistantIdRoute,
-  ConversationsSplatRoute: ConversationsSplatRoute,
-  LibrariesLibraryIdRoute: LibrariesLibraryIdRoute,
-  LibrariesAuthGoogleRoute: LibrariesAuthGoogleRoute,
-  AssistantsIndexRoute: AssistantsIndexRoute,
-  LibrariesIndexRoute: LibrariesIndexRoute,
-  ProfileIndexRoute: ProfileIndexRoute,
-  ProfileProfileIdAdminConfirmRoute: ProfileProfileIdAdminConfirmRoute,
-  ProfileProfileIdConfirmRoute: ProfileProfileIdConfirmRoute,
-  ConversationsConversationIdConfirmInvitationInvitationIdRoute:
-    ConversationsConversationIdConfirmInvitationInvitationIdRoute,
+  LoginRoute: LoginRoute,
 }
 
 export const routeTree = rootRoute
@@ -327,54 +367,69 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/_authenticated",
         "/contact",
-        "/assistants/$assistantId",
-        "/conversations/$",
-        "/libraries/$libraryId",
-        "/libraries/auth-google",
-        "/assistants/",
-        "/libraries/",
-        "/profile/",
-        "/profile/$profileId/admin-confirm",
-        "/profile/$profileId/confirm",
-        "/conversations/$conversationId/confirm-invitation/$invitationId"
+        "/login"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/_authenticated": {
+      "filePath": "_authenticated/route.tsx",
+      "children": [
+        "/_authenticated/assistants/$assistantId",
+        "/_authenticated/conversations/$",
+        "/_authenticated/libraries/$libraryId",
+        "/_authenticated/libraries/auth-google",
+        "/_authenticated/assistants/",
+        "/_authenticated/libraries/",
+        "/_authenticated/profile/",
+        "/_authenticated/profile/$profileId/admin-confirm",
+        "/_authenticated/profile/$profileId/confirm"
+      ]
+    },
     "/contact": {
       "filePath": "contact.tsx"
     },
-    "/assistants/$assistantId": {
-      "filePath": "assistants/$assistantId.tsx"
+    "/login": {
+      "filePath": "login.tsx"
     },
-    "/conversations/$": {
-      "filePath": "conversations/$.tsx"
+    "/_authenticated/assistants/$assistantId": {
+      "filePath": "_authenticated/assistants/$assistantId.tsx",
+      "parent": "/_authenticated"
     },
-    "/libraries/$libraryId": {
-      "filePath": "libraries/$libraryId.tsx"
+    "/_authenticated/conversations/$": {
+      "filePath": "_authenticated/conversations/$.tsx",
+      "parent": "/_authenticated"
     },
-    "/libraries/auth-google": {
-      "filePath": "libraries/auth-google.tsx"
+    "/_authenticated/libraries/$libraryId": {
+      "filePath": "_authenticated/libraries/$libraryId.tsx",
+      "parent": "/_authenticated"
     },
-    "/assistants/": {
-      "filePath": "assistants/index.tsx"
+    "/_authenticated/libraries/auth-google": {
+      "filePath": "_authenticated/libraries/auth-google.tsx",
+      "parent": "/_authenticated"
     },
-    "/libraries/": {
-      "filePath": "libraries/index.tsx"
+    "/_authenticated/assistants/": {
+      "filePath": "_authenticated/assistants/index.tsx",
+      "parent": "/_authenticated"
     },
-    "/profile/": {
-      "filePath": "profile/index.tsx"
+    "/_authenticated/libraries/": {
+      "filePath": "_authenticated/libraries/index.tsx",
+      "parent": "/_authenticated"
     },
-    "/profile/$profileId/admin-confirm": {
-      "filePath": "profile/$profileId.admin-confirm.tsx"
+    "/_authenticated/profile/": {
+      "filePath": "_authenticated/profile/index.tsx",
+      "parent": "/_authenticated"
     },
-    "/profile/$profileId/confirm": {
-      "filePath": "profile/$profileId.confirm.tsx"
+    "/_authenticated/profile/$profileId/admin-confirm": {
+      "filePath": "_authenticated/profile/$profileId.admin-confirm.tsx",
+      "parent": "/_authenticated"
     },
-    "/conversations/$conversationId/confirm-invitation/$invitationId": {
-      "filePath": "conversations/$conversationId.confirm-invitation.$invitationId.tsx"
+    "/_authenticated/profile/$profileId/confirm": {
+      "filePath": "_authenticated/profile/$profileId.confirm.tsx",
+      "parent": "/_authenticated"
     }
   }
 }
