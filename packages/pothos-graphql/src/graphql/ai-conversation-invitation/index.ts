@@ -1,4 +1,3 @@
-import { PUBLIC_APP_URL } from '../../../../../apps/chat-web/app/constants'
 import { getLanguageString } from '../../../../../apps/chat-web/app/i18n/get-language'
 import { getTranslatedValue } from '../../../../../apps/chat-web/app/i18n/translation-utils'
 import { sendMail } from '../../mailer'
@@ -19,7 +18,7 @@ builder.prismaObject('AiConversationInvitation', {
     inviter: t.relation('inviter', { nullable: false }),
     link: t.string({
       resolve: (invitation) => {
-        return `${PUBLIC_APP_URL}/conversations/${invitation.conversationId}/confirm-invitation/${invitation.id}`
+        return `${process.env.PUBLIC_APP_URL}/conversations/${invitation.conversationId}/confirm-invitation/${invitation.id}`
       },
     }),
   }),
@@ -53,12 +52,12 @@ const sendInvitationEmail = async ({
 
   const subject = getTranslatedContent('invitations.invitationSubject')
   const text = getTranslatedContent('invitations.joinLinkText', {
-    PUBLIC_APP_URL,
+    PUBLIC_APP_URL: process.env.PUBLIC_APP_URL || '',
     conversationId,
     invitationId,
   })
   const html = getTranslatedContent('invitations.joinLinkHtml', {
-    PUBLIC_APP_URL,
+    PUBLIC_APP_URL: process.env.PUBLIC_APP_URL || '',
     conversationId,
     invitationId,
   })
@@ -81,7 +80,7 @@ builder.mutationField('createConversationInvitation', (t) =>
       }
 
       // Generate the link for the invitation
-      const link = `${PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${inviterId}`
+      const link = `${process.env.PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${inviterId}`
 
       // Check if an invitation already exists for the conversation
       const existingInvitation = await prisma.aiConversationInvitation.findUnique({
@@ -173,14 +172,12 @@ builder.mutationField('confirmConversationInvitation', (t) =>
         throw new Error('Invalid invitation for this conversation')
       }
 
-      // Enforce email validation for single-use (allowMultipleParticipants option) invitations
-      if (!email || invitation.email.toLowerCase() !== email.toLowerCase()) {
+      // Validate email based on the allowDifferentEmailAddress flag
+      if (
+        !invitation.allowDifferentEmailAddress &&
+        (!email || invitation.email.toLowerCase() !== email.toLowerCase())
+      ) {
         throw new Error('Email address does not match the invitation for this single-use invitation')
-      } else if (!invitation.allowDifferentEmailAddress && email) {
-        // Check if the email matches for multi-use invitations without allowing different emails
-        if (invitation.email.toLowerCase() !== email.toLowerCase()) {
-          throw new Error('Email address does not match the invitation and different emails are not allowed')
-        }
       }
 
       // Create the participant
