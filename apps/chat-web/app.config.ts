@@ -1,6 +1,8 @@
 import { defineConfig } from '@tanstack/react-start/config'
 import tsConfigPaths from 'vite-tsconfig-paths'
 
+console.log('process.env.GIT_COMMIT_SHA', process.env.GIT_COMMIT_SHA)
+
 export default defineConfig({
   server: {
     preset: 'node-server',
