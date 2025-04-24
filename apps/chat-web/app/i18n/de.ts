@@ -76,6 +76,7 @@ export default {
     cronJob: 'Cronjob',
     cronJobActive: 'Cronjob aktiv',
     cronJobTime: 'Cronjob-Zeit',
+    delete: 'Crawler löschen',
     lastRun: 'Letzter Lauf',
     maxDepth: 'Max Tiefe',
     maxPages: 'Max Anzahl an Seiten',

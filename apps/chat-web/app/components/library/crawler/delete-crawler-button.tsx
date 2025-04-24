@@ -1,0 +1,69 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { createServerFn } from '@tanstack/react-start'
+import { useRef } from 'react'
+import { z } from 'zod'
+
+import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { backendRequest } from '../../../server-functions/backend'
+import { DialogForm } from '../../dialog-form'
+import { getCrawlersQueryOptions } from './get-crawlers'
+
+const deleteCrawlerFunction = createServerFn({ method: 'POST' })
+  .validator((data: string) => z.string().nonempty().parse(data))
+  .handler(async (ctx) => {
+    return await backendRequest(
+      graphql(`
+        mutation deleteCrawler($id: String!) {
+          deleteAiLibraryCrawler(id: $id) {
+            id
+          }
+        }
+      `),
+      { id: ctx.data },
+    )
+  })
+
+interface DeleteCrawlerButtonProps {
+  crawlerId: string
+  libraryId: string
+}
+
+export const DeleteCrawlerButton = ({ crawlerId, libraryId }: DeleteCrawlerButtonProps) => {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const queryClient = useQueryClient()
+  const { t } = useTranslation()
+
+  const { mutate: deleteCrawlerMutation, isPending } = useMutation({
+    mutationFn: () => deleteCrawlerFunction({ data: crawlerId }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
+      dialogRef.current?.close()
+    },
+  })
+
+  const handleSubmit = () => {
+    deleteCrawlerMutation()
+  }
+
+  return (
+    <>
+      <button type="button" className="btn btn-error btn-xs" onClick={() => dialogRef.current?.showModal()}>
+        {t('crawlers.delete')}
+      </button>
+
+      <DialogForm
+        ref={dialogRef}
+        title={t('crawlers.delete')}
+        description={t('conversations.deleteConfirmation')}
+        onSubmit={handleSubmit}
+        disabledSubmit={isPending}
+        submitButtonText={t('actions.delete')}
+      >
+        <div className="flex w-full flex-col gap-4">
+          <button type="submit">does something</button>
+        </div>
+      </DialogForm>
+    </>
+  )
+}

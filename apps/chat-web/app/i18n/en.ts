@@ -74,6 +74,7 @@ export default {
     cronJob: 'Cron job',
     cronJobActive: 'Cron job active',
     cronJobTime: 'Cron job time',
+    delete: 'Delete crawler',
     lastRun: 'Last Run',
     maxDepth: 'Max Depth',
     maxPages: 'Max Pages',

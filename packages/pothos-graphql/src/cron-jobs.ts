@@ -48,7 +48,7 @@ export const addCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
   cronJobByIds.set(cronJob.id, job)
 }
 
-const stopCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
+export const stopCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
   const job = cronJobByIds.get(cronJob.id)
 
   if (job) {
