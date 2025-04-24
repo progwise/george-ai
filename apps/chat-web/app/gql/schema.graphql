@@ -109,6 +109,7 @@ type AiLibrary {
 type AiLibraryCrawler {
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
+  filesCount: Int
   id: ID!
   isRunning: Boolean!
   lastRun: DateTime

@@ -34,6 +34,14 @@ builder.prismaObject('AiLibraryCrawler', {
       },
     }),
     cronJob: t.relation('cronJob'),
+    filesCount: t.int({
+      resolve: async (crawler) => {
+        const count = await prisma.aiLibraryFile.count({
+          where: { crawledByCrawlerId: crawler.id },
+        })
+        return count
+      },
+    }),
   }),
 })
 

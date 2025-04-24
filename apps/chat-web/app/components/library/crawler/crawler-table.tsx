@@ -29,6 +29,7 @@ const CrawlerTable_LibraryFragment = graphql(`
       cronJob {
         cronExpression
       }
+      filesCount
       ...RunCrawlerButton_Crawler
     }
   }
@@ -67,7 +68,12 @@ export const CrawlerTable = ({ libraryId, userId }: CrawlerTableProps) => {
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
               <td className="flex gap-2">
                 <RunCrawlerButton libraryId={libraryId} crawler={crawler} userId={userId} />
-                <DeleteCrawlerButton crawlerId={crawler.id} libraryId={libraryId} />
+                <DeleteCrawlerButton
+                  crawlerId={crawler.id}
+                  crawlerUrl={crawler.url}
+                  filesCount={crawler.filesCount ?? 0}
+                  libraryId={libraryId}
+                />
               </td>
             </tr>
           ))}

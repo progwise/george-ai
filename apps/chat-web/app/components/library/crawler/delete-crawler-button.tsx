@@ -26,10 +26,12 @@ const deleteCrawlerFunction = createServerFn({ method: 'POST' })
 
 interface DeleteCrawlerButtonProps {
   crawlerId: string
+  crawlerUrl: string
+  filesCount?: number
   libraryId: string
 }
 
-export const DeleteCrawlerButton = ({ crawlerId, libraryId }: DeleteCrawlerButtonProps) => {
+export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, libraryId }: DeleteCrawlerButtonProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -55,15 +57,21 @@ export const DeleteCrawlerButton = ({ crawlerId, libraryId }: DeleteCrawlerButto
       <DialogForm
         ref={dialogRef}
         title={t('crawlers.delete')}
-        description={t('conversations.deleteConfirmation')}
+        description={
+          <div
+            // eslint-disable-next-line @eslint-react/dom/no-dangerously-set-innerhtml
+            dangerouslySetInnerHTML={{
+              __html: t('crawlers.deleteConfirmation', {
+                crawlerUrl: `<span class="font-bold">${crawlerUrl}</span>`,
+                fileCount: filesCount ?? 0,
+              }),
+            }}
+          />
+        }
         onSubmit={handleSubmit}
         disabledSubmit={isPending}
         submitButtonText={t('actions.delete')}
-      >
-        <div className="flex w-full flex-col gap-4">
-          <button type="submit">does something</button>
-        </div>
-      </DialogForm>
+      />
     </>
   )
 }
