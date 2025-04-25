@@ -269,7 +269,10 @@ export const similaritySearch = async (
   question: string,
   library: string,
 ): Promise<{ pageContent: string; docName: string }[]> => {
+  console.log(`searching ${library} for:`, question)
   const questionAsVector = await embeddings.embedQuery(question)
+  const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  console.log('vector query:', vectorQuery)
   await ensureVectorStore(library)
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
     searches: [
@@ -277,9 +280,8 @@ export const similaritySearch = async (
         collection: getTypesenseSchemaName(library),
         q: question,
         query_by: 'text,docName',
-        vector_query: `vec:([${questionAsVector.join(',')}])`,
-        sort_by: '_text_match:desc',
-        per_page: 100,
+        vector_query: vectorQuery,
+        per_page: 10,
       },
     ],
   })
