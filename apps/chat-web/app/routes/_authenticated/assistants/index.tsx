@@ -3,14 +3,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth'
-import { AssistantCard } from '../../components/assistant/assistant-card'
-import { AssistantNewDialog } from '../../components/assistant/assistant-new-dialog'
-import { LoadingSpinner } from '../../components/loading-spinner'
-import { graphql } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { AssistantCard } from '../../../components/assistant/assistant-card'
+import { AssistantNewDialog } from '../../../components/assistant/assistant-new-dialog'
+import { LoadingSpinner } from '../../../components/loading-spinner'
+import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
 
 const getMyAiAssistants = createServerFn({ method: 'GET' })
   .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
@@ -30,30 +29,19 @@ const getMyAiAssistants = createServerFn({ method: 'GET' })
     ),
   )
 
-export const Route = createFileRoute('/assistants/')({
+export const Route = createFileRoute('/_authenticated/assistants/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { login } = useAuth()
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.MyAiAssistants, user?.id],
+    queryKey: [queryKeys.MyAiAssistants, user.id],
     queryFn: async () => {
-      return getMyAiAssistants({ data: user!.id! })
+      return getMyAiAssistants({ data: user.id })
     },
-    enabled: !!user?.id,
   })
-  const isLoggendIn = !!user
-
-  if (!isLoggendIn) {
-    return (
-      <button type="button" className="btn btn-ghost" onClick={() => login()}>
-        {t('actions.signInForAssistants')}
-      </button>
-    )
-  }
 
   return (
     <article className="flex w-full flex-col gap-4">
@@ -61,7 +49,7 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           <span>{t('assistants.myAssistants')}</span>
         </h3>
-        {isLoggendIn && <AssistantNewDialog userId={user.id} />}
+        {<AssistantNewDialog userId={user.id} />}
       </div>
 
       <div className="flex flex-wrap gap-4">
@@ -69,7 +57,7 @@ function RouteComponent() {
           <LoadingSpinner />
         ) : (
           data?.aiAssistants?.map((assistant) => (
-            <AssistantCard key={assistant.id} assistant={assistant} userId={user?.id} />
+            <AssistantCard key={assistant.id} assistant={assistant} userId={user.id} />
           ))
         )}
       </div>

@@ -36,7 +36,7 @@ export const VersionIndicator = () => {
   const differentVersion = clientVersion !== serverVersion
 
   return (
-    <p className="text-sm">
+    <p className="text-center text-xs opacity-50">
       Build: <span className="font-semibold">{clientVersion ?? 'not found'}</span>{' '}
       {differentVersion && (
         <>

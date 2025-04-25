@@ -19,7 +19,7 @@ export interface GoogleDriveFilesProps {
   libraryId: string
   noFreeUploads: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
-  userId?: string
+  userId: string
 }
 
 interface GoogleDriveResponse {

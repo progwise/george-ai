@@ -38,7 +38,7 @@ const createNewAssistant = createServerFn({ method: 'POST' })
   })
 
 interface AssistantNewDialogProps {
-  userId?: string
+  userId: string
 }
 
 export const AssistantNewDialog = ({ userId }: AssistantNewDialogProps) => {

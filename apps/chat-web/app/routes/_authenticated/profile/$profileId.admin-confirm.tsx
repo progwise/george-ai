@@ -2,20 +2,19 @@ import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { useAuth } from '../../auth/auth'
-import { toastError, toastSuccess } from '../../components/georgeToaster'
-import { LoadingSpinner } from '../../components/loading-spinner'
+import { toastError, toastSuccess } from '../../../components/georgeToaster'
+import { LoadingSpinner } from '../../../components/loading-spinner'
 import {
   UserProfileForm,
   UserProfileForm_UserProfileFragment,
   updateProfile,
-} from '../../components/user/user-profile-form'
-import { FragmentType } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { SaveIcon } from '../../icons/save-icon'
-import { activateUserProfile, getUserProfile } from '../../server-functions/users'
+} from '../../../components/user/user-profile-form'
+import { FragmentType } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { SaveIcon } from '../../../icons/save-icon'
+import { activateUserProfile, getUserProfile } from '../../../server-functions/users'
 
-export const Route = createFileRoute('/profile/$profileId/admin-confirm')({
+export const Route = createFileRoute('/_authenticated/profile/$profileId/admin-confirm')({
   component: RouteComponent,
   loader: async ({ params }: { params: { profileId: string } }) => {
     const { profileId } = params
@@ -25,7 +24,6 @@ export const Route = createFileRoute('/profile/$profileId/admin-confirm')({
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
-  const { login } = useAuth()
   const navigate = useNavigate()
   const userProfile = useLoaderData({ strict: false })
   const { t } = useTranslation()
@@ -63,21 +61,6 @@ function RouteComponent() {
       toastError('Failed to activate profile: ' + error.message)
     },
   })
-
-  if (!user) {
-    return (
-      <button
-        type="button"
-        className="btn btn-ghost"
-        onClick={() => {
-          localStorage.setItem('redirectAfterLogin', `/profile/${userProfile?.userProfile?.id}/admin-confirm`)
-          login()
-        }}
-      >
-        {t('actions.signInToActivateProfile')}
-      </button>
-    )
-  }
 
   if (!user.isAdmin) {
     toastError('Access denied: Admins only')
