@@ -16,6 +16,13 @@ import * as types from './graphql'
  */
 type Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n': typeof types.LoginDocument
+  '\n  fragment AssistantSurvey_Assessment on AiActAssessment {\n    assistantId\n\n    assistantSurvey {\n      actionsTitle {\n        de\n        en\n      }\n      actions {\n        level\n        description {\n          de\n          en\n        }\n      }\n      questions {\n        id\n        ...QuestionCard_question\n      }\n      title {\n        de\n        en\n      }\n      percentCompleted\n      hint {\n        de\n        en\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n': typeof types.AssistantSurvey_AssessmentFragmentDoc
+  '\n        query AiActAssessmentQuery($assistantId: String!) {\n          aiActAssessment(assistantId: $assistantId) {\n            ...RiskAreasIdentification_Assessment\n            ...AssistantSurvey_Assessment\n          }\n        }\n      ': typeof types.AiActAssessmentQueryDocument
+  '\n        mutation updateAssessmentQuestion($assistantId: String!, $questionId: String!, $value: String, $notes: String) {\n          updateAssessmentQuestion(assistantId: $assistantId, questionId: $questionId, value: $value, notes: $notes)\n        }\n      ': typeof types.UpdateAssessmentQuestionDocument
+  '\n        mutation resetAssessmentAnswers($assistantId: String!) {\n          resetAssessmentAnswers(assistantId: $assistantId)\n        }\n      ': typeof types.ResetAssessmentAnswersDocument
+  '\n  fragment ComplianceArea_Compliance on AiActComplianceArea {\n    title {\n      de\n      en\n    }\n    description {\n      de\n      en\n    }\n    mandatory\n  }\n': typeof types.ComplianceArea_ComplianceFragmentDoc
+  '\n  fragment QuestionCard_question on AiActQuestion {\n    id\n    title {\n      de\n      en\n    }\n    notes\n    value\n    hint {\n      de\n      en\n    }\n    options {\n      id\n      title {\n        de\n        en\n      }\n    }\n  }\n': typeof types.QuestionCard_QuestionFragmentDoc
+  '\n  fragment RiskAreasIdentification_Assessment on AiActAssessment {\n    identifyRiskInfo {\n      title {\n        de\n        en\n      }\n      legalDisclaimer {\n        title {\n          de\n          en\n        }\n        text {\n          de\n          en\n        }\n      }\n      complianceAreas {\n        id\n        ...ComplianceArea_Compliance\n      }\n    }\n    assistantSurvey {\n      questions {\n        id\n        title {\n          de\n          en\n        }\n        notes\n        value\n        options {\n          id\n          title {\n            de\n            en\n          }\n        }\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        factors {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n': typeof types.RiskAreasIdentification_AssessmentFragmentDoc
   '\n        mutation upsertAiBaseCases($assistantId: String!, $baseCases: [AiBaseCaseInputType!]!) {\n          upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {\n            id\n            sequence\n            condition\n            instruction\n          }\n        }\n      ': typeof types.UpsertAiBaseCasesDocument
   '\n  fragment AssistantBasecaseForm_Assistant on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      condition\n      instruction\n    }\n  }\n': typeof types.AssistantBasecaseForm_AssistantFragmentDoc
   '\n  fragment AssistantCard_Assistant on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    ...AssistantDelete_Assistant\n  }\n': typeof types.AssistantCard_AssistantFragmentDoc
@@ -96,6 +103,20 @@ type Documents = {
 const documents: Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n':
     types.LoginDocument,
+  '\n  fragment AssistantSurvey_Assessment on AiActAssessment {\n    assistantId\n\n    assistantSurvey {\n      actionsTitle {\n        de\n        en\n      }\n      actions {\n        level\n        description {\n          de\n          en\n        }\n      }\n      questions {\n        id\n        ...QuestionCard_question\n      }\n      title {\n        de\n        en\n      }\n      percentCompleted\n      hint {\n        de\n        en\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n':
+    types.AssistantSurvey_AssessmentFragmentDoc,
+  '\n        query AiActAssessmentQuery($assistantId: String!) {\n          aiActAssessment(assistantId: $assistantId) {\n            ...RiskAreasIdentification_Assessment\n            ...AssistantSurvey_Assessment\n          }\n        }\n      ':
+    types.AiActAssessmentQueryDocument,
+  '\n        mutation updateAssessmentQuestion($assistantId: String!, $questionId: String!, $value: String, $notes: String) {\n          updateAssessmentQuestion(assistantId: $assistantId, questionId: $questionId, value: $value, notes: $notes)\n        }\n      ':
+    types.UpdateAssessmentQuestionDocument,
+  '\n        mutation resetAssessmentAnswers($assistantId: String!) {\n          resetAssessmentAnswers(assistantId: $assistantId)\n        }\n      ':
+    types.ResetAssessmentAnswersDocument,
+  '\n  fragment ComplianceArea_Compliance on AiActComplianceArea {\n    title {\n      de\n      en\n    }\n    description {\n      de\n      en\n    }\n    mandatory\n  }\n':
+    types.ComplianceArea_ComplianceFragmentDoc,
+  '\n  fragment QuestionCard_question on AiActQuestion {\n    id\n    title {\n      de\n      en\n    }\n    notes\n    value\n    hint {\n      de\n      en\n    }\n    options {\n      id\n      title {\n        de\n        en\n      }\n    }\n  }\n':
+    types.QuestionCard_QuestionFragmentDoc,
+  '\n  fragment RiskAreasIdentification_Assessment on AiActAssessment {\n    identifyRiskInfo {\n      title {\n        de\n        en\n      }\n      legalDisclaimer {\n        title {\n          de\n          en\n        }\n        text {\n          de\n          en\n        }\n      }\n      complianceAreas {\n        id\n        ...ComplianceArea_Compliance\n      }\n    }\n    assistantSurvey {\n      questions {\n        id\n        title {\n          de\n          en\n        }\n        notes\n        value\n        options {\n          id\n          title {\n            de\n            en\n          }\n        }\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        factors {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n':
+    types.RiskAreasIdentification_AssessmentFragmentDoc,
   '\n        mutation upsertAiBaseCases($assistantId: String!, $baseCases: [AiBaseCaseInputType!]!) {\n          upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {\n            id\n            sequence\n            condition\n            instruction\n          }\n        }\n      ':
     types.UpsertAiBaseCasesDocument,
   '\n  fragment AssistantBasecaseForm_Assistant on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      condition\n      instruction\n    }\n  }\n':
@@ -269,6 +290,48 @@ export function graphql(source: string): unknown
 export function graphql(
   source: '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n',
 ): (typeof documents)['\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AssistantSurvey_Assessment on AiActAssessment {\n    assistantId\n\n    assistantSurvey {\n      actionsTitle {\n        de\n        en\n      }\n      actions {\n        level\n        description {\n          de\n          en\n        }\n      }\n      questions {\n        id\n        ...QuestionCard_question\n      }\n      title {\n        de\n        en\n      }\n      percentCompleted\n      hint {\n        de\n        en\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment AssistantSurvey_Assessment on AiActAssessment {\n    assistantId\n\n    assistantSurvey {\n      actionsTitle {\n        de\n        en\n      }\n      actions {\n        level\n        description {\n          de\n          en\n        }\n      }\n      questions {\n        id\n        ...QuestionCard_question\n      }\n      title {\n        de\n        en\n      }\n      percentCompleted\n      hint {\n        de\n        en\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query AiActAssessmentQuery($assistantId: String!) {\n          aiActAssessment(assistantId: $assistantId) {\n            ...RiskAreasIdentification_Assessment\n            ...AssistantSurvey_Assessment\n          }\n        }\n      ',
+): (typeof documents)['\n        query AiActAssessmentQuery($assistantId: String!) {\n          aiActAssessment(assistantId: $assistantId) {\n            ...RiskAreasIdentification_Assessment\n            ...AssistantSurvey_Assessment\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateAssessmentQuestion($assistantId: String!, $questionId: String!, $value: String, $notes: String) {\n          updateAssessmentQuestion(assistantId: $assistantId, questionId: $questionId, value: $value, notes: $notes)\n        }\n      ',
+): (typeof documents)['\n        mutation updateAssessmentQuestion($assistantId: String!, $questionId: String!, $value: String, $notes: String) {\n          updateAssessmentQuestion(assistantId: $assistantId, questionId: $questionId, value: $value, notes: $notes)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation resetAssessmentAnswers($assistantId: String!) {\n          resetAssessmentAnswers(assistantId: $assistantId)\n        }\n      ',
+): (typeof documents)['\n        mutation resetAssessmentAnswers($assistantId: String!) {\n          resetAssessmentAnswers(assistantId: $assistantId)\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ComplianceArea_Compliance on AiActComplianceArea {\n    title {\n      de\n      en\n    }\n    description {\n      de\n      en\n    }\n    mandatory\n  }\n',
+): (typeof documents)['\n  fragment ComplianceArea_Compliance on AiActComplianceArea {\n    title {\n      de\n      en\n    }\n    description {\n      de\n      en\n    }\n    mandatory\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment QuestionCard_question on AiActQuestion {\n    id\n    title {\n      de\n      en\n    }\n    notes\n    value\n    hint {\n      de\n      en\n    }\n    options {\n      id\n      title {\n        de\n        en\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment QuestionCard_question on AiActQuestion {\n    id\n    title {\n      de\n      en\n    }\n    notes\n    value\n    hint {\n      de\n      en\n    }\n    options {\n      id\n      title {\n        de\n        en\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment RiskAreasIdentification_Assessment on AiActAssessment {\n    identifyRiskInfo {\n      title {\n        de\n        en\n      }\n      legalDisclaimer {\n        title {\n          de\n          en\n        }\n        text {\n          de\n          en\n        }\n      }\n      complianceAreas {\n        id\n        ...ComplianceArea_Compliance\n      }\n    }\n    assistantSurvey {\n      questions {\n        id\n        title {\n          de\n          en\n        }\n        notes\n        value\n        options {\n          id\n          title {\n            de\n            en\n          }\n        }\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        factors {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment RiskAreasIdentification_Assessment on AiActAssessment {\n    identifyRiskInfo {\n      title {\n        de\n        en\n      }\n      legalDisclaimer {\n        title {\n          de\n          en\n        }\n        text {\n          de\n          en\n        }\n      }\n      complianceAreas {\n        id\n        ...ComplianceArea_Compliance\n      }\n    }\n    assistantSurvey {\n      questions {\n        id\n        title {\n          de\n          en\n        }\n        notes\n        value\n        options {\n          id\n          title {\n            de\n            en\n          }\n        }\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        factors {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

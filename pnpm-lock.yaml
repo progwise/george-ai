@@ -18,7 +18,7 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(prettier@3.5.3)
       prettier:
-        specifier: ^3.4.2
+        specifier: ^3.5.3
         version: 3.5.3
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
@@ -235,6 +235,12 @@ importers:
 
   apps/pocketbase: {}
 
+  packages/ai-act:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.8.2
+
   packages/crawl4ai-client:
     dependencies:
       openapi-fetch:
@@ -330,6 +336,9 @@ importers:
 
   packages/pothos-graphql:
     dependencies:
+      '@george-ai/ai-act':
+        specifier: workspace:*
+        version: link:../ai-act
       '@george-ai/crawl4ai-client':
         specifier: workspace:*
         version: link:../crawl4ai-client
