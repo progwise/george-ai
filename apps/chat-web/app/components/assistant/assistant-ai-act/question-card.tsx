@@ -79,19 +79,16 @@ const QuestionCard = (props: QuestionCardProps) => {
           </label>
         ))}
       </div>
-
-      <EditableDiv
-        className="textarea textarea-info focus:outline-none"
-        onSubmit={function (): void {
-          throw new Error('Function not implemented.')
-        }}
-        onBlur={(newNotes) => handleResponseChange(value ?? undefined, newNotes)}
-        disabled={false}
-        value={notes ?? ''}
-        hidden={!showNotes}
-        placeholder={t('assistants.placeholders.euAiActNotePlaceholder')}
-        placeholderClassName="test-base-content pointer-events-none absolute left-4 top-3 text-sm opacity-50"
-      />
+      {showNotes && (
+        <EditableDiv
+          className="textarea textarea-info focus:outline-none"
+          onBlur={(newNotes) => handleResponseChange(value ?? undefined, newNotes)}
+          disabled={false}
+          value={notes ?? ''}
+          placeholder={t('assistants.placeholders.euAiActNotePlaceholder')}
+          placeholderClassName="test-base-content pointer-events-none absolute left-4 top-3 text-sm opacity-50"
+        />
+      )}
     </div>
   )
 }

@@ -33,7 +33,7 @@ export const ComplianceArea = (props: ComplianceAreaProps) => {
           type="checkbox"
           checked={mandatory}
           onChange={props.onChange}
-          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          className="checkbox checkbox-sm"
         />
         <div>
           <span className="text-sm font-medium">{title[language]}</span>

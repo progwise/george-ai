@@ -8,7 +8,6 @@ export interface EditableDivProps {
   disabled: boolean
   value: string
   placeholder?: string
-  hidden?: boolean
   className?: string
   placeholderClassName?: string
 }
@@ -20,7 +19,6 @@ export const EditableDiv = ({
   disabled,
   value,
   placeholder,
-  hidden,
   className,
   placeholderClassName,
 }: EditableDivProps) => {
@@ -81,7 +79,7 @@ export const EditableDiv = ({
       <div
         ref={editableDivRef}
         contentEditable={!disabled && 'plaintext-only'}
-        className={twMerge(className, hidden ? 'hidden' : 'block')}
+        className={className}
         onKeyDown={handleKeyDown}
         onInput={handleInput}
         onFocus={handleFocus}
@@ -90,7 +88,7 @@ export const EditableDiv = ({
         aria-multiline="true"
         aria-disabled={!!disabled}
       />
-      {showPlaceholder && placeholder && !hidden && (
+      {showPlaceholder && placeholder && (
         <div
           className={twMerge(
             'pointer-events-none absolute left-2 top-2 text-base-content opacity-50',
