@@ -84,18 +84,6 @@ pnpm prisma migrate dev
 
 ---
 
-### 6. Create PocketBase Token
-
-In order to upload files for George-AI to work with, you will need to setup **PocketBase**.
-
-Under `gai-pocketbase` container within the `george-ai_devcontainer`, replace `0.0.0.0` with `localhost` in the link and paste it into the browser.
-Log in to PocketBase at `http://localhost:8090/_`, navigate to System > \_superusers, click on your user, and:
-
-- Click the three dots → Choose Impersonate → Generate a token.
-- Copy **Impersonate auth token** and add it to your .env file as `POCKETBASE_TOKEN`.
-
----
-
 ### 7. Start Development
 
 You can run the app from root using following command
@@ -160,8 +148,6 @@ flowchart TD
 
   end
   subgraph content[Content]
-      pocketbase[Pocketbase 📦]
-      strapi[Strapi 📦]
     end
 
   subgraph workflow[Workflow]
@@ -178,13 +164,6 @@ flowchart TD
 
 ## Components
 
-- **Pocketbase** 📦
-  - used by the publisher
-  - used for uploading PDFs
-  - stores PDFs locally
-  - it will inform the LLM Service about the uploaded PDFs
-- **Pocketbase Database** 🗄️
-  - stores Pocketbase data using sqlite
 - **LLM Service** 🛠️
   - on backend service
   - consists of three components: GraphQL Endpoint, PDF Processor, Chains
@@ -194,7 +173,6 @@ flowchart TD
   - processes the uploaded PDFs
   - extracts the text and embeddings
   - writes the extracted data and the embedding to the LLM Database
-  - informs Pocketbase that the PDF has been processed
 - **Chains** 🔗
   - uses the embeddings in LLM Database as a retriever
   - contains the chains for chatbot and travel planner
