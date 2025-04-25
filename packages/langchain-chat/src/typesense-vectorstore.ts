@@ -1,13 +1,9 @@
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
-import { ImportError } from 'typesense/lib/Typesense/Errors'
-
-import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
 
 import { loadFile } from './langchain-file'
 import { calculateChunkParams } from './vectorstore-settings'
@@ -154,35 +150,6 @@ export const embedFile = async (
   }
 }
 
-/**
- * @deprecated The method should not be used
- */
-const loadDocument = async (document: { fileName: string; url: string; blob: Blob; documentId: string }) => {
-  console.log('loading document:', document.fileName)
-  const loader = new PDFLoader(document.blob)
-  const rawDocuments = await loader.load()
-
-  const { chunkSize, chunkOverlap } = calculateChunkParams(rawDocuments)
-
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize,
-    chunkOverlap,
-  })
-
-  const splitDocuments = await splitter.splitDocuments(
-    rawDocuments.map((d) => ({
-      ...d,
-      metadata: {
-        docType: 'pdf',
-        docName: document.fileName,
-        points: 1,
-        docId: document.documentId,
-      },
-    })),
-  )
-  return splitDocuments
-}
-
 export const removeFileById = async (libraryId: string, fileId: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
@@ -196,73 +163,6 @@ export const removeFileByName = async (libraryId: string, fileName: string) => {
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docName:=\`${fileName}\`` })
-}
-
-const removeFilesByDocumentIds = async (documentIds: string[]) => {
-  const promises = documentIds.map((documentId) => {
-    console.log('removing file:', documentId)
-    return vectorTypesenseClient
-      .collections('gai-documents')
-      .documents()
-      .delete({ filter_by: `docId:=${documentId}` })
-  })
-  await Promise.all(promises)
-}
-
-const loadDocuments = async (
-  documents: {
-    collectionId: string
-    documentId: string
-    fileName: string
-    url: string
-    blob: Blob
-  }[],
-) => {
-  const splitDocuments = await Promise.all(
-    documents.map(async (document) => {
-      const loadedDocument = await loadDocument({
-        fileName: document.fileName,
-        url: document.url,
-        blob: document.blob,
-        documentId: document.documentId,
-      })
-      return loadedDocument
-    }),
-  )
-  splitDocuments.map(async (splitDocument) => {
-    const documentIds = [...new Set(splitDocument.map((document) => document.metadata.docId))]
-    console.log('removing files:', documentIds)
-    await removeFilesByDocumentIds(documentIds)
-    console.log('loading documents:', JSON.stringify(splitDocument, undefined, 2))
-    try {
-      await Typesense.fromDocuments(splitDocument, embeddings, getTypesenseVectorStoreConfig('common'))
-
-      const documentIds = [...new Set(splitDocument.map((document) => document.metadata.docId))]
-
-      console.log('setting documents as processed:', documentIds)
-
-      await Promise.all(documentIds.map((documentId) => setDocumentProcessed({ documentId })))
-    } catch (error) {
-      if (error instanceof ImportError) {
-        console.error('Error loading documents:', JSON.stringify(error.importResults, undefined, 2))
-      } else {
-        console.error('Error loading documents:', error)
-      }
-    }
-  })
-}
-
-let processing = 0
-
-export const loadUprocessedDocumentsIntoVectorStore = async () => {
-  console.log('processing:', processing++)
-  await ensureVectorStore('common')
-  const documents = await getUnprocessedDocuments()
-  console.log(
-    'unprocessed documents:',
-    documents.map((d) => d.fileName),
-  )
-  await loadDocuments(documents)
 }
 
 export const similaritySearch = async (
