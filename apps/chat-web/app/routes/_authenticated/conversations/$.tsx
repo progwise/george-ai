@@ -145,7 +145,7 @@ function RouteComponent() {
     <div className="drawer grow lg:drawer-open lg:-mt-4">
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
-        <div className="sticky top-20 z-30 flex flex-row items-center justify-between bg-base-100 p-1">
+        <div className="sticky top-[72px] z-30 mt-[-16px] flex flex-row items-center justify-between bg-base-100 p-1 pt-2 lg:top-0 lg:mt-0">
           <div className="flex">
             <label htmlFor="conversation-drawer" className="btn drawer-button btn-sm mx-1 lg:hidden">
               <MenuIcon className="size-6" />
@@ -176,7 +176,7 @@ function RouteComponent() {
         <div className="flex h-full flex-col">
           {selectedConversation?.aiConversation && (
             <>
-              <div className="sticky top-[120px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-[72px] lg:rounded-r-box">
+              <div className="sticky top-[116px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-20 lg:mt-[-108px] lg:rounded-r-box">
                 <ConversationParticipants
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
@@ -198,7 +198,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-64px] lg:flex lg:h-screen lg:flex-col lg:pt-[64px]">
+      <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-104px] lg:flex lg:h-screen lg:flex-col lg:pt-[76px]">
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
         <div className="flex h-full w-80 flex-col items-center bg-base-200 lg:pt-2">
           <div className="sticky z-50 border-b py-2">
