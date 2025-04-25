@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { toastError } from '../../../components/georgeToaster'
+import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
 import { confirmInvitation } from '../../../server-functions/participations'
@@ -49,13 +49,6 @@ function RouteComponent() {
       } catch (error) {
         const errorHandlers = new Map([
           [
-            'Conversation not found',
-            () => {
-              toastError(t('invitations.conversationNotFound'))
-              navigate({ to: '/' })
-            },
-          ],
-          [
             'User is already a participant',
             () => {
               toastError(t('invitations.alreadyParticipant'))
@@ -63,27 +56,38 @@ function RouteComponent() {
             },
           ],
           [
+            'Conversation not found',
+            () => {
+              toastError(t('invitations.conversationNotFound'))
+              navigate({ to: '/' })
+            },
+          ],
+          [
             'Invitation not found',
             () => {
               toastError(t('invitations.invitationNotFound'))
+              navigate({ to: '/' })
             },
           ],
           [
             'Invalid invitation',
             () => {
               toastError(t('invitations.invalidInvitation'))
+              navigate({ to: '/' })
             },
           ],
           [
             'Email address does not match',
             () => {
               toastError(t('invitations.emailMismatch'))
+              navigate({ to: '/' })
             },
           ],
           [
             'Email address does not match the invitation for this single-use invitation',
             () => {
               toastError(t('invitations.emailMismatchSingleUse'))
+              navigate({ to: '/' })
             },
           ],
         ])
@@ -92,14 +96,15 @@ function RouteComponent() {
         if (handler) {
           errorHandlers.get(handler)?.()
         } else {
-          console.error('Unexpected error:', error)
           toastError(t('errors.unexpectedError'))
+          navigate({ to: '/' })
         }
         throw error
       }
     },
     onSuccess: () => {
       navigate({ to: `/conversations/${conversationId}` })
+      toastSuccess(t('invitations.invitationAccepted'))
     },
   })
 

@@ -115,6 +115,7 @@ export default {
     emailMismatchSingleUse: 'Email address does not match the invitation for this single-use invitation',
     failedToSendInvitation: 'Failed to send invitation: {error}',
     invalidInvitation: 'Invalid invitation for this conversation',
+    invitationAccepted: 'Invitation accepted',
     invitationNotFound: 'Invitation not found or has already been used',
     invitationSent: 'Invitation sent',
   },

@@ -120,6 +120,7 @@ export default {
     failedToSendInvitation: 'Einladung konnte nicht gesendet werden: {error}',
     invalidInvitation: 'Ungültige Einladung für diese Konversation',
     invitationNotFound: 'Einladung nicht gefunden oder bereits verwendet',
+    invitationAccepted: 'Einladung akzeptiert',
     invitationSent: 'Einladung gesendet',
   },
   labels: {
