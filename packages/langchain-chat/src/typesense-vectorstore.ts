@@ -4,14 +4,13 @@ import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
+import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
 
 import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
 
 import { loadFile } from './langchain-file'
-
-const CHUNK_SIZE = 1000 // Increased for better context
-const CHUNK_OVERLAP = 100
+import { calculateChunkParams } from './vectorstore-settings'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -77,7 +76,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   searchParams: {
     q: '*',
     filter_by: '',
-    query_by: '',
+    query_by: 'text,docName',
   },
   import: async (data, collectionName) => {
     await vectorTypesenseClient
@@ -130,14 +129,16 @@ export const embedFile = async (
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
+  const fileParts = await loadFile(file)
+
+  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
+
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: CHUNK_SIZE,
-    chunkOverlap: CHUNK_OVERLAP,
+    chunkSize,
+    chunkOverlap,
   })
 
   await removeFileByName(libraryId, file.name)
-
-  const fileParts = await loadFile(file)
 
   const splitDocument = await splitter.splitDocuments(fileParts)
 
@@ -160,10 +161,14 @@ const loadDocument = async (document: { fileName: string; url: string; blob: Blo
   console.log('loading document:', document.fileName)
   const loader = new PDFLoader(document.blob)
   const rawDocuments = await loader.load()
+
+  const { chunkSize, chunkOverlap } = calculateChunkParams(rawDocuments)
+
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: CHUNK_SIZE,
-    chunkOverlap: CHUNK_OVERLAP,
+    chunkSize,
+    chunkOverlap,
   })
+
   const splitDocuments = await splitter.splitDocuments(
     rawDocuments.map((d) => ({
       ...d,
@@ -260,14 +265,34 @@ export const loadUprocessedDocumentsIntoVectorStore = async () => {
   await loadDocuments(documents)
 }
 
-export const similaritySearch = async (question: string, libraryId: string) => {
-  await ensureVectorStore(libraryId)
-  const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
-  const documents = await typesenseVectorStore.similaritySearch(question)
-  return documents.map((document) => ({
-    pageContent: document.pageContent,
-    docName: document.metadata.docName.toString() as string,
-  }))
+export const similaritySearch = async (
+  question: string,
+  library: string,
+): Promise<{ pageContent: string; docName: string }[]> => {
+  console.log(`searching ${library} for:`, question)
+  const questionAsVector = await embeddings.embedQuery(question)
+  const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  console.log('vector query:', vectorQuery)
+  await ensureVectorStore(library)
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
+    searches: [
+      {
+        collection: getTypesenseSchemaName(library),
+        q: question,
+        query_by: 'text,docName',
+        vector_query: vectorQuery,
+        per_page: 10,
+      },
+    ],
+  })
+
+  const docs = searchResponse.results
+    .flatMap((result) => result.hits)
+    .map((hit) => ({
+      pageContent: hit?.document.text,
+      docName: hit?.document.docName,
+    }))
+  return docs
 }
 
 // retrieves content from the vector store similar to the question
