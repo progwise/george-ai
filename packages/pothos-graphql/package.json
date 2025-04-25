@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@george-ai/ai-act": "workspace:*",
     "@george-ai/crawl4ai-client": "workspace:*",
     "@george-ai/langchain-chat": "workspace:*",
     "@pothos/core": "^4.3.0",

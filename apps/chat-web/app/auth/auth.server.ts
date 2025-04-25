@@ -27,6 +27,7 @@ const loginDocument = graphql(/* GraphQL */ `
       given_name
       family_name
       createdAt
+      isAdmin
     }
   }
 `)

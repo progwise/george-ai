@@ -1,5 +1,6 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"],
+  "include": ["app", "./tailwind.config.ts", "app.config.ts", "codegen.ts"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",

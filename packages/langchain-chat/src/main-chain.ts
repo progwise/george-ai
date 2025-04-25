@@ -11,7 +11,6 @@ import {
   searchQueryPrompt,
   webPrompt,
 } from './prompts'
-// import { getPDFContentForQuestion } from './memory-vectorstore'
 import { getPDFContentForQuestion } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 

@@ -13,6 +13,8 @@ import './graphql/chat'
 import './graphql/scalars'
 import './graphql/user'
 import './graphql/user-profile'
+import './graphql/ai-act-assessment'
+import './graphql/version'
 import './cron-jobs'
 
 const schema = builder.toSchema()

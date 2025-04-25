@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
+import { dateString } from '@george-ai/web-utils'
+
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ExitIcon } from '../../icons/exit-icon'
@@ -28,11 +30,11 @@ const ConversationDelete_ConversationFragment = graphql(`
 
 interface DeleteLeaveConversationDialogProps {
   conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
-  userId?: string
+  userId: string
 }
 
 export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDialogProps) => {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -52,8 +54,6 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!props.userId) return
-
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversations, props.userId],
       })
@@ -71,8 +71,6 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      if (!props.userId) return
-
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversations, props.userId],
       })
@@ -92,14 +90,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     dialogRef.current?.showModal()
   }
 
-  if (!props.userId) {
-    return null
-  }
-
   const isPending = isDeletePending || isLeavePending
   const Icon = isOwner ? TrashIcon : ExitIcon
 
-  const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${new Date(conversation.createdAt).toLocaleString().replace(',', '')})`
+  const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
   const submitButtonText = isOwner ? t('actions.delete') : t('actions.leave')
   const buttonTooltip = isOwner ? t('conversations.delete') : t('conversations.leave')

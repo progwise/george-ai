@@ -19,7 +19,7 @@ export interface GoogleDriveFilesProps {
   libraryId: string
   noFreeUploads: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
-  userId?: string
+  userId: string
 }
 
 interface GoogleDriveResponse {
@@ -200,12 +200,12 @@ export const GoogleDriveFiles = ({
               to="/libraries/auth-google"
               search={{ redirectAfterAuth: currentLocationHref }}
             >
-              {t('auth.signInWithGoogle')}
+              {t('actions.signInWithGoogle')}
             </Link>
           )}
           {googleDriveAccessToken.access_token && (
             <button type="button" className="btn btn-primary btn-xs" onClick={handleSwitchAccount}>
-              {t('auth.switchGoogleAccount')}
+              {t('actions.switchGoogleAccount')}
             </button>
           )}
           {googleDriveAccessToken.access_token && (

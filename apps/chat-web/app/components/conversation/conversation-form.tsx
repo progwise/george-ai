@@ -25,7 +25,7 @@ const ConversationForm_ConversationFragment = graphql(`
 
 interface ConversationFormProps {
   conversation: FragmentType<typeof ConversationForm_ConversationFragment>
-  user?: Pick<User, 'id' | 'name' | 'username'>
+  user: Pick<User, 'id' | 'name' | 'username'>
   profile?: Pick<UserProfile, 'id' | 'freeMessages' | 'usedMessages'>
 }
 export const ConversationForm = (props: ConversationFormProps) => {
@@ -67,9 +67,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
-      if (!props.user?.id) {
-        throw new Error('User not set')
-      }
       if (!data.content || data.content.trim().length < 3) {
         throw new Error('Message must be at least 3 characters')
       }
@@ -93,7 +90,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
         queryKey: [queryKeys.Conversation, conversation.id],
       })
 
-      queryClient.invalidateQueries(getProfileQueryOptions(props.user?.id))
+      queryClient.invalidateQueries(getProfileQueryOptions(props.user.id))
 
       scrollToBottom()
     },
@@ -128,10 +125,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
     formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   }
 
-  if (!props.user) {
-    return <h3>{t('texts.loginToUseSendMessages')}</h3>
-  }
-
   const name = props.user.name || props.user.username
 
   return (
@@ -150,6 +143,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <EditableDiv
+            className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
             disabled={isPending}
             onSubmit={handleSubmitMessage}
             value={message}

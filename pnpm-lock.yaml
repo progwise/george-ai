@@ -18,7 +18,7 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(prettier@3.5.3)
       prettier:
-        specifier: ^3.4.2
+        specifier: ^3.5.3
         version: 3.5.3
       prettier-plugin-tailwindcss:
         specifier: ^0.6.11
@@ -53,6 +53,9 @@ importers:
       '@tanstack/start':
         specifier: 1.112.3
         version: 1.112.3(@types/node@22.13.8)(db0@0.2.4)(ioredis@5.5.0)(jiti@2.4.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(terser@5.39.0)(tsx@4.19.3)(typescript@5.8.2)(vite@6.2.0(@types/node@22.13.8)(jiti@2.4.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0))(yaml@2.7.0)
+      '@tanstack/zod-adapter':
+        specifier: ^1.117.0
+        version: 1.117.0(@tanstack/react-router@1.112.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(zod@3.24.2)
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.5.3)
@@ -230,7 +233,11 @@ importers:
         specifier: ^0.1.10
         version: 0.1.10
 
-  apps/pocketbase: {}
+  packages/ai-act:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.8.2
 
   packages/crawl4ai-client:
     dependencies:
@@ -250,12 +257,9 @@ importers:
 
   packages/langchain-chat:
     dependencies:
-      '@george-ai/pocketbase-client':
-        specifier: workspace:*
-        version: link:../pocketbase-client
       '@langchain/community':
         specifier: ^0.3.16
-        version: 0.3.33(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(@langchain/google-genai@0.1.11(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(zod@3.24.2))(@langchain/ollama@0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(axios@1.7.9)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(ioredis@5.5.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.9.0)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(typesense@1.8.2(@babel/runtime@7.26.9))(ws@8.18.1)
+        version: 0.3.33(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(@langchain/google-genai@0.1.11(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(zod@3.24.2))(@langchain/ollama@0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(axios@1.7.9)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(ioredis@5.5.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.9.0)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(typesense@2.0.3(@babel/runtime@7.26.9))(ws@8.18.1)
       '@langchain/core':
         specifier: ^0.3.42
         version: 0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))
@@ -284,8 +288,8 @@ importers:
         specifier: ^5.1.91
         version: 5.1.91
       typesense:
-        specifier: ^1.8.2
-        version: 1.8.2(@babel/runtime@7.26.9)
+        specifier: ^2.0.3
+        version: 2.0.3(@babel/runtime@7.26.9)
       zod:
         specifier: ^3.23.8
         version: 3.24.2
@@ -303,30 +307,11 @@ importers:
         specifier: ^8.18.0
         version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
 
-  packages/pocketbase-client:
-    dependencies:
-      pocketbase:
-        specifier: ^0.22.1
-        version: 0.22.1
-    devDependencies:
-      '@eslint/js':
-        specifier: ^9.16.0
-        version: 9.21.0
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.13.8
-      eslint:
-        specifier: ^9.17.0
-        version: 9.21.0(jiti@2.4.2)
-      typescript:
-        specifier: ^5.7.2
-        version: 5.8.2
-      typescript-eslint:
-        specifier: ^8.18.0
-        version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
-
   packages/pothos-graphql:
     dependencies:
+      '@george-ai/ai-act':
+        specifier: workspace:*
+        version: link:../ai-act
       '@george-ai/crawl4ai-client':
         specifier: workspace:*
         version: link:../crawl4ai-client
@@ -2722,6 +2707,13 @@ packages:
   '@tanstack/virtual-file-routes@1.99.0':
     resolution: {integrity: sha512-XvX8bfdo4CYiCW+ItVdBfCorh3PwQFqYqd7ll+XKWiWOJpqUGIG7VlziVavARZpUySiY2VBlHadiUYS7jhgjRg==}
     engines: {node: '>=12'}
+
+  '@tanstack/zod-adapter@1.117.0':
+    resolution: {integrity: sha512-T82w76xCii5ZS0iPwWlBmMnSsnwDdC78kpG8Ay/7VpBWGeYh0r6AnLQQ10gK4heHSqRo0hRZHeVsLObGvbyojw==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@tanstack/react-router': '>=1.43.2'
+      zod: ^3.23.8
 
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
@@ -5611,9 +5603,6 @@ packages:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
     engines: {node: '>=4'}
 
-  pocketbase@0.22.1:
-    resolution: {integrity: sha512-hnzpDcIx5kbkUJXz6IkiTox6R4nb706u4rPSMy2FYCaI2OqBnFxbY0qwWBSqx1ERz/Xi61Uguf17Gb9bWZ8+kw==}
-
   postcss-import@15.1.0:
     resolution: {integrity: sha512-hpr+J05B2FVYUAXHeK1YyI267J/dDDhMU6B6civm8hSY1jYJnBXxzKDKDswzJmtLHryrjhnDjqqp/49t8FALew==}
     engines: {node: '>=14.0.0'}
@@ -6467,6 +6456,12 @@ packages:
 
   typesense@1.8.2:
     resolution: {integrity: sha512-aBpePjA99Qvo+OP2pJwMpvga4Jrm1Y2oV5NsrWXBxlqUDNEUCPZBIksPv2Hq0jxQxHhLLyJVbjXjByXsvpCDVA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@babel/runtime': ^7.23.2
+
+  typesense@2.0.3:
+    resolution: {integrity: sha512-fRJjFdDNZn6qF9XzIk+bB8n8cm0fiAx1SGcpLDfNcsGtp8znITfG+SO+l/qk63GCRXZwJGq7wrMDLFUvblJSHA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@babel/runtime': ^7.23.2
@@ -8073,7 +8068,7 @@ snapshots:
     dependencies:
       graphql: 16.10.0
       lodash.sortby: 4.7.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@graphql-tools/executor-common@0.0.3(graphql@16.10.0)':
     dependencies:
@@ -8214,12 +8209,12 @@ snapshots:
   '@graphql-tools/optimize@1.4.0(graphql@16.10.0)':
     dependencies:
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@graphql-tools/optimize@2.0.0(graphql@16.10.0)':
     dependencies:
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@graphql-tools/prisma-loader@8.0.17(@types/node@22.13.8)(graphql@16.10.0)':
     dependencies:
@@ -8254,7 +8249,7 @@ snapshots:
       '@ardatan/relay-compiler': 12.0.0(graphql@16.10.0)
       '@graphql-tools/utils': 9.2.1(graphql@16.10.0)
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -8264,7 +8259,7 @@ snapshots:
       '@ardatan/relay-compiler': 12.0.2(graphql@16.10.0)
       '@graphql-tools/utils': 10.8.3(graphql@16.10.0)
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
     transitivePeerDependencies:
       - encoding
 
@@ -8309,13 +8304,13 @@ snapshots:
   '@graphql-tools/utils@8.13.1(graphql@16.10.0)':
     dependencies:
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@graphql-tools/utils@9.2.1(graphql@16.10.0)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@graphql-tools/wrap@10.0.31(graphql@16.10.0)':
     dependencies:
@@ -8414,7 +8409,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@langchain/community@0.3.33(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(@langchain/google-genai@0.1.11(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(zod@3.24.2))(@langchain/ollama@0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(axios@1.7.9)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(ioredis@5.5.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.9.0)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(typesense@1.8.2(@babel/runtime@7.26.9))(ws@8.18.1)':
+  '@langchain/community@0.3.33(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.1(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(@langchain/google-genai@0.1.11(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))(zod@3.24.2))(@langchain/ollama@0.2.0(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2))))(axios@1.7.9)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(ioredis@5.5.0)(jsonwebtoken@9.0.2)(lodash@4.17.21)(mammoth@1.9.0)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(pdf-parse@1.1.1)(playwright@1.50.1)(typesense@2.0.3(@babel/runtime@7.26.9))(ws@8.18.1)':
     dependencies:
       '@browserbasehq/stagehand': 1.13.1(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.90.0(ws@8.18.1)(zod@3.24.2))(zod@3.24.2)
       '@ibm-cloud/watsonx-ai': 1.5.1(@langchain/core@0.3.42(openai@4.90.0(ws@8.18.1)(zod@3.24.2)))
@@ -8440,7 +8435,7 @@ snapshots:
       mammoth: 1.9.0
       pdf-parse: 1.1.1
       playwright: 1.50.1
-      typesense: 1.8.2(@babel/runtime@7.26.9)
+      typesense: 2.0.3(@babel/runtime@7.26.9)
       ws: 8.18.1
     transitivePeerDependencies:
       - '@langchain/anthropic'
@@ -9810,6 +9805,11 @@ snapshots:
   '@tanstack/virtual-core@3.13.2': {}
 
   '@tanstack/virtual-file-routes@1.99.0': {}
+
+  '@tanstack/zod-adapter@1.117.0(@tanstack/react-router@1.112.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(zod@3.24.2)':
+    dependencies:
+      '@tanstack/react-router': 1.112.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      zod: 3.24.2
 
   '@tokenizer/token@0.3.0': {}
 
@@ -11708,7 +11708,7 @@ snapshots:
   graphql-tag@2.12.6(graphql@16.10.0):
     dependencies:
       graphql: 16.10.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   graphql-ws@6.0.4(graphql@16.10.0)(ws@8.18.1):
     dependencies:
@@ -11858,7 +11858,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -13242,8 +13242,6 @@ snapshots:
 
   pluralize@8.0.0: {}
 
-  pocketbase@0.22.1: {}
-
   postcss-import@15.1.0(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
@@ -13534,7 +13532,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 
@@ -14111,6 +14109,15 @@ snapshots:
       '@babel/runtime': 7.26.9
       axios: 1.8.1
       loglevel: 1.9.2
+    transitivePeerDependencies:
+      - debug
+
+  typesense@2.0.3(@babel/runtime@7.26.9):
+    dependencies:
+      '@babel/runtime': 7.26.9
+      axios: 1.8.1
+      loglevel: 1.9.2
+      tslib: 2.8.1
     transitivePeerDependencies:
       - debug
 

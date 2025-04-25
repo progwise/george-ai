@@ -118,7 +118,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               className="flex items-center gap-2"
             >
               <UserIcon className="size-6" />
-              {t('topNavigation.signOut')}
+              {t('actions.signOut')}
             </button>
           </li>
         </>
@@ -144,7 +144,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               className="flex items-center gap-2"
             >
               <UserIcon className="size-6" />
-              {t('topNavigation.signIn')}
+              {t('actions.signIn')}
             </button>
           </li>
         </>
@@ -166,9 +166,9 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             <span className="max-w-48 truncate">{user.name}</span>
           </Link>
         ) : (
-          <button type="button" className="btn btn-ghost gap-2" onClick={login}>
+          <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
             <UserIcon className="size-6" />
-            {t('topNavigation.signIn')}
+            {t('actions.signIn')}
           </button>
         )}
 
@@ -244,7 +244,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
 
               <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
                 <UserIcon className="size-6" />
-                {t('topNavigation.signOut')}
+                {t('actions.signOut')}
               </button>
             </>
           ) : (
@@ -270,9 +270,9 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
 
-              <button type="button" className="btn btn-ghost gap-2" onClick={login}>
+              <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
                 <UserIcon className="size-6" />
-                {t('topNavigation.signIn')}
+                {t('actions.signIn')}
               </button>
             </>
           )}
