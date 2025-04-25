@@ -15,7 +15,6 @@ interface InputProps<T extends ZodRawShape> {
   schema?: z.ZodObject<T>
   onChange?: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => void
-  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   className?: string
 }
 
@@ -32,7 +31,6 @@ export const Input = <T extends ZodRawShape>({
   schema,
   onChange,
   onBlur,
-  onKeyDown,
   className,
 }: InputProps<T>) => {
   const [errors, setErrors] = useState<string[]>([])
@@ -56,6 +54,7 @@ export const Input = <T extends ZodRawShape>({
   }
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
+    if (event.target.value === renderedValue) return
     validate(event.target.value)
     onBlur?.(event)
   }
@@ -76,6 +75,7 @@ export const Input = <T extends ZodRawShape>({
       {type === 'textarea' ? (
         <textarea
           ref={ref as React.Ref<HTMLTextAreaElement>}
+          key={value}
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
@@ -91,6 +91,7 @@ export const Input = <T extends ZodRawShape>({
       ) : (
         <input
           ref={ref as React.Ref<HTMLInputElement>}
+          key={value}
           name={name}
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
@@ -105,7 +106,6 @@ export const Input = <T extends ZodRawShape>({
           readOnly={readOnly}
           onChange={handleChange}
           onBlur={handleBlur}
-          onKeyDown={onKeyDown}
         />
       )}
     </label>
