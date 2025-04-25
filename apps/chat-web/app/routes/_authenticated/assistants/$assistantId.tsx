@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
+import { AiActGuide } from '../../../components/assistant/assistant-ai-act/ai-act-guide'
 import { AssistantBasecaseForm } from '../../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
@@ -87,15 +88,16 @@ function RouteComponent() {
         </div>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 sm:w-1/2">
           <AssistantForm assistant={aiAssistant} disabled={!ownerId} userId={ownerId} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
-        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 lg:w-1/2">
+        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 sm:w-1/2">
           <AssistantBasecaseForm assistant={aiAssistant} userId={ownerId} />
         </div>
       </div>
+      {assistantId && <AiActGuide assistantId={assistantId} />}
     </article>
   )
 }

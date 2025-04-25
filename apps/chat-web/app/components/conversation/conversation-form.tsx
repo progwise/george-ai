@@ -143,6 +143,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <EditableDiv
+            className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
             disabled={isPending}
             onSubmit={handleSubmitMessage}
             value={message}
