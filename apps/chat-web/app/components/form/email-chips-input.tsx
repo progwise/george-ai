@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { Input } from './input'
 
 const emailSchema = z.string().email()
 
@@ -62,17 +61,18 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
           </button>
         </div>
       ))}
-      <Input
+      <input
         name="emailInput"
+        type="text"
         value={inputValue}
-        placeholder={placeholder}
         onChange={(event) => {
           setInputValue(event.currentTarget.value)
           if (error) setError(null)
         }}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
-        className="flex-grow border-none focus:outline-none"
+        placeholder={placeholder}
+        className="input input-sm input-bordered w-full focus:outline-none"
       />
       {error && <p className="text-sm text-error">{error}</p>}
     </div>
