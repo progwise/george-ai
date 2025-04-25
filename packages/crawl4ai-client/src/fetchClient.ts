@@ -2,8 +2,7 @@ import createClient, { Middleware } from 'openapi-fetch'
 
 import type { paths } from './generated/schema'
 
-// TODO: use environment variable
-const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:8000'
+const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11235'
 
 const clientUnauthorized = createClient<paths>({
   baseUrl: CRAWL4AI_BASE_URL,
