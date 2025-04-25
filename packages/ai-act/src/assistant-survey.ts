@@ -12,7 +12,6 @@ export interface AiActAssistantSurvey {
   title: AiActString
   hint: AiActString
   questions: AiActQuestion[]
-  riskIndicator: AiActRiskIndicator
   actionsTitle: AiActString
   actions: Array<AiActRecommendedAction>
 }
@@ -150,14 +149,6 @@ export const getDefaultAssistantSurvey = (assistantId: string): AiActAssistantSu
         notes: null,
       },
     ],
-    riskIndicator: {
-      level: 'undetermined' as const,
-      description: {
-        de: 'Keine Antworten gesammelt',
-        en: 'No answers collected',
-      },
-      factors: [],
-    },
     actionsTitle: {
       de: 'Basierend auf Ihren Antworten sollten Sie folgende Maßnahmen in Betracht ziehen:',
       en: 'Based on your answers, you should consider the following actions:',
