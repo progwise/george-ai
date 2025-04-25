@@ -62,7 +62,7 @@ export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, library
             // eslint-disable-next-line @eslint-react/dom/no-dangerously-set-innerhtml
             dangerouslySetInnerHTML={{
               __html: t('crawlers.deleteConfirmation', {
-                crawlerUrl: `<span class="font-bold">${crawlerUrl}</span>`,
+                crawlerUrl: `<span class="font-bold">${encodeURIComponent(crawlerUrl)}</span>`,
                 filesCount,
               }),
             }}
