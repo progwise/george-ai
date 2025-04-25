@@ -71,7 +71,7 @@ export const CrawlerTable = ({ libraryId, userId }: CrawlerTableProps) => {
                 <DeleteCrawlerButton
                   crawlerId={crawler.id}
                   crawlerUrl={crawler.url}
-                  filesCount={crawler.filesCount ?? 0}
+                  filesCount={crawler.filesCount}
                   libraryId={libraryId}
                 />
               </td>

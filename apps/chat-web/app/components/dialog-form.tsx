@@ -38,8 +38,7 @@ export const DialogForm = ({
     <dialog className="modal" ref={ref}>
       <div className="modal-box">
         <h3 className="text-lg font-bold">{title}</h3>
-        {/* eslint-disable-next-line @eslint-react/no-leaked-conditional-rendering */}
-        {description && <p className="py-4">{description}</p>}
+        {!!description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
           <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
           <div className="modal-action">

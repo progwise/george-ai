@@ -75,8 +75,7 @@ export default {
     cronJobActive: 'Cron job active',
     cronJobTime: 'Cron job time',
     delete: 'Delete crawler',
-    deleteConfirmation:
-      'The crawler for {crawlerUrl} will be deleted along with {fileCount} files crawled using it. Please confirm.',
+    deleteConfirmation: 'The crawler for {crawlerUrl} will be deleted along with {filesCount} crawled files.',
     lastRun: 'Last Run',
     maxDepth: 'Max Depth',
     maxPages: 'Max Pages',

@@ -27,7 +27,7 @@ const deleteCrawlerFunction = createServerFn({ method: 'POST' })
 interface DeleteCrawlerButtonProps {
   crawlerId: string
   crawlerUrl: string
-  filesCount?: number
+  filesCount: number
   libraryId: string
 }
 
@@ -50,7 +50,7 @@ export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, library
 
   return (
     <>
-      <button type="button" className="btn btn-error btn-xs" onClick={() => dialogRef.current?.showModal()}>
+      <button type="button" className="btn btn-xs" onClick={() => dialogRef.current?.showModal()}>
         {t('crawlers.delete')}
       </button>
 
@@ -63,7 +63,7 @@ export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, library
             dangerouslySetInnerHTML={{
               __html: t('crawlers.deleteConfirmation', {
                 crawlerUrl: `<span class="font-bold">${crawlerUrl}</span>`,
-                fileCount: filesCount ?? 0,
+                filesCount,
               }),
             }}
           />

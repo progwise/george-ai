@@ -78,7 +78,7 @@ export default {
     cronJobTime: 'Cronjob-Zeit',
     delete: 'Crawler löschen',
     deleteConfirmation:
-      'Der Crawler für {crawlerUrl} wird zusammen mit {fileCount} damit gecrawlten Dateien gelöscht. Bitte bestätigen Sie.',
+      'Der Crawler für {crawlerUrl} wird zusammen mit {filesCount} damit gecrawlten Dateien gelöscht.',
     lastRun: 'Letzter Lauf',
     maxDepth: 'Max Tiefe',
     maxPages: 'Max Anzahl an Seiten',

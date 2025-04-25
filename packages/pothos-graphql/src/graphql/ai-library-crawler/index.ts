@@ -34,14 +34,7 @@ builder.prismaObject('AiLibraryCrawler', {
       },
     }),
     cronJob: t.relation('cronJob'),
-    filesCount: t.int({
-      resolve: async (crawler) => {
-        const count = await prisma.aiLibraryFile.count({
-          where: { crawledByCrawlerId: crawler.id },
-        })
-        return count
-      },
-    }),
+    filesCount: t.relationCount('files', { nullable: false }),
   }),
 })
 
@@ -91,12 +84,12 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { id }) => {
-      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id }, include: { cronJob: true } })
-      const files = await prisma.aiLibraryFile.findMany({
-        where: { libraryId: crawler.libraryId },
+      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
+        where: { id },
+        include: { cronJob: true, files: true },
       })
 
-      await Promise.all(files.map((file) => deleteFileAndRecord(file.id, file.libraryId)))
+      await Promise.all(crawler.files.map((file) => deleteFileAndRecord(file.id, file.libraryId)))
       await prisma.aiLibraryCrawler.delete({ where: { id } })
       if (crawler.cronJob) {
         await stopCronJob(crawler.cronJob)
