@@ -4,7 +4,7 @@ import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
-import type { SearchResponseHit } from 'typesense/lib/Typesense/Documents'
+import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 import { ImportError } from 'typesense/lib/Typesense/Errors'
 
 import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
@@ -76,7 +76,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   searchParams: {
     q: '*',
     filter_by: '',
-    query_by: 'text',
+    query_by: 'text,docName',
   },
   import: async (data, collectionName) => {
     await vectorTypesenseClient
@@ -271,22 +271,7 @@ export const similaritySearch = async (
 ): Promise<{ pageContent: string; docName: string }[]> => {
   const questionAsVector = await embeddings.embedQuery(question)
   await ensureVectorStore(library)
-
-  interface HitDocument {
-    text: string
-    docName: string
-  }
-  type Hit = SearchResponseHit<HitDocument>
-  type MultiSearchResponse<T> = { results: T }
-
-  type ResultBlock = {
-    hits: Hit[]
-    found: number
-  }
-
-  type MyMultiSearch = MultiSearchResponse<ResultBlock[]>
-
-  const searchResponse = (await vectorTypesenseClient.multiSearch.perform({
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
     searches: [
       {
         collection: getTypesenseSchemaName(library),
@@ -297,13 +282,13 @@ export const similaritySearch = async (
         per_page: 100,
       },
     ],
-  })) as MyMultiSearch
+  })
 
   const docs = searchResponse.results
-    .flatMap((result: ResultBlock) => result.hits)
-    .map((hit: Hit) => ({
-      pageContent: hit.document.text,
-      docName: hit.document.docName,
+    .flatMap((result) => result.hits)
+    .map((hit) => ({
+      pageContent: hit?.document.text,
+      docName: hit?.document.docName,
     }))
   return docs
 }
