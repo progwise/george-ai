@@ -7,11 +7,7 @@ export const LibraryFileSchema = z.object({
   name: z.string(),
 })
 
-export type LibraryFile = {
-  id: string
-  kind: string
-  name: string
-}
+export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
 export interface FilesTableProps {
   files: LibraryFile[]
@@ -29,9 +25,9 @@ export const FilesTable: React.FC<FilesTableProps> = ({ files, selectedFiles, se
       {/*********** mobile ***********/}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
         {files.map((file, idx) => (
-          <div key={file.id} className="card flex flex-col border border-neutral-content bg-base-100 p-4 shadow">
-            <div className="mb-2 flex items-center justify-between">
-              <label className="ml-auto flex items-center gap-2">
+          <div key={file.id} className="card flex flex-row gap-2 border border-neutral-content bg-base-100 p-2 shadow">
+            <div className="mb-2 flex justify-between">
+              <label className="ml-auto flex gap-2">
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -40,16 +36,8 @@ export const FilesTable: React.FC<FilesTableProps> = ({ files, selectedFiles, se
                 />
               </label>
             </div>
-            {/* <div className="mb-1">
-              <span className="font-semibold">ID:</span> {file.id}
-            </div> */}
             <div className="font-semibold">{idx + 1}</div>
-            <div className="mb-1">
-              <span>Name:</span> {file.name}
-            </div>
-            <div>
-              <span className="font-semibold"></span> {file.kind}
-            </div>
+            <div className="mb-1 overflow-hidden text-ellipsis whitespace-nowrap">{file.name}</div>
           </div>
         ))}
       </div>
