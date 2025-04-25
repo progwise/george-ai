@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
-export const validateEmails = (emailString: string) => {
-  const emails = emailString.split(',').map((e) => e.trim())
-  const invalidEmails = emails.filter((e) => !z.string().email().safeParse(e).success)
+const emailSchema = z.string().email()
+
+export const validateEmails = (input: string | string[]) => {
+  const emails = Array.isArray(input) ? input : input.split(',').map((email) => email.trim())
+  const invalidEmails = emails.filter((email) => !emailSchema.safeParse(email).success)
   return { emails, invalidEmails }
 }

@@ -15,6 +15,7 @@ interface InputProps<T extends ZodRawShape> {
   schema?: z.ZodObject<T>
   onChange?: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => void
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void
   className?: string
 }
 
@@ -31,11 +32,12 @@ export const Input = <T extends ZodRawShape>({
   schema,
   onChange,
   onBlur,
+  onKeyDown,
   className,
 }: InputProps<T>) => {
+  const [internalValue, setInternalValue] = useState<string | number | undefined | null>(value || valueNotSet || '')
   const [errors, setErrors] = useState<string[]>([])
   const renderedType = type === 'date' ? 'text' : type
-  const renderedValue = value ? value : valueNotSet
 
   const validate = (newValue: string) => {
     if (!schema) return
@@ -49,15 +51,20 @@ export const Input = <T extends ZodRawShape>({
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    validate(event.target.value)
+    const newValue = event.target.value
+    if (value === undefined) {
+      setInternalValue(newValue)
+    }
+    validate(newValue)
     onChange?.(event)
   }
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
-    if (event.target.value === renderedValue) return
     validate(event.target.value)
     onBlur?.(event)
   }
+
+  const inputValue = value !== undefined ? value : internalValue
 
   return (
     <label className={twMerge('flex flex-col', className)}>
@@ -76,7 +83,7 @@ export const Input = <T extends ZodRawShape>({
         <textarea
           ref={ref as React.Ref<HTMLTextAreaElement>}
           name={name}
-          defaultValue={renderedValue || ''}
+          value={inputValue || ''}
           className={twMerge(
             'input input-sm input-bordered flex-grow py-1 leading-normal',
             readOnly && 'cursor-not-allowed text-base-content/50',
@@ -92,7 +99,7 @@ export const Input = <T extends ZodRawShape>({
           ref={ref as React.Ref<HTMLInputElement>}
           name={name}
           type={renderedType || 'text'}
-          defaultValue={renderedValue || ''}
+          value={inputValue || ''}
           className={twMerge(
             'input input-sm input-bordered w-full focus:outline-none',
             readOnly && 'cursor-not-allowed text-base-content/50',
@@ -104,6 +111,7 @@ export const Input = <T extends ZodRawShape>({
           readOnly={readOnly}
           onChange={handleChange}
           onBlur={handleBlur}
+          onKeyDown={onKeyDown}
         />
       )}
     </label>

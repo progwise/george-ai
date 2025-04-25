@@ -13,6 +13,7 @@ import { createConversationInvitation } from '../../server-functions/participati
 import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
 import { useClipboard } from '../form/clipboard'
+import { EmailChipsInput } from '../form/email-chips-input'
 import { validateEmails } from '../form/email-validation'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
@@ -71,7 +72,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
-  const [email, setEmail] = useState('')
+  const [emailChips, setEmailChips] = useState<string[]>([])
   const [emailError, setEmailError] = useState<string | null>(null)
   const [allowDifferentEmailAddress, setAllowDifferentEmailAddress] = useState(false)
   const [allowMultipleParticipants, setAllowMultipleParticipants] = useState(false)
@@ -198,7 +199,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversation.id] })
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
       }
-      setEmail('')
+      setEmailChips([])
       setEmailError(null)
     },
   })
@@ -209,8 +210,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const handleSubmit = async () => {
     if (props.dialogMode === 'new') {
-      if (email.trim()) {
-        const { invalidEmails } = validateEmails(email)
+      if (emailChips.length > 0) {
+        const { invalidEmails } = validateEmails(emailChips)
 
         if (invalidEmails.length > 0) {
           setEmailError(t('errors.invalidEmail'))
@@ -232,9 +233,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
         navigate({ to: `/conversations/${conversationId}` })
 
-        if (email.trim()) {
+        if (emailChips.length > 0) {
           await sendEmailInvitations({
-            email,
+            email: emailChips.join(','),
             conversationId,
             allowDifferentEmailAddress,
             allowMultipleParticipants,
@@ -246,14 +247,15 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           })
         }
 
-        setEmail('')
+        setEmailChips([])
+
         setEmailError(null)
       } catch (error) {
         toastError(t('conversations.failedToCreateConversation', { error: error.message }))
       }
     } else {
-      if (email.trim()) {
-        const { invalidEmails } = validateEmails(email)
+      if (emailChips.length > 0) {
+        const { invalidEmails } = validateEmails(emailChips)
 
         if (invalidEmails.length > 0) {
           setEmailError(t('errors.invalidEmail'))
@@ -266,9 +268,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       try {
         addParticipants()
 
-        if (email.trim()) {
+        if (emailChips.length > 0) {
           await sendEmailInvitations({
-            email,
+            email: emailChips.join(','),
             conversationId: conversation!.id,
             allowDifferentEmailAddress,
             allowMultipleParticipants,
@@ -280,7 +282,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           })
         }
 
-        setEmail('')
+        setEmailChips([])
+
         setEmailError(null)
       } catch (error) {
         toastError(t('conversations.failedToAddParticipants', { error: error.message }))
@@ -294,12 +297,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       return
     }
 
-    if (!email.trim()) {
+    if (emailChips.length < 1) {
       setEmailError(t('errors.emailRequired'))
       return
     }
 
-    const { invalidEmails } = validateEmails(email)
+    const { invalidEmails } = validateEmails(emailChips.join(','))
     if (invalidEmails.length > 0) {
       setEmailError(t('errors.invalidEmail'))
       return
@@ -310,7 +313,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     setIsSendingInvitation(true)
     try {
       await sendEmailInvitations({
-        email,
+        email: emailChips.join(','),
         conversationId: conversation.id,
         allowDifferentEmailAddress,
         allowMultipleParticipants,
@@ -320,7 +323,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         queryClient,
         createInvitation,
       })
-      setEmail('')
+      setEmailChips([])
       setEmailError(null)
     } catch (error) {
       toastError(t('invitations.failedToSendInvitation', { error: error.message }))
@@ -452,16 +455,10 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           {isOwner && (
             <div className="flex-1">
               <h4 className="mb-2 text-lg font-semibold underline">{t('labels.invitation')}</h4>
-              <Input
-                name="email"
-                type="text"
+              <EmailChipsInput
+                emails={emailChips}
+                setEmails={setEmailChips}
                 placeholder={t('placeholders.emailToInvite')}
-                value={email}
-                onChange={(event) => {
-                  const value = event.target.value
-                  setEmail(value)
-                  setEmailError(null)
-                }}
               />
               {emailError && <p className="text-sm text-error">{emailError}</p>}
               <div className="mt-2">
