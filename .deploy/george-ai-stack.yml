@@ -200,14 +200,6 @@ services:
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-crawl4ai:
-    # Crawl4AI has no Docker image that is up-to-date, so we build it from source.
-    # However, the latest version (v0.5.0.post1) is broken when using deep crawl (https://github.com/unclecode/crawl4ai/issues/855)
-    # It seems to be fixed on main branch, so we use that instead.
-    # In order to prevent the build from failing in the future, we use the current (2025-04-10) commit hash from main branch.
-    # build: https://github.com/unclecode/crawl4ai.git#e1d9e2489cd736d3af9992209268c0f601222c1a
-
-    # And now main is also broken, so we use a patch branch from the main branch.
-    # see https://github.com/unclecode/crawl4ai/issues/842#issuecomment-2782881522
     image: unclecode/crawl4ai:0.6.0-r2
     container_name: gai-crawl4ai
     ports:

@@ -89,7 +89,7 @@ pnpm prisma migrate dev
 
 ---
 
-### 7. Start Development
+### 6. Start Development
 
 You can run the app from root using following command
 
@@ -124,27 +124,28 @@ flowchart TD
     keycloakDB[Keycloak DB<br>Port: 5433]
     keycloak[Keycloak<br>Port: 8180]
     crawl4ai[Crawl4AI<br>Port: 11235]
+    ollama[OLLAMA<br>Port: 11434]
+    fileStorage[File Storage]
   end
 
   %% Apps and their dependencies
-  chatWeb --> pothosGraphQL
-  chatWeb --> langchainChat
+  chatWeb --> keycloak
   chatWeb --> webUtils
-
+  chatWeb --> georgeaiServer
   georgeaiServer --> pothosGraphQL
-  georgeaiServer --> langchainChat
-  georgeaiServer --> crawl4aiClient
+  georgeaiServer --> fileStorage
 
   %% Package dependencies
-  langchainChat --> crawl4aiClient
-  langchainChat --> webUtils
-  pothosGraphQL --> webUtils
+  crawl4aiClient --> crawl4ai
+  pothosGraphQL --> chatwebDB
+  pothosGraphQL --> typesense
+  pothosGraphQL --> langchainChat
+  pothosGraphQL --> crawl4aiClient
+  langchainChat --> ollama
+  langchainChat --> typesense
+  pothosGraphQL --> fileStorage
 
   %% Services and their relationships
-  georgeaiServer --> typesense
-  georgeaiServer --> chatwebDB
-  georgeaiServer --> keycloak
-  georgeaiServer --> crawl4ai
   keycloak --> keycloakDB
 ```
 
@@ -169,9 +170,3 @@ flowchart TD
   - one Frontend App with two routes: Chatbot and Travel Planner
 - **Chatbot** 🤖
   - bot to chat about the PDFs
-- **Travel Planner** 🗺️
-  - to create travel plans based on the PDFs
-
-```
-
-```
