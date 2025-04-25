@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 export const LibraryFileSchema = z.object({
@@ -16,30 +16,54 @@ export interface FilesTableProps {
 }
 
 export const FilesTable: React.FC<FilesTableProps> = ({ files, selectedFiles, setSelectedFiles }) => {
+  const gridRef = useRef<HTMLDivElement | null>(null)
+  const [columns, setColumns] = useState(1)
+
   const toggle = (file: LibraryFile, checked: boolean) => {
     setSelectedFiles((prev) => (checked ? [...prev, file] : prev.filter((f) => f.id !== file.id)))
   }
 
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (gridRef.current && gridRef.current.children.length > 0) {
+        const containerWidth = gridRef.current.getBoundingClientRect().width
+        const childWidth = gridRef.current.children[0].getBoundingClientRect().width
+        const colCount = Math.floor(containerWidth / childWidth)
+        setColumns(colCount || 1)
+      }
+    })
+
+    if (gridRef.current) observer.observe(gridRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <>
       {/*********** mobile ***********/}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
-        {files.map((file, idx) => (
-          <div key={file.id} className="card flex flex-row gap-2 border border-neutral-content bg-base-100 p-2 shadow">
-            <div className="mb-2 flex justify-between">
-              <label className="ml-auto flex gap-2">
-                <input
-                  type="checkbox"
-                  className="checkbox"
-                  checked={selectedFiles.some((f) => f.id === file.id)}
-                  onChange={(e) => toggle(file, e.target.checked)}
-                />
-              </label>
+      <div ref={gridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:hidden">
+        {files.map((file, index) => {
+          const rowIndex = Math.floor(index / columns)
+
+          return (
+            <div
+              key={file.id}
+              className={`card flex flex-row gap-2 ${rowIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'} rounded-none`}
+            >
+              <div className="mb-2 flex justify-between">
+                <label className="ml-2 flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-xs"
+                    checked={selectedFiles.some((f) => f.id === file.id)}
+                    onChange={(e) => toggle(file, e.target.checked)}
+                  />
+                </label>
+              </div>
+              <div className="font-semibold">{index + 1}</div>
+              <div className="mb-1 overflow-hidden text-ellipsis whitespace-nowrap">{file.name}</div>
             </div>
-            <div className="font-semibold">{idx + 1}</div>
-            <div className="mb-1 overflow-hidden text-ellipsis whitespace-nowrap">{file.name}</div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/*********** desktop ***********/}
