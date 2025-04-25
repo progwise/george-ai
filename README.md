@@ -21,7 +21,12 @@ Use `env.example` files as the references.
 ### 3. Ports Overview
 
 - **Port 3003**: GraphQL backend
+- **Port 5432**: George-Ai DB
 - **Port 3001**: Frontend
+- **Port 11235**: crawl4ai
+- **Port 8180**: keycloak
+- **Port 5433**: keycloak DB
+- **Port 8108**: typesense
 
 **Vite** provides Hot Module Replacement (HMR) by establishing a WebSocket connection between the browser and the dev server. The **Vite** dev server automatically starts an HTTP server and creates a **WebSocket (WS)** server on the same host but with a dynamically assigned port. We enhance this setup with a custom **Vite** plugin that extracts the HMR WebSocket port and writes it to **app.config.ts** and an automatic port opening based on VSCode settings.
 
@@ -101,65 +106,46 @@ Enjoy.
 ```mermaid
 flowchart TD
 
-
-  content -- Document uploaded/updated/deleted--> workflow
-  workflow -- Embedding success/failed --> content
-  docEmbedder -- Document processed--> workflow
-  content -- Doc changed --> docEmbedder
-
-  subgraph georgeFrontend[George Frontend 💻]
-    chatbot[Chatbot 🤖]
-    docGenerator[Output Doc 🗺️]
-    georgeAdmin[George Admin]
+  subgraph Apps
+    chatWeb[chat-web]
+    georgeaiServer[georgeai-server]
   end
 
-  subgraph otherFrontend[Custom Frontend]
-    formProvider[Some Forms UI]
-    mapProvider[Some Maps UI]
+  subgraph Packages
+    pothosGraphQL[pothos-graphql]
+    langchainChat[langchain-chat]
+    crawl4aiClient[crawl4ai-client]
+    webUtils[web-utils]
   end
 
-  subgraph backend[George Backend]
-    subgraph georgeAPI [George API]
-      restApi[Rest]
-      graphqlAPI[GraphQL]
-      graphqlAdminAPI[GraphQLAdmin]
-    end
-
-    webSearch[(webSearch 🗃️)]
-    vectorStore[(vectorStore 🗃️)]
-
-    subgraph llmService[LLM Service 🛠️]
-      docEmbedder[docEmbedder 📄]
-      contextChains[contextChains 🔗]
-    end
-
-    georgeAPI --> contextChains
-
-
-    docEmbedder -- write docs with embeddings --> vectorStore
-    contextChains <-- similaritySearch --> vectorStore
-    contextChains <-- webSearch --> webSearch
-    subgraph model[LLM Model Runner🤖]
-      openAI[openAI]
-      mistral[Mistral]
-      xai[XAI]
-      pineCone[PineCone]
-    end
-
-  end
-  subgraph content[Content]
-    end
-
-  subgraph workflow[Workflow]
-    camunda[Camunda]
-    windmill[windmill]
-
+  subgraph Services
+    typesense[Typesense<br>Port: 8108]
+    chatwebDB[Chatweb DB<br>Port: 5434]
+    keycloakDB[Keycloak DB<br>Port: 5433]
+    keycloak[Keycloak<br>Port: 8180]
+    crawl4ai[Crawl4AI<br>Port: 11235]
   end
 
-  contextChains <-- generate text --> model
-  georgeFrontend <-- query with history session --> graphqlAPI
-  otherFrontend <-- query with history session --> graphqlAPI
-  georgeAdmin <-- configure --> graphqlAdminAPI
+  %% Apps and their dependencies
+  chatWeb --> pothosGraphQL
+  chatWeb --> langchainChat
+  chatWeb --> webUtils
+
+  georgeaiServer --> pothosGraphQL
+  georgeaiServer --> langchainChat
+  georgeaiServer --> crawl4aiClient
+
+  %% Package dependencies
+  langchainChat --> crawl4aiClient
+  langchainChat --> webUtils
+  pothosGraphQL --> webUtils
+
+  %% Services and their relationships
+  georgeaiServer --> typesense
+  georgeaiServer --> chatwebDB
+  georgeaiServer --> keycloak
+  georgeaiServer --> crawl4ai
+  keycloak --> keycloakDB
 ```
 
 ## Components
@@ -185,3 +171,7 @@ flowchart TD
   - bot to chat about the PDFs
 - **Travel Planner** 🗺️
   - to create travel plans based on the PDFs
+
+```
+
+```

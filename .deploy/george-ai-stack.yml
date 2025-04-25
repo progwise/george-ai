@@ -211,7 +211,7 @@ services:
     image: unclecode/crawl4ai:0.6.0-r2
     container_name: gai-crawl4ai
     ports:
-      - '11235:8000'
+      - '11235:11235'
     networks:
       - caddy
     healthcheck:
