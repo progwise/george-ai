@@ -201,7 +201,7 @@ function RouteComponent() {
       <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-64px] lg:flex lg:h-screen lg:flex-col lg:pt-[64px]">
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
         <div className="flex h-full w-80 flex-col items-center bg-base-200 lg:pt-2">
-          <div className="sticky z-50 border-b bg-base-200 py-2">
+          <div className="sticky z-50 border-b py-2">
             <NewConversationSelector
               humans={assignableUsers.myConversationUsers}
               assistants={assignableAssistants.aiAssistants}

@@ -27,12 +27,12 @@ export const FileUploadProgressList: React.FC<FileUploadProgressListProps> = ({
           file.size >= 1000000 ? (file.size / 1000000).toFixed(1) + ' MB' : (file.size / 1000).toFixed(1) + ' KB'
 
         return (
-          <li key={file.name} className="flex items-center justify-between gap-2 text-info-content">
+          <li key={file.name} className="flex items-center justify-between gap-2">
             <div className="flex w-1/2 items-center gap-2">
               <FileIcon />
               <span className="truncate">{file.name}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-info-content">
+            <div className="flex items-center gap-2 text-sm">
               <span>{fileSize}</span>
               {progress === -1 ? (
                 <span className="text-error">{t('actions.cancelled')}</span>

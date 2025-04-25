@@ -226,15 +226,6 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
       <LoadingSpinner isLoading={isPending} />
       <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="btn btn-primary btn-xs tooltip tooltip-left"
-            data-tip={t('tooltips.clearEmbeddings')}
-            onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
-            disabled={clearEmbeddingsMutation.isPending}
-          >
-            {t('actions.clearEmbeddings')}
-          </button>
           <DesktopFileUpload
             libraryId={libraryId}
             onUploadComplete={handleUploadComplete}
