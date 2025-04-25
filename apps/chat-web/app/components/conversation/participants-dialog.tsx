@@ -302,7 +302,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
       return
     }
 
-    const { invalidEmails } = validateEmails(emailChips.join(','))
+    const { invalidEmails } = validateEmails(emailChips)
+
     if (invalidEmails.length > 0) {
       setEmailError(t('errors.invalidEmail'))
       return

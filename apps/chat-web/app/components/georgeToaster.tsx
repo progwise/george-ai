@@ -17,7 +17,7 @@ export const GeorgeToaster = () => {
   )
 }
 
-const defaultAlertClasses = 'alert w-auto cursor-pointer text-sm'
+const defaultAlertClasses = 'alert w-auto cursor-pointer text-sm py-2 px-2'
 
 export const toastError = (message: string) => {
   return toast.custom(

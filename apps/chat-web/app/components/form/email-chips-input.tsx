@@ -66,7 +66,10 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
         name="emailInput"
         value={inputValue}
         placeholder={placeholder}
-        onChange={(event) => setInputValue(event.currentTarget.value)}
+        onChange={(event) => {
+          setInputValue(event.currentTarget.value)
+          if (error) setError(null)
+        }}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         className="flex-grow border-none focus:outline-none"
