@@ -47,20 +47,18 @@ export const FilesTable: React.FC<FilesTableProps> = ({ files, selectedFiles, se
           return (
             <div
               key={file.id}
-              className={`card flex flex-row gap-2 ${rowIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'} rounded-none`}
+              className={`card flex flex-row items-center gap-2 ${rowIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'} rounded-none`}
             >
-              <div className="mb-2 flex justify-between">
-                <label className="ml-2 flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-xs"
-                    checked={selectedFiles.some((f) => f.id === file.id)}
-                    onChange={(e) => toggle(file, e.target.checked)}
-                  />
-                </label>
-              </div>
-              <div className="font-semibold">{index + 1}</div>
-              <div className="mb-1 overflow-hidden text-ellipsis whitespace-nowrap">{file.name}</div>
+              <label className="ml-2 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-xs"
+                  checked={selectedFiles.some((f) => f.id === file.id)}
+                  onChange={(e) => toggle(file, e.target.checked)}
+                />
+                <span className="font-semibold">{index + 1}</span>
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">{file.name}</span>
+              </label>
             </div>
           )
         })}
@@ -84,7 +82,7 @@ export const FilesTable: React.FC<FilesTableProps> = ({ files, selectedFiles, se
                 <td>
                   <input
                     type="checkbox"
-                    className="checkbox"
+                    className="checkbox checkbox-xs"
                     checked={selectedFiles.some((f) => f.id === file.id)}
                     onChange={(e) => toggle(file, e.target.checked)}
                   />
