@@ -500,7 +500,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="button"
                     className="btn btn-primary btn-sm"
                     onClick={handleSendInvitation}
-                    disabled={isSendingInvitation || !conversation}
+                    disabled={isSendingInvitation || !conversation || emailChips.length === 0}
                   >
                     {t('actions.send')}
                   </button>
