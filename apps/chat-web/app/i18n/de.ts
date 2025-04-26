@@ -16,13 +16,14 @@ export default {
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue Konversation',
     leave: 'Verlassen',
+    redirecting: 'Umleitung...',
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
     saving: 'Speichern...',
     selectAll: 'Alle auswählen',
     sendConfirmationMail: 'Bestätigungsmail senden',
-    sendMessage: 'Senden',
+    send: 'Senden',
     signIn: 'Anmelden',
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen.',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen.',
@@ -127,7 +128,6 @@ export default {
   },
   invitations: {
     alreadyParticipant: 'Sie sind bereits Teilnehmer dieser Konversation.',
-    cannotSendInvitation: 'Einladungen können erst gesendet werden, wenn die Konversation erstellt wurde.',
     confirmDescription:
       'Bitte bestätigen Sie die Konversationseinladung. Sie können die Konversation jederzeit verlassen.',
     conversationNotFound: 'Konversation nicht gefunden.',
@@ -248,6 +248,7 @@ export default {
   },
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
+    cannotSendInvitation: 'Erstellen Sie die Konversation, um Einladungen zu senden.',
     copyConversationLink: 'Link kopieren',
     copyInvitationLink: 'Einladungslink kopieren',
     delete: 'Löschen',

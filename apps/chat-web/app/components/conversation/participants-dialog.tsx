@@ -5,20 +5,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ClipboardIcon } from '../../icons/clipboard-icon'
-import { EmailIcon } from '../../icons/email-icon'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { createConversationInvitation } from '../../server-functions/participations'
 import { addConversationParticipants } from '../../server-functions/participations'
+import { useClipboard } from '../clipboard'
 import { DialogForm } from '../dialog-form'
-import { useClipboard } from '../form/clipboard'
-import { EmailChipsInput } from '../form/email-chips-input'
-import { validateEmails } from '../form/email-validation'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
+import { EmailChipsInput } from './email-chips-input'
 import { sendEmailInvitations } from './email-invitation'
+import { validateEmails } from './email-validation'
 
 const ParticipantsDialog_ConversationFragment = graphql(`
   fragment ParticipantsDialog_Conversation on AiConversation {
@@ -292,11 +291,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   }
 
   const handleSendInvitation = async () => {
-    if (!conversation?.id) {
-      toastError(t('invitations.cannotSendInvitation'))
-      return
-    }
-
     if (emailChips.length < 1) {
       setEmailError(t('errors.emailRequired'))
       return
@@ -315,7 +309,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     try {
       await sendEmailInvitations({
         email: emailChips.join(','),
-        conversationId: conversation.id,
+        conversationId: conversation?.id ?? '',
         allowDifferentEmailAddress,
         allowMultipleParticipants,
         setEmailError,
@@ -363,9 +357,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="w-[90vw] max-w-[800px]"
+        className="w-full max-w-[800px] px-4 sm:px-6 md:px-8"
       >
-        <div className="flex w-full gap-4">
+        <div className="flex w-full flex-col gap-4 sm:flex-row">
           <div className="flex-1">
             <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
@@ -377,7 +371,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     name="assistants"
                     value={assistant.id}
-                    className="checkbox-info checkbox checkbox-sm"
+                    className="checkbox-info checkbox checkbox-xs"
                     checked={selectedAssistantIds.includes(assistant.id)}
                     onChange={(event) => {
                       const value = event.target.checked
@@ -406,7 +400,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 disabled={availableHumans.length < 1}
                 type="checkbox"
                 name="selectAll"
-                className="checkbox-primary checkbox checkbox-sm"
+                className="checkbox-info checkbox checkbox-xs"
                 checked={selectedUserIds.length > 0}
                 ref={(element) => {
                   if (!element) return
@@ -427,14 +421,14 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
               )}
             </label>
-            <div className="h-48 overflow-y-scroll">
+            <div className="max-h-48 flex-grow overflow-y-auto">
               {availableHumans.map((human) => (
                 <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
                   <input
                     type="checkbox"
                     name="userIds"
                     value={human.id}
-                    className="checkbox-info checkbox checkbox-sm"
+                    className="checkbox-info checkbox checkbox-xs"
                     checked={selectedUserIds.includes(human.id)}
                     onChange={(event) => {
                       const value = event.target.checked
@@ -445,8 +439,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                       }
                     }}
                   />
-                  <span className="label-text">
-                    {`${human.username} (${human.email} ${human.profile ? '| ' + human.profile?.business : ''} )`}
+                  <span className="label-text text-sm leading-tight">
+                    {`${human.username} (${human.email} ${human.profile && human.profile.business !== null ? '| ' + human.profile?.business : ''} )`}
                   </span>
                 </label>
               ))}
@@ -462,22 +456,24 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 placeholder={t('placeholders.emailToInvite')}
               />
               {emailError && <p className="text-sm text-error">{emailError}</p>}
-              <div className="mt-2">
+              <div className="mt-2 flex flex-col gap-1">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={allowDifferentEmailAddress}
+                    className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowDifferentEmailAddress(event.target.checked)}
                   />
-                  {t('texts.allowDifferentEmail')}
+                  <span className="text-sm">{t('texts.allowDifferentEmail')}</span>
                 </label>
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={allowMultipleParticipants}
+                    className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowMultipleParticipants(event.target.checked)}
                   />
-                  {t('texts.allowMultipleParticipants')}
+                  <span className="text-sm">{t('texts.allowMultipleParticipants')}</span>
                 </label>
               </div>
               <div className="mt-4 flex items-center justify-end">
@@ -496,15 +492,19 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                       <ClipboardIcon className="size-5" />
                     </button>
                   )}
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-neutral btn-sm tooltip tooltip-left"
-                  data-tip={t('tooltips.sendInvitation')}
-                  onClick={handleSendInvitation}
-                  disabled={isSendingInvitation}
+                <div
+                  className="tooltip tooltip-left"
+                  data-tip={!conversation ? t('tooltips.cannotSendInvitation') : t('tooltips.sendInvitation')}
                 >
-                  <EmailIcon className="size-6" />
-                </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={handleSendInvitation}
+                    disabled={isSendingInvitation || !conversation}
+                  >
+                    {t('actions.send')}
+                  </button>
+                </div>
               </div>
             </div>
           )}

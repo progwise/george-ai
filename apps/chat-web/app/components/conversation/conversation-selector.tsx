@@ -8,7 +8,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ClipboardIcon } from '../../icons/clipboard-icon'
 import { queryKeys } from '../../query-keys'
-import { useClipboard } from '../form/clipboard'
+import { useClipboard } from '../clipboard'
 
 const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {

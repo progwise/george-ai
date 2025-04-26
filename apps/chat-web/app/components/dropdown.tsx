@@ -14,22 +14,28 @@ interface DropdownProps {
   title: string
   className?: string
   options: Array<DropDownItem>
-  action: (item: DropDownItem) => void
+  disabled?: boolean
+  action?: (item: DropDownItem) => void
 }
 
-export const Dropdown = ({ title, options, action, className }: DropdownProps): JSX.Element => {
+export const Dropdown = ({ title, options, action, className, disabled }: DropdownProps): JSX.Element => {
   const handleOptionClick = (item: DropDownItem) => {
-    action(item)
-    // blur the active element to prevent the dropdown from staying open
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
+    if (!disabled && action) {
+      action(item)
+      // blur the active element to prevent the dropdown from staying open
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
     }
   }
 
   return (
     <div className={twMerge('text-right', className)}>
       <Menu>
-        <MenuButton className="input input-sm input-bordered flex w-full items-center justify-between gap-4 rounded-lg bg-base-100 px-2 py-1 text-left text-sm focus:outline-none">
+        <MenuButton
+          className="input input-sm input-bordered flex w-full items-center justify-between gap-4 rounded-lg bg-base-100 px-2 py-1 text-left text-sm focus:outline-none"
+          disabled={disabled}
+        >
           {title}
           <ChevronUpDownIcon className="text-base-content/60" />
         </MenuButton>
@@ -44,6 +50,7 @@ export const Dropdown = ({ title, options, action, className }: DropdownProps): 
                 type="button"
                 onClick={() => handleOptionClick(item)}
                 className="btn btn-ghost btn-sm flex w-full justify-start font-normal"
+                disabled={disabled}
               >
                 {item.icon && <span>{item.icon}</span>}
                 <span>{item.title}</span>
