@@ -6,7 +6,7 @@ import { useTranslation } from '../i18n/use-translation-hook'
 export interface DialogFormProps {
   ref: RefObject<HTMLDialogElement | null>
   title: string
-  description?: string
+  description?: React.ReactNode
   onSubmit: (data: FormData) => void
   children?: React.ReactNode
   disabledSubmit?: boolean
@@ -41,7 +41,7 @@ export const DialogForm = ({
     <dialog className="modal" ref={ref}>
       <div className={twMerge('modal-box', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
-        {description && <p className="py-4">{description}</p>}
+        {!!description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
           <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
           <div className="modal-action">

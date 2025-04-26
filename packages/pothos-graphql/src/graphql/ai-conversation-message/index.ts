@@ -144,7 +144,7 @@ builder.mutationField('sendMessage', (t) =>
             select: { id: true },
             where: { conversationId: data.conversationId },
           },
-          usages: { select: { library: true } },
+          usages: { select: { library: true, usedFor: true } },
           languageModel: true,
           description: true,
           baseCases: true,
@@ -253,6 +253,7 @@ builder.mutationField('sendMessage', (t) =>
             id: usage.library.id,
             name: usage.library.name,
             description: usage.library.description || '',
+            usedFor: usage.usedFor || '',
           })),
         })) {
           const content = answerFromAssistant

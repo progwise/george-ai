@@ -23,7 +23,7 @@ export const getLibraryPrompt = async ({
       {json_format}
       
       Your task is also produce a single concise but contextually rich search query that captures the key details of what the user is asking, considering all previous messages in the conversation.
-        The result should be a short phrase or sentence that includes relevant historical context and the latest request, suitable for a similarity and web search.
+        The result should be a short phrase or sentence that includes the latest request, suitable for a similarity search.
         Add the search prompt to the JSON as the value of the key "searchPrompt".
         
       Here is the base information for the library you have to create the search query for:
@@ -41,7 +41,10 @@ export const getLibraryPrompt = async ({
         
         Here is the current user question:
         
-        {question}`,
+        {question}
+        
+        Please make the search term short and do not include any expression or term or word that was already used in the assistant description or in the library description.
+        `,
     ],
     new MessagesPlaceholder('library_base_information'),
     new MessagesPlaceholder('assistant_base_information'),

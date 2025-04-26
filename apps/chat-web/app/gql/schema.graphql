@@ -221,6 +221,7 @@ type AiLibrary {
 type AiLibraryCrawler {
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
+  filesCount: Int!
   id: ID!
   isRunning: Boolean!
   lastRun: DateTime
@@ -397,6 +398,7 @@ type Mutation {
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiLibrary(id: String!): AiLibrary
+  deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   dropFiles(libraryId: String!): [AiLibraryFile!]

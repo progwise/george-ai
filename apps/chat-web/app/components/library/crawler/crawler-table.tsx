@@ -6,6 +6,7 @@ import { dateTimeStringShort } from '@george-ai/web-utils'
 import { graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { AddCrawlerButton } from './add-crawler-button'
+import { DeleteCrawlerButton } from './delete-crawler-button'
 import { getCrawlersQueryOptions } from './get-crawlers'
 import { RunCrawlerButton } from './run-crawler-button'
 
@@ -28,6 +29,7 @@ const CrawlerTable_LibraryFragment = graphql(`
       cronJob {
         cronExpression
       }
+      filesCount
       ...RunCrawlerButton_Crawler
     }
   }
@@ -64,8 +66,14 @@ export const CrawlerTable = ({ libraryId, userId }: CrawlerTableProps) => {
                   cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })}
               </td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
-              <td>
+              <td className="flex gap-2">
                 <RunCrawlerButton libraryId={libraryId} crawler={crawler} userId={userId} />
+                <DeleteCrawlerButton
+                  crawlerId={crawler.id}
+                  crawlerUrl={crawler.url}
+                  filesCount={crawler.filesCount}
+                  libraryId={libraryId}
+                />
               </td>
             </tr>
           ))}

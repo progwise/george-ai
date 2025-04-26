@@ -243,6 +243,7 @@ export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
   cronJob?: Maybe<AiLibraryCrawlerCronJob>
+  filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<Scalars['DateTime']['output']>
@@ -393,6 +394,7 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiLibrary?: Maybe<AiLibrary>
+  deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
   dropFiles?: Maybe<Array<AiLibraryFile>>
@@ -507,6 +509,10 @@ export type MutationDeleteAiConversationArgs = {
 }
 
 export type MutationDeleteAiLibraryArgs = {
+  id: Scalars['String']['input']
+}
+
+export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
 }
 
@@ -1393,10 +1399,20 @@ export type CrawlerTable_LibraryFragment = {
       maxDepth: number
       maxPages: number
       lastRun?: string | null
+      filesCount: number
       cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
   >
 } & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
+
+export type DeleteCrawlerMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteCrawlerMutation = {
+  __typename?: 'Mutation'
+  deleteAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
+}
 
 export type CrawlerTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -3215,6 +3231,7 @@ export const CrawlerTable_LibraryFragmentDoc = {
                     selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -4850,6 +4867,43 @@ export const CreateAiLibraryCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryCrawlerMutation, CreateAiLibraryCrawlerMutationVariables>
+export const DeleteCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteCrawlerMutation, DeleteCrawlerMutationVariables>
 export const CrawlerTableDocument = {
   kind: 'Document',
   definitions: [
@@ -4923,6 +4977,7 @@ export const CrawlerTableDocument = {
                     selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
