@@ -1,5 +1,5 @@
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { toastError, toastSuccess } from '../georgeToaster'
+import { useTranslation } from '../i18n/use-translation-hook'
+import { toastError, toastSuccess } from './georgeToaster'
 
 export const useClipboard = () => {
   const { t } = useTranslation()

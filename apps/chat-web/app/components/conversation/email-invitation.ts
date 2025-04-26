@@ -1,7 +1,7 @@
 import { getLanguage } from '../../i18n/get-language'
 import { queryKeys } from '../../query-keys'
-import { validateEmails } from '../form/email-validation'
 import { toastError, toastSuccess } from '../georgeToaster'
+import { validateEmails } from './email-validation'
 
 export const sendEmailInvitations = async ({
   email,

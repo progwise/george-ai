@@ -1,4 +1,5 @@
 import { RefObject } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
 
@@ -38,7 +39,7 @@ export const DialogForm = ({
 
   return (
     <dialog className="modal" ref={ref}>
-      <div className={`modal-box ${className}`}>
+      <div className={twMerge('modal-box', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
