@@ -29,7 +29,7 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
 
   return (
     <>
-      {/* Mobile: List view */}
+      {/*********** mobile ***********/}
       <div className="flex flex-col gap-2 p-2 lg:hidden">
         {files.map((file, idx) => {
           const isSelected = selectedIds.has(file.id)
@@ -59,7 +59,7 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
         })}
       </div>
 
-      {/* Desktop: Icon grid view */}
+      {/*********** desktop ***********/}
       <div
         className="hidden gap-4 p-4 lg:grid"
         style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}
