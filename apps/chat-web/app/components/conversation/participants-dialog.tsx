@@ -476,20 +476,20 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                   <span className="text-sm">{t('texts.allowMultipleParticipants')}</span>
                 </label>
               </div>
-              <div className="mt-4 flex items-center justify-end">
+              <div className="mt-4 flex items-center justify-end gap-2">
                 {conversation?.conversationInvitation?.link &&
                   conversation.conversationInvitation.allowDifferentEmailAddress &&
                   conversation.conversationInvitation.allowMultipleParticipants && (
                     <button
                       type="button"
-                      className="btn btn-ghost btn-neutral btn-sm tooltip"
+                      className="btn btn-ghost btn-neutral btn-sm tooltip border border-base-300"
                       data-tip={t('tooltips.copyInvitationLink')}
                       onClick={() =>
                         conversation.conversationInvitation?.link &&
                         copyToClipboard(conversation.conversationInvitation.link)
                       }
                     >
-                      <ClipboardIcon className="size-5" />
+                      <ClipboardIcon className="size-4" />
                     </button>
                   )}
                 <div
