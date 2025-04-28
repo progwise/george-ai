@@ -3,7 +3,11 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 
-import { getGoogleAccessToken, getGoogleLoginUrl } from '../../../components/data-sources/login-google-server'
+import {
+  getGoogleAccessToken,
+  getGoogleLoginUrl,
+  validateGoogleAccessToken,
+} from '../../../components/data-sources/login-google-server'
 
 export const authGoogleSearchSchema = z.object({
   redirectAfterAuth: z.string().optional(),
@@ -68,10 +72,28 @@ function RouteComponent() {
     }
   }, [redirectUrlQuery])
 
+  useEffect(() => {
+    const validateToken = async () => {
+      const tokenString = localStorage.getItem('google_drive_access_token')
+      if (tokenString) {
+        const token = JSON.parse(tokenString)
+        const isValid = await validateGoogleAccessToken({ data: { access_token: token.access_token } })
+        if (!isValid.valid) {
+          console.log('Token is invalid or expired. Logging out.')
+          localStorage.removeItem('google_drive_access_token')
+          localStorage.removeItem('google_login_redirect_after')
+          localStorage.removeItem('google_drive_dialog_open')
+        }
+      }
+    }
+
+    validateToken()
+  }, [])
+
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="mb-4 text-lg font-semibold">Authenticating...</div>
-      <button className="btn btn-primary" type="button" onClick={handleStartLogin} disabled={!redirectUrlQuery}>
+    <div className="flex flex-col items-center justify-center gap-1">
+      <div className="text-lg font-semibold">Authenticating...</div>
+      <button className="btn btn-primary btn-sm" type="button" onClick={handleStartLogin} disabled={!redirectUrlQuery}>
         {redirectUrlQuery ? 'Start Google Login' : 'Loading...'}
       </button>
     </div>

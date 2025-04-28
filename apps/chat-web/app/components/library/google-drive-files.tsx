@@ -9,7 +9,7 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
-import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
+import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
@@ -188,6 +188,21 @@ export const GoogleDriveFiles = ({
       localStorage.removeItem('google_drive_dialog_open')
     }
   }, [googleDriveAccessToken.access_token, dialogRef])
+
+  useEffect(() => {
+    const validateTokenOnDialogOpen = async () => {
+      const tokenString = localStorage.getItem('google_drive_access_token')
+      if (tokenString) {
+        const token = JSON.parse(tokenString)
+        const isValid = await validateGoogleAccessToken({ data: { access_token: token.access_token } })
+        if (!isValid.valid) {
+          localStorage.removeItem('google_drive_access_token')
+        }
+      }
+    }
+
+    validateTokenOnDialogOpen()
+  }, [dialogRef])
 
   return (
     <>
