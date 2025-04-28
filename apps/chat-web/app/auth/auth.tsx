@@ -61,7 +61,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
+    /**
+     * For some reason, the updated cookie is not immidiately available when reloading the page (router.invalidate).
+     * Because of that, the user is not loaded after successful login.
+     * Using a server function to set the cookie and not using document.cookie = ... seams more reliable, same for waiting a bit.
+     */
     await setKeycloakTokenInCookie({ data: { token: currentToken } })
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     await router.invalidate()
   }, [router])
