@@ -23,7 +23,7 @@ export interface GoogleDriveFilesProps {
 }
 
 interface GoogleDriveResponse {
-  files: [{ id: string; kind: string; name: string }]
+  files: [{ id: string; kind: string; name: string; size?: number }]
 }
 
 const PrepareFileDocument = graphql(`
@@ -142,7 +142,7 @@ export const GoogleDriveFiles = ({
     queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token!],
     enabled: !!googleDriveAccessToken?.access_token,
     queryFn: async () => {
-      const response = await fetch(`https://www.googleapis.com/drive/v3/files`, {
+      const response = await fetch(`https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size)`, {
         headers: {
           Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
         },
@@ -223,7 +223,10 @@ export const GoogleDriveFiles = ({
         </div>
         {googleDriveFilesData?.files && (
           <FilesTable
-            files={googleDriveFilesData.files}
+            files={googleDriveFilesData.files.map((file) => ({
+              ...file,
+              size: file.size || 0,
+            }))}
             selectedFiles={selectedFiles}
             setSelectedFiles={setSelectedFiles}
           />
