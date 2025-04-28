@@ -5,6 +5,7 @@ import { dateStringShort, timeString } from '@george-ai/web-utils'
 
 import { getLibrariesQueryOptions } from '../../../components/library/get-libraries-query-options'
 import { LibraryNewDialog } from '../../../components/library/library-new-dialog'
+import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/')({
@@ -18,8 +19,11 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const navigate = useNavigate()
   const { data, isLoading } = useSuspenseQuery(getLibrariesQueryOptions(user.id))
-
   const { t, language } = useTranslation()
+
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
 
   return (
     <article className="flex w-full flex-col gap-4">
