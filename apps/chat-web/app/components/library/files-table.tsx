@@ -109,11 +109,11 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
                 aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
                 title={`${file.name} (${formatBytes(sizeValue)})`}
               >
+                <input type="checkbox" className="checkbox checkbox-xs" checked={isSelected} readOnly />
                 <FileIconLarge className="h-6 w-6 text-gray-700 dark:text-gray-300" />
                 <div className="flex-1 truncate text-sm">
                   {idx + 1}. {file.name}
                 </div>
-                <input type="checkbox" className="checkbox checkbox-xs" checked={isSelected} readOnly />
               </div>
             )
           })}
