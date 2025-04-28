@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import Keycloak from 'keycloak-js'
-import { createContext, use, useCallback, useEffect, useMemo, useRef } from 'react'
+import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { toastError } from '../components/georgeToaster'
 import { getKeycloakConfig } from './auth.server'
@@ -12,9 +12,11 @@ const isClientSide = typeof window !== 'undefined'
 const AuthContext = createContext<{
   login: (redirectUri?: string) => Promise<void>
   logout: () => Promise<void>
+  isReady: boolean
 }>({
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
+  isReady: false,
 })
 
 export const useAuth = () => {
@@ -24,6 +26,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const keycloakRef = useRef<Keycloak | undefined>(undefined)
+  const [isReady, setIsReady] = useState(false)
   const { data: keycloakConfig } = useQuery({
     queryKey: ['keycloakConfig'],
     queryFn: () => getKeycloakConfig(),
@@ -60,6 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       keycloakRef.current = new Keycloak(keycloakConfig)
 
       keycloakRef.current.onReady = () => {
+        setIsReady(true)
         updateTokenInCookie()
       }
 
@@ -98,8 +102,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await keycloakRef.current?.logout()
         updateTokenInCookie()
       },
+      isReady,
     }),
-    [updateTokenInCookie],
+    [updateTokenInCookie, isReady],
   )
 
   return <AuthContext value={contextValue}>{children}</AuthContext>

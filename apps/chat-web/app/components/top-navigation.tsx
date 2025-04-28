@@ -39,7 +39,7 @@ interface TopNavigationProps {
 
 export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
   const { t } = useTranslation()
-  const { login, logout } = useAuth()
+  const { login, logout, isReady } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -134,22 +134,24 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               {t('topNavigation.demo')}
             </a>
           </li>
-          <li>
-            <button
-              type="button"
-              onClick={() => {
-                login()
-                if (isMobile) closeMenu()
-              }}
-              className="flex items-center gap-2"
-            >
-              <UserIcon className="size-6" />
-              {t('actions.signIn')}
-            </button>
-          </li>
+          {isReady && (
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  login()
+                  if (isMobile) closeMenu()
+                }}
+                className="flex items-center gap-2"
+              >
+                <UserIcon className="size-6" />
+                {t('actions.signIn')}
+              </button>
+            </li>
+          )}
         </>
       ),
-    [user, t, login, logout, closeMenu],
+    [user, t, login, logout, closeMenu, isReady],
   )
 
   return (
@@ -166,10 +168,12 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             <span className="max-w-48 truncate">{user.name}</span>
           </Link>
         ) : (
-          <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-            <UserIcon className="size-6" />
-            {t('actions.signIn')}
-          </button>
+          isReady && (
+            <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+              <UserIcon className="size-6" />
+              {t('actions.signIn')}
+            </button>
+          )
         )}
 
         <label className="swap swap-rotate" aria-label="Toggle theme">
@@ -270,10 +274,12 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
 
-              <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-                <UserIcon className="size-6" />
-                {t('actions.signIn')}
-              </button>
+              {isReady && (
+                <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+                  <UserIcon className="size-6" />
+                  {t('actions.signIn')}
+                </button>
+              )}
             </>
           )}
         </div>
