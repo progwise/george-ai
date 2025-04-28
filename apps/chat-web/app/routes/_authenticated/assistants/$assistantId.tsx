@@ -7,6 +7,7 @@ import { AiActGuide } from '../../../components/assistant/assistant-ai-act/ai-ac
 import { AssistantBasecaseForm } from '../../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
+import { AssistantParticipants } from '../../../components/assistant/assistant-participants'
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { graphql } from '../../../gql/gql'
@@ -30,6 +31,7 @@ const getAssistant = createServerFn({ method: 'GET' })
               ...AssistantSelector_Assistant
               ...AssistantLibraries_Assistant
               ...AssistantBasecaseForm_Assistant
+              ...AssistantParticipants_Assistant
             }
             aiAssistants(ownerId: $ownerId) {
               ...AssistantSelector_Assistant
@@ -77,6 +79,7 @@ function RouteComponent() {
           <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
         </div>
         <div className="flex gap-2">
+          <AssistantParticipants assistant={aiAssistant} userId={ownerId} />
           <button
             type="button"
             className="btn btn-sm tooltip"

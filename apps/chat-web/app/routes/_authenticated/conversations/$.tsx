@@ -8,10 +8,10 @@ import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { ConversationForm } from '../../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
+import { ConversationParticipantsDialog } from '../../../components/conversation/conversation-participants-dialog'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
-import { ParticipantsDialog } from '../../../components/conversation/participants-dialog'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { graphql } from '../../../gql'
 import { MenuIcon } from '../../../icons/menu-icon'
@@ -161,7 +161,7 @@ function RouteComponent() {
 
           {selectedConversation?.aiConversation && (
             <div className="flex lg:hidden">
-              <ParticipantsDialog
+              <ConversationParticipantsDialog
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
                 humans={assignableUsers.myConversationUsers}

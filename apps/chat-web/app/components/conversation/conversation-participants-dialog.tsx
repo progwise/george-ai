@@ -54,7 +54,7 @@ interface ParticipantsDialogProps {
   userId: string
 }
 
-export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
+export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
   const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])

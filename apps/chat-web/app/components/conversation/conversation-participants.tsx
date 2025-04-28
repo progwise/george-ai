@@ -7,7 +7,7 @@ import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
 import { removeConversationParticipant } from '../../server-functions/participations'
 import { LoadingSpinner } from '../loading-spinner'
-import { ParticipantsDialog } from './participants-dialog'
+import { ConversationParticipantsDialog } from './conversation-participants-dialog'
 
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {
@@ -110,7 +110,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
       })}
       {isOwner && (
         <div className="max-lg:hidden">
-          <ParticipantsDialog
+          <ConversationParticipantsDialog
             conversation={conversation}
             assistants={assistants}
             humans={humans}

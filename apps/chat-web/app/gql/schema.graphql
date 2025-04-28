@@ -109,6 +109,7 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
+  participants: [AiAssistantParticipant!]!
   updatedAt: DateTime
   url: String
 }
@@ -129,6 +130,14 @@ input AiAssistantInput {
   languageModel: String
   name: String!
   url: String
+}
+
+type AiAssistantParticipant {
+  assistant: AiAssistant
+  assistantId: ID!
+  id: ID!
+  user: User
+  userId: ID
 }
 
 input AiBaseCaseInputType {
@@ -341,6 +350,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
+  addAssistantParticipants(assistantId: String!, userIds: [String!]!): [AiAssistantParticipant!]
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -376,6 +386,7 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
+  removeAssistantParticipant(id: String!): AiAssistantParticipant
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile

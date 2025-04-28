@@ -125,6 +125,7 @@ export type AiAssistant = {
   languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
+  participants: Array<AiAssistantParticipant>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
 }
@@ -146,6 +147,15 @@ export type AiAssistantInput = {
   languageModel?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
+}
+
+export type AiAssistantParticipant = {
+  __typename?: 'AiAssistantParticipant'
+  assistant?: Maybe<AiAssistant>
+  assistantId: Scalars['ID']['output']
+  id: Scalars['ID']['output']
+  user?: Maybe<User>
+  userId?: Maybe<Scalars['ID']['output']>
 }
 
 export type AiBaseCaseInputType = {
@@ -355,6 +365,7 @@ export type HumanParticipant = AiConversationParticipant & {
 export type Mutation = {
   __typename?: 'Mutation'
   activateUserProfile?: Maybe<UserProfile>
+  addAssistantParticipants?: Maybe<Array<AiAssistantParticipant>>
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryUsage?: Maybe<AiLibraryUsage>
   cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
@@ -380,6 +391,7 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   reProcessFile?: Maybe<AiLibraryFile>
+  removeAssistantParticipant?: Maybe<AiAssistantParticipant>
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
@@ -399,6 +411,11 @@ export type Mutation = {
 
 export type MutationActivateUserProfileArgs = {
   profileId: Scalars['String']['input']
+}
+
+export type MutationAddAssistantParticipantsArgs = {
+  assistantId: Scalars['String']['input']
+  userIds: Array<Scalars['String']['input']>
 }
 
 export type MutationAddConversationParticipantsArgs = {
@@ -512,6 +529,10 @@ export type MutationProcessFileArgs = {
 
 export type MutationReProcessFileArgs = {
   fileId: Scalars['String']['input']
+}
+
+export type MutationRemoveAssistantParticipantArgs = {
+  id: Scalars['String']['input']
 }
 
 export type MutationRemoveConversationParticipantArgs = {
@@ -1175,6 +1196,17 @@ export type CreateAiAssistantMutation = {
   createAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
+export type AssistantParticipantsDialog_AssistantFragment = {
+  __typename?: 'AiAssistant'
+  id: string
+  ownerId: string
+  participants: Array<{ __typename?: 'AiAssistantParticipant'; id: string; userId?: string | null }>
+} & { ' $fragmentName'?: 'AssistantParticipantsDialog_AssistantFragment' }
+
+export type AssistantParticipants_AssistantFragment = ({ __typename?: 'AiAssistant'; id: string; ownerId: string } & {
+  ' $fragmentRefs'?: { AssistantParticipantsDialog_AssistantFragment: AssistantParticipantsDialog_AssistantFragment }
+}) & { ' $fragmentName'?: 'AssistantParticipants_AssistantFragment' }
+
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
   ' $fragmentName'?: 'AssistantSelector_AssistantFragment'
 }
@@ -1231,6 +1263,34 @@ export type UnhideMessageMutation = {
   __typename?: 'Mutation'
   unhideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
 }
+
+export type ParticipantsDialog_ConversationFragment = {
+  __typename?: 'AiConversation'
+  id: string
+  ownerId: string
+  participants: Array<
+    | { __typename?: 'AssistantParticipant'; id: string; userId?: string | null; assistantId?: string | null }
+    | { __typename?: 'HumanParticipant'; id: string; userId?: string | null; assistantId?: string | null }
+  >
+} & { ' $fragmentName'?: 'ParticipantsDialog_ConversationFragment' }
+
+export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
+  ' $fragmentName'?: 'ParticipantsDialog_AssistantFragment'
+}
+
+export type ParticipantsDialog_HumanFragment = {
+  __typename?: 'User'
+  id: string
+  username: string
+  email: string
+  profile?: {
+    __typename?: 'UserProfile'
+    business?: string | null
+    position?: string | null
+    firstName?: string | null
+    lastName?: string | null
+  } | null
+} & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
 
 export type ConversationParticipants_ConversationFragment = ({
   __typename?: 'AiConversation'
@@ -1291,34 +1351,6 @@ export type NewConversationSelector_AssistantFragment = ({ __typename?: 'AiAssis
 export type NewConversationSelector_HumanFragment = ({ __typename?: 'User' } & {
   ' $fragmentRefs'?: { ParticipantsDialog_HumanFragment: ParticipantsDialog_HumanFragment }
 }) & { ' $fragmentName'?: 'NewConversationSelector_HumanFragment' }
-
-export type ParticipantsDialog_ConversationFragment = {
-  __typename?: 'AiConversation'
-  id: string
-  ownerId: string
-  participants: Array<
-    | { __typename?: 'AssistantParticipant'; id: string; userId?: string | null; assistantId?: string | null }
-    | { __typename?: 'HumanParticipant'; id: string; userId?: string | null; assistantId?: string | null }
-  >
-} & { ' $fragmentName'?: 'ParticipantsDialog_ConversationFragment' }
-
-export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
-  ' $fragmentName'?: 'ParticipantsDialog_AssistantFragment'
-}
-
-export type ParticipantsDialog_HumanFragment = {
-  __typename?: 'User'
-  id: string
-  username: string
-  email: string
-  profile?: {
-    __typename?: 'UserProfile'
-    business?: string | null
-    position?: string | null
-    firstName?: string | null
-    lastName?: string | null
-  } | null
-} & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
 
 export type VersionQueryVariables = Exact<{ [key: string]: never }>
 
@@ -1604,6 +1636,7 @@ export type AiAssistantDetailsQuery = {
           AssistantSelector_AssistantFragment: AssistantSelector_AssistantFragment
           AssistantLibraries_AssistantFragment: AssistantLibraries_AssistantFragment
           AssistantBasecaseForm_AssistantFragment: AssistantBasecaseForm_AssistantFragment
+          AssistantParticipants_AssistantFragment: AssistantParticipants_AssistantFragment
         }
       })
     | null
@@ -2630,6 +2663,75 @@ export const AssistantLibraries_LibraryUsageFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AssistantLibraries_LibraryUsageFragment, unknown>
+export const AssistantParticipantsDialog_AssistantFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AssistantParticipantsDialog_AssistantFragment, unknown>
+export const AssistantParticipants_AssistantFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantParticipants_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AssistantParticipants_AssistantFragment, unknown>
 export const AssistantSelector_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -5566,6 +5668,7 @@ export const AiAssistantDetailsDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantSelector_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLibraries_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantBasecaseForm_Assistant' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipants_Assistant' } },
               ],
             },
           },
@@ -5614,6 +5717,29 @@ export const AiAssistantDetailsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLibraries_Library' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+              ],
             },
           },
         ],
@@ -5674,6 +5800,19 @@ export const AiAssistantDetailsDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantParticipants_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' } },
         ],
       },
     },
