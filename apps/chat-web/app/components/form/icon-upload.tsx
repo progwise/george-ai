@@ -29,12 +29,12 @@ export const IconUpload = ({ fileTypes, className, handleUploadIcon, disabled, i
         disabled={disabled}
       >
         {!imageUrl ? (
-          <CameraIcon className="h-full w-full p-5" />
+          <CameraIcon className="h-full w-full p-5 hover:text-secondary-content" />
         ) : (
           <img
             src={imageUrl}
             alt={t('labels.icon')}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-200 hover:scale-110 hover:brightness-90 dark:hover:brightness-110"
             onError={(event) => {
               event.currentTarget.hidden = true
             }}
