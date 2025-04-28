@@ -4,7 +4,7 @@ import { IconProps } from './icon-props'
 
 export const ListViewIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('inline-flex items-center justify-center', className)}>
+    <div className={twMerge('size-4', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"

@@ -85,3 +85,22 @@ export const getGoogleUserData = createServerFn({
     console.log('received user data', user_data)
     return user_data
   })
+
+export const validateGoogleAccessToken = createServerFn({
+  method: 'POST',
+})
+  .validator((data: { access_token: string }) => {
+    return z
+      .object({
+        access_token: z.string().nonempty(),
+      })
+      .parse(data)
+  })
+  .handler(async ({ data }) => {
+    const response = await fetch('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + data.access_token)
+    if (!response.ok) {
+      console.error('Invalid token', await response.json())
+      return { valid: false }
+    }
+    return { valid: true }
+  })

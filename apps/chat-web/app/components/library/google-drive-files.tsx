@@ -9,7 +9,7 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { backendRequest, backendUpload } from '../../server-functions/backend'
-import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
+import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
@@ -23,7 +23,7 @@ export interface GoogleDriveFilesProps {
 }
 
 interface GoogleDriveResponse {
-  files: [{ id: string; kind: string; name: string }]
+  files: [{ id: string; kind: string; name: string; size?: number; iconLink?: string }]
 }
 
 const PrepareFileDocument = graphql(`
@@ -142,11 +142,14 @@ export const GoogleDriveFiles = ({
     queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token!],
     enabled: !!googleDriveAccessToken?.access_token,
     queryFn: async () => {
-      const response = await fetch(`https://www.googleapis.com/drive/v3/files`, {
-        headers: {
-          Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink)`,
+        {
+          headers: {
+            Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
+          },
         },
-      })
+      )
       const responseJson = await response.json()
       return responseJson as GoogleDriveResponse
     },
@@ -189,11 +192,26 @@ export const GoogleDriveFiles = ({
     }
   }, [googleDriveAccessToken.access_token, dialogRef])
 
+  useEffect(() => {
+    const validateTokenOnDialogOpen = async () => {
+      const tokenString = localStorage.getItem('google_drive_access_token')
+      if (tokenString) {
+        const token = JSON.parse(tokenString)
+        const isValid = await validateGoogleAccessToken({ data: { access_token: token.access_token } })
+        if (!isValid.valid) {
+          localStorage.removeItem('google_drive_access_token')
+        }
+      }
+    }
+
+    validateTokenOnDialogOpen()
+  }, [dialogRef])
+
   return (
     <>
       <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between gap-2">
+        <div className="sticky top-0 z-20 flex justify-between gap-2 bg-base-100 p-1 shadow-md">
           {!googleDriveAccessToken.access_token && (
             <Link
               className="btn btn-xs"
@@ -217,13 +235,18 @@ export const GoogleDriveFiles = ({
                 await handleEmbedFiles(selectedFiles)
               }}
             >
-              Add {selectedFiles.length} files into the Library
+              Add {selectedFiles.length} Files
             </button>
           )}
         </div>
         {googleDriveFilesData?.files && (
           <FilesTable
-            files={googleDriveFilesData.files}
+            files={googleDriveFilesData.files.map((file) => ({
+              ...file,
+              size: file.size || 0,
+              iconLink: file.iconLink || '',
+              kind: file.kind,
+            }))}
             selectedFiles={selectedFiles}
             setSelectedFiles={setSelectedFiles}
           />
