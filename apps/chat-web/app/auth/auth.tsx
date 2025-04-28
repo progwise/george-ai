@@ -1,7 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { setCookie } from '@tanstack/react-start/server'
 import Keycloak from 'keycloak-js'
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { deleteCookie } from 'vinxi/http'
+import { z } from 'zod'
 
 import { toastError } from '../components/georgeToaster'
 import { getKeycloakConfig } from './auth.server'
@@ -22,6 +26,16 @@ const AuthContext = createContext<{
 export const useAuth = () => {
   return use(AuthContext)
 }
+
+const setKeycloakTokenInCookie = createServerFn({ method: 'POST' })
+  .validator((data: { token?: string }) => z.object({ token: z.string().optional() }).parse(data))
+  .handler(({ data: { token } }) => {
+    if (!token) {
+      return deleteCookie(KEYCLOAK_TOKEN_COOKIE_NAME)
+    }
+
+    setCookie(KEYCLOAK_TOKEN_COOKIE_NAME, token)
+  })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
@@ -47,15 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    if (currentToken) {
-      // update the token in the cookie
-      document.cookie = `${KEYCLOAK_TOKEN_COOKIE_NAME}=${currentToken}; path=/; secure; SameSite=None`
-    } else {
-      // delete the token in the cookie
-      document.cookie = `${KEYCLOAK_TOKEN_COOKIE_NAME}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`
-    }
+    await setKeycloakTokenInCookie({ data: { token: currentToken } })
 
-    router.invalidate()
+    await router.invalidate()
   }, [router])
 
   useEffect(() => {
