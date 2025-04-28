@@ -29,7 +29,7 @@ export const IconUpload = ({ fileTypes, className, handleUploadIcon, disabled, i
         disabled={disabled}
       >
         {!imageUrl ? (
-          <CameraIcon className="h-full w-full p-5" />
+          <CameraIcon className="h-full w-full p-5 text-base-content/50 hover:text-base-content/80" />
         ) : (
           <img
             src={imageUrl}
