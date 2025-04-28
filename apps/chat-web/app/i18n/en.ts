@@ -228,6 +228,7 @@ export default {
     addNoParticipantsSelected: 'No assistant or user is selected',
     clearEmbeddings: 'Clear embeddings',
     delete: 'Delete',
+    edit: 'Edit',
     hide: 'Hide',
     goToOverview: 'Go to overview',
     leaveConversation: 'Leave conversation',

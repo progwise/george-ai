@@ -232,6 +232,7 @@ export default {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
     clearEmbeddings: 'Einbettungen löschen',
     delete: 'Löschen',
+    edit: 'Bearbeiten',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
     leaveConversation: 'Konversation verlassen',

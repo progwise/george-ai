@@ -108,7 +108,12 @@ export const UpdateCrawlerButton = (props: UpdateCrawlerButtonProps) => {
 
   return (
     <>
-      <button className="btn btn-outline btn-xs" type="button" onClick={() => dialogRef.current?.showModal()}>
+      <button
+        type="button"
+        className="btn btn-xs lg:tooltip"
+        data-tip={t('tooltips.edit')}
+        onClick={() => dialogRef.current?.showModal()}
+      >
         {t('actions.edit')}
       </button>
 
