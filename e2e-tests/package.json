@@ -1,0 +1,15 @@
+{
+  "name": "@george-ai/e2e-tests",
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "author": "progwise.net",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.13.8",
+    "dotenv": "^16.5.0"
+  },
+  "scripts": {
+    "test": "playwright test"
+  }
+}
