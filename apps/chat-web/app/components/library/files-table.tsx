@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { z } from 'zod'
 
 import { CheckIcon } from '../../icons/check-icon'
@@ -29,26 +30,16 @@ const formatBytes = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-const getDefaultView = () => {
-  if (typeof window !== 'undefined') {
-    return window.matchMedia('(min-width: 1024px)').matches ? 'grid' : 'list'
-  }
-  return 'grid'
+const getDefaultView = (): 'grid' | 'list' => {
+  return 'list'
 }
-
-const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
-  name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
 export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, selectedFiles, setSelectedFiles }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(getDefaultView)
   const selectedIds = useMemo(() => new Set(selectedFiles.map((f) => f.id)), [selectedFiles])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const mediaQuery = window.matchMedia('(min-width: 1024px)')
-    const listener = (e: MediaQueryListEvent) => setViewMode(e.matches ? 'grid' : 'list')
-    mediaQuery.addEventListener('change', listener)
-    return () => mediaQuery.removeEventListener('change', listener)
+    // Remove the media query listener since view mode is fixed to 'grid'
   }, [])
 
   const toggleFile = useCallback(
@@ -125,6 +116,11 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
                     const isSelected = selectedIds.has(file.id)
                     const sizeValue = file.size ?? 0
                     const isFolder = file.kind === 'drive#folder'
+                    function truncateFileName(name: string, maxLength: number, truncateAt: number): React.ReactNode {
+                      if (name.length <= maxLength) return name
+                      const truncated = name.slice(0, truncateAt) + '...' + name.slice(-truncateAt)
+                      return truncated
+                    }
                     return (
                       <tr
                         key={file.id}
