@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -15,6 +15,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../icons/back-icon'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
+import { getUsersQueryOptions } from '../../../server-functions/users'
 
 const getAssistant = createServerFn({ method: 'GET' })
   .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
@@ -61,12 +62,14 @@ function RouteComponent() {
   const navigate = useNavigate()
   const ownerId = Route.useRouteContext().user.id
   const { assistantId } = Route.useParams()
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useSuspenseQuery({
     queryKey: [queryKeys.AiAssistantForEdit, assistantId, ownerId],
     queryFn: () => getAssistant({ data: { ownerId, assistantId } }),
   })
 
-  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}
+  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions(ownerId))
+
+  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data
 
   if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
@@ -79,7 +82,7 @@ function RouteComponent() {
           <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
         </div>
         <div className="flex gap-2">
-          <AssistantParticipants assistant={aiAssistant} userId={ownerId} />
+          <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
           <button
             type="button"
             className="btn btn-sm tooltip"

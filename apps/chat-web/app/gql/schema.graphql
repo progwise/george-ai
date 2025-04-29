@@ -136,6 +136,7 @@ type AiAssistantParticipant {
   assistant: AiAssistant
   assistantId: ID!
   id: ID!
+  name: String
   user: User
   userId: ID
 }
@@ -415,9 +416,9 @@ type Query {
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
-  myConversationUsers(userId: String!): [User!]!
   user(email: String!): User
   userProfile(userId: String!): UserProfile
+  users(userId: String!): [User!]!
   version: String
 }
 

@@ -4,8 +4,8 @@ import { z } from 'zod'
 import { graphql } from '../gql'
 import { backendRequest } from './backend'
 
-const AddParticipantsDocument = graphql(`
-  mutation addParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {
+const AddConversationParticipantsDocument = graphql(`
+  mutation addConversationParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {
     addConversationParticipants(conversationId: $conversationId, userIds: $userIds, assistantIds: $assistantIds) {
       id
     }
@@ -23,7 +23,7 @@ export const addConversationParticipants = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(AddParticipantsDocument, {
+    backendRequest(AddConversationParticipantsDocument, {
       conversationId: ctx.data.conversationId,
       userIds: ctx.data.userIds,
       assistantIds: ctx.data.assistantIds,
@@ -31,7 +31,7 @@ export const addConversationParticipants = createServerFn({ method: 'POST' })
   )
 
 const RemoveParticipantDocument = graphql(`
-  mutation removeParticipant($participantId: String!) {
+  mutation removeConversationParticipant($participantId: String!) {
     removeConversationParticipant(id: $participantId) {
       id
     }

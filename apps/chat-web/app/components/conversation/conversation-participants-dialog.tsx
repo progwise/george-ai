@@ -6,14 +6,14 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
+import { addConversationParticipants } from '../../server-functions/conversationParticipations'
 import { createConversation } from '../../server-functions/conversations'
-import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
-const ParticipantsDialog_ConversationFragment = graphql(`
-  fragment ParticipantsDialog_Conversation on AiConversation {
+const ConversationParticipantsDialog_ConversationFragment = graphql(`
+  fragment ConversationParticipantsDialog_Conversation on AiConversation {
     id
     ownerId
     participants {
@@ -24,15 +24,15 @@ const ParticipantsDialog_ConversationFragment = graphql(`
   }
 `)
 
-const ParticipantsDialog_AssistantFragment = graphql(`
-  fragment ParticipantsDialog_Assistant on AiAssistant {
+const ConversationParticipantsDialog_AssistantFragment = graphql(`
+  fragment ConversationParticipantsDialog_Assistant on AiAssistant {
     id
     name
   }
 `)
 
-const ParticipantsDialog_HumanFragment = graphql(`
-  fragment ParticipantsDialog_Human on User {
+const ConversationParticipantsDialog_HumanFragment = graphql(`
+  fragment ConversationParticipantsDialog_Human on User {
     id
     username
     email
@@ -46,9 +46,9 @@ const ParticipantsDialog_HumanFragment = graphql(`
 `)
 
 interface ParticipantsDialogProps {
-  conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
-  humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
+  conversation?: FragmentType<typeof ConversationParticipantsDialog_ConversationFragment>
+  assistants: FragmentType<typeof ConversationParticipantsDialog_AssistantFragment>[]
+  humans: FragmentType<typeof ConversationParticipantsDialog_HumanFragment>[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
@@ -64,9 +64,9 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
-  const assistants = useFragment(ParticipantsDialog_AssistantFragment, props.assistants)
-  const humans = useFragment(ParticipantsDialog_HumanFragment, props.humans)
+  const conversation = useFragment(ConversationParticipantsDialog_ConversationFragment, props.conversation)
+  const assistants = useFragment(ConversationParticipantsDialog_AssistantFragment, props.assistants)
+  const humans = useFragment(ConversationParticipantsDialog_HumanFragment, props.humans)
 
   const assignedAssistantIds = useMemo(
     () =>

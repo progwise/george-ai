@@ -38,7 +38,7 @@ const ConversationQueryDocument = graphql(`
       ...ConversationDelete_Conversation
       ...ConversationHistory_Conversation
       ...ConversationForm_Conversation
-      ...ParticipantsDialog_Conversation
+      ...ConversationParticipantsDialog_Conversation
     }
   }
 `)
@@ -49,10 +49,10 @@ export const getConversation = createServerFn({ method: 'GET' })
 
 const AssignableUsersDocument = graphql(`
   query getAssignableUsers($userId: String!) {
-    myConversationUsers(userId: $userId) {
+    users(userId: $userId) {
       ...NewConversationSelector_Human
       ...ConversationParticipants_Human
-      ...ParticipantsDialog_Human
+      ...ConversationParticipantsDialog_Human
     }
   }
 `)
@@ -66,7 +66,7 @@ const AssignableAssistantsDocument = graphql(`
     aiAssistants(ownerId: $ownerId) {
       ...NewConversationSelector_Assistant
       ...ConversationParticipants_Assistant
-      ...ParticipantsDialog_Assistant
+      ...ConversationParticipantsDialog_Assistant
     }
   }
 `)
@@ -152,7 +152,7 @@ function RouteComponent() {
             </label>
             <div className="lg:hidden">
               <NewConversationSelector
-                humans={assignableUsers.myConversationUsers}
+                humans={assignableUsers.users}
                 assistants={assignableAssistants.aiAssistants}
                 userId={userId}
               />
@@ -164,7 +164,7 @@ function RouteComponent() {
               <ConversationParticipantsDialog
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
-                humans={assignableUsers.myConversationUsers}
+                humans={assignableUsers.users}
                 dialogMode="add"
                 userId={userId}
               />
@@ -180,7 +180,7 @@ function RouteComponent() {
                 <ConversationParticipants
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
-                  humans={assignableUsers.myConversationUsers}
+                  humans={assignableUsers.users}
                   userId={userId}
                 />
                 <div className="hidden lg:flex">
@@ -203,7 +203,7 @@ function RouteComponent() {
         <div className="flex h-full w-80 flex-col items-center bg-base-200 lg:pt-2">
           <div className="sticky z-50 border-b bg-base-200 py-2">
             <NewConversationSelector
-              humans={assignableUsers.myConversationUsers}
+              humans={assignableUsers.users}
               assistants={assignableAssistants.aiAssistants}
               isOpen={conversations?.aiConversations?.length === 0}
               userId={userId}

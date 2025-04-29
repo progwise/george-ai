@@ -3,13 +3,13 @@ import { ConversationParticipantsDialog } from './conversation-participants-dial
 
 const NewConversationSelector_AssistantFragment = graphql(`
   fragment NewConversationSelector_Assistant on AiAssistant {
-    ...ParticipantsDialog_Assistant
+    ...ConversationParticipantsDialog_Assistant
   }
 `)
 
 export const NewConversationSelector_HumanFragment = graphql(`
   fragment NewConversationSelector_Human on User {
-    ...ParticipantsDialog_Human
+    ...ConversationParticipantsDialog_Human
   }
 `)
 

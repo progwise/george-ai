@@ -5,7 +5,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
-import { removeConversationParticipant } from '../../server-functions/participations'
+import { removeConversationParticipant } from '../../server-functions/conversationParticipations'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationParticipantsDialog } from './conversation-participants-dialog'
 
@@ -19,19 +19,19 @@ const ConversationParticipants_ConversationFragment = graphql(`
       userId
       assistantId
     }
-    ...ParticipantsDialog_Conversation
+    ...ConversationParticipantsDialog_Conversation
   }
 `)
 
 const ConversationParticipants_AssistantFragment = graphql(`
   fragment ConversationParticipants_Assistant on AiAssistant {
-    ...ParticipantsDialog_Assistant
+    ...ConversationParticipantsDialog_Assistant
   }
 `)
 
 export const ConversationParticipants_HumanFragment = graphql(`
   fragment ConversationParticipants_Human on User {
-    ...ParticipantsDialog_Human
+    ...ConversationParticipantsDialog_Human
   }
 `)
 

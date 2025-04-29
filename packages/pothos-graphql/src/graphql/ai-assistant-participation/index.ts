@@ -10,6 +10,15 @@ builder.prismaObject('AiAssistantParticipant', {
     assistant: t.relation('assistant'),
     userId: t.exposeID('userId', { nullable: true }),
     user: t.relation('user'),
+    name: t.field({
+      type: 'String',
+      resolve: async (source) => {
+        const user = await prisma.user.findUniqueOrThrow({
+          where: { id: source.userId! },
+        })
+        return user?.name
+      },
+    }),
   }),
 })
 
