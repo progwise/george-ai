@@ -7,13 +7,14 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@playwright/test':
+        specifier: ^1.52.0
+        version: 1.52.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.25.1
         version: 9.25.1
-      '@playwright/test':
-        specifier: ^1.52.0
-        version: 1.52.0
       '@types/node':
         specifier: ^22.13.8
         version: 22.15.2
