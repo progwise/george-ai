@@ -23,7 +23,7 @@ export interface GoogleDriveFilesProps {
 }
 
 interface GoogleDriveResponse {
-  files: [{ id: string; kind: string; name: string; size?: number }]
+  files: [{ id: string; kind: string; name: string; size?: number; iconLink?: string }]
 }
 
 const PrepareFileDocument = graphql(`
@@ -142,11 +142,14 @@ export const GoogleDriveFiles = ({
     queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token!],
     enabled: !!googleDriveAccessToken?.access_token,
     queryFn: async () => {
-      const response = await fetch(`https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size)`, {
-        headers: {
-          Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink)`,
+        {
+          headers: {
+            Authorization: `Bearer ${googleDriveAccessToken.access_token!}`,
+          },
         },
-      })
+      )
       const responseJson = await response.json()
       return responseJson as GoogleDriveResponse
     },
@@ -208,7 +211,7 @@ export const GoogleDriveFiles = ({
     <>
       <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between gap-2">
+        <div className="sticky top-0 z-20 flex justify-between gap-2 bg-base-100 p-1 shadow-md">
           {!googleDriveAccessToken.access_token && (
             <Link
               className="btn btn-xs"
@@ -241,6 +244,8 @@ export const GoogleDriveFiles = ({
             files={googleDriveFilesData.files.map((file) => ({
               ...file,
               size: file.size || 0,
+              iconLink: file.iconLink || '',
+              kind: file.kind,
             }))}
             selectedFiles={selectedFiles}
             setSelectedFiles={setSelectedFiles}

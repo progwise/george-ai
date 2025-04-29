@@ -122,6 +122,9 @@ export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
   },
 })
 
+const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
+  name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
+
 export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {
   const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
@@ -215,12 +218,6 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
-  const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
-    return fileName.length > maxLength
-      ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
-      : fileName
-  }
-
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
@@ -274,7 +271,7 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
       </nav>
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
-          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
+          <div className="modal-box relative flex w-full min-w-[400px] max-w-screen-lg flex-col">
             <button
               type="button"
               className="btn btn-ghost btn-sm absolute right-2 top-2"

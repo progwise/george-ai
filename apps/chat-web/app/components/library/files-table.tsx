@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 
-import { FileIconLarge } from '../../icons/file-icon-large'
+import { CheckIcon } from '../../icons/check-icon'
+import { CrossIcon } from '../../icons/cross-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
 
@@ -10,6 +11,7 @@ export const LibraryFileSchema = z.object({
   kind: z.string(),
   name: z.string(),
   size: z.number().optional(),
+  iconLink: z.string().optional(),
 })
 export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
@@ -34,6 +36,9 @@ const getDefaultView = () => {
   return 'grid'
 }
 
+const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
+  name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
+
 export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, selectedFiles, setSelectedFiles }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(getDefaultView)
   const selectedIds = useMemo(() => new Set(selectedFiles.map((f) => f.id)), [selectedFiles])
@@ -56,106 +61,139 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
 
   return (
     <div>
-      {/* Toggle */}
-      <div className="flex justify-end p-2">
-        <div className="inline-flex rounded-full border-2 border-gray-200 bg-gray-200 dark:border-gray-600 dark:bg-gray-700">
+      <div className="sticky top-[36px] z-10 flex items-center justify-between bg-base-100 p-1 shadow-md">
+        <div>
+          <div className="inline-flex h-8 items-center gap-1 rounded-full border-2 border-base-300 bg-base-200 p-2">
+            <button
+              type="button"
+              onClick={() => setSelectedFiles([])}
+              className="hover:bg-base-400 flex items-center justify-center rounded-full bg-base-300 focus:outline-none"
+              aria-label="Clear selected files"
+              disabled={selectedFiles.length === 0}
+            >
+              <CrossIcon />
+            </button>
+            <span className="text-sm font-medium text-base-content">
+              {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected
+            </span>
+          </div>
+        </div>
+        <div className="inline-flex h-8 items-center rounded-full border-2 border-base-300 bg-base-200">
           <button
             type="button"
             onClick={() => setViewMode('grid')}
-            className={`group inline-flex items-center rounded-l-full px-4 py-2 transition-colors duration-300 ease-in focus:outline-none ${
-              viewMode === 'grid' ? 'bg-gray-300 dark:bg-gray-600' : ''
+            className={`group inline-flex h-full w-12 items-center justify-center rounded-l-full transition-colors duration-300 ease-in focus:outline-none ${
+              viewMode === 'grid' ? 'bg-base-300' : ''
             }`}
           >
-            <GridViewIcon className="h-4 w-4 fill-current text-gray-700 dark:text-gray-300" />
-            <span className="ml-1 hidden text-xs text-gray-700 lg:group-hover:inline-block dark:text-gray-300">
-              Grid
-            </span>
+            {viewMode === 'grid' && <CheckIcon className="mr-1 flex items-center text-base-content" />}
+            <GridViewIcon className="h-4 w-4 fill-current text-base-content" />
           </button>
-
           <button
             type="button"
             onClick={() => setViewMode('list')}
-            className={`group inline-flex items-center rounded-r-full px-4 py-2 transition-colors duration-300 ease-in focus:outline-none ${
-              viewMode === 'list' ? 'bg-gray-300 dark:bg-gray-600' : ''
+            className={`group inline-flex h-full w-12 items-center justify-center rounded-r-full transition-colors duration-300 ease-in focus:outline-none ${
+              viewMode === 'list' ? 'bg-base-300' : ''
             }`}
           >
-            <ListViewIcon className="h-4 w-4 fill-current text-gray-700 dark:text-gray-300" />
-            <span className="ml-1 hidden text-xs text-gray-700 lg:group-hover:inline-block dark:text-gray-300">
-              List
-            </span>
+            {viewMode === 'list' && <CheckIcon className="mr-1 flex items-center text-base-content" />}
+            <ListViewIcon className="h-4 w-4 fill-current text-base-content" />
           </button>
         </div>
       </div>
 
-      {viewMode === 'list' && (
-        <div className="flex flex-col gap-2 p-2">
-          {files.map((file, idx) => {
-            const isSelected = selectedIds.has(file.id)
-            const sizeValue = file.size ?? 0
-            return (
-              <div
-                key={file.id}
-                onClick={() => toggleFile(file)}
-                role="button"
-                tabIndex={0}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') toggleFile(file)
-                }}
-                className={
-                  'flex select-none items-center gap-3 rounded border p-2 focus:outline-none ' +
-                  (isSelected ? 'border-blue-500 bg-base-200' : 'border-transparent hover:bg-base-100')
-                }
-                aria-pressed={isSelected}
-                aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
-                title={`${file.name} (${formatBytes(sizeValue)})`}
-              >
-                <input type="checkbox" className="checkbox checkbox-xs" checked={isSelected} readOnly />
-                <FileIconLarge className="h-6 w-6 text-gray-700 dark:text-gray-300" />
-                <div className="flex-1 truncate text-sm">
-                  {idx + 1}. {file.name}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+      <div className="flex justify-center p-4">
+        <div className="w-full">
+          {/* List View */}
+          {viewMode === 'list' && (
+            <div>
+              <table className="w-full table-auto border-collapse">
+                <thead className="bg-base-200">
+                  <tr>
+                    <th className="border-b border-base-300 px-2 py-1 text-left">#</th>
+                    <th className="border-b border-base-300 px-2 py-1 text-left">Name</th>
+                    <th className="border-b border-base-300 px-2 py-1 text-left">Kind</th>
+                    <th className="border-b border-base-300 px-2 py-1 text-left">Size</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {files.map((file, fileIndex) => {
+                    const isSelected = selectedIds.has(file.id)
+                    const sizeValue = file.size ?? 0
+                    const isFolder = file.kind === 'drive#folder'
+                    return (
+                      <tr
+                        key={file.id}
+                        onClick={() => toggleFile(file)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') toggleFile(file)
+                        }}
+                        className={`cursor-pointer ${
+                          fileIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'
+                        } ${isSelected ? 'bg-primary/40' : 'hover:bg-base-300'}`}
+                        aria-pressed={isSelected}
+                        aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
+                      >
+                        <td className="border-b border-base-300 px-2 py-1">{fileIndex + 1}</td>
+                        <td
+                          className="relative border-b border-base-300 px-2 py-1"
+                          title={file.name} // Show full name on hover
+                        >
+                          {truncateFileName(file.name, 50, 45)}
+                        </td>
+                        <td className="border-b border-base-300 px-2 py-1">{isFolder ? 'Folder' : 'File'}</td>
+                        <td className="border-b border-base-300 px-2 py-1">{formatBytes(sizeValue)}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-      {viewMode === 'grid' && (
-        <div className="grid gap-4 p-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))' }}>
-          {files.map((file) => {
-            const isSelected = selectedIds.has(file.id)
-            const sizeValue = file.size ?? 0
-            return (
-              <div
-                key={file.id}
-                onClick={() => toggleFile(file)}
-                role="button"
-                tabIndex={0}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') toggleFile(file)
-                }}
-                className={
-                  'group relative flex cursor-pointer select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ' +
-                  (isSelected ? 'border-blue-500 bg-base-200' : 'border-transparent hover:bg-base-100')
-                }
-                aria-pressed={isSelected}
-                aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
-              >
-                <FileIconLarge className="mb-2 h-10 w-10 text-gray-700 dark:text-gray-300" />
-                <span className="block w-full truncate text-center text-sm" title={file.name}>
-                  {file.name}
-                </span>
-                <span className="mt-1 hidden text-xs text-gray-600 md:block">{formatBytes(sizeValue)}</span>
-
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-base-100/90 p-2 opacity-0 transition-opacity group-hover:opacity-100">
-                  <p className="break-words text-xs font-medium">{file.name}</p>
-                  <p className="text-xs">{formatBytes(sizeValue)}</p>
-                </div>
-              </div>
-            )
-          })}
+          {/* Grid View */}
+          {viewMode === 'grid' && (
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
+              {files.map((file) => {
+                const isSelected = selectedIds.has(file.id)
+                const sizeValue = file.size ?? 0
+                const isFolder = file.kind === 'drive#folder'
+                return (
+                  <div
+                    key={file.id}
+                    onClick={() => toggleFile(file)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') toggleFile(file)
+                    }}
+                    className={
+                      'group relative flex cursor-pointer select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ' +
+                      (isSelected ? 'border-primary bg-primary/20' : 'border-transparent hover:bg-base-100')
+                    }
+                    aria-pressed={isSelected}
+                    aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
+                  >
+                    {file.iconLink && (
+                      <img src={file.iconLink} alt={`${file.name} icon`} className="h-12 w-12 object-contain" />
+                    )}
+                    <span
+                      className="block w-full max-w-full truncate text-center text-sm text-base-content"
+                      title={file.name} // Always truncate with ellipsis
+                    >
+                      {file.name}
+                    </span>
+                    <span className="mt-1 text-xs text-base-content">{isFolder ? 'Folder' : 'File'}</span>
+                    <span className="mt-1 hidden text-xs text-base-content md:block">{formatBytes(sizeValue)}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 })
