@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -18,6 +18,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
@@ -35,19 +36,6 @@ interface AiLibraryFile {
   processingErrorMessage?: string | null
   dropError?: string | null
 }
-
-const clearEmbeddings = createServerFn({ method: 'GET' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation clearEmbeddings($libraryId: String!) {
-          clearEmbeddedFiles(libraryId: $libraryId)
-        }
-      `),
-      { libraryId: ctx.data },
-    )
-  })
 
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
@@ -114,13 +102,14 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
     )
   })
 
-export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
-  queryKey: [queryKeys.AiLibraryFiles, libraryId],
-  queryFn: async () => {
-    const result = await getLibraryFiles({ data: { libraryId } })
-    return { aiLibraryFiles: result?.aiLibraryFiles || [] }
-  },
-})
+export const aiLibraryFilesQueryOptions = (libraryId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.AiLibraryFiles, libraryId],
+    queryFn: async () => {
+      const result = await getLibraryFiles({ data: { libraryId } })
+      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
+    },
+  })
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -153,25 +142,10 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
   }
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraryFiles, libraryId],
-    })
-
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraries],
-    })
-
+    queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
+    queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
     queryClient.invalidateQueries(getProfileQueryOptions(userId))
   }
-
-  const clearEmbeddingsMutation = useMutation({
-    mutationFn: async (libraryId: string) => {
-      await clearEmbeddings({ data: libraryId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
 
   const dropAllFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
@@ -208,11 +182,7 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
     }
   }
 
-  const isPending =
-    isLoading ||
-    clearEmbeddingsMutation.isPending ||
-    dropAllFilesMutation.isPending ||
-    reProcessAllFilesMutation.isPending
+  const isPending = isLoading || dropAllFilesMutation.isPending || reProcessAllFilesMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     reProcessAllFilesMutation.mutate(uploadedFileIds)
@@ -223,15 +193,6 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
       <LoadingSpinner isLoading={isPending} />
       <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="btn btn-primary btn-xs tooltip tooltip-left"
-            data-tip={t('tooltips.clearEmbeddings')}
-            onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
-            disabled={clearEmbeddingsMutation.isPending}
-          >
-            {t('actions.clearEmbeddings')}
-          </button>
           <DesktopFileUpload
             libraryId={libraryId}
             onUploadComplete={handleUploadComplete}

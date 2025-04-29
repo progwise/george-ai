@@ -1,65 +1,25 @@
-import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
+import { getLibrariesQueryOptions } from '../../../components/library/get-libraries-query-options'
 import { LibraryNewDialog } from '../../../components/library/library-new-dialog'
-import { LoadingSpinner } from '../../../components/loading-spinner'
-import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { queryKeys } from '../../../query-keys'
-import { backendRequest } from '../../../server-functions/backend'
-
-const librariesDocument = graphql(/* GraphQL */ `
-  query aiLibraries($ownerId: String!) {
-    aiLibraries(ownerId: $ownerId) {
-      id
-      name
-      owner {
-        id
-        name
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`)
-
-const getLibraries = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
-  .handler(async (ctx) => {
-    return backendRequest(librariesDocument, { ownerId: ctx.data })
-  })
-
-const librariesQueryOptions = (ownerId?: string) =>
-  queryOptions({
-    queryKey: [queryKeys.AiLibraries, ownerId],
-    queryFn: async () => {
-      if (!ownerId) return null
-      return getLibraries({ data: ownerId })
-    },
-    enabled: !!ownerId,
-  })
 
 export const Route = createFileRoute('/_authenticated/libraries/')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(librariesQueryOptions(context.user.id))
+    context.queryClient.ensureQueryData(getLibrariesQueryOptions(context.user.id))
   },
 })
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
   const navigate = useNavigate()
-  const { data, isLoading } = useSuspenseQuery(librariesQueryOptions(user.id))
+  const { data, isLoading } = useSuspenseQuery(getLibrariesQueryOptions(user.id))
 
   const { t, language } = useTranslation()
-
-  if (isLoading) {
-    return <LoadingSpinner />
-  }
 
   return (
     <article className="flex w-full flex-col gap-4">
@@ -69,7 +29,7 @@ function RouteComponent() {
         <LibraryNewDialog userId={user.id} />
       </div>
 
-      {!data?.aiLibraries || data.aiLibraries.length < 1 ? (
+      {data.aiLibraries.length < 1 ? (
         <h3>{t('libraries.noLibrariesFound')}</h3>
       ) : (
         <table className="table">
@@ -83,7 +43,7 @@ function RouteComponent() {
           </thead>
 
           <tbody>
-            {data?.aiLibraries?.map((library, index) => {
+            {data.aiLibraries.map((library, index) => {
               const datePart = dateStringShort(library.updatedAt ?? library.createdAt, language)
               const timePart = timeString(library.updatedAt ?? library.createdAt, language)
 

@@ -21,6 +21,7 @@ const AssistantForm_AssistantFragment = graphql(`
     description
     ownerId
     languageModel
+    updatedAt
   }
 `)
 
@@ -133,6 +134,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
       <input type="hidden" name="id" value={assistant.id} />
 
       <IconUpload
+        key={`assistant-icon-${assistant.id}-${assistant.updatedAt}`}
         className="col-span-2 justify-self-center"
         fileTypes="image/*"
         handleUploadIcon={handleUploadIcon}

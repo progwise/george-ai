@@ -227,6 +227,7 @@ export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
   cronJob?: Maybe<AiLibraryCrawlerCronJob>
+  filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<Scalars['DateTime']['output']>
@@ -369,6 +370,7 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiLibrary?: Maybe<AiLibrary>
+  deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile?: Maybe<AiLibraryFile>
   dropFiles?: Maybe<Array<AiLibraryFile>>
@@ -469,6 +471,10 @@ export type MutationDeleteAiConversationArgs = {
 }
 
 export type MutationDeleteAiLibraryArgs = {
+  id: Scalars['String']['input']
+}
+
+export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
 }
 
@@ -589,7 +595,7 @@ export type Query = {
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
-  aiLibraries?: Maybe<Array<AiLibrary>>
+  aiLibraries: Array<AiLibrary>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
   aiLibraryUsage?: Maybe<Array<AiLibraryUsage>>
@@ -1092,6 +1098,7 @@ export type AssistantForm_AssistantFragment = {
   description?: string | null
   ownerId: string
   languageModel?: string | null
+  updatedAt?: string | null
 } & { ' $fragmentName'?: 'AssistantForm_AssistantFragment' }
 
 export type UpdateAssistantMutationVariables = Exact<{
@@ -1341,10 +1348,20 @@ export type CrawlerTable_LibraryFragment = {
       maxDepth: number
       maxPages: number
       lastRun?: string | null
+      filesCount: number
       cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
   >
 } & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
+
+export type DeleteCrawlerMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteCrawlerMutation = {
+  __typename?: 'Mutation'
+  deleteAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
+}
 
 export type CrawlerTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -1470,6 +1487,38 @@ export type EmbeddingsTableQuery = {
   }> | null
 }
 
+export type AiLibrariesQueryVariables = Exact<{
+  ownerId: Scalars['String']['input']
+}>
+
+export type AiLibrariesQuery = {
+  __typename?: 'Query'
+  aiLibraries: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+    createdAt: string
+    updatedAt?: string | null
+    owner?: { __typename?: 'User'; id: string; name?: string | null } | null
+  }>
+}
+
+export type AiLibraryEditQueryVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type AiLibraryEditQuery = {
+  __typename?: 'Query'
+  aiLibrary?:
+    | ({ __typename?: 'AiLibrary'; id: string; name: string } & {
+        ' $fragmentRefs'?: {
+          LibraryFormFragmentFragment: LibraryFormFragmentFragment
+          DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment
+        }
+      })
+    | null
+}
+
 export type PrepareFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -1569,11 +1618,11 @@ export type AiAssistantDetailsQuery = {
       ' $fragmentRefs'?: { AssistantLibraries_LibraryUsageFragment: AssistantLibraries_LibraryUsageFragment }
     }
   > | null
-  aiLibraries?: Array<
+  aiLibraries: Array<
     { __typename?: 'AiLibrary' } & {
       ' $fragmentRefs'?: { AssistantLibraries_LibraryFragment: AssistantLibraries_LibraryFragment }
     }
-  > | null
+  >
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{
@@ -1655,24 +1704,6 @@ export type GetAssignableAssistantsQuery = {
   >
 }
 
-export type AiLibraryEditQueryVariables = Exact<{
-  id: Scalars['String']['input']
-  ownerId: Scalars['String']['input']
-}>
-
-export type AiLibraryEditQuery = {
-  __typename?: 'Query'
-  aiLibrary?:
-    | ({ __typename?: 'AiLibrary'; id: string; name: string } & {
-        ' $fragmentRefs'?: {
-          LibraryFormFragmentFragment: LibraryFormFragmentFragment
-          DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment
-        }
-      })
-    | null
-  aiLibraries?: Array<{ __typename?: 'AiLibrary'; id: string; name: string }> | null
-}
-
 export type ChangeAiLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
   data: AiLibraryInput
@@ -1681,22 +1712,6 @@ export type ChangeAiLibraryMutationVariables = Exact<{
 export type ChangeAiLibraryMutation = {
   __typename?: 'Mutation'
   updateAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
-}
-
-export type AiLibrariesQueryVariables = Exact<{
-  ownerId: Scalars['String']['input']
-}>
-
-export type AiLibrariesQuery = {
-  __typename?: 'Query'
-  aiLibraries?: Array<{
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-    createdAt: string
-    updatedAt?: string | null
-    owner?: { __typename?: 'User'; id: string; name?: string | null } | null
-  }> | null
 }
 
 export type UserProfileQueryVariables = Exact<{
@@ -2534,6 +2549,7 @@ export const AssistantForm_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
     },
@@ -3090,6 +3106,7 @@ export const CrawlerTable_LibraryFragmentDoc = {
                     selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -4725,6 +4742,43 @@ export const CreateAiLibraryCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryCrawlerMutation, CreateAiLibraryCrawlerMutationVariables>
+export const DeleteCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteCrawlerMutation, DeleteCrawlerMutationVariables>
 export const CrawlerTableDocument = {
   kind: 'Document',
   definitions: [
@@ -4798,6 +4852,7 @@ export const CrawlerTableDocument = {
                     selections: [{ kind: 'Field', name: { kind: 'Name', value: 'cronExpression' } }],
                   },
                 },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
               ],
             },
@@ -5169,6 +5224,131 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+export const AiLibrariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLibraries' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'owner' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibrariesQuery, AiLibrariesQueryVariables>
+export const AiLibraryEditDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLibraryEdit' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryFormFragment' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryFormFragment' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibraryEditQuery, AiLibraryEditQueryVariables>
 export const PrepareFileDocument = {
   kind: 'Document',
   definitions: [
@@ -5454,6 +5634,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
     },
@@ -6021,101 +6202,6 @@ export const GetAssignableAssistantsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAssignableAssistantsQuery, GetAssignableAssistantsQueryVariables>
-export const AiLibraryEditDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiLibraryEdit' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibrary' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryFormFragment' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibraries' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'ownerId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryFormFragment' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiLibraryEditQuery, AiLibraryEditQueryVariables>
 export const ChangeAiLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -6166,59 +6252,6 @@ export const ChangeAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<ChangeAiLibraryMutation, ChangeAiLibraryMutationVariables>
-export const AiLibrariesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiLibraries' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibraries' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'ownerId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'owner' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                    ],
-                  },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiLibrariesQuery, AiLibrariesQueryVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

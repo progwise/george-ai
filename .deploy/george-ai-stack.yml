@@ -223,12 +223,12 @@ services:
         delay: 5s
         #max_attempts: 3
         window: 120s
-      labels:
-        # do not expose for now
-        # caddy: crawler4ai.george-ai.net
-        # caddy.reverse_proxy: '{{upstreams 8000}}'
-        # to avoid rate limiting during testing you can use the staging environment of letsencrypt
-        #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
+      #labels:
+      # do not expose for now
+      # caddy: crawler4ai.george-ai.net
+      # caddy.reverse_proxy: '{{upstreams 8000}}'
+      # to avoid rate limiting during testing you can use the staging environment of letsencrypt
+      #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
 networks:
   caddy:

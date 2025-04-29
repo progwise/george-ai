@@ -5,7 +5,6 @@ export default {
     addNotes: 'Notizen hinzufügen',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
-    clearEmbeddings: 'Einbettungen löschen',
     create: 'Erstellen',
     createProfile: 'Benutzerprofil erstellen',
     delete: 'Löschen',
@@ -93,6 +92,9 @@ export default {
     cronJob: 'Cronjob',
     cronJobActive: 'Cronjob aktiv',
     cronJobTime: 'Cronjob-Zeit',
+    delete: 'Crawler löschen',
+    deleteConfirmation:
+      'Der Crawler für {crawlerUrl} wird zusammen mit {filesCount} damit gecrawlten Dateien gelöscht.',
     lastRun: 'Letzter Lauf',
     maxDepth: 'Max Tiefe',
     maxPages: 'Max Anzahl an Seiten',
@@ -225,7 +227,6 @@ export default {
   },
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
-    clearEmbeddings: 'Einbettungen löschen',
     delete: 'Löschen',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
