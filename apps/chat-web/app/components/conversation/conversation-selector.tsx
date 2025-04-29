@@ -78,25 +78,7 @@ export const ConversationSelector = ({
             <div className="font-semibold">{date}</div>
             <ul>
               {conversations.map((conversation) => (
-                <li key={conversation.id} className="relative">
-                  {conversation.conversationInvitation &&
-                    conversation.owner.id === userId &&
-                    conversation.conversationInvitation.allowDifferentEmailAddress &&
-                    conversation.conversationInvitation.allowMultipleParticipants && (
-                      <button
-                        type="button"
-                        className="btn btn-ghost btn-xs tooltip tooltip-left absolute right-2 top-2"
-                        onClick={() => handleCopyLink(conversation.conversationInvitation?.link ?? null)}
-                        data-tip={t('tooltips.copyConversationLink')}
-                      >
-                        <ClipboardIcon
-                          className={twMerge(
-                            'text-current',
-                            conversation.id === selectedConversationId ? 'text-primary-content' : '',
-                          )}
-                        />
-                      </button>
-                    )}
+                <li key={conversation.id}>
                   <Link
                     className={twMerge(
                       'mt-1 block rounded-md',
@@ -106,9 +88,26 @@ export const ConversationSelector = ({
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >
-                    <div>
-                      {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
+                    <div className="flex justify-between">
+                      <div>
+                        {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
+                      </div>
+                      {conversation.conversationInvitation && conversation.owner.id === userId && (
+                        <button
+                          type="button"
+                          className="btn btn-square btn-ghost btn-xs"
+                          onClick={() => handleCopyLink(conversation.conversationInvitation?.link ?? null)}
+                        >
+                          <ClipboardIcon
+                            className={twMerge(
+                              'text-current',
+                              conversation.id === selectedConversationId && 'text-primary-content',
+                            )}
+                          />
+                        </button>
+                      )}
                     </div>
+
                     <div className="mt-1 block">
                       {conversation.assistants?.map((assistant) => assistant.name).join(', ') || t('texts.noAssistant')}
                     </div>
