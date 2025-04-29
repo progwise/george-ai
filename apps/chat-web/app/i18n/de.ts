@@ -5,7 +5,6 @@ export default {
     addNotes: 'Notizen hinzufügen',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
-    clearEmbeddings: 'Einbettungen löschen',
     create: 'Erstellen',
     createProfile: 'Benutzerprofil erstellen',
     delete: 'Löschen',
@@ -228,7 +227,6 @@ export default {
   },
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
-    clearEmbeddings: 'Einbettungen löschen',
     delete: 'Löschen',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
