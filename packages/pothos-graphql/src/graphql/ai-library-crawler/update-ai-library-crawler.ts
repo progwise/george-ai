@@ -1,4 +1,4 @@
-import { addCronJob } from '../../cron-jobs'
+import { upsertCronJob } from '../../cron-jobs'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
@@ -29,7 +29,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       })
 
       if (crawler.cronJob) {
-        await addCronJob(crawler.cronJob)
+        await upsertCronJob(crawler.cronJob)
       }
 
       return crawler
