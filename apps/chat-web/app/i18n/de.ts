@@ -191,6 +191,7 @@ export default {
       description: 'Beschreiben Sie Ihre Bibliothek',
       name: 'Name Ihrer Bibliothek',
     },
+    addFiles: 'Füge {count} {count === 1 ? "Datei" : "Dateien"} hinzu',
   },
   placeholders: {
     condition: 'Wenn',

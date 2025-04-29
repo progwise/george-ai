@@ -236,7 +236,7 @@ export const GoogleDriveFiles = ({
                   mutate({ libraryId, files: selectedFiles, access_token: googleDriveAccessToken.access_token! })
                 }
               >
-                Add {selectedFiles.length} Files
+                {t('libraries.addFiles', { count: selectedFiles.length })}
               </button>
             </>
           )}

@@ -188,6 +188,7 @@ export default {
       description: 'Describe your library',
       name: 'Name your library',
     },
+    addFiles: 'Add {count} {count === 1 ? "File" : "Files"}',
   },
   placeholders: {
     condition: 'if',
