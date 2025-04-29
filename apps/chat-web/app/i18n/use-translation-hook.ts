@@ -1,8 +1,6 @@
-import { useRouteContext } from '@tanstack/react-router'
-import { useCallback } from 'react'
-
 import de from './de'
 import en from './en'
+import { useLanguage } from './language-provider'
 
 const getTranslatedValue = (key: string, language: 'en' | 'de', values?: Record<string, string | number>): string => {
   const keys = key.split('.')
@@ -25,19 +23,17 @@ const getTranslatedValue = (key: string, language: 'en' | 'de', values?: Record<
 }
 
 const useTranslation = () => {
-  const ctx = useRouteContext({ strict: false })
-  const language: 'de' | 'en' = ctx.language === 'de' ? 'de' : 'en'
-  const t = useCallback(
-    (key: string, values?: Record<string, string | number>) => {
-      try {
-        return getTranslatedValue(key, language, values)
-      } catch (e) {
-        console.error(`Translation key not found: ${e}`, language)
-        return key
-      }
-    },
-    [language],
-  )
+  const { language } = useLanguage()
+
+  const t = (key: string) => {
+    try {
+      return getTranslatedValue(key, language)
+    } catch (e) {
+      console.error(`Translation key not found: ${e}`, language)
+      return key
+    }
+  }
+
   return { t, language }
 }
 

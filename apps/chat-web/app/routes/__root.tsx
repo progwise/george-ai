@@ -8,6 +8,7 @@ import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation, { getTheme } from '../components/top-navigation'
 import { getLanguage } from '../i18n'
+import { LanguageProvider } from '../i18n/language-provider'
 import appCss from '../index.css?url'
 
 interface RouterContext {
@@ -49,23 +50,25 @@ const RootDocument = () => {
         <HeadContent />
       </head>
       <body className="container mx-auto flex min-h-screen flex-col px-1">
-        <AuthProvider>
-          <>
-            <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
-            <div className="flex grow flex-col">
-              <Outlet />
-            </div>
-            <Scripts />
-            <Suspense>
-              <TanStackRouterDevtools />
-            </Suspense>
-            <Suspense>
-              <TanStackQueryDevtools />
-            </Suspense>
-            <GeorgeToaster />
-          </>
-        </AuthProvider>
-        <BottomNavigationMobile />
+        <LanguageProvider>
+          <AuthProvider>
+            <>
+              <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
+              <div className="flex grow flex-col">
+                <Outlet />
+              </div>
+              <Scripts />
+              <Suspense>
+                <TanStackRouterDevtools />
+              </Suspense>
+              <Suspense>
+                <TanStackQueryDevtools />
+              </Suspense>
+              <GeorgeToaster />
+            </>
+          </AuthProvider>
+          <BottomNavigationMobile />
+        </LanguageProvider>
       </body>
     </html>
   )
