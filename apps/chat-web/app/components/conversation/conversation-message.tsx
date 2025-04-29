@@ -10,8 +10,10 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CollapseArrows } from '../../icons/collapse-arrows-icon'
 import { ExpandArrows } from '../../icons/expand-arrows-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { deleteMessage } from '../../server-functions/messages'
 import { FormattedMarkdown } from '../formatted-markdown'
 
 const HideMessageDocument = graphql(`
@@ -100,12 +102,27 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
     }
   }
 
+  const { mutate: deleteMessageMutate } = useMutation({
+    mutationFn: async (messageId: string) => {
+      await deleteMessage({ data: { messageId } })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.Conversation, message.conversationId],
+      })
+    },
+  })
+
+  const handleDeleteMessage = () => {
+    deleteMessageMutate(message.id)
+  }
+
   return (
     <div
       key={message.id}
       className={twMerge('card mx-1.5 border p-3 text-base-content shadow-md lg:mx-10', message.hidden && 'opacity-50')}
     >
-      <div className="mb-2 flex items-center gap-3">
+      <div className="mb-2 flex items-center gap-2">
         <div
           className={twMerge(
             'flex h-8 w-8 items-center justify-center rounded-full',
@@ -137,7 +154,15 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
           onClick={handleHideMessage}
           data-tip={message.hidden ? t('tooltips.unhide') : t('tooltips.hide')}
         >
-          {message.hidden ? <ExpandArrows /> : <CollapseArrows />}
+          {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
+        </button>
+        <button
+          type="button"
+          className="btn btn-ghost btn-xs self-start lg:tooltip lg:tooltip-left"
+          onClick={handleDeleteMessage}
+          data-tip={t('tooltips.deleteMessage')}
+        >
+          <TrashIcon className="size-5" />
         </button>
       </div>
       {!message.hidden && (

@@ -1434,12 +1434,6 @@ export type CancelFileUploadMutationVariables = Exact<{
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload?: boolean | null }
 
-export type ClearEmbeddingsMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type ClearEmbeddingsMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
-
 export type DropFileMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
@@ -1888,6 +1882,15 @@ export type LeaveConversationMutation = {
     | { __typename?: 'AssistantParticipant'; id: string }
     | { __typename?: 'HumanParticipant'; id: string }
     | null
+}
+
+export type DeleteMessageMutationVariables = Exact<{
+  messageId: Scalars['String']['input']
+}>
+
+export type DeleteMessageMutation = {
+  __typename?: 'Mutation'
+  deleteMessage?: { __typename?: 'AiConversationMessage'; id: string } | null
 }
 
 export type AddParticipantMutationVariables = Exact<{
@@ -5062,39 +5065,6 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
-export const ClearEmbeddingsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'clearEmbeddings' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ClearEmbeddingsMutation, ClearEmbeddingsMutationVariables>
 export const DropFileDocument = {
   kind: 'Document',
   definitions: [
@@ -6878,6 +6848,43 @@ export const LeaveConversationDocument = {
     },
   ],
 } as unknown as DocumentNode<LeaveConversationMutation, LeaveConversationMutationVariables>
+export const DeleteMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messageId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteMessageMutation, DeleteMessageMutationVariables>
 export const AddParticipantDocument = {
   kind: 'Document',
   definitions: [

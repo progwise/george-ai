@@ -81,10 +81,9 @@ builder.mutationField('deleteMessage', (t) =>
       messageId: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { messageId }) => {
-      const message = await prisma.aiConversationMessage.delete({
+      return await prisma.aiConversationMessage.delete({
         where: { id: messageId },
       })
-      return message
     },
   }),
 )

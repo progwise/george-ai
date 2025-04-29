@@ -228,6 +228,7 @@ export default {
   tooltips: {
     addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
     delete: 'Löschen',
+    deleteMessage: 'Nachricht löschen',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
     leaveConversation: 'Konversation verlassen',

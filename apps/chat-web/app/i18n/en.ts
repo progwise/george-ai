@@ -224,6 +224,7 @@ export default {
   tooltips: {
     addNoParticipantsSelected: 'No assistant or user is selected',
     delete: 'Delete',
+    deleteMessage: 'Delete message',
     hide: 'Hide',
     goToOverview: 'Go to overview',
     leaveConversation: 'Leave conversation',
