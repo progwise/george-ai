@@ -10,7 +10,6 @@ import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { ConversationIcon } from '../icons/conversation-icon'
-import { MenuIcon } from '../icons/menu-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
 import UserIcon from '../icons/user-icon'
@@ -71,89 +70,6 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
     return () => document.removeEventListener('click', handleOutsideClick)
   }, [isMenuOpen, handleOutsideClick])
 
-  const renderNavLinks = useCallback(
-    (isMobile = false) => (
-      <>
-        <li>
-          <Link to="/conversations/$" onClick={isMobile ? closeMenu : undefined} className="flex items-center gap-2">
-            <ConversationIcon className="size-6" />
-            {t('topNavigation.conversations')}
-          </Link>
-        </li>
-        <li>
-          <Link to="/assistants" onClick={isMobile ? closeMenu : undefined} className="flex items-center gap-2">
-            <BowlerHatIcon className="size-6" />
-            {t('topNavigation.assistants')}
-          </Link>
-        </li>
-        <li>
-          <Link to="/libraries" onClick={isMobile ? closeMenu : undefined} className="flex items-center gap-2">
-            <AcademicCapIcon className="size-6" />
-            {t('topNavigation.libraries')}
-          </Link>
-        </li>
-      </>
-    ),
-    [t, closeMenu],
-  )
-
-  const renderAuthLinks = useCallback(
-    (isMobile = false) =>
-      user ? (
-        <>
-          {isMobile && (
-            <li>
-              <Link to="/profile" onClick={closeMenu}>
-                {user.name}
-              </Link>
-            </li>
-          )}
-          <li>
-            <button
-              type="button"
-              onClick={() => {
-                logout()
-                if (isMobile) closeMenu()
-              }}
-              className="flex items-center gap-2"
-            >
-              <UserIcon className="size-6" />
-              {t('actions.signOut')}
-            </button>
-          </li>
-        </>
-      ) : (
-        <>
-          <li>
-            <a
-              href="https://calendly.com/michael-vogt-progwise/30min"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-accent"
-            >
-              {t('topNavigation.demo')}
-            </a>
-          </li>
-          {isReady && (
-            <li>
-              <button
-                type="button"
-                onClick={() => {
-                  login()
-                  if (isMobile) closeMenu()
-                }}
-                className="flex items-center gap-2"
-              >
-                <UserIcon className="size-6" />
-                {t('actions.signIn')}
-              </button>
-            </li>
-          )}
-        </>
-      ),
-    [user, t, login, logout, closeMenu, isReady],
-  )
-
   return (
     <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
       {/******************* Mobile ******************  */}
@@ -187,21 +103,6 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
           <SunIcon className="swap-off size-6 fill-current" />
           <MoonIcon className="swap-on size-6 fill-current" />
         </label>
-
-        <div className="dropdown dropdown-end" ref={menuRef}>
-          <label tabIndex={0} className="btn btn-ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <MenuIcon className="size-6" />
-          </label>
-          {isMenuOpen && (
-            <ul
-              tabIndex={0}
-              className="menu-compact menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
-            >
-              {renderNavLinks(true)}
-              {renderAuthLinks(true)}
-            </ul>
-          )}
-        </div>
       </div>
 
       {/******************* Desktop ******************  */}
@@ -246,10 +147,12 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
 
-              <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
-                <UserIcon className="size-6" />
-                {t('actions.signOut')}
-              </button>
+              {isReady && (
+                <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
+                  <UserIcon className="size-6" />
+                  {t('actions.signOut')}
+                </button>
+              )}
             </>
           ) : (
             <>
