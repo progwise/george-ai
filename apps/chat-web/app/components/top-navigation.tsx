@@ -5,11 +5,14 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
+import { useLanguage } from '../i18n/language-provider'
 import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { ConversationIcon } from '../icons/conversation-icon'
+import { EnglishFlagIcon } from '../icons/english-flag-icon'
+import { GermanFlagIcon } from '../icons/german-flag-icon'
 import { MenuIcon } from '../icons/menu-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
@@ -38,6 +41,7 @@ interface TopNavigationProps {
 }
 
 export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
+  const { language, setLanguage } = useLanguage()
   const { t } = useTranslation()
   const { login, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -152,6 +156,10 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
     [user, t, login, logout, closeMenu],
   )
 
+  const handleLanguageToggle = () => {
+    setLanguage(language === 'en' ? 'de' : 'en')
+  }
+
   return (
     <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
       {/******************* Mobile ******************  */}
@@ -172,31 +180,42 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
           </button>
         )}
 
-        <label className="swap swap-rotate" aria-label="Toggle theme">
-          <input
-            type="checkbox"
-            className="theme-controller"
-            value="dark" /* DaisyUI applies this theme when checked */
-            checked={theme === 'dark'}
-            onChange={handleThemeToggle}
-          />
-          <SunIcon className="swap-off size-6 fill-current" />
-          <MoonIcon className="swap-on size-6 fill-current" />
-        </label>
-
-        <div className="dropdown dropdown-end" ref={menuRef}>
-          <label tabIndex={0} className="btn btn-ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <MenuIcon className="size-6" />
-          </label>
-          {isMenuOpen && (
-            <ul
-              tabIndex={0}
-              className="menu-compact menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label className="swap swap-rotate" aria-label="Toggle theme">
+              <input
+                type="checkbox"
+                className="theme-controller"
+                value="dark"
+                checked={theme === 'dark'}
+                onChange={handleThemeToggle}
+              />
+              <SunIcon className="swap-off size-6 fill-current" />
+              <MoonIcon className="swap-on size-6 fill-current" />
+            </label>
+            <button
+              type="button"
+              onClick={handleLanguageToggle}
+              className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
+              aria-label="Toggle Language"
             >
-              {renderNavLinks(true)}
-              {renderAuthLinks(true)}
-            </ul>
-          )}
+              {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+            </button>
+          </div>
+          <div className="dropdown dropdown-end" ref={menuRef}>
+            <label tabIndex={0} className="btn btn-ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <MenuIcon className="size-6" />
+            </label>
+            {isMenuOpen && (
+              <ul
+                tabIndex={0}
+                className="menu-compact menu dropdown-content mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
+              >
+                {renderNavLinks(true)}
+                {renderAuthLinks(true)}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
 
@@ -241,7 +260,14 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 <SunIcon className="swap-off size-6 fill-current" />
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
-
+              <button
+                type="button"
+                onClick={handleLanguageToggle}
+                className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
+                aria-label="Toggle Language"
+              >
+                {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+              </button>
               <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
                 <UserIcon className="size-6" />
                 {t('actions.signOut')}
@@ -257,7 +283,6 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               >
                 {t('topNavigation.demo')}
               </a>
-
               <label className="swap swap-rotate" aria-label="Toggle theme">
                 <input
                   type="checkbox"
@@ -269,7 +294,14 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 <SunIcon className="swap-off size-6 fill-current" />
                 <MoonIcon className="swap-on size-6 fill-current" />
               </label>
-
+              <button
+                type="button"
+                onClick={handleLanguageToggle}
+                className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
+                aria-label="Toggle Language"
+              >
+                {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+              </button>
               <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
                 <UserIcon className="size-6" />
                 {t('actions.signIn')}
