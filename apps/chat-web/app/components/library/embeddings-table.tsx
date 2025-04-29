@@ -122,14 +122,27 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
     aiLibraryFilesQueryOptions(libraryId),
   )
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
-  const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+  const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
+    const updateAccessToken = () => {
+      const updateToken = () => {
+        setGoogleDriveAccessToken(googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null)
+      }
+      updateToken()
+    }
+    updateAccessToken()
+  }, [])
+
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.has('googleDriveAuth') && googleDriveAccessToken) {
-      dialogRef.current?.showModal()
+    if (googleDriveAccessToken) {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.has('googleDriveAuth')) {
+        dialogRef.current?.showModal()
+      }
     }
   }, [googleDriveAccessToken])
 
