@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import { upsertCronJob } from '../../cron-jobs'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
@@ -11,19 +13,25 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       url: t.arg.string(),
       maxDepth: t.arg.int(),
       maxPages: t.arg.int(),
-      libraryId: t.arg.string(),
       cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
     },
     resolve: async (_query, _source, { id, cronJob, ...data }) => {
+      const existingCrawler = await prisma.aiLibraryCrawler.findUnique({
+        where: { id },
+        include: { cronJob: true },
+      })
+
+      if (!existingCrawler) {
+        throw new GraphQLError(`Crawler not found`)
+      }
+
+      const existingCronJob = existingCrawler.cronJob ? { update: { ...cronJob } } : { create: { ...cronJob } }
+
       const crawler = await prisma.aiLibraryCrawler.update({
         where: { id },
         data: {
           ...data,
-          cronJob: cronJob
-            ? {
-                update: { ...cronJob },
-              }
-            : undefined,
+          cronJob: existingCronJob,
         },
         include: { cronJob: true },
       })

@@ -15,14 +15,7 @@ vi.mock(
 
 const mutation = graphql(`
   mutation updateAiLibraryCrawler($cronJob: AiLibraryCrawlerCronJobInput) {
-    updateAiLibraryCrawler(
-      id: "crawler-id"
-      libraryId: "library-id"
-      maxDepth: 1
-      maxPages: 1
-      url: "https://example.com"
-      cronJob: $cronJob
-    ) {
+    updateAiLibraryCrawler(id: "crawler-id", maxDepth: 1, maxPages: 1, url: "https://example.com", cronJob: $cronJob) {
       id
     }
   }
@@ -43,9 +36,13 @@ describe('updateAiLibraryCrawler mutation', () => {
         },
       },
     })
+    // we should fix that
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    upsertCronJob.mockClear()
   })
 
-  it.skip('throws error when library does not exist', async () => {
+  it('throws error when crawler does not exist', async () => {
     const result = await executeGraphQL(mutation)
 
     expect(result.errors).toHaveLength(1)
@@ -167,7 +164,7 @@ describe('updateAiLibraryCrawler mutation', () => {
       })
     })
 
-    it.skip('creates crawler cron job', async () => {
+    it('creates crawler cron job', async () => {
       await prisma.aiLibraryCrawler.create({
         data: {
           id: 'crawler-id',
@@ -198,7 +195,7 @@ describe('updateAiLibraryCrawler mutation', () => {
       expect(result.errors).toBeUndefined()
       expect(result.data?.updateAiLibraryCrawler).toEqual({ id: 'crawler-id' })
       expect(upsertCronJob).toHaveBeenCalledExactlyOnceWith({
-        id: 'cron-job-id',
+        id: expect.any(String),
         crawlerId: 'crawler-id',
         active: true,
         hour: 1,
