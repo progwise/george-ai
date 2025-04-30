@@ -162,6 +162,8 @@ type AiConversationMessage {
   createdAt: DateTime!
   hidden: Boolean
   id: ID!
+  owner: User!
+  ownerId: String!
   sender: AiConversationParticipant!
   senderId: ID!
   sequenceNumber: BigInt!
@@ -172,6 +174,7 @@ type AiConversationMessage {
 input AiConversationMessageInput {
   content: String!
   conversationId: String!
+  ownerId: String!
   recipientAssistantIds: [String!]!
 }
 
@@ -382,7 +385,7 @@ type Mutation {
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!, userId: String!): AiLibraryCrawler
   sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
-  sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
+  sendMessage(data: AiConversationMessageInput!, ownerId: String!, userId: String!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary

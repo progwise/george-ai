@@ -54,6 +54,7 @@ interface ConversationMessageProps {
   isLoading: boolean
   message: {
     id: string
+    ownerId: string
     content: string
     source?: string | null
     createdAt: string
@@ -156,14 +157,16 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
         >
           {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
         </button>
-        <button
-          type="button"
-          className="btn btn-ghost btn-xs self-start lg:tooltip lg:tooltip-left"
-          onClick={handleDeleteMessage}
-          data-tip={t('tooltips.deleteMessage')}
-        >
-          <TrashIcon className="size-5" />
-        </button>
+        {message.ownerId && (
+          <button
+            type="button"
+            className="btn btn-ghost btn-xs self-start lg:tooltip lg:tooltip-left"
+            onClick={handleDeleteMessage}
+            data-tip={t('tooltips.deleteMessage')}
+          >
+            <TrashIcon className="size-5" />
+          </button>
+        )}
       </div>
       {!message.hidden && (
         <div className="border-t border-base-200 pt-3">

@@ -5,9 +5,10 @@ import { graphql } from '../gql'
 import { backendRequest } from './backend'
 
 const CreateMessageDocument = graphql(`
-  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {
-    sendMessage(userId: $userId, data: $data) {
+  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $ownerId: String!) {
+    sendMessage(userId: $userId, data: $data, ownerId: $ownerId) {
       id
+      ownerId
       createdAt
     }
   }
@@ -21,6 +22,7 @@ export const sendMessage = createServerFn({ method: 'POST' })
         conversationId: z.string(),
         userId: z.string(),
         recipientAssistantIds: z.array(z.string()),
+        ownerId: z.string(),
       })
       .parse(data),
   )
@@ -31,6 +33,7 @@ export const sendMessage = createServerFn({ method: 'POST' })
         conversationId: ctx.data.conversationId,
         content: ctx.data.content,
         recipientAssistantIds: ctx.data.recipientAssistantIds,
+        ownerId: ctx.data.userId,
       },
     }),
   )

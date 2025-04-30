@@ -23,6 +23,8 @@ builder.prismaObject('AiConversationMessage', {
     hidden: t.exposeBoolean('hidden', { nullable: true }),
     sender: t.relation('sender', { nullable: false }),
     conversation: t.relation('conversation'),
+    owner: t.relation('owner', { nullable: false }),
+    ownerId: t.exposeString('ownerId', { nullable: false }),
   }),
 })
 
@@ -54,6 +56,7 @@ const messageInput = builder.inputType('AiConversationMessageInput', {
     conversationId: t.string({ required: true }),
     content: t.string({ required: true }),
     recipientAssistantIds: t.stringList({ required: true }),
+    ownerId: t.string({ required: true }),
   }),
 })
 
@@ -129,6 +132,7 @@ builder.mutationField('sendMessage', (t) =>
     args: {
       userId: t.arg.string({ required: true }),
       data: t.arg({ type: messageInput, required: true }),
+      ownerId: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { userId, data }) => {
       const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
@@ -173,6 +177,7 @@ builder.mutationField('sendMessage', (t) =>
           content: data.content,
           conversationId: data.conversationId,
           senderId: participant.id,
+          ownerId: data.ownerId,
         },
       })
 
@@ -200,6 +205,7 @@ builder.mutationField('sendMessage', (t) =>
             content: '',
             conversationId: data.conversationId,
             senderId,
+            ownerId: data.ownerId,
           },
         })
 

@@ -181,6 +181,8 @@ export type AiConversationMessage = {
   createdAt: Scalars['DateTime']['output']
   hidden?: Maybe<Scalars['Boolean']['output']>
   id: Scalars['ID']['output']
+  owner: User
+  ownerId: Scalars['String']['output']
   sender: AiConversationParticipant
   senderId: Scalars['ID']['output']
   sequenceNumber: Scalars['BigInt']['output']
@@ -191,6 +193,7 @@ export type AiConversationMessage = {
 export type AiConversationMessageInput = {
   content: Scalars['String']['input']
   conversationId: Scalars['String']['input']
+  ownerId: Scalars['String']['input']
   recipientAssistantIds: Array<Scalars['String']['input']>
 }
 
@@ -543,6 +546,7 @@ export type MutationSendConfirmationMailArgs = {
 
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
+  ownerId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
 
@@ -1846,11 +1850,12 @@ export type TypeRefFragment = {
 export type SendMessageMutationVariables = Exact<{
   userId: Scalars['String']['input']
   data: AiConversationMessageInput
+  ownerId: Scalars['String']['input']
 }>
 
 export type SendMessageMutation = {
   __typename?: 'Mutation'
-  sendMessage: Array<{ __typename?: 'AiConversationMessage'; id: string; createdAt: string }>
+  sendMessage: Array<{ __typename?: 'AiConversationMessage'; id: string; ownerId: string; createdAt: string }>
 }
 
 export type CreateConversationMutationVariables = Exact<{
@@ -6692,6 +6697,11 @@ export const SendMessageDocument = {
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversationMessageInput' } },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -6710,11 +6720,17 @@ export const SendMessageDocument = {
                 name: { kind: 'Name', value: 'data' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'ownerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
+              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
               ],
             },

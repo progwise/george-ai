@@ -121,6 +121,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
           isLoading={false}
           message={{
             id: message.id,
+            ownerId: message.sender.id,
             content: message.content || '',
             source: message.source,
             createdAt: message.createdAt,
@@ -141,6 +142,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
           isLoading={true}
           message={{
             id: message.id,
+            ownerId: message.sender.id,
             content: message.content,
             source: message.source,
             createdAt: message.createdAt,

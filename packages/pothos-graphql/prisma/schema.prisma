@@ -38,6 +38,7 @@ model User {
   profile                    UserProfile?
   conversations              AiConversation[]
   crawlerRuns                AiLibraryCrawlerRun[]
+  AiConversationMessage      AiConversationMessage[]
 }
 
 model UserProfile {
@@ -95,6 +96,7 @@ model AiAssistantEUActAnswers {
   questionId  String
   answer      String?
   notes       String?
+
   @@id([assistantId, questionId])
 }
 
@@ -226,15 +228,19 @@ model AiConversationParticipant {
 }
 
 model AiConversationMessage {
-  id             String                    @id @default(cuid())
-  sequenceNumber BigInt                    @default(autoincrement())
-  createdAt      DateTime                  @default(now())
-  updatedAt      DateTime                  @updatedAt
-  sender         AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  id             String  @id @default(cuid())
+  sequenceNumber BigInt  @default(autoincrement())
   senderId       String
   content        String
   source         String?
-  hidden         Boolean                   @default(false)
-  conversation   AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  hidden         Boolean @default(false)
   conversationId String
+  ownerId        String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sender       AiConversationParticipant @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversation AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  owner        User                      @relation(fields: [ownerId], references: [id])
 }
