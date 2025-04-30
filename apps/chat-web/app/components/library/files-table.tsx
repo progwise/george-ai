@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { useEffect } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { z } from 'zod'
 
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
@@ -24,50 +24,42 @@ export interface FilesTableProps {
 
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
-  const k = 1024
+  const kilobytes = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  const kilobyteExponent = Math.floor(Math.log(bytes) / Math.log(kilobytes))
+  return parseFloat((bytes / Math.pow(kilobytes, kilobyteExponent)).toFixed(2)) + ' ' + sizes[kilobyteExponent]
 }
 
-const getDefaultView = (): 'grid' | 'list' => {
-  return 'list'
-}
-
-export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, selectedFiles, setSelectedFiles }) => {
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>(getDefaultView)
-  const selectedIds = useMemo(() => new Set(selectedFiles.map((f) => f.id)), [selectedFiles])
-
-  useEffect(() => {
-    // Remove the media query listener since view mode is fixed to 'grid'
-  }, [])
+export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTableProps) => {
+  const { t } = useTranslation()
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+  const selectedIds = useMemo(() => new Set(selectedFiles.map((selectedFile) => selectedFile.id)), [selectedFiles])
 
   const toggleFile = useCallback(
     (file: LibraryFile) => {
       const isSelected = selectedIds.has(file.id)
-      setSelectedFiles((prev) => (isSelected ? prev.filter((f) => f.id !== file.id) : [...prev, file]))
+      setSelectedFiles((prev) => (isSelected ? prev.filter((fileItem) => fileItem.id !== file.id) : [...prev, file]))
     },
     [selectedIds, setSelectedFiles],
   )
 
+  const getSelectedFilesLabel = (count: number) => {
+    return count === 1 ? t('libraries.selectedSingleFile') : t('libraries.selectedMultipleFiles', { count })
+  }
+
   return (
     <div>
       <div className="sticky top-[36px] z-10 flex items-center justify-between bg-base-100 p-1 shadow-md">
-        <div>
-          <div className="inline-flex h-8 items-center gap-1 rounded-full border-2 border-base-300 bg-base-200 p-2">
-            <button
-              type="button"
-              onClick={() => setSelectedFiles([])}
-              className="hover:bg-base-400 flex items-center justify-center rounded-full bg-base-300 focus:outline-none"
-              aria-label="Clear selected files"
-              disabled={selectedFiles.length === 0}
-            >
-              <CrossIcon />
-            </button>
-            <span className="text-sm font-medium text-base-content">
-              {selectedFiles.length} file{selectedFiles.length !== 1 ? 's' : ''} selected
-            </span>
-          </div>
+        <div className="inline-flex h-8 items-center gap-1 rounded-full border-2 border-base-300 bg-base-200 p-2">
+          <button
+            type="button"
+            onClick={() => setSelectedFiles([])}
+            className="hover:bg-base-400 flex items-center justify-center rounded-full bg-base-300 focus:outline-none"
+            disabled={selectedFiles.length === 0}
+          >
+            <CrossIcon />
+          </button>
+          <span className="text-sm font-medium text-base-content">{getSelectedFilesLabel(selectedFiles.length)}</span>
         </div>
         <div className="inline-flex h-8 items-center rounded-full border-2 border-base-300 bg-base-200">
           <button
@@ -76,11 +68,9 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
             className={`group inline-flex h-full w-12 items-center justify-center rounded-l-full transition-colors duration-300 ease-in focus:outline-none ${
               viewMode === 'grid' ? 'bg-base-300' : ''
             }`}
-            aria-label="Grid layout"
-            title="Grid layout"
           >
             {viewMode === 'grid' && <CheckIcon className="mr-1 flex items-center text-base-content" />}
-            <GridViewIcon className="h-4 w-4 fill-current text-base-content" />
+            <GridViewIcon className="size-4 fill-current text-base-content" />
           </button>
           <button
             type="button"
@@ -88,19 +78,16 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
             className={`group inline-flex h-full w-12 items-center justify-center rounded-r-full transition-colors duration-300 ease-in focus:outline-none ${
               viewMode === 'list' ? 'bg-base-300' : ''
             }`}
-            aria-label="List layout"
-            title="List layout"
           >
             {viewMode === 'list' && <CheckIcon className="mr-1 flex items-center text-base-content" />}
-            <ListViewIcon className="h-4 w-4 fill-current text-base-content" />
+            <ListViewIcon className="size-4 fill-current text-base-content" />
           </button>
         </div>
       </div>
 
       <div className="flex justify-center p-4">
         <div className="w-full">
-          {/*********** List View ***********/}
-          {viewMode === 'list' && (
+          {viewMode === 'list' ? (
             <div className="overflow-x-auto">
               <table className="w-full table-auto border-collapse">
                 <thead className="bg-base-200">
@@ -116,37 +103,29 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
                     const isSelected = selectedIds.has(file.id)
                     const sizeValue = file.size ?? 0
                     const isFolder = file.kind === 'drive#folder'
-                    function truncateFileName(name: string, maxLength: number, truncateAt: number): React.ReactNode {
-                      if (name.length <= maxLength) return name
-                      const truncated = name.slice(0, truncateAt) + '...' + name.slice(-truncateAt)
-                      return truncated
-                    }
+                    const truncateFileName = (name: string, maxLength: number, truncateAt: number) =>
+                      name.length <= maxLength ? name : `${name.slice(0, truncateAt)}...${name.slice(-truncateAt)}`
+
                     return (
                       <tr
                         key={file.id}
                         onClick={() => toggleFile(file)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') toggleFile(file)
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') toggleFile(file)
                         }}
-                        className={`cursor-pointer ${fileIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'} ${isSelected ? 'bg-primary/40' : 'hover:bg-base-300'} `}
-                        aria-pressed={isSelected}
-                        aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
+                        className={`cursor-pointer ${fileIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'} ${
+                          isSelected ? 'bg-primary/20' : 'hover:bg-base-300'
+                        }`}
                       >
                         <td className="hidden border-b border-base-300 px-2 py-1 sm:table-cell">{fileIndex + 1}</td>
-
-                        <td
-                          className="whitespace-normal break-words border-b border-base-300 px-2 py-1 sm:whitespace-nowrap"
-                          title={file.name}
-                        >
+                        <td className="whitespace-normal break-words border-b border-base-300 px-2 py-1 sm:whitespace-nowrap">
                           {truncateFileName(file.name, 50, 45)}
                         </td>
-
                         <td className="hidden border-b border-base-300 px-2 py-1 sm:table-cell">
                           {isFolder ? 'Folder' : 'File'}
                         </td>
-
                         <td className="border-b border-base-300 px-2 py-1">{formatBytes(sizeValue)}</td>
                       </tr>
                     )
@@ -154,10 +133,7 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
                 </tbody>
               </table>
             </div>
-          )}
-
-          {/*********** Grid View ***********/}
-          {viewMode === 'grid' && (
+          ) : (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
               {files.map((file) => {
                 const isSelected = selectedIds.has(file.id)
@@ -169,23 +145,17 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
                     onClick={() => toggleFile(file)}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') toggleFile(file)
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') toggleFile(file)
                     }}
-                    className={
-                      'group relative flex cursor-pointer select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ' +
-                      (isSelected ? 'border-primary bg-primary/20' : 'border-transparent hover:bg-base-100')
-                    }
-                    aria-pressed={isSelected}
-                    aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
+                    className={`group relative flex cursor-pointer select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ${
+                      isSelected ? 'border-primary bg-primary/20' : 'border-transparent hover:bg-base-100'
+                    }`}
                   >
                     {file.iconLink && (
-                      <img src={file.iconLink} alt={`${file.name} icon`} className="h-12 w-12 object-contain" />
+                      <img src={file.iconLink} alt={`${file.name} icon`} className="size-12 object-contain" />
                     )}
-                    <span
-                      className="block w-full max-w-full truncate text-center text-sm text-base-content"
-                      title={file.name}
-                    >
+                    <span className="block w-full max-w-full truncate text-center text-sm text-base-content">
                       {file.name}
                     </span>
                     <span className="mt-1 text-xs text-base-content">{isFolder ? 'Folder' : 'File'}</span>
@@ -199,5 +169,4 @@ export const FilesTable: React.FC<FilesTableProps> = React.memo(({ files, select
       </div>
     </div>
   )
-})
-FilesTable.displayName = 'FilesTable'
+}

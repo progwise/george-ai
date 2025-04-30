@@ -171,9 +171,11 @@ export default {
     wednesday: 'Wednesday',
   },
   libraries: {
+    addMultipleFiles: 'Add {count} Files',
     addNew: 'Create new library',
     addNewButton: 'Create library',
     addNewDescription: 'A library is a collection of files that can be used by assistants.',
+    addSingleFile: 'Add 1 File',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
     dropFileError: 'Failed to delete file',
@@ -188,7 +190,8 @@ export default {
       description: 'Describe your library',
       name: 'Name your library',
     },
-    addFiles: 'Add {count} {count === 1 ? "File" : "Files"}',
+    selectedMultipleFiles: '{count} files selected',
+    selectedSingleFile: '1 file selected',
   },
   placeholders: {
     condition: 'if',
