@@ -1,7 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { setCookie } from '@tanstack/react-start/server'
 import Keycloak from 'keycloak-js'
-import { createContext, use, useCallback, useEffect, useMemo, useRef } from 'react'
+import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { deleteCookie } from 'vinxi/http'
+import { z } from 'zod'
 
 import { toastError } from '../components/georgeToaster'
 import { getKeycloakConfig } from './auth.server'
@@ -12,18 +16,31 @@ const isClientSide = typeof window !== 'undefined'
 const AuthContext = createContext<{
   login: (redirectUri?: string) => Promise<void>
   logout: () => Promise<void>
+  isReady: boolean
 }>({
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
+  isReady: false,
 })
 
 export const useAuth = () => {
   return use(AuthContext)
 }
 
+const setKeycloakTokenInCookie = createServerFn({ method: 'POST' })
+  .validator((data: { token?: string }) => z.object({ token: z.string().optional() }).parse(data))
+  .handler(({ data: { token } }) => {
+    if (!token) {
+      return deleteCookie(KEYCLOAK_TOKEN_COOKIE_NAME)
+    }
+
+    setCookie(KEYCLOAK_TOKEN_COOKIE_NAME, token)
+  })
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const keycloakRef = useRef<Keycloak | undefined>(undefined)
+  const [isReady, setIsReady] = useState(false)
   const { data: keycloakConfig } = useQuery({
     queryKey: ['keycloakConfig'],
     queryFn: () => getKeycloakConfig(),
@@ -44,15 +61,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    if (currentToken) {
-      // update the token in the cookie
-      document.cookie = `${KEYCLOAK_TOKEN_COOKIE_NAME}=${currentToken}; path=/; secure; SameSite=None`
-    } else {
-      // delete the token in the cookie
-      document.cookie = `${KEYCLOAK_TOKEN_COOKIE_NAME}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;`
-    }
+    /**
+     * For some reason, the updated cookie is not immidiately available when reloading the page (router.invalidate).
+     * Because of that, the user is not loaded after successful login.
+     * Using a server function to set the cookie and not using document.cookie = ... seams more reliable, same for waiting a bit.
+     */
+    await setKeycloakTokenInCookie({ data: { token: currentToken } })
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
-    router.invalidate()
+    await router.invalidate()
   }, [router])
 
   useEffect(() => {
@@ -60,6 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       keycloakRef.current = new Keycloak(keycloakConfig)
 
       keycloakRef.current.onReady = () => {
+        setIsReady(true)
         updateTokenInCookie()
       }
 
@@ -98,8 +116,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await keycloakRef.current?.logout()
         updateTokenInCookie()
       },
+      isReady,
     }),
-    [updateTokenInCookie],
+    [updateTokenInCookie, isReady],
   )
 
   return <AuthContext value={contextValue}>{children}</AuthContext>
