@@ -1098,6 +1098,7 @@ export type AssistantForm_AssistantFragment = {
   description?: string | null
   ownerId: string
   languageModel?: string | null
+  updatedAt?: string | null
 } & { ' $fragmentName'?: 'AssistantForm_AssistantFragment' }
 
 export type UpdateAssistantMutationVariables = Exact<{
@@ -2548,6 +2549,7 @@ export const AssistantForm_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
     },
@@ -5632,6 +5634,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
       },
     },

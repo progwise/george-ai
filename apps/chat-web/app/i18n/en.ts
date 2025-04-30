@@ -5,7 +5,6 @@ export default {
     addNotes: 'Add notes',
     cancel: 'Cancel',
     cancelled: 'Cancelled',
-    clearEmbeddings: 'Clear embeddings',
     create: 'Create',
     createProfile: 'Create user profile',
     delete: 'Delete',
@@ -224,7 +223,6 @@ export default {
   },
   tooltips: {
     addNoParticipantsSelected: 'No assistant or user is selected',
-    clearEmbeddings: 'Clear embeddings',
     delete: 'Delete',
     hide: 'Hide',
     goToOverview: 'Go to overview',
