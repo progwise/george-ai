@@ -87,53 +87,47 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
 
       <div className="flex justify-center p-4">
         <div className="w-full">
-          {viewMode === 'list' ? (
-            <div className="overflow-x-auto">
-              <table className="w-full table-auto border-collapse">
-                <thead className="bg-base-200">
-                  <tr>
-                    <th className="hidden border-b border-base-300 px-2 py-1 text-left sm:table-cell">#</th>
-                    <th className="border-b border-base-300 px-2 py-1 text-left">Name</th>
-                    <th className="hidden border-b border-base-300 px-2 py-1 text-left sm:table-cell">Kind</th>
-                    <th className="border-b border-base-300 px-2 py-1 text-left">Size</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {files.map((file, fileIndex) => {
-                    const isSelected = selectedIds.has(file.id)
-                    const sizeValue = file.size ?? 0
-                    const isFolder = file.kind === 'drive#folder'
-                    const truncateFileName = (name: string, maxLength: number, truncateAt: number) =>
-                      name.length <= maxLength ? name : `${name.slice(0, truncateAt)}...${name.slice(-truncateAt)}`
+          {viewMode === 'list' && (
+            <div className="flex flex-col gap-2 p-2">
+              {files.map((file) => {
+                const isSelected = selectedIds.has(file.id)
+                const sizeValue = file.size ?? 0
+                const isFolder = file.kind === 'drive#folder'
 
-                    return (
-                      <tr
-                        key={file.id}
-                        onClick={() => toggleFile(file)}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter' || event.key === ' ') toggleFile(file)
+                return (
+                  <div
+                    key={file.id}
+                    onClick={() => toggleFile(file)}
+                    role="button"
+                    tabIndex={0}
+                    className={
+                      'flex select-none items-center gap-3 rounded border p-2 focus:outline-none ' +
+                      (isSelected ? 'border-blue-500 bg-base-200' : 'border-transparent hover:bg-base-100')
+                    }
+                    aria-pressed={isSelected}
+                    aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
+                    title={`${file.name} (${formatBytes(sizeValue)})`}
+                  >
+                    <input type="checkbox" className="checkbox checkbox-xs" checked={isSelected} readOnly />
+                    <div className="flex flex-1 flex-col text-sm">
+                      <div
+                        className="break-words font-medium"
+                        style={{
+                          wordBreak: 'break-word',
+                          whiteSpace: 'normal',
                         }}
-                        className={`cursor-pointer ${fileIndex % 2 === 0 ? 'bg-base-100' : 'bg-base-200'} ${
-                          isSelected ? 'bg-primary/20' : 'hover:bg-base-300'
-                        }`}
                       >
-                        <td className="hidden border-b border-base-300 px-2 py-1 sm:table-cell">{fileIndex + 1}</td>
-                        <td className="whitespace-normal break-words border-b border-base-300 px-2 py-1 sm:whitespace-nowrap">
-                          {truncateFileName(file.name, 50, 45)}
-                        </td>
-                        <td className="hidden border-b border-base-300 px-2 py-1 sm:table-cell">
-                          {isFolder ? 'Folder' : 'File'}
-                        </td>
-                        <td className="border-b border-base-300 px-2 py-1">{formatBytes(sizeValue)}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+                        {file.name}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{isFolder ? 'Folder' : 'File'}</div>
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{formatBytes(sizeValue)}</div>
+                  </div>
+                )
+              })}
             </div>
-          ) : (
+          )}
+          {viewMode === 'grid' && (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
               {files.map((file) => {
                 const isSelected = selectedIds.has(file.id)
