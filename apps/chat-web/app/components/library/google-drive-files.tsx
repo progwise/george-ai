@@ -79,7 +79,6 @@ const embedFiles = createServerFn({ method: 'GET' })
   .handler(async (ctx) => {
     const processFiles = ctx.data.files.map(async (file) => {
       let isPdfExport = true
-      console.log('Processing file:', file)
       const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
         {
@@ -91,9 +90,6 @@ const embedFiles = createServerFn({ method: 'GET' })
         if (response.ok) {
           return response
         }
-
-        console.warn('Failed to export file from Google Drive', file)
-        console.warn('Response', await response.text())
 
         isPdfExport = false
         return await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`, {
