@@ -66,32 +66,34 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
   }
 
   return (
-    <div>
+    <div className="flex w-full items-center justify-between gap-2 overflow-x-scroll">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
-      {assistant.participants.map((participant) => {
-        const isParticipantOwner = participant.userId === props.userId
-        return (
-          <div
-            key={participant.id}
-            className={twMerge(
-              'badge badge-primary badge-lg text-nowrap text-xs',
-              isParticipantOwner && 'badge-accent',
-            )}
-          >
-            {participant.userId !== props.userId && isOwner && (
-              <button
-                type="button"
-                className="btn btn-circle btn-ghost btn-xs"
-                onClick={(event) => handleRemoveParticipant(event, participant.id)}
-              >
-                <CrossIcon />
-              </button>
-            )}
-            <span>{participant.name}</span>
-            {isParticipantOwner && <span className="pl-1 font-bold">({t('conversations.owner')})</span>}
-          </div>
-        )
-      })}
+      <div className="no-scrollbar flex gap-2 overflow-x-scroll p-1">
+        {assistant.participants.map((participant) => {
+          const isParticipantOwner = participant.userId === assistant.ownerId
+          return (
+            <div
+              key={participant.id}
+              className={twMerge(
+                'badge badge-primary badge-lg text-nowrap text-xs',
+                isParticipantOwner && 'badge-accent',
+              )}
+            >
+              {participant.userId !== props.userId && isOwner && (
+                <button
+                  type="button"
+                  className="btn btn-circle btn-ghost btn-xs"
+                  onClick={(event) => handleRemoveParticipant(event, participant.id)}
+                >
+                  <CrossIcon />
+                </button>
+              )}
+              <span className="max-w-36 truncate">{participant.name}</span>
+              {isParticipantOwner && <span className="pl-1 font-bold">({t('conversations.owner')})</span>}
+            </div>
+          )
+        })}
+      </div>
       {isOwner && <AssistantParticipantsDialog assistant={assistant} users={users} userId={props.userId} />}
     </div>
   )

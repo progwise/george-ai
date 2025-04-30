@@ -126,7 +126,13 @@ builder.mutationField('createAiAssistant', (t) =>
       }
 
       return prisma.aiAssistant.create({
-        data: { name, ownerId },
+        data: {
+          name,
+          ownerId,
+          participants: {
+            create: [{ userId: ownerId }],
+          },
+        },
       })
     },
   }),

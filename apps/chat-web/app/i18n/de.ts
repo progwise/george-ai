@@ -54,6 +54,7 @@ export default {
     addNewButton: 'Assistent erstellen',
     addNewDescription:
       'Ein Assistent führt Sie durch die Ai von George. Er unterstützt Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
+    addParticipantsConfirmation: 'Sie können diesem Assistenten Teilnehmer hinzufügen.',
     delete: 'Assistent löschen',
     deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
@@ -74,6 +75,7 @@ export default {
   },
   brand: 'George-Ai',
   conversations: {
+    addConversationParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
     delete: 'Konversation löschen',
@@ -203,7 +205,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
-    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
@@ -227,7 +228,7 @@ export default {
     with: 'mit',
   },
   tooltips: {
-    addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
+    addNoParticipantsSelected: 'Es ist kein Teilnehmer ausgewählt',
     clearEmbeddings: 'Einbettungen löschen',
     delete: 'Löschen',
     hide: 'Verbergen',

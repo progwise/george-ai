@@ -77,11 +77,11 @@ function RouteComponent() {
 
   return (
     <article className="container flex w-full flex-col gap-4">
-      <div className="flex justify-between">
+      <div className="flex gap-2">
         <div className="w-64">
           <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-5/6 gap-2">
           <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
           <button
             type="button"

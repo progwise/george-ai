@@ -102,19 +102,19 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
 
   return (
     <>
-      <button type="button" className="btn btn-sm" onClick={handleOpen}>
+      <button type="button" className="btn btn-neutral btn-sm" onClick={handleOpen}>
         {t('actions.add')} <PlusIcon />
       </button>
 
       <LoadingSpinner isLoading={isPending} />
       <DialogForm
         ref={dialogRef}
-        title="Manage assistant participants here." //todo: localization
-        description={t('texts.addParticipantsConfirmation')} //todo: address mentions conversation
+        title={t('texts.addParticipants')}
+        description={t('assistants.addParticipantsConfirmation')}
         onSubmit={handleSubmit}
         disabledSubmit={selectedParticipantIds.length < 1}
         submitButtonText={t('actions.add')}
-        submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')} //todo: related to conversation
+        submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
       >
         <div className="flex w-full gap-2">
           <div className="w-1/2">

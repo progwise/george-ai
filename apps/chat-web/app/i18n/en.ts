@@ -54,6 +54,7 @@ export default {
     addNewButton: 'Create assistant',
     addNewDescription:
       'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
+    addParticipantsConfirmation: 'You can add participants to this assistant.',
     delete: 'Delete assistant',
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
@@ -74,6 +75,7 @@ export default {
   },
   brand: 'George-Ai',
   conversations: {
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
     delete: 'Delete conversation',
@@ -200,7 +202,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
-    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     changeParticipantsAnytime: 'You can change these participants any time.',
     dropFileFailure: 'Failed to drop files:',
     loginToUseConversations: 'Login to use conversations.',
@@ -223,7 +224,7 @@ export default {
     with: 'with',
   },
   tooltips: {
-    addNoParticipantsSelected: 'No assistant or user is selected',
+    addNoParticipantsSelected: 'No participant is selected',
     clearEmbeddings: 'Clear embeddings',
     delete: 'Delete',
     hide: 'Hide',

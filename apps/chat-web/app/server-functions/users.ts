@@ -7,7 +7,7 @@ import { UsersQuery } from '../gql/graphql'
 import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
-const usersDocument = graphql(`
+const UsersDocument = graphql(`
   query users($userId: String!) {
     users(userId: $userId) {
       id
@@ -30,7 +30,7 @@ export type User = UsersQuery['users'][0]
 export const getUsers = createServerFn({ method: 'GET' })
   .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler((ctx) =>
-    backendRequest(usersDocument, {
+    backendRequest(UsersDocument, {
       userId: ctx.data,
     }),
   )
