@@ -1,31 +1,32 @@
+import { createServerFn } from '@tanstack/react-start'
+import { getCookie } from '@tanstack/react-start/server'
 import React, { createContext, use, useMemo, useState } from 'react'
+
+import { Language } from './index'
 
 const LANGUAGE_COOKIE_NAME = 'preferred-language'
 
-const getLanguageFromCookie = (): 'en' | 'de' => {
-  const cookies = Object.fromEntries(document.cookie.split('; ').map((cookie) => cookie.split('=') as [string, string]))
-  return (cookies[LANGUAGE_COOKIE_NAME] as 'en' | 'de') || 'en'
-}
+export const getLanguage = createServerFn({ method: 'GET' }).handler(() => getCookie(LANGUAGE_COOKIE_NAME) || 'en')
 
-const setLanguageInCookie = (language: 'en' | 'de') =>
+const setLanguageInCookie = (language: Language) =>
   (document.cookie = `${LANGUAGE_COOKIE_NAME}=${language}; path=/; max-age=31536000`)
 
 interface LanguageContextProps {
-  language: 'en' | 'de'
-  setLanguage: (language: 'en' | 'de') => void
+  language: Language
+  setLanguage: (language: Language) => void
 }
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined)
 
 interface LanguageProviderProps {
-  initialLanguage?: 'en' | 'de'
+  initialLanguage: Language
   children: React.ReactNode
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, initialLanguage }) => {
-  const [language, setLanguage] = useState<'en' | 'de'>(() => initialLanguage ?? getLanguageFromCookie())
+  const [language, setLanguage] = useState<Language>(initialLanguage)
 
-  const updateLanguage = (newLanguage: 'en' | 'de') => {
+  const updateLanguage = (newLanguage: Language) => {
     setLanguage(newLanguage)
     setLanguageInCookie(newLanguage)
   }

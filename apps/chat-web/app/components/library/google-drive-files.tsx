@@ -165,7 +165,7 @@ export const GoogleDriveFiles = ({
       const responseJson = (await response.json()) as GoogleDriveResponse
       return responseJson.files.map((file) => ({
         ...file,
-        size: file.size ? Number(file.size) : 0,
+        size: file.size ?? 0,
         iconLink: getHighResIconUrl(file.iconLink ?? ''),
       }))
     },

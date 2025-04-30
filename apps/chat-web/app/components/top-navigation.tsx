@@ -189,7 +189,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 href="https://calendly.com/michael-vogt-progwise/30min"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-accent"
+                className="btn btn-accent btn-sm ml-8"
               >
                 {t('topNavigation.demo')}
               </a>

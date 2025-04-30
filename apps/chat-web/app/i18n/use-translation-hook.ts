@@ -1,8 +1,9 @@
 import de from './de'
 import en from './en'
+import { Language } from './index'
 import { useLanguage } from './language-provider'
 
-const getTranslatedValue = (key: string, language: 'en' | 'de', values?: Record<string, string | number>): string => {
+const getTranslatedValue = (key: string, language: Language, values?: Record<string, string | number>): string => {
   const keys = key.split('.')
   let currentObject = language === 'de' ? de : en
   keys.forEach((k) => {

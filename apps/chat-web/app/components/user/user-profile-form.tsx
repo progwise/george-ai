@@ -6,6 +6,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { useAuth } from '../../auth/auth'
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { Language } from '../../i18n'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
@@ -33,7 +34,7 @@ export const UserProfileForm_UserProfileFragment = graphql(`
   }
 `)
 
-export const getFormSchema = (language: 'en' | 'de') =>
+export const getFormSchema = (language: Language) =>
   z.object({
     userId: z.string().min(1, translate('errors.requiredField', language)),
     email: z
