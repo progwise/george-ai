@@ -45,12 +45,12 @@ const RootDocument = () => {
   const { user, theme, language } = Route.useRouteContext()
 
   return (
-    <html data-theme={theme ?? 'light'} lang={language}>
+    <html data-theme={theme ?? 'light'} lang={language ?? 'en'}>
       <head>
         <HeadContent />
       </head>
       <body className="container mx-auto flex min-h-screen flex-col px-1">
-        <LanguageProvider>
+        <LanguageProvider initialLanguage={language ?? 'en'}>
           <AuthProvider>
             <>
               <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />

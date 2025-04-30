@@ -1,18 +1,14 @@
-import React, { createContext, use, useEffect, useMemo, useState } from 'react'
+import React, { createContext, use, useMemo, useState } from 'react'
 
 const LANGUAGE_COOKIE_NAME = 'preferred-language'
 
 const getLanguageFromCookie = (): 'en' | 'de' => {
-  if (typeof document === 'undefined') {
-    return 'en'
-  }
-  const match = document.cookie.match(new RegExp(`(^| )${LANGUAGE_COOKIE_NAME}=([^;]+)`))
-  return match ? (match[2] as 'en' | 'de') : 'en'
+  const cookies = Object.fromEntries(document.cookie.split('; ').map((cookie) => cookie.split('=') as [string, string]))
+  return (cookies[LANGUAGE_COOKIE_NAME] as 'en' | 'de') || 'en'
 }
 
-const setLanguageInCookie = (language: 'en' | 'de') => {
-  document.cookie = `${LANGUAGE_COOKIE_NAME}=${language}; path=/; max-age=31536000`
-}
+const setLanguageInCookie = (language: 'en' | 'de') =>
+  (document.cookie = `${LANGUAGE_COOKIE_NAME}=${language}; path=/; max-age=31536000`)
 
 interface LanguageContextProps {
   language: 'en' | 'de'
@@ -21,17 +17,18 @@ interface LanguageContextProps {
 
 const LanguageContext = createContext<LanguageContextProps | undefined>(undefined)
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<'en' | 'de'>(() => getLanguageFromCookie())
+interface LanguageProviderProps {
+  initialLanguage?: 'en' | 'de'
+  children: React.ReactNode
+}
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children, initialLanguage }) => {
+  const [language, setLanguage] = useState<'en' | 'de'>(() => initialLanguage ?? getLanguageFromCookie())
 
   const updateLanguage = (newLanguage: 'en' | 'de') => {
     setLanguage(newLanguage)
     setLanguageInCookie(newLanguage)
   }
-
-  useEffect(() => {
-    setLanguageInCookie(language)
-  }, [language])
 
   const contextValue = useMemo(() => ({ language, setLanguage: updateLanguage }), [language])
   return <LanguageContext value={contextValue}>{children}</LanguageContext>
