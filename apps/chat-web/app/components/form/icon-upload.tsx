@@ -24,7 +24,7 @@ export const IconUpload = ({ fileTypes, className, handleUploadIcon, disabled, i
     <div className={twMerge('flex items-center justify-between gap-4', className)}>
       <button
         type="button"
-        className="h-36 w-36 overflow-hidden rounded-full border bg-cover bg-center bg-no-repeat text-center"
+        className="size-36 overflow-hidden rounded-full border border-base-content bg-cover bg-center bg-no-repeat text-center"
         onClick={handleClick}
         disabled={disabled}
       >
@@ -34,7 +34,7 @@ export const IconUpload = ({ fileTypes, className, handleUploadIcon, disabled, i
           <img
             src={imageUrl}
             alt={t('labels.icon')}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             onError={(event) => {
               event.currentTarget.hidden = true
             }}
