@@ -25,9 +25,9 @@ const getTranslatedValue = (key: string, language: 'en' | 'de', values?: Record<
 const useTranslation = () => {
   const { language } = useLanguage()
 
-  const t = (key: string) => {
+  const t = (key: string, values?: Record<string, string | number>) => {
     try {
-      return getTranslatedValue(key, language)
+      return getTranslatedValue(key, language, values)
     } catch (e) {
       console.error(`Translation key not found: ${e}`, language)
       return key
