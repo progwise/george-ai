@@ -120,7 +120,6 @@ export const embedFile = async (
     path: string
   },
 ) => {
-  console.log('embedding file:', file.name)
   await ensureVectorStore(libraryId)
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
@@ -158,7 +157,6 @@ export const removeFileById = async (libraryId: string, fileId: string) => {
 }
 
 export const removeFileByName = async (libraryId: string, fileName: string) => {
-  console.log('removing file:', fileName)
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
@@ -169,10 +167,8 @@ export const similaritySearch = async (
   question: string,
   library: string,
 ): Promise<{ pageContent: string; docName: string }[]> => {
-  console.log(`searching ${library} for:`, question)
   const questionAsVector = await embeddings.embedQuery(question)
   const vectorQuery = `vec:([${questionAsVector.join(',')}])`
-  console.log('vector query:', vectorQuery)
   await ensureVectorStore(library)
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
     searches: [
@@ -199,9 +195,7 @@ export const similaritySearch = async (
 export const getPDFContentForQuestion = async (question: string) => {
   await ensureVectorStore('common')
   try {
-    console.log('searching for:', question)
     const documents = await typesenseVectorStore.similaritySearch(question)
-    console.log('retrieved documents:', documents)
     const content = documents.map((document_) => document_.pageContent).join('\n\n')
 
     return content
