@@ -1,9 +1,11 @@
-import { addCronJob, stopCronJob } from '../../cron-jobs'
+import { stopCronJob, upsertCronJob } from '../../cron-jobs'
 import { deleteFileAndRecord } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
 import { runCrawler } from './run-crawler'
+
+import './update-ai-library-crawler'
 
 console.log('Setting up: AiLibraryCrawler')
 
@@ -58,7 +60,7 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       })
 
       if (crawler.cronJob) {
-        await addCronJob(crawler.cronJob)
+        await upsertCronJob(crawler.cronJob)
       }
 
       return crawler
@@ -93,40 +95,6 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
       await prisma.aiLibraryCrawler.delete({ where: { id } })
       if (crawler.cronJob) {
         await stopCronJob(crawler.cronJob)
-      }
-
-      return crawler
-    },
-  }),
-)
-
-builder.mutationField('updateAiLibraryCrawler', (t) =>
-  t.prismaField({
-    type: 'AiLibraryCrawler',
-    args: {
-      id: t.arg.string(),
-      url: t.arg.string(),
-      maxDepth: t.arg.int(),
-      maxPages: t.arg.int(),
-      libraryId: t.arg.string(),
-      cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
-    },
-    resolve: async (_query, _source, { id, cronJob, ...data }) => {
-      const crawler = await prisma.aiLibraryCrawler.update({
-        where: { id },
-        data: {
-          ...data,
-          cronJob: cronJob
-            ? {
-                update: { ...cronJob },
-              }
-            : undefined,
-        },
-        include: { cronJob: true },
-      })
-
-      if (crawler.cronJob) {
-        await addCronJob(crawler.cronJob)
       }
 
       return crawler

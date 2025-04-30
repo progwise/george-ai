@@ -13,11 +13,16 @@ const restoreCronJobsFromDatabase = async () => {
   const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({ where: { active: true } })
 
   for (const cronJob of activeCronJobs) {
-    await addCronJob(cronJob)
+    await upsertCronJob(cronJob)
   }
 }
 
-export const addCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
+/**
+ * Adds a cron job to the cron job manager.
+ * If the cron job is already running, it will be stopped first.
+ * If the cron job is not active, it will not be added.
+ */
+export const upsertCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
   await stopCronJob(cronJob)
 
   if (!cronJob.active) {
