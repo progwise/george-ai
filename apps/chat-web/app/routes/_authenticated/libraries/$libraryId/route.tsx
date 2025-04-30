@@ -46,7 +46,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div role="tablist" className="tabs tabs-bordered w-fit">
+      <div role="tablist" className="tabs tabs-border w-fit">
         <Link
           to="/libraries/$libraryId/edit"
           params={{ libraryId }}

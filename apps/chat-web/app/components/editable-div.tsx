@@ -91,7 +91,7 @@ export const EditableDiv = ({
       {showPlaceholder && placeholder && (
         <div
           className={twMerge(
-            'pointer-events-none absolute left-2 top-2 text-base-content opacity-50',
+            'text-base-content pointer-events-none absolute left-2 top-2 opacity-50',
             placeholderClassName,
           )}
         >

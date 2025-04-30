@@ -229,7 +229,7 @@ export const GoogleDriveFiles = ({
     <>
       <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
       <div className="flex flex-col gap-2">
-        <div className="sticky top-0 z-20 flex justify-between gap-2 bg-base-100 p-1 shadow-md">
+        <div className="bg-base-100 sticky top-0 z-20 flex justify-between gap-2 p-1 shadow-md">
           {!googleDriveAccessToken?.access_token ? (
             <Link
               className="btn btn-xs"
