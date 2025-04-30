@@ -12,6 +12,7 @@ import BowlerHatIcon from '../icons/bowler-hat-icon'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { ConversationIcon } from '../icons/conversation-icon'
 import { EnglishFlagIcon } from '../icons/english-flag-icon'
+import { ExitIcon } from '../icons/exit-icon'
 import { GermanFlagIcon } from '../icons/german-flag-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
@@ -99,27 +100,29 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
         )}
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <label className="swap swap-rotate" aria-label="Toggle theme">
-              <input
-                type="checkbox"
-                className="theme-controller"
-                value="dark"
-                checked={theme === 'dark'}
-                onChange={handleThemeToggle}
-              />
-              <SunIcon className="swap-off size-6 fill-current" />
-              <MoonIcon className="swap-on size-6 fill-current" />
-            </label>
-            <button
-              type="button"
-              onClick={handleLanguageToggle}
-              className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
-              aria-label="Toggle Language"
-            >
-              {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+          <label className="swap swap-rotate" aria-label="Toggle theme">
+            <input
+              type="checkbox"
+              className="theme-controller"
+              value="dark"
+              checked={theme === 'dark'}
+              onChange={handleThemeToggle}
+            />
+            <SunIcon className="swap-off size-6 fill-current" />
+            <MoonIcon className="swap-on size-6 fill-current" />
+          </label>
+          <button
+            type="button"
+            onClick={handleLanguageToggle}
+            className="btn btn-circle btn-ghost btn-sm flex items-center"
+          >
+            {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+          </button>
+          {user && (
+            <button type="button" className="btn btn-ghost" onClick={logout}>
+              <ExitIcon className="size-6" />
             </button>
-          </div>
+          )}
         </div>
       </div>
 
@@ -168,7 +171,6 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 type="button"
                 onClick={handleLanguageToggle}
                 className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
-                aria-label="Toggle Language"
               >
                 {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
               </button>
@@ -202,7 +204,6 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                 type="button"
                 onClick={handleLanguageToggle}
                 className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
-                aria-label="Toggle Language"
               >
                 {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
               </button>
