@@ -184,12 +184,12 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               )}
             </>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               <a
                 href="https://calendly.com/michael-vogt-progwise/30min"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-accent btn-sm ml-8"
+                className="btn btn-accent btn-sm"
               >
                 {t('topNavigation.demo')}
               </a>
@@ -207,17 +207,17 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               <button
                 type="button"
                 onClick={handleLanguageToggle}
-                className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
+                className="btn btn-circle btn-ghost btn-sm flex items-center"
               >
                 {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
               </button>
               {isReady && (
-                <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+                <button type="button" className="btn btn-ghost" onClick={() => login()}>
                   <UserIcon className="size-6" />
                   {t('actions.signIn')}
                 </button>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
