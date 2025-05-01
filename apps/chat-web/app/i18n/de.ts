@@ -5,7 +5,6 @@ export default {
     addNotes: 'Notizen hinzufügen',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
-    clearEmbeddings: 'Einbettungen löschen',
     confirm: 'Bestätigen',
     create: 'Erstellen',
     createProfile: 'Benutzerprofil erstellen',
@@ -194,9 +193,11 @@ export default {
     wednesday: 'Mittwoch',
   },
   libraries: {
+    addMultipleFiles: 'Füge {count} Dateien hinzu',
     addNew: 'Neue Bibliothek erstellen',
     addNewButton: 'Bibliothek erstellen',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
+    addSingleFile: 'Füge 1 Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
@@ -211,6 +212,8 @@ export default {
       description: 'Beschreiben Sie Ihre Bibliothek',
       name: 'Name Ihrer Bibliothek',
     },
+    selectedMultipleFiles: '{count} Dateien ausgewählt',
+    selectedSingleFile: '1 Datei ausgewählt',
   },
   placeholders: {
     condition: 'Wenn',
