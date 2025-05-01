@@ -31,6 +31,7 @@ model User {
   name                       String?
   given_name                 String?
   family_name                String?
+  isAdmin                    Boolean                     @default(false)
   assistants                 AiAssistant[]
   libraries                  AiLibrary[]
   conversationParticipations AiConversationParticipant[]
@@ -54,6 +55,7 @@ model UserProfile {
   user             User      @relation(fields: [userId], references: [id])
   userId           String    @unique
   confirmationDate DateTime?
+  activationDate   DateTime?
 }
 
 model AiAssistant {
@@ -70,6 +72,8 @@ model AiAssistant {
   conversationParticipations AiConversationParticipant[]
   languageModel              String?                     @default("OpenAI")
   baseCases                  AiAssistantBaseCase[]
+
+  AiAssistantEUActAnswers AiAssistantEUActAnswers[]
 }
 
 model AiAssistantBaseCase {
@@ -81,6 +85,17 @@ model AiAssistantBaseCase {
   assistantId String
   condition   String?
   instruction String?
+}
+
+model AiAssistantEUActAnswers {
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  assistant   AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  assistantId String
+  questionId  String
+  answer      String?
+  notes       String?
+  @@id([assistantId, questionId])
 }
 
 model AiLibrary {
@@ -148,9 +163,10 @@ model AiLibraryCrawler {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  library AiLibrary             @relation(fields: [libraryId], references: [id])
+  library AiLibrary                @relation(fields: [libraryId], references: [id])
   runs    AiLibraryCrawlerRun[]
   files   AiLibraryFile[]
+  cronJob AiLibraryCrawlerCronJob?
 }
 
 model AiLibraryCrawlerRun {
@@ -160,10 +176,31 @@ model AiLibraryCrawlerRun {
   endedAt      DateTime?
   success      Boolean?
   pagesCrawled Int?
-  runByUserId  String
+  runByUserId  String?
+  runByCronJob Boolean   @default(false)
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id])
-  runBy   User             @relation(fields: [runByUserId], references: [id])
+  runBy   User?            @relation(fields: [runByUserId], references: [id])
+}
+
+model AiLibraryCrawlerCronJob {
+  id        String  @id @default(cuid())
+  active    Boolean @default(true)
+  hour      Int     @default(0)
+  minute    Int     @default(0)
+  monday    Boolean @default(true)
+  tuesday   Boolean @default(true)
+  wednesday Boolean @default(true)
+  thursday  Boolean @default(true)
+  friday    Boolean @default(true)
+  saturday  Boolean @default(true)
+  sunday    Boolean @default(true)
+  crawlerId String  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
 }
 
 model AiConversation {

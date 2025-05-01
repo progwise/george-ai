@@ -1,12 +1,13 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
-import { useAuth } from '../../auth/auth-hook'
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
+import { UserProfile } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
@@ -17,10 +18,13 @@ import { backendRequest } from '../../server-functions/backend'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
+  profile?: Pick<UserProfile, 'freeStorage' | 'usedStorage'>
+  userId: string
 }
 
 interface AiLibraryFile {
@@ -32,19 +36,6 @@ interface AiLibraryFile {
   processingErrorMessage?: string | null
   dropError?: string | null
 }
-
-const clearEmbeddings = createServerFn({ method: 'GET' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        mutation clearEmbeddings($libraryId: String!) {
-          clearEmbeddedFiles(libraryId: $libraryId)
-        }
-      `),
-      { libraryId: ctx.data },
-    )
-  })
 
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
@@ -111,36 +102,47 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
     )
   })
 
-export const aiLibraryFilesQueryOptions = (libraryId: string) => ({
-  queryKey: [queryKeys.AiLibraryFiles, libraryId],
-  queryFn: async () => {
-    if (!libraryId) {
-      return { aiLibraryFiles: [] }
-    } else {
+export const aiLibraryFilesQueryOptions = (libraryId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.AiLibraryFiles, libraryId],
+    queryFn: async () => {
       const result = await getLibraryFiles({ data: { libraryId } })
       return { aiLibraryFiles: result?.aiLibraryFiles || [] }
-    }
-  },
-  enabled: !!libraryId,
-})
+    },
+  })
 
-export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
-  const { userProfile, user } = useAuth()
-  const remainingStorage = (userProfile?.freeStorage || 0) - (userProfile?.usedStorage || 0)
+const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
+  name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
+
+export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {
+  const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
   const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
     aiLibraryFilesQueryOptions(libraryId),
   )
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
-  const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+  const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
+    const updateAccessToken = () => {
+      const updateToken = () => {
+        setGoogleDriveAccessToken(googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null)
+      }
+      updateToken()
+    }
+    updateAccessToken()
+  }, [])
+
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.has('googleDriveAuth') && googleDriveAccessToken) {
-      dialogRef.current?.showModal()
+    if (googleDriveAccessToken) {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.has('googleDriveAuth')) {
+        dialogRef.current?.showModal()
+      }
     }
   }, [googleDriveAccessToken])
 
@@ -153,27 +155,10 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
   }
 
   const invalidateQueries = () => {
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraryFiles, libraryId],
-    })
-
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.AiLibraries],
-    })
-
-    queryClient.invalidateQueries({
-      queryKey: [queryKeys.CurrentUserProfile, user?.id],
-    })
+    queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
+    queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
+    queryClient.invalidateQueries(getProfileQueryOptions(userId))
   }
-
-  const clearEmbeddingsMutation = useMutation({
-    mutationFn: async (libraryId: string) => {
-      await clearEmbeddings({ data: libraryId })
-    },
-    onSettled: () => {
-      invalidateQueries()
-    },
-  })
 
   const dropAllFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
@@ -210,20 +195,10 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
     }
   }
 
-  const isPending =
-    isLoading ||
-    clearEmbeddingsMutation.isPending ||
-    dropAllFilesMutation.isPending ||
-    reProcessAllFilesMutation.isPending
+  const isPending = isLoading || dropAllFilesMutation.isPending || reProcessAllFilesMutation.isPending
 
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     reProcessAllFilesMutation.mutate(uploadedFileIds)
-  }
-
-  const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
-    return fileName.length > maxLength
-      ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
-      : fileName
   }
 
   return (
@@ -231,26 +206,22 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
       <LoadingSpinner isLoading={isPending} />
       <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="btn btn-xs tooltip tooltip-left"
-            data-tip={t('tooltips.clearEmbeddings')}
-            onClick={() => clearEmbeddingsMutation.mutate(libraryId)}
-            disabled={clearEmbeddingsMutation.isPending}
-          >
-            {t('actions.clearEmbeddings')}
-          </button>
           <DesktopFileUpload
             libraryId={libraryId}
             onUploadComplete={handleUploadComplete}
             disabled={remainingStorage < 1}
           />
-          <button type="button" className="btn btn-xs" onClick={handleGoogleDriveClick} disabled={remainingStorage < 1}>
+          <button
+            type="button"
+            className="btn btn-primary btn-xs"
+            onClick={handleGoogleDriveClick}
+            disabled={remainingStorage < 1}
+          >
             {t('libraries.googleDrive')}
           </button>
           <button
             type="button"
-            className="btn btn-xs"
+            className="btn btn-primary btn-xs"
             onClick={() => dropAllFilesMutation.mutate(selectedFiles)}
             disabled={selectedFiles.length === 0}
           >
@@ -258,7 +229,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
           </button>
           <button
             type="button"
-            className="btn btn-xs"
+            className="btn btn-primary btn-xs"
             onClick={() => reProcessAllFilesMutation.mutate(selectedFiles)}
             disabled={selectedFiles.length === 0}
           >
@@ -268,13 +239,13 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
         <div className="text-right text-sm">
           <div className="font-semibold">{t('labels.remainingStorage')}</div>
           <div>
-            {remainingStorage} / {userProfile?.freeStorage}
+            {remainingStorage} / {profile?.freeStorage}
           </div>
         </div>
       </nav>
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
-          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
+          <div className="modal-box relative flex w-full min-w-[400px] max-w-screen-lg flex-col">
             <button
               type="button"
               className="btn btn-ghost btn-sm absolute right-2 top-2"
@@ -289,6 +260,7 @@ export const EmbeddingsTable = ({ libraryId }: EmbeddingsTableProps) => {
                 currentLocationHref={window.location.href}
                 noFreeUploads={remainingStorage < 100}
                 dialogRef={dialogRef}
+                userId={userId}
               />
             </div>
           </div>

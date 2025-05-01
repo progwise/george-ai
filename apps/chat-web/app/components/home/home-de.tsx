@@ -1,5 +1,6 @@
 import GeorgeBenefitsDe from './george-benefits-de'
 import { ImpressDe } from './impress-de'
+import { VersionIndicator } from './version-indicator'
 
 export const HomeDe = () => {
   return (
@@ -157,6 +158,7 @@ export const HomeDe = () => {
           Top
         </a>
         <ImpressDe />
+        <VersionIndicator />
       </div>
     </div>
   )

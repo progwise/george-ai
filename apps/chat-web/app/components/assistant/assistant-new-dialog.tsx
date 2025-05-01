@@ -4,7 +4,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
@@ -38,9 +37,12 @@ const createNewAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-export const AssistantNewDialog = () => {
+interface AssistantNewDialogProps {
+  userId: string
+}
+
+export const AssistantNewDialog = ({ userId }: AssistantNewDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const auth = useAuth()
   const { t } = useTranslation()
   const navigate = useNavigate()
 
@@ -75,7 +77,7 @@ export const AssistantNewDialog = () => {
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >
-        <input type="hidden" name="ownerId" value={auth.user?.id} />
+        <input type="hidden" name="ownerId" value={userId} />
         <Input
           name="name"
           type="text"

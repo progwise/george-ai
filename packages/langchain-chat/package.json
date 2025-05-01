@@ -2,6 +2,7 @@
   "name": "@george-ai/langchain-chat",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "type": "module",
   "packageManager": "pnpm@9.15.4",
   "author": "progwise.net",
   "private": true,
@@ -10,7 +11,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@george-ai/pocketbase-client": "workspace:*",
+    "@aws-sdk/client-s3": "^3.800.0",
     "@langchain/community": "^0.3.16",
     "@langchain/core": "^0.3.42",
     "@langchain/google-genai": "^0.1.11",
@@ -21,7 +22,8 @@
     "mammoth": "^1.9.0",
     "openai": "^4.90.0",
     "pdfjs-dist": "^5.1.91",
-    "typesense": "^1.8.2",
+    "read-excel-file": "^5.8.7",
+    "typesense": "^2.0.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {

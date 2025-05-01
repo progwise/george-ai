@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -22,6 +21,7 @@ const AssistantForm_AssistantFragment = graphql(`
     description
     ownerId
     languageModel
+    updatedAt
   }
 `)
 
@@ -62,13 +62,13 @@ const updateAssistant = createServerFn({ method: 'POST' })
   })
 
 export interface AssistantEditFormProps {
-  assistant?: FragmentType<typeof AssistantForm_AssistantFragment>
+  assistant: FragmentType<typeof AssistantForm_AssistantFragment>
   disabled: boolean
+  userId: string
 }
 
 export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement => {
-  const { user } = useAuth()
-  const ownerId = user?.id
+  const ownerId = props.userId
   const formRef = React.useRef<HTMLFormElement>(null)
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
@@ -81,15 +81,12 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
     mutationFn: (data: FormData) => updateAssistant({ data }),
     onSettled: () =>
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistantForEdit, assistant?.id, ownerId],
+        queryKey: [queryKeys.AiAssistantForEdit, assistant.id, ownerId],
       }),
   })
 
   const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
     mutationFn: async (file: File) => {
-      if (!assistant?.id || !ownerId) {
-        throw new Error('Assistant or ownerId is missing')
-      }
       const fileExtension = file.name.split('.').pop() || 'png'
       const uploadUrl = (await getBackendPublicUrl()) + `/assistant-icon?assistantId=${assistant.id}`
       await fetch(uploadUrl, {
@@ -103,7 +100,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
     },
     onSettled: () =>
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistantForEdit, assistant?.id, ownerId],
+        queryKey: [queryKeys.AiAssistantForEdit, assistant.id, ownerId],
       }),
   })
 
@@ -134,19 +131,20 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
   return (
     <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
       <input type="hidden" name="ownerId" value={ownerId} />
-      <input type="hidden" name="id" value={assistant?.id} />
+      <input type="hidden" name="id" value={assistant.id} />
 
       <IconUpload
+        key={`assistant-icon-${assistant.id}-${assistant.updatedAt}`}
         className="col-span-2 justify-self-center"
         fileTypes="image/*"
         handleUploadIcon={handleUploadIcon}
-        imageUrl={assistant?.iconUrl}
+        imageUrl={assistant.iconUrl}
       />
       <Input
         name="name"
         type="text"
         label={t('labels.name')}
-        value={assistant?.name}
+        value={assistant.name}
         className="col-span-2"
         required
         {...fieldProps}
@@ -156,7 +154,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         name="description"
         type="textarea"
         label={t('labels.description')}
-        value={assistant?.description}
+        value={assistant.description}
         placeholder={t('assistants.placeholders.description')}
         className="col-span-2 min-h-40"
         required
@@ -167,7 +165,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         name="languageModel"
         label={t('labels.languageModel')}
         options={availableLanguageModels}
-        value={availableLanguageModels.find((model) => model.id === assistant?.languageModel)}
+        value={availableLanguageModels.find((model) => model.id === assistant.languageModel)}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
         {...fieldProps}

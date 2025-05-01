@@ -4,7 +4,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -49,10 +48,10 @@ const AssistantDelete_AssistantFragment = graphql(`
 
 export interface AssistantDeleteDialogProps {
   assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
+  userId: string
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
-  const auth = useAuth()
   const queryClient = useQueryClient()
   const assistant = useFragment(AssistantDelete_AssistantFragment, props.assistant)
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -67,7 +66,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
         throw new Error('Failed to delete assistant')
       }
       navigate({ to: `/assistants` })
-      queryClient.invalidateQueries({ queryKey: [queryKeys.MyAiAssistants, auth?.user?.id] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.MyAiAssistants, props.userId] })
       dialogRef.current?.close()
     },
   })
@@ -94,7 +93,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
       <DialogForm
         ref={dialogRef}
         title={t('assistants.delete')}
-        description={t('assistants.deleteDescription').replace('{assistant.name}', assistant.name)} // TODO: add assistant name as soon as templates are available for translations
+        description={t('assistants.deleteDescription').replace('{assistant.name}', assistant.name)}
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >

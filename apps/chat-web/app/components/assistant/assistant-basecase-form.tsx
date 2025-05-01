@@ -4,7 +4,6 @@ import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth-hook'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -68,10 +67,10 @@ const AssistantBasecaseForm_AssistantFragment = graphql(`
 
 export interface AssistantBaseCaseFormProps {
   assistant: FragmentType<typeof AssistantBasecaseForm_AssistantFragment>
+  userId: string
 }
 
 export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
-  const auth = useAuth()
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -83,7 +82,7 @@ export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
       return await upsertAiBaseCases({ data })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, assistant.id, auth.user?.id] })
+      await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, assistant.id, props.userId] })
     },
   })
 

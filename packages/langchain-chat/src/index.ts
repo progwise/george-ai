@@ -1,6 +1,5 @@
 import * as mainChain from './main-chain'
 import { RetrievalFlow } from './retrieval-flow'
-import * as vectorStore from './typesense-vectorstore'
 
 export * from './retrieval-flow'
 
@@ -16,9 +15,5 @@ export const ask = (parameters: { question: string; sessionId: string; retrieval
       },
     },
   )
-
-export const processUnprocessedDocuments = async () => {
-  await vectorStore.loadUprocessedDocumentsIntoVectorStore()
-}
 
 export * from './typesense-vectorstore'

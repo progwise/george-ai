@@ -1,11 +1,9 @@
-import { promises as fs } from 'fs'
-
-import { crawl } from '@george-ai/crawl4ai-client'
-
-import { completeFileUpload, getFilePath } from '../../file-upload'
+import { addCronJob, stopCronJob } from '../../cron-jobs'
+import { deleteFileAndRecord } from '../../file-upload'
 import { prisma } from '../../prisma'
-import { processFile } from '../ai-library-file/process-file'
+import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
+import { runCrawler } from './run-crawler'
 
 console.log('Setting up: AiLibraryCrawler')
 
@@ -35,6 +33,8 @@ builder.prismaObject('AiLibraryCrawler', {
         return Boolean(ongoingRun)
       },
     }),
+    cronJob: t.relation('cronJob'),
+    filesCount: t.relationCount('files', { nullable: false }),
   }),
 })
 
@@ -46,12 +46,22 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
       maxDepth: t.arg.int(),
       maxPages: t.arg.int(),
       libraryId: t.arg.string(),
+      cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
     },
-    resolve: (query, _source, args) => {
-      return prisma.aiLibraryCrawler.create({
-        ...query,
-        data: args,
+    resolve: async (_query, _source, { cronJob, ...data }) => {
+      const crawler = await prisma.aiLibraryCrawler.create({
+        include: { cronJob: true },
+        data: {
+          ...data,
+          cronJob: cronJob ? { create: cronJob } : undefined,
+        },
       })
+
+      if (crawler.cronJob) {
+        await addCronJob(crawler.cronJob)
+      }
+
+      return crawler
     },
   }),
 )
@@ -63,101 +73,29 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
       crawlerId: t.arg.string(),
       userId: t.arg.string(),
     },
-    resolve: async (query, _source, { crawlerId, userId }) => {
-      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+    resolve: async (_query, _source, { crawlerId, userId }) => runCrawler({ crawlerId, userId }),
+  }),
+)
 
-      const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId, endedAt: null } })
-
-      if (ongoingRun) {
-        throw new Error('Crawler is already running')
-      }
-
-      const newRun = await prisma.aiLibraryCrawlerRun.create({
-        data: {
-          crawlerId,
-          startedAt: new Date(),
-          runByUserId: userId,
-        },
+builder.mutationField('deleteAiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { id }) => {
+      const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
+        where: { id },
+        include: { cronJob: true, files: true },
       })
 
-      try {
-        const crawledPages = await crawl({
-          url: crawler.url,
-          maxDepth: crawler.maxDepth,
-          maxPages: crawler.maxPages,
-        })
-
-        const endedAt = new Date()
-        await prisma.aiLibraryCrawlerRun.update({
-          where: { id: newRun.id },
-          data: {
-            endedAt,
-            success: true,
-            crawler: {
-              update: { lastRun: endedAt },
-            },
-            pagesCrawled: crawledPages.length,
-          },
-        })
-
-        const resultsFromUploadAndProcessing = await Promise.allSettled(
-          crawledPages.map(async (page) => {
-            const fileUpdateData = {
-              name: `${page.url} - ${page.title}`,
-              mimeType: 'text/markdown',
-              libraryId: crawler.libraryId,
-            }
-
-            const file = await prisma.aiLibraryFile.upsert({
-              where: {
-                crawledByCrawlerId_originUri: {
-                  crawledByCrawlerId: crawler.id,
-                  originUri: page.url,
-                },
-              },
-              create: {
-                ...fileUpdateData,
-                originUri: page.url,
-                crawledByCrawlerId: crawler.id,
-              },
-              update: fileUpdateData,
-            })
-
-            await fs.writeFile(getFilePath(file.id), page.content)
-            await completeFileUpload(file.id)
-            await processFile(file.id)
-          }),
-        )
-
-        const hasUploadingOrProcessingErrors = resultsFromUploadAndProcessing.some(
-          (result) => result.status === 'rejected',
-        )
-        if (hasUploadingOrProcessingErrors) {
-          throw new Error('Some files failed to upload or to process')
-        }
-
-        return prisma.aiLibraryCrawler.findUniqueOrThrow({ ...query, where: { id: crawlerId } })
-      } catch (error) {
-        console.error(
-          'Error during crawling. crawler id: ',
-          crawler.id,
-          ', crawler run id:',
-          newRun.id,
-          ', user id:',
-          userId,
-          ', error:',
-          error,
-        )
-        await prisma.aiLibraryCrawlerRun.update({
-          where: { id: newRun.id },
-          data: {
-            endedAt: new Date(),
-            success: false,
-          },
-        })
-
-        throw error
+      await Promise.all(crawler.files.map((file) => deleteFileAndRecord(file.id, file.libraryId)))
+      await prisma.aiLibraryCrawler.delete({ where: { id } })
+      if (crawler.cronJob) {
+        await stopCronJob(crawler.cronJob)
       }
+
+      return crawler
     },
   }),
 )

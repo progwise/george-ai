@@ -287,7 +287,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       <nav className="flex flex-col gap-4">
         <button
           type="button"
-          className="btn btn-xs"
+          className="btn btn-primary btn-xs"
           onClick={() => {
             resetFileInput()
             fileInputRef.current?.click()
@@ -307,7 +307,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       </nav>
       <dialog ref={dialogRef} className="modal">
         <div className="modal-box">
-          <h3 className="mb-2 text-lg font-bold">{t('uploadingFiles')}</h3>
+          <h3 className="mb-2 text-lg font-bold">{t('texts.uploadingFiles')}</h3>
           <FileUploadProgressList
             selectedFiles={selectedFiles}
             uploadProgress={uploadProgress}

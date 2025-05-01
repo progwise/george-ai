@@ -1,17 +1,12 @@
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
-import { ImportError } from 'typesense/lib/Typesense/Errors'
-
-import { getUnprocessedDocuments, setDocumentProcessed } from '@george-ai/pocketbase-client'
+import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { loadFile } from './langchain-file'
-
-const CHUNK_SIZE = 1000 // Increased for better context
-const CHUNK_OVERLAP = 100
+import { calculateChunkParams } from './vectorstore-settings'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -77,7 +72,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   searchParams: {
     q: '*',
     filter_by: '',
-    query_by: '',
+    query_by: 'text,docName',
   },
   import: async (data, collectionName) => {
     await vectorTypesenseClient
@@ -125,19 +120,20 @@ export const embedFile = async (
     path: string
   },
 ) => {
-  console.log('embedding file:', file.name)
   await ensureVectorStore(libraryId)
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
+  const fileParts = await loadFile(file)
+
+  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
+
   const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: CHUNK_SIZE,
-    chunkOverlap: CHUNK_OVERLAP,
+    chunkSize,
+    chunkOverlap,
   })
 
   await removeFileByName(libraryId, file.name)
-
-  const fileParts = await loadFile(file)
 
   const splitDocument = await splitter.splitDocuments(fileParts)
 
@@ -153,31 +149,6 @@ export const embedFile = async (
   }
 }
 
-/**
- * @deprecated The method should not be used
- */
-const loadDocument = async (document: { fileName: string; url: string; blob: Blob; documentId: string }) => {
-  console.log('loading document:', document.fileName)
-  const loader = new PDFLoader(document.blob)
-  const rawDocuments = await loader.load()
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: CHUNK_SIZE,
-    chunkOverlap: CHUNK_OVERLAP,
-  })
-  const splitDocuments = await splitter.splitDocuments(
-    rawDocuments.map((d) => ({
-      ...d,
-      metadata: {
-        docType: 'pdf',
-        docName: document.fileName,
-        points: 1,
-        docId: document.documentId,
-      },
-    })),
-  )
-  return splitDocuments
-}
-
 export const removeFileById = async (libraryId: string, fileId: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
@@ -186,97 +157,45 @@ export const removeFileById = async (libraryId: string, fileId: string) => {
 }
 
 export const removeFileByName = async (libraryId: string, fileName: string) => {
-  console.log('removing file:', fileName)
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docName:=\`${fileName}\`` })
 }
 
-const removeFilesByDocumentIds = async (documentIds: string[]) => {
-  const promises = documentIds.map((documentId) => {
-    console.log('removing file:', documentId)
-    return vectorTypesenseClient
-      .collections('gai-documents')
-      .documents()
-      .delete({ filter_by: `docId:=${documentId}` })
+export const similaritySearch = async (
+  question: string,
+  library: string,
+): Promise<{ pageContent: string; docName: string }[]> => {
+  const questionAsVector = await embeddings.embedQuery(question)
+  const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  await ensureVectorStore(library)
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
+    searches: [
+      {
+        collection: getTypesenseSchemaName(library),
+        q: question,
+        query_by: 'text,docName',
+        vector_query: vectorQuery,
+        per_page: 10,
+      },
+    ],
   })
-  await Promise.all(promises)
-}
 
-const loadDocuments = async (
-  documents: {
-    collectionId: string
-    documentId: string
-    fileName: string
-    url: string
-    blob: Blob
-  }[],
-) => {
-  const splitDocuments = await Promise.all(
-    documents.map(async (document) => {
-      const loadedDocument = await loadDocument({
-        fileName: document.fileName,
-        url: document.url,
-        blob: document.blob,
-        documentId: document.documentId,
-      })
-      return loadedDocument
-    }),
-  )
-  splitDocuments.map(async (splitDocument) => {
-    const documentIds = [...new Set(splitDocument.map((document) => document.metadata.docId))]
-    console.log('removing files:', documentIds)
-    await removeFilesByDocumentIds(documentIds)
-    console.log('loading documents:', JSON.stringify(splitDocument, undefined, 2))
-    try {
-      await Typesense.fromDocuments(splitDocument, embeddings, getTypesenseVectorStoreConfig('common'))
-
-      const documentIds = [...new Set(splitDocument.map((document) => document.metadata.docId))]
-
-      console.log('setting documents as processed:', documentIds)
-
-      await Promise.all(documentIds.map((documentId) => setDocumentProcessed({ documentId })))
-    } catch (error) {
-      if (error instanceof ImportError) {
-        console.error('Error loading documents:', JSON.stringify(error.importResults, undefined, 2))
-      } else {
-        console.error('Error loading documents:', error)
-      }
-    }
-  })
-}
-
-let processing = 0
-
-export const loadUprocessedDocumentsIntoVectorStore = async () => {
-  console.log('processing:', processing++)
-  await ensureVectorStore('common')
-  const documents = await getUnprocessedDocuments()
-  console.log(
-    'unprocessed documents:',
-    documents.map((d) => d.fileName),
-  )
-  await loadDocuments(documents)
-}
-
-export const similaritySearch = async (question: string, libraryId: string) => {
-  await ensureVectorStore(libraryId)
-  const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig(libraryId))
-  const documents = await typesenseVectorStore.similaritySearch(question)
-  return documents.map((document) => ({
-    pageContent: document.pageContent,
-    docName: document.metadata.docName.toString() as string,
-  }))
+  const docs = searchResponse.results
+    .flatMap((result) => result.hits)
+    .map((hit) => ({
+      pageContent: hit?.document.text,
+      docName: hit?.document.docName,
+    }))
+  return docs
 }
 
 // retrieves content from the vector store similar to the question
 export const getPDFContentForQuestion = async (question: string) => {
   await ensureVectorStore('common')
   try {
-    console.log('searching for:', question)
     const documents = await typesenseVectorStore.similaritySearch(question)
-    console.log('retrieved documents:', documents)
     const content = documents.map((document_) => document_.pageContent).join('\n\n')
 
     return content

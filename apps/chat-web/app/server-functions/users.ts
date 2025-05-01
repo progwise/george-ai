@@ -85,6 +85,7 @@ export const getUserProfile = createServerFn({ method: 'GET' })
         query getUserProfile($userId: String!) {
           userProfile(userId: $userId) {
             id
+            userId
             email
             firstName
             lastName
@@ -94,11 +95,97 @@ export const getUserProfile = createServerFn({ method: 'GET' })
             usedMessages
             freeStorage
             usedStorage
+            createdAt
+            updatedAt
+            confirmationDate
+            activationDate
+            expiresAt
           }
         }
       `),
       {
         userId: ctx.data,
+      },
+    ),
+  )
+
+export const sendAdminNotificationMail = createServerFn({ method: 'POST' })
+  .validator((data: { userId: string }) => {
+    return z
+      .object({
+        userId: z.string().nonempty(),
+      })
+      .parse(data)
+  })
+  .handler(async (ctx) => {
+    const userProfile = await getUserProfile({ data: { userId: ctx.data.userId } })
+
+    if (!userProfile?.userProfile) {
+      throw new Error('User profile not found')
+    }
+
+    await activateUserProfile({
+      data: {
+        profileId: userProfile.userProfile.id,
+      },
+    })
+
+    return { success: true }
+  })
+
+export const updateUserProfile = createServerFn({ method: 'POST' })
+  .validator((data: { userId: string; userProfileInput: { freeMessages?: number; freeStorage?: number } }) => {
+    return z
+      .object({
+        userId: z.string().nonempty(),
+        userProfileInput: z.object({
+          freeMessages: z.number().optional(),
+          freeStorage: z.number().optional(),
+        }),
+      })
+      .parse(data)
+  })
+  .handler(async (ctx) => {
+    const userProfileInput = {
+      ...ctx.data.userProfileInput,
+      freeMessages: ctx.data.userProfileInput.freeMessages ?? 0,
+      freeStorage: ctx.data.userProfileInput.freeStorage ?? 0,
+    }
+
+    return backendRequest(
+      graphql(`
+        mutation updateUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
+          updateUserProfile(userId: $userId, input: $userProfileInput) {
+            id
+          }
+        }
+      `),
+      {
+        userId: ctx.data.userId,
+        userProfileInput,
+      },
+    )
+  })
+
+export const activateUserProfile = createServerFn({ method: 'POST' })
+  .validator((data: { profileId: string }) => {
+    return z
+      .object({
+        profileId: z.string().nonempty(),
+      })
+      .parse(data)
+  })
+  .handler((ctx) =>
+    backendRequest(
+      graphql(`
+        mutation activateUserProfile($profileId: String!) {
+          activateUserProfile(profileId: $profileId) {
+            id
+          }
+        }
+      `),
+      {
+        profileId: ctx.data.profileId,
       },
     ),
   )

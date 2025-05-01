@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+  '/': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Root */
+    get: operations['root__get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/metrics': {
     parameters: {
       query?: never
@@ -38,17 +55,160 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/md/{url}': {
+  '/config/dump': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    /** Get Markdown */
-    get: operations['get_markdown_md__url__get']
+    get?: never
     put?: never
-    post?: never
+    /** Config Dump */
+    post: operations['config_dump_config_dump_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/md': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Get Markdown */
+    post: operations['get_markdown_md_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/html': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Generate Html
+     * @description Crawls the URL, preprocesses the raw HTML for schema extraction, and returns the processed HTML.
+     *     Use when you need sanitized HTML structures for building schemas or further processing.
+     */
+    post: operations['generate_html_html_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/screenshot': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Generate Screenshot
+     * @description Capture a full-page PNG screenshot of the specified URL, waiting an optional delay before capture,
+     *     Use when you need an image snapshot of the rendered page. Its recommened to provide an output path to save the screenshot.
+     *     Then in result instead of the screenshot you will get a path to the saved file.
+     */
+    post: operations['generate_screenshot_screenshot_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/pdf': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Generate Pdf
+     * @description Generate a PDF document of the specified URL,
+     *     Use when you need a printable or archivable snapshot of the page. It is recommended to provide an output path to save the PDF.
+     *     Then in result instead of the PDF you will get a path to the saved file.
+     */
+    post: operations['generate_pdf_pdf_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/execute_js': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Execute Js
+     * @description Execute a sequence of JavaScript snippets on the specified URL.
+     *     Return the full CrawlResult JSON (first result).
+     *     Use this when you need to interact with dynamic pages using JS.
+     *     REMEMBER: Scripts accept a list of separated JS snippets to execute and execute them in order.
+     *     IMPORTANT: Each script should be an expression that returns a value. It can be an IIFE or an async function. You can think of it as such.
+     *         Your script will replace '{script}' and execute in the browser context. So provide either an IIFE or a sync/async function that returns a value.
+     *     Return Format:
+     *         - The return result is an instance of CrawlResult, so you have access to markdown, links, and other stuff. If this is enough, you don't need to call again for other endpoints.
+     *
+     *         ```python
+     *         class CrawlResult(BaseModel):
+     *             url: str
+     *             html: str
+     *             success: bool
+     *             cleaned_html: Optional[str] = None
+     *             media: Dict[str, List[Dict]] = {}
+     *             links: Dict[str, List[Dict]] = {}
+     *             downloaded_files: Optional[List[str]] = None
+     *             js_execution_result: Optional[Dict[str, Any]] = None
+     *             screenshot: Optional[str] = None
+     *             pdf: Optional[bytes] = None
+     *             mhtml: Optional[str] = None
+     *             _markdown: Optional[MarkdownGenerationResult] = PrivateAttr(default=None)
+     *             extracted_content: Optional[str] = None
+     *             metadata: Optional[dict] = None
+     *             error_message: Optional[str] = None
+     *             session_id: Optional[str] = None
+     *             response_headers: Optional[dict] = None
+     *             status_code: Optional[int] = None
+     *             ssl_certificate: Optional[SSLCertificate] = None
+     *             dispatch_result: Optional[DispatchResult] = None
+     *             redirected_url: Optional[str] = None
+     *             network_requests: Optional[List[Dict[str, Any]]] = None
+     *             console_messages: Optional[List[Dict[str, Any]]] = None
+     *
+     *         class MarkdownGenerationResult(BaseModel):
+     *             raw_markdown: str
+     *             markdown_with_citations: str
+     *             references_markdown: str
+     *             fit_markdown: Optional[str] = None
+     *             fit_html: Optional[str] = None
+     *         ```
+     */
+    post: operations['execute_js_execute_js_post']
     delete?: never
     options?: never
     head?: never
@@ -62,10 +222,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    /**
-     * Llm Endpoint
-     * @description URL should be without http/https prefix
-     */
+    /** Llm Endpoint */
     get: operations['llm_endpoint_llm__url__get']
     put?: never
     post?: never
@@ -118,7 +275,10 @@ export interface paths {
     }
     get?: never
     put?: never
-    /** Crawl */
+    /**
+     * Crawl
+     * @description Crawl a list of URLs and return the results as JSON.
+     */
     post: operations['crawl_crawl_post']
     delete?: never
     options?: never
@@ -137,6 +297,74 @@ export interface paths {
     put?: never
     /** Crawl Stream */
     post: operations['crawl_stream_crawl_stream_post']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/ask': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get Context
+     * @description This end point is design for any questions about Crawl4ai library. It returns a plain text markdown with extensive information about Crawl4ai.
+     *     You can use this as a context for any AI assistant. Use this endpoint for AI assistants to retrieve library context for decision making or code generation tasks.
+     *     Alway is BEST practice you provide a query to filter the context. Otherwise the lenght of the response will be very long.
+     *
+     *     Parameters:
+     *     - context_type: Specify "code" for code context, "doc" for documentation context, or "all" for both.
+     *     - query: RECOMMENDED search query to filter paragraphs using BM25. You can leave this empty to get all the context.
+     *     - score_ratio: Minimum score as a fraction of the maximum score for filtering results.
+     *     - max_results: Maximum number of results to return. Default is 20.
+     *
+     *     Returns:
+     *     - JSON response with the requested context.
+     *     - If "code" is specified, returns the code context.
+     *     - If "doc" is specified, returns the documentation context.
+     *     - If "all" is specified, returns both code and documentation contexts.
+     */
+    get: operations['get_context_ask_get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/mcp/sse': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**  Mcp Sse */
+    get: operations['_mcp_sse_mcp_sse_get']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/mcp/schema': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**  Schema Endpoint */
+    get: operations['_schema_endpoint_mcp_schema_get']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -165,10 +393,76 @@ export interface components {
      * @enum {string}
      */
     FilterType: 'raw' | 'fit' | 'bm25' | 'llm'
+    /** HTMLRequest */
+    HTMLRequest: {
+      /** Url */
+      url: string
+    }
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components['schemas']['ValidationError'][]
+    }
+    /** JSEndpointRequest */
+    JSEndpointRequest: {
+      /** Url */
+      url: string
+      /**
+       * Scripts
+       * @description List of separated JavaScript snippets to execute
+       */
+      scripts: string[]
+    }
+    /**
+     * MarkdownRequest
+     * @description Request body for the /md endpoint.
+     */
+    MarkdownRequest: {
+      /**
+       * Url
+       * @description Absolute http/https URL to fetch
+       */
+      url: string
+      /**
+       * @description Content‑filter strategy: FIT, RAW, BM25, or LLM
+       * @default fit
+       */
+      f: components['schemas']['FilterType']
+      /**
+       * Q
+       * @description Query string used by BM25/LLM filters
+       */
+      q?: string | null
+      /**
+       * C
+       * @description Cache‑bust / revision counter
+       * @default 0
+       */
+      c: string | null
+    }
+    /** PDFRequest */
+    PDFRequest: {
+      /** Url */
+      url: string
+      /** Output Path */
+      output_path?: string | null
+    }
+    /** RawCode */
+    RawCode: {
+      /** Code */
+      code: string
+    }
+    /** ScreenshotRequest */
+    ScreenshotRequest: {
+      /** Url */
+      url: string
+      /**
+       * Screenshot Wait For
+       * @default 2
+       */
+      screenshot_wait_for: number | null
+      /** Output Path */
+      output_path?: string | null
     }
     /** TokenRequest */
     TokenRequest: {
@@ -196,6 +490,26 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  root__get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+    }
+  }
   metrics_metrics_get: {
     parameters: {
       query?: never
@@ -249,20 +563,183 @@ export interface operations {
       }
     }
   }
-  get_markdown_md__url__get: {
+  config_dump_config_dump_post: {
     parameters: {
-      query?: {
-        f?: components['schemas']['FilterType']
-        q?: string | null
-        c?: string | null
-      }
+      query?: never
       header?: never
-      path: {
-        url: string
-      }
+      path?: never
       cookie?: never
     }
-    requestBody?: never
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RawCode']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  get_markdown_md_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MarkdownRequest']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  generate_html_html_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['HTMLRequest']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  generate_screenshot_screenshot_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ScreenshotRequest']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  generate_pdf_pdf_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PDFRequest']
+      }
+    }
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  execute_js_execute_js_post: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['JSEndpointRequest']
+      }
+    }
     responses: {
       /** @description Successful Response */
       200: {
@@ -286,8 +763,8 @@ export interface operations {
   }
   llm_endpoint_llm__url__get: {
     parameters: {
-      query?: {
-        q?: string | null
+      query: {
+        q: string
       }
       header?: never
       path: {
@@ -419,6 +896,83 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  get_context_ask_get: {
+    parameters: {
+      query?: {
+        context_type?: string
+        /** @description search query to filter chunks */
+        query?: string | null
+        /** @description min score as fraction of max_score */
+        score_ratio?: number
+        /** @description absolute cap on returned chunks */
+        max_results?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  _mcp_sse_mcp_sse_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
+        }
+      }
+    }
+  }
+  _schema_endpoint_mcp_schema_get: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': unknown
         }
       }
     }
