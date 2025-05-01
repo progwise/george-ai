@@ -11,6 +11,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.800.0",
     "@langchain/community": "^0.3.16",
     "@langchain/core": "^0.3.42",
     "@langchain/google-genai": "^0.1.11",
@@ -21,6 +22,7 @@
     "mammoth": "^1.9.0",
     "openai": "^4.90.0",
     "pdfjs-dist": "^5.1.91",
+    "read-excel-file": "^5.8.7",
     "typesense": "^2.0.3",
     "zod": "^3.23.8"
   },

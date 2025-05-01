@@ -4,6 +4,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
+import { getMimeTypeFromFileName } from '@george-ai/web-utils'
+
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -113,7 +115,7 @@ const embedFiles = createServerFn({ method: 'GET' })
         file: {
           name: file.name,
           originUri: `https://drive.google.com/file/d/${file.id}/view`,
-          mimeType: isPdfExport ? 'application/pdf' : 'text/plain',
+          mimeType: isPdfExport ? 'application/pdf' : getMimeTypeFromFileName(file.name),
           libraryId: ctx.data.libraryId,
         },
       })
@@ -165,7 +167,6 @@ export const GoogleDriveFiles = ({
         },
       )
       const responseJson = googleDriveResponseSchema.parse(await response.json())
-      console.log('Google Drive files:', responseJson.files)
       return responseJson.files.map((file) => ({
         ...file,
         size: file.size ? parseInt(file.size) : 0,
