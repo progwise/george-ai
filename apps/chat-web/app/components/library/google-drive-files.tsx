@@ -21,10 +21,17 @@ export interface GoogleDriveFilesProps {
   dialogRef: React.RefObject<HTMLDialogElement | null>
   userId: string
 }
-
-interface GoogleDriveResponse {
-  files: Array<{ id: string; kind: string; name: string; size?: number; iconLink?: string }>
-}
+const googleDriveResponseSchema = z.object({
+  files: z.array(
+    z.object({
+      id: z.string(),
+      kind: z.string(),
+      name: z.string(),
+      size: z.string().optional(),
+      iconLink: z.string().optional(),
+    }),
+  ),
+})
 
 const getHighResIconUrl = (iconLink: string): string => {
   if (!iconLink) return ''
@@ -84,11 +91,6 @@ const embedFiles = createServerFn({ method: 'GET' })
           return response
         }
 
-        console.warn(
-          'Failed to download file from Google Drive, trying another method',
-          `${ctx.data.access_token}`,
-          file,
-        )
         isPdfExport = false
         return await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`, {
           method: 'GET',
@@ -162,10 +164,11 @@ export const GoogleDriveFiles = ({
           headers: { Authorization: `Bearer ${googleDriveAccessToken.access_token}` },
         },
       )
-      const responseJson = (await response.json()) as GoogleDriveResponse
+      const responseJson = googleDriveResponseSchema.parse(await response.json())
+      console.log('Google Drive files:', responseJson.files)
       return responseJson.files.map((file) => ({
         ...file,
-        size: file.size ?? 0,
+        size: file.size ? parseInt(file.size) : 0,
         iconLink: getHighResIconUrl(file.iconLink ?? ''),
       }))
     },
