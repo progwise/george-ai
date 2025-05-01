@@ -1086,6 +1086,10 @@ export type DeleteAiAssistantMutation = {
   deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
+export type AssistantDelete_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
+  ' $fragmentName'?: 'AssistantDelete_AssistantFragment'
+}
+
 export type AssistantForm_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
@@ -1329,6 +1333,11 @@ export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
 }>
 
+export type CreateAiLibraryCrawlerMutation = {
+  __typename?: 'Mutation'
+  createAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
+}
+
 export type CrawlerTable_LibraryFragment = {
   __typename?: 'AiLibrary'
   crawlers: Array<
@@ -1424,12 +1433,6 @@ export type CancelFileUploadMutationVariables = Exact<{
 }>
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload?: boolean | null }
-
-export type ClearEmbeddingsMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type ClearEmbeddingsMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
 
 export type DropFileMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -1546,6 +1549,11 @@ export type CreateAiLibraryMutationVariables = Exact<{
   ownerId: Scalars['String']['input']
   data: AiLibraryInput
 }>
+
+export type CreateAiLibraryMutation = {
+  __typename?: 'Mutation'
+  createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
+}
 
 export type UserProfileForm_UserProfileFragment = {
   __typename?: 'UserProfile'
@@ -5048,39 +5056,6 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
-export const ClearEmbeddingsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'clearEmbeddings' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ClearEmbeddingsMutation, ClearEmbeddingsMutationVariables>
 export const DropFileDocument = {
   kind: 'Document',
   definitions: [
