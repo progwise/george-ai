@@ -13,7 +13,6 @@ import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
-import { deleteMessage } from '../../server-functions/messages'
 import { FormattedMarkdown } from '../formatted-markdown'
 
 const HideMessageDocument = graphql(`
@@ -50,8 +49,32 @@ const unhideMessage = createServerFn({ method: 'POST' })
     }),
   )
 
+const DeleteMessageDocument = graphql(`
+  mutation deleteMessage($messageId: String!, $userId: String!) {
+    deleteMessage(messageId: $messageId, userId: $userId) {
+      id
+    }
+  }
+`)
+export const deleteMessage = createServerFn({ method: 'POST' })
+  .validator((data: { messageId: string; userId: string }) =>
+    z
+      .object({
+        messageId: z.string(),
+        userId: z.string(),
+      })
+      .parse(data),
+  )
+  .handler((ctx) =>
+    backendRequest(DeleteMessageDocument, {
+      messageId: ctx.data.messageId,
+      userId: ctx.data.userId,
+    }),
+  )
+
 interface ConversationMessageProps {
   isLoading: boolean
+  currentUserId: string
   message: {
     id: string
     ownerId: string
@@ -69,7 +92,7 @@ interface ConversationMessageProps {
   }
 }
 
-export const ConversationMessage = ({ isLoading, message }: ConversationMessageProps) => {
+export const ConversationMessage = ({ isLoading, message, currentUserId }: ConversationMessageProps) => {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
 
@@ -105,7 +128,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
 
   const { mutate: deleteMessageMutate } = useMutation({
     mutationFn: async (messageId: string) => {
-      await deleteMessage({ data: { messageId } })
+      await deleteMessage({ data: { messageId, userId: currentUserId } })
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -157,7 +180,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
         >
           {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
         </button>
-        {message.ownerId && (
+        {message.ownerId == currentUserId && (
           <button
             type="button"
             className="btn btn-ghost btn-xs self-start lg:tooltip lg:tooltip-left"

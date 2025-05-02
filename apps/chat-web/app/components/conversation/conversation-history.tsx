@@ -13,6 +13,7 @@ const ConversationHistory_ConversationFragment = graphql(`
     id
     messages {
       id
+      ownerId
       sequenceNumber
       content
       source
@@ -30,6 +31,7 @@ const ConversationHistory_ConversationFragment = graphql(`
 
 interface ConversationHistoryProps {
   conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
+  currentUserId: string
 }
 
 interface IncomingMessage {
@@ -47,6 +49,7 @@ interface IncomingMessage {
 }
 
 export const ConversationHistory = (props: ConversationHistoryProps) => {
+  const { conversation, currentUserId } = props
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
     queryFn: async () => {
@@ -55,12 +58,12 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     },
     staleTime: Infinity,
   })
-  const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
+  const conversationFragment = useFragment(ConversationHistory_ConversationFragment, conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
   const { t } = useTranslation()
 
-  const messages = conversation.messages
-  const selectedConversationId = conversation.id
+  const messages = conversationFragment.messages
+  const selectedConversationId = conversationFragment.id
 
   useEffect(() => {
     // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
@@ -119,9 +122,10 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         <ConversationMessage
           key={message.id}
           isLoading={false}
+          currentUserId={currentUserId}
           message={{
             id: message.id,
-            ownerId: message.sender.id,
+            ownerId: message.ownerId,
             content: message.content || '',
             source: message.source,
             createdAt: message.createdAt,
@@ -140,6 +144,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         <ConversationMessage
           key={message.id}
           isLoading={true}
+          currentUserId={currentUserId}
           message={{
             id: message.id,
             ownerId: message.sender.id,

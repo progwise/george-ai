@@ -187,7 +187,7 @@ function RouteComponent() {
                   <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
                 </div>
               </div>
-              <ConversationHistory conversation={selectedConversation.aiConversation} />
+              <ConversationHistory conversation={selectedConversation.aiConversation} currentUserId={userId} />
               <ConversationForm
                 conversation={selectedConversation.aiConversation}
                 user={user}

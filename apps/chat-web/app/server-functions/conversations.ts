@@ -15,20 +15,28 @@ const CreateMessageDocument = graphql(`
 `)
 
 export const sendMessage = createServerFn({ method: 'POST' })
-  .validator((data: { content: string; conversationId: string; userId: string; recipientAssistantIds: string[] }) =>
-    z
-      .object({
-        content: z.string(),
-        conversationId: z.string(),
-        userId: z.string(),
-        recipientAssistantIds: z.array(z.string()),
-        ownerId: z.string(),
-      })
-      .parse(data),
+  .validator(
+    (data: {
+      content: string
+      conversationId: string
+      userId: string
+      recipientAssistantIds: string[]
+      ownerId: string
+    }) =>
+      z
+        .object({
+          content: z.string(),
+          conversationId: z.string(),
+          userId: z.string(),
+          recipientAssistantIds: z.array(z.string()),
+          ownerId: z.string(),
+        })
+        .parse(data),
   )
   .handler((ctx) =>
     backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
+      ownerId: ctx.data.ownerId,
       data: {
         conversationId: ctx.data.conversationId,
         content: ctx.data.content,

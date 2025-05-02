@@ -370,7 +370,7 @@ type Mutation {
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiLibrary(id: String!): AiLibrary
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
-  deleteMessage(messageId: String!): AiConversationMessage
+  deleteMessage(messageId: String!, userId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage

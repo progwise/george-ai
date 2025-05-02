@@ -79,7 +79,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
         data: {
           userId: props.user.id,
           conversationId: conversation.id!,
-          ...data,
+          recipientAssistantIds: data.recipientAssistantIds,
+          ownerId: props.user.id,
+          content: data.content,
         },
       })
       return result

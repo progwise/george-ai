@@ -35,8 +35,8 @@ builder.queryField('aiConversationMessages', (t) =>
       conversationId: t.arg.string(),
       userId: t.arg.string(),
     },
-    resolve: (query, _source, { conversationId, userId }) => {
-      const participant = prisma.aiConversationParticipant.findFirst({
+    resolve: async (query, _source, { conversationId, userId }) => {
+      const participant = await prisma.aiConversationParticipant.findFirst({
         where: { conversationId, userId },
       })
       if (!participant) {
@@ -46,6 +46,7 @@ builder.queryField('aiConversationMessages', (t) =>
         ...query,
         where: { conversationId },
         orderBy: { createdAt: 'asc' },
+        include: { owner: true },
       })
     },
   }),
@@ -82,8 +83,19 @@ builder.mutationField('deleteMessage', (t) =>
     type: 'AiConversationMessage',
     args: {
       messageId: t.arg.string({ required: true }),
+      userId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { messageId }) => {
+    resolve: async (_query, _source, { messageId, userId }) => {
+      const message = await prisma.aiConversationMessage.findUniqueOrThrow({
+        where: { id: messageId },
+        select: { ownerId: true },
+      })
+      if (!message) {
+        throw new Error('Message not found')
+      }
+      if (message.ownerId !== userId) {
+        throw new Error('You are not authorizied to delete this message')
+      }
       return await prisma.aiConversationMessage.delete({
         where: { id: messageId },
       })
