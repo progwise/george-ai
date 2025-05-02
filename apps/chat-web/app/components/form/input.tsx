@@ -70,7 +70,14 @@ export const Input = <T extends ZodRawShape>({
         >
           {label}
         </span>
-        <span className="justify-self-end overflow-hidden text-nowrap text-sm text-error">{errors.join(', ')}</span>
+        <span
+          className={twMerge(
+            'justify-self-end overflow-hidden text-nowrap text-sm text-error',
+            !label && 'absolute right-1',
+          )}
+        >
+          {errors.join(', ')}
+        </span>
       </div>
       {type === 'textarea' ? (
         <textarea
@@ -79,7 +86,7 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered flex-grow py-1 leading-normal',
+            'input input-sm input-bordered flex-grow py-1 leading-normal text-base-content',
             readOnly && 'cursor-not-allowed text-base-content/50',
           )}
           placeholder={placeholder || ''}
@@ -96,7 +103,7 @@ export const Input = <T extends ZodRawShape>({
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
           className={twMerge(
-            'input input-sm input-bordered w-full focus:outline-none',
+            'input input-sm input-bordered w-full text-base-content focus:outline-none',
             readOnly && 'cursor-not-allowed text-base-content/50',
             type === 'number' && 'text-right',
             type === 'date' && 'text-center',

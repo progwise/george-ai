@@ -156,15 +156,6 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             </>
           ) : (
             <>
-              <a
-                href="https://calendly.com/michael-vogt-progwise/30min"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-accent"
-              >
-                {t('topNavigation.demo')}
-              </a>
-
               <label className="swap swap-rotate" aria-label="Toggle theme">
                 <input
                   type="checkbox"

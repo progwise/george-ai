@@ -34,6 +34,7 @@
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
+    "tailwindcss-animated": "^2.0.0",
     "unified": "^11.0.5",
     "vinxi": "^0.5.3",
     "zod": "^3.23.8"

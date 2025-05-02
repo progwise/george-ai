@@ -245,9 +245,20 @@ export default {
     assistants: 'Assistenten',
     chat: 'Chat',
     conversations: 'Konversationen',
-    demo: 'Online-Demo Termin',
     home: 'Startseite',
     libraries: 'Bibliotheken',
     users: 'Benutzer',
+  },
+  hero: {
+    meeting: 'Beratungstermin vereinbaren',
+    more: 'Mehr erfahren',
+  },
+  contactForm: {
+    emailOrPhoneError: 'Bitte geben Sie eine gültige E-Mail-Adresse oder Telefonnummer ein.',
+    emailOrPhonePlaceholder: 'Ihre E-Mail-Adresse oder Telefonnummer',
+    messageError: 'Bitte geben Sie eine Nachricht ein.',
+    messagePlaceholder: 'Ihre Nachricht',
+    nameError: 'Bitte geben Sie Ihren Namen ein.',
+    namePlaceholder: 'Ihr Name',
   },
 }
