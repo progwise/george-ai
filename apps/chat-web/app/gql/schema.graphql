@@ -166,6 +166,7 @@ type AiConversationInvitation {
   email: String!
   id: ID!
   inviter: User!
+  isUsed: Boolean!
   link: String
   updatedAt: DateTime
 }
@@ -376,7 +377,7 @@ type Mutation {
     email: String
     invitationId: String!
     userId: String!
-  ): AiConversationParticipant
+  ): AiConversationInvitation
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation

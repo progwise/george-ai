@@ -1,4 +1,3 @@
-import { getLanguage } from '../../i18n/get-language'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { validateEmails } from './email-validation'
@@ -27,21 +26,33 @@ export const sendEmailInvitations = async ({
 
   setIsSendingInvitation(true)
 
-  const language = await getLanguage()
   try {
-    await Promise.all(
+    const results = await Promise.allSettled(
       emails.map((email) =>
         createInvitation({
           email,
           allowDifferentEmailAddress,
           allowMultipleParticipants,
-          language,
           conversationId,
         }),
       ),
     )
+
+    const failedEmails = results
+      .map((result, index) => (result.status === 'rejected' ? emails[index] : null))
+      .filter((email) => email !== null)
+
+    if (failedEmails.length > 0) {
+      toastError(
+        t('invitations.failedToSendInvitation', {
+          error: t('invitations.failedEmails', { emails: failedEmails.join(', ') }),
+        }),
+      )
+    } else {
+      toastSuccess(t('invitations.invitationSent'))
+    }
+
     await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversationId] })
-    toastSuccess(t('invitations.invitationSent'))
   } catch (error) {
     toastError(t('invitations.failedToSendInvitation', { error: error.message }))
   } finally {

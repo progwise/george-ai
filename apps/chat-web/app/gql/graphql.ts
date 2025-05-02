@@ -185,6 +185,7 @@ export type AiConversationInvitation = {
   email: Scalars['String']['output']
   id: Scalars['ID']['output']
   inviter: User
+  isUsed: Scalars['Boolean']['output']
   link?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -382,7 +383,7 @@ export type Mutation = {
   cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
-  confirmConversationInvitation?: Maybe<AiConversationParticipant>
+  confirmConversationInvitation?: Maybe<AiConversationInvitation>
   confirmUserProfile?: Maybe<UserProfile>
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
@@ -1315,7 +1316,7 @@ export type ConversationSelector_ConversationFragment = {
     link?: string | null
     allowMultipleParticipants: boolean
     allowDifferentEmailAddress: boolean
-    confirmationDate?: string | null
+    isUsed: boolean
   } | null
 } & { ' $fragmentName'?: 'ConversationSelector_ConversationFragment' }
 
@@ -1352,6 +1353,7 @@ export type ParticipantsDialog_ConversationFragment = {
     link?: string | null
     allowDifferentEmailAddress: boolean
     allowMultipleParticipants: boolean
+    isUsed: boolean
   } | null
 } & { ' $fragmentName'?: 'ParticipantsDialog_ConversationFragment' }
 
@@ -1485,12 +1487,6 @@ export type CancelFileUploadMutationVariables = Exact<{
 }>
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload?: boolean | null }
-
-export type ClearEmbeddingsMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type ClearEmbeddingsMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
 
 export type DropFileMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -1980,7 +1976,6 @@ export type CreateConversationInvitationMutation = {
     id: string
     email: string
     date: string
-    confirmationDate?: string | null
     allowDifferentEmailAddress: boolean
     allowMultipleParticipants: boolean
     link?: string | null
@@ -1996,10 +1991,7 @@ export type ConfirmInvitationMutationVariables = Exact<{
 
 export type ConfirmInvitationMutation = {
   __typename?: 'Mutation'
-  confirmConversationInvitation?:
-    | { __typename?: 'AssistantParticipant'; id: string }
-    | { __typename?: 'HumanParticipant'; id: string }
-    | null
+  confirmConversationInvitation?: { __typename?: 'AiConversationInvitation'; id: string; isUsed: boolean } | null
 }
 
 export type MyConversationUsersQueryVariables = Exact<{
@@ -2840,6 +2832,7 @@ export const ParticipantsDialog_ConversationFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -2907,6 +2900,7 @@ export const ConversationParticipants_ConversationFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -3073,7 +3067,7 @@ export const ConversationSelector_ConversationFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -5187,39 +5181,6 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
-export const ClearEmbeddingsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'clearEmbeddings' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ClearEmbeddingsMutation, ClearEmbeddingsMutationVariables>
 export const DropFileDocument = {
   kind: 'Document',
   definitions: [
@@ -5990,7 +5951,7 @@ export const GetUserConversationsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -6070,6 +6031,7 @@ export const GetConversationDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -7185,7 +7147,6 @@ export const CreateConversationInvitationDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'email' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'date' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
@@ -7256,7 +7217,10 @@ export const ConfirmInvitationDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
+              ],
             },
           },
         ],

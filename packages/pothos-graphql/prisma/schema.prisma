@@ -96,6 +96,7 @@ model AiAssistantEUActAnswers {
   questionId  String
   answer      String?
   notes       String?
+
   @@id([assistantId, questionId])
 }
 
@@ -245,14 +246,16 @@ model AiConversationMessage {
 
 model AiConversationInvitation {
   id                         String    @id @default(cuid())
-  email                      String   
+  email                      String
   link                       String?
-  date                       DateTime  @default(now())
+  inviterId                  String
+  confirmedByEmail           String?
   confirmationDate           DateTime?
   conversationId             String    @unique
-  inviterId                  String
+  date                       DateTime  @default(now())
   allowDifferentEmailAddress Boolean   @default(false)
   allowMultipleParticipants  Boolean   @default(false)
+  isUsed                     Boolean   @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

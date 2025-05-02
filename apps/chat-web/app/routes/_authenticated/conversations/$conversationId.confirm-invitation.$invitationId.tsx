@@ -37,74 +37,72 @@ function RouteComponent() {
 
   const { mutate: confirm, isPending } = useMutation({
     mutationFn: async () => {
-      try {
-        return await confirmInvitation({
-          data: {
-            conversationId,
-            invitationId,
-            userId: user.id,
-            email: user.email?.toLowerCase(),
-          },
-        })
-      } catch (error) {
-        const errorHandlers = new Map([
-          [
-            'User is already a participant',
-            () => {
-              toastError(t('invitations.alreadyParticipant'))
-              navigate({ to: `/conversations/${conversationId}` })
-            },
-          ],
-          [
-            'Conversation not found',
-            () => {
-              toastError(t('invitations.conversationNotFound'))
-              navigate({ to: '/' })
-            },
-          ],
-          [
-            'Invitation not found',
-            () => {
-              toastError(t('invitations.invitationNotFound'))
-              navigate({ to: '/' })
-            },
-          ],
-          [
-            'Invalid invitation',
-            () => {
-              toastError(t('invitations.invalidInvitation'))
-              navigate({ to: '/' })
-            },
-          ],
-          [
-            'Email address does not match',
-            () => {
-              toastError(t('invitations.emailMismatch'))
-              navigate({ to: '/' })
-            },
-          ],
-          [
-            'Email address does not match the invitation for this single-use invitation',
-            () => {
-              toastError(t('invitations.emailMismatchSingleUse'))
-              navigate({ to: '/' })
-            },
-          ],
-        ])
-
-        const handler = Array.from(errorHandlers.keys()).find((key) => error.message.includes(key))
-        if (handler) {
-          errorHandlers.get(handler)?.()
-        } else {
-          toastError(t('errors.unexpectedError'))
-          navigate({ to: '/' })
-        }
-        throw error
-      }
+      return await confirmInvitation({
+        data: {
+          conversationId,
+          invitationId,
+          userId: user.id,
+          email: user.email?.toLowerCase(),
+        },
+      })
     },
     onSuccess: () => {
       navigate({ to: `/conversations/${conversationId}` })
       toastSuccess(t('invitations.invitationAccepted'))
+    },
+    onError: (error) => {
+      const errorHandlers = new Map([
+        [
+          'Conversation not found',
+          () => {
+            toastError(t('invitations.conversationNotFound'))
+            navigate({ to: '/' })
+          },
+        ],
+        [
+          'Invalid invitation',
+          () => {
+            toastError(t('invitations.invalidInvitation'))
+            navigate({ to: '/' })
+          },
+        ],
+        [
+          'Invitation not found',
+          () => {
+            toastError(t('invitations.invitationNotFound'))
+            navigate({ to: '/' })
+          },
+        ],
+        [
+          'Invitation already used',
+          () => {
+            toastError(t('invitations.alreadyUsed'))
+            navigate({ to: '/' })
+          },
+        ],
+        [
+          'User is already a participant',
+          () => {
+            toastError(t('invitations.alreadyParticipant'))
+            navigate({ to: `/conversations/${conversationId}` })
+          },
+        ],
+        [
+          'Email address does not match the invitation for this single-use invitation',
+          () => {
+            toastError(t('invitations.emailMismatchSingleUse'))
+            navigate({ to: '/' })
+          },
+        ],
+      ])
+
+      const handler = Array.from(errorHandlers.keys()).find((key) => error.message.includes(key))
+      if (handler) {
+        errorHandlers.get(handler)?.()
+      } else {
+        toastError(t('errors.unexpectedError'))
+        navigate({ to: '/' })
+      }
     },
   })
 

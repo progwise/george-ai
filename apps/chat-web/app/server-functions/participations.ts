@@ -56,13 +56,17 @@ const CreateConversationInvitationMutation = graphql(`
       id
       email
       date
-      confirmationDate
       allowDifferentEmailAddress
       allowMultipleParticipants
       link
     }
   }
 `)
+
+const emailSchema = z
+  .string()
+  .email()
+  .transform((email) => email.trim().toLowerCase())
 
 export const createConversationInvitation = createServerFn({ method: 'POST' })
   .validator(
@@ -80,7 +84,7 @@ export const createConversationInvitation = createServerFn({ method: 'POST' })
           conversationId: z.string(),
           inviterId: z.string(),
           data: z.object({
-            email: z.string().email(),
+            email: emailSchema,
             allowDifferentEmailAddress: z.boolean(),
             allowMultipleParticipants: z.boolean(),
           }),
@@ -106,6 +110,7 @@ const ConfirmInvitationDocument = graphql(`
       email: $email
     ) {
       id
+      isUsed
     }
   }
 `)
@@ -122,10 +127,12 @@ export const confirmInvitation = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler(async (ctx) => {
-    return await backendRequest(ConfirmInvitationDocument, {
+    const confirmationResult = await backendRequest(ConfirmInvitationDocument, {
       conversationId: ctx.data.conversationId,
       invitationId: ctx.data.invitationId,
       userId: ctx.data.userId,
       email: ctx.data.email ?? null,
     })
+
+    return confirmationResult.confirmConversationInvitation
   })

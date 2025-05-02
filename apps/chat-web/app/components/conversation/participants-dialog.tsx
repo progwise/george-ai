@@ -9,11 +9,11 @@ import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { addConversationParticipants, createConversationInvitation } from '../../server-functions/participations'
-import { useClipboard } from '../clipboard'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
+import { useClipboard } from '../useClipboard'
 import { EmailChipsInput } from './email-chips-input'
 import { sendEmailInvitations } from './email-invitation'
 import { validateEmails } from './email-validation'
@@ -31,6 +31,7 @@ const ParticipantsDialog_ConversationFragment = graphql(`
       link
       allowDifferentEmailAddress
       allowMultipleParticipants
+      isUsed
     }
   }
 `)
@@ -482,11 +483,17 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     <button
                       type="button"
                       className="btn btn-ghost btn-neutral btn-sm tooltip border border-base-300"
-                      data-tip={t('tooltips.copyInvitationLink')}
+                      data-tip={
+                        conversation.conversationInvitation.isUsed
+                          ? t('tooltips.linkAlreadyUsed')
+                          : t('tooltips.copyInvitationLink')
+                      }
                       onClick={() =>
+                        !conversation.conversationInvitation?.isUsed &&
                         conversation.conversationInvitation?.link &&
                         copyToClipboard(conversation.conversationInvitation.link)
                       }
+                      disabled={conversation.conversationInvitation.isUsed}
                     >
                       <ClipboardIcon className="size-4" />
                     </button>

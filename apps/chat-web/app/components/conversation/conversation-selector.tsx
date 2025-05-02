@@ -8,7 +8,8 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ClipboardIcon } from '../../icons/clipboard-icon'
 import { queryKeys } from '../../query-keys'
-import { useClipboard } from '../clipboard'
+import { toastError } from '../georgeToaster'
+import { useClipboard } from '../useClipboard'
 
 const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
@@ -27,7 +28,7 @@ const ConversationSelector_ConversationFragment = graphql(`
       link
       allowMultipleParticipants
       allowDifferentEmailAddress
-      confirmationDate
+      isUsed
     }
   }
 `)
@@ -63,7 +64,12 @@ export const ConversationSelector = ({
     {},
   )
 
-  const handleCopyLink = (link: string | null) => {
+  const handleCopyLink = (link: string | null, isUsed: boolean) => {
+    if (isUsed) {
+      toastError(t('invitations.linkAlreadyUsed'))
+      return
+    }
+
     if (link) {
       copyToClipboard(link)
       queryClient.invalidateQueries({ queryKey: [queryKeys.ConversationInvitation, link] })
@@ -96,7 +102,12 @@ export const ConversationSelector = ({
                         <button
                           type="button"
                           className="btn btn-square btn-ghost btn-xs"
-                          onClick={() => handleCopyLink(conversation.conversationInvitation?.link ?? null)}
+                          onClick={() =>
+                            handleCopyLink(
+                              conversation.conversationInvitation?.link ?? null,
+                              conversation.conversationInvitation?.isUsed ?? false,
+                            )
+                          }
                         >
                           <ClipboardIcon
                             className={twMerge(

@@ -45,14 +45,8 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
     }
   }
 
-  const handleBlur = () => {
-    handleAddEmail()
-  }
-
   return (
-    <div
-      className={`flex flex-wrap items-center gap-2 rounded ${emails.length > 0 ? 'border border-base-300 p-2' : ''}`}
-    >
+    <div className={`flex flex-wrap items-center gap-2 rounded ${emails.length > 0 && 'border border-base-300 p-2'}`}>
       {emails.map((email) => (
         <div key={email} className="flex items-center gap-1 rounded bg-base-200 pl-2 text-sm">
           <span>{email}</span>
@@ -70,7 +64,7 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
           if (error) setError(null)
         }}
         onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
+        onBlur={handleAddEmail}
         placeholder={placeholder}
         className="input input-sm input-bordered w-full focus:outline-none"
       />

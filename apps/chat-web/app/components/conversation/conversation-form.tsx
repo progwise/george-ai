@@ -207,7 +207,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
               disabled={isPending || remainingMessages < 1}
               data-tip={`${remainingMessages} ${t('tooltips.remainingMessages')}`}
             >
-              {t('actions.senden')}
+              {t('actions.send')}
             </button>
           </div>
         </form>
