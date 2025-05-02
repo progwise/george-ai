@@ -30,6 +30,22 @@ python3 -m mlx_lm.generate --prompt "tell me a limerick about cheese" --model Qw
 python3 -m mlx_lm.generate --prompt "tell me a limerick about cheese" --model Qwen/Qwen2.5-Coder-7B-Instruct
 ```
 
+## Fine tuning new
+
+```bash
+python3 fine_tune.py --model Qwen/Qwen2.5-Coder-7B-Instruct --data split_output
+```
+
+## Prompting new
+
+```bash
+python3 prompt.py --model Qwen/Qwen2.5-Coder-7B-Instruct --prompt "Can I create custom dashboards in George-AI?"
+```
+
+---
+
+# OLD:
+
 ## Fine tuning (full/lora)
 
 - In case you want full finetuning change `lora` to `full` in the `fine-tune-type` at the end of the script below:
