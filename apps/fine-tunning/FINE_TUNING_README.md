@@ -1,5 +1,4 @@
-# Fine Tuning with  Hugging Face and MLX-LM
-
+# Fine Tuning with Hugging Face and MLX-LM
 
 ## Create a pip virtual environment and activate it:
 
@@ -14,7 +13,6 @@ source venv/bin/activate
 python3 -m pip install --upgrade pip
 python3 -m pip install mlx-lm datasets
 ```
-
 
 ## Downlaod & Test LLMs from Hugging Face
 
@@ -32,10 +30,9 @@ python3 -m mlx_lm.generate --prompt "tell me a limerick about cheese" --model Qw
 python3 -m mlx_lm.generate --prompt "tell me a limerick about cheese" --model Qwen/Qwen2.5-Coder-7B-Instruct
 ```
 
-
 ## Fine tuning (full/lora)
 
-* In case you want full finetuning change `lora` to `full` in the `fine-tune-type` at the end of the script below:
+- In case you want full finetuning change `lora` to `full` in the `fine-tune-type` at the end of the script below:
 
 **Qwen 0.5B-Instruct:**
 
@@ -63,23 +60,29 @@ python3 -m mlx_lm.lora \
     --fine-tune-type lora
 ```
 
-
 ## Testing the Adapters
 
 Change the model name accordingly:
 
-* Qwen2.5-Coder-0.5B-Instruct:
+- Qwen2.5-Coder-0.5B-Instruct:
 
 ```bash
-python3 -m mlx_lm.generate --model "Qwen/Qwen2.5-Coder-0.5B-Instruct" --max-tokens 500 --adapter-path adapters --prompt "What is George-AI about?"
+python3 -m mlx_lm.generate \
+  --model "Qwen/Qwen2.5-Coder-0.5B-Instruct" \
+  --prompt "How do I use George AI to answer questions?" \
+  --adapter-path adapters \
+  --max-tokens 150
 ```
 
-* Qwen2.5-Coder-7B-Instruct:
+- Qwen2.5-Coder-7B-Instruct:
 
 ```bash
-python3 -m mlx_lm.generate --model "Qwen/Qwen2.5-Coder-7B-Instruct" --max-tokens 500 --adapter-path adapters --prompt "What is George-AI about?"
+python3 -m mlx_lm.generate \
+  --model "Qwen/Qwen2.5-Coder-7B-Instruct" \
+  --prompt "How do I use George AI to answer questions?" \
+  --adapter-path adapters \
+  --max-tokens 150
 ```
-
 
 ## More models?
 
