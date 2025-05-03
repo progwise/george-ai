@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
@@ -37,27 +37,36 @@ export const Input = <T extends ZodRawShape>({
   const renderedType = type === 'date' ? 'text' : type
   const renderedValue = value ? value : valueNotSet
 
-  const validate = (newValue: string) => {
-    if (!schema) return
-    const partialSchema = schema.partial()
-    const parseResult = partialSchema.safeParse({ [name]: newValue })
-    if (!parseResult.success) {
-      setErrors(parseResult.error.errors.map((error) => error.message))
-    } else {
-      setErrors([])
-    }
-  }
+  const validate = useCallback(
+    (newValue: string) => {
+      if (!schema) return
+      const partialSchema = schema.partial()
+      const parseResult = partialSchema.safeParse({ [name]: newValue })
+      if (!parseResult.success) {
+        setErrors(parseResult.error.errors.map((error) => error.message))
+      } else {
+        setErrors([])
+      }
+    },
+    [name, schema],
+  )
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
-    validate(event.target.value)
-    onChange?.(event)
-  }
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+      validate(event.target.value)
+      onChange?.(event)
+    },
+    [validate, onChange],
+  )
 
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
-    if (event.target.value === renderedValue) return
-    validate(event.target.value)
-    onBlur?.(event)
-  }
+  const handleBlur = useCallback(
+    (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
+      if (event.target.value === renderedValue) return
+      validate(event.target.value)
+      onBlur?.(event)
+    },
+    [renderedValue, validate, onBlur],
+  )
 
   return (
     <label className={twMerge('flex flex-col', className)}>

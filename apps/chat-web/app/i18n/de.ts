@@ -72,6 +72,19 @@ export default {
     usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
   },
   brand: 'George-Ai',
+  contactForm: {
+    emailOrPhoneError: 'Bitte geben Sie eine gültige E-Mail-Adresse oder Telefonnummer ein.',
+    emailOrPhonePlaceholder: 'Ihre E-Mail-Adresse oder Telefonnummer',
+    emailOrPhoneRequired: 'E-Mail oder Telefonnummer ist erforderlich.',
+    errorSendingMessage: 'Fehler beim Senden der Anfrage. Bitte versuchen Sie es später erneut.',
+    messageError: 'Bitte geben Sie eine Nachricht ein.',
+    messagePlaceholder: 'Ihre Nachricht',
+    messageRequired: 'Nachricht ist erforderlich.',
+    messageSent: 'Vielen Dank für Ihre Nachricht! Wir werden uns in Kürze bei Ihnen melden.',
+    nameError: 'Bitte geben Sie Ihren Namen ein.',
+    namePlaceholder: 'Ihr Name',
+    nameRequired: 'Name ist erforderlich.',
+  },
   conversations: {
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
@@ -120,6 +133,13 @@ export default {
   flowSequential: 'Ablauf: Sequenziell',
   flowWeb: 'Ablauf: Nur Web',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
+  hero: {
+    chatGreeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistenz.',
+    chatMessage: 'Wenn Sie uns Ihre Email Adresse oder Telefonnummer hinterlassen melden wir uns bei Ihnen persönlich.',
+    chatStatus: 'Online & bereit zu helfen',
+    meeting: 'Beratungstermin vereinbaren',
+    more: 'Mehr erfahren',
+  },
   home: {
     altImage: 'George KI',
     btnText: 'KI-Training starten',
@@ -248,17 +268,5 @@ export default {
     home: 'Startseite',
     libraries: 'Bibliotheken',
     users: 'Benutzer',
-  },
-  hero: {
-    meeting: 'Beratungstermin vereinbaren',
-    more: 'Mehr erfahren',
-  },
-  contactForm: {
-    emailOrPhoneError: 'Bitte geben Sie eine gültige E-Mail-Adresse oder Telefonnummer ein.',
-    emailOrPhonePlaceholder: 'Ihre E-Mail-Adresse oder Telefonnummer',
-    messageError: 'Bitte geben Sie eine Nachricht ein.',
-    messagePlaceholder: 'Ihre Nachricht',
-    nameError: 'Bitte geben Sie Ihren Namen ein.',
-    namePlaceholder: 'Ihr Name',
   },
 }

@@ -1,13 +1,18 @@
+import { User } from '../../gql/graphql'
 import { HeroDe } from './hero-de'
 import { ImpressDe } from './impress-de'
 import { VersionIndicator } from './version-indicator'
 
-export const HomeDe = () => {
+interface HomeDeProps {
+  user: Pick<User, 'email' | 'id' | 'name'> | null
+}
+
+export const HomeDe = ({ user }: HomeDeProps) => {
   return (
     <div className="flex max-w-none flex-col gap-4">
-      <HeroDe />
+      <HeroDe user={user} />
 
-      <article className="animate-fade-up animate-delay-1000 prose prose-xl prose-gray mx-auto">
+      <article className="prose prose-xl prose-gray mx-auto animate-fade-up animate-delay-1000">
         <h2>Die Story</h2>
         In vielen Unternehmen gibt es diese eine oder mehrere unverzichtbare Personen pro Abteilung – oft jene, die
         Informationen zusammenführen, Probleme früh erkennen, Entscheidungen vorbereiten und für reibungslose Abläufe
@@ -15,7 +20,7 @@ export const HomeDe = () => {
         Krankheit, Elternzeit oder Ruhestand. Ihre Vertretung übersieht wichtige Details, findet Informationen nicht und
         braucht lange, um vergleichbare Ergebnisse zu liefern – wenn überhaupt.
       </article>
-      <article className="animate-fade-up animate-delay-1000 prose prose-xl prose-gray mx-auto">
+      <article className="prose prose-xl prose-gray mx-auto animate-fade-up animate-delay-1000">
         <h2>Wenn Köpfe wechseln – George bleibt</h2>
         <p>
           George-AI speichert, was andere vergessen. Er begleitet Schlüsselpersonen, lernt mit – und gibt ihr Wissen

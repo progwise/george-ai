@@ -72,6 +72,19 @@ export default {
     usagePlaceholder: 'How should the library be used?',
   },
   brand: 'George-Ai',
+  contactForm: {
+    emailOrPhoneError: 'Please enter a valid email address or phone number.',
+    emailOrPhonePlaceholder: 'Your email address or phone number',
+    emailOrPhoneRequired: 'E-Mail or Phone are required.',
+    errorSendingMessage: 'Error sending message. Please try again later.',
+    messageError: 'Please enter a message.',
+    messagePlaceholder: 'Your message',
+    messageRequired: 'Message is required.',
+    messageSent: 'Thank you for your message! We will get back to you shortly.',
+    nameError: 'Please enter your name.',
+    namePlaceholder: 'Your name',
+    nameRequired: 'Name is required.',
+  },
   conversations: {
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
@@ -117,6 +130,13 @@ export default {
   flowSequential: 'Flow: Sequential',
   flowWeb: 'Flow: Only Web',
   greeting: 'Hello, I am your travel assistant. How can I help you?',
+  hero: {
+    chatGreeting: 'Hello! I’m George, your personal AI assistant.',
+    chatMessage: 'If you leave your email address or phone number, we’ll get back to you personally.',
+    chatStatus: 'Online & ready to help',
+    meeting: 'Schedule a consultation',
+    more: 'Learn more',
+  },
   home: {
     altImage: 'George AI',
     btnText: 'Start Training Your AI',

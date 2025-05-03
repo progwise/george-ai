@@ -21,23 +21,23 @@ export const GeorgeToaster = () => {
 
 const defaultAlertClasses = 'alert w-auto cursor-pointer animate-fade animate-delay-100'
 
-export const toastError = (message: string) => {
+export const toastError = (message: string | JSX.Element) => {
   return toast.custom(
     (t) => (
       <div className={twMerge(defaultAlertClasses, 'alert-error')} onClick={() => toast.remove(t.id)}>
         <ErrorIcon className="size-6" />
-        <span dangerouslySetInnerHTML={{ __html: message }}></span>
+        {typeof message === 'string' ? <span>{message}</span> : message}
       </div>
     ),
     { ariaProps: { role: 'alert', 'aria-live': 'assertive' } },
   )
 }
 
-export const toastSuccess = (message: string) => {
+export const toastSuccess = (message: string | JSX.Element) => {
   return toast.custom((t) => (
     <div className={twMerge(defaultAlertClasses, 'alert-success')} onClick={() => toast.remove(t.id)}>
       <CheckIcon />
-      <span dangerouslySetInnerHTML={{ __html: message }}></span>
+      {typeof message === 'string' ? <span>{message}</span> : message}
     </div>
   ))
 }

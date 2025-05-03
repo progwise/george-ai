@@ -4,19 +4,21 @@ import { User } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { HomeChat } from './home-chat'
 
-interface HeroDeProps {
+interface HeroEnProps {
   user: Pick<User, 'email' | 'id' | 'name'> | null
 }
-export const HeroDe = ({ user }: HeroDeProps) => {
+export const HeroEn = ({ user }: HeroEnProps) => {
   const { t } = useTranslation()
   return (
     <section className="grid items-center bg-gradient-to-r from-cyan-900 to-sky-700 text-white sm:grid-cols-2">
       <div className="animate-fade-up p-10">
-        <h1 className="mb-4 text-5xl font-bold">Wissensretter.</h1>
-        <h2 className="mb-6 text-2xl font-medium text-blue-200">Unternehmen sichern - Geld, Zeit und Nerven sparen</h2>
+        <h1 className="mb-4 text-5xl font-bold">Knowledge Saver.</h1>
+        <h2 className="mb-6 text-2xl font-medium text-blue-200">
+          Protect your business – save money, time, and nerves
+        </h2>
         <p className="mb-8 text-xl">
-          George-AI Assistenten speichern, was andere vergessen. Sie begleiten Schlüsselpersonen, lernen mit – und geben
-          ihr Wissen nahtlos an Kollegen und Kunden weiter.
+          George-AI assistants remember what others forget. They support key personnel, learn along the way – and pass
+          their knowledge on seamlessly to colleagues and customers.
         </p>
         <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
           <a
@@ -36,7 +38,7 @@ export const HeroDe = ({ user }: HeroDeProps) => {
         </div>
       </div>
       <div className="animate-fade justify-items-end p-10 animate-delay-200">
-        <HomeChat user={user} />{' '}
+        <HomeChat user={user} />
       </div>
     </section>
   )
