@@ -42,7 +42,18 @@ const TanStackQueryDevtools =
 
 const RootDocument = () => {
   const { user, theme, language } = Route.useRouteContext()
-
+  React.useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const _mtm = (window._mtm = window._mtm || [])
+    _mtm.push({ 'mtm.startTime': new Date().getTime(), event: 'mtm.Start' })
+    const d = document,
+      g = d.createElement('script'),
+      s = d.getElementsByTagName('script')[0]
+    g.async = true
+    g.src = 'https://cdn.matomo.cloud/georgeai.matomo.cloud/container_PL33Hleo.js'
+    s.parentNode?.insertBefore(g, s)
+  }, [])
   return (
     <html data-theme={theme ?? 'light'} lang={language}>
       <head>

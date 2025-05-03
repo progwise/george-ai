@@ -12,9 +12,11 @@ export const HeroDe = ({ user }: HeroDeProps) => {
   return (
     <section className="grid items-center bg-gradient-to-r from-cyan-900 to-sky-700 text-white sm:grid-cols-2">
       <div className="animate-fade-up p-10">
-        <h1 className="mb-4 text-5xl font-bold">Wissensretter.</h1>
-        <h2 className="mb-6 text-2xl font-medium text-blue-200">Unternehmen sichern - Geld, Zeit und Nerven sparen</h2>
-        <p className="mb-8 text-xl">
+        <h1 className="mb-4 text-3xl font-bold lg:text-5xl">Wissensretter.</h1>
+        <h2 className="large:text-2xl mb-6 text-xl font-medium text-blue-200">
+          Unternehmen sichern - Geld, Zeit und Nerven sparen
+        </h2>
+        <p className="large:text-xl mb-8 text-lg">
           George-AI Assistenten speichern, was andere vergessen. Sie begleiten Schlüsselpersonen, lernen mit – und geben
           ihr Wissen nahtlos an Kollegen und Kunden weiter.
         </p>

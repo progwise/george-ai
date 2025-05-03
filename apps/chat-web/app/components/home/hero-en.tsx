@@ -12,11 +12,11 @@ export const HeroEn = ({ user }: HeroEnProps) => {
   return (
     <section className="grid items-center bg-gradient-to-r from-cyan-900 to-sky-700 text-white sm:grid-cols-2">
       <div className="animate-fade-up p-10">
-        <h1 className="mb-4 text-5xl font-bold">Knowledge Saver.</h1>
-        <h2 className="mb-6 text-2xl font-medium text-blue-200">
+        <h1 className="mb-4 text-3xl font-bold lg:text-5xl">Knowledge Saver.</h1>
+        <h2 className="large:text-2xl mb-6 text-xl font-medium text-blue-200">
           Protect your business – save money, time, and nerves
         </h2>
-        <p className="mb-8 text-xl">
+        <p className="large:text-xl mb-8 text-lg">
           George-AI assistants remember what others forget. They support key personnel, learn along the way – and pass
           their knowledge on seamlessly to colleagues and customers.
         </p>
