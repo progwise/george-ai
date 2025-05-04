@@ -11,7 +11,7 @@ export const HeroDe = ({ user }: HeroDeProps) => {
   const { t } = useTranslation()
   return (
     <section className="grid items-center bg-gradient-to-r from-cyan-900 to-sky-700 text-white sm:grid-cols-2">
-      <div className="animate-fade-up p-10">
+      <div className="animate-fade-up px-10 py-8">
         <h1 className="mb-4 text-3xl font-bold lg:text-5xl">Wissensretter.</h1>
         <h2 className="large:text-2xl mb-6 text-xl font-medium text-blue-200">
           Unternehmen sichern - Geld, Zeit und Nerven sparen

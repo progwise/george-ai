@@ -12,16 +12,18 @@ export const HomeDe = ({ user }: HomeDeProps) => {
     <div className="flex max-w-none flex-col gap-4">
       <HeroDe user={user} />
 
-      <article className="prose prose-xl prose-gray mx-auto animate-fade-up animate-delay-1000">
+      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
         <h2>Die Story</h2>
-        In vielen Unternehmen gibt es diese eine oder mehrere unverzichtbare Personen pro Abteilung – oft jene, die
-        Informationen zusammenführen, Probleme früh erkennen, Entscheidungen vorbereiten und für reibungslose Abläufe
-        sorgen. Sie sind das Gedächtnis und die Verbindungspunkte des Teams. Doch dann fallen sie plötzlich aus – durch
-        Krankheit, Elternzeit oder Ruhestand. Ihre Vertretung übersieht wichtige Details, findet Informationen nicht und
-        braucht lange, um vergleichbare Ergebnisse zu liefern – wenn überhaupt.
+        <p>
+          In vielen Unternehmen gibt es diese eine oder mehrere unverzichtbare Personen pro Abteilung – oft jene, die
+          Informationen zusammenführen, Probleme früh erkennen, Entscheidungen vorbereiten und für reibungslose Abläufe
+          sorgen. Sie sind das Gedächtnis und die Verbindungspunkte des Teams. Doch dann fallen sie plötzlich aus –
+          durch Krankheit, Elternzeit oder Ruhestand. Ihre Vertretung übersieht wichtige Details, findet Informationen
+          nicht und braucht lange, um vergleichbare Ergebnisse zu liefern – wenn überhaupt.
+        </p>
       </article>
-      <article className="prose prose-xl prose-gray mx-auto animate-fade-up animate-delay-1000">
-        <h2>Wenn Köpfe wechseln – George bleibt</h2>
+      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
+        <h3>Wenn Köpfe wechseln – George bleibt</h3>
         <p>
           George-AI speichert, was andere vergessen. Er begleitet Schlüsselpersonen, lernt mit – und gibt ihr Wissen
           nahtlos an Nachfolger:innen weiter. So läuft der Laden weiter, auch wenn Köpfe wechseln. Weniger Einarbeitung.
