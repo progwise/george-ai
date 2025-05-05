@@ -38,7 +38,7 @@ function RouteComponent() {
           <button
             type="button"
             onClick={() => navigate({ to: '..' })}
-            className="btn btn-sm tooltip"
+            className="btn btn-sm tooltip tooltip-bottom"
             data-tip={t('tooltips.goToOverview')}
           >
             <BackIcon />
