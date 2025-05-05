@@ -27,7 +27,7 @@ export const sendEmailInvitations = async ({
   setIsSendingInvitation(true)
 
   try {
-    const results = await Promise.allSettled(
+    const invitationStatus = await Promise.allSettled(
       emails.map((email) =>
         createInvitation({
           email,
@@ -38,23 +38,17 @@ export const sendEmailInvitations = async ({
       ),
     )
 
-    const failedEmails = results
+    const failedEmails = invitationStatus
       .map((result, index) => (result.status === 'rejected' ? emails[index] : null))
       .filter((email) => email !== null)
 
     if (failedEmails.length > 0) {
-      toastError(
-        t('invitations.failedToSendInvitation', {
-          error: t('invitations.failedEmails', { emails: failedEmails.join(', ') }),
-        }),
-      )
+      toastError(t('invitations.failedToSendInvitation', { emails: failedEmails.join(', ') }))
     } else {
       toastSuccess(t('invitations.invitationSent'))
     }
 
     await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversationId] })
-  } catch (error) {
-    toastError(t('invitations.failedToSendInvitation', { error: error.message }))
   } finally {
     setIsSendingInvitation(false)
   }

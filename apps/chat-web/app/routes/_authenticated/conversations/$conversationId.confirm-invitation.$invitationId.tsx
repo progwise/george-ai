@@ -76,7 +76,7 @@ function RouteComponent() {
         [
           'Invitation already used',
           () => {
-            toastError(t('invitations.alreadyUsed'))
+            toastError(t('invitations.linkAlreadyUsed'))
             navigate({ to: '/' })
           },
         ],

@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
+import { PlusIcon } from '../../icons/plus-icon'
 
 const emailSchema = z.string().email()
 
@@ -46,29 +47,37 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
   }
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 rounded ${emails.length > 0 && 'border border-base-300 p-2'}`}>
-      {emails.map((email) => (
-        <div key={email} className="flex items-center gap-1 rounded bg-base-200 pl-2 text-sm">
-          <span>{email}</span>
-          <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveEmail(email)}>
-            <CrossIcon />
-          </button>
-        </div>
-      ))}
-      <input
-        name="emailInput"
-        type="text"
-        value={inputValue}
-        onChange={(event) => {
-          setInputValue(event.currentTarget.value)
-          if (error) setError(null)
-        }}
-        onKeyDown={handleKeyDown}
-        onBlur={handleAddEmail}
-        placeholder={placeholder}
-        className="input input-sm input-bordered w-full focus:outline-none"
-      />
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-1">
+        <input
+          name="emailInput"
+          type="text"
+          value={inputValue}
+          onChange={(event) => {
+            setInputValue(event.currentTarget.value)
+            if (error) setError(null)
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="input input-sm input-bordered flex-1 focus:outline-none"
+        />
+        <button type="button" className="btn btn-ghost btn-sm border-base-content/20" onClick={handleAddEmail}>
+          <PlusIcon />
+        </button>
+      </div>
       {error && <p className="text-sm text-error">{error}</p>}
+      <div
+        className={`flex flex-wrap items-center gap-1 rounded ${emails.length > 0 && 'border border-base-content/30 p-1'}`}
+      >
+        {emails.map((email) => (
+          <div key={email} className="flex items-center gap-1 rounded bg-base-200 pl-1 text-sm">
+            <span>{email}</span>
+            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveEmail(email)}>
+              <CrossIcon />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

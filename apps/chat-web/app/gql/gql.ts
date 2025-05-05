@@ -50,7 +50,7 @@ type Documents = {
   '\n  fragment ConversationDelete_Conversation on AiConversation {\n    id\n    ownerId\n    createdAt\n    assistants {\n      name\n    }\n    participants {\n      id\n      userId\n    }\n  }\n': typeof types.ConversationDelete_ConversationFragmentDoc
   '\n  fragment NewConversationSelector_Assistant on AiAssistant {\n    ...ParticipantsDialog_Assistant\n  }\n': typeof types.NewConversationSelector_AssistantFragmentDoc
   '\n  fragment NewConversationSelector_Human on User {\n    ...ParticipantsDialog_Human\n  }\n': typeof types.NewConversationSelector_HumanFragmentDoc
-  '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n': typeof types.ParticipantsDialog_ConversationFragmentDoc
+  '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      id\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n': typeof types.ParticipantsDialog_ConversationFragmentDoc
   '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.ParticipantsDialog_AssistantFragmentDoc
   '\n  fragment ParticipantsDialog_Human on User {\n    id\n    username\n    email\n    profile {\n      business\n      position\n      firstName\n      lastName\n    }\n  }\n': typeof types.ParticipantsDialog_HumanFragmentDoc
   '\n      query version {\n        version\n      }\n    ': typeof types.VersionDocument
@@ -173,7 +173,7 @@ const documents: Documents = {
     types.NewConversationSelector_AssistantFragmentDoc,
   '\n  fragment NewConversationSelector_Human on User {\n    ...ParticipantsDialog_Human\n  }\n':
     types.NewConversationSelector_HumanFragmentDoc,
-  '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n':
+  '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      id\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n':
     types.ParticipantsDialog_ConversationFragmentDoc,
   '\n  fragment ParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n':
     types.ParticipantsDialog_AssistantFragmentDoc,
@@ -504,8 +504,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n',
-): (typeof documents)['\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n']
+  source: '\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      id\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n',
+): (typeof documents)['\n  fragment ParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n    conversationInvitation {\n      id\n      link\n      allowDifferentEmailAddress\n      allowMultipleParticipants\n      isUsed\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

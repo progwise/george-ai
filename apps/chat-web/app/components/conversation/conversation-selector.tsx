@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
@@ -7,8 +6,6 @@ import { dateString } from '@george-ai/web-utils'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ClipboardIcon } from '../../icons/clipboard-icon'
-import { queryKeys } from '../../query-keys'
-import { toastError } from '../georgeToaster'
 import { useClipboard } from '../useClipboard'
 
 const ConversationSelector_ConversationFragment = graphql(`
@@ -49,7 +46,6 @@ export const ConversationSelector = ({
   const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
   const { t, language } = useTranslation()
   const { copyToClipboard } = useClipboard()
-  const queryClient = useQueryClient()
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<Record<string, typeof conversations>>(
@@ -63,18 +59,6 @@ export const ConversationSelector = ({
     },
     {},
   )
-
-  const handleCopyLink = (link: string | null, isUsed: boolean) => {
-    if (isUsed) {
-      toastError(t('invitations.linkAlreadyUsed'))
-      return
-    }
-
-    if (link) {
-      copyToClipboard(link)
-      queryClient.invalidateQueries({ queryKey: [queryKeys.ConversationInvitation, link] })
-    }
-  }
 
   return (
     <ul className="menu w-72">
@@ -98,25 +82,22 @@ export const ConversationSelector = ({
                       <div>
                         {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
                       </div>
-                      {conversation.conversationInvitation && conversation.owner.id === userId && (
-                        <button
-                          type="button"
-                          className="btn btn-square btn-ghost btn-xs"
-                          onClick={() =>
-                            handleCopyLink(
-                              conversation.conversationInvitation?.link ?? null,
-                              conversation.conversationInvitation?.isUsed ?? false,
-                            )
-                          }
-                        >
-                          <ClipboardIcon
-                            className={twMerge(
-                              'text-current',
-                              conversation.id === selectedConversationId && 'text-primary-content',
-                            )}
-                          />
-                        </button>
-                      )}
+                      {conversation.conversationInvitation &&
+                        conversation.owner.id === userId &&
+                        conversation.conversationInvitation.allowMultipleParticipants && (
+                          <button
+                            type="button"
+                            className="btn btn-square btn-ghost btn-xs tooltip tooltip-left"
+                            data-tip={t('tooltips.copyInvitationLink')}
+                            onClick={() => {
+                              if (conversation.conversationInvitation?.link) {
+                                copyToClipboard(conversation.conversationInvitation.link)
+                              }
+                            }}
+                          >
+                            <ClipboardIcon />
+                          </button>
+                        )}
                     </div>
 
                     <div className="mt-1 block">

@@ -4,12 +4,11 @@ import { twMerge } from 'tailwind-merge'
 import { CheckIcon } from '../icons/check-icon'
 import ErrorIcon from '../icons/error-icon'
 
-const toastContainerClasses =
-  'pointer-events-auto flex w-full max-w-md rounded-l-lg bg-base-100 shadow-lg ring-1 ring-base-300'
+const toastContainerClasses = 'pointer-events-auto flex w-fit rounded-lg bg-base-100 shadow-lg ring-1 ring-base-300'
 const defaultAlertClasses =
-  'alert flex flex-1 w-full cursor-pointer items-center gap-1 py-2 text-sm rounded-l-lg rounded-r-none'
+  'alert flex flex-1 w-full cursor-pointer items-center gap-1 py-2 px-4 text-sm rounded-l-lg rounded-r-none'
 const toastButtonClasses =
-  'hover:text-primary-focus flex items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-primary focus:outline-none focus:ring-2 focus:ring-primary'
+  'hover:text-primary-focus flex items-center justify-center rounded-r-lg border-l border-base-300 p-2 text-sm font-medium text-primary hover:bg-base-300'
 
 const ToastContent = ({
   icon: Icon,
@@ -23,15 +22,13 @@ const ToastContent = ({
   onClose: () => void
 }) => (
   <div className={toastContainerClasses}>
-    <div className={twMerge('flex w-0 flex-1 items-center p-4', defaultAlertClasses, type)}>
+    <div className={twMerge(defaultAlertClasses, type)}>
       <Icon className="size-5 flex-shrink-0" />
       <p className="ml-3 flex-1 text-sm">{message}</p>
     </div>
-    <div className="flex items-center border-l border-base-300">
-      <button type="button" className={toastButtonClasses} onClick={onClose}>
-        Close
-      </button>
-    </div>
+    <button type="button" className={toastButtonClasses} onClick={onClose}>
+      Close
+    </button>
   </div>
 )
 

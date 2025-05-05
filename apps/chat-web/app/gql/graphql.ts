@@ -178,7 +178,6 @@ export type AiConversationInvitation = {
   __typename?: 'AiConversationInvitation'
   allowDifferentEmailAddress: Scalars['Boolean']['output']
   allowMultipleParticipants: Scalars['Boolean']['output']
-  confirmationDate?: Maybe<Scalars['DateTime']['output']>
   conversation: AiConversation
   createdAt: Scalars['DateTime']['output']
   date: Scalars['DateTime']['output']
@@ -1350,6 +1349,7 @@ export type ParticipantsDialog_ConversationFragment = {
   >
   conversationInvitation?: {
     __typename?: 'AiConversationInvitation'
+    id: string
     link?: string | null
     allowDifferentEmailAddress: boolean
     allowMultipleParticipants: boolean
@@ -2829,6 +2829,7 @@ export const ParticipantsDialog_ConversationFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
@@ -2897,6 +2898,7 @@ export const ConversationParticipants_ConversationFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
@@ -6028,6 +6030,7 @@ export const GetConversationDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'link' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
