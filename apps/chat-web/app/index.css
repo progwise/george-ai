@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
+@plugin "@tailwindcss/typography";
 
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -12,4 +16,23 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+}
+
+@layer overwrite {
+  input,
+  textarea {
+    @apply focus:outline-none;
+  }
+
+  input[type='number'] {
+    @apply text-right;
+  }
+
+  input[type='date'] {
+    @apply text-center;
+  }
+}
+
+@utility container {
+  @apply mx-auto px-1;
 }

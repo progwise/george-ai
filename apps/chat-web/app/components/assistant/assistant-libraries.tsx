@@ -137,7 +137,7 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
             }}
           />
         ) : (
-          <span className="rounded-md border border-transparent px-2 py-1 text-left text-sm text-base-content/50">
+          <span className="text-base-content/50 rounded-md border border-transparent px-2 py-1 text-left text-sm">
             {t('assistants.noLibrariesToAdd')}
           </span>
         )}
@@ -153,14 +153,14 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
                 <Link
                   to="/libraries/$libraryId"
                   params={{ libraryId: usage.libraryId }}
-                  className="link-hover link text-sm"
+                  className="link link-hover text-sm"
                 >
                   {usage.library.name}
                 </Link>
               </div>
               <button
                 type="button"
-                className="btn btn-circle btn-ghost btn-sm tooltip tooltip-bottom"
+                className="btn btn-ghost btn-sm btn-circle tooltip tooltip-bottom"
                 onClick={() => {
                   const libraryId = usage.libraryId
                   removeUsage({ assistantId: assistant.id, libraryId })

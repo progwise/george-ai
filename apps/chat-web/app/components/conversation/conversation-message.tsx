@@ -103,7 +103,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
   return (
     <div
       key={message.id}
-      className={twMerge('card mx-1.5 border p-3 text-base-content shadow-md lg:mx-10', message.hidden && 'opacity-50')}
+      className={twMerge('card text-base-content mx-1.5 border p-3 shadow-md lg:mx-10', message.hidden && 'opacity-50')}
     >
       <div className="mb-2 flex items-center gap-3">
         <div
@@ -133,7 +133,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
         )}
         <button
           type="button"
-          className="btn btn-ghost btn-xs ml-auto self-start lg:tooltip lg:tooltip-left"
+          className="btn btn-ghost btn-xs lg:tooltip lg:tooltip-left ml-auto self-start"
           onClick={handleHideMessage}
           data-tip={message.hidden ? t('tooltips.unhide') : t('tooltips.hide')}
         >
@@ -141,7 +141,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
         </button>
       </div>
       {!message.hidden && (
-        <div className="border-t border-base-200 pt-3">
+        <div className="border-base-200 border-t pt-3">
           <FormattedMarkdown id={`textarea_${message.id}`} markdown={message.content} />
         </div>
       )}

@@ -213,7 +213,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     name="assistants"
                     value={assistant.id}
-                    className="checkbox-info checkbox checkbox-sm"
+                    className="checkbox checkbox-info checkbox-sm"
                     checked={selectedAssistantIds.includes(assistant.id)}
                     onChange={(event) => {
                       const value = event.target.checked
@@ -242,7 +242,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 disabled={availableHumans.length < 1}
                 type="checkbox"
                 name="selectAll"
-                className="checkbox-primary checkbox checkbox-sm"
+                className="checkbox checkbox-primary checkbox-sm"
                 checked={selectedUserIds.length > 0}
                 ref={(element) => {
                   if (!element) return
@@ -272,7 +272,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     name="userIds"
                     value={human.id}
-                    className="checkbox-info checkbox checkbox-sm"
+                    className="checkbox checkbox-info checkbox-sm"
                     checked={selectedUserIds.includes(human.id)}
                     onChange={(event) => {
                       const value = event.target.checked

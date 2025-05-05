@@ -1,4 +1,5 @@
 import { RefObject } from 'react'
+import { createPortal } from 'react-dom'
 
 import { useTranslation } from '../i18n/use-translation-hook'
 
@@ -34,7 +35,8 @@ export const DialogForm = ({
     ref.current?.close()
   }
 
-  return (
+  // using react portals prevents animation issues with the modal
+  return createPortal(
     <dialog className="modal" ref={ref}>
       <div className="modal-box">
         <h3 className="text-lg font-bold">{title}</h3>
@@ -61,6 +63,7 @@ export const DialogForm = ({
           Close
         </button>
       </form>
-    </dialog>
+    </dialog>,
+    document.body,
   )
 }
