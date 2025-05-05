@@ -209,11 +209,7 @@ function RouteComponent() {
           </div>
           <div className="flex-1 overflow-scroll px-2">
             {conversations.aiConversations && (
-              <ConversationSelector
-                conversations={conversations.aiConversations}
-                selectedConversationId={selectedConversationId}
-                onClick={handleConversationClick}
-              />
+              <ConversationSelector conversations={conversations.aiConversations} onClick={handleConversationClick} />
             )}
           </div>
         </div>
