@@ -43,6 +43,9 @@ const TanStackQueryDevtools =
 const RootDocument = () => {
   const { user, theme, language } = Route.useRouteContext()
   React.useEffect(() => {
+    if (typeof window === 'undefined' || !window.document || window.document.location.hostname === 'localhost') {
+      return
+    }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     const _mtm = (window._mtm = window._mtm || [])
