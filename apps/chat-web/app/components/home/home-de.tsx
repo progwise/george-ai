@@ -26,8 +26,8 @@ export const HomeDe = ({ user }: HomeDeProps) => {
         <h3>Wenn Köpfe wechseln – George bleibt</h3>
         <p>
           George-AI speichert, was andere vergessen. Er begleitet Schlüsselpersonen, lernt mit – und gibt ihr Wissen
-          nahtlos an Nachfolger:innen weiter. So läuft der Laden weiter, auch wenn Köpfe wechseln. Weniger Einarbeitung.
-          Mehr Verlässlichkeit. Und auf Wunsch: 24/7 für alle ansprechbar.
+          nahtlos an Nachfolger weiter. So läuft der Laden weiter, auch wenn Köpfe wechseln. Weniger Einarbeitung. Mehr
+          Verlässlichkeit. Und auf Wunsch: 24/7 für alle ansprechbar.
         </p>
       </article>
       <hr />
