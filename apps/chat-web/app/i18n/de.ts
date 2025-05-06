@@ -136,7 +136,7 @@ export default {
     emailMismatch:
       'Die E-Mail-Adresse stimmt nicht mit der Einladung überein. Unterschiedliche E-Mails sind nicht erlaubt.',
     emailMismatchSingleUse: 'Die E-Mail-Adresse stimmt nicht mit der Einladung für diese Einmal-Einladung überein',
-    failedToSendInvitation: 'Einladung konnte nicht gesendet werden: {error}',
+    failedToSendInvitation: 'Einladung konnte nicht gesendet werden',
     invalidInvitation: 'Ungültige Einladung für diese Konversation',
     invitationAccepted: 'Einladung akzeptiert',
     invitationNotFound: 'Einladung nicht gefunden.',
@@ -254,7 +254,7 @@ export default {
     with: 'mit',
   },
   tooltips: {
-    addNoParticipantsSelected: 'Kein Assistent oder Benutzer ausgewählt',
+    addNoParticipantsSelected: 'Kein Assistent, Benutzer oder E-Mail ausgewählt',
     cannotSendInvitation: 'Erstellen Sie die Konversation, um Einladungen zu senden.',
     copyConversationLink: 'Link kopieren',
     copyInvitationLink: 'Einladungslink kopieren',

@@ -131,7 +131,7 @@ export default {
     conversationNotFound: 'Conversation not found.',
     emailMismatch: 'Email address does not match the invitation and different emails are not allowed',
     emailMismatchSingleUse: 'Email address does not match the invitation for this single-use invitation',
-    failedToSendInvitation: 'Failed to send invitation: {error}',
+    failedToSendInvitation: 'Failed to send invitation',
     invalidInvitation: 'Invalid invitation for this conversation',
     invitationAccepted: 'Invitation accepted',
     invitationNotFound: 'Invitation not found.',
@@ -250,7 +250,7 @@ export default {
     with: 'with',
   },
   tooltips: {
-    addNoParticipantsSelected: 'No assistant or user is selected',
+    addNoParticipantsSelected: 'No assistant, user or email selected',
     cannotSendInvitation: 'Create the conversation to send invitations.',
     copyConversationLink: 'Copy link',
     copyInvitationLink: 'Copy invitation link',

@@ -35,10 +35,6 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
     setError(null)
   }
 
-  const handleRemoveEmail = (email: string) => {
-    setEmails(emails.filter((e) => e !== email))
-  }
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' || event.key === ',') {
       event.preventDefault()
@@ -67,12 +63,19 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
       </div>
       {error && <p className="text-sm text-error">{error}</p>}
       <div
-        className={`flex flex-wrap items-center gap-1 rounded ${emails.length > 0 && 'border border-base-content/30 p-1'}`}
+        className={`flex max-h-48 flex-wrap items-center gap-1 overflow-auto rounded-md shadow-sm ${emails.length > 0 && 'border border-base-300 bg-base-100 p-1'}`}
       >
         {emails.map((email) => (
-          <div key={email} className="flex items-center gap-1 rounded bg-base-200 pl-1 text-sm">
-            <span>{email}</span>
-            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveEmail(email)}>
+          <div
+            key={email}
+            className="flex w-full items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-sm shadow-sm"
+          >
+            <span className="flex-1 truncate font-medium">{email}</span>
+            <button
+              type="button"
+              className="hover:text-primary-focus btn btn-ghost btn-xs"
+              onClick={() => setEmails(emails.filter((event) => event !== email))}
+            >
               <CrossIcon />
             </button>
           </div>

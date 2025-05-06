@@ -3,17 +3,17 @@ import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
+import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
-import { addConversationParticipants, createConversationInvitation } from '../../server-functions/participations'
+import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { EmailChipsInput } from './email-chips-input'
-import { sendEmailInvitations } from './email-invitation'
 import { validateEmails } from './email-validation'
 
 const ParticipantsDialog_ConversationFragment = graphql(`
@@ -67,7 +67,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const [emailError, setEmailError] = useState<string | null>(null)
   const [allowDifferentEmailAddress, setAllowDifferentEmailAddress] = useState(false)
   const [allowMultipleParticipants, setAllowMultipleParticipants] = useState(false)
-  const [isSendingInvitation, setIsSendingInvitation] = useState(false)
 
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
@@ -121,44 +120,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const isCreatingNewConversation = props.dialogMode === 'new'
   const isOwner = isCreatingNewConversation || props.userId === conversation?.ownerId
-
-  const { mutateAsync: createInvitation } = useMutation({
-    mutationFn: async ({
-      email,
-      allowDifferentEmailAddress,
-      allowMultipleParticipants,
-      conversationId,
-    }: {
-      email: string
-      allowDifferentEmailAddress: boolean
-      allowMultipleParticipants: boolean
-      conversationId: string
-    }) => {
-      if (!email || email.trim() === '') {
-        toastError(t('errors.emailRequired'))
-        return
-      }
-
-      return await createConversationInvitation({
-        data: {
-          conversationId,
-          inviterId: props.userId ?? '',
-          data: {
-            email: email.trim().toLowerCase(),
-            allowDifferentEmailAddress,
-            allowMultipleParticipants,
-          },
-        },
-      })
-    },
-    onError: (error) => {
-      toastError(t('invitations.failedToSendInvitation', { error: error.message }))
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversation?.id] })
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
-    },
-  })
 
   const { mutateAsync: createNewConversation, isPending: isCreating } = useMutation({
     mutationFn: async () => {
@@ -227,17 +188,12 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         navigate({ to: `/conversations/${conversationId}` })
 
         if (emailChips.length > 0) {
-          await sendEmailInvitations({
-            email: emailChips.join(','),
+          await sendEmailInvitations(
             conversationId,
+            emailChips.join(','),
             allowDifferentEmailAddress,
             allowMultipleParticipants,
-            setEmailError,
-            setIsSendingInvitation,
-            t,
-            queryClient,
-            createInvitation,
-          })
+          )
         }
 
         setEmailChips([])
@@ -261,21 +217,15 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         addParticipants()
 
         if (emailChips.length > 0) {
-          await sendEmailInvitations({
-            email: emailChips.join(','),
-            conversationId: conversation!.id,
+          await sendEmailInvitations(
+            conversation?.id || '',
+            emailChips.join(','),
             allowDifferentEmailAddress,
             allowMultipleParticipants,
-            setEmailError,
-            setIsSendingInvitation,
-            t,
-            queryClient,
-            createInvitation,
-          })
+          )
         }
 
         setEmailChips([])
-
         setEmailError(null)
       } catch (error) {
         toastError(t('conversations.failedToAddParticipants', { error: error.message }))
@@ -283,42 +233,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     }
   }
 
-  const handleSendInvitation = async () => {
-    if (emailChips.length < 1) {
-      setEmailError(t('errors.emailRequired'))
-      return
-    }
-
-    const { invalidEmails } = validateEmails(emailChips)
-
-    if (invalidEmails.length > 0) {
-      setEmailError(t('errors.invalidEmail'))
-      return
-    }
-
-    dialogRef.current?.close()
-
-    setIsSendingInvitation(true)
-    try {
-      await sendEmailInvitations({
-        email: emailChips.join(','),
-        conversationId: conversation?.id ?? '',
-        allowDifferentEmailAddress,
-        allowMultipleParticipants,
-        setEmailError,
-        setIsSendingInvitation,
-        t,
-        queryClient,
-        createInvitation,
-      })
-      setEmailChips([])
-      setEmailError(null)
-    } catch (error) {
-      toastError(t('invitations.failedToSendInvitation', { error: error.message }))
-    } finally {
-      setIsSendingInvitation(false)
-    }
-  }
+  const { sendEmailInvitations, isSendingInvitation } = useEmailInvitations(conversation?.id ?? '', props.userId)
 
   useEffect(() => {
     if (props.isOpen && dialogRef.current) {
@@ -347,7 +262,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         title={title}
         description={description}
         onSubmit={handleSubmit}
-        disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1}
+        disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
         className="w-full max-w-[800px] px-4 sm:px-6 md:px-8"
@@ -468,20 +383,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                   />
                   <span className="text-sm">{t('texts.allowMultipleParticipants')}</span>
                 </label>
-              </div>
-              <div className="mt-4 flex items-center justify-end gap-2">
-                {conversation?.id && emailChips.length > 0 && (
-                  <div className="tooltip tooltip-left" data-tip={t('tooltips.sendInvitation')}>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={handleSendInvitation}
-                      disabled={isSendingInvitation}
-                    >
-                      {t('actions.send')}
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           )}
