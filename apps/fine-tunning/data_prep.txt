@@ -1,0 +1,438 @@
+ 
+ If you're going to fine-tune a large language model, what you need is some high-quality data. 
+ This means starting off probably with a set of documents and converting it into some kind of questions and answers. 
+ Now there are various steps in this process, each of which I'll go through in this video.  Starting off with document ingestion, converting documents into text, then chunking, 
+ then generation of questions and answers, then visualization of that dataset to ensure that it's comprehensive, 
+ and last of all, I'll cover some techniques for creating an evaluation dataset.  Now throughout this video, I will be using scripts from the Advanced Fine-Tuning Repository, 
+ 
+ and I'll be working in the Data Prep folder.  However, you should be able to follow along, I'll describe everything in detail if you want to build it from scratch yourself. 
+ I'm going to start off with a little bit of theory.  I want to talk about the goals for generating data, what it means to generate high-quality synthetic data. 
+ I'll walk through the pipeline, just a graphic showing you the various stages, and then I'll talk about each of those stages. 
+ So document ingestion, I want to show you the performance of different approaches to conversion of PDFs to markdown. 
+ I'll talk about chunking approaches and the trade-offs there.  Question and answer pair generation approaches. 
+ I'll then spend quite a bit of time on visualization.  This is probably under-appreciated, and I haven't covered it enough on the channel before, 
+ but being able to see the distribution of your questions is going to be critical to ensure you can 
+ comprehensively cover your subject matter.  I'm going to compare the performance of different models, the cutting-edge models on QA generation. 
+ And last of all, I'll talk a bit about evaluation dataset creation, which is a specific but pretty important topic 
+ if you want to effectively do fine-tuning.  Now, I will go further and actually do the fine-tuning, but I'm going to reserve that for a follow-on video. 
+ So what are the goals and what does it mean to have a high-quality synthetic dataset? 
+ 
+ There are a few things we're trying to achieve.  The first is coverage.  If I have a document, I want to make sure that the questions I generate for fine-tuning or for evaluation 
+ cover every aspect of that document.  So coverage is going to be important, and it needs to reflect the topics, formats, and difficulties, 
+ different difficulties of questions that might be posed.  The second goal is contextualization. 
+ It's useless if you just ask a question like, "How long is the field?"  because there is no way to know what field that is referring to. 
+ Is it a rugby field, a soccer field?  This is what I refer to as contextualization.  The questions must have correct context within them so that they are correctly posed, 
+ and there's a meaningful answer that can come back to it.  The third thing is to have a representative evaluation dataset. 
+ If you have a big training dataset, you're going to use the evaluation dataset  during fine-tuning to check the loss that you're not overfitting, 
+ and you're also going to check the answers on the evaluation dataset.  And you need this to be representative of the training set. 
+ If it just has a subset of topics or categories, it's not going to be representative.  So I'll talk about some of the different design choices in setting up your evaluation set. 
+ And last of all, this is very related, is consistent grading. 
+ When we generate questions and answers, we need to have a way then to grade correct answers. 
+ And we want to make sure that our judge is going to be consistently marking the answers correct, 
+ based on some kind of rubric.  If it's inconsistent, and the judge is maybe only marking certain verbatim answers correct, 
+ then you're going to find that actual answers that are correct are being marked incorrect.  And this is going to give inconsistencies in your pipeline. 
+ So having consistent grading is going to be pretty important.  Okay, here is the pipeline. 
+ I'll just lay it down.  If you don't get something, we're going through each step, so don't worry too much.  We're going to start off with some documents, extract the text from it. 
+ 
+ We'll use a few approaches, one of which will literally be to send it into a vision supporting 
+ LLM.  Then we'll have a body of text, which we'll split into chunks.  And we're also going to take the text from each document and generate a summary. 
+ So we'll also have a set of summaries.  There'll be one summary for each document.  And given these chunks and document summaries, 
+ we're going to generate pairs of questions and answers for each chunk.  And when we prompt a language model for questions and answers, we're going to pass in a chunk, 
+ but also the document summary, which will help give context to the LLM.  This is going to give us a training set of questions and answers, which we're then going to visualize. 
+ And we'll visualize them in two ways.  One will be by tagging each of the questions.  We'll get an LLM to assign some keyword tags. 
+ And then we will show a plot of the different questions organized by tags.  And the second approach is embeddings. 
+ So here we'll calculate the embedding of each of the questions.  And then we will again do a plot that will cluster everything 
+ so we can see the spread of data.  And we'll be able to visualize that and see how different language models compare 
+ in generating question and answer data sets.  Then we're going to move to create an evaluation set. 
+ And the way I'll do this is by uniform sampling.  So I'm not going to take a random subset of the training set. 
+ I'm going to make sure that it reflects the categories  that are in that training set.  And I'm then going to rephrase those questions that are taken from the training set 
+ to avoid overfitting.  And that's the way I'm going to create an eval set.  Now, there are some other ways you can do that, too, which I'll talk about. 
+ But this is the main one I'm going to use.  So let's get started.  We'll walk through now each of these different sections, the first of which is document ingestion. 
+ 
+ So this is where you convert the documents into text.  We're not even converting to chunks yet. 
+ Just trying to get a document into text.  And there are three methods that I'll cover.  The first is a library called Marker PDF by Vic P. 
+ It is probably the most accurate, as you'll see.  And I'm going to show a demo.  The second is MarkItDown by Microsoft. 
+ Very fast and cheap.  And you can just run it on your CPU.  And the third option is to send in the PTFs page by page and have Gemini Flash create Markdown. 
+ And this is surprisingly accurate, versatile, and also pretty cost effective. 
+ So I'll show you each of those.  In fact, I'll go over now to Windsurf, where I've cloned Advanced Fine Tuning. 
+ And I'm in the Dataprep folder.  So actually, I've just CD'd into Dataprep. 
+ And I have a test script here.  It's in the test scripts folder.  And it's called, I know my fonts are small. 
+ Let me just increase those.  It's called PDF to Markdown.  And this is a simple demo script that's going to take a PDF file. 
+ And it's going to use these three approaches I mentioned to convert it.  And then it'll calculate the time it takes for conversion. 
+ So let's see the time it takes to convert.  And let's see the quality of the results we get from this.  So I'll CD into test scripts. 
+ And I'm going to uv run this script, which is PDF to Markdown. 
+ And I need to pass in the path of this script here.  So I'm just going to copy this. 
+ And I need to wrap it in inverted commas, because it has spaces in it, .pdf. 
+ And it's not able to find the PDF to Markdown, because I need to put in .py. 
+ So it's now installing all of these scripts, because I've set them as dependencies at the top.  And it's going to take the PDF and pass it through Markdown, and then pass it through Gemini Flash. 
+ And we'll see what we're going to get back.  Now, to run this, you do need to add in an API key, because we're going to have to call Gemini Flash. 
+ You could call it directly, but I'm calling it through Open Router.  And so I've put in an Open Router API key. 
+ Actually, I think I'm reading it from a .env file, which is located within the Dataprep folder. 
+ You can check out the sample.env.  Have I got a sample.env?  It's basically just Open Router API key is equal to that key. 
+ And you can see, I actually have the syntax wrong here.  So I need to paste this. 
+ And I need to put PDF path.  And then I'll copy in the PDF path.  Just this here. 
+ And finally, I've put in the right command here.  And I need to put in the path. 
+ It's an underscore.  And we should be running now.  Okay, great. 
+ So we're running with Marker.  Marker does use OCR.  It uses Surya. 
+ And it uses a variety of models to identify layouts and even to identify equations.  So it's very targeted in how it converts a PDF into text. 
+ But it does mean that there are quite a few models that need to be downloaded and then run.  And the first time you run it, if you're running on a Mac, which I am, or on a CPU, 
+ it's going to take a bit longer because it has to download the models.  So I'd expect to see that the time for processing here is going to be a bit longer for Marker, 
+ just because it's got to do those downloads.  Okay, so we've got Marker is complete. 
+ Mark it down was almost instantaneous.  And then Gemini Flash was also pretty fast.  Now, in my code here, when I call Gemini Flash, I am using an asynchronous method to send the pages 
+ in parallel.  So actually, I have a default of 32 as a batch size.  You could actually increase that. 
+ You can have a higher concurrency with Gemini.  And this means that each page has been processed in parallel, which will speed things up by quite a bit. 
+ Now, I've got complete parallelization because the PDF I'm converting is just 24 pages. 
+ So this is the fastest that you would be able to get.  If your document is longer than the concurrency, then it's going to add time, 
+ because you're going to have to put in series some of those conversion steps.  But what you can see here is the time for each of these methods. 
+ Marker takes about 19 seconds.  Mark it down takes 0.08, so extremely fast. 
+ And then Gemini Flash is about 20 seconds.  And this is running with Marker PDF locally. 
+ If you decided to run Marker via their API endpoint, then you would be able to get,  I think, a few seconds in terms of response time. 
+ So it won't be as fast as Mark it down, but it would probably be about 5 to 10x faster  than using Gemini Flash. 
+ Now, let's take a look at the quality that we're getting.  So first, we have Mark it down.  And what you can do is open it as a preview, the markdown. 
+ And you can see some of the problems already.  There are spaces that are missing between words. 
+ And that's going to be annoying when it comes to chunking,  because it's going to reduce the quality.  Mark it down will split things out by page. 
+ So you can see it's getting the text from each page.  But here again, for example, it's putting in this added character before the field of play. 
+ So it's kind of getting the raw text.  It is getting the raw text, but it's certainly making some errors in terms of 
+ the correct breakdown of paragraphs, new lines, and even just  adding things together without having a space or a new line between. 
+ By contrast, if you look at Gemini, and if you take a look in the preview mode, 
+ it's making a little better of a job.  You can see that here, for example, it's got some new lines that are more correctly being displayed. 
+ Let's scroll down a little bit more.  In this section on page six, it's correctly bolding and then giving a description. 
+ So we don't have the same issue that we saw with Mark it down, where there are characters adjacent to each other. 
+ And overall, I would say the Gemini approach is pretty accurate. 
+ probably will be a good approach for many applications.  Also, it will sometimes convert images. 
+ So here in the appendix, there was some text on the image.  So if you look here at the very last page, 
+ sorry, second last page, you can see it's the field and it's got some text on it. 
+ And that text has been converted.  So it's available here.  Now, it's maybe not in a very useful format, but it's doing better than what, say, 
+ the Mark it down library is doing.  Now we'll go to the gold standard, which is looking at Marker. 
+ And look how tidy this is organized.  If I open up the preview now, you can see everything is very neat. 
+ Like, look at this table here.  It's beautifully parsed.  We have a beautifully parsed table here. 
+ Another beautifully parsed table.  So generally, yeah, look at this.  Not very nice indentation. 
+ So you can see the difference.  Markdown is just of much higher quality. 
+ Now, it's not going to convert the image.  That's just because it's not designed to convert the image. 
+ So that's something to take into account.  It will optionally, if you set a flag,  it will optionally allow you to inject images in here. 
+ So if you built a more advanced pipeline, you could actually forward the Markdown text  and you could forward the images as part of chunks when you're generating questions. 
+ For now, I'm just dealing with text.  But anyway, this should give you a clear picture of how much better it is to use Marker versus the 
+ other ones in terms of quality.  And just highlight how Gemini is a good option.  It's very versatile. 
+ You can send in any document and it will do a better job than just using Mark it down.  Now, I've summarized here. 
+ Sorry, this is very blurred.  This is the same results that I showed you.  Actually, Marker will be a little bit faster if you run it again, because all the models would have been downloaded. 
+ As I mentioned, Marker via API, I think would be 2.4 seconds.  They state 10 pages per second. 
+ You can also consider the cost.  So with Marker PDF via the API, of course, free if you run it on your own computer. 
+ It's $3 per thousand pages.  Gemini Flash, I calculated, works out to about half a dollar per thousand pages. 
+ So it looks a bit cheaper.  And Mark it down, since you're running locally, that's going to be basically free. 
+ 
+ That brings us to chunking approaches.  So we have now our text in the form that I just showed you. 
+ It's a big markdown file.  And we want to break it into chunks so that we can ask questions 
+ or so that we can generate questions for those chunks.  Now, there are a few ways that you can break up into chunks. 
+ And the basic principle is that you would like the chunks to kind of reflect natural groupings 
+ that a human would think exist, like paragraphs or at least sentences.  In fact, sentences is the first level of detection that you typically want to use 
+ in making chunks.  And there are broadly two ways to do that.  One is a regular expression where you just search 
+ effectively for text with a period at the end.  It's a little more complicated than that, but that's basically it. 
+ And the other is to use a library with a small neural net.  There's an NLTK library I've used in previous videos. 
+ It's a bit slower, uses more compute.  They're very small models though, so it's really not that slow.  And it's a little bit more accurate in identifying sentence boundaries. 
+ So if you look here in the pipeline, and I'm going now to my full pipeline. 
+ In fact, I've got a few scripts.  I've got a first script for ingesting.  That's going to ingest any documents I put in my data folder. 
+ And it's going to use the markdown library.  The next one is then chunking.  And for chunking, I want to show you now how I do the regular expression based extraction. 
+ And here it is.  So split into sentences.  And you can see it's looking for this pattern here. 
+ And that's how we're detecting sentences.  So I'm using this.  It's a little bit quicker and seems to work fairly well. 
+ Now, if you want to go a step further than just recognizing sentences,  it can be good to also recognize tables. 
+ So you can do that also on a regular expression basis for tables, for CSV,  probably for other formats, too. 
+ I'll show you here recognizing table.  You might have seen me glance past it. 
+ But you can set up some kind of regular expression that's going to extract tables.  However, note that this is only going to work 
+ if you've got good conversion to markdown in the first place.  So it probably won't work with mark it down. 
+ It probably won't work with Gemini.  But it probably will work if you use marker PDF,  because you'll then be able to cleanly extract the tables. 
+ And I'll show you how that works nicely.  In fact, I'll run that script in just a moment. 
+ Now, something else to think about on chunking is what size of chunks. 
+ So you've got the sentences, you've got the tables.  And what's your strategy now for defining the chunks? 
+ And a typical strategy is to set a minimum length in terms of tokens or characters,  and then a maximum length and group the neighboring sentences together. 
+ Now, the bigger the chunks you make, the better the context.  If you have a chunk that's the full document, when you're generating questions, 
+ then the model is going to know that full context for any question it poses.  And it's less likely to be missing key information. 
+ On the other hand, it's less targeted for question generation.  So you're more likely with a very large chunk that you've questions that cover some part of it. 
+ But the questions generated don't cover the entire chunk.  So this is the high level trade off in your size of chunks. 
+ Now, you can improve contextualization regardless of chunk size by feeding in a summary of the entire 
+ document so that at least you have some kind of context.  And that is something I recommend. 
+ And it's something I also do.  And I have a script here that's called Summarize.  Summarize.  And quite simply, it takes in a full document and it uses Gemini, which is a very long context model. 
+ So you can see I'm using Gemini Flash 2.  2.5 I think is out in preview mode.  I've set a temperature and this here is basically just going to create a summary. 
+ So it's going to get the files to summarize and then generate a summary.  Here's my prompt, capture the main ideas and key points. 
+ Preserve important details and examples.  Maintain the logical flow.  Be concise while retaining the essential information. 
+ And here's the text to summarize and it will return that summary.  And that summary then is going to be used when we move to question generation, 
+ which I'll talk about in a little bit.  But first, I just want to talk about chunking. 
+ And I want to show you how to run that chunking script.  In fact, if you like, what I can do is go ahead and run all of the scripts to date. 
+ So I'll run ingestion, I'll run summarization, and then I'll run chunking.  First of all, I'll need to initialize an environment and add my dependencies. 
+ I've already done that.  So all the dependencies are listed in the toml file here.  You won't need to do it if you're cloning this repo, but you will if you're creating this from scratch. 
+ Then I'm going to run my ingestion script.  And optionally I could press force. 
+ That will just re-ingest anything because I've actually already run this before.  I need to be in the right folder. 
+ Run ingestion.  And probably it's just going to say that the document's already been ingested. 
+ And yeah, it has.  So it's skipping using marker to convert.  And now we've got the extracted text, which we can take a look at. 
+ It's in data and it's under text.  And you can see here it should be the high quality text that was extracted by marker. 
+ And indeed it is because it's all very well formatted.  Now we're going to generate a summary. 
+ I'm going to make sure to add in python.env because I need to call  openrouter, which is going to make use of my Gemini model. 
+ By the way, openrouter, it's kind of a cool service.  You can call any model from it.  It does charge a 5% premium, but one of the benefits is you can create a distinct 
+ API key that has a spend limit, which is pretty nice, especially if you're working with agents.  So just the tip on openrouter there, or openrouter, I suppose I should say, in Ireland. 
+ And so after setting my openrouter key in my environment variables here, and actually I said 
+ sample.env, but actually I have an env.example, and here's what that looks like in my .env file. 
+ And now I'm going to configure the summarization settings. 
+ So what I've done is I've set up this whole repo so everything can be configured  through a configuration file, and that configuration file is located in config. 
+ By default, it will run config.json, but you can also, when you're running any script, 
+ pass in a custom configuration.  So if you look here, here's my default config, and I'm able to control a few things for summarization. 
+ I have a fairly low temperature, I've got a max tokens, the top p, top k, and min p. 
+ When it comes to chunking then, I've got the min length, and I've got the max length of chunks, 
+ and it's going to try and generate longer lengths of chunks.  So it's really going to end up with chunks closer to this 5,000, 
+ except I am going to allow each table to take up its own chunk.  So yeah, we'll see how that forms when we run the script. 
+ And yeah, I'm in a position now where I can run the summary, so I can do uv run utils summarize. 
+ And if I want, I could pass in a config file.  And here, yeah, I've just run with the default configuration file. 
+ And it's creating a nice summary.  It's got about 2,000 different output tokens for that summary there. 
+ So that's the summarization, and next we're going to move to the chunking. 
+ And for chunking, I'm going to go back and just show you again what's in the configuration file. 
+ I've got a min length, a max length, and yeah, I've already talked about that.  So I think I can go ahead and run the chunking. 
+ Note that you may need to add a dependency here for regular expressions,  and then we can run this chunking here. 
+ And chunking does not use a model, by the way, because it's just using those regular expressions. 
+ So I could run force if I wanted.  And it's created 11 segments into 12 chunks. 
+ So because I'm identifying tables, it's able to identify text segments, and then it's able to identify tables. 
+ So in total, that's coming out to, well, it's 11 if it's text segments plus tables. 
+ But it's basically splitting at least one of those, well, one of those exactly into two chunks,  to give 12 chunks, probably because it's over 5,000 tokens in length. 
+ So let's take a look at the chunks.  We've got chunk one, which looks to be just some text. 
+ Chunk two, some text.  Chunk three is some text here, and you can see it's neatly finished off with the end of a sentence. 
+ Chunk four, chunk five.  Chunk five is quite short, probably.  Yeah, chunk five. 
+ Let's see.  It may not be that short.  Yeah, it's not all that short.  It's just, it was spilling over to the right. 
+ Chunk six, seven.  And if we move on, we can see that the tables, the table here has got its own chunk. 
+ So for the field of play.  And then here, these tables have got their own chunk as well.  So I like the idea of keeping the tables within the same chunk, 
+ because typically stuff within a given table is going to be related to itself.  So I like that aspect of design. 
+ All right.  So we've got our chunks generated now.  And the next thing we're going to do is question answer pair generation. 
+ 
+ Now, let me describe the high level of how this works.  And then I'll describe some different approaches. 
+ So the prompt used is something like this.  This is a pseudo pseudo prompt. 
+ Given the following document summary, we inject the summary.  And the following chunk of text from that doc, we inject the chunk. 
+ Generate a series of questions and answers relying solely on knowledge from that chunk. 
+ So we don't want the questions and answers to refer to other knowledge.  Otherwise, it's not going to be well grounded and could hallucinate. 
+ Now ensure that the question describes the context.  This is also very important because if the question does not give the context, 
+ which is touch rugby in this case, then it may be difficult to know what the answer should be 
+ for the length of the field or the shape of the ball.  Then I recommend giving the format required for response and giving a one shot example. 
+ Now there's one more tip that I recommend as well,  which is putting in a line here for reference, the context is, and then brief context. 
+ And this would just be some manual context that you specify maybe in the configuration file.  And I think I can show you that if I go to the configuration file right here, 
+ you can see that in QA, I have this manual field, which is provided for generating each question 
+ in addition to the document summary.  So you can imagine if you had multiple documents, this is going to be provided for all documents, 
+ whereas the summary will only be provided for a chunks given document.  Okay, so this is the brief outline of how we will generate questions. 
+ But there are a few things to think about in the nitty gritty here. 
+ The first thing to think about is judging.  Ultimately, even though we're just generating data here, we are going to partly judge the quality 
+ or determine the quality of the data by actually running evals, by running evaluations and then 
+ judging the answers. And so we need a robust judging approach. And there are two broad ways of doing  this. One is to just have questions and answers or ground truths. But the better approach I recommend is to have 
+ questions, evaluation criteria, and then answers. Now, the answers will be used for fine tuning. 
+ But the evaluation criteria, this will be the bullets or the rubric that are used for grading the answer. 
+ And the reason I like this is because having a rubric is generally more robust than trying to match a ground  truth answer. The problem with matching a ground truth answer is that often a generated answer could be correct. 
+ It's just formatted differently or in a different order to the ground truth. It's difficult to consistently  grade exactly the same if you're just relying on a ground truth answer. So instead of just asking 
+ for questions and answers, we're going to ask for questions, evaluation criteria, and answers. 
+ Second point is something I've said before. Contextualization is key. That's why we add in the  optional, well, the required context phrase. I guess it's optional if you put it in as blank. 
+ Now, a big question here or a big matter in generating QA is to figure out how many questions 
+ you want per chunk. And one approach is to just give a fixed number, ask for a fixed number of QA per chunk. 
+ The problem is this is kind of inflexible because if you have a very big chunk, you will need more  questions. And if you have a smaller chunk, you will need less. And this is not very dynamic. 
+ So a more dynamic approach is to ask for as many questions as the LLM thinks it needs to cover the 
+ meaning and content of that chunk. And this is a good approach. This is what we're going to do.  But actually, if you do this and you take the questions and feed them back and ask for more questions, 
+ you will often get more questions, which indicates that there often are still gaps,  even if you ask for all of the content to be covered. 
+ So as a solution, we're going to iterate and we're going to iterate until the language model  is not able to find any more QA pairs because it deems the content to have been covered. 
+ Okay. Now I've talked about generating questions and answers, whereas actually what I meant was 
+ generating questions, eval criteria and answers. But actually, actually, what I mean is we're also 
+ going to generate not just questions, not just eval criteria and answers, but also we're going to generate 
+ a question category, which is going to help us determine whether it's a reasoning or a fact-based 
+ question. And we're also going to have the LLM try and estimate the difficulty of the question. Now,  I would be very skeptical of the quality of the difficulty. I haven't run a test to measure actual 
+ difficulty versus perceived or projected difficulty by the LLM, but it's something maybe you can include. 
+ And I've got it in there for now, probably doesn't do much harm. And I would need to test it out further  to say that it's really meaningful. But ideally, this would be nice to have if it is meaningful, 
+ because then you can use it for grouping your questions and grouping your eval set a bit later on. 
+ Okay, so we're in a position now to run some of this QA. And I'll just go through some of the parameters. 
+ So we have to define a model, a temperature, max tokens, top P, top K, min P. This makes sure that 
+ when you've got a temperature of non-zero, you're not able to pick wild tokens that could throw the  answer off. We've got our context. And I've also set this up so that we have batching, so that we'll run 
+ in parallel with many requests to speed things up. You can choose to skip tables, not generate 
+ questions for tables, but that seems a bad idea. So we're not going to skip the tables. 
+ All right. So we move now past the chunking onto QA generation. So I'm going to go down here and 
+ find a script. So here we are. And a few options for generating questions. First is we can pass a custom 
+ configuration file. We can force regeneration. We can run in test mode. We can only process a given 
+ document and we can also iterate. This is what I talked about, but iterate means we will generate 
+ questions, pass them back and see if the language model wants to generate more. So let's run in test 
+ mode and let's run with iteration like this. And it's not iteration, it's iterate and everything 
+ has been generated already. So I'm going to add force. So what's happening here is 
+ it's found a document to process and it's now generating for iteration one and it's generated 
+ five new pairs. And now it's going to move to the next iteration, iteration two, and it didn't 
+ generate any pairs. So it's going to stop iterating. Now it's going to move to chunk two. So it's moving 
+ to chunk two. It's doing one iteration, generated 11 pairs. It's now going to move to iteration two, 
+ generated seven. Iteration three, generated two pairs. And yeah, the number of iterations that we have 
+ is currently set to three at max. But what I don't like is we didn't have enough iterations. 
+ And the reason for that is because if I go up to the config file here and if I check within QA, we can 
+ actually add in a flag that will set the max iterations. So we can add in this flag here, max iterations of 10. 
+ It's just paste here, save. And if we run again, and we run with iteration and then force, 
+ it should do something similar. Now there is some stochasticity here. So we may find that it runs out of  questions earlier. But for the first chunk, it's generating six questions. It has no new questions 
+ on the second iteration. For the second chunk, it's generated 13 questions on the first iteration. 
+ On the second iteration, it's generated three. On the third iteration, it's generated three. So it's clearly 
+ finding a lot more room for questions. The fourth iteration is generating three. On the fifth iteration, 
+ it's generating two. Sixth generation is generating three. So it's clearly finding a lot of pockets.  This is quite a large chunk if we check chunk number two. So potentially, especially if I expand it like 
+ this, potentially quite a lot of room for questions to be asked. And yeah, it's even getting as far as 
+ 10 iterations. Now generally, I find that for a given chunk with a max length of 5000, within 10 iterations, 
+ you're likely to get to the end and it will have zero on a given iteration. So that's why I recommend a 
+ config value of about 10. We're going to go ahead and take a look at the data. Take a look at the QA here. 
+ And you can see the generations all combined for the first question here. So here are our six questions. 
+ You can see them combined then for the second chunk here, of which there are many more. And notice how 
+ each one has got questions, eval criteria, answer, difficulty, and then a category for the question as 
+ well. Okay, so now we have a series of questions. We would want to run that then for the full dataset. 
+ So I've run it just on test, which will only run two chunks, but we would need to run that on the full  dataset in order to get questions and answers that are covering our full document. So now we have the 
+ 
+ question and answer pairs. And what we want to do is maybe visualize what they look like and compare if we 
+ generate question and answer pairs with different documents, because not with different documents, 
+ but different models, because we want to see, well, should you use O3? Should you use Gemini Flash?  What's the best model to use in order for question generation? And there are two ways that we can 
+ visualize the questions. The first is an embeddings based approach where we calculate the embedding for 
+ each question and we plot them. And the second is a tags based approach. So I'm going to go now to the 
+ embedVis folder, which is right here. So CD into embedVis. And within this folder, there's another 
+ readme. Let me just close down all the other ones. And embedVis allows me to do a few different types of 
+ visualization. It's going to let me create embeddings, visualize them within a single dataset, visualize 
+ train versus eval splits, compare different splits, different datasets rather, and then also take a 
+ tag based approach where we generate tags with Gemini Flash, and then compare the datasets based on tag 
+ distributions and visualizations. Now, you might be wondering, why didn't we generate tags when we 
+ generated the questions and answers? And the reason is because you want the same model to generate tags 
+ tags across all the datasets so that the tagging is consistent, because different models will assign  tags differently. And if you have a model tag itself, it's probably not going to categorize them in the 
+ same way as the other models would. So you're going to have tag distributions that are not consistent. So 
+ that's why I recommend using a single model for embeddings across all of the datasets and a single  model for tagging across all of the datasets. Now, there are scripts here that you can run if you 
+ want to create some embeddings. You can run the generate embedding script. It's just going to use the 
+ nomic modernBERT model. It will take each question, embed it locally actually here, and it will save that 
+ embedding. And then it will be able to use the embeddings to generate a plot of the comparison. Now, if you want to compare embeddings, the comparison script will actually run the generation of the embeddings in the 
+ in the background. So I'm going to start off and run a visualization. Now, the second set of scripts here is around visualization. So if you've generated embeddings, you can then visualize them by passing in a folder that contains the embeddings. 
+ But in practice, it's easier to just run a comparison script that wraps the generation and the visualization. So the script I have for that is this compare embeddings here. And I'm able to just run this script. And actually, what I can do is point it to a HuggingFace dataset. 
+ So I'm going to go over to HuggingFace. I'm just going to search here for Trelis touch rugby and I'll sort by recently created. And what I've done is create a number of datasets using different models. 
+ So I've created them with Flash, with Pro, Gemini Pro, with R1, with O4 Mini. So here, for example, if I look at O4 Mini, I can copy that dataset. And I can paste it here. And why not compare one more dataset as well. 
+ So I'll go back. Let's take a look at the Gemini Pro. And by the way, you can see the two chunks at the end. This just means that I'm only generating questions for two chunks, which is a restricted dataset. It just makes it easier to visualize by taking a smaller dataset. 
+ So let's copy paste this one. And let's try visualize. Now, this actually will work. But there's an extra flag I want to add in, which is interactive. And by adding the interactive flag, I'm going to be able to run or open a HTML file. 
+ And HTML file is going to allow us to interactively inspect the results. So here's the embedding comparison results. I'm going to copy the path to the HTML file, and I'll open that up. 
+ Okay, so this is the comparison based on embeddings. You can see we've got the O4 Mini model, and we've got the Touch Rugby Pro model. 
+ And this is a comparison done using TSNE. It's a student t-test that is used. It's basically collapsing the multi-dimensional data down into two dimensions so that we can visualize it. 
+ And what you can see broadly is two things here. There are more green dots than purple dots. So the Pro model is generating more questions than the O4 model in this case. 
+ But you can see that roughly speaking, the dots are kind of covering the same kind of space, at least in these two dimensions here. 
+ And what this tells us is that basically the models are getting reasonable amount of coverage across the data sets, across the documents rather, which is a good sign. 
+ If you had a particularly weak or a biased model, what you'd see is just the dots appear within a certain part of the graph. 
+ And that would be a concern because it might indicate that your coverage is not great.  So ideally, what you would want to see is when you run a large number of models, you want to see that you want to pick a model that's covering basically what any model is able to cover. 
+ So if you wanted to go a step further, you could show here Flash.  You could show here some of the other models like R1. 
+ In fact, maybe I should just go ahead and do that.  Let's take a look at R1.  Let's take a look at Flash. 
+ Let's take a look at Sonnet.  So what I'll do is I'll rerun my script and I'm going to put on here R1. 
+ I'll put on here Flash.  I'll put on here Sonnet and I'll make it interactive. 
+ And that should show five set to dots.  I think you can support.  I think I've got the script supporting at least five or at most five right now. 
+ So if I open up that file, you can see here the five different models.  So this is answering the question of which model should you choose to generate questions and answers. 
+ And I would say, looking on this, basically all of the models are fairly performant. 
+ The Flash model definitely generates less questions.  There are fewer yellow dots.  So potentially giving you less dense coverage. 
+ You can see that the Gemini Pro model has got very good coverage.  The O4 Mini model has also got a pretty good coverage. 
+ Maybe down here, there aren't any O4 Mini points.  So you could say that's maybe a little bit of a drawback. 
+ Also, Gemini Pro doesn't get down here.  You can check.  So these questions, who holds the copyright for Touch Rugby rules? 
+ What copyright restrictions apply to the Touch Rugby?  So you can see those questions are related.  Well, they're close to each other. 
+ Also, you can see that within a given data set, there aren't too many overlapping questions  or overlapping points, which indicates that you aren't duplicating information. 
+ So here, if you've got range of expertise and perspectives were represented in the group  that developed the rules. 
+ And here, it's a question on process and timeline.  So even though they're close, they're definitely not a replica. 
+ So basically, I would say any of these questions here are probably going to be...  Any of these models rather are probably going to be fairly strong. 
+ If anything, probably include the Pro model or probably make use of maybe the O4 model. 
+ they may give the best performance in terms of question generation.  Now, that was the demo in terms of embeddings. 
+ You can also run a comparison with tags instead of embeddings.  So let's take a quick look at how that works. 
+ So for looking at tags, it's going to be a pretty similar procedure.  We have a script for generating tags. 
+ And once we have run the tags, we're then able to run a comparison script, 
+ which I think also will call the script for making the tags.  So what I'm going to do is let's just copy paste this here. 
+ And let's copy paste our list of models because I want to run all of the models. 
+ So yeah, I actually need to copy this piece here.  And then I'm going to copy from my previous command the names of all of these models. 
+ And you can control as well the minimum or maximum number of tags that you want to include. 
+ I will just put the default for max tags is five.  Let's put that a bit bigger. 
+ And this is the max tags that are being shown in the plot.  So let's run it like this. 
+ And just while this is running here, a note that you can set which model is generating the tags.  If you go to the config file, and if you scroll down to the tagging section, 
+ you can set the temperature, which I've set low.  And I'm using GPT-4o mini.  You can use any model. 
+ You could use Gemini as well, if you wish.  So it's going to run the generate tags on each of the data sets. 
+ It'll pass in each of the questions.  We can take a look briefly at what that script looks like.  Generate tags.  And we should just quickly check what the prompt involves. 
+ So here's the system prompt.  You're a helpful assistant that generates concise descriptive tags.  Generate exactly max tags. 
+ So that's where the number of max tags comes into play.  That capture the key topics, concepts, and skills.  Test in the question. 
+ Each tag should be one to three words long, lowercase with hyphens between words.  So we've now generated the tags. 
+ And you can see that the comparison will generate two plots.  It'll generate one, which is going to be very much like the plot we checked earlier. 
+ It's a reduced dimensionality plot down to two dimensions.  And you can see the five different models here. 
+ So again, we're seeing a pretty good spread in the tags.  There is this one area maybe where Gemini is creating some tags that other models aren't. 
+ different.  And if you want to visualize it a different way, it's a little bit more intuitive.  What you can do is check. 
+ You can sort the tags according to the, you can basically do a histogram of the tags. 
+ So if I copy the path here and open this, you see now I have a histogram across the datasets. 
+ And this is an easy way to check whether you have uniformity in tags.  And it might indicate you want to generate more questions or tweak your question generation prompt 
+ to cover more on certain, uh, on certain topics.  So here, for example, football rules, sports equipment, and you can see in green, 
+ we've got pretty good coverage of all the tags that's in, um, pro 2.5. 
+ Now we don't necessarily want this to be a flat distribution because we wanted to reflect whatever the reality of the document is. 
+ So I'm not looking for it to be flat.  What I'm comparing is the ability of the different models to cover all of these tags. 
+ For example, if you look at FIT rules, um, that particular tag is not appearing so often for either the flash model. 
+ And it's also not appearing so often for the sonnet model.  So just a few examples where those two models are not creating that tag. 
+ But all of the models are including tags on touch rugby, sports regulations, game rules, touch football. 
+ So that is pretty much it on tags.  Uh, you've two ways now to visualize embeddings tags. 
+ What you're checking for is when you run multiple models, you ideally want the model you choose to cover pretty much what any model could reach. 
+ It's kind of like saying, well, imagine I asked five people to generate questions.  They all might come up with slightly different questions. 
+ And ideally your full data set, you want to cover that.  You could even consider combining the data sets from the different models, uh, deduplicate if needed. 
+ But even the deduplication needed is not going to be that drastic because you can see because of sampling, there actually aren't any very closely matching questions. 
+ Like here's what are the key uniform requirements?  And this one is what specific requirements applies to numbering system on player uniforms. 
+ Uh, so even these two are not particularly close, even though they are related here on the graph. 
+ So with that, I'm going to cover the last topic, which is related to data set evaluation. 
+ 
+ A rather evaluation data set.  And this is important for two reasons. 
+ One is if you do training, you want to know whether your training has worked and you want to know whether it works on a data set that is not an exact replica. 
+ So there are a few approaches I'll cover here and then I'll show you the scripts.  The first is to create a random split from training data. 
+ And this is the typical way that people generate eval splits.  It's often what I recommend as well, but it does have some drawbacks. 
+ And the key drawback is that if you remove examples.  In the training set that was aiming to cover a comprehensive set of data, you are going to remove data that you really want for training. 
+ And that's a problem because you're creating holes in the training set.  Another problem is if you just randomly take a split from the training data, like 10 or 20%, 
+ that random split probably won't be balanced across topics or difficulties or question categories in the same way as the training split is. 
+ So you could perform well on the eval split, but you're still performing badly on some category of the training split. 
+ So an alternative approach, which is maybe a little bit better, is to clone a balanced subset.  So you take your training set and you take a subset of that, maybe 10 or 20%, but you balance it across the tags, for example, or you balance it across the embeddings. 
+ Now, if you're cloning it, you are going to be measuring overfitting because you are literally taking some of the examples from the training set. 
+ But actually, that's kind of good because if you're trying to teach the model some knowledge, it's natural that there should be some questions that are going to appear in the training that you actually care about it getting right in that verbatim form. 
+ So doing this cloned balance subset, you're going to be able to measure verbatim learning, which is good. 
+ The drawback is you're not going to do a good job at measuring overfitting.  So the question is, how can you get a balanced eval set that also measures examples that generalize a little bit more than just verbatim copies? 
+ And one way to do that is to clone, but then rephrase the questions and answers.  So think now about having a data set, taking a balanced subsplit, balanced across embeddings or tags, and now get an LLM to rephrase the questions and answers. 
+ And that's going to give you a data set that is not going to be verbatim and should allow you to measure if there is overfitting or not. 
+ And what I mean specifically there, I'll talk about in the fine tuning video, but broadly, as your loss goes down for training, you want to see your eval loss goes down too. 
+ If your eval loss is basically staying flat and your training is going down, that means you're probably just overfitting to the exact examples rather than training the model more broadly. 
+ Now there's one more alternative, which is that instead of cloning and rephrasing a subset, you could just generate an entirely new data set. 
+ You could even generate it maybe with another language model, although a problem there is that you probably won't have the same category balances. 
+ So using a different model for eval split maybe isn't the best way to do it.  But you could just create a second data set with the same main model, which is a model that does well uncovering comprehensive questions, and then take a balanced subsplit of that. 
+ Now, if you're generating a very large synthetic data set, you might not want to do that because it means you have to generate as many training questions as eval questions. 
+ And ultimately, you're only going to use a subset of those eval questions.  But it is just an option that would provide the properties of being balanced and also not overfitting, because when you regenerate a big subset or a big set, you're going to have, because the temperature is a factor, it's going to be slightly different because of that. 
+ Next, I'm going to show you a script just to implement this.  So if I go back and we're going to move back outside of visualization into the main data prep folder. 
+ And sorry, I did rename this folder.  I think since earlier in the video, I've renamed it visualization instead of embed viz. 
+ It's just for clarity because the visualization is not just embeddings.  It's of tags as well.  So I'm back in the data prep folder. 
+ And now I want to run a script to generate a final data set.  So I'll go back to my main read me, not the read me in visualization folder, the read me that's in the data prep folder. 
+ And I'll go to data set creation.  And this is going to allow me to create a data set, save it locally, but also push it up to HuggingFace. 
+ And I'm going to do that.  First, I need to make sure to add some dependencies here, like HuggingFace hub.  And then this is already done if you're running it as a clone, because I've got it added to the tumble file. 
+ You want to log into HuggingFace.  So you can do UV run HuggingFace hub login.  And then we're going to run create data set, pass in a configuration file, and we can pass in this flag here to create an eval split. 
+ And the eval split is going to be, it's just going to be cloned, but it's going to be balanced based on embeddings. 
+ Now, there are some even more advanced features here.  If you do use eval split, it will naturally select 20% of the data set or 32 examples, whichever is lower. 
+ It will sample proportionally from each cluster identified by the elbow method using embeddings. 
+ I'll briefly mention how the elbow method works in a moment.  And there's one more flag that you can create, which is evalMirror. 
+ And what this does is it allows you to create a second eval set that is not rephrased. 
+ It is just literally a subset that is verbatim copied.  And that's going to leave you with a training set, an eval set where it's been rephrased, and then an eval set where it's been mirrored. 
+ And by doing this, you'll see it in the fine tuning video, we'll be able to distinguish whether the learning is overfitting or whether it's generalizing. 
+ If it's overfitting, we'll see the model performing well on the mirror set, the evalMirror set, but it will not perform as well on the eval set that's been rephrased. 
+ Whereas if it's learning in a generalized way, then you should see the performance of the evalMirror and the evalSplit. 
+ And basically the two different evalSplits, by running them separately, we're going to be able to tell whether we've kind of over-trained. 
+ If we've over-trained, we're going to see that the evalMirror performance will continue to increase, but the evalSplit where there's rephrasing will not be increasing. 
+ So that will kind of allow us to tell if we've trained for too many epochs, for example.  All right, so I'm going to run this here. 
+ And I am going to include this flag for rephrasing QA, which means that the evalSplit we generate will actually be rephrased. 
+ If I further add evalMirror, it will just add an extra dataset split that will be called evalMirror. 
+ So let's in fact run this create dataset.  Let's run it with the evalSplit. 
+ Let's make sure the evalSplit is rephrased.  And then let's also run an evalMirror. 
+ And you do need to be logged into HuggingFace with a token that has write permissions if you want to push up to HuggingFaceHub. 
+ Also, you need to specify here your organization and the name of the dataset you want to push. 
+ Further, you can decide whether you want it to be public.  And you can also set a seed here. 
+ That seed is used in determining the split.  So we're just pushing up the dataset now. 
+ You can see there are three different splits.  Train, eval, evalMirror.  And if we push that up to Hub, we can take a look. 
+ So let's go to HuggingFaceHub.  I know I still have to explain the elbow method.  But here we have a training set. 
+ Then we have an eval set.  Now, it may be hard for me to search, but every one of these rows here has been rephrased. 
+ So if we look at the first row, actually, and we look at the question, what's the rationale behind FIT's recommendations for members to incorporate specific elements? 
+ And then we look at evalMirror.  And we look at this question.  Why does FIT encourage its members to offer features in local competition rules? 
+ So that's actually the same question, but it's been rephrased.  In fact, this one here is verbatim from the training set. 
+ And the one that we have in the eval set has been rephrased.  So that's what these different splits do.  They should each be representative. 
+ The eval set should be roughly representative in distribution of the training set, but it's rephrased to avoid overfitting.  And then the evalMirror set is also representative of the train set, but it's a verbatim copy. 
+ So you can measure verbatim learning.  And if performance improves a lot more than the eval split with rephrasing, you know, you're probably overfitting. 
+ So just very briefly on the elbow method, how does the clustering algorithm work?  Well, broadly, it will create a 2D map like I've been showing you. 
+ Let's actually go to the 2D map here.  And it will start then to create clusters.  So it will cluster these points here for the data set. 
+ This is showing five data sets, but for one data set, it will cluster them according to distances.  And it will start off with a low number of clusters, like maybe two, and then it will repeat the process for three, four, five. 
+ And what you will see is that the overall average, it's called inertia, but it's basically a square of distances. 
+ The inertia or the representation, the deviation from a perfect representation, that deviation will fall. 
+ So as you've more clusters, you're able to better represent the data.  So you're getting a falling deviation.  But at some point, by adding more clusters, the rate of improvement of that deviation starts to kind of flatten off. 
+ So you start off, you add more clusters, and your representation of the data gets better and better.  But at some point, beyond a certain amount of clusters, adding more clusters doesn't actually help that much more. 
+ And that's called an elbow.  There's basically an elbow in the improvement.  And that's the point where you typically pick your, say, optimal number of clusters. 
+ And you use that as a basis then for determining clusters that are going to provide balance to your data set. 
+ So that is an overview of data preparation.  I am going to follow up with a fine tuning video where I will show you how using a comprehensive data set like this outperforms using a naive data set with simpler chunking and simpler question and answer generation. 
+ 
+ I will go through the full training with unsloth on one of the more recent models, Gemma. 
+ I'll also cover a bit on the Mistral model and the script will work too with Llama models. 
+ It should even work with with Llama for if you have enough GPU memory.  I'll put all of the links below in the description. 
+ You can find the script here access via the repo that's called advanced dash fine tuning, advanced dash fine dash tuning. 
+ It's on trials.com.  And in the meantime, if you have any questions, let me know down below in the comments.  Cheers. 

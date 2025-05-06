@@ -21,7 +21,7 @@ downlaod model from Hugging Face and create chat utilities and test it.
 **Qwen 0.5B-Instruct:**
 
 ```bash
-python3 -m mlx_lm.generate --prompt "tell me a limerick about cheese" --model Qwen/Qwen2.5-Coder-0.5B-Instruct
+t
 ```
 
 **Qwen 7B-Instruct:**
