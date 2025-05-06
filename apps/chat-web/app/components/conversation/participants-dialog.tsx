@@ -297,8 +297,10 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           </div>
 
           <div className="flex-1">
-            <h4 className="-mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
-            <Input
+            <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
+            <input
+              type="text"
+              className="input input-bordered input-md w-full"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
