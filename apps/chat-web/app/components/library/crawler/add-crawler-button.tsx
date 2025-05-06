@@ -14,27 +14,16 @@ const addCrawlerFunction = createServerFn({ method: 'POST' })
     return crawlerFormSchema.parse(getCrawlerFormData(data))
   })
   .handler((ctx) => {
+    const input = ctx.data
     return backendRequest(
       graphql(`
-        mutation createAiLibraryCrawler(
-          $libraryId: String!
-          $maxDepth: Int!
-          $maxPages: Int!
-          $url: String!
-          $cronJob: AiLibraryCrawlerCronJobInput
-        ) {
-          createAiLibraryCrawler(
-            libraryId: $libraryId
-            maxDepth: $maxDepth
-            maxPages: $maxPages
-            url: $url
-            cronJob: $cronJob
-          ) {
+        mutation createAiLibraryCrawler($input: AiLibraryCrawlerInput!) {
+          createAiLibraryCrawler(input: $input) {
             id
           }
         }
       `),
-      ctx.data,
+      { input },
     )
   })
 

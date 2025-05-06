@@ -268,6 +268,14 @@ export type AiLibraryCrawlerCronJobInput = {
   wednesday: Scalars['Boolean']['input']
 }
 
+export type AiLibraryCrawlerInput = {
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  libraryId: Scalars['String']['input']
+  maxDepth: Scalars['Int']['input']
+  maxPages: Scalars['Int']['input']
+  url: Scalars['String']['input']
+}
+
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
@@ -463,11 +471,7 @@ export type MutationCreateAiLibraryArgs = {
 }
 
 export type MutationCreateAiLibraryCrawlerArgs = {
-  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
-  libraryId: Scalars['String']['input']
-  maxDepth: Scalars['Int']['input']
-  maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
+  input: AiLibraryCrawlerInput
 }
 
 export type MutationCreateConversationInvitationsArgs = {
@@ -584,11 +588,8 @@ export type MutationUpdateAiLibraryArgs = {
 }
 
 export type MutationUpdateAiLibraryCrawlerArgs = {
-  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   id: Scalars['String']['input']
-  maxDepth: Scalars['Int']['input']
-  maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
+  input: AiLibraryCrawlerInput
 }
 
 export type MutationUpdateAssessmentQuestionArgs = {
@@ -1357,11 +1358,7 @@ export type VersionQueryVariables = Exact<{ [key: string]: never }>
 export type VersionQuery = { __typename?: 'Query'; version?: string | null }
 
 export type CreateAiLibraryCrawlerMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-  maxDepth: Scalars['Int']['input']
-  maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
-  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  input: AiLibraryCrawlerInput
 }>
 
 export type CreateAiLibraryCrawlerMutation = {
@@ -1450,10 +1447,7 @@ export type UpdateCrawlerButton_CrawlerFragment = {
 
 export type UpdateAiLibraryCrawlerMutationVariables = Exact<{
   id: Scalars['String']['input']
-  maxDepth: Scalars['Int']['input']
-  maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
-  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  input: AiLibraryCrawlerInput
 }>
 
 export type UpdateAiLibraryCrawlerMutation = {
@@ -4837,28 +4831,11 @@ export const CreateAiLibraryCrawlerDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerCronJobInput' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerInput' } },
+          },
         },
       ],
       selectionSet: {
@@ -4870,28 +4847,8 @@ export const CreateAiLibraryCrawlerDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'maxDepth' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'maxPages' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'url' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'cronJob' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
             selectionSet: {
@@ -5124,23 +5081,11 @@ export const UpdateAiLibraryCrawlerDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerCronJobInput' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerInput' } },
+          },
         },
       ],
       selectionSet: {
@@ -5157,23 +5102,8 @@ export const UpdateAiLibraryCrawlerDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'maxDepth' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'maxPages' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'url' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'cronJob' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
             selectionSet: {

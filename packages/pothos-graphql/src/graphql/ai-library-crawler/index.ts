@@ -9,6 +9,16 @@ import './update-ai-library-crawler'
 
 console.log('Setting up: AiLibraryCrawler')
 
+export const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
+  fields: (t) => ({
+    url: t.string({ required: true }),
+    maxDepth: t.int({ required: true }),
+    maxPages: t.int({ required: true }),
+    libraryId: t.string({ required: true }),
+    cronJob: t.field({ type: AiLibraryCrawlerCronJobInput, required: false }),
+  }),
+})
+
 builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -44,13 +54,11 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
   t.prismaField({
     type: 'AiLibraryCrawler',
     args: {
-      url: t.arg.string(),
-      maxDepth: t.arg.int(),
-      maxPages: t.arg.int(),
-      libraryId: t.arg.string(),
-      cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
+      input: t.arg({ type: AiLibraryCrawlerInput }),
     },
-    resolve: async (_query, _source, { cronJob, ...data }) => {
+    resolve: async (_query, _source, { input }) => {
+      const { cronJob, ...data } = input
+
       const crawler = await prisma.aiLibraryCrawler.create({
         include: { cronJob: true },
         data: {

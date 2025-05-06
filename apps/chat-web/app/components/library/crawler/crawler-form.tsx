@@ -85,7 +85,7 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
   }
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="w-full">
       <Input
         name="url"
         value={initialData?.url ?? 'https://'}
@@ -112,9 +112,8 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
 
       <hr />
 
-      <div className="from-control">
-        <label className="label cursor-pointer">
-          <span className="label-text">{t('crawlers.cronJobActive')}</span>
+      <fieldset className="fieldset">
+        <label className="label text-base-content mt-4 font-semibold">
           <input
             name="cronjob.active"
             defaultChecked={crawlerActive}
@@ -122,114 +121,99 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
             className="checkbox checkbox-sm"
             onChange={(event) => setCrawlerActive(event.currentTarget.checked)}
           />
+          {t('crawlers.cronJobActive')}
         </label>
-      </div>
+      </fieldset>
 
-      <fieldset className={twMerge('contents', !crawlerActive && 'hidden')}>
-        <label className="form-control">
-          <div className="label">
-            <span className="label-text">{t('crawlers.cronJobTime')}</span>
-          </div>
+      <div className={twMerge('contents', !crawlerActive && 'hidden')}>
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">{t('crawlers.cronJobTime')}</legend>
           <input
             type="time"
             name="cronjob.time"
-            className="input input-bordered w-full"
+            className="input w-full"
             required={crawlerActive}
             defaultValue={
               initialData?.cronJob ? formatTime(initialData.cronJob.hour, initialData.cronJob.minute) : '00:00'
             }
           />
-          <div className="label">
-            <span className="label-text-alt">{t('crawlers.utcHint')}</span>
-          </div>
-        </label>
+          <p className="label">{t('crawlers.utcHint')}</p>
+        </fieldset>
 
-        <div>
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.monday')}</span>
-              <input
-                name="cronjob.monday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.monday ?? true}
-              />
-            </label>
-          </div>
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">{t('crawlers.days')}</legend>
 
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.tuesday')}</span>
-              <input
-                name="cronjob.tuesday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.tuesday ?? true}
-              />
-            </label>
-          </div>
+          <label className="label">
+            <input
+              name="cronjob.monday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.monday ?? true}
+            />
+            {t('labels.monday')}
+          </label>
 
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.wednesday')}</span>
-              <input
-                name="cronjob.wednesday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.wednesday ?? true}
-              />
-            </label>
-          </div>
+          <label className="label">
+            <input
+              name="cronjob.tuesday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.tuesday ?? true}
+            />
+            {t('labels.tuesday')}
+          </label>
 
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.thursday')}</span>
-              <input
-                name="cronjob.thursday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.thursday ?? true}
-              />
-            </label>
-          </div>
+          <label className="label">
+            <input
+              name="cronjob.wednesday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.wednesday ?? true}
+            />
+            {t('labels.wednesday')}
+          </label>
 
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.friday')}</span>
-              <input
-                name="cronjob.friday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.friday ?? true}
-              />
-            </label>
-          </div>
+          <label className="label">
+            <input
+              name="cronjob.thursday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.thursday ?? true}
+            />
+            {t('labels.thursday')}
+          </label>
 
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.saturday')}</span>
-              <input
-                name="cronjob.saturday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.saturday ?? true}
-              />
-            </label>
-          </div>
+          <label className="label">
+            <input
+              name="cronjob.friday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.friday ?? true}
+            />
+            {t('labels.friday')}
+          </label>
 
-          <div className="from-control">
-            <label className="label cursor-pointer">
-              <span className="label-text">{t('labels.sunday')}</span>
-              <input
-                name="cronjob.sunday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.sunday ?? true}
-              />
-            </label>
-          </div>
-        </div>
-      </fieldset>
+          <label className="label">
+            <input
+              name="cronjob.saturday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.saturday ?? true}
+            />
+            {t('labels.saturday')}
+          </label>
+
+          <label className="label">
+            <input
+              name="cronjob.sunday"
+              type="checkbox"
+              className="checkbox checkbox-sm"
+              defaultChecked={initialData?.cronJob?.sunday ?? true}
+            />
+            {t('labels.sunday')}
+          </label>
+        </fieldset>
+      </div>
 
       <input type="hidden" name="libraryId" value={libraryId} />
       {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}

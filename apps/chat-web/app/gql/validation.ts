@@ -6,6 +6,7 @@ import {
   AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryCrawlerCronJobInput,
+  AiLibraryCrawlerInput,
   AiLibraryFileInput,
   AiLibraryInput,
   ConversationInvitationInput,
@@ -72,6 +73,16 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
     thursday: z.boolean(),
     tuesday: z.boolean(),
     wednesday: z.boolean(),
+  })
+}
+
+export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
+  return z.object({
+    cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
+    libraryId: z.string(),
+    maxDepth: z.number(),
+    maxPages: z.number(),
+    url: z.string(),
   })
 }
 
