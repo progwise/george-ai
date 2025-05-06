@@ -5,6 +5,7 @@ export default {
     addNotes: 'Add notes',
     cancel: 'Cancel',
     cancelled: 'Cancelled',
+    close: 'Close',
     confirm: 'Confirm',
     create: 'Create',
     createProfile: 'Create user profile',

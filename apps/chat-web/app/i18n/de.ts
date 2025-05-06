@@ -5,6 +5,7 @@ export default {
     addNotes: 'Notizen hinzufügen',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
+    close: 'Schließen',
     confirm: 'Bestätigen',
     create: 'Erstellen',
     createProfile: 'Benutzerprofil erstellen',
