@@ -15,7 +15,10 @@ vi.mock(
 
 const mutation = graphql(`
   mutation updateAiLibraryCrawler($cronJob: AiLibraryCrawlerCronJobInput) {
-    updateAiLibraryCrawler(id: "crawler-id", maxDepth: 1, maxPages: 1, url: "https://example.com", cronJob: $cronJob) {
+    updateAiLibraryCrawler(
+      id: "crawler-id"
+      input: { maxDepth: 1, maxPages: 1, url: "https://example.com", libraryId: "library-id", cronJob: $cronJob }
+    ) {
       id
     }
   }
