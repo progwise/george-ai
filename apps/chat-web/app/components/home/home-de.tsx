@@ -23,7 +23,7 @@ export const HomeDe = ({ user }: HomeDeProps) => {
         </p>
       </article>
       <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
-        <h3>Wenn Köpfe wechseln – George bleibt</h3>
+        <h2>Wenn Köpfe wechseln – George bleibt</h2>
         <p>
           George-AI speichert, was andere vergessen. Er begleitet Schlüsselpersonen, lernt mit – und gibt ihr Wissen
           nahtlos an Nachfolger weiter. So läuft der Laden weiter, auch wenn Köpfe wechseln. Weniger Einarbeitung. Mehr

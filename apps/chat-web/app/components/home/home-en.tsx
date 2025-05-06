@@ -21,7 +21,7 @@ export const HomeEn = ({ user }: HomeEnProps) => {
         and takes a long time to deliver comparable results – if at all.
       </article>
       <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
-        <h3>When people change – George remains</h3>
+        <h2>When people change – George remains</h2>
         <p>
           George-AI remembers what others forget. It supports key personnel, learns alongside them – and seamlessly
           passes on their knowledge to successors. That way, operations continue, even when people change. Less
