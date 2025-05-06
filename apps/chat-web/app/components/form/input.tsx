@@ -5,7 +5,7 @@ import { ZodRawShape, z } from 'zod'
 interface InputProps<T extends ZodRawShape> {
   ref?: React.Ref<HTMLInputElement | HTMLTextAreaElement>
   name: string
-  label?: string
+  label: string
   value?: string | number | undefined | null
   valueNotSet?: string
   type?: 'text' | 'textarea' | 'email' | 'password' | 'number' | 'date'
@@ -70,16 +70,9 @@ export const Input = <T extends ZodRawShape>({
 
   return (
     <fieldset className={twMerge('fieldset', className)}>
-      <legend className="fieldset-legend relative flex w-full justify-between p-0">
-        <span
-          className={twMerge(
-            'text-base-content/50 overflow-hidden text-nowrap text-sm',
-            errors.length > 0 && 'text-error',
-          )}
-        >
-          {label}
-        </span>
-        <span className={twMerge('text-error m-0', !label && 'absolute right-0 top-2 z-50')}>{errors.join(', ')}</span>
+      <legend className="fieldset-legend flex w-full justify-between">
+        <span className={twMerge('text-sm', errors.length > 0 && 'text-error')}>{label}</span>
+        <span className="text-error">{errors.join(', ')}</span>
       </legend>
 
       {type === 'textarea' ? (
@@ -88,13 +81,13 @@ export const Input = <T extends ZodRawShape>({
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
-          className="input h-full w-full flex-grow py-1 leading-normal"
+          className={twMerge('input h-full w-full flex-grow py-1 leading-normal', errors.length > 0 && 'border-error')}
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
-          aria-invalid={errors.length > 0}
+          aria-invalid={errors.length > 0 ? true : undefined}
         />
       ) : (
         <input

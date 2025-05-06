@@ -93,10 +93,12 @@ export const HomeChat = ({ user }: HomeChatProps) => {
             name={'name'}
             schema={formSchema}
             value={user?.name || ''}
+            label={t('contactForm.nameLabel')}
           />
           <Input
             placeholder={t('contactForm.messagePlaceholder')}
             name="message"
+            label={t('contactForm.messageLabel')}
             type="textarea"
             className="min-h-14"
             schema={formSchema}
@@ -105,6 +107,7 @@ export const HomeChat = ({ user }: HomeChatProps) => {
             placeholder={t('contactForm.emailOrPhonePlaceholder')}
             name="emailOrPhone"
             type="text"
+            label={t('contactForm.emailOrPhoneLabel')}
             value={user?.email || ''}
             schema={formSchema}
           />
