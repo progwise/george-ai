@@ -99,6 +99,7 @@ export default {
     cronJob: 'Cronjob',
     cronJobActive: 'Cronjob aktiv',
     cronJobTime: 'Cronjob-Zeit',
+    days: 'Tage',
     delete: 'Crawler löschen',
     deleteConfirmation:
       'Der Crawler für {crawlerUrl} wird zusammen mit {filesCount} damit gecrawlten Dateien gelöscht.',

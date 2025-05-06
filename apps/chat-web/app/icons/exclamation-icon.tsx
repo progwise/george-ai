@@ -4,7 +4,7 @@ import { IconProps } from './icon-props'
 
 export const ExclamationIcon = ({ className }: IconProps) => {
   return (
-    <div className={twMerge('size-4 fill-error', className)}>
+    <div className={twMerge('fill-error size-4', className)}>
       <svg
         viewBox="0 0 64 64"
         xmlns="http://www.w3.org/2000/svg"

@@ -6,7 +6,7 @@ export const HomeEn = () => {
   return (
     <div className="prose prose-lg mt-10 flex max-w-none flex-col gap-4">
       <h1 className="m-0 p-0 text-center">Your AI. Your Data. Your Rules.</h1>
-      <ul className="menu menu-horizontal justify-center rounded-box">
+      <ul className="menu menu-horizontal rounded-box w-full justify-center">
         <li>
           <a className="btn btn-sm" href="#features">
             Features

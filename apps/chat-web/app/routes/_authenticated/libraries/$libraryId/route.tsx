@@ -38,7 +38,7 @@ function RouteComponent() {
           <button
             type="button"
             onClick={() => navigate({ to: '..' })}
-            className="btn btn-sm tooltip"
+            className="btn btn-sm tooltip tooltip-bottom"
             data-tip={t('tooltips.goToOverview')}
           >
             <BackIcon />
@@ -46,7 +46,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div role="tablist" className="tabs tabs-bordered w-fit">
+      <div role="tablist" className="tabs tabs-border w-fit">
         <Link
           to="/libraries/$libraryId/edit"
           params={{ libraryId }}

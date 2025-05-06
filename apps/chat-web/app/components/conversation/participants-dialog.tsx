@@ -279,7 +279,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     name="assistants"
                     value={assistant.id}
-                    className="checkbox-info checkbox checkbox-xs"
+                    className="checkbox checkbox-info checkbox-xs"
                     checked={selectedAssistantIds.includes(assistant.id)}
                     onChange={(event) => {
                       const value = event.target.checked
@@ -308,7 +308,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 disabled={availableHumans.length < 1}
                 type="checkbox"
                 name="selectAll"
-                className="checkbox-info checkbox checkbox-xs"
+                className="checkbox checkbox-info checkbox-xs"
                 checked={selectedUserIds.length > 0}
                 ref={(element) => {
                   if (!element) return
@@ -336,7 +336,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     name="userIds"
                     value={human.id}
-                    className="checkbox-info checkbox checkbox-xs"
+                    className="checkbox checkbox-info checkbox-xs"
                     checked={selectedUserIds.includes(human.id)}
                     onChange={(event) => {
                       const value = event.target.checked
@@ -363,7 +363,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 setEmails={setEmailChips}
                 placeholder={t('placeholders.emailToInvite')}
               />
-              {emailError && <p className="text-sm text-error">{emailError}</p>}
+              {emailError && <p className="text-error text-sm">{emailError}</p>}
               <div className="mt-2 flex flex-col gap-1">
                 <label className="flex items-center gap-2">
                   <input

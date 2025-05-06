@@ -33,7 +33,7 @@ export const Dropdown = ({ title, options, action, className, disabled }: Dropdo
     <div className={twMerge('text-right', className)}>
       <Menu>
         <MenuButton
-          className="input input-sm input-bordered flex w-full items-center justify-between gap-4 rounded-lg bg-base-100 px-2 py-1 text-left text-sm focus:outline-none"
+          className="focus:outline-hidden input input-sm bg-base-100 flex w-full items-center justify-between gap-4 rounded-lg px-2 py-1 text-left text-sm"
           disabled={disabled}
         >
           {title}
@@ -42,7 +42,7 @@ export const Dropdown = ({ title, options, action, className, disabled }: Dropdo
         <MenuItems
           transition
           anchor="bottom end"
-          className="flex flex-col items-start gap-2 rounded-xl border border-base-content/25 bg-base-100 px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+          className="focus:outline-hidden border-base-content/25 bg-base-100 flex flex-col items-start gap-2 rounded-xl border px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] data-[closed]:scale-95 data-[closed]:opacity-0"
         >
           {options.map((item) => (
             <MenuItem key={item.id}>

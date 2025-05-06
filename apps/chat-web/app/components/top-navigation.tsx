@@ -71,122 +71,129 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
   }, [isMenuOpen, handleOutsideClick])
 
   return (
-    <nav className="navbar sticky top-2 z-50 mb-6 rounded-box bg-base-200 shadow-xl lg:top-4 lg:mb-14">
-      {/******************* Mobile ******************  */}
-      <div className="flex w-full items-center justify-between lg:hidden">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="btn btn-ghost" aria-label="Home">
-            <BowlerLogoIcon className="size-8" />
-          </Link>
-        </div>
-        {user ? (
-          <Link to="/profile" className="btn btn-ghost gap-2">
-            <span className="max-w-48 truncate">{user.name}</span>
-          </Link>
-        ) : (
-          isReady && (
-            <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-              <UserIcon className="size-6" />
-              {t('actions.signIn')}
-            </button>
-          )
-        )}
-
-        <label className="swap swap-rotate" aria-label="Toggle theme">
-          <input
-            type="checkbox"
-            className="theme-controller"
-            value="dark" /* DaisyUI applies this theme when checked */
-            checked={theme === 'dark'}
-            onChange={handleThemeToggle}
-          />
-          <SunIcon className="swap-off size-6 fill-current" />
-          <MoonIcon className="swap-on size-6 fill-current" />
-        </label>
-      </div>
-
-      {/******************* Desktop ******************  */}
-      <div className="hidden w-full items-center justify-between lg:flex">
-        <div className="flex items-center gap-4">
-          <Link to="/" className="btn btn-ghost" aria-label="Home">
-            <BowlerLogoIcon className="size-8" />
-            {t('brand')}
-          </Link>
-        </div>
-
-        <div className="flex gap-4">
-          <TopNavigationLink to="/conversations/$">
-            <ConversationIcon className="size-6" />
-            {t('topNavigation.conversations')}
-          </TopNavigationLink>
-          <TopNavigationLink to="/assistants">
-            <BowlerHatIcon className="size-6" />
-            {t('topNavigation.assistants')}
-          </TopNavigationLink>
-          <TopNavigationLink to="/libraries">
-            <AcademicCapIcon className="size-6" />
-            {t('topNavigation.libraries')}
-          </TopNavigationLink>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {user ? (
-            <>
-              <TopNavigationLink to="/profile">
-                <span className="max-w-40 truncate">{user?.name || 'no name'}</span>
-              </TopNavigationLink>
-              <label className="swap swap-rotate" aria-label="Toggle theme">
-                <input
-                  type="checkbox"
-                  className="theme-controller"
-                  value="dark"
-                  checked={theme === 'dark'}
-                  onChange={handleThemeToggle}
-                />
-                <SunIcon className="swap-off size-6 fill-current" />
-                <MoonIcon className="swap-on size-6 fill-current" />
-              </label>
-
-              {isReady && (
-                <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
-                  <UserIcon className="size-6" />
-                  {t('actions.signOut')}
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <a
-                href="https://calendly.com/michael-vogt-progwise/30min"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-accent"
-              >
-                {t('topNavigation.demo')}
-              </a>
-
-              <label className="swap swap-rotate" aria-label="Toggle theme">
-                <input
-                  type="checkbox"
-                  className="theme-controller"
-                  value="dark"
-                  checked={theme === 'dark'}
-                  onChange={handleThemeToggle}
-                />
-                <SunIcon className="swap-off size-6 fill-current" />
-                <MoonIcon className="swap-on size-6 fill-current" />
-              </label>
-
-              {isReady && (
+    <>
+      <div className="container fixed inset-x-0 top-2 z-50">
+        <nav className="navbar rounded-box bg-base-200 shadow-xl">
+          {/******************* Mobile ******************  */}
+          <div className="flex w-full items-center justify-between lg:hidden">
+            <div className="flex items-center gap-2">
+              <Link to="/" className="btn btn-ghost" aria-label="Home">
+                <BowlerLogoIcon className="size-8" />
+              </Link>
+            </div>
+            {user ? (
+              <Link to="/profile" className="btn btn-ghost gap-2">
+                <span className="max-w-48 truncate">{user.name}</span>
+              </Link>
+            ) : (
+              isReady && (
                 <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
                   <UserIcon className="size-6" />
                   {t('actions.signIn')}
                 </button>
+              )
+            )}
+
+            <label className="swap swap-rotate" aria-label="Toggle theme">
+              <input
+                type="checkbox"
+                className="theme-controller"
+                value="dark" /* DaisyUI applies this theme when checked */
+                checked={theme === 'dark'}
+                onChange={handleThemeToggle}
+              />
+              <SunIcon className="swap-off size-6 fill-current" />
+              <MoonIcon className="swap-on size-6 fill-current" />
+            </label>
+          </div>
+
+          {/******************* Desktop ******************  */}
+          <div className="hidden w-full items-center justify-between lg:flex">
+            <div className="flex items-center gap-4">
+              <Link to="/" className="btn btn-ghost" aria-label="Home">
+                <BowlerLogoIcon className="size-8" />
+                {t('brand')}
+              </Link>
+            </div>
+
+            <div className="flex gap-4">
+              <TopNavigationLink to="/conversations/$">
+                <ConversationIcon className="size-6" />
+                {t('topNavigation.conversations')}
+              </TopNavigationLink>
+              <TopNavigationLink to="/assistants">
+                <BowlerHatIcon className="size-6" />
+                {t('topNavigation.assistants')}
+              </TopNavigationLink>
+              <TopNavigationLink to="/libraries">
+                <AcademicCapIcon className="size-6" />
+                {t('topNavigation.libraries')}
+              </TopNavigationLink>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {user ? (
+                <>
+                  <TopNavigationLink to="/profile">
+                    <span className="max-w-40 truncate">{user?.name || 'no name'}</span>
+                  </TopNavigationLink>
+                  <label className="swap swap-rotate" aria-label="Toggle theme">
+                    <input
+                      type="checkbox"
+                      className="theme-controller"
+                      value="dark"
+                      checked={theme === 'dark'}
+                      onChange={handleThemeToggle}
+                    />
+                    <SunIcon className="swap-off size-6 fill-current" />
+                    <MoonIcon className="swap-on size-6 fill-current" />
+                  </label>
+
+                  {isReady && (
+                    <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
+                      <UserIcon className="size-6" />
+                      {t('actions.signOut')}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <a
+                    href="https://calendly.com/michael-vogt-progwise/30min"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-accent"
+                  >
+                    {t('topNavigation.demo')}
+                  </a>
+
+                  <label className="swap swap-rotate" aria-label="Toggle theme">
+                    <input
+                      type="checkbox"
+                      className="theme-controller"
+                      value="dark"
+                      checked={theme === 'dark'}
+                      onChange={handleThemeToggle}
+                    />
+                    <SunIcon className="swap-off size-6 fill-current" />
+                    <MoonIcon className="swap-on size-6 fill-current" />
+                  </label>
+
+                  {isReady && (
+                    <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+                      <UserIcon className="size-6" />
+                      {t('actions.signIn')}
+                    </button>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        </nav>
       </div>
-    </nav>
+
+      {/* The navbar is position fixed, this div moves the page content below the navbar. */}
+      <div className="h-24" />
+    </>
   )
 }
