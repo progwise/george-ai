@@ -9,7 +9,7 @@ interface HomeEnProps {
 
 export const HomeEn = ({ user }: HomeEnProps) => {
   return (
-    <div className="flex max-w-none flex-col gap-4">
+    <div className="flex max-w-none flex-col gap-6">
       <HeroEn user={user} />
 
       <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
