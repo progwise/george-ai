@@ -25,13 +25,13 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
         throw new GraphQLError(`Crawler not found`)
       }
 
-      const existingCronJob = existingCrawler.cronJob ? { update: { ...cronJob } } : { create: { ...cronJob } }
-
       const crawler = await prisma.aiLibraryCrawler.update({
         where: { id },
         data: {
           ...data,
-          cronJob: existingCronJob,
+          cronJob: existingCrawler.cronJob
+            ? { update: cronJob ?? { active: false } }
+            : { create: cronJob ?? undefined },
         },
         include: { cronJob: true },
       })

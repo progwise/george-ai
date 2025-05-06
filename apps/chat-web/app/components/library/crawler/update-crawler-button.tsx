@@ -40,20 +40,12 @@ const updateCrawlerFunction = createServerFn({ method: 'POST' })
       graphql(`
         mutation updateAiLibraryCrawler(
           $id: String!
-          $libraryId: String!
           $maxDepth: Int!
           $maxPages: Int!
           $url: String!
           $cronJob: AiLibraryCrawlerCronJobInput
         ) {
-          updateAiLibraryCrawler(
-            id: $id
-            libraryId: $libraryId
-            maxDepth: $maxDepth
-            maxPages: $maxPages
-            url: $url
-            cronJob: $cronJob
-          ) {
+          updateAiLibraryCrawler(id: $id, maxDepth: $maxDepth, maxPages: $maxPages, url: $url, cronJob: $cronJob) {
             id
           }
         }

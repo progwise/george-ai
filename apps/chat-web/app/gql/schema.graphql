@@ -389,7 +389,6 @@ type Mutation {
   updateAiLibraryCrawler(
     cronJob: AiLibraryCrawlerCronJobInput
     id: String!
-    libraryId: String!
     maxDepth: Int!
     maxPages: Int!
     url: String!

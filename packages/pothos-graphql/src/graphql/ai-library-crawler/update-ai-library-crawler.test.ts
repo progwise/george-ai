@@ -232,7 +232,7 @@ describe('updateAiLibraryCrawler mutation', () => {
       })
     })
 
-    it.skip('sets cron job to inactive when not provided', async () => {
+    it('sets cron job to inactive when not provided', async () => {
       await prisma.aiLibraryCrawler.create({
         data: {
           id: 'crawler-id',

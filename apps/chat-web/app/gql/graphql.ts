@@ -564,7 +564,6 @@ export type MutationUpdateAiLibraryArgs = {
 export type MutationUpdateAiLibraryCrawlerArgs = {
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   id: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
   url: Scalars['String']['input']
@@ -1428,7 +1427,6 @@ export type UpdateCrawlerButton_CrawlerFragment = {
 
 export type UpdateAiLibraryCrawlerMutationVariables = Exact<{
   id: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
   url: Scalars['String']['input']
@@ -5087,11 +5085,6 @@ export const UpdateAiLibraryCrawlerDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
         },
@@ -5122,11 +5115,6 @@ export const UpdateAiLibraryCrawlerDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'id' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
               {
                 kind: 'Argument',
