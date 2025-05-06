@@ -9,18 +9,18 @@ const BottomNavigationMobile = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="btm-nav z-40 lg:hidden">
-      <Link to="/conversations/$">
+    <div className="dock z-40 lg:hidden">
+      <Link to="/conversations/$" activeProps={{ className: 'dock-active' }}>
         <ConversationIcon className="size-6" />
-        <span className="btm-nav-label">{t('topNavigation.conversations')}</span>
+        <span className="dock-label">{t('topNavigation.conversations')}</span>
       </Link>
-      <Link to="/assistants">
+      <Link to="/assistants" activeProps={{ className: 'dock-active' }}>
         <BowlerHatIcon className="size-6" />
-        <span className="btm-nav-label">{t('topNavigation.assistants')}</span>
+        <span className="dock-label">{t('topNavigation.assistants')}</span>
       </Link>
-      <Link to="/libraries">
+      <Link to="/libraries" activeProps={{ className: 'dock-active' }}>
         <AcademicCapIcon className="size-6" />
-        <span className="btm-nav-label">{t('topNavigation.libraries')}</span>
+        <span className="dock-label">{t('topNavigation.libraries')}</span>
       </Link>
     </div>
   )

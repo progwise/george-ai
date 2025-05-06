@@ -12,7 +12,7 @@ export const HomeDe = ({ user }: HomeDeProps) => {
     <div className="flex max-w-none flex-col gap-4">
       <HeroDe user={user} />
 
-      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
+      <article className="prose prose-gray animate-fade-up animate-delay-1000 md:prose-xl mx-auto">
         <h2>Die Story</h2>
         <p>
           In vielen Unternehmen gibt es diese eine oder mehrere unverzichtbare Personen pro Abteilung – oft jene, die
@@ -22,7 +22,7 @@ export const HomeDe = ({ user }: HomeDeProps) => {
           nicht und braucht lange, um vergleichbare Ergebnisse zu liefern – wenn überhaupt.
         </p>
       </article>
-      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
+      <article className="prose prose-gray animate-fade-up animate-delay-1000 md:prose-xl mx-auto">
         <h3>Wenn Köpfe wechseln – George bleibt</h3>
         <p>
           George-AI speichert, was andere vergessen. Er begleitet Schlüsselpersonen, lernt mit – und gibt ihr Wissen

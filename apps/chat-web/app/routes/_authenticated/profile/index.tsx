@@ -224,7 +224,7 @@ function RouteComponent() {
         {t('texts.profileFoundFor')} {user?.name}
         <button
           type="button"
-          className="btn btn-circle btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
+          className="btn btn-ghost btn-sm btn-circle lg:tooltip lg:tooltip-bottom"
           onClick={() => {
             removeProfileMutation()
           }}

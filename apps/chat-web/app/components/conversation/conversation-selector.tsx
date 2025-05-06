@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import { twMerge } from 'tailwind-merge'
 
 import { dateString } from '@george-ai/web-utils'
 
@@ -23,13 +22,12 @@ const ConversationSelector_ConversationFragment = graphql(`
 
 interface ConversationSelectorProps {
   conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
-  selectedConversationId?: string
   onClick?: () => void
 }
 
 export const ConversationSelector = ({
   conversations: conversationsFragment,
-  selectedConversationId,
+
   onClick,
 }: ConversationSelectorProps) => {
   const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
@@ -58,10 +56,8 @@ export const ConversationSelector = ({
               {conversations.map((conversation) => (
                 <li key={conversation.id} className="center grid grid-cols-1">
                   <Link
-                    className={twMerge(
-                      'mt-1 block rounded-md',
-                      conversation.id === selectedConversationId ? 'link-primary' : 'link-neutral',
-                    )}
+                    className="mt-1 block rounded-md"
+                    activeProps={{ className: 'menu-active' }}
                     onClick={onClick}
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}

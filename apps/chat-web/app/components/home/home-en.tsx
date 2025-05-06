@@ -12,7 +12,7 @@ export const HomeEn = ({ user }: HomeEnProps) => {
     <div className="flex max-w-none flex-col gap-4">
       <HeroEn user={user} />
 
-      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
+      <article className="prose prose-gray animate-fade-up animate-delay-1000 md:prose-xl mx-auto">
         <h2>The Story</h2>
         In many companies, there is one – or sometimes several – indispensable person per department. Often, they are
         the ones who consolidate information, detect problems early, prepare decisions, and ensure smooth operations.
@@ -20,7 +20,7 @@ export const HomeEn = ({ user }: HomeEnProps) => {
         parental leave, or retirement. Their replacement overlooks important details, can’t find the right information,
         and takes a long time to deliver comparable results – if at all.
       </article>
-      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
+      <article className="prose prose-gray animate-fade-up animate-delay-1000 md:prose-xl mx-auto">
         <h3>When people change – George remains</h3>
         <p>
           George-AI remembers what others forget. It supports key personnel, learns alongside them – and seamlessly

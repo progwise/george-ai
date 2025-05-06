@@ -11,7 +11,7 @@ interface InputProps<T extends ZodRawShape> {
   type?: 'text' | 'textarea' | 'email' | 'password' | 'number' | 'date'
   placeholder?: string
   required?: boolean
-  readOnly?: boolean
+  disabled?: boolean
   schema?: z.ZodObject<T>
   onChange?: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => void
@@ -27,7 +27,7 @@ export const Input = <T extends ZodRawShape>({
   type,
   placeholder,
   required,
-  readOnly,
+  disabled,
   schema,
   onChange,
   onBlur,
@@ -69,11 +69,11 @@ export const Input = <T extends ZodRawShape>({
   )
 
   return (
-    <label className={twMerge('flex flex-col', className)}>
-      <div className="flex flex-row justify-between">
+    <fieldset className={twMerge('fieldset', className)}>
+      <legend className="fieldset-legend">
         <span
           className={twMerge(
-            'overflow-hidden text-nowrap text-sm text-base-content/50',
+            'text-base-content/50 overflow-hidden text-nowrap text-sm',
             errors.length > 0 && 'text-error',
           )}
         >
@@ -81,28 +81,27 @@ export const Input = <T extends ZodRawShape>({
         </span>
         <span
           className={twMerge(
-            'justify-self-end overflow-hidden text-nowrap text-sm text-error',
+            'text-error justify-self-end overflow-hidden text-nowrap text-sm',
             !label && 'absolute right-1',
           )}
         >
           {errors.join(', ')}
         </span>
-      </div>
+      </legend>
+
       {type === 'textarea' ? (
         <textarea
           ref={ref as React.Ref<HTMLTextAreaElement>}
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
-          className={twMerge(
-            'input input-sm input-bordered flex-grow py-1 leading-normal text-base-content',
-            readOnly && 'cursor-not-allowed text-base-content/50',
-          )}
+          className="input input-sm flex-grow py-1 leading-normal"
           placeholder={placeholder || ''}
           required={required}
-          readOnly={readOnly}
+          disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
+          aria-invalid={errors.length > 0}
         />
       ) : (
         <input
@@ -111,19 +110,16 @@ export const Input = <T extends ZodRawShape>({
           name={name}
           type={renderedType || 'text'}
           defaultValue={renderedValue || ''}
-          className={twMerge(
-            'input input-sm input-bordered w-full text-base-content focus:outline-none',
-            readOnly && 'cursor-not-allowed text-base-content/50',
-            type === 'number' && 'text-right',
-            type === 'date' && 'text-center',
-          )}
+          className="input validator w-full"
           placeholder={placeholder || ''}
           required={required}
-          readOnly={readOnly}
+          disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
+          aria-invalid={errors.length > 0 ? true : undefined}
         />
       )}
-    </label>
+      <div className="validator-hint">{errors.join(', ')}</div>
+    </fieldset>
   )
 }
