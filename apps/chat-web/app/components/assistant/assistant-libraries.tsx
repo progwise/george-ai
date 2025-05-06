@@ -136,10 +136,10 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
               addUsage({ assistantId: assistant.id, libraryId })
             }}
           />
+        ) : libraries?.length === 0 ? (
+          <Dropdown options={[]} title={t('libraries.noLibrariesFound')} disabled />
         ) : (
-          <span className="text-base-content/50 rounded-md border border-transparent px-2 py-1 text-left text-sm">
-            {t('assistants.noLibrariesToAdd')}
-          </span>
+          <Dropdown options={[]} title={t('assistants.noLibrariesToAdd')} disabled />
         )}
       </div>
       <LoadingSpinner isLoading={updateUsageIsPending} />

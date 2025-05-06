@@ -1,5 +1,6 @@
 import { RefObject } from 'react'
 import { createPortal } from 'react-dom'
+import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
 
@@ -12,6 +13,7 @@ export interface DialogFormProps {
   disabledSubmit?: boolean
   submitButtonText?: string
   submitButtonTooltipText?: string
+  className?: string
 }
 
 export const DialogForm = ({
@@ -23,6 +25,7 @@ export const DialogForm = ({
   disabledSubmit,
   submitButtonText,
   submitButtonTooltipText,
+  className,
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -38,21 +41,21 @@ export const DialogForm = ({
   // using react portals prevents animation issues with the modal
   return createPortal(
     <dialog className="modal" ref={ref}>
-      <div className="modal-box">
+      <div className={twMerge('modal-box', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}
         <form method="dialog" onSubmit={handleSubmit}>
           <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
           <div className="modal-action">
             <button type="button" className="btn btn-sm" onClick={handleClose}>
-              {t('dialog.cancel')}
+              {t('actions.cancel')}
             </button>
             <div
               className={` ${disabledSubmit ? 'lg:tooltip lg:tooltip-left' : ''} `}
               data-tip={submitButtonTooltipText}
             >
               <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
-                {submitButtonText || t('dialog.confirm')}
+                {submitButtonText || t('actions.confirm')}
               </button>
             </div>
           </div>

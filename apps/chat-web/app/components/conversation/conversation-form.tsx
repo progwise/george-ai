@@ -168,7 +168,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
                     type="checkbox"
                     checked={!unselectedAssistantIds.includes(assistant.id)}
                     onChange={() => handleAssistantToggle(assistant.id)}
-                    className="checkbox checkbox-info checkbox-sm"
+                    className="checkbox checkbox-info checkbox-xs"
                   />
                   <span className="label-text">
                     {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
@@ -191,7 +191,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
                         type="checkbox"
                         checked={!unselectedAssistantIds.includes(assistant.id)}
                         onChange={() => handleAssistantToggle(assistant.id)}
-                        className="checkbox checkbox-info checkbox-sm"
+                        className="checkbox checkbox-info checkbox-xs"
                       />
                       <span className="label-text">{assistant.name}</span>
                     </label>
@@ -207,7 +207,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
               disabled={isPending || remainingMessages < 1}
               data-tip={`${remainingMessages} ${t('tooltips.remainingMessages')}`}
             >
-              {t('actions.sendMessage')}
+              {t('actions.send')}
             </button>
           </div>
         </form>
