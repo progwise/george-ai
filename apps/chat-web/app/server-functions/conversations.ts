@@ -85,7 +85,6 @@ export const deleteConversation = createServerFn({ method: 'POST' })
 
 export const removeConversations = createServerFn({ method: 'POST' })
   .validator((data: { conversationIds: string[]; userId: string }) => {
-    console.log(data)
     return z
       .object({
         conversationIds: z.array(z.string()),
