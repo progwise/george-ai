@@ -63,15 +63,16 @@ builder.queryField('aiAssistants', (t) =>
     type: ['AiAssistant'],
     args: {
       ownerId: t.arg.string(),
+      participantId: t.arg.string(),
     },
     nullable: {
       list: false,
       items: false,
     },
-    resolve: (query, _source, { ownerId }) => {
+    resolve: (query, _source, { ownerId, participantId }) => {
       return prisma.aiAssistant.findMany({
         ...query,
-        where: { ownerId },
+        where: { ownerId, participants: { some: { userId: participantId } } },
       })
     },
   }),

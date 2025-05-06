@@ -63,6 +63,7 @@ export default {
     libraryToAdd: 'Bibliothek hinzufügen',
     myAssistants: 'Meine Assistenten',
     noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
+    owner: 'Besitzer',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
       euAiActNotePlaceholder: 'Zusätzliche Information oder Kontext...',
@@ -72,6 +73,7 @@ export default {
     },
     removeLibrary: 'Bibliothek entfernen',
     usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
+    users: 'Benutzer',
   },
   brand: 'George-Ai',
   conversations: {

@@ -1,35 +1,25 @@
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
-builder.prismaObject('AiAssistantParticipant', {
-  name: 'AiAssistantParticipant',
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    // createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    assistantId: t.exposeID('assistantId', { nullable: false }),
-    assistant: t.relation('assistant'),
-    userId: t.exposeID('userId', { nullable: true }),
-    user: t.relation('user'),
-    name: t.field({
-      type: 'String',
-      resolve: async (source) => {
-        const user = await prisma.user.findUniqueOrThrow({
-          where: { id: source.userId! },
-        })
-        return user?.name
-      },
-    }),
-  }),
-})
-
 builder.mutationField('addAssistantParticipants', (t) =>
   t.prismaField({
-    type: ['AiAssistantParticipant'],
+    type: ['User'],
+    nullable: false,
     args: {
+      ownerId: t.arg.string({ required: true }),
       assistantId: t.arg.string({ required: true }),
       userIds: t.arg.stringList({ required: true }),
     },
-    resolve: async (query, _source, { assistantId, userIds }) => {
+    resolve: async (query, _source, { ownerId, assistantId, userIds }) => {
+      const assistant = await prisma.aiAssistant.findUniqueOrThrow({
+        where: { id: assistantId },
+        select: { ownerId: true },
+      })
+
+      if (assistant.ownerId !== ownerId) {
+        throw new Error('Only the owner can add participants to this assistant')
+      }
+
       const existingParticipants = await prisma.aiAssistantParticipant.findMany({
         where: { assistantId },
       })
@@ -38,11 +28,18 @@ builder.mutationField('addAssistantParticipants', (t) =>
         (userId) => !existingParticipants.some((participant) => participant.userId === userId),
       )
 
-      return prisma.aiAssistantParticipant.createManyAndReturn({
+      await prisma.aiAssistantParticipant.createMany({
         data: newUserIds.map((userId) => ({
           assistantId,
           userId,
         })),
+      })
+
+      return prisma.user.findMany({
+        ...query,
+        where: {
+          id: { in: newUserIds },
+        },
       })
     },
   }),
@@ -50,13 +47,23 @@ builder.mutationField('addAssistantParticipants', (t) =>
 
 builder.mutationField('removeAssistantParticipant', (t) =>
   t.prismaField({
-    type: 'AiAssistantParticipant',
+    type: 'User',
+    nullable: false,
     args: {
       id: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { id }) => {
-      return prisma.aiAssistantParticipant.delete({
+      const participant = await prisma.aiAssistantParticipant.findUniqueOrThrow({
         where: { id },
+        select: { userId: true },
+      })
+
+      await prisma.aiAssistantParticipant.delete({
+        where: { id },
+      })
+
+      return prisma.user.findUniqueOrThrow({
+        where: { id: participant.userId },
       })
     },
   }),

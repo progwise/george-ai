@@ -63,6 +63,7 @@ export default {
     libraryToAdd: 'Add library',
     myAssistants: 'My assistants',
     noLibrariesToAdd: 'All libraries added',
+    owner: 'Owner',
     placeholders: {
       description: 'Describe your assistant',
       euAiActNotePlaceholder: 'Additional information or context...',
@@ -72,6 +73,7 @@ export default {
     },
     removeLibrary: 'Remove library',
     usagePlaceholder: 'How should the library be used?',
+    users: 'Users',
   },
   brand: 'George-Ai',
   conversations: {

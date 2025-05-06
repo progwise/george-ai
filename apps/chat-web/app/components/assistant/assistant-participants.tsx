@@ -57,10 +57,6 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
   })
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
-    if (!isOwner) {
-      console.error('Only the assistant owner can remove participants')
-      return
-    }
     event.preventDefault()
     mutateRemove({ participantId })
   }
@@ -89,7 +85,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
                 </button>
               )}
               <span className="max-w-36 truncate">{participant.name}</span>
-              {isParticipantOwner && <span className="pl-1 font-bold">({t('conversations.owner')})</span>}
+              {isParticipantOwner && <span className="pl-1 font-bold">({t('assistants.owner')})</span>}
             </div>
           )
         })}
