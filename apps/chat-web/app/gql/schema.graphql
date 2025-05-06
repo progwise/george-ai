@@ -361,7 +361,7 @@ type Mutation {
     maxPages: Int!
     url: String!
   ): AiLibraryCrawler
-  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean
+  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant

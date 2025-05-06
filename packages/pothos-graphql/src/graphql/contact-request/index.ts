@@ -4,6 +4,7 @@ import { builder } from '../builder'
 builder.mutationField('createContactRequest', (t) =>
   t.field({
     type: 'Boolean',
+    nullable: false,
     args: {
       name: t.arg.string({ required: true }),
       emailOrPhone: t.arg.string({ required: true }),

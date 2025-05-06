@@ -365,7 +365,7 @@ export type Mutation = {
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
-  createContactRequest?: Maybe<Scalars['Boolean']['output']>
+  createContactRequest: Scalars['Boolean']['output']
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -1334,7 +1334,7 @@ export type CreateContactRequestMutationVariables = Exact<{
   message: Scalars['String']['input']
 }>
 
-export type CreateContactRequestMutation = { __typename?: 'Mutation'; createContactRequest?: boolean | null }
+export type CreateContactRequestMutation = { __typename?: 'Mutation'; createContactRequest: boolean }
 
 export type VersionQueryVariables = Exact<{ [key: string]: never }>
 
