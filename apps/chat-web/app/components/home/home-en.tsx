@@ -14,11 +14,13 @@ export const HomeEn = ({ user }: HomeEnProps) => {
 
       <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
         <h2>The Story</h2>
-        In many companies, there is one – or sometimes several – indispensable person per department. Often, they are
-        the ones who consolidate information, detect problems early, prepare decisions, and ensure smooth operations.
-        They are the memory and connection points of the team. But then, suddenly, they’re unavailable – due to illness,
-        parental leave, or retirement. Their replacement overlooks important details, can’t find the right information,
-        and takes a long time to deliver comparable results – if at all.
+        <p>
+          In many companies, there is one – or sometimes several – indispensable person per department. Often, they are
+          the ones who consolidate information, detect problems early, prepare decisions, and ensure smooth operations.
+          They are the memory and connection points of the team. But then, suddenly, they’re unavailable – due to
+          illness, parental leave, or retirement. Their replacement overlooks important details, can’t find the right
+          information, and takes a long time to deliver comparable results – if at all.
+        </p>
       </article>
       <article className="prose prose-gray mx-auto animate-fade-up animate-delay-1000 md:prose-xl">
         <h2>When people change – George remains</h2>
