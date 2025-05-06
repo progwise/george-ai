@@ -7,8 +7,8 @@ import { z } from 'zod'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
 
 const deleteFilesDocument = graphql(`
   mutation dropFiles($libraryId: String!) {
@@ -68,9 +68,7 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
       await deleteLibrary({ data: library.id })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraries, library.ownerId],
-      })
+      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.ownerId))
       navigate({ to: '..' })
 
       dialogReference.current?.close()
@@ -87,7 +85,7 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
     <>
       <button
         type="button"
-        className="btn btn-ghost btn-sm lg:tooltip"
+        className="btn btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
         data-tip={t('tooltips.delete')}
         onClick={() => dialogReference.current?.showModal()}
       >

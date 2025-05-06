@@ -27,12 +27,12 @@ export const FileUploadProgressList: React.FC<FileUploadProgressListProps> = ({
           file.size >= 1000000 ? (file.size / 1000000).toFixed(1) + ' MB' : (file.size / 1000).toFixed(1) + ' KB'
 
         return (
-          <li key={file.name} className="flex items-center justify-between gap-2 text-info-content">
+          <li key={file.name} className="flex items-center justify-between gap-2">
             <div className="flex w-1/2 items-center gap-2">
               <FileIcon />
               <span className="truncate">{file.name}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-info-content">
+            <div className="flex items-center gap-2 text-sm">
               <span>{fileSize}</span>
               {progress === -1 ? (
                 <span className="text-error">{t('actions.cancelled')}</span>
@@ -40,9 +40,9 @@ export const FileUploadProgressList: React.FC<FileUploadProgressListProps> = ({
                 <span className="text-success">{t('actions.uploaded')}</span>
               ) : (
                 // Progress Bar
-                <div className="relative h-2 w-20 rounded bg-base-200">
+                <div className="bg-base-200 relative h-2 w-20 rounded-sm">
                   <div
-                    className="absolute h-2 rounded bg-info duration-200"
+                    className="bg-info absolute h-2 rounded-sm duration-200"
                     style={{
                       width: `${progress || 0}%`,
                     }}
@@ -53,7 +53,7 @@ export const FileUploadProgressList: React.FC<FileUploadProgressListProps> = ({
             {progress !== -1 && progress !== 100 && (
               <button
                 type="button"
-                className="btn btn-square btn-ghost btn-xs"
+                className="btn btn-ghost btn-xs btn-square"
                 onClick={() => handleCancelUpload(file.name)}
               >
                 <CrossIcon />

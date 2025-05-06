@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { twMerge } from 'tailwind-merge'
 
 import { dateString } from '@george-ai/web-utils'
 
@@ -44,7 +43,6 @@ interface ConversationSelectorProps {
 
 export const ConversationSelector = ({
   conversations: conversationsFragment,
-  selectedConversationId,
   userId,
   onClick,
   assistants: assistantsFragment,
@@ -111,7 +109,7 @@ export const ConversationSelector = ({
             <TrashIcon className="size-6" />
           </button>
         </div>
-        <div className="sticky border-b bg-base-200 py-2">
+        <div className="sticky z-50 border-b py-2">
           <NewConversationSelector
             humans={humansFragment}
             assistants={assistantsFragment}
@@ -135,10 +133,8 @@ export const ConversationSelector = ({
                         onChange={() => handleCheckConversation(conversation.id)}
                       />
                       <Link
-                        className={twMerge(
-                          'mt-1 block rounded-md',
-                          conversation.id === selectedConversationId ? 'link-primary' : 'link-neutral',
-                        )}
+                        className="mt-1 block rounded-md"
+                        activeProps={{ className: 'menu-active' }}
                         onClick={onClick}
                         to="/conversations/$"
                         params={{ _splat: conversation.id }}

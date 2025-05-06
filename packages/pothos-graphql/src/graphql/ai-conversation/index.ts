@@ -100,9 +100,10 @@ builder.mutationField('createAiConversation', (t) =>
     args: {
       ownerId: t.arg.string({ required: true }),
       data: t.arg({ type: conversationCreateInput, required: true }),
+      email: t.arg.string({ required: false }),
     },
-    resolve: (_query, _source, { ownerId, data }) =>
-      prisma.aiConversation.create({
+    resolve: async (_query, _source, { data, ownerId, email }) => {
+      const conversation = await prisma.aiConversation.create({
         data: {
           participants: {
             create: [
@@ -114,7 +115,23 @@ builder.mutationField('createAiConversation', (t) =>
           },
           ownerId,
         },
-      }),
+      })
+
+      // Create the invitation only if an email is provided
+      if (email && email.trim() !== '') {
+        await prisma.aiConversationInvitation.create({
+          data: {
+            email: email.trim().toLowerCase(),
+            allowDifferentEmailAddress: false,
+            allowMultipleParticipants: false,
+            conversationId: conversation.id,
+            inviterId: ownerId,
+          },
+        })
+      }
+
+      return conversation
+    },
   }),
 )
 

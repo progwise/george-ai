@@ -142,25 +142,23 @@ function RouteComponent() {
   }
 
   return (
-    <div className="drawer grow lg:drawer-open lg:-mt-4">
+    <div className="drawer lg:drawer-open grow lg:-mt-4">
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
-        <div className="sticky top-20 z-30 flex flex-row items-center justify-between bg-base-100 p-1">
+        <div className="bg-base-100 sticky top-[72px] z-30 mt-[-16px] flex flex-row items-center justify-between p-1 pt-2 lg:top-0 lg:mt-0 lg:hidden">
           <div className="flex">
-            <label htmlFor="conversation-drawer" className="btn drawer-button btn-sm mx-1 lg:hidden">
+            <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm mx-1">
               <MenuIcon className="size-6" />
             </label>
-            <div className="lg:hidden">
-              <NewConversationSelector
-                humans={assignableUsers.myConversationUsers}
-                assistants={assignableAssistants.aiAssistants}
-                userId={userId}
-              />
-            </div>
+            <NewConversationSelector
+              humans={assignableUsers.myConversationUsers}
+              assistants={assignableAssistants.aiAssistants}
+              userId={userId}
+            />
           </div>
 
           {selectedConversation?.aiConversation && (
-            <div className="flex lg:hidden">
+            <div className="flex">
               <ParticipantsDialog
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
@@ -176,7 +174,7 @@ function RouteComponent() {
         <div className="flex h-full flex-col">
           {selectedConversation?.aiConversation && (
             <>
-              <div className="sticky top-[120px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-[72px] lg:rounded-r-box">
+              <div className="bg-base-100 lg:rounded-r-box sticky top-[116px] z-30 flex items-center justify-end p-1 shadow-md lg:top-[4.5rem]">
                 <ConversationParticipants
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
@@ -198,9 +196,9 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-64px] lg:flex lg:h-screen lg:flex-col lg:pt-[64px]">
+      <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-104px] lg:flex lg:h-screen lg:flex-col lg:pt-[76px]">
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="flex h-full w-80 flex-col items-center bg-base-200 lg:pt-2">
+        <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
           <div className="flex-1 overflow-scroll px-2">
             {conversations.aiConversations && (
               <ConversationSelector
