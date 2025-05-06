@@ -1,11 +1,14 @@
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
+import * as fs from 'fs'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { loadFile } from './langchain-file'
+import { generateQAPairs } from './qa-generator'
+import { summarizeDocument } from './summarizer'
 import { calculateChunkParams } from './vectorstore-settings'
 
 const vectorTypesenseClient = new Client({
@@ -131,11 +134,27 @@ export const embedFile = async (
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize,
     chunkOverlap,
+    separators: ['\n\n', '\n', '.', ' ', ''], // from coarse to fine
   })
 
   await removeFileByName(libraryId, file.name)
 
   const splitDocument = await splitter.splitDocuments(fileParts)
+
+  const fineTuningData: { question: string; answer: string }[] = []
+
+  for (let i = 0; i < splitDocument.length; i++) {
+    const chunk = splitDocument[i]
+    console.log(`Processing chunk ${i + 1} of ${splitDocument.length}...`)
+    const summary = await summarizeDocument(chunk.pageContent)
+    const qaPairs = await generateQAPairs(chunk.pageContent, summary)
+    fineTuningData.push(...qaPairs)
+  }
+
+  console.log('Processing complete.\n')
+
+  const jsonlData = fineTuningData.map((qa) => JSON.stringify(qa)).join('\n')
+  fs.writeFileSync('train-data.jsonl', jsonlData)
 
   await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
 
@@ -146,6 +165,7 @@ export const embedFile = async (
     mimeType: file.mimeType,
     chunks: fileParts.length,
     size: fileParts.reduce((acc, part) => acc + part.pageContent.length, 0),
+    fineTuningData,
   }
 }
 
