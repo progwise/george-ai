@@ -83,6 +83,27 @@ export const deleteConversation = createServerFn({ method: 'POST' })
     })
   })
 
+export const removeConversations = createServerFn({ method: 'POST' })
+  .validator((data: { conversationIds: string[]; userId: string }) => {
+    console.log(data)
+    return z
+      .object({
+        conversationIds: z.array(z.string()),
+        userId: z.string(),
+      })
+      .parse(data)
+  })
+  .handler(async (ctx) => {
+    return backendRequest(
+      graphql(`
+        mutation removeConversations($conversationIds: [String!]!, $userId: String!) {
+          removeAiConversations(conversationIds: $conversationIds, userId: $userId)
+        }
+      `),
+      ctx.data,
+    )
+  })
+
 const LeaveConversationDocument = graphql(`
   mutation leaveConversation($participantId: String!) {
     leaveAiConversation(id: $participantId) {

@@ -77,6 +77,7 @@ export default {
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
     delete: 'Delete conversation',
+    deleteMultiple: 'Delete conversations',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
     historyPlaceholder: 'No messages yet. Start the conversation!',
     humans: 'Users',

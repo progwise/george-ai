@@ -77,6 +77,7 @@ export default {
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
     delete: 'Konversation löschen',
+    deleteMultiple: 'Konversationen löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
