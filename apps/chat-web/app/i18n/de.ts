@@ -24,6 +24,7 @@ export default {
     selectAll: 'Alle auswählen',
     send: 'Senden',
     sendConfirmationMail: 'Bestätigungsmail senden',
+    sendMessage: 'Senden',
     signIn: 'Anmelden',
     signInForAssistants: 'Melden Sie sich an, um Ihre Assistenten zu sehen.',
     signInForConversations: 'Melden Sie sich an, um Konversationen zu nutzen.',

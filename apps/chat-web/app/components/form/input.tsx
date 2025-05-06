@@ -70,7 +70,7 @@ export const Input = <T extends ZodRawShape>({
 
   return (
     <fieldset className={twMerge('fieldset', className)}>
-      <legend className="fieldset-legend">
+      <legend className="fieldset-legend relative flex w-full justify-between p-0">
         <span
           className={twMerge(
             'text-base-content/50 overflow-hidden text-nowrap text-sm',
@@ -79,14 +79,7 @@ export const Input = <T extends ZodRawShape>({
         >
           {label}
         </span>
-        <span
-          className={twMerge(
-            'text-error justify-self-end overflow-hidden text-nowrap text-sm',
-            !label && 'absolute right-1',
-          )}
-        >
-          {errors.join(', ')}
-        </span>
+        <span className={twMerge('text-error m-0', !label && 'absolute right-0 top-2 z-50')}>{errors.join(', ')}</span>
       </legend>
 
       {type === 'textarea' ? (
@@ -95,7 +88,7 @@ export const Input = <T extends ZodRawShape>({
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
-          className="input input-sm flex-grow py-1 leading-normal"
+          className="input h-full w-full flex-grow py-1 leading-normal"
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}
@@ -119,7 +112,6 @@ export const Input = <T extends ZodRawShape>({
           aria-invalid={errors.length > 0 ? true : undefined}
         />
       )}
-      <div className="validator-hint">{errors.join(', ')}</div>
     </fieldset>
   )
 }

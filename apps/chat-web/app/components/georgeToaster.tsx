@@ -7,7 +7,6 @@ import { useTranslation } from '../i18n/use-translation-hook'
 import { CheckIcon } from '../icons/check-icon'
 import ErrorIcon from '../icons/error-icon'
 
-const toastContainerClasses = 'flex w-fit rounded-lg shadow-lg text-sm alert py-0 pr-1'
 const ToastContent = ({
   icon: Icon,
   message,
@@ -22,10 +21,10 @@ const ToastContent = ({
   const { t } = useTranslation()
 
   return (
-    <div className={twMerge(toastContainerClasses, type)} role="alert">
+    <div className={twMerge('alert flex w-fit rounded-lg py-0 pr-1 text-sm shadow-lg', type)} role="alert">
       <Icon className="size-5 flex-shrink-0" />
       <p className="flex-1">{message}</p>
-      <button type="button" className="btn btn-square btn-ghost" onClick={onClose}>
+      <button type="button" className="btn btn-outline btn-sm my-1" onClick={onClose}>
         {t('actions.close')}
       </button>
     </div>

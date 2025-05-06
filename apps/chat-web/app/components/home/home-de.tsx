@@ -9,7 +9,7 @@ interface HomeDeProps {
 
 export const HomeDe = ({ user }: HomeDeProps) => {
   return (
-    <div className="flex max-w-none flex-col gap-4">
+    <div className="flex max-w-none flex-col gap-6">
       <HeroDe user={user} />
 
       <article className="prose prose-gray animate-fade-up animate-delay-1000 md:prose-xl mx-auto">

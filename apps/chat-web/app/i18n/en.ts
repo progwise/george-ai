@@ -24,6 +24,7 @@ export default {
     selectAll: 'Select all',
     send: 'Send',
     sendConfirmationMail: 'Send confirmation mail',
+    sendMessage: 'Send',
     signIn: 'Sign in',
     signInForAssistants: 'Sign in to see your assistants.',
     signInForConversations: 'Sign in to use conversations.',

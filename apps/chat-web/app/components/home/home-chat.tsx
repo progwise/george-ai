@@ -69,51 +69,50 @@ export const HomeChat = ({ user }: HomeChatProps) => {
   }
 
   return (
-    <div className="">
-      <div className="w-full max-w-md overflow-hidden rounded-lg bg-white shadow-2xl">
-        <div className="bg-blue-50 p-5">
-          <div className="mb-4 flex items-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white">
-              <i data-feather="cpu" className="h-5 w-5"></i>
-            </div>
-            <div className="ml-3">
-              <h3 className="font-semibold text-gray-800">George-AI</h3>
-              <p className="text-sm text-gray-600">{t('hero.chatStatus')}</p>
-            </div>
-          </div>
-          <div className="mb-4 rounded-lg bg-gray-100">
-            <p className="p-1 text-gray-700">{t('hero.chatGreeting')}</p>
-            <p className="p-1 text-gray-700">{t('hero.chatMessage')}</p>
+    <div className="rounded-box bg-base-100 w-full max-w-md overflow-hidden shadow-2xl" data-theme="light">
+      <div className="bg-base-200 p-5">
+        <div className="mb-4 flex items-center">
+          <div className="bg-primary text-primary-content size-10 rounded-full" />
+          <div className="ml-3">
+            <h3 className="font-semibold text-gray-800">George-AI</h3>
+            <p className="text-sm text-gray-600">{t('hero.chatStatus')}</p>
           </div>
         </div>
-        <div className="border-t p-4">
-          <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
-            <LoadingSpinner isLoading={isPending} />
-            <Input
-              placeholder={t('contactForm.namePlaceholder')}
-              name={'name'}
-              schema={formSchema}
-              value={user?.name || ''}
-            />
-            <Input
-              placeholder={t('contactForm.messagePlaceholder')}
-              name="message"
-              type="textarea"
-              className="min-h-14"
-              schema={formSchema}
-            />
-            <Input
-              placeholder={t('contactForm.emailOrPhonePlaceholder')}
-              name="emailOrPhone"
-              type="text"
-              value={user?.email || ''}
-              schema={formSchema}
-            />
-            <button type="submit" className="text-primary absolute bottom-1 right-3 z-50 text-sm">
-              {t('actions.sendMessage')}
-            </button>
-          </form>
+        <div className="chat chat-start">
+          <div className="chat-bubble space-y-2">
+            <p>{t('hero.chatGreeting')}</p>
+            <p>{t('hero.chatMessage')}</p>
+          </div>
         </div>
+      </div>
+      <div className="border-t p-4">
+        <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
+          <LoadingSpinner isLoading={isPending} />
+          <Input
+            placeholder={t('contactForm.namePlaceholder')}
+            name={'name'}
+            schema={formSchema}
+            value={user?.name || ''}
+          />
+          <Input
+            placeholder={t('contactForm.messagePlaceholder')}
+            name="message"
+            type="textarea"
+            className="min-h-14"
+            schema={formSchema}
+          />
+          <Input
+            placeholder={t('contactForm.emailOrPhonePlaceholder')}
+            name="emailOrPhone"
+            type="text"
+            value={user?.email || ''}
+            schema={formSchema}
+          />
+          <button type="submit" className="btn btn-sm absolute bottom-2 right-1 z-50">
+            {' '}
+            {t('actions.sendMessage')}
+          </button>
+        </form>
       </div>
     </div>
   )

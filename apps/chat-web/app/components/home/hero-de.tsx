@@ -10,7 +10,10 @@ interface HeroDeProps {
 export const HeroDe = ({ user }: HeroDeProps) => {
   const { t } = useTranslation()
   return (
-    <section className="grid items-center bg-gradient-to-r from-cyan-900 to-sky-700 text-white sm:grid-cols-2">
+    <section
+      className="rounded-box grid items-center bg-gradient-to-r from-cyan-900 to-sky-700 text-white sm:grid-cols-2"
+      data-theme="dark"
+    >
       <div className="animate-fade-up px-10 py-8">
         <h1 className="mb-4 text-3xl font-bold lg:text-5xl">Wissensretter.</h1>
         <h2 className="large:text-2xl mb-6 text-xl font-medium text-blue-200">
@@ -20,7 +23,7 @@ export const HeroDe = ({ user }: HeroDeProps) => {
           George-AI Assistenten speichern, was andere vergessen. Sie begleiten Schlüsselpersonen, lernen mit – und geben
           ihr Wissen nahtlos an Kollegen und Kunden weiter.
         </p>
-        <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+        <div className="flex flex-col flex-wrap gap-4 sm:flex-row">
           <a
             href="https://calendly.com/michael-vogt-progwise/30min"
             target="_blank"
