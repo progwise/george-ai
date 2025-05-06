@@ -91,7 +91,7 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
         value={initialData?.url ?? 'https://'}
         label={t('crawlers.url')}
         schema={crawlerFormSchema}
-        readOnly={isPending}
+        disabled={isPending}
       />
       <Input
         name="maxDepth"
@@ -99,7 +99,7 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
         value={initialData?.maxDepth ?? 2}
         label={t('crawlers.maxDepth')}
         schema={crawlerFormSchema}
-        readOnly={isPending}
+        disabled={isPending}
       />
       <Input
         name="maxPages"
@@ -107,7 +107,7 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
         value={initialData?.maxPages ?? 10}
         label={t('crawlers.maxPages')}
         schema={crawlerFormSchema}
-        readOnly={isPending}
+        disabled={isPending}
       />
 
       <hr />
