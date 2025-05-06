@@ -46,19 +46,14 @@ export const removeConversationParticipant = createServerFn({ method: 'POST' })
     }),
   )
 
-const CreateConversationInvitationMutation = graphql(`
-  mutation createConversationInvitation(
+const CreateConversationInvitationsMutation = graphql(`
+  mutation createConversationInvitations(
     $conversationId: String!
     $inviterId: String!
-    $data: ConversationInvitationInput!
+    $data: [ConversationInvitationInput!]!
   ) {
-    createConversationInvitation(conversationId: $conversationId, inviterId: $inviterId, data: $data) {
+    createConversationInvitations(conversationId: $conversationId, inviterId: $inviterId, data: $data) {
       id
-      email
-      date
-      allowDifferentEmailAddress
-      allowMultipleParticipants
-      link
     }
   }
 `)
@@ -92,13 +87,13 @@ export const createConversationInvitation = createServerFn({ method: 'POST' })
         .parse(data),
   )
   .handler(async (ctx) => {
-    const conversationInvitation = await backendRequest(CreateConversationInvitationMutation, {
+    const conversationInvitation = await backendRequest(CreateConversationInvitationsMutation, {
       conversationId: ctx.data.conversationId,
       inviterId: ctx.data.inviterId,
-      data: ctx.data.data,
+      data: [ctx.data.data],
     })
 
-    return conversationInvitation.createConversationInvitation
+    return conversationInvitation.createConversationInvitations
   })
 
 const ConfirmInvitationDocument = graphql(`
@@ -110,7 +105,6 @@ const ConfirmInvitationDocument = graphql(`
       email: $email
     ) {
       id
-      isUsed
     }
   }
 `)

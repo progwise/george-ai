@@ -140,7 +140,6 @@ input AiBaseCaseInputType {
 
 type AiConversation {
   assistants: [AiAssistant!]!
-  conversationInvitation: AiConversationInvitation
   createdAt: DateTime!
   humans: [User!]!
   id: ID!
@@ -154,20 +153,6 @@ type AiConversation {
 input AiConversationCreateInput {
   assistantIds: [String!]!
   userIds: [String!]!
-}
-
-type AiConversationInvitation {
-  allowDifferentEmailAddress: Boolean!
-  allowMultipleParticipants: Boolean!
-  conversation: AiConversation!
-  createdAt: DateTime!
-  date: DateTime!
-  email: String!
-  id: ID!
-  inviter: User!
-  isUsed: Boolean!
-  link: String
-  updatedAt: DateTime
 }
 
 type AiConversationMessage {
@@ -376,7 +361,7 @@ type Mutation {
     email: String
     invitationId: String!
     userId: String!
-  ): AiConversationInvitation
+  ): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
@@ -388,11 +373,11 @@ type Mutation {
     maxPages: Int!
     url: String!
   ): AiLibraryCrawler
-  createConversationInvitation(
+  createConversationInvitations(
     conversationId: String!
-    data: ConversationInvitationInput!
+    data: [ConversationInvitationInput!]!
     inviterId: String!
-  ): AiConversationInvitation
+  ): AiConversation
   createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant

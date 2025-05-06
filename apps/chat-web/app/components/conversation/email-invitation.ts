@@ -1,55 +1,82 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { validateEmails } from './email-validation'
 
-export const sendEmailInvitations = async ({
-  email,
-  conversationId,
-  allowDifferentEmailAddress,
-  allowMultipleParticipants,
-  setIsSendingInvitation,
-  t,
-  queryClient,
-  createInvitation,
-}: {
-  email: string
-  conversationId: string
-  allowDifferentEmailAddress: boolean
-  allowMultipleParticipants: boolean
-  setEmailError: (error: string | null) => void
-  setIsSendingInvitation: (isSending: boolean) => void
-  t: (key: string, params?: Record<string, string>) => string
-  queryClient: ReturnType<typeof import('@tanstack/react-query').useQueryClient>
-  createInvitation: ReturnType<typeof import('@tanstack/react-query').useMutation>['mutateAsync']
-}) => {
-  const { emails } = validateEmails(email)
+export const useSendEmailInvitations = () => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
 
-  setIsSendingInvitation(true)
+  const { mutateAsync: createInvitation } = useMutation({
+    mutationFn: async ({
+      email,
+      allowDifferentEmailAddress,
+      allowMultipleParticipants,
+      conversationId,
+    }: {
+      email: string
+      allowDifferentEmailAddress: boolean
+      allowMultipleParticipants: boolean
+      conversationId: string
+    }) => {
+      // Replace this with the actual API call to create an invitation
+      return Promise.resolve()
+    },
+    onError: (error) => {
+      toastError(t('invitations.failedToSendInvitation', { error: error.message }))
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation] })
+    },
+  })
 
-  try {
-    const invitationStatus = await Promise.allSettled(
-      emails.map((email) =>
-        createInvitation({
-          email,
-          allowDifferentEmailAddress,
-          allowMultipleParticipants,
-          conversationId,
-        }),
-      ),
-    )
+  const sendEmailInvitations = async ({
+    email,
+    conversationId,
+    allowDifferentEmailAddress,
+    allowMultipleParticipants,
+  }: {
+    email: string
+    conversationId: string
+    allowDifferentEmailAddress: boolean
+    allowMultipleParticipants: boolean
+  }) => {
+    const { emails, invalidEmails } = validateEmails(email)
 
-    const failedEmails = invitationStatus
-      .map((result, index) => (result.status === 'rejected' ? emails[index] : null))
-      .filter((email) => email !== null)
-
-    if (failedEmails.length > 0) {
-      toastError(t('invitations.failedToSendInvitation', { emails: failedEmails.join(', ') }))
-    } else {
-      toastSuccess(t('invitations.invitationSent'))
+    if (invalidEmails.length > 0) {
+      toastError(t('errors.invalidEmail'))
+      return
     }
 
-    await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversationId] })
-  } finally {
-    setIsSendingInvitation(false)
+    try {
+      const invitationStatus = await Promise.allSettled(
+        emails.map((email) =>
+          createInvitation({
+            email,
+            allowDifferentEmailAddress,
+            allowMultipleParticipants,
+            conversationId,
+          }),
+        ),
+      )
+
+      const failedEmails = invitationStatus
+        .map((result, index) => (result.status === 'rejected' ? emails[index] : null))
+        .filter((email) => email !== null)
+
+      if (failedEmails.length > 0) {
+        toastError(t('invitations.failedToSendInvitation', { emails: failedEmails.join(', ') }))
+      } else {
+        toastSuccess(t('invitations.invitationSent'))
+      }
+
+      await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversationId] })
+    } catch (error) {
+      toastError(t('invitations.failedToSendInvitation', { error: error.message }))
+    }
   }
+
+  return { sendEmailInvitations }
 }

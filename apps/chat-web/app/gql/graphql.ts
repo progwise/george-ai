@@ -158,7 +158,6 @@ export type AiBaseCaseInputType = {
 export type AiConversation = {
   __typename?: 'AiConversation'
   assistants: Array<AiAssistant>
-  conversationInvitation?: Maybe<AiConversationInvitation>
   createdAt: Scalars['DateTime']['output']
   humans: Array<User>
   id: Scalars['ID']['output']
@@ -172,21 +171,6 @@ export type AiConversation = {
 export type AiConversationCreateInput = {
   assistantIds: Array<Scalars['String']['input']>
   userIds: Array<Scalars['String']['input']>
-}
-
-export type AiConversationInvitation = {
-  __typename?: 'AiConversationInvitation'
-  allowDifferentEmailAddress: Scalars['Boolean']['output']
-  allowMultipleParticipants: Scalars['Boolean']['output']
-  conversation: AiConversation
-  createdAt: Scalars['DateTime']['output']
-  date: Scalars['DateTime']['output']
-  email: Scalars['String']['output']
-  id: Scalars['ID']['output']
-  inviter: User
-  isUsed: Scalars['Boolean']['output']
-  link?: Maybe<Scalars['String']['output']>
-  updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 export type AiConversationMessage = {
@@ -382,13 +366,13 @@ export type Mutation = {
   cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
-  confirmConversationInvitation?: Maybe<AiConversationInvitation>
+  confirmConversationInvitation?: Maybe<AiConversation>
   confirmUserProfile?: Maybe<UserProfile>
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
-  createConversationInvitation?: Maybe<AiConversationInvitation>
+  createConversationInvitations?: Maybe<AiConversation>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
@@ -485,9 +469,9 @@ export type MutationCreateAiLibraryCrawlerArgs = {
   url: Scalars['String']['input']
 }
 
-export type MutationCreateConversationInvitationArgs = {
+export type MutationCreateConversationInvitationsArgs = {
   conversationId: Scalars['String']['input']
-  data: ConversationInvitationInput
+  data: Array<ConversationInvitationInput>
   inviterId: Scalars['String']['input']
 }
 
@@ -1309,14 +1293,6 @@ export type ConversationSelector_ConversationFragment = {
   createdAt: string
   owner: { __typename?: 'User'; id: string; name?: string | null }
   assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
-  conversationInvitation?: {
-    __typename?: 'AiConversationInvitation'
-    id: string
-    link?: string | null
-    allowMultipleParticipants: boolean
-    allowDifferentEmailAddress: boolean
-    isUsed: boolean
-  } | null
 } & { ' $fragmentName'?: 'ConversationSelector_ConversationFragment' }
 
 export type ConversationDelete_ConversationFragment = {
@@ -1347,14 +1323,6 @@ export type ParticipantsDialog_ConversationFragment = {
     | { __typename?: 'AssistantParticipant'; id: string; userId?: string | null; assistantId?: string | null }
     | { __typename?: 'HumanParticipant'; id: string; userId?: string | null; assistantId?: string | null }
   >
-  conversationInvitation?: {
-    __typename?: 'AiConversationInvitation'
-    id: string
-    link?: string | null
-    allowDifferentEmailAddress: boolean
-    allowMultipleParticipants: boolean
-    isUsed: boolean
-  } | null
 } & { ' $fragmentName'?: 'ParticipantsDialog_ConversationFragment' }
 
 export type ParticipantsDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
@@ -1963,23 +1931,15 @@ export type RemoveParticipantMutation = {
     | null
 }
 
-export type CreateConversationInvitationMutationVariables = Exact<{
+export type CreateConversationInvitationsMutationVariables = Exact<{
   conversationId: Scalars['String']['input']
   inviterId: Scalars['String']['input']
-  data: ConversationInvitationInput
+  data: Array<ConversationInvitationInput> | ConversationInvitationInput
 }>
 
-export type CreateConversationInvitationMutation = {
+export type CreateConversationInvitationsMutation = {
   __typename?: 'Mutation'
-  createConversationInvitation?: {
-    __typename?: 'AiConversationInvitation'
-    id: string
-    email: string
-    date: string
-    allowDifferentEmailAddress: boolean
-    allowMultipleParticipants: boolean
-    link?: string | null
-  } | null
+  createConversationInvitations?: { __typename?: 'AiConversation'; id: string } | null
 }
 
 export type ConfirmInvitationMutationVariables = Exact<{
@@ -1991,7 +1951,7 @@ export type ConfirmInvitationMutationVariables = Exact<{
 
 export type ConfirmInvitationMutation = {
   __typename?: 'Mutation'
-  confirmConversationInvitation?: { __typename?: 'AiConversationInvitation'; id: string; isUsed: boolean } | null
+  confirmConversationInvitation?: { __typename?: 'AiConversation'; id: string } | null
 }
 
 export type MyConversationUsersQueryVariables = Exact<{
@@ -2823,20 +2783,6 @@ export const ParticipantsDialog_ConversationFragmentDoc = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'conversationInvitation' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -2889,20 +2835,6 @@ export const ConversationParticipants_ConversationFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'conversationInvitation' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -3056,20 +2988,6 @@ export const ConversationSelector_ConversationFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'conversationInvitation' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -5943,20 +5861,6 @@ export const GetUserConversationsDocument = {
               ],
             },
           },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'conversationInvitation' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -6021,20 +5925,6 @@ export const GetConversationDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'conversationInvitation' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
               ],
             },
           },
@@ -7094,13 +6984,13 @@ export const RemoveParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveParticipantMutation, RemoveParticipantMutationVariables>
-export const CreateConversationInvitationDocument = {
+export const CreateConversationInvitationsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'createConversationInvitation' },
+      name: { kind: 'Name', value: 'createConversationInvitations' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -7117,7 +7007,13 @@ export const CreateConversationInvitationDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ConversationInvitationInput' } },
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NonNullType',
+                type: { kind: 'NamedType', name: { kind: 'Name', value: 'ConversationInvitationInput' } },
+              },
+            },
           },
         },
       ],
@@ -7126,7 +7022,7 @@ export const CreateConversationInvitationDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createConversationInvitation' },
+            name: { kind: 'Name', value: 'createConversationInvitations' },
             arguments: [
               {
                 kind: 'Argument',
@@ -7146,21 +7042,14 @@ export const CreateConversationInvitationDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'date' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowDifferentEmailAddress' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'allowMultipleParticipants' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'link' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<CreateConversationInvitationMutation, CreateConversationInvitationMutationVariables>
+} as unknown as DocumentNode<CreateConversationInvitationsMutation, CreateConversationInvitationsMutationVariables>
 export const ConfirmInvitationDocument = {
   kind: 'Document',
   definitions: [
@@ -7220,10 +7109,7 @@ export const ConfirmInvitationDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isUsed' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],

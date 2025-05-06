@@ -139,7 +139,7 @@ export default {
     failedToSendInvitation: 'Einladung konnte nicht gesendet werden: {error}',
     invalidInvitation: 'Ungültige Einladung für diese Konversation',
     invitationAccepted: 'Einladung akzeptiert',
-    invitationNotFound: 'Einladung nicht gefunden oder bereits verwendet',
+    invitationNotFound: 'Einladung nicht gefunden.',
     invitationSent: 'Einladung gesendet',
     linkAlreadyUsed: 'Einladungslink wurde bereits verwendet',
   },

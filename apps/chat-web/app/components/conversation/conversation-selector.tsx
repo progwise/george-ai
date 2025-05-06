@@ -5,8 +5,6 @@ import { dateString } from '@george-ai/web-utils'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { ClipboardIcon } from '../../icons/clipboard-icon'
-import { useClipboard } from '../useClipboard'
 
 const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
@@ -20,13 +18,6 @@ const ConversationSelector_ConversationFragment = graphql(`
       id
       name
     }
-    conversationInvitation {
-      id
-      link
-      allowMultipleParticipants
-      allowDifferentEmailAddress
-      isUsed
-    }
   }
 `)
 
@@ -34,18 +25,15 @@ interface ConversationSelectorProps {
   conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
   selectedConversationId?: string
   onClick?: () => void
-  userId: string
 }
 
 export const ConversationSelector = ({
   conversations: conversationsFragment,
   selectedConversationId,
   onClick,
-  userId,
 }: ConversationSelectorProps) => {
   const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
   const { t, language } = useTranslation()
-  const { copyToClipboard } = useClipboard()
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<Record<string, typeof conversations>>(
@@ -68,7 +56,7 @@ export const ConversationSelector = ({
             <div className="font-semibold">{date}</div>
             <ul>
               {conversations.map((conversation) => (
-                <li key={conversation.id}>
+                <li key={conversation.id} className="center grid grid-cols-1">
                   <Link
                     className={twMerge(
                       'mt-1 block rounded-md',
@@ -78,28 +66,9 @@ export const ConversationSelector = ({
                     to="/conversations/$"
                     params={{ _splat: conversation.id }}
                   >
-                    <div className="flex justify-between">
-                      <div>
-                        {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
-                      </div>
-                      {conversation.conversationInvitation &&
-                        conversation.owner.id === userId &&
-                        conversation.conversationInvitation.allowMultipleParticipants && (
-                          <button
-                            type="button"
-                            className="btn btn-square btn-ghost btn-xs tooltip tooltip-left"
-                            data-tip={t('tooltips.copyInvitationLink')}
-                            onClick={() => {
-                              if (conversation.conversationInvitation?.link) {
-                                copyToClipboard(conversation.conversationInvitation.link)
-                              }
-                            }}
-                          >
-                            <ClipboardIcon />
-                          </button>
-                        )}
+                    <div>
+                      {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
                     </div>
-
                     <div className="mt-1 block">
                       {conversation.assistants?.map((assistant) => assistant.name).join(', ') || t('texts.noAssistant')}
                     </div>

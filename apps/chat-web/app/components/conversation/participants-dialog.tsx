@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { ClipboardIcon } from '../../icons/clipboard-icon'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
@@ -13,7 +12,6 @@ import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { useClipboard } from '../useClipboard'
 import { EmailChipsInput } from './email-chips-input'
 import { sendEmailInvitations } from './email-invitation'
 import { validateEmails } from './email-validation'
@@ -26,13 +24,6 @@ const ParticipantsDialog_ConversationFragment = graphql(`
       id
       userId
       assistantId
-    }
-    conversationInvitation {
-      id
-      link
-      allowDifferentEmailAddress
-      allowMultipleParticipants
-      isUsed
     }
   }
 `)
@@ -130,8 +121,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const isCreatingNewConversation = props.dialogMode === 'new'
   const isOwner = isCreatingNewConversation || props.userId === conversation?.ownerId
-
-  const { copyToClipboard } = useClipboard()
 
   const { mutateAsync: createInvitation } = useMutation({
     mutationFn: async ({
@@ -481,20 +470,6 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 </label>
               </div>
               <div className="mt-4 flex items-center justify-end gap-2">
-                {conversation?.conversationInvitation?.link &&
-                  conversation.conversationInvitation.allowMultipleParticipants && (
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-neutral btn-sm tooltip tooltip-left border border-base-300"
-                      data-tip={t('tooltips.copyInvitationLink')}
-                      onClick={() =>
-                        conversation.conversationInvitation?.link &&
-                        copyToClipboard(conversation.conversationInvitation.link)
-                      }
-                    >
-                      <ClipboardIcon className="size-4" />
-                    </button>
-                  )}
                 {conversation?.id && emailChips.length > 0 && (
                   <div className="tooltip tooltip-left" data-tip={t('tooltips.sendInvitation')}>
                     <button

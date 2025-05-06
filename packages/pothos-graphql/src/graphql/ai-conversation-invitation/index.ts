@@ -6,26 +6,6 @@ const generateInvitationLink = (conversationId: string, invitationId: string): s
   return `${process.env.PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}`
 }
 
-builder.prismaObject('AiConversationInvitation', {
-  fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: true }),
-    email: t.exposeString('email', { nullable: false }),
-    date: t.expose('date', { type: 'DateTime', nullable: false }),
-    allowDifferentEmailAddress: t.exposeBoolean('allowDifferentEmailAddress', { nullable: false }),
-    allowMultipleParticipants: t.exposeBoolean('allowMultipleParticipants', { nullable: false }),
-    isUsed: t.exposeBoolean('isUsed', { nullable: false }),
-    conversation: t.relation('conversation', { nullable: false }),
-    inviter: t.relation('inviter', { nullable: false }),
-    link: t.string({
-      resolve: (invitation) => {
-        return generateInvitationLink(invitation.conversationId, invitation.id)
-      },
-    }),
-  }),
-})
-
 const conversationInvitationInput = builder.inputType('ConversationInvitationInput', {
   fields: (t) => ({
     email: t.string({ required: true }),
@@ -51,76 +31,65 @@ const sendInvitationEmail = async ({
   await sendMail(email, subject, text, html)
 }
 
-builder.mutationField('createConversationInvitation', (t) =>
+builder.mutationField('createConversationInvitations', (t) =>
   t.prismaField({
-    type: 'AiConversationInvitation',
+    type: 'AiConversation',
     args: {
       conversationId: t.arg.string({ required: true }),
       inviterId: t.arg.string({ required: true }),
-      data: t.arg({ type: conversationInvitationInput, required: true }),
+      data: t.arg({
+        type: [conversationInvitationInput],
+        required: true,
+      }),
     },
     resolve: async (_query, _source, { conversationId, inviterId, data }) => {
-      // Validate that the email is not empty
-      if (!data.email || data.email.trim() === '') {
-        throw new Error('Email is required to create an invitation')
+      if (!data || data.length === 0) {
+        throw new Error('At least one invitation is required')
       }
 
-      // Generate the link for the invitation
-      const link = generateInvitationLink(conversationId, inviterId)
+      // Prepare the data for creating invitations
+      const invitationsData = data.map((invitation) => ({
+        email: invitation.email.trim().toLowerCase(),
+        allowDifferentEmailAddress: invitation.allowDifferentEmailAddress,
+        allowMultipleParticipants: invitation.allowMultipleParticipants,
+        conversationId,
+        inviterId,
+      }))
 
-      // Check if an invitation already exists for the conversation
-      const existingInvitation = await prisma.aiConversationInvitation.findUnique({
+      // Create multiple invitations
+      await prisma.aiConversationInvitation.createMany({
+        data: invitationsData,
+        skipDuplicates: true,
+      })
+
+      // Send emails for each created invitation
+      const createdInvitations = await prisma.aiConversationInvitation.findMany({
         where: { conversationId },
       })
 
-      let invitation
-      const formattedEmail = data.email.trim().toLowerCase()
-
-      if (existingInvitation) {
-        // Update the existing invitation
-        invitation = await prisma.aiConversationInvitation.update({
-          where: { conversationId },
-          data: {
-            email: formattedEmail,
-            link,
-            allowDifferentEmailAddress: data.allowDifferentEmailAddress,
-            allowMultipleParticipants: data.allowMultipleParticipants,
-            inviterId,
-          },
-        })
-      } else {
-        // Create a new invitation
-        invitation = await prisma.aiConversationInvitation.create({
-          data: {
-            email: formattedEmail,
-            link,
-            allowDifferentEmailAddress: data.allowDifferentEmailAddress,
-            allowMultipleParticipants: data.allowMultipleParticipants,
+      await Promise.all(
+        createdInvitations.map((invitation) =>
+          sendInvitationEmail({
+            email: invitation.email,
             conversationId,
-            inviterId,
-          },
-        })
-      }
+            invitationId: invitation.id,
+          }).catch((error) => {
+            console.error('Error sending invitation email:', error)
+          }),
+        ),
+      )
 
-      try {
-        await sendInvitationEmail({
-          email: data.email.trim(),
-          conversationId,
-          invitationId: invitation.id,
-        })
-      } catch (error) {
-        console.error('Error sending invitation email:', error)
-        throw new Error('Failed to send invitation email')
-      }
-
-      return invitation
+      // Return the conversation
+      return prisma.aiConversation.findUnique({
+        where: { id: conversationId },
+      })
     },
   }),
 )
 
 builder.mutationField('confirmConversationInvitation', (t) =>
   t.prismaField({
-    type: 'AiConversationInvitation',
+    type: 'AiConversation',
     args: {
       conversationId: t.arg.string({ required: true }),
       invitationId: t.arg.string({ required: true }),
@@ -137,21 +106,17 @@ builder.mutationField('confirmConversationInvitation', (t) =>
         throw new Error('Conversation not found')
       }
 
-      // Check if the invitation exists
+      // Check if the invitation exists and matches the conversation
       const invitation = await prisma.aiConversationInvitation.findUnique({
         where: { id: invitationId },
       })
 
-      if (!invitation) {
-        throw new Error('Invitation not found')
+      if (!invitation || invitation.conversationId !== conversationId) {
+        throw new Error(!invitation ? 'Invitation not found' : 'Invalid invitation')
       }
 
-      if (invitation.conversationId !== conversationId) {
-        throw new Error('Invalid invitation')
-      }
-
-      // Check if the invitation is already used
-      if (invitation.isUsed) {
+      // Check if the invitation is already used and not allowed for multiple participants
+      if (invitation.isUsed && !invitation.allowMultipleParticipants) {
         throw new Error('Invitation already used')
       }
 
@@ -181,23 +146,18 @@ builder.mutationField('confirmConversationInvitation', (t) =>
       })
 
       // Update the confirmation date and confirmedByEmail
-      const updateData: {
-        confirmationDate: Date
-        confirmedByEmail: string
-        isUsed?: boolean
-      } = {
-        confirmationDate: new Date(),
-        confirmedByEmail: email?.toLowerCase() || invitation.email.toLowerCase(),
-      }
-
-      // Mark the invitation as used if it is single-use
-      if (!invitation.allowMultipleParticipants) {
-        updateData.isUsed = true
-      }
-
-      return prisma.aiConversationInvitation.update({
+      await prisma.aiConversationInvitation.update({
         where: { id: invitationId },
-        data: updateData,
+        data: {
+          confirmationDate: new Date(),
+          confirmedByEmail: email?.toLowerCase() || invitation.email.toLowerCase(),
+          isUsed: true,
+        },
+      })
+
+      // Return the updated conversation
+      return prisma.aiConversation.findUnique({
+        where: { id: conversationId },
       })
     },
   }),

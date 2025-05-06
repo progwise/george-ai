@@ -212,10 +212,10 @@ model AiConversation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  messages               AiConversationMessage[]
-  participants           AiConversationParticipant[]
-  owner                  User                        @relation(fields: [ownerId], references: [id])
-  conversationInvitation AiConversationInvitation?   @relation(name: "AiConversationToAiConversationInvitation")
+  messages                AiConversationMessage[]
+  participants            AiConversationParticipant[]
+  owner                   User                        @relation(fields: [ownerId], references: [id])
+  conversationInvitations AiConversationInvitation[]
 }
 
 model AiConversationParticipant {
@@ -247,11 +247,10 @@ model AiConversationMessage {
 model AiConversationInvitation {
   id                         String    @id @default(cuid())
   email                      String
-  link                       String?
   inviterId                  String
   confirmedByEmail           String?
   confirmationDate           DateTime?
-  conversationId             String    @unique
+  conversationId             String
   date                       DateTime  @default(now())
   allowDifferentEmailAddress Boolean   @default(false)
   allowMultipleParticipants  Boolean   @default(false)
@@ -261,5 +260,5 @@ model AiConversationInvitation {
   updatedAt DateTime @updatedAt
 
   inviter      User           @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-  conversation AiConversation @relation(name: "AiConversationToAiConversationInvitation", fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

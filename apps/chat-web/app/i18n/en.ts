@@ -134,7 +134,7 @@ export default {
     failedToSendInvitation: 'Failed to send invitation: {error}',
     invalidInvitation: 'Invalid invitation for this conversation',
     invitationAccepted: 'Invitation accepted',
-    invitationNotFound: 'Invitation not found or has already been used',
+    invitationNotFound: 'Invitation not found.',
     invitationSent: 'Invitation sent',
     linkAlreadyUsed: 'This link has already been used.',
   },

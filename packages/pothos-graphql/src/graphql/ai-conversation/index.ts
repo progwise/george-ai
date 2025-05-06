@@ -49,7 +49,6 @@ builder.prismaObject('AiConversation', {
     }),
     owner: t.relation('owner', { nullable: false }),
     ownerId: t.exposeString('ownerId', { nullable: false }),
-    conversationInvitation: t.relation('conversationInvitation', { nullable: true }),
   }),
 })
 
