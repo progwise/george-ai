@@ -1,8 +1,34 @@
 import toast, { Toaster } from 'react-hot-toast'
 import { twMerge } from 'tailwind-merge'
 
+import { useTranslation } from '../i18n/use-translation-hook'
 import { CheckIcon } from '../icons/check-icon'
 import ErrorIcon from '../icons/error-icon'
+
+const toastContainerClasses = 'flex w-fit rounded-lg shadow-lg text-sm alert py-0 pr-1'
+const ToastContent = ({
+  icon: Icon,
+  message,
+  type,
+  onClose,
+}: {
+  icon: React.ElementType
+  message: string
+  type: 'alert-error' | 'alert-success'
+  onClose: () => void
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <div className={twMerge(toastContainerClasses, type)} role="alert">
+      <Icon className="size-5 flex-shrink-0" />
+      <p className="flex-1">{message}</p>
+      <button type="button" className="btn btn-square btn-ghost" onClick={onClose}>
+        {t('actions.close')}
+      </button>
+    </div>
+  )
+}
 
 export const GeorgeToaster = () => {
   return (
@@ -17,25 +43,24 @@ export const GeorgeToaster = () => {
   )
 }
 
-const defaultAlertClasses = 'alert w-auto cursor-pointer'
-
 export const toastError = (message: string) => {
-  return toast.custom(
-    (t) => (
-      <div className={twMerge(defaultAlertClasses, 'alert-error')} onClick={() => toast.remove(t.id)}>
-        <ErrorIcon className="size-6" />
-        <span>{message}</span>
-      </div>
-    ),
-    { ariaProps: { role: 'alert', 'aria-live': 'assertive' } },
-  )
+  return toast.custom((toastInstance) => (
+    <ToastContent
+      icon={ErrorIcon}
+      message={message}
+      type="alert-error"
+      onClose={() => toast.remove(toastInstance.id)}
+    />
+  ))
 }
 
 export const toastSuccess = (message: string) => {
-  return toast.custom((t) => (
-    <div className={twMerge(defaultAlertClasses, 'alert-success')} onClick={() => toast.remove(t.id)}>
-      <CheckIcon />
-      <span>{message}</span>
-    </div>
+  return toast.custom((toastInstance) => (
+    <ToastContent
+      icon={CheckIcon}
+      message={message}
+      type="alert-success"
+      onClose={() => toast.remove(toastInstance.id)}
+    />
   ))
 }

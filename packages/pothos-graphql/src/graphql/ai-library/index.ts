@@ -62,6 +62,7 @@ builder.queryField('aiLibraries', (t) =>
     args: {
       ownerId: t.arg.string(),
     },
+    nullable: false,
     resolve: (query, _source, { ownerId }) => {
       return prisma.aiLibrary.findMany({
         ...query,
