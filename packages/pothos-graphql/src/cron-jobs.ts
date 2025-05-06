@@ -20,10 +20,6 @@ const restoreCronJobsFromDatabase = async () => {
 export const addCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
   await stopCronJob(cronJob)
 
-  if (!cronJob.active) {
-    return
-  }
-
   const cronExpression = getCronExpression(cronJob)
   if (!cronExpression) {
     return
