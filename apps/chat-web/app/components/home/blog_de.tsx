@@ -7,7 +7,7 @@ import BowlerHatIcon from '../../icons/bowler-hat-icon'
 export const BlogDe = () => {
   return (
     <section className="flex flex-col items-center gap-4">
-      <div className="flex w-full animate-fade-up justify-between bg-gradient-to-r from-cyan-900 to-sky-700 p-4 text-white md:p-10">
+      <div className="animate-fade-up flex w-full justify-between bg-gradient-to-r from-cyan-900 to-sky-700 p-4 text-white md:p-10">
         <h1 className="flex flex-col items-center gap-2 text-xl font-bold md:flex-row md:gap-8 lg:text-5xl">
           <BowlerHatIcon className="hidden h-20 w-20 lg:inline-block" />
           <span>Neugierig?</span>
@@ -24,7 +24,7 @@ export const BlogDe = () => {
           Zurück zur Startseite
         </Link>
       </div>
-      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-200 lg:prose-xl">
+      <article className="prose prose-gray animate-fade-up animate-delay-200 lg:prose-xl mx-auto">
         <h2>Erstellen und trainieren Sie Ihre eigenen Assistenten</h2>
         <p>
           Ihr KI-Assistent wird von Ihnen selbst erstellt und trainiert. Entwickeln Sie Ihre eigene KI-Lösung ohne eine
@@ -59,7 +59,7 @@ export const BlogDe = () => {
           </li>
         </ul>
       </article>
-      <article className="prose prose-xl prose-gray mx-auto animate-fade-up animate-delay-200">
+      <article className="prose prose-xl prose-gray animate-fade-up animate-delay-200 mx-auto">
         <h2>Features</h2>
         <p>
           George-Ai liefert eine spannende UX, eine 100% API und ist vollständig in Ihre IT-Landschaft und in alle
@@ -112,7 +112,7 @@ export const BlogDe = () => {
           </li>
         </ul>
       </article>
-      <article className="prose prose-lg prose-gray mx-auto animate-fade-up animate-delay-200">
+      <article className="prose prose-lg prose-gray animate-fade-up animate-delay-200 mx-auto">
         <h2>AI-Act</h2>
         <p>
           George-Ai kümmert sich um die Einordnung Ihrer Use-Cases in EU-KI-Act Risk-Levels, ermöglich das Assesment und

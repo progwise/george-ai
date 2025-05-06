@@ -25,7 +25,7 @@ export const HeroEn = ({ user }: HeroEnProps) => {
             href="https://calendly.com/michael-vogt-progwise/30min"
             target="_blank"
             rel="noopener noreferrer"
-            className="animate-fade-up rounded-md bg-blue-600 px-8 py-3 text-center font-medium transition animate-delay-300 hover:bg-blue-700"
+            className="animate-fade-up animate-delay-300 rounded-md bg-blue-600 px-8 py-3 text-center font-medium transition hover:bg-blue-700"
           >
             {t('hero.meeting')}
           </a>
@@ -37,7 +37,7 @@ export const HeroEn = ({ user }: HeroEnProps) => {
           </Link>
         </div>
       </div>
-      <div className="animate-fade justify-items-end p-10 animate-delay-200">
+      <div className="animate-fade animate-delay-200 justify-items-end p-10">
         <HomeChat user={user} />
       </div>
     </section>

@@ -109,7 +109,7 @@ export const HomeChat = ({ user }: HomeChatProps) => {
               value={user?.email || ''}
               schema={formSchema}
             />
-            <button type="submit" className="absolute bottom-1 right-3 z-50 text-sm text-primary">
+            <button type="submit" className="text-primary absolute bottom-1 right-3 z-50 text-sm">
               {t('actions.sendMessage')}
             </button>
           </form>

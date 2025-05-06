@@ -45,16 +45,15 @@ export const GeorgeToaster = () => {
   )
 }
 
-const defaultAlertClasses = 'alert w-auto cursor-pointer animate-fade animate-delay-100'
-
 export const toastWarning = (message: string | JSX.Element) => {
   return toast.custom((toastInstance) => (
     <ToastContent
-    icon={CheckIcon}
-    message={message}
-    type="alert-warning"
-    onClose={() => toast.remove(toastInstance.id)}
-  />
+      icon={CheckIcon}
+      message={message}
+      type="alert-warning"
+      onClose={() => toast.remove(toastInstance.id)}
+    />
+  ))
 }
 
 export const toastError = (message: string | JSX.Element) => {

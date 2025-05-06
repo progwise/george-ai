@@ -7,7 +7,7 @@ import BowlerHatIcon from '../../icons/bowler-hat-icon'
 export const BlogEn = () => {
   return (
     <section className="flex flex-col items-center gap-4">
-      <div className="flex w-full animate-fade-up justify-between bg-gradient-to-r from-cyan-900 to-sky-700 p-4 text-white md:p-10">
+      <div className="animate-fade-up flex w-full justify-between bg-gradient-to-r from-cyan-900 to-sky-700 p-4 text-white md:p-10">
         <h1 className="flex flex-col items-center gap-2 text-xl font-bold md:flex-row md:gap-8 lg:text-5xl">
           <BowlerHatIcon className="hidden h-20 w-20 lg:inline-block" />
           <span>Curious?</span>
@@ -25,7 +25,7 @@ export const BlogEn = () => {
         </Link>
       </div>
 
-      <article className="prose prose-gray mx-auto animate-fade-up animate-delay-200 lg:prose-xl">
+      <article className="prose prose-gray animate-fade-up animate-delay-200 lg:prose-xl mx-auto">
         <h2>Create and train your own assistants</h2>
         <p>
           Your AI assistant is created and trained by you. Build your own AI solution without writing a single line of
@@ -61,7 +61,7 @@ export const BlogEn = () => {
         </ul>
       </article>
 
-      <article className="prose prose-xl prose-gray mx-auto animate-fade-up animate-delay-200">
+      <article className="prose prose-xl prose-gray animate-fade-up animate-delay-200 mx-auto">
         <h2>Features</h2>
         <p>
           George-AI offers an engaging UX, a 100% API, and full integration into your IT infrastructure and all
@@ -113,7 +113,7 @@ export const BlogEn = () => {
         </ul>
       </article>
 
-      <article className="prose prose-lg prose-gray mx-auto animate-fade-up animate-delay-200">
+      <article className="prose prose-lg prose-gray animate-fade-up animate-delay-200 mx-auto">
         <h2>AI Act</h2>
         <p>
           George-AI manages the classification of your use cases according to EU AI Act risk levels, enables assessment,
