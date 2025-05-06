@@ -1,4 +1,3 @@
-/* eslint-disable @eslint-react/dom/no-dangerously-set-innerhtml */
 import { JSX } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { twMerge } from 'tailwind-merge'

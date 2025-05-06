@@ -13,9 +13,9 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as ContactImport } from './routes/contact'
+import { Route as AboutImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as BlogIndexImport } from './routes/blog/index'
 import { Route as AuthenticatedProfileIndexImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedLibrariesIndexImport } from './routes/_authenticated/libraries/index'
 import { Route as AuthenticatedAssistantsIndexImport } from './routes/_authenticated/assistants/index'
@@ -45,6 +45,12 @@ const ContactRoute = ContactImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AboutRoute = AboutImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRoute,
@@ -53,12 +59,6 @@ const AuthenticatedRouteRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const BlogIndexRoute = BlogIndexImport.update({
-  id: '/blog/',
-  path: '/blog/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -179,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRoute
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -191,13 +198,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/blog/': {
-      id: '/blog/'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogIndexImport
       parentRoute: typeof rootRoute
     }
     '/_authenticated/libraries/$libraryId': {
@@ -364,9 +364,9 @@ const AuthenticatedRouteRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
-  '/blog': typeof BlogIndexRoute
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$': typeof AuthenticatedConversationsSplatRoute
@@ -386,9 +386,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
-  '/blog': typeof BlogIndexRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$': typeof AuthenticatedConversationsSplatRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
@@ -408,9 +408,9 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
-  '/blog/': typeof BlogIndexRoute
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/_authenticated/conversations/$': typeof AuthenticatedConversationsSplatRoute
@@ -432,9 +432,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/about'
     | '/contact'
     | '/login'
-    | '/blog'
     | '/libraries/$libraryId'
     | '/assistants/$assistantId'
     | '/conversations/$'
@@ -453,9 +453,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/about'
     | '/contact'
     | '/login'
-    | '/blog'
     | '/assistants/$assistantId'
     | '/conversations/$'
     | '/libraries/auth-google'
@@ -473,9 +473,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/contact'
     | '/login'
-    | '/blog/'
     | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/assistants/$assistantId'
     | '/_authenticated/conversations/$'
@@ -496,17 +496,17 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
-  BlogIndexRoute: typeof BlogIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
-  BlogIndexRoute: BlogIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -521,9 +521,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_authenticated",
+        "/about",
         "/contact",
-        "/login",
-        "/blog/"
+        "/login"
       ]
     },
     "/": {
@@ -544,14 +544,14 @@ export const routeTree = rootRoute
         "/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId"
       ]
     },
+    "/about": {
+      "filePath": "about.tsx"
+    },
     "/contact": {
       "filePath": "contact.tsx"
     },
     "/login": {
       "filePath": "login.tsx"
-    },
-    "/blog/": {
-      "filePath": "blog/index.tsx"
     },
     "/_authenticated/libraries/$libraryId": {
       "filePath": "_authenticated/libraries/$libraryId/route.tsx",

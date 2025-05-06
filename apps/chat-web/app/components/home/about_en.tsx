@@ -4,7 +4,7 @@ import { Impress } from '../../components/home/impress'
 import { VersionIndicator } from '../../components/home/version-indicator'
 import BowlerHatIcon from '../../icons/bowler-hat-icon'
 
-export const BlogEn = () => {
+export const AboutEn = () => {
   return (
     <section className="flex flex-col items-center gap-4">
       <div className="animate-fade-up flex w-full justify-between bg-gradient-to-r from-cyan-900 to-sky-700 p-4 text-white md:p-10">

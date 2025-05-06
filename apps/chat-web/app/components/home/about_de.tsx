@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router'
 
-import { Impress } from '../../components/home/impress'
-import { VersionIndicator } from '../../components/home/version-indicator'
 import BowlerHatIcon from '../../icons/bowler-hat-icon'
+import { Impress } from './impress'
+import { VersionIndicator } from './version-indicator'
 
-export const BlogDe = () => {
+export const AboutDe = () => {
   return (
     <section className="flex flex-col items-center gap-4">
       <div className="animate-fade-up flex w-full justify-between bg-gradient-to-r from-cyan-900 to-sky-700 p-4 text-white md:p-10">

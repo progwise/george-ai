@@ -85,7 +85,7 @@ export const HomeChat = ({ user }: HomeChatProps) => {
           </div>
         </div>
       </div>
-      <div className="border-t p-4">
+      <div className="px-4 pb-4">
         <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
           <LoadingSpinner isLoading={isPending} />
           <Input

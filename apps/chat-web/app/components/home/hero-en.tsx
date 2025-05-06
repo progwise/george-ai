@@ -30,7 +30,7 @@ export const HeroEn = ({ user }: HeroEnProps) => {
             {t('hero.meeting')}
           </a>
           <Link
-            to="/blog"
+            to="/about"
             className="animate-delay-400 animate-fade-up rounded-md border border-white px-8 py-3 text-center font-medium transition hover:bg-white hover:text-blue-800"
           >
             {t('hero.more')}
