@@ -56,8 +56,8 @@ export const Select = <T extends ZodRawShape>({
   }
   return (
     <label className={twMerge('grid w-full grid-cols-2', className)}>
-      <span className={twMerge('text-sm text-base-content/50', errors.length > 0 && 'text-error')}>{label}</span>
-      <span className="justify-self-end text-sm text-error">{errors.join(', ')}</span>
+      <span className={twMerge('text-base-content/50 text-sm', errors.length > 0 && 'text-error')}>{label}</span>
+      <span className="text-error justify-self-end text-sm">{errors.join(', ')}</span>
       <div className="dropdown col-span-2">
         <input type="hidden" name={name} ref={hiddenIdFieldRef} value={value?.id || ''} />
         <Listbox

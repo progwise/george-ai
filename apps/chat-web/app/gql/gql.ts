@@ -65,7 +65,6 @@ type Documents = {
   '\n  fragment DeleteLibraryDialog_Library on AiLibrary {\n    id\n    name\n    ownerId\n    filesCount\n    createdAt\n    description\n    url\n  }\n': typeof types.DeleteLibraryDialog_LibraryFragmentDoc
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
-  '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ': typeof types.ClearEmbeddingsDocument
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n            }\n          }\n        ': typeof types.DropFileDocument
   '\n          mutation reProcessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ': typeof types.ReProcessFileDocument
   '\n        query EmbeddingsTable($libraryId: String!) {\n          aiLibraryFiles(libraryId: $libraryId) {\n            id\n            name\n            originUri\n            mimeType\n            size\n            chunks\n            uploadedAt\n            processedAt\n            processingErrorMessage\n            dropError\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
@@ -94,6 +93,8 @@ type Documents = {
   '\n  mutation leaveConversation($participantId: String!) {\n    leaveAiConversation(id: $participantId) {\n      id\n    }\n  }\n': typeof types.LeaveConversationDocument
   '\n  mutation addParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {\n    addConversationParticipants(conversationId: $conversationId, userIds: $userIds, assistantIds: $assistantIds) {\n      id\n    }\n  }\n': typeof types.AddParticipantDocument
   '\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n': typeof types.RemoveParticipantDocument
+  '\n  mutation createConversationInvitations(\n    $conversationId: String!\n    $inviterId: String!\n    $data: [ConversationInvitationInput!]!\n  ) {\n    createConversationInvitations(conversationId: $conversationId, inviterId: $inviterId, data: $data) {\n      id\n    }\n  }\n': typeof types.CreateConversationInvitationsDocument
+  '\n  mutation confirmInvitation($conversationId: String!, $invitationId: String!, $userId: String!, $email: String) {\n    confirmConversationInvitation(\n      conversationId: $conversationId\n      invitationId: $invitationId\n      userId: $userId\n      email: $email\n    ) {\n      id\n    }\n  }\n': typeof types.ConfirmInvitationDocument
   '\n  query myConversationUsers($userId: String!) {\n    myConversationUsers(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n    }\n  }\n': typeof types.MyConversationUsersDocument
   '\n        mutation sendConfirmationMail($userId: String!, $confirmationUrl: String!) {\n          sendConfirmationMail(userId: $userId, confirmationUrl: $confirmationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ConfirmUserProfileDocument
@@ -201,8 +202,6 @@ const documents: Documents = {
     types.PrepareDesktopFileDocument,
   '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ':
     types.CancelFileUploadDocument,
-  '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ':
-    types.ClearEmbeddingsDocument,
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n            }\n          }\n        ':
     types.DropFileDocument,
   '\n          mutation reProcessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ':
@@ -259,6 +258,10 @@ const documents: Documents = {
     types.AddParticipantDocument,
   '\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n':
     types.RemoveParticipantDocument,
+  '\n  mutation createConversationInvitations(\n    $conversationId: String!\n    $inviterId: String!\n    $data: [ConversationInvitationInput!]!\n  ) {\n    createConversationInvitations(conversationId: $conversationId, inviterId: $inviterId, data: $data) {\n      id\n    }\n  }\n':
+    types.CreateConversationInvitationsDocument,
+  '\n  mutation confirmInvitation($conversationId: String!, $invitationId: String!, $userId: String!, $email: String) {\n    confirmConversationInvitation(\n      conversationId: $conversationId\n      invitationId: $invitationId\n      userId: $userId\n      email: $email\n    ) {\n      id\n    }\n  }\n':
+    types.ConfirmInvitationDocument,
   '\n  query myConversationUsers($userId: String!) {\n    myConversationUsers(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n    }\n  }\n':
     types.MyConversationUsersDocument,
   '\n        mutation sendConfirmationMail($userId: String!, $confirmationUrl: String!) {\n          sendConfirmationMail(userId: $userId, confirmationUrl: $confirmationUrl)\n        }\n      ':
@@ -591,12 +594,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ',
-): (typeof documents)['\n        mutation clearEmbeddings($libraryId: String!) {\n          clearEmbeddedFiles(libraryId: $libraryId)\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n            }\n          }\n        ',
 ): (typeof documents)['\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n            }\n          }\n        ']
 /**
@@ -761,6 +758,18 @@ export function graphql(
 export function graphql(
   source: '\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n',
 ): (typeof documents)['\n  mutation removeParticipant($participantId: String!) {\n    removeConversationParticipant(id: $participantId) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation createConversationInvitations(\n    $conversationId: String!\n    $inviterId: String!\n    $data: [ConversationInvitationInput!]!\n  ) {\n    createConversationInvitations(conversationId: $conversationId, inviterId: $inviterId, data: $data) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation createConversationInvitations(\n    $conversationId: String!\n    $inviterId: String!\n    $data: [ConversationInvitationInput!]!\n  ) {\n    createConversationInvitations(conversationId: $conversationId, inviterId: $inviterId, data: $data) {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation confirmInvitation($conversationId: String!, $invitationId: String!, $userId: String!, $email: String) {\n    confirmConversationInvitation(\n      conversationId: $conversationId\n      invitationId: $invitationId\n      userId: $userId\n      email: $email\n    ) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation confirmInvitation($conversationId: String!, $invitationId: String!, $userId: String!, $email: String) {\n    confirmConversationInvitation(\n      conversationId: $conversationId\n      invitationId: $invitationId\n      userId: $userId\n      email: $email\n    ) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -289,7 +289,7 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
-                <div key={file.id} className="flex flex-col gap-2 rounded-md border border-base-300 p-3 shadow-sm">
+                <div key={file.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
                   <div className="flex justify-between">
                     <label className="flex items-center gap-2">
                       <input
