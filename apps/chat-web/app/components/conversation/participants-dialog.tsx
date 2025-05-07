@@ -265,98 +265,103 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="w-full max-w-[800px] px-4 sm:px-6 md:px-8"
+        className="h-96 max-h-96 w-full max-w-[1000px] overflow-y-scroll"
       >
         <div className="flex w-full flex-col gap-4 sm:flex-row">
-          <div className="flex-1">
+          <div className="flex-1 sm:w-1/3">
             <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
               <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
-              availableAssistants.map((assistant) => (
-                <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="assistants"
-                    value={assistant.id}
-                    className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedAssistantIds.includes(assistant.id)}
-                    onChange={(event) => {
-                      const value = event.target.checked
-                      if (value) {
-                        setSelectedAssistantIds((prev) => [...prev, assistant.id])
-                      } else {
-                        setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
-                      }
-                    }}
-                  />
-                  <span className="label-text">{assistant.name}</span>
-                </label>
-              ))
+              <div
+                className={`flex max-h-56 flex-col gap-2 overflow-y-auto rounded-md border border-transparent p-2 ${availableAssistants.length > 0 ? 'hover:border-base-300' : ''}`}
+              >
+                {availableAssistants.map((assistant) => (
+                  <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      name="assistants"
+                      value={assistant.id}
+                      className="checkbox checkbox-info checkbox-xs"
+                      checked={selectedAssistantIds.includes(assistant.id)}
+                      onChange={(event) => {
+                        const value = event.target.checked
+                        if (value) {
+                          setSelectedAssistantIds((prev) => [...prev, assistant.id])
+                        } else {
+                          setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
+                        }
+                      }}
+                    />
+                    <span className="text-sm">{assistant.name}</span>
+                  </label>
+                ))}
+              </div>
             )}
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 sm:w-1/3">
             <h4 className="-mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
             <Input
+              type="text"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
             />
-            <label className="label cursor-pointer items-center justify-start gap-2">
-              <input
-                disabled={availableHumans.length < 1}
-                type="checkbox"
-                name="selectAll"
-                className="checkbox checkbox-info checkbox-xs"
-                checked={selectedUserIds.length > 0}
-                ref={(element) => {
-                  if (!element) return
-                  element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
-                }}
-                onChange={(event) => {
-                  const value = event.target.checked
-                  if (value) {
-                    setSelectedUserIds(availableHumans.map((human) => human.id))
-                  } else {
-                    setSelectedUserIds([])
-                  }
-                }}
-              />
-              {availableHumans.length < 1 ? (
-                <span className="info label-text font-bold">{t('texts.noUsersFound')}</span>
-              ) : (
-                <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
-              )}
-            </label>
-            <div className="max-h-48 flex-grow overflow-y-auto">
-              {availableHumans.map((human) => (
-                <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
+            <span className="text-sm">
+              {availableHumans.length < 1 && usersFilter && usersFilter.length >= 2 ? t('texts.noUsersFound') : ''}
+            </span>
+            <div
+              className={`max-h-46 flex min-w-full flex-col gap-2 overflow-y-auto rounded-md border border-transparent p-2 sm:min-w-72 ${usersFilter && usersFilter.length >= 2 && availableHumans.length > 0 ? 'hover:border-base-300' : 'hidden'} w-full max-w-[300px] overflow-hidden`}
+            >
+              {availableHumans.length > 0 && (
+                <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
-                    name="userIds"
-                    value={human.id}
                     className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedUserIds.includes(human.id)}
                     onChange={(event) => {
-                      const value = event.target.checked
-                      if (value) {
-                        setSelectedUserIds((prev) => [...prev, human.id])
+                      const isChecked = event.target.checked
+                      if (isChecked) {
+                        setSelectedUserIds(availableHumans.map((human) => human.id))
                       } else {
-                        setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
+                        setSelectedUserIds([])
                       }
                     }}
                   />
-                  <span className="label-text text-sm leading-tight">
-                    {`${human.username} (${human.email} ${human.profile && human.profile.business !== null ? '| ' + human.profile?.business : ''} )`}
-                  </span>
-                </label>
-              ))}
+                  <span className="text-sm">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
+                </div>
+              )}
+              <div
+                className={`max-h-46 border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t p-2 pl-0 sm:min-w-72 ${availableHumans.length > 0 ? 'hover:border-base-300' : ''} w-full max-w-[300px] overflow-hidden`}
+              >
+                {availableHumans.map((human) => (
+                  <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      name="userIds"
+                      value={human.id}
+                      className="checkbox checkbox-info checkbox-xs"
+                      checked={selectedUserIds.includes(human.id)}
+                      onChange={(event) => {
+                        const value = event.target.checked
+                        if (value) {
+                          setSelectedUserIds((prev) => [...prev, human.id])
+                        } else {
+                          setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
+                        }
+                      }}
+                    />
+                    <span className="text-sm leading-tight">
+                      {`${human.username} (${human.email} ${human.profile && human.profile.business !== null ? '| ' + human.profile?.business : null})`}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
           {isOwner && (
-            <div className="flex-1">
+            <div className="flex-1 sm:w-1/3">
               <h4 className="mb-2 text-lg font-semibold underline">{t('labels.invitation')}</h4>
               <EmailChipsInput
                 emails={emailChips}
