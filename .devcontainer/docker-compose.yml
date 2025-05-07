@@ -44,6 +44,15 @@ services:
     volumes:
       - ../.postgres-data-chatweb:/var/lib/postgresql/data
 
+  gai-chatweb-db-test:
+    image: postgres:16
+    container_name: gai-chatweb-db-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chatweb-test
+      POSTGRES_USER: chatweb-test
+      POSTGRES_PASSWORD: password
+
   gai-keycloak-db:
     image: postgres:16
     container_name: gai-keycloak-db

@@ -8,6 +8,24 @@ const defaultValues = {
   updatedAt: new Date(),
 }
 
+it('return null if active is false', () => {
+  const expression = getCronExpression({
+    ...defaultValues,
+    active: false,
+    hour: 2,
+    minute: 30,
+    monday: true,
+    tuesday: true,
+    wednesday: true,
+    thursday: true,
+    friday: true,
+    saturday: true,
+    sunday: true,
+  })
+
+  expect(expression).toBeNull()
+})
+
 it('returns null if no days are selected', () => {
   const expression = getCronExpression({
     ...defaultValues,
