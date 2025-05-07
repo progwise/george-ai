@@ -7,6 +7,7 @@ import { twMerge } from 'tailwind-merge'
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
+import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
@@ -58,9 +59,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
         <nav className="navbar container gap-2 text-sm lg:gap-4">
           {/* Logo and Brand-Name */}
           <Link to="/" className="flex grow items-center gap-2 text-nowrap text-xl font-bold">
-            <span className="bg-neutral text-neutral-content flex size-10 items-center justify-center rounded-full">
-              G
-            </span>
+            <BowlerLogoIcon className="size-10" />
             <h1>George-AI</h1>
           </Link>
 
