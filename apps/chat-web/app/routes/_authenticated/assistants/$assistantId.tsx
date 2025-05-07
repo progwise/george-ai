@@ -79,7 +79,7 @@ function RouteComponent() {
         <div className="flex gap-2">
           <button
             type="button"
-            className="btn btn-sm tooltip"
+            className="btn btn-sm tooltip tooltip-left"
             data-tip={t('tooltips.goToOverview')}
             onClick={() => navigate({ to: '..' })}
           >
