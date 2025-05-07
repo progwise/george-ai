@@ -186,7 +186,7 @@ export const ConversationMessage = ({
         >
           {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
         </button>
-        {(message.sender.userId === currentUserId || conversationOwnerId === currentUserId) && (
+        {conversationOwnerId === currentUserId && (
           <button
             type="button"
             className="btn btn-ghost btn-xs self-start lg:tooltip lg:tooltip-left"
