@@ -63,7 +63,7 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
       </div>
       {error && <p className="text-error text-sm">{error}</p>}
       <div
-        className={`flex max-h-44 flex-wrap items-center gap-1 overflow-auto rounded-md ${emails.length > 0 && 'border-base-300 bg-base-100 border p-1'}`}
+        className={`flex max-h-32 flex-wrap items-center gap-1 overflow-auto rounded-md ${emails.length > 0 && 'border-base-300 bg-base-100 border p-1'}`}
       >
         {emails.map((email) => (
           <div key={email} className="bg-base-300 flex w-full items-center gap-1 rounded-full px-2 py-0.5 text-sm">

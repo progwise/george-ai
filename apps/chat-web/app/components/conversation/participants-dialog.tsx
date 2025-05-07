@@ -10,7 +10,6 @@ import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
-import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { EmailChipsInput } from './email-chips-input'
@@ -265,7 +264,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="h-96 max-h-96 w-full max-w-[1000px] overflow-y-scroll"
+        className="w-full max-w-[1000px] lg:h-[480px]"
       >
         <div className="flex w-full flex-col gap-4 sm:flex-row">
           <div className="flex-1 sm:w-1/3">
@@ -293,7 +292,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                         }
                       }}
                     />
-                    <span className="text-sm">{assistant.name}</span>
+                    <span className="truncate text-sm" title={assistant.name}>
+                      {assistant.name}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -301,16 +302,17 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           </div>
 
           <div className="flex-1 sm:w-1/3">
-            <h4 className="-mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
-            <Input
+            <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
+            <input
               type="text"
+              className="input input-bordered input-sm mt-2 w-full"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
             />
-            <span className="text-sm">
+            <p className="mt-2">
               {availableHumans.length < 1 && usersFilter && usersFilter.length >= 2 ? t('texts.noUsersFound') : ''}
-            </span>
+            </p>
             <div
               className={`max-h-46 flex min-w-full flex-col gap-2 overflow-y-auto rounded-md border border-transparent p-2 sm:min-w-72 ${usersFilter && usersFilter.length >= 2 && availableHumans.length > 0 ? 'hover:border-base-300' : 'hidden'} w-full max-w-[300px] overflow-hidden`}
             >
@@ -351,8 +353,11 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                         }
                       }}
                     />
-                    <span className="text-sm leading-tight">
-                      {`${human.username} (${human.email} ${human.profile && human.profile.business !== null ? '| ' + human.profile?.business : null})`}
+                    <span
+                      className="truncate text-sm leading-tight"
+                      title={`${human.username} (${human.email}${human.profile && human.profile.business ? ' | ' + human.profile.business : ''})`}
+                    >
+                      {`${human.username} (${human.email}${human.profile && human.profile.business ? ' | ' + human.profile.business : ''})`}
                     </span>
                   </label>
                 ))}
