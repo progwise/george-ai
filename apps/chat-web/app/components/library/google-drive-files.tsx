@@ -4,6 +4,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
+import { getMimeTypeFromFileName } from '@george-ai/web-utils'
+
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -21,10 +23,17 @@ export interface GoogleDriveFilesProps {
   dialogRef: React.RefObject<HTMLDialogElement | null>
   userId: string
 }
-
-interface GoogleDriveResponse {
-  files: Array<{ id: string; kind: string; name: string; size?: number; iconLink?: string }>
-}
+const googleDriveResponseSchema = z.object({
+  files: z.array(
+    z.object({
+      id: z.string(),
+      kind: z.string(),
+      name: z.string(),
+      size: z.string().optional(),
+      iconLink: z.string().optional(),
+    }),
+  ),
+})
 
 const getHighResIconUrl = (iconLink: string): string => {
   if (!iconLink) return ''
@@ -84,11 +93,6 @@ const embedFiles = createServerFn({ method: 'GET' })
           return response
         }
 
-        console.warn(
-          'Failed to download file from Google Drive, trying another method',
-          `${ctx.data.access_token}`,
-          file,
-        )
         isPdfExport = false
         return await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`, {
           method: 'GET',
@@ -111,7 +115,7 @@ const embedFiles = createServerFn({ method: 'GET' })
         file: {
           name: file.name,
           originUri: `https://drive.google.com/file/d/${file.id}/view`,
-          mimeType: isPdfExport ? 'application/pdf' : 'text/plain',
+          mimeType: isPdfExport ? 'application/pdf' : getMimeTypeFromFileName(file.name),
           libraryId: ctx.data.libraryId,
         },
       })
@@ -162,10 +166,10 @@ export const GoogleDriveFiles = ({
           headers: { Authorization: `Bearer ${googleDriveAccessToken.access_token}` },
         },
       )
-      const responseJson = (await response.json()) as GoogleDriveResponse
+      const responseJson = googleDriveResponseSchema.parse(await response.json())
       return responseJson.files.map((file) => ({
         ...file,
-        size: file.size ?? 0,
+        size: file.size ? parseInt(file.size) : 0,
         iconLink: getHighResIconUrl(file.iconLink ?? ''),
       }))
     },
@@ -229,7 +233,7 @@ export const GoogleDriveFiles = ({
     <>
       <LoadingSpinner isLoading={embedFilesIsPending || googleDriveFilesIsLoading} />
       <div className="flex flex-col gap-2">
-        <div className="sticky top-0 z-20 flex justify-between gap-2 bg-base-100 p-1 shadow-md">
+        <div className="bg-base-100 sticky top-0 z-20 flex justify-between gap-2 p-1 shadow-md">
           {!googleDriveAccessToken?.access_token ? (
             <Link
               className="btn btn-xs"

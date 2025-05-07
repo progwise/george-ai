@@ -116,7 +116,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         const formData = new FormData(event.currentTarget)
         props.onSubmit?.(formData)
       }}
-      className="flex w-full flex-col items-center gap-2 sm:grid sm:w-auto sm:grid-cols-2"
+      className="flex w-full flex-col items-center gap-x-2 sm:grid sm:w-auto sm:grid-cols-2"
     >
       <input type="hidden" name="id" value={userProfile.id} />
       <input type="hidden" name="userId" value={userProfile.userId} />
@@ -126,14 +126,14 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         type="text"
         label={t('labels.createdAt')}
         value={dateTimeString(userProfile.createdAt, language)}
-        readOnly
+        disabled
       />
       <Input
         name="updatedAt"
         type="text"
         label={t('labels.updatedAt')}
         value={dateTimeString(userProfile.updatedAt, language)}
-        readOnly
+        disabled
       />
       <Input
         name="confirmationDate"
@@ -145,7 +145,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
             : t('labels.awaitingConfirmation')
         }
         placeholder={!userProfile.confirmationDate ? t('labels.awaitingConfirmation') : undefined}
-        readOnly
+        disabled
       />
       <Input
         name="expiresAt"
@@ -153,7 +153,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.expiresAt')}
         value={dateTimeString(userProfile.expiresAt, language)}
         valueNotSet={t('labels.never')}
-        readOnly
+        disabled
       />
       <Input
         name="activationDate"
@@ -166,7 +166,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         }
         placeholder={!userProfile.activationDate ? t('labels.awaitingActivation') : undefined}
         className="col-span-2"
-        readOnly
+        disabled
       />
       <hr className="col-span-2 my-2" />
       <Input schema={formSchema} name={'email'} label="Email*" value={userProfile.email} className="col-span-2" />
@@ -193,7 +193,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.freeStorage')}
         value={userProfile.freeStorage}
         type="number"
-        readOnly={!props.isAdmin}
+        disabled={!props.isAdmin}
       />
 
       <Input
@@ -201,14 +201,14 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.freeMessages')}
         value={userProfile.freeMessages}
         type="number"
-        readOnly={!props.isAdmin}
+        disabled={!props.isAdmin}
       />
       <Input
         name="usedStorage"
         label={t('labels.usedStorage')}
         value={userProfile.usedStorage}
         type="number"
-        readOnly
+        disabled
       />
 
       <Input
@@ -216,7 +216,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.usedMessages')}
         value={userProfile.usedMessages}
         type="number"
-        readOnly
+        disabled
       />
       <div className="col-span-2 flex justify-end">
         <a
@@ -235,7 +235,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
           onClick={() => {
             logout()
           }}
-          className="btn btn-outline btn-neutral btn-sm"
+          className="btn btn-neutral btn-outline btn-sm"
         >
           {t('actions.signOut')}
         </button>

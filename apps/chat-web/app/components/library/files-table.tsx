@@ -49,19 +49,19 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
 
   return (
     <div>
-      <div className="sticky top-[36px] z-10 flex items-center justify-between bg-base-100 p-1 shadow-md">
-        <div className="inline-flex h-8 items-center gap-1 rounded-full border-2 border-base-300 bg-base-200 p-2">
+      <div className="bg-base-100 sticky top-[36px] z-10 flex items-center justify-between p-1 shadow-md">
+        <div className="border-base-300 bg-base-200 inline-flex h-8 items-center gap-1 rounded-full border-2 p-2">
           <button
             type="button"
             onClick={() => setSelectedFiles([])}
-            className="hover:bg-base-400 flex items-center justify-center rounded-full bg-base-300 focus:outline-none"
+            className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
             disabled={selectedFiles.length === 0}
           >
             <CrossIcon />
           </button>
-          <span className="text-sm font-medium text-base-content">{getSelectedFilesLabel(selectedFiles.length)}</span>
+          <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(selectedFiles.length)}</span>
         </div>
-        <div className="inline-flex h-8 items-center rounded-full border-2 border-base-300 bg-base-200">
+        <div className="border-base-300 bg-base-200 inline-flex h-8 items-center rounded-full border-2">
           <button
             type="button"
             onClick={() => setViewMode('grid')}
@@ -69,8 +69,8 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
               viewMode === 'grid' ? 'bg-base-300' : ''
             }`}
           >
-            {viewMode === 'grid' && <CheckIcon className="mr-1 flex items-center text-base-content" />}
-            <GridViewIcon className="size-4 fill-current text-base-content" />
+            {viewMode === 'grid' && <CheckIcon className="text-base-content mr-1 flex items-center" />}
+            <GridViewIcon className="text-base-content size-4 fill-current" />
           </button>
           <button
             type="button"
@@ -79,8 +79,8 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
               viewMode === 'list' ? 'bg-base-300' : ''
             }`}
           >
-            {viewMode === 'list' && <CheckIcon className="mr-1 flex items-center text-base-content" />}
-            <ListViewIcon className="size-4 fill-current text-base-content" />
+            {viewMode === 'list' && <CheckIcon className="text-base-content mr-1 flex items-center" />}
+            <ListViewIcon className="text-base-content size-4 fill-current" />
           </button>
         </div>
       </div>
@@ -102,7 +102,7 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
                     tabIndex={0}
                     className={
                       'flex select-none items-center gap-3 rounded border p-2 focus:outline-none ' +
-                      (isSelected ? 'border-blue-500 bg-base-200' : 'border-transparent hover:bg-base-100')
+                      (isSelected ? 'bg-base-200 border-blue-500' : 'hover:bg-base-100 border-transparent')
                     }
                     aria-pressed={isSelected}
                     aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
@@ -143,17 +143,17 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
                       if (event.key === 'Enter' || event.key === ' ') toggleFile(file)
                     }}
                     className={`group relative flex cursor-pointer select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ${
-                      isSelected ? 'border-primary bg-primary/20' : 'border-transparent hover:bg-base-100'
+                      isSelected ? 'bg-primary/20 border-primary' : 'hover:bg-base-100 border-transparent'
                     }`}
                   >
                     {file.iconLink && (
                       <img src={file.iconLink} alt={`${file.name} icon`} className="size-12 object-contain" />
                     )}
-                    <span className="block w-full max-w-full truncate text-center text-sm text-base-content">
+                    <span className="text-base-content block w-full max-w-full truncate text-center text-sm">
                       {file.name}
                     </span>
-                    <span className="mt-1 text-xs text-base-content">{isFolder ? 'Folder' : 'File'}</span>
-                    <span className="mt-1 hidden text-xs text-base-content md:block">{formatBytes(sizeValue)}</span>
+                    <span className="text-base-content mt-1 text-xs">{isFolder ? 'Folder' : 'File'}</span>
+                    <span className="text-base-content mt-1 hidden text-xs md:block">{formatBytes(sizeValue)}</span>
                   </div>
                 )
               })}

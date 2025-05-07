@@ -50,7 +50,7 @@ const RootDocument = () => {
       <head>
         <HeadContent />
       </head>
-      <body className="container mx-auto flex min-h-screen flex-col px-1">
+      <body className="container">
         <LanguageProvider initialLanguage={language as Language}>
           <AuthProvider>
             <>

@@ -94,8 +94,9 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       scrollToBottom()
     },
-    onError: (error) => {
-      toastError(error.message)
+    //TODO: Handle other possible errors
+    onError: () => {
+      toastError(t('assistants.setLLM'))
     },
   })
 
@@ -133,17 +134,17 @@ export const ConversationForm = (props: ConversationFormProps) => {
         <button
           onClick={scrollToBottom}
           type="button"
-          className="btn btn-circle btn-sm sticky bottom-56 z-40 self-center lg:bottom-40"
+          className="btn btn-sm btn-circle sticky bottom-56 z-40 self-center lg:bottom-40"
           aria-label={t('actions.scrollToBottom')}
         >
           <ChevronDownIcon />
         </button>
       )}
 
-      <div className="sticky bottom-[72px] z-30 mx-1 mt-20 rounded-box border bg-base-100 p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
+      <div className="rounded-box bg-base-100 mt-75 sticky bottom-[72px] z-30 mx-1 border p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <EditableDiv
-            className="max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2 focus:border-primary focus:outline-none"
+            className="focus:outline-hidden focus:border-primary max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2"
             disabled={isPending}
             onSubmit={handleSubmitMessage}
             value={message}
@@ -151,15 +152,16 @@ export const ConversationForm = (props: ConversationFormProps) => {
             placeholder={t('conversations.promptPlaceholder')}
           />
           <div className="flex items-center justify-between gap-1">
-            <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-content">
+            <div className="bg-primary text-primary-content flex h-8 w-8 flex-none items-center justify-center rounded-full">
               {name[0].toUpperCase()}
             </div>
 
-            <div className="flex min-w-0 grow flex-col">
+            <div className="flex grow flex-col">
               <span className="truncate text-sm font-semibold">{name}</span>
-              <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
+              <span className="truncate text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
             </div>
-            <div className="hidden items-center gap-2 lg:flex">
+
+            <div className="no-scrollbar hidden items-center gap-2 overflow-x-auto lg:flex">
               {conversation.assistants?.map((assistant) => (
                 <label key={assistant.id} className="label cursor-pointer gap-2">
                   <input
@@ -168,7 +170,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
                     type="checkbox"
                     checked={!unselectedAssistantIds.includes(assistant.id)}
                     onChange={() => handleAssistantToggle(assistant.id)}
-                    className="checkbox-info checkbox checkbox-sm"
+                    className="checkbox checkbox-info checkbox-xs"
                   />
                   <span className="label-text">
                     {t('conversations.askAssistant').replace('{assistantName}', assistant.name)}
@@ -178,11 +180,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
             </div>
 
             <div className="dropdown dropdown-end dropdown-top flex-none lg:hidden">
-              <div tabIndex={0} role="button" className="btn btn-ghost">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
                 ...
               </div>
-              <ul tabIndex={0} className="z-1 menu dropdown-content w-52 rounded-box bg-base-100 p-2 shadow">
-                {conversation.assistants.map((assistant) => (
+              <ul tabIndex={0} className="z-1 dropdown-content menu rounded-box bg-base-100 w-52 p-2 shadow-sm">
+                {conversation.assistants?.map((assistant) => (
                   <li key={assistant.id}>
                     <label className="flex items-center gap-2">
                       <input
@@ -191,7 +193,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
                         type="checkbox"
                         checked={!unselectedAssistantIds.includes(assistant.id)}
                         onChange={() => handleAssistantToggle(assistant.id)}
-                        className="checkbox-info checkbox checkbox-sm"
+                        className="checkbox checkbox-info checkbox-xs"
                       />
                       <span className="label-text">{assistant.name}</span>
                     </label>
@@ -207,7 +209,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
               disabled={isPending || remainingMessages < 1}
               data-tip={`${remainingMessages} ${t('tooltips.remainingMessages')}`}
             >
-              {t('actions.sendMessage')}
+              {t('actions.send')}
             </button>
           </div>
         </form>

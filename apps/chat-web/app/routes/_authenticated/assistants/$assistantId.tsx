@@ -79,7 +79,7 @@ function RouteComponent() {
         <div className="flex gap-2">
           <button
             type="button"
-            className="btn btn-sm tooltip"
+            className="btn btn-sm tooltip tooltip-left"
             data-tip={t('tooltips.goToOverview')}
             onClick={() => navigate({ to: '..' })}
           >
@@ -88,12 +88,12 @@ function RouteComponent() {
         </div>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 sm:w-1/2">
+        <div className="card rounded-box bg-base-200 grid grow px-3 py-3 sm:w-1/2">
           <AssistantForm assistant={aiAssistant} disabled={!ownerId} userId={ownerId} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
-        <div className="card grid grow rounded-box bg-base-200 px-3 py-3 sm:w-1/2">
+        <div className="card rounded-box bg-base-200 grid grow px-3 py-3 sm:w-1/2">
           <AssistantBasecaseForm assistant={aiAssistant} userId={ownerId} />
         </div>
       </div>
