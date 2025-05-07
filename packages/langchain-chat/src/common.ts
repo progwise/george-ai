@@ -3,6 +3,7 @@ export type FileMimeType =
   | 'text/plain'
   | 'text/csv'
   | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
 export const getFileExtension = (mimeType: string) => {
   switch (mimeType) {
@@ -16,6 +17,8 @@ export const getFileExtension = (mimeType: string) => {
       return 'md'
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       return 'docx'
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      return 'xlsx'
     default:
       throw new Error(`Unsupported mime type ${mimeType}`)
   }

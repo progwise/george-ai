@@ -6,8 +6,10 @@ import {
   AiConversationCreateInput,
   AiConversationMessageInput,
   AiLibraryCrawlerCronJobInput,
+  AiLibraryCrawlerInput,
   AiLibraryFileInput,
   AiLibraryInput,
+  ConversationInvitationInput,
   RetrievalFlow,
   UserInput,
   UserProfileInput,
@@ -75,6 +77,15 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
   })
 }
 
+export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
+  return z.object({
+    cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
+    maxDepth: z.number(),
+    maxPages: z.number(),
+    url: z.string(),
+  })
+}
+
 export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFileInput>> {
   return z.object({
     libraryId: z.string(),
@@ -90,6 +101,14 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function ConversationInvitationInputSchema(): z.ZodObject<Properties<ConversationInvitationInput>> {
+  return z.object({
+    allowDifferentEmailAddress: z.boolean(),
+    allowMultipleParticipants: z.boolean(),
+    email: z.string(),
   })
 }
 

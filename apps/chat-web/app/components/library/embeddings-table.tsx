@@ -111,6 +111,9 @@ export const aiLibraryFilesQueryOptions = (libraryId: string) =>
     },
   })
 
+const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
+  name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
+
 export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {
   const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
@@ -119,14 +122,27 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
     aiLibraryFilesQueryOptions(libraryId),
   )
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
-  const googleDriveAccessToken = googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null
+  const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
+    const updateAccessToken = () => {
+      const updateToken = () => {
+        setGoogleDriveAccessToken(googleDriveAccessTokenString ? JSON.parse(googleDriveAccessTokenString) : null)
+      }
+      updateToken()
+    }
+    updateAccessToken()
+  }, [])
+
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    if (urlParams.has('googleDriveAuth') && googleDriveAccessToken) {
-      dialogRef.current?.showModal()
+    if (googleDriveAccessToken) {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.has('googleDriveAuth')) {
+        dialogRef.current?.showModal()
+      }
     }
   }, [googleDriveAccessToken])
 
@@ -185,12 +201,6 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
-  const truncateFileName = (fileName: string, maxLength: number, truncatedLength: number): string => {
-    return fileName.length > maxLength
-      ? `${fileName.slice(0, truncatedLength)}...${fileName.slice(fileName.lastIndexOf('.'))}`
-      : fileName
-  }
-
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
@@ -235,7 +245,7 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
       </nav>
       {googleDriveAccessToken && (
         <dialog ref={dialogRef} className="modal">
-          <div className="modal-box relative flex w-auto min-w-[300px] max-w-[90vw] flex-col">
+          <div className="modal-box relative flex w-full min-w-[400px] max-w-screen-lg flex-col">
             <button
               type="button"
               className="btn btn-ghost btn-sm absolute right-2 top-2"
@@ -279,7 +289,7 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
-                <div key={file.id} className="flex flex-col gap-2 rounded-md border border-base-300 p-3 shadow-sm">
+                <div key={file.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
                   <div className="flex justify-between">
                     <label className="flex items-center gap-2">
                       <input

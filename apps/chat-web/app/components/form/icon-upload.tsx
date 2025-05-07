@@ -24,17 +24,17 @@ export const IconUpload = ({ fileTypes, className, handleUploadIcon, disabled, i
     <div className={twMerge('flex items-center justify-between gap-4', className)}>
       <button
         type="button"
-        className="h-36 w-36 overflow-hidden rounded-full border bg-cover bg-center bg-no-repeat text-center"
+        className="border-base-content size-36 cursor-pointer overflow-hidden rounded-full border bg-cover bg-center bg-no-repeat text-center"
         onClick={handleClick}
         disabled={disabled}
       >
         {!imageUrl ? (
-          <CameraIcon className="h-full w-full p-5 text-base-content/50 hover:text-base-content/80" />
+          <CameraIcon className="text-base-content/50 hover:text-base-content/80 h-full w-full p-5" />
         ) : (
           <img
             src={imageUrl}
             alt={t('labels.icon')}
-            className="h-full w-full object-cover"
+            className="size-full object-cover"
             onError={(event) => {
               event.currentTarget.hidden = true
             }}

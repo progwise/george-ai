@@ -26,7 +26,7 @@ export const ComplianceArea = (props: ComplianceAreaProps) => {
   const area = useFragment(ComplianceArea_Fragment, props.area)
   const { title, description, mandatory } = area
   return (
-    <div className={`rounded-lg border p-3 ${mandatory && 'border-info bg-info/20'}`}>
+    <div className={`rounded-lg border p-3 ${mandatory && 'bg-info/20 border-info'}`}>
       <label className="flex cursor-pointer items-center gap-3">
         <input
           disabled={mandatory}

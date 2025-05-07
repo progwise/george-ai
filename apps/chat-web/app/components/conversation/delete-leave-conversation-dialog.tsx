@@ -102,7 +102,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     <>
       <button
         type="button"
-        className="btn btn-square btn-ghost btn-sm mx-1 lg:tooltip lg:tooltip-left"
+        className="btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-left mx-1"
         onClick={handleOpen}
         data-tip={buttonTooltip}
       >

@@ -1,6 +1,10 @@
 import { AiLibraryCrawlerCronJob } from '@george-ai/prismaClient'
 
 export const getCronExpression = (cronJob: AiLibraryCrawlerCronJob) => {
+  if (!cronJob.active) {
+    return null
+  }
+
   const { hour, minute, monday, tuesday, wednesday, thursday, friday, saturday, sunday } = cronJob
 
   const days = [

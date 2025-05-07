@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
-import { toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { confirmUserProfile } from '../../../server-functions/users'
@@ -19,8 +18,15 @@ function RouteComponent() {
   const { t } = useTranslation()
 
   if (data) {
-    toastSuccess(t('texts.profileConfirmed'))
-    navigate({ to: '/profile' })
+    setTimeout(() => navigate({ to: '/profile' }), 300)
+    return (
+      <div
+        className="alert alert-success mx-auto max-w-fit cursor-pointer py-2 text-sm"
+        onClick={() => navigate({ to: '/profile' })}
+      >
+        {t('texts.profileConfirmed')}. {t('actions.redirecting')}
+      </div>
+    )
   }
   return <LoadingSpinner message="Confirming your profile..." isLoading={true} />
 }

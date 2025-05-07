@@ -36,7 +36,7 @@ export const LibraryForm = (props: LibraryEditFormProps): React.ReactElement => 
           name="name"
           type="text"
           defaultValue={library.name || ''}
-          className="input input-bordered grow"
+          className="input grow"
           placeholder={t('libraries.placeholders.name')}
           required
         />
@@ -44,7 +44,7 @@ export const LibraryForm = (props: LibraryEditFormProps): React.ReactElement => 
       <textarea
         key={library.description}
         name="description"
-        className="textarea textarea-bordered w-full flex-grow"
+        className="textarea w-full flex-grow"
         placeholder={t('libraries.placeholders.description')}
         defaultValue={library.description || ''}
       ></textarea>
