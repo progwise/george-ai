@@ -1,4 +1,3 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -6,17 +5,14 @@ import { dateString } from '@george-ai/web-utils'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { removeConversations } from '../../server-functions/conversations'
-import { LoadingSpinner } from '../loading-spinner'
+import { DeleteLeaveConversationsDialog } from './delete-leave-conversations-dialog'
 import {
   NewConversationSelector,
   NewConversationSelector_AssistantFragment,
   NewConversationSelector_HumanFragment,
 } from './new-conversation-selector'
 
-const ConversationSelector_ConversationFragment = graphql(`
+export const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
     id
     createdAt
@@ -47,11 +43,15 @@ export const ConversationSelector = ({
   onClick,
   assistants: assistantsFragment,
   humans: humansFragment,
+  selectedConversationId: selectedConversationId,
 }: ConversationSelectorProps) => {
   const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
   const { t, language } = useTranslation()
-  const queryClient = useQueryClient()
   const [selectedConversationIds, setSelectedConversationIds] = useState<string[]>([])
+
+  const resetConversationIds = () => {
+    setSelectedConversationIds([])
+  }
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<Record<string, typeof conversations>>(
@@ -66,19 +66,6 @@ export const ConversationSelector = ({
     {},
   )
 
-  const { mutate: removeConversationsMutate, isPending: areDeletePending } = useMutation({
-    mutationFn: async () => {
-      return await removeConversations({
-        data: { conversationIds: selectedConversationIds, userId },
-      })
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, userId],
-      })
-    },
-  })
-
   const handleCheckConversation = (conversationId: string) => {
     const isAlreadySelected = !!selectedConversationIds.find((co) => co === conversationId)
     if (!isAlreadySelected) {
@@ -88,26 +75,17 @@ export const ConversationSelector = ({
     }
   }
 
-  const handleDeleteSelected = () => {
-    removeConversationsMutate()
-  }
-
-  if (areDeletePending) {
-    return <LoadingSpinner />
-  }
-
   return (
     <>
       <div className="grid grid-cols-[100px_1fr]">
         <div className="flex items-center justify-center">
-          <button
-            type="button"
-            className="btn btn-ghost lg:tooltip lg:tooltip-right"
-            data-tip={t('conversations.deleteMultiple')}
-            onClick={handleDeleteSelected}
-          >
-            <TrashIcon className="size-6" />
-          </button>
+          <DeleteLeaveConversationsDialog
+            conversations={conversationsFragment}
+            selectedConversationIds={selectedConversationIds}
+            userId={userId}
+            resetSelectedConversationIds={resetConversationIds}
+            selectedConversationId={selectedConversationId}
+          />
         </div>
         <div className="sticky z-50 border-b py-2">
           <NewConversationSelector
