@@ -79,7 +79,6 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
 export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerInput>> {
   return z.object({
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
-    libraryId: z.string(),
     maxDepth: z.number(),
     maxPages: z.number(),
     url: z.string(),

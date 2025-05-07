@@ -17,7 +17,7 @@ const mutation = graphql(`
   mutation updateAiLibraryCrawler($cronJob: AiLibraryCrawlerCronJobInput) {
     updateAiLibraryCrawler(
       id: "crawler-id"
-      input: { maxDepth: 1, maxPages: 1, url: "https://example.com", libraryId: "library-id", cronJob: $cronJob }
+      data: { maxDepth: 1, maxPages: 1, url: "https://example.com", libraryId: "library-id", cronJob: $cronJob }
     ) {
       id
     }
@@ -39,10 +39,6 @@ describe('updateAiLibraryCrawler mutation', () => {
         },
       },
     })
-    // we should fix that
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    upsertCronJob.mockClear()
   })
 
   it('throws error when crawler does not exist', async () => {

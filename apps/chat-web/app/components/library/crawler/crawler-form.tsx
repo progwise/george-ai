@@ -11,7 +11,6 @@ export const crawlerFormSchema = z.object({
   url: z.string().url(),
   maxDepth: z.coerce.number().min(0),
   maxPages: z.coerce.number().min(1),
-  libraryId: z.string(),
   cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
 })
 
@@ -75,7 +74,7 @@ interface CrawlerFormProps {
   isPending: boolean
 }
 
-export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormProps) => {
+export const CrawlerForm = ({ initialData, isPending }: CrawlerFormProps) => {
   const { t } = useTranslation()
   const [crawlerActive, setCrawlerActive] = useState(initialData?.cronJob?.active ?? true)
 
@@ -215,7 +214,6 @@ export const CrawlerForm = ({ initialData, libraryId, isPending }: CrawlerFormPr
         </fieldset>
       </div>
 
-      <input type="hidden" name="libraryId" value={libraryId} />
       {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
     </div>
   )

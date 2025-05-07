@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
+import { z } from 'zod'
 
 import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -10,20 +11,25 @@ import { CrawlerForm, crawlerFormSchema, getCrawlerFormData } from './crawler-fo
 import { getCrawlersQueryOptions } from './get-crawlers'
 
 const addCrawlerFunction = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    return crawlerFormSchema.parse(getCrawlerFormData(data))
+  .validator(({ libraryId, formData }: { libraryId: string; formData: FormData }) => {
+    return z
+      .object({
+        libraryId: z.string().nonempty(),
+        formData: crawlerFormSchema,
+      })
+      .parse({ libraryId, formData: getCrawlerFormData(formData) })
   })
   .handler((ctx) => {
-    const input = ctx.data
+    const { libraryId, formData } = ctx.data
     return backendRequest(
       graphql(`
-        mutation createAiLibraryCrawler($input: AiLibraryCrawlerInput!) {
-          createAiLibraryCrawler(input: $input) {
+        mutation createAiLibraryCrawler($libraryId: String!, $data: AiLibraryCrawlerInput!) {
+          createAiLibraryCrawler(libraryId: $libraryId, data: $data) {
             id
           }
         }
       `),
-      { input },
+      { libraryId, data: formData },
     )
   })
 
@@ -46,7 +52,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
   const isPending = addCrawlerMutation.isPending
 
   const handleSubmit = (formData: FormData) => {
-    addCrawlerMutation.mutate({ data: formData })
+    addCrawlerMutation.mutate({ data: { libraryId, formData } })
   }
 
   return (

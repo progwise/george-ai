@@ -7,5 +7,6 @@ export default defineConfig({
     globals: true,
     globalSetup: 'src/testing/global-setup.ts',
     setupFiles: 'src/testing/setup.ts',
+    clearMocks: true,
   },
 })

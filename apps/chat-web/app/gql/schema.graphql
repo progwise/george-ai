@@ -248,7 +248,6 @@ input AiLibraryCrawlerCronJobInput {
 
 input AiLibraryCrawlerInput {
   cronJob: AiLibraryCrawlerCronJobInput
-  libraryId: String!
   maxDepth: Int!
   maxPages: Int!
   url: String!
@@ -374,7 +373,7 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
-  createAiLibraryCrawler(input: AiLibraryCrawlerInput!): AiLibraryCrawler
+  createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
   createConversationInvitations(
     conversationId: String!
     data: [ConversationInvitationInput!]!
@@ -405,7 +404,7 @@ type Mutation {
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
-  updateAiLibraryCrawler(id: String!, input: AiLibraryCrawlerInput!): AiLibraryCrawler
+  updateAiLibraryCrawler(data: AiLibraryCrawlerInput!, id: String!): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage

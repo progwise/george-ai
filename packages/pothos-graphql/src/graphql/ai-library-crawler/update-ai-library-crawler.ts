@@ -10,10 +10,10 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
     type: 'AiLibraryCrawler',
     args: {
       id: t.arg.string({ required: true }),
-      input: t.arg({ type: AiLibraryCrawlerInput }),
+      data: t.arg({ type: AiLibraryCrawlerInput }),
     },
-    resolve: async (_query, _source, { id, input }) => {
-      const { cronJob, ...data } = input
+    resolve: async (_query, _source, { id, data }) => {
+      const { cronJob, ...input } = data
       const existingCrawler = await prisma.aiLibraryCrawler.findUnique({
         where: { id },
         include: { cronJob: true },
@@ -26,7 +26,7 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
       const crawler = await prisma.aiLibraryCrawler.update({
         where: { id },
         data: {
-          ...data,
+          ...input,
           cronJob: existingCrawler.cronJob
             ? { update: cronJob ?? { active: false } }
             : { create: cronJob ?? undefined },
