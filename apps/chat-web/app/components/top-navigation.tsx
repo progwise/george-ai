@@ -52,7 +52,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
     <>
       <header
         className={twMerge(
-          'bg-base-100 text-base-content fixed inset-x-0 top-0 z-50 transition-all',
+          'fixed inset-x-0 top-0 z-50 transition-all',
           !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
         )}
       >
