@@ -244,7 +244,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const description =
     props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
   const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
-  const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}...`
+  const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
   const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding || isSendingInvitation
 
@@ -322,8 +322,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     type="checkbox"
                     className="checkbox checkbox-info checkbox-xs"
                     onChange={(event) => {
-                      const isChecked = event.target.checked
-                      if (isChecked) {
+                      if (event.target.checked) {
                         setSelectedUserIds(availableHumans.map((human) => human.id))
                       } else {
                         setSelectedUserIds([])
@@ -345,8 +344,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                       className="checkbox checkbox-info checkbox-xs"
                       checked={selectedUserIds.includes(human.id)}
                       onChange={(event) => {
-                        const value = event.target.checked
-                        if (value) {
+                        if (event.target.checked) {
                           setSelectedUserIds((prev) => [...prev, human.id])
                         } else {
                           setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))

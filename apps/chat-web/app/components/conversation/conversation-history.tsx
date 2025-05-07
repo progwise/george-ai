@@ -108,7 +108,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
   }, [backend_url, selectedConversationId])
   if (messages.length < 1 && newMessages.length < 1) {
     return (
-      <div className="flex grow flex-col justify-center gap-2 lg:mt-3">
+      <div className="mt-40 flex grow flex-col justify-center gap-2 lg:mt-3">
         <div className="text-center text-sm opacity-50">{t('conversations.historyPlaceholder')}</div>
       </div>
     )
