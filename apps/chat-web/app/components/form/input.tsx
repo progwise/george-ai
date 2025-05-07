@@ -69,9 +69,9 @@ export const Input = <T extends ZodRawShape>({
   )
 
   return (
-    <fieldset className={twMerge('fieldset', className)}>
+    <fieldset className={twMerge('fieldset group', className)}>
       <legend className="fieldset-legend flex w-full justify-between">
-        <span className={twMerge('text-sm', errors.length > 0 && 'text-error')}>{label}</span>
+        <span className="group-has-aria-invalid:text-error text-sm">{label}</span>
         <span className="text-error">{errors.join(', ')}</span>
       </legend>
 
@@ -81,7 +81,7 @@ export const Input = <T extends ZodRawShape>({
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
-          className={twMerge('input h-full w-full flex-grow py-1 leading-normal', errors.length > 0 && 'border-error')}
+          className="input validator h-full w-full flex-grow py-1 leading-normal"
           placeholder={placeholder || ''}
           required={required}
           disabled={disabled}

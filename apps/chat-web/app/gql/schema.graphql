@@ -373,15 +373,8 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
-  createAiLibraryCrawler(
-    cronJob: AiLibraryCrawlerCronJobInput
-    libraryId: String!
-    maxDepth: Int!
-    maxPages: Int!
-    url: String!
-  ): AiLibraryCrawler
-  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean
   createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
+  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(
     conversationId: String!
     data: [ConversationInvitationInput!]!
