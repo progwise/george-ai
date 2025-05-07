@@ -80,7 +80,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
           userId: props.user.id,
           conversationId: conversation.id!,
           recipientAssistantIds: data.recipientAssistantIds,
-          ownerId: props.user.id,
+          senderId: props.user.id,
           content: data.content,
         },
       })

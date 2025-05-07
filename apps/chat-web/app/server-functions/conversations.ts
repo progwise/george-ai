@@ -5,10 +5,10 @@ import { graphql } from '../gql'
 import { backendRequest } from './backend'
 
 const CreateMessageDocument = graphql(`
-  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $ownerId: String!) {
-    sendMessage(userId: $userId, data: $data, ownerId: $ownerId) {
+  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $senderId: String!) {
+    sendMessage(userId: $userId, data: $data, senderId: $senderId) {
       id
-      ownerId
+      senderId
       createdAt
     }
   }
@@ -21,7 +21,7 @@ export const sendMessage = createServerFn({ method: 'POST' })
       conversationId: string
       userId: string
       recipientAssistantIds: string[]
-      ownerId: string
+      senderId: string
     }) =>
       z
         .object({
@@ -29,22 +29,24 @@ export const sendMessage = createServerFn({ method: 'POST' })
           conversationId: z.string(),
           userId: z.string(),
           recipientAssistantIds: z.array(z.string()),
-          ownerId: z.string(),
+          senderId: z.string(),
         })
         .parse(data),
   )
-  .handler((ctx) =>
-    backendRequest(CreateMessageDocument, {
+  .handler((ctx) => {
+    const messageData = {
+      content: ctx.data.content,
+      conversationId: ctx.data.conversationId,
+      recipientAssistantIds: ctx.data.recipientAssistantIds,
+      senderId: ctx.data.senderId,
+    }
+
+    return backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
-      ownerId: ctx.data.ownerId,
-      data: {
-        conversationId: ctx.data.conversationId,
-        content: ctx.data.content,
-        recipientAssistantIds: ctx.data.recipientAssistantIds,
-        ownerId: ctx.data.userId,
-      },
-    }),
-  )
+      senderId: ctx.data.senderId,
+      data: messageData,
+    })
+  })
 
 const CreateConversationDocument = graphql(`
   mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {

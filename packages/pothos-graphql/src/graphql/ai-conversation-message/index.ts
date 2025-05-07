@@ -23,8 +23,6 @@ builder.prismaObject('AiConversationMessage', {
     hidden: t.exposeBoolean('hidden', { nullable: true }),
     sender: t.relation('sender', { nullable: false }),
     conversation: t.relation('conversation'),
-    owner: t.relation('owner', { nullable: false }),
-    ownerId: t.exposeString('ownerId', { nullable: false }),
   }),
 })
 
@@ -46,7 +44,6 @@ builder.queryField('aiConversationMessages', (t) =>
         ...query,
         where: { conversationId },
         orderBy: { createdAt: 'asc' },
-        include: { owner: true },
       })
     },
   }),
@@ -57,7 +54,7 @@ const messageInput = builder.inputType('AiConversationMessageInput', {
     conversationId: t.string({ required: true }),
     content: t.string({ required: true }),
     recipientAssistantIds: t.stringList({ required: true }),
-    ownerId: t.string({ required: true }),
+    senderId: t.string({ required: true }),
   }),
 })
 
@@ -88,13 +85,13 @@ builder.mutationField('deleteMessage', (t) =>
     resolve: async (_query, _source, { messageId, userId }) => {
       const message = await prisma.aiConversationMessage.findUniqueOrThrow({
         where: { id: messageId },
-        select: { ownerId: true },
+        select: { senderId: true },
       })
       if (!message) {
         throw new Error('Message not found')
       }
-      if (message.ownerId !== userId) {
-        throw new Error('You are not authorizied to delete this message')
+      if (message.senderId !== userId) {
+        throw new Error('You are not authorized to delete this message')
       }
       return await prisma.aiConversationMessage.delete({
         where: { id: messageId },
@@ -144,7 +141,7 @@ builder.mutationField('sendMessage', (t) =>
     args: {
       userId: t.arg.string({ required: true }),
       data: t.arg({ type: messageInput, required: true }),
-      ownerId: t.arg.string({ required: true }),
+      senderId: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { userId, data }) => {
       const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
@@ -189,7 +186,6 @@ builder.mutationField('sendMessage', (t) =>
           content: data.content,
           conversationId: data.conversationId,
           senderId: participant.id,
-          ownerId: data.ownerId,
         },
       })
 
@@ -217,7 +213,6 @@ builder.mutationField('sendMessage', (t) =>
             content: '',
             conversationId: data.conversationId,
             senderId,
-            ownerId: data.ownerId,
           },
         })
 

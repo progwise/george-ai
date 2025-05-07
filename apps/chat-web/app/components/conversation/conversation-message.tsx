@@ -75,9 +75,9 @@ export const deleteMessage = createServerFn({ method: 'POST' })
 interface ConversationMessageProps {
   isLoading: boolean
   currentUserId: string
+  conversationOwnerId: string
   message: {
     id: string
-    ownerId: string
     content: string
     source?: string | null
     createdAt: string
@@ -88,11 +88,17 @@ interface ConversationMessageProps {
       assistantId?: string
       name: string
       isBot: boolean
+      userId?: string
     }
   }
 }
 
-export const ConversationMessage = ({ isLoading, message, currentUserId }: ConversationMessageProps) => {
+export const ConversationMessage = ({
+  isLoading,
+  message,
+  currentUserId,
+  conversationOwnerId,
+}: ConversationMessageProps) => {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
 
@@ -180,7 +186,7 @@ export const ConversationMessage = ({ isLoading, message, currentUserId }: Conve
         >
           {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
         </button>
-        {message.ownerId == currentUserId && (
+        {(message.sender.userId === currentUserId || conversationOwnerId === currentUserId) && (
           <button
             type="button"
             className="btn btn-ghost btn-xs self-start lg:tooltip lg:tooltip-left"
