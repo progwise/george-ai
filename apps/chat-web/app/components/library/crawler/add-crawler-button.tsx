@@ -68,7 +68,7 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
         disabledSubmit={isPending}
         submitButtonText={t('actions.create')}
       >
-        <CrawlerForm libraryId={libraryId} isPending={isPending} />
+        <CrawlerForm isPending={isPending} />
       </DialogForm>
     </>
   )

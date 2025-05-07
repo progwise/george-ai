@@ -70,7 +70,6 @@ export interface CrawlerFormData {
 
 interface CrawlerFormProps {
   initialData?: CrawlerFormData
-  libraryId: string
   isPending: boolean
 }
 

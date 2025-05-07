@@ -121,7 +121,7 @@ export const UpdateCrawlerButton = (props: UpdateCrawlerButtonProps) => {
         disabledSubmit={isPending}
         submitButtonText={t('actions.update')}
       >
-        <CrawlerForm initialData={initialData} libraryId={props.libraryId} isPending={isPending} />
+        <CrawlerForm initialData={initialData} isPending={isPending} />
       </DialogForm>
     </>
   )
