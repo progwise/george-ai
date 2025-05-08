@@ -14,16 +14,13 @@ CREATE UNIQUE INDEX "AiAssistantParticipant_assistantId_userId_key" ON "AiAssist
 -- AddForeignKey
 ALTER TABLE "AiAssistantParticipant" ADD CONSTRAINT "AiAssistantParticipant_assistantId_fkey" FOREIGN KEY ("assistantId") REFERENCES "AiAssistant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- Update assistants with a valid participant
-UPDATE "AiAssistant" a
-SET "ownerId" = (
-  SELECT p."userId"
-  FROM "AiAssistantParticipant" p
-  WHERE p."assistantId" = a.id
-    AND p."userId" IS NOT NULL
-  ORDER BY p."createdAt" ASC
-  LIMIT 1
-);
+-- Populate AiAssistantParticipant with data from existing assistants
+INSERT INTO "AiAssistantParticipant" ("assistantId", "userId")
+SELECT
+  a."id" as "assistantId",
+  a."ownerId" as "userId",
+FROM "AiAssistant" a
+WHERE a."ownerId" IS NOT NULL
 
 -- AddForeignKey
 ALTER TABLE "AiAssistantParticipant" ADD CONSTRAINT "AiAssistantParticipant_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
