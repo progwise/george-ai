@@ -143,7 +143,12 @@ function RouteComponent() {
   }
 
   return (
-    <div className="drawer lg:drawer-open grow">
+    <div
+      className={twMerge(
+        'drawer lg:drawer-open grow',
+        'min-h-[calc(100dvh_-_--spacing(16))]', // full height minus the top bar
+      )}
+    >
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
         <div className="bg-base-100 lg:rounded-r-box sticky top-16 z-30 shadow-md">
