@@ -1,7 +1,7 @@
 export const ImpressDe = () => {
   return (
     <section aria-label="impressum George-AI.net" className="prose prose-sm prose-gray contents">
-      <h1>Impressum</h1>
+      <h2>Impressum</h2>
       <div className="flex flex-col gap-4 lg:flex-row">
         <div>
           <p>
