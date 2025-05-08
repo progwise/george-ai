@@ -4,7 +4,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 import { Assistant } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
 import { getLibraryPrompt } from './assistant-library'
-import { getModel } from './assistant-model'
+import { AssistantModel, getModel } from './assistant-model'
 import { getRelevance } from './assistant-relevance'
 import { similaritySearch } from './typesense-vectorstore'
 
@@ -27,7 +27,7 @@ export async function* askAssistantChain(input: {
   }[]
 }) {
   const model = getModel(input.assistant.languageModel)
-  const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history)
+  const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = [
     new SystemMessage({
@@ -105,43 +105,44 @@ export async function* askAssistantChain(input: {
     const libraryPromptResultJson = JSON.parse(libraryPromptResult.content.toString())
 
     if (!libraryPromptResultJson.isRelevant) {
-      yield `library ${library.name} is not relevant\n\n`
-      continue
+      yield `> library ${library.name} is not relevant\n`
     }
 
-    yield `searching library ${library.name} with prompt ${libraryPromptResultJson.searchPrompt}\n\n`
+    yield `> searching library ${library.name} with prompt ${libraryPromptResultJson.searchPrompt}\n`
     const vectorStoreResult = await similaritySearch(libraryPromptResultJson.searchPrompt, library.id)
-    yield `found ${vectorStoreResult.length} documents in library ${library.name}\n`
-    const vectorStoreResultString = vectorStoreResult
-      .map(
-        (result) => `
-        ----
-      Document name: ${result.docName}
-      Document content: ${result.pageContent}
-      ----
-    `,
-      )
-      .join('\n')
+    yield `> found ${vectorStoreResult.length} relevant chunks in library ${library.name}\n`
 
-    const maxLength = 7000
-    if (vectorStoreResultString.length > maxLength) {
-      yield `The library search result is too long (${vectorStoreResultString.length}) to be considered completly. Please refine your question.\n`
-    }
-    yield '\nHere comes the answer:\n\n'
-    libraryUsageMessages.push(
-      new SystemMessage({
-        content: `Found the following in the library ${library.name}:
-        ${vectorStoreResultString.length > maxLength ? vectorStoreResultString.substring(0, maxLength) : vectorStoreResultString}`,
-        name: 'assistant',
-      }),
+    const searchResultMessages = vectorStoreResult.map(
+      (result) =>
+        new SystemMessage({
+          content: `Found the following in the library ${library.name}:
+                    ----
+        Document name: ${result.docName}
+        Document content: ${result.pageContent}
+        ----`,
+          name: 'assistant',
+        }),
     )
+    libraryUsageMessages.push(...searchResultMessages)
   }
 
-  const prompt = await getAssistantAnswerPrompt().invoke({
+  const sanitizeQuestionPrompt = await getSanitizeQuestionPrompt().invoke({
     assistant_base_information: assistantBaseInformation,
-    library_search_results: libraryUsageMessages,
+    model,
     chat_history: trimmedHistoryMessages,
     question: input.message.content,
+  })
+  const sanitizedQuestion = await model.invoke(sanitizeQuestionPrompt, {})
+
+  yield `\n> sanitized question: ${sanitizedQuestion.content}\n\n`
+
+  const answerPrompt = getAssistantAnswerPrompt()
+
+  const prompt = await answerPrompt.invoke({
+    assistant_base_information: await getTrimmedMessages(assistantBaseInformation, model, 500),
+    library_search_results: await getTrimmedMessages(libraryUsageMessages, model, 5000),
+    chat_history: trimmedHistoryMessages, // 1000 tokens
+    question: sanitizedQuestion.content,
   })
 
   // TODO: Yield the prompt and the answer separately
@@ -149,10 +150,32 @@ export async function* askAssistantChain(input: {
   // yield prompt.toString()
   // yield '\n\n...und hier meine Antwort...\n\n'
 
-  for await (const chunk of await model.stream(prompt, {})) {
-    yield chunk.content.toString()
+  try {
+    for await (const chunk of await model.stream(prompt, {})) {
+      yield chunk.content.toString()
+    }
+  } catch (error) {
+    console.error('Error in assistant chain:', error)
+    yield '\n'
+    yield '> Error in assistant chain:\n'
+    yield '<code>\n'
+    yield JSON.stringify(error, null, 2)
+    yield '</code>\n\n'
   }
 }
+
+const getSanitizeQuestionPrompt = () =>
+  ChatPromptTemplate.fromMessages([
+    [
+      'system',
+      `You need to sanitize the question provided. Do not answer the question, just re-write the question in a way that it is relevant to the assistant_base_information and the chat_history.
+      You are not allowed to answer the question, just re-write it.
+      You have to answer in the language of the users question. Do not use any other language.`,
+    ],
+    new MessagesPlaceholder('assistant_base_information'),
+    new MessagesPlaceholder('chat_history'),
+    ['human', '{question}'],
+  ])
 
 const getAssistantAnswerPrompt = () =>
   ChatPromptTemplate.fromMessages([
@@ -181,14 +204,29 @@ const getAssistantAnswerPrompt = () =>
     ['human', '{question}'],
   ])
 
-const getTrimmedHistoryMessages = async (history: AssistantChainMessage[]) => {
+const getTrimmedMessages = async (messages: BaseMessage[], model: AssistantModel, maxTokens: number) => {
+  const trimmer = trimMessages({
+    maxTokens: maxTokens,
+    strategy: 'last',
+    tokenCounter: model,
+    includeSystem: true,
+    allowPartial: false,
+  })
+  return await trimmer.invoke(messages)
+}
+
+const getTrimmedHistoryMessages = async (
+  history: AssistantChainMessage[],
+  model: AssistantModel,
+  maxTokens: number,
+) => {
   if (history.length === 0) {
     return []
   }
   const trimmer = trimMessages({
-    maxTokens: 10,
+    maxTokens: maxTokens,
     strategy: 'last',
-    tokenCounter: (msgs) => msgs.length,
+    tokenCounter: model,
     includeSystem: true,
     allowPartial: false,
     startOn: 'human',
