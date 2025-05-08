@@ -144,8 +144,8 @@ export const embedFile = async (
     name: file.name,
     originUri: file.originUri,
     mimeType: file.mimeType,
-    chunks: fileParts.length,
-    size: fileParts.reduce((acc, part) => acc + part.pageContent.length, 0),
+    chunks: splitDocument.length,
+    size: splitDocument.reduce((acc, part) => acc + part.pageContent.length, 0),
   }
 }
 
@@ -170,17 +170,18 @@ export const similaritySearch = async (
   const questionAsVector = await embeddings.embedQuery(question)
   const vectorQuery = `vec:([${questionAsVector.join(',')}])`
   await ensureVectorStore(library)
-  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
+  const multiSearchParams = {
     searches: [
       {
         collection: getTypesenseSchemaName(library),
         q: question,
         query_by: 'text,docName',
         vector_query: vectorQuery,
-        per_page: 10,
+        per_page: 200,
       },
     ],
-  })
+  }
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
   const docs = searchResponse.results
     .flatMap((result) => result.hits)

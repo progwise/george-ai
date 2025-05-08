@@ -111,6 +111,7 @@ export async function* askAssistantChain(input: {
 
     yield `searching library ${library.name} with prompt ${libraryPromptResultJson.searchPrompt}\n\n`
     const vectorStoreResult = await similaritySearch(libraryPromptResultJson.searchPrompt, library.id)
+    yield `found ${vectorStoreResult.length} documents in library ${library.name}\n`
     const vectorStoreResultString = vectorStoreResult
       .map(
         (result) => `
@@ -121,10 +122,16 @@ export async function* askAssistantChain(input: {
     `,
       )
       .join('\n')
+
+    const maxLength = 7000
+    if (vectorStoreResultString.length > maxLength) {
+      yield `The library search result is too long (${vectorStoreResultString.length}) to be considered completly. Please refine your question.\n`
+    }
+    yield '\nHere comes the answer:\n\n'
     libraryUsageMessages.push(
       new SystemMessage({
         content: `Found the following in the library ${library.name}:
-        ${vectorStoreResultString}`,
+        ${vectorStoreResultString.length > maxLength ? vectorStoreResultString.substring(0, maxLength) : vectorStoreResultString}`,
         name: 'assistant',
       }),
     )
