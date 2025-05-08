@@ -1,11 +1,22 @@
-import { addCronJob, stopCronJob } from '../../cron-jobs'
+import { stopCronJob, upsertCronJob } from '../../cron-jobs'
 import { deleteFileAndRecord } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
 import { runCrawler } from './run-crawler'
 
+import './update-ai-library-crawler'
+
 console.log('Setting up: AiLibraryCrawler')
+
+export const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
+  fields: (t) => ({
+    url: t.string({ required: true }),
+    maxDepth: t.int({ required: true }),
+    maxPages: t.int({ required: true }),
+    cronJob: t.field({ type: AiLibraryCrawlerCronJobInput, required: false }),
+  }),
+})
 
 builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
@@ -42,23 +53,23 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
   t.prismaField({
     type: 'AiLibraryCrawler',
     args: {
-      url: t.arg.string(),
-      maxDepth: t.arg.int(),
-      maxPages: t.arg.int(),
-      libraryId: t.arg.string(),
-      cronJob: t.arg({ type: AiLibraryCrawlerCronJobInput, required: false }),
+      libraryId: t.arg.string({ required: true }),
+      data: t.arg({ type: AiLibraryCrawlerInput }),
     },
-    resolve: async (_query, _source, { cronJob, ...data }) => {
+    resolve: async (_query, _source, { libraryId, data }) => {
+      const { cronJob, ...input } = data
+
       const crawler = await prisma.aiLibraryCrawler.create({
         include: { cronJob: true },
         data: {
-          ...data,
+          ...input,
+          libraryId,
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
       })
 
       if (crawler.cronJob) {
-        await addCronJob(crawler.cronJob)
+        await upsertCronJob(crawler.cronJob)
       }
 
       return crawler

@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n'
+import { Language } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
 import { queryKeys } from '../../query-keys'
@@ -25,7 +26,7 @@ const AssistantForm_AssistantFragment = graphql(`
   }
 `)
 
-const getFormSchema = (language: 'en' | 'de') =>
+const getFormSchema = (language: Language) =>
   z.object({
     id: z.string().nonempty(),
     name: z.string().min(1, translate('errors.requiredField', language)),

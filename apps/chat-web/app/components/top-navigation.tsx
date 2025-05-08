@@ -6,8 +6,11 @@ import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
+import { useLanguage } from '../i18n/language-provider'
 import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
+import { EnglishFlagIcon } from '../icons/english-flag-icon'
+import { GermanFlagIcon } from '../icons/german-flag-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
@@ -35,6 +38,7 @@ interface TopNavigationProps {
 }
 
 export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
+  const { language, setLanguage } = useLanguage()
   const { t } = useTranslation()
   const { login, logout, isReady } = useAuth()
   const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
@@ -47,6 +51,10 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
   }, [theme])
 
   const handleThemeToggle = useCallback(() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light')), [])
+
+  const handleLanguageToggle = () => {
+    setLanguage(language === 'en' ? 'de' : 'en')
+  }
 
   return (
     <>
@@ -71,7 +79,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
           </div>
 
           {/* Theme-Switcher */}
-          <label className="swap swap-rotate btn btn-ghost" aria-label="Toggle theme">
+          <label className="swap swap-rotate btn btn-ghost btn-circle btn-sm" aria-label="Toggle theme">
             <input
               type="checkbox"
               className="theme-controller"
@@ -82,6 +90,15 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             <SunIcon className="swap-off size-6 fill-current stroke-0" />
             <MoonIcon className="swap-on size-6 fill-current stroke-0" />
           </label>
+
+          {/* Language Switcher */}
+          <button
+            type="button"
+            onClick={handleLanguageToggle}
+            className="btn btn-circle btn-ghost btn-sm flex items-center"
+          >
+            {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+          </button>
 
           {/* Authenctation Links */}
           <div className="flex items-center justify-center gap-4">

@@ -41,12 +41,12 @@ export const DialogForm = ({
   // using react portals prevents animation issues with the modal
   return createPortal(
     <dialog className="modal" ref={ref}>
-      <div className={twMerge('modal-box', className)}>
+      <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}
-        <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
-          <div className="modal-action">
+        <form method="dialog" onSubmit={handleSubmit} className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-2">{children}</div>
+          <div className="modal-action flex justify-end gap-2">
             <button type="button" className="btn btn-sm" onClick={handleClose}>
               {t('actions.cancel')}
             </button>
