@@ -46,7 +46,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
       </figure>
       <div className="card-body p-4">
         <h2 className="card-title">{assistant.name}</h2>
-        <p className="md:line-clamp-20 line-clamp-10">{assistant.description}</p>
+        <p className="line-clamp-3">{assistant.description}</p>
         <div className="card-actions flex-wrap justify-end">
           <div className="flex gap-2">
             <div className="badge badge-outline">OpenAI</div>
