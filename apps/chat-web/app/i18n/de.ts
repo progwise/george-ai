@@ -75,6 +75,7 @@ export default {
       name: 'Name Ihres Assistenten',
     },
     removeLibrary: 'Bibliothek entfernen',
+    setLLM: 'Sprachmodell nicht auf Assistenten festgelegt',
     usagePlaceholder: 'Wie soll die Bibliothek benutzt werden?',
   },
   brand: 'George-Ai',

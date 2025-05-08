@@ -75,6 +75,7 @@ export default {
       name: 'Name your assistant',
     },
     removeLibrary: 'Remove library',
+    setLLM: 'Language model not set on assistant',
     usagePlaceholder: 'How should the library be used?',
   },
   brand: 'George-Ai',
