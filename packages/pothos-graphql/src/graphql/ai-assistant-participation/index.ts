@@ -6,20 +6,10 @@ builder.mutationField('addAssistantParticipants', (t) =>
     type: ['User'],
     nullable: false,
     args: {
-      ownerId: t.arg.string({ required: true }),
       assistantId: t.arg.string({ required: true }),
       userIds: t.arg.stringList({ required: true }),
     },
-    resolve: async (query, _source, { ownerId, assistantId, userIds }) => {
-      const assistant = await prisma.aiAssistant.findUniqueOrThrow({
-        where: { id: assistantId },
-        select: { ownerId: true },
-      })
-
-      if (assistant.ownerId !== ownerId) {
-        throw new Error('Only the owner can add participants to this assistant')
-      }
-
+    resolve: async (query, _source, { assistantId, userIds }) => {
       const existingParticipants = await prisma.aiAssistantParticipant.findMany({
         where: { assistantId },
       })
@@ -50,20 +40,27 @@ builder.mutationField('removeAssistantParticipant', (t) =>
     type: 'User',
     nullable: false,
     args: {
-      id: t.arg.string({ required: true }),
+      userId: t.arg.string({ required: true }),
+      assistantId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { id }) => {
-      const participant = await prisma.aiAssistantParticipant.findUniqueOrThrow({
-        where: { id },
-        select: { userId: true },
+    resolve: async (_query, _source, { userId, assistantId }) => {
+      const participant = await prisma.aiAssistantParticipant.findFirst({
+        where: {
+          userId,
+          assistantId,
+        },
       })
 
+      if (!participant) {
+        throw new Error('Participant not found')
+      }
+
       await prisma.aiAssistantParticipant.delete({
-        where: { id },
+        where: { id: participant.id },
       })
 
       return prisma.user.findUniqueOrThrow({
-        where: { id: participant.userId },
+        where: { id: userId },
       })
     },
   }),

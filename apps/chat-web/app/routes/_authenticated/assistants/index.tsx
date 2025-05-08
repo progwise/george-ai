@@ -12,19 +12,19 @@ import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getMyAiAssistants = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
+  .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler((ctx) =>
     backendRequest(
       graphql(/* GraphQL */ `
-        query aiAssistantCards($ownerId: String!) {
-          aiAssistants(ownerId: $ownerId) {
+        query aiAssistantCards($userId: String!) {
+          aiAssistants(userId: $userId) {
             id
             ...AssistantCard_Assistant
           }
         }
       `),
       {
-        ownerId: ctx.data,
+        userId: ctx.data,
       },
     ),
   )

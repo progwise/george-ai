@@ -62,8 +62,8 @@ export const getAssignableHumans = createServerFn({ method: 'GET' })
   .handler(async (ctx) => backendRequest(AssignableUsersDocument, ctx.data))
 
 const AssignableAssistantsDocument = graphql(`
-  query getAssignableAssistants($ownerId: String!) {
-    aiAssistants(ownerId: $ownerId) {
+  query getAssignableAssistants($userId: String!) {
+    aiAssistants(userId: $userId) {
       ...NewConversationSelector_Assistant
       ...ConversationParticipants_Assistant
       ...ConversationParticipantsDialog_Assistant

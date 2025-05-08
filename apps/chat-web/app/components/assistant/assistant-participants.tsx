@@ -16,7 +16,6 @@ const AssistantParticipants_AssistantFragment = graphql(`
     ownerId
     participants {
       id
-      userId
       name
     }
     ...AssistantParticipantsDialog_Assistant
@@ -39,11 +38,11 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
   const isOwner = assistant.ownerId === props.userId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
-    mutationFn: async ({ participantId }: { participantId: string }) => {
+    mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
       if (!isOwner) {
         throw new Error('Only the owner can remove participants')
       }
-      return await removeAssistantParticipant({ data: { participantId } })
+      return await removeAssistantParticipant({ data: { userId, assistantId } })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({
@@ -56,9 +55,9 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
     },
   })
 
-  const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
+  const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
     event.preventDefault()
-    mutateRemove({ participantId })
+    mutateRemove({ userId, assistantId: assistant.id })
   }
 
   return (
@@ -66,7 +65,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
       <LoadingSpinner isLoading={removeParticipantIsPending} />
       <div className="no-scrollbar flex gap-2 overflow-x-scroll p-1">
         {assistant.participants.map((participant) => {
-          const isParticipantOwner = participant.userId === assistant.ownerId
+          const isParticipantOwner = participant.id === assistant.ownerId
           return (
             <div
               key={participant.id}
@@ -75,7 +74,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
                 isParticipantOwner && 'badge-accent',
               )}
             >
-              {participant.userId !== props.userId && isOwner && (
+              {participant.id !== props.userId && isOwner && (
                 <button
                   type="button"
                   className="btn btn-circle btn-ghost btn-xs"

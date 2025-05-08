@@ -29,7 +29,14 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     languageModel: t.expose('languageModel', { type: 'String' }),
     baseCases: t.relation('baseCases', { nullable: false, query: () => ({ orderBy: [{ sequence: 'asc' }] }) }),
-    participants: t.relation('participants', { nullable: false }),
+    participants: t.prismaField({
+      type: ['User'],
+      nullable: false,
+      select: { participants: { select: { user: true } } },
+      resolve: (_query, assistant) => {
+        return assistant.participants.map((participant) => participant.user)
+      },
+    }),
   }),
 })
 
@@ -62,17 +69,16 @@ builder.queryField('aiAssistants', (t) =>
   t.prismaField({
     type: ['AiAssistant'],
     args: {
-      ownerId: t.arg.string(),
-      participantId: t.arg.string(),
+      userId: t.arg.string(),
     },
     nullable: {
       list: false,
       items: false,
     },
-    resolve: (query, _source, { ownerId, participantId }) => {
+    resolve: (query, _source, { userId }) => {
       return prisma.aiAssistant.findMany({
         ...query,
-        where: { ownerId, participants: { some: { userId: participantId } } },
+        where: { participants: { some: { userId } } },
       })
     },
   }),
