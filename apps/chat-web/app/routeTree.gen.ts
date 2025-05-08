@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as ContactImport } from './routes/contact'
+import { Route as AboutImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedProfileIndexImport } from './routes/_authenticated/profile/index'
@@ -41,6 +42,12 @@ const LoginRoute = LoginImport.update({
 const ContactRoute = ContactImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AboutRoute = AboutImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -170,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
     '/contact': {
@@ -350,6 +364,7 @@ const AuthenticatedRouteRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
@@ -371,6 +386,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
@@ -392,6 +408,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
@@ -415,6 +432,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/about'
     | '/contact'
     | '/login'
     | '/libraries/$libraryId'
@@ -435,6 +453,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/about'
     | '/contact'
     | '/login'
     | '/assistants/$assistantId'
@@ -454,6 +473,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/contact'
     | '/login'
     | '/_authenticated/libraries/$libraryId'
@@ -476,6 +496,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
 }
@@ -483,6 +504,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
 }
@@ -499,6 +521,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/_authenticated",
+        "/about",
         "/contact",
         "/login"
       ]
@@ -520,6 +543,9 @@ export const routeTree = rootRoute
         "/_authenticated/profile/$profileId/confirm",
         "/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId"
       ]
+    },
+    "/about": {
+      "filePath": "about.tsx"
     },
     "/contact": {
       "filePath": "contact.tsx"
