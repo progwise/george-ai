@@ -82,8 +82,10 @@ export default {
   conversations: {
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
-    delete: 'Delete conversation',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
+    deleteConversation: 'Delete conversation',
+    deleteMessage: 'Delete message',
+    deleteMessageConfirmation: 'You are about to delete this message. Please confirm.',
     failedToAddParticipants: 'Failed to add participants: {error}',
     failedToCreateConversation: 'Failed to create conversation: {error}',
     historyPlaceholder: 'No messages yet. Start the conversation!',
@@ -113,6 +115,7 @@ export default {
   },
   errors: {
     copyFailed: 'Copy failed',
+    deleteMessage: 'Failed to delete message',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
     businessAndPositionRequired: 'Business and Position are required.',

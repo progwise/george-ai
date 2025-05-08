@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -13,7 +14,9 @@ import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
+import { toastError } from '../georgeToaster'
 
 const HideMessageDocument = graphql(`
   mutation hideMessage($messageId: String!) {
@@ -101,6 +104,7 @@ export const ConversationMessage = ({
 }: ConversationMessageProps) => {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
+  const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { mutate: hideMessageMutate } = useMutation({
     mutationFn: async (messageId: string) => {
@@ -132,7 +136,7 @@ export const ConversationMessage = ({
     }
   }
 
-  const { mutate: deleteMessageMutate } = useMutation({
+  const { mutate: deleteMessageMutate, isPending: isDeletePending } = useMutation({
     mutationFn: async (messageId: string) => {
       await deleteMessage({ data: { messageId, userId: currentUserId } })
     },
@@ -140,6 +144,9 @@ export const ConversationMessage = ({
       queryClient.invalidateQueries({
         queryKey: [queryKeys.Conversation, message.conversationId],
       })
+    },
+    onError: () => {
+      toastError(t('errors.deleteMessage'))
     },
   })
 
@@ -183,14 +190,24 @@ export const ConversationMessage = ({
           {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
         </button>
         {conversationOwnerId === currentUserId && (
-          <button
-            type="button"
-            className="btn btn-ghost btn-xs lg:tooltip lg:tooltip-left self-start"
-            onClick={() => deleteMessageMutate(message.id)}
-            data-tip={t('tooltips.deleteMessage')}
-          >
-            <TrashIcon className="size-5" />
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs tooltip tooltip-left self-start"
+              onClick={() => deleteDialogRef.current?.showModal()}
+              data-tip={t('tooltips.deleteMessage')}
+              disabled={isDeletePending}
+            >
+              <TrashIcon className="size-5" />
+            </button>
+            <DialogForm
+              ref={deleteDialogRef}
+              title={t('conversations.deleteMessage')}
+              description={t('conversations.deleteMessageConfirmation')}
+              onSubmit={() => deleteMessageMutate(message.id)}
+              submitButtonText={t('actions.delete')}
+            />
+          </>
         )}
       </div>
       {!message.hidden && (

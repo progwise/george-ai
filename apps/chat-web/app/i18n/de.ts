@@ -82,9 +82,11 @@ export default {
   conversations: {
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
-    delete: 'Konversation löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteConversation: 'Konversation löschen',
+    deleteMessage: 'Nachricht löschen',
+    deleteMessageConfirmation: 'Sie sind dabei, diese Nachricht zu löschen. Bitte bestätigen Sie.',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
     failedToCreateConversation: 'Konversation konnte nicht erstellt werden: {error}',
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
@@ -116,6 +118,7 @@ export default {
   },
   errors: {
     copyFailed: 'Kopieren fehlgeschlagen',
+    deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',

@@ -85,14 +85,22 @@ builder.mutationField('deleteMessage', (t) =>
     resolve: async (_query, _source, { messageId, userId }) => {
       const message = await prisma.aiConversationMessage.findUniqueOrThrow({
         where: { id: messageId },
-        select: { senderId: true },
+        select: { conversationId: true },
       })
+
       if (!message) {
         throw new Error('Message not found')
       }
-      if (message.senderId !== userId) {
+
+      const conversation = await prisma.aiConversation.findUniqueOrThrow({
+        where: { id: message.conversationId },
+        select: { ownerId: true },
+      })
+
+      if (conversation.ownerId !== userId) {
         throw new Error('You are not authorized to delete this message')
       }
+
       return await prisma.aiConversationMessage.delete({
         where: { id: messageId },
       })
