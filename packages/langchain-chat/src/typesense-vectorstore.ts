@@ -178,6 +178,7 @@ export const similaritySearch = async (
         query_by: 'text,docName',
         vector_query: vectorQuery,
         per_page: 200,
+        order_by: '_text_match:desc',
       },
     ],
   }

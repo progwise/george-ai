@@ -13,9 +13,6 @@ const relevancePrompt = ChatPromptTemplate.fromMessages([
     
     Hier sind Deine Basisinformation zu Dir selbst, d.h. Dein Name als Assistent, Deine Beschreibung und weitere Anweisungen
     {assistant_base_information}
-
-    Ausserdem hast Du Zugriff auf die folgenden Bibliotheken:
-    {library_base_information}
     
     Hier ist die Konversationshistorie
     {chat_history}
@@ -30,13 +27,11 @@ const relevancePrompt = ChatPromptTemplate.fromMessages([
 
 export const getRelevance = async ({
   assistantBaseInformation,
-  libraryBaseInformation,
   question,
   chatHistory,
   modelName,
 }: {
   assistantBaseInformation: BaseMessage[]
-  libraryBaseInformation: BaseMessage[]
   question: string
   chatHistory: BaseMessage[]
   modelName: SupportedModel
@@ -45,7 +40,6 @@ export const getRelevance = async ({
     question,
     assistant_base_information: assistantBaseInformation,
     chat_history: chatHistory,
-    library_base_information: libraryBaseInformation,
   })
 
   const model = getModel(modelName)

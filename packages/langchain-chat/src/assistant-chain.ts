@@ -1,11 +1,13 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage, trimMessages } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
-import { Assistant } from './assistant'
+import { Assistant, getAssistantBaseMessages } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
-import { getLibraryPrompt } from './assistant-library'
+import { getLibraryRelevancePrompt } from './assistant-library'
 import { AssistantModel, getModel } from './assistant-model'
+import { getSanitizedQuestion } from './assistant-prompt'
 import { getRelevance } from './assistant-relevance'
+import { Library } from './library'
 import { similaritySearch } from './typesense-vectorstore'
 
 export interface AssistantChainMessage {
@@ -19,56 +21,18 @@ export async function* askAssistantChain(input: {
   message: AssistantChainMessage
   history: AssistantChainMessage[]
   assistant: Assistant
-  libraries: {
-    id: string
-    name: string
-    description: string
-    usedFor: string
-  }[]
+  libraries: Library[]
 }) {
   const model = getModel(input.assistant.languageModel)
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
-  const assistantBaseInformation = [
-    new SystemMessage({
-      content: `You are a helpful assistant and you have a name.
-      Your name is ${input.assistant.name}.
-      Your description is ${input.assistant.description}.
-      `,
-    }),
-    ...input.libraries.map(
-      (library) =>
-        new SystemMessage({
-          content: `You have access to the following library:
-      name: ${library.name}
-      description: ${library.description}`,
-        }),
-    ),
-    ...input.assistant.baseCases.map(
-      (baseCase) =>
-        new SystemMessage({
-          content: `You have the following conditional instruction:
-      condition: ${baseCase.condition}
-      instructions: ${baseCase.instruction}
-      If the condition is empty you must follow the instruction and behave like the condition is met`,
-        }),
-    ),
-  ]
-
-  const libraryBaseInformation = input.libraries.map(
-    (library) =>
-      new SystemMessage({
-        content: `You have access to the following library:
-      name: ${library.name}
-      description: ${library.description}
-      usedFor: ${library.usedFor}`,
-      }),
-  )
-
+  const assistantBaseInformation = getAssistantBaseMessages({
+    assistant: input.assistant,
+    libraries: input.libraries,
+  })
   // Step 1: Find out if the message should be processed and is relevant as given in the assistant description
   const isQuestionRelevant = await getRelevance({
     assistantBaseInformation,
-    libraryBaseInformation,
     chatHistory: trimmedHistoryMessages,
     question: input.message.content,
     modelName: input.assistant.languageModel,
@@ -90,26 +54,19 @@ export async function* askAssistantChain(input: {
   const libraryUsageMessages: BaseMessage[] = []
 
   for (const library of input.libraries) {
-    libraryUsageMessages.push(
-      new SystemMessage({ content: `This library is relevant: ${library.name}`, name: 'assistant' }),
-    )
-
-    const libraryPrompt = await getLibraryPrompt({
-      assistantBaseInformation,
-      libraryBaseInformation,
+    const libraryPromptResult = await getLibraryRelevancePrompt(model, {
       chatHistory: trimmedHistoryMessages,
       question: input.message.content,
+      libraryDescription: library.description,
+      libraryName: library.name,
+      libraryUsedFor: library.usedFor,
     })
 
-    const libraryPromptResult = await model.invoke(libraryPrompt, {})
-    const libraryPromptResultJson = JSON.parse(libraryPromptResult.content.toString())
-
-    if (!libraryPromptResultJson.isRelevant) {
+    if (!libraryPromptResult.isRelevant) {
       yield `> library ${library.name} is not relevant\n`
     }
 
-    yield `> searching library ${library.name} with prompt ${libraryPromptResultJson.searchPrompt}\n`
-    const vectorStoreResult = await similaritySearch(libraryPromptResultJson.searchPrompt, library.id)
+    const vectorStoreResult = await similaritySearch(libraryPromptResult.searchPrompt, library.id)
     yield `> found ${vectorStoreResult.length} relevant chunks in library ${library.name}\n`
 
     const searchResultMessages = vectorStoreResult.map(
@@ -126,20 +83,13 @@ export async function* askAssistantChain(input: {
     libraryUsageMessages.push(...searchResultMessages)
   }
 
-  // Sanitize the question to gain control over the max tokens used by the quesiton
-  const sanitizeQuestionPrompt = await getSanitizeQuestionPrompt().invoke({
-    assistant_base_information: assistantBaseInformation,
-    model,
-    chat_history: trimmedHistoryMessages,
+  const sanitizedQuestion = await getSanitizedQuestion(model, {
     question: input.message.content,
+    assistantBaseInformation,
+    chatHistory: trimmedHistoryMessages,
   })
-  const sanitizedQuestion = await model.invoke(sanitizeQuestionPrompt, {})
-
-  yield `\n> sanitized question: ${sanitizedQuestion.content}\n\n`
 
   const answerPrompt = getAssistantAnswerPrompt()
-
-  console.log('re-written question:', sanitizedQuestion.content)
   const prompt = await answerPrompt.invoke({
     assistant_base_information: await getTrimmedMessages(assistantBaseInformation, model, 500),
     library_search_results: await getTrimmedMessages(libraryUsageMessages, model, 5000),
@@ -160,23 +110,6 @@ export async function* askAssistantChain(input: {
     yield '</code>\n\n'
   }
 }
-
-const getSanitizeQuestionPrompt = () =>
-  ChatPromptTemplate.fromMessages([
-    [
-      'system',
-      `You need to sanitize the question provided.
-      Do not answer the question, just re-write the question in a way that it is relevant to the assistant_base_information and the chat_history.
-      Your answer should be maximum 500 tokens.
-      You are not allowed to answer the question, just re-write it.
-      Do not include any information that you re-writed the question. Just answer with the re-written question.
-
-      You have to answer in the language of the users question. Do not use any other language.`,
-    ],
-    new MessagesPlaceholder('assistant_base_information'),
-    new MessagesPlaceholder('chat_history'),
-    ['human', '{question}'],
-  ])
 
 const getAssistantAnswerPrompt = () =>
   ChatPromptTemplate.fromMessages([
