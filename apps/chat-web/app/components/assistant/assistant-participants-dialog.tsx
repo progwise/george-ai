@@ -5,6 +5,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
@@ -14,6 +15,7 @@ import { LoadingSpinner } from '../loading-spinner'
 const AssistantParticipantsDialog_AssistantFragment = graphql(`
   fragment AssistantParticipantsDialog_Assistant on AiAssistant {
     id
+    ownerId
     participants {
       id
     }
@@ -41,7 +43,6 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
 
   const availableParticipants = useMemo(() => {
     if (!participantsFilter || participantsFilter.length < 2) {
-      setSelectedParticipantIds([])
       return []
     }
 
@@ -56,7 +57,6 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
           (participant.profile?.business && participant.profile.business.toLowerCase().includes(filter)) ||
           (participant.profile?.position && participant.profile.position.toLowerCase().includes(filter))),
     )
-    setSelectedParticipantIds((prev) => prev.filter((id) => list.some((participant) => participant.id === id)))
     return list
   }, [users, assignedUserIds, participantsFilter])
 
@@ -67,9 +67,7 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistant, assistant.id],
-      })
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.AiAssistants, props.userId],
       })

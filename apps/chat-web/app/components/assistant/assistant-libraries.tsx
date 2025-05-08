@@ -7,7 +7,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { BookIcon } from '../../icons/book-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest } from '../../server-functions/backend'
 import { Dropdown } from '../dropdown'
 import { Input } from '../form/input'
@@ -16,6 +16,7 @@ import { LoadingSpinner } from '../loading-spinner'
 const AssistantLibraries_AssistantFragment = graphql(`
   fragment AssistantLibraries_Assistant on AiAssistant {
     id
+    ownerId
   }
 `)
 const AssistantLibraries_LibraryFragment = graphql(`
@@ -107,17 +108,17 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: (data: { id: string; usedFor: string }) => updateLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistant, assistant.id] }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
   })
 
   const { mutate: addUsage, isPending: addUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => addLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistant, assistant.id] }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
   })
 
   const { mutate: removeUsage, isPending: removeUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => removeLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistant, assistant.id] }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
   })
   const librariesToAdd = libraries?.filter((library) => !usages?.some((usage) => usage.libraryId === library.id)) || []
 

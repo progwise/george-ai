@@ -5,6 +5,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { removeAssistantParticipant } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
@@ -45,9 +46,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
       return await removeAssistantParticipant({ data: { userId, assistantId } })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistant, assistant.id],
-      })
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
 
       await queryClient.invalidateQueries({
         queryKey: [queryKeys.AiAssistants, props.userId],

@@ -91,7 +91,6 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
 
   const availableHumans = useMemo(() => {
     if (!humans || !usersFilter || usersFilter.length < 2) {
-      setSelectedUserIds([])
       return []
     }
 
@@ -106,7 +105,6 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
           (user.profile?.business && user.profile.business.toLowerCase().includes(filter)) ||
           (user.profile?.position && user.profile.position.toLowerCase().includes(filter))),
     )
-    setSelectedUserIds((prev) => prev.filter((id) => list.some((human) => human.id === id)))
     return list
   }, [humans, assignedUserIds, usersFilter])
 

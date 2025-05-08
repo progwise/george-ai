@@ -72,7 +72,7 @@ const AssignableAssistantsDocument = graphql(`
 `)
 
 export const getAssignableAssistants = createServerFn({ method: 'GET' })
-  .validator((data: { ownerId: string }) => z.object({ ownerId: z.string() }).parse(data))
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(AssignableAssistantsDocument, ctx.data))
 
 export const Route = createFileRoute('/_authenticated/conversations/$')({
@@ -122,7 +122,7 @@ function RouteComponent() {
 
   const { data: assignableAssistants, isLoading: assignableAssistantsIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-    queryFn: () => getAssignableAssistants({ data: { ownerId: userId } }),
+    queryFn: () => getAssignableAssistants({ data: { userId } }),
   })
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
