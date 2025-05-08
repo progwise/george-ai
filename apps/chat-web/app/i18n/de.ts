@@ -76,6 +76,7 @@ export default {
       name: 'Name Ihres Assistenten',
     },
     removeLibrary: 'Bibliothek entfernen',
+    setLLM: 'Sprachmodell nicht auf Assistenten festgelegt',
     usageLabel: 'Beschreibung der Verwendung',
     usagePlaceholder:
       'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',

@@ -7,12 +7,14 @@ import { getUser } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation, { getTheme } from '../components/top-navigation'
-import { getLanguage } from '../i18n'
+import { Language } from '../i18n'
+import { getLanguage } from '../i18n/language-provider'
+import { LanguageProvider } from '../i18n/language-provider'
 import appCss from '../index.css?url'
 
 interface RouterContext {
   queryClient: QueryClient
-  language: 'en' | 'de'
+  language: Language
   theme: 'light' | 'dark' | null
 }
 
@@ -63,23 +65,25 @@ const RootDocument = () => {
         <HeadContent />
       </head>
       <body className="container">
-        <AuthProvider>
-          <>
-            <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
-            <div className="flex grow flex-col">
-              <Outlet />
-            </div>
-            <Scripts />
-            <Suspense>
-              <TanStackRouterDevtools />
-            </Suspense>
-            <Suspense>
-              <TanStackQueryDevtools />
-            </Suspense>
-            <GeorgeToaster />
-          </>
-        </AuthProvider>
-        <BottomNavigationMobile />
+        <LanguageProvider initialLanguage={language as Language}>
+          <AuthProvider>
+            <>
+              <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
+              <div className="flex grow flex-col">
+                <Outlet />
+              </div>
+              <Scripts />
+              <Suspense>
+                <TanStackRouterDevtools />
+              </Suspense>
+              <Suspense>
+                <TanStackQueryDevtools />
+              </Suspense>
+              <GeorgeToaster />
+            </>
+          </AuthProvider>
+          <BottomNavigationMobile />
+        </LanguageProvider>
       </body>
     </html>
   )

@@ -76,6 +76,7 @@ export default {
       name: 'Name your assistant',
     },
     removeLibrary: 'Remove library',
+    setLLM: 'Language model not set on assistant',
     usageLabel: 'Describe the usage of this library',
     usagePlaceholder:
       'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
