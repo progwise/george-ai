@@ -41,7 +41,7 @@ export const HeroDe = ({ user }: HeroDeProps) => {
         </div>
       </div>
       <div className="animate-fade animate-delay-200 justify-items-end p-10">
-        <HomeChat user={user} />{' '}
+        <HomeChat user={user} />
       </div>
     </section>
   )
