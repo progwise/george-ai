@@ -126,6 +126,7 @@ export async function* askAssistantChain(input: {
     libraryUsageMessages.push(...searchResultMessages)
   }
 
+  // Sanitize the question to gain control over the max tokens used by the quesiton
   const sanitizeQuestionPrompt = await getSanitizeQuestionPrompt().invoke({
     assistant_base_information: assistantBaseInformation,
     model,
@@ -138,17 +139,13 @@ export async function* askAssistantChain(input: {
 
   const answerPrompt = getAssistantAnswerPrompt()
 
+  console.log('re-written question:', sanitizedQuestion.content)
   const prompt = await answerPrompt.invoke({
     assistant_base_information: await getTrimmedMessages(assistantBaseInformation, model, 500),
     library_search_results: await getTrimmedMessages(libraryUsageMessages, model, 5000),
     chat_history: trimmedHistoryMessages, // 1000 tokens
-    question: sanitizedQuestion.content,
+    question: sanitizedQuestion.content, // hopefully less than 500 tokens
   })
-
-  // TODO: Yield the prompt and the answer separately
-  // yield 'Hier kommt mein Prompt...\n\n'
-  // yield prompt.toString()
-  // yield '\n\n...und hier meine Antwort...\n\n'
 
   try {
     for await (const chunk of await model.stream(prompt, {})) {
@@ -168,8 +165,12 @@ const getSanitizeQuestionPrompt = () =>
   ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You need to sanitize the question provided. Do not answer the question, just re-write the question in a way that it is relevant to the assistant_base_information and the chat_history.
+      `You need to sanitize the question provided.
+      Do not answer the question, just re-write the question in a way that it is relevant to the assistant_base_information and the chat_history.
+      Your answer should be maximum 500 tokens.
       You are not allowed to answer the question, just re-write it.
+      Do not include any information that you re-writed the question. Just answer with the re-written question.
+
       You have to answer in the language of the users question. Do not use any other language.`,
     ],
     new MessagesPlaceholder('assistant_base_information'),
