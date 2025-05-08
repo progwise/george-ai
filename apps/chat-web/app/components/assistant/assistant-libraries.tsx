@@ -173,6 +173,7 @@ export const AssistantLibraries = (props: AssistantLibrariesProps) => {
             <Input
               className="min-h-20"
               type="textarea"
+              label={t('assistants.usageLabel')}
               name="description"
               value={usage.usedFor}
               placeholder={t('assistants.usagePlaceholder')}

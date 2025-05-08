@@ -379,6 +379,7 @@ export type Mutation = {
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  createContactRequest: Scalars['Boolean']['output']
   createConversationInvitations?: Maybe<AiConversation>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
@@ -472,6 +473,12 @@ export type MutationCreateAiLibraryArgs = {
 export type MutationCreateAiLibraryCrawlerArgs = {
   data: AiLibraryCrawlerInput
   libraryId: Scalars['String']['input']
+}
+
+export type MutationCreateContactRequestArgs = {
+  emailOrPhone: Scalars['String']['input']
+  message: Scalars['String']['input']
+  name: Scalars['String']['input']
 }
 
 export type MutationCreateConversationInvitationsArgs = {
@@ -1352,6 +1359,14 @@ export type ParticipantsDialog_HumanFragment = {
     lastName?: string | null
   } | null
 } & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
+
+export type CreateContactRequestMutationVariables = Exact<{
+  name: Scalars['String']['input']
+  emailOrPhone: Scalars['String']['input']
+  message: Scalars['String']['input']
+}>
+
+export type CreateContactRequestMutation = { __typename?: 'Mutation'; createContactRequest: boolean }
 
 export type VersionQueryVariables = Exact<{ [key: string]: never }>
 
@@ -4811,6 +4826,59 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const CreateContactRequestDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createContactRequest' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'emailOrPhone' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'message' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createContactRequest' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'emailOrPhone' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'emailOrPhone' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'message' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'message' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateContactRequestMutation, CreateContactRequestMutationVariables>
 export const VersionDocument = {
   kind: 'Document',
   definitions: [
