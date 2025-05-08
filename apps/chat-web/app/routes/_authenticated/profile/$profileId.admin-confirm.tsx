@@ -63,8 +63,15 @@ function RouteComponent() {
   })
 
   if (!user.isAdmin) {
-    toastError('Access denied: Admins only')
-    navigate({ to: '/' })
+    setTimeout(() => navigate({ to: '/' }), 300)
+    return (
+      <div
+        className="alert alert-error mx-auto max-w-fit cursor-pointer py-2 text-sm"
+        onClick={() => navigate({ to: '/' })}
+      >
+        {t('errors.notAllowed')}. {t('actions.redirecting')}
+      </div>
+    )
   }
 
   if (!userProfile?.userProfile) {

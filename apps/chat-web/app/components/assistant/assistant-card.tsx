@@ -25,11 +25,11 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
   const assistant = useFragment(AssistantCard_AssistantFragment, props.assistant)
 
   return (
-    <div className="card w-96 bg-base-100 shadow-xl">
+    <div className="card bg-base-100 w-96 shadow-xl">
       <figure className="max-h-24">
         <div className="h-36 w-full overflow-hidden rounded-lg text-center">
           {!assistant.iconUrl ? (
-            <div className="flex h-full w-full items-center justify-center bg-base-300 text-base-content/50">
+            <div className="text-base-content/50 bg-base-300 flex h-full w-full items-center justify-center">
               {t('assistants.hasNoIcon').replace('{assistant.name}', assistant.name)}
             </div>
           ) : (
@@ -46,7 +46,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
       </figure>
       <div className="card-body p-4">
         <h2 className="card-title">{assistant.name}</h2>
-        <p>{assistant.description}</p>
+        <p className="line-clamp-3">{assistant.description}</p>
         <div className="card-actions flex-wrap justify-end">
           <div className="flex gap-2">
             <div className="badge badge-outline">OpenAI</div>
@@ -57,7 +57,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
             <AssistantDeleteDialog assistant={assistant} userId={props.userId} />
             <Link
               type="button"
-              className="btn btn-ghost btn-secondary btn-sm"
+              className="btn btn-ghost btn-sm"
               to={`/assistants/$assistantId`}
               params={{ assistantId: assistant.id }}
             >

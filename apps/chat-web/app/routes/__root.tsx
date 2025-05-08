@@ -7,12 +7,14 @@ import { getUser } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation, { getTheme } from '../components/top-navigation'
-import { getLanguage } from '../i18n'
+import { Language } from '../i18n'
+import { getLanguage } from '../i18n/language-provider'
+import { LanguageProvider } from '../i18n/language-provider'
 import appCss from '../index.css?url'
 
 interface RouterContext {
   queryClient: QueryClient
-  language: 'en' | 'de'
+  language: Language
   theme: 'light' | 'dark' | null
 }
 
@@ -42,30 +44,46 @@ const TanStackQueryDevtools =
 
 const RootDocument = () => {
   const { user, theme, language } = Route.useRouteContext()
-
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !window.document || window.document.location.hostname === 'localhost') {
+      return
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const _mtm = (window._mtm = window._mtm || [])
+    _mtm.push({ 'mtm.startTime': new Date().getTime(), event: 'mtm.Start' })
+    const d = document,
+      g = d.createElement('script'),
+      s = d.getElementsByTagName('script')[0]
+    g.async = true
+    g.src = 'https://cdn.matomo.cloud/georgeai.matomo.cloud/container_PL33Hleo.js'
+    s.parentNode?.insertBefore(g, s)
+  }, [])
   return (
     <html data-theme={theme ?? 'light'} lang={language}>
       <head>
         <HeadContent />
       </head>
-      <body className="container mx-auto flex min-h-screen flex-col px-1">
-        <AuthProvider>
-          <>
-            <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
-            <div className="flex grow flex-col">
-              <Outlet />
-            </div>
-            <Scripts />
-            <Suspense>
-              <TanStackRouterDevtools />
-            </Suspense>
-            <Suspense>
-              <TanStackQueryDevtools />
-            </Suspense>
-            <GeorgeToaster />
-          </>
-        </AuthProvider>
-        <BottomNavigationMobile />
+      <body className="container">
+        <LanguageProvider initialLanguage={language as Language}>
+          <AuthProvider>
+            <>
+              <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
+              <div className="flex grow flex-col">
+                <Outlet />
+              </div>
+              <Scripts />
+              <Suspense>
+                <TanStackRouterDevtools />
+              </Suspense>
+              <Suspense>
+                <TanStackQueryDevtools />
+              </Suspense>
+              <GeorgeToaster />
+            </>
+          </AuthProvider>
+          <BottomNavigationMobile />
+        </LanguageProvider>
       </body>
     </html>
   )

@@ -9,7 +9,6 @@ import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
-import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
 const AssistantParticipantsDialog_AssistantFragment = graphql(`
@@ -103,7 +102,8 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
         <div className="w-1/2">
           <h4 className="underline">{t('assistants.users')}</h4>
 
-          <Input
+          <input
+            type="text"
             onChange={(event) => setParticipantsFilter(event.currentTarget.value)}
             name={'userFilter'}
             placeholder={t('placeholders.searchUsers')}

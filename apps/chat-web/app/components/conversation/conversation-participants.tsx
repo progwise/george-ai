@@ -97,7 +97,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             {participant.userId !== props.userId && isOwner && (
               <button
                 type="button"
-                className="btn btn-circle btn-ghost btn-xs"
+                className="btn btn-ghost btn-xs btn-circle"
                 onClick={(event) => handleRemoveParticipant(event, participant.id)}
               >
                 <CrossIcon />

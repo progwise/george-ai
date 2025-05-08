@@ -15,7 +15,7 @@ const getMyAiAssistants = createServerFn({ method: 'GET' })
   .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler((ctx) =>
     backendRequest(
-      graphql(/* GraphQL */ `
+      graphql(`
         query aiAssistantCards($userId: String!) {
           aiAssistants(userId: $userId) {
             id
@@ -43,6 +43,10 @@ function RouteComponent() {
     },
   })
 
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -53,8 +57,8 @@ function RouteComponent() {
       </div>
 
       <div className="flex flex-wrap gap-4">
-        {!data?.aiAssistants || isLoading ? (
-          <LoadingSpinner />
+        {!data?.aiAssistants || data.aiAssistants.length < 1 ? (
+          <h3>{t('assistants.noAssistantsFound')}</h3>
         ) : (
           data?.aiAssistants?.map((assistant) => (
             <AssistantCard key={assistant.id} assistant={assistant} userId={user.id} />

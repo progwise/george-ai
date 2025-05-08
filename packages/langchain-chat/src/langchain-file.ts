@@ -4,6 +4,7 @@ import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf'
 import { TextLoader } from 'langchain/document_loaders/fs/text'
 
 import { getFileExtension } from './common'
+import { ExcelLoader } from './file-loaders/excel-loader'
 
 // import { PDFLoaderAI } from './pdf-loader-ai'
 
@@ -24,8 +25,11 @@ export const loadFile = async (file: { name: string; id: string; mimeType: strin
     case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
       documentLoader = new DocxLoader(file.path)
       break
+    case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+      documentLoader = new ExcelLoader(file.path)
+      break
     default:
-      throw new Error(`Unsupported mime type ${file.mimeType} for file ${file.name}`)
+      throw new Error(`Unsupported mime type in loadFile ${file.mimeType} for file ${file.name}`)
   }
 
   const documentParts = await documentLoader.load()

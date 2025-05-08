@@ -1,7 +1,7 @@
 export const ImpressEn = () => {
   return (
     <section aria-label="imprint George-AI.net" className="prose prose-sm prose-gray contents">
-      <h1>Imprint</h1>
+      <h2>Imprint</h2>
       <div className="flex flex-col gap-4 lg:flex-row">
         <div>
           <p>

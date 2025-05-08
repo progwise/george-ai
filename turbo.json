@@ -9,7 +9,8 @@
       "dependsOn": []
     },
     "test": {
-      "dependsOn": []
+      "dependsOn": [],
+      "env": ["DATABASE_URL_TEST"]
     },
     "lint": {
       "dependsOn": []

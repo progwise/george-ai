@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { getLanguage, translate } from '../../i18n'
+import { Language } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
@@ -21,10 +22,11 @@ const AssistantForm_AssistantFragment = graphql(`
     description
     ownerId
     languageModel
+    updatedAt
   }
 `)
 
-const getFormSchema = (language: 'en' | 'de') =>
+const getFormSchema = (language: Language) =>
   z.object({
     id: z.string().nonempty(),
     name: z.string().min(1, translate('errors.requiredField', language)),
@@ -127,6 +129,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
       <input type="hidden" name="id" value={assistant.id} />
 
       <IconUpload
+        key={`assistant-icon-${assistant.id}-${assistant.updatedAt}`}
         className="col-span-2 justify-self-center"
         fileTypes="image/*"
         handleUploadIcon={handleUploadIcon}

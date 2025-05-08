@@ -14,29 +14,35 @@ interface DropdownProps {
   title: string
   className?: string
   options: Array<DropDownItem>
-  action: (item: DropDownItem) => void
+  disabled?: boolean
+  action?: (item: DropDownItem) => void
 }
 
-export const Dropdown = ({ title, options, action, className }: DropdownProps): JSX.Element => {
+export const Dropdown = ({ title, options, action, className, disabled }: DropdownProps): JSX.Element => {
   const handleOptionClick = (item: DropDownItem) => {
-    action(item)
-    // blur the active element to prevent the dropdown from staying open
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur()
+    if (!disabled && action) {
+      action(item)
+      // blur the active element to prevent the dropdown from staying open
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
     }
   }
 
   return (
     <div className={twMerge('text-right', className)}>
       <Menu>
-        <MenuButton className="input input-sm input-bordered flex w-full items-center justify-between gap-4 rounded-lg bg-base-100 px-2 py-1 text-left text-sm focus:outline-none">
+        <MenuButton
+          className="focus:outline-hidden input input-sm bg-base-100 flex w-full items-center justify-between gap-4 rounded-lg px-2 py-1 text-left text-sm"
+          disabled={disabled}
+        >
           {title}
           <ChevronUpDownIcon className="text-base-content/60" />
         </MenuButton>
         <MenuItems
           transition
           anchor="bottom end"
-          className="flex flex-col items-start gap-2 rounded-xl border border-base-content/25 bg-base-100 px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] focus:outline-none data-[closed]:scale-95 data-[closed]:opacity-0"
+          className="focus:outline-hidden border-base-content/25 bg-base-100 flex flex-col items-start gap-2 rounded-xl border px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] data-[closed]:scale-95 data-[closed]:opacity-0"
         >
           {options.map((item) => (
             <MenuItem key={item.id}>
@@ -44,6 +50,7 @@ export const Dropdown = ({ title, options, action, className }: DropdownProps): 
                 type="button"
                 onClick={() => handleOptionClick(item)}
                 className="btn btn-ghost btn-sm flex w-full justify-start font-normal"
+                disabled={disabled}
               >
                 {item.icon && <span>{item.icon}</span>}
                 <span>{item.title}</span>
