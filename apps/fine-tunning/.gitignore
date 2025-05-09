@@ -1,3 +1,17 @@
-venv
+# Fine-tuning
 split_output
 adapters_*
+
+
+# Virtual environment
+venv
+*.env
+
+# Node modules
+node_modules/
+
+# Model directories
+models/
+# adapters/
+fused_model/
+gguf_models/
