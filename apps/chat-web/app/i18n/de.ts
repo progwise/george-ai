@@ -17,6 +17,7 @@ export default {
     new: 'Neue Konversation',
     leave: 'Verlassen',
     redirecting: 'Umleitung...',
+    remove: 'Entfernen',
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
@@ -119,6 +120,9 @@ export default {
     noMessages: 'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an ...',
     owner: 'Besitzer',
     promptPlaceholder: 'Stelle irgendeine Frage',
+    removeMultiple: 'Konversationen entfernen',
+    removeMultipleConfirmation:
+      'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
@@ -277,6 +281,7 @@ export default {
     noFilesFound: 'Keine Dateien gefunden',
     noUsersAvailable: 'Keine Benutzer verfügbar',
     noUsersFound: 'Keine Benutzer gefunden',
+    numberOfConversationsToRemove: ' Konversation(en) werden/wird entfernt.',
     removedProfile: 'Profil entfernt',
     profileConfirmed: 'Profil bestätigt',
     profileFoundFor: 'Benutzerprofil gefunden für',
