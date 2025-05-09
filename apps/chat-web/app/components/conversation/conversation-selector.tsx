@@ -5,12 +5,12 @@ import { dateString } from '@george-ai/web-utils'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { DeleteLeaveConversationsDialog } from './delete-leave-conversations-dialog'
 import {
   NewConversationSelector,
   NewConversationSelector_AssistantFragment,
   NewConversationSelector_HumanFragment,
 } from './new-conversation-selector'
+import { RemoveConversationsDialog } from './remove-conversations-dialog'
 
 export const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
@@ -47,11 +47,7 @@ export const ConversationSelector = ({
 }: ConversationSelectorProps) => {
   const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
   const { t, language } = useTranslation()
-  const [selectedConversationIds, setSelectedConversationIds] = useState<string[]>([])
-
-  const resetConversationIds = () => {
-    setSelectedConversationIds([])
-  }
+  const [checkedConversationIds, setCheckedConversationIds] = useState<string[]>([])
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<Record<string, typeof conversations>>(
@@ -67,11 +63,11 @@ export const ConversationSelector = ({
   )
 
   const handleCheckConversation = (conversationId: string) => {
-    const isAlreadySelected = !!selectedConversationIds.find((co) => co === conversationId)
-    if (!isAlreadySelected) {
-      setSelectedConversationIds((prev) => [...prev, conversationId])
+    const isAlreadyChecked = checkedConversationIds.some((id) => id === conversationId)
+    if (!isAlreadyChecked) {
+      setCheckedConversationIds((prev) => [...prev, conversationId])
     } else {
-      setSelectedConversationIds((arr) => arr.filter((co) => co !== conversationId))
+      setCheckedConversationIds((arr) => arr.filter((id) => id !== conversationId))
     }
   }
 
@@ -79,11 +75,11 @@ export const ConversationSelector = ({
     <>
       <div className="grid grid-cols-[100px_1fr]">
         <div className="flex items-center justify-center">
-          <DeleteLeaveConversationsDialog
+          <RemoveConversationsDialog
             conversations={conversationsFragment}
-            selectedConversationIds={selectedConversationIds}
+            checkedConversationIds={checkedConversationIds}
             userId={userId}
-            resetSelectedConversationIds={resetConversationIds}
+            resetCheckedConversationIds={() => setCheckedConversationIds([])}
             selectedConversationId={selectedConversationId}
           />
         </div>

@@ -388,7 +388,7 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   reProcessFile?: Maybe<AiLibraryFile>
-  removeAiConversations?: Maybe<Scalars['Boolean']['output']>
+  removeAiConversations: Scalars['Boolean']['output']
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
@@ -1905,7 +1905,7 @@ export type RemoveConversationsMutationVariables = Exact<{
   userId: Scalars['String']['input']
 }>
 
-export type RemoveConversationsMutation = { __typename?: 'Mutation'; removeAiConversations?: boolean | null }
+export type RemoveConversationsMutation = { __typename?: 'Mutation'; removeAiConversations: boolean }
 
 export type LeaveConversationMutationVariables = Exact<{
   participantId: Scalars['String']['input']

@@ -152,6 +152,7 @@ builder.mutationField('deleteAiConversation', (t) =>
 builder.mutationField('removeAiConversations', (t) =>
   t.field({
     type: 'Boolean',
+    nullable: false,
     args: {
       conversationIds: t.arg.stringList({ required: true }),
       userId: t.arg.string({ required: true }),
