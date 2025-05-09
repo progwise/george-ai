@@ -18,9 +18,8 @@ ALTER TABLE "AiAssistantParticipant" ADD CONSTRAINT "AiAssistantParticipant_assi
 INSERT INTO "AiAssistantParticipant" ("assistantId", "userId")
 SELECT
   a."id" as "assistantId",
-  a."ownerId" as "userId",
-FROM "AiAssistant" a
-WHERE a."ownerId" IS NOT NULL
+  a."ownerId" as "userId"
+FROM "AiAssistant" a;
 
 -- AddForeignKey
 ALTER TABLE "AiAssistantParticipant" ADD CONSTRAINT "AiAssistantParticipant_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
