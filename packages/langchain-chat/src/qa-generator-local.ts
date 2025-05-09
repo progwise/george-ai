@@ -1,5 +1,3 @@
-import fetch from 'node-fetch'
-
 export interface QAPair {
   question: string
   answer: string
