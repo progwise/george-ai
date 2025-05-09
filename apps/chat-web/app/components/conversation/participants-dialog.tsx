@@ -264,17 +264,16 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="w-full max-w-[1000px] lg:h-[480px]"
+        className="w-full max-w-5xl"
       >
-        <div className="flex w-full flex-col gap-4 sm:flex-row">
-          <div className="flex-1 sm:w-1/3">
-            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.assistants')}</h4>
+        <div className="grid grid-cols-3 gap-4 *:flex *:max-h-64 *:flex-col *:gap-2 max-md:grid-cols-1">
+          {/* Assistants Column */}
+          <div>
+            <h4 className="text-lg font-semibold underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
               <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
-              <div
-                className={`flex max-h-56 flex-col gap-2 overflow-y-auto rounded-md border border-transparent p-2 ${availableAssistants.length > 0 ? 'hover:border-base-300' : ''}`}
-              >
+              <div className="hover:border-base-300 rounded-box flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
                 {availableAssistants.map((assistant) => (
                   <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
                     <input
@@ -301,26 +300,28 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
             )}
           </div>
 
-          <div className="flex-1 sm:w-1/3">
+          {/* User Column */}
+          <div className="h-64">
             <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
             <input
               type="text"
-              className="input input-bordered input-sm mt-2 w-full"
+              className="input input-bordered input-sm w-full"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
             />
-            <p className="mt-2">
-              {availableHumans.length < 1 && usersFilter && usersFilter.length >= 2 ? t('texts.noUsersFound') : ''}
-            </p>
-            <div
-              className={`max-h-46 flex min-w-full flex-col gap-2 overflow-y-auto rounded-md border border-transparent p-2 sm:min-w-72 ${usersFilter && usersFilter.length >= 2 && availableHumans.length > 0 ? 'hover:border-base-300' : 'hidden'} w-full max-w-[300px] overflow-hidden`}
-            >
-              {availableHumans.length > 0 && (
-                <div className="flex items-center gap-2">
+
+            {availableHumans.length < 1 && usersFilter && usersFilter.length >= 2 && (
+              <p className="text-sm">{t('texts.noUsersFound')}</p>
+            )}
+
+            {availableHumans.length > 0 && (
+              <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
+                <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
                     className="checkbox checkbox-info checkbox-xs"
+                    checked={selectedUserIds.length === availableHumans.length}
                     onChange={(event) => {
                       if (event.target.checked) {
                         setSelectedUserIds(availableHumans.map((human) => human.id))
@@ -330,49 +331,48 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                     }}
                   />
                   <span className="text-sm">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
+                </label>
+                <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
+                  {availableHumans.map((human) => {
+                    const formattedHuman = `${human.username} (${human.email}${human.profile && human.profile.business ? ' | ' + human.profile.business : ''})`
+                    return (
+                      <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
+                        <input
+                          type="checkbox"
+                          name="userIds"
+                          value={human.id}
+                          className="checkbox checkbox-info checkbox-xs"
+                          checked={selectedUserIds.includes(human.id)}
+                          onChange={(event) => {
+                            if (event.target.checked) {
+                              setSelectedUserIds((prev) => [...prev, human.id])
+                            } else {
+                              setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
+                            }
+                          }}
+                        />
+                        <span className="truncate text-sm leading-tight" title={formattedHuman}>
+                          {formattedHuman}
+                        </span>
+                      </label>
+                    )
+                  })}
                 </div>
-              )}
-              <div
-                className={`max-h-46 border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t p-2 pl-0 sm:min-w-72 ${availableHumans.length > 0 ? 'hover:border-base-300' : ''} w-full max-w-[300px] overflow-hidden`}
-              >
-                {availableHumans.map((human) => (
-                  <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
-                    <input
-                      type="checkbox"
-                      name="userIds"
-                      value={human.id}
-                      className="checkbox checkbox-info checkbox-xs"
-                      checked={selectedUserIds.includes(human.id)}
-                      onChange={(event) => {
-                        if (event.target.checked) {
-                          setSelectedUserIds((prev) => [...prev, human.id])
-                        } else {
-                          setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
-                        }
-                      }}
-                    />
-                    <span
-                      className="truncate text-sm leading-tight"
-                      title={`${human.username} (${human.email}${human.profile && human.profile.business ? ' | ' + human.profile.business : ''})`}
-                    >
-                      {`${human.username} (${human.email}${human.profile && human.profile.business ? ' | ' + human.profile.business : ''})`}
-                    </span>
-                  </label>
-                ))}
               </div>
-            </div>
+            )}
           </div>
 
+          {/* Invite Column */}
           {isOwner && (
-            <div className="flex-1 sm:w-1/3">
-              <h4 className="mb-2 text-lg font-semibold underline">{t('labels.invitation')}</h4>
+            <div>
+              <h4 className="text-lg font-semibold underline">{t('labels.invitation')}</h4>
               <EmailChipsInput
                 emails={emailChips}
                 setEmails={setEmailChips}
                 placeholder={t('placeholders.emailToInvite')}
               />
               {emailError && <p className="text-error text-sm">{emailError}</p>}
-              <div className="mt-2 flex flex-col gap-1">
+              <div className="flex flex-col gap-1">
                 <label className="flex items-center gap-2">
                   <input
                     type="checkbox"
