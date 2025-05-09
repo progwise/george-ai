@@ -423,6 +423,7 @@ export type MutationActivateUserProfileArgs = {
 
 export type MutationAddAssistantParticipantsArgs = {
   assistantId: Scalars['String']['input']
+  currentUserId: Scalars['String']['input']
   userIds: Array<Scalars['String']['input']>
 }
 
@@ -558,6 +559,7 @@ export type MutationReProcessFileArgs = {
 
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
+  currentUserId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
 
@@ -1823,6 +1825,7 @@ export type AiAssistantDetailsQuery = {
 export type AddAssistantParticipantMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
   userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+  currentUserId: Scalars['String']['input']
 }>
 
 export type AddAssistantParticipantMutation = {
@@ -1833,6 +1836,7 @@ export type AddAssistantParticipantMutation = {
 export type RemoveAssistantParticipantMutationVariables = Exact<{
   userId: Scalars['String']['input']
   assistantId: Scalars['String']['input']
+  currentUserId: Scalars['String']['input']
 }>
 
 export type RemoveAssistantParticipantMutation = {
@@ -6645,6 +6649,11 @@ export const AddAssistantParticipantDocument = {
             },
           },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -6662,6 +6671,11 @@ export const AddAssistantParticipantDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'userIds' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'userIds' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'currentUserId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
               },
             ],
             selectionSet: {
@@ -6692,6 +6706,11 @@ export const RemoveAssistantParticipantDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -6709,6 +6728,11 @@ export const RemoveAssistantParticipantDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'currentUserId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
               },
             ],
             selectionSet: {

@@ -4,7 +4,6 @@ import { useMemo, useRef, useState } from 'react'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { queryKeys } from '../../query-keys'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
@@ -45,14 +44,11 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
   const { mutate: addParticipants, isPending } = useMutation({
     mutationFn: async () => {
       return await addAssistantParticipants({
-        data: { assistantId: assistant.id, userIds: selectedUserIds },
+        data: { assistantId: assistant.id, userIds: selectedUserIds, currentUserId: props.userId },
       })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistants, props.userId],
-      })
 
       dialogRef.current?.close()
     },

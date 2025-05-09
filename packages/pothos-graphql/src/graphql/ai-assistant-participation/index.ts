@@ -8,8 +8,17 @@ builder.mutationField('addAssistantParticipants', (t) =>
     args: {
       assistantId: t.arg.string({ required: true }),
       userIds: t.arg.stringList({ required: true }),
+      currentUserId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { assistantId, userIds }) => {
+    resolve: async (query, _source, { assistantId, userIds, currentUserId }) => {
+      const assistant = await prisma.aiAssistant.findUniqueOrThrow({
+        where: { id: assistantId },
+      })
+
+      if (assistant.ownerId !== currentUserId) {
+        throw new Error('Only the owner can add participants')
+      }
+
       const existingParticipants = await prisma.aiAssistantParticipant.findMany({
         where: { assistantId },
       })
@@ -42,8 +51,17 @@ builder.mutationField('removeAssistantParticipant', (t) =>
     args: {
       userId: t.arg.string({ required: true }),
       assistantId: t.arg.string({ required: true }),
+      currentUserId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { userId, assistantId }) => {
+    resolve: async (_query, _source, { userId, assistantId, currentUserId }) => {
+      const assistant = await prisma.aiAssistant.findUniqueOrThrow({
+        where: { id: assistantId },
+      })
+
+      if (assistant.ownerId !== currentUserId) {
+        throw new Error('Only the owner can remove participants')
+      }
+
       const participant = await prisma.aiAssistantParticipant.findFirst({
         where: {
           userId,

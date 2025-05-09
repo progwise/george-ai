@@ -4,7 +4,6 @@ import { twMerge } from 'tailwind-merge'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { queryKeys } from '../../query-keys'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { removeAssistantParticipant } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
@@ -40,17 +39,16 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
-      if (!isOwner) {
-        throw new Error('Only the owner can remove participants')
-      }
-      return await removeAssistantParticipant({ data: { userId, assistantId } })
+      return await removeAssistantParticipant({
+        data: {
+          userId,
+          assistantId,
+          currentUserId: props.userId,
+        },
+      })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
-
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistants, props.userId],
-      })
     },
   })
 

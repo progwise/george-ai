@@ -94,7 +94,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: Us
             />
             <span className="label-text truncate">
               {user.username} ({user.email}
-              {user.profile && ` | ${user.profile.business}`})
+              {user.profile?.business && ` | ${user.profile.business}`})
             </span>
           </label>
         ))}

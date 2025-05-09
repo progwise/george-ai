@@ -102,7 +102,7 @@ export default {
     nameRequired: 'Name ist erforderlich.',
   },
   conversations: {
-    addConversationParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
+    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
     delete: 'Konversation löschen',

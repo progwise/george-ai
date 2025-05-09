@@ -258,8 +258,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
-    addParticipantsConfirmation:
-      'You can add participants to the current conversation. You can change these participants any time.',
     allowDifferentEmail: 'Allow different email address',
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',

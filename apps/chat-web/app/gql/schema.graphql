@@ -355,7 +355,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
-  addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
+  addAssistantParticipants(assistantId: String!, currentUserId: String!, userIds: [String!]!): [User!]!
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -397,7 +397,7 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
-  removeAssistantParticipant(assistantId: String!, userId: String!): User!
+  removeAssistantParticipant(assistantId: String!, currentUserId: String!, userId: String!): User!
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
