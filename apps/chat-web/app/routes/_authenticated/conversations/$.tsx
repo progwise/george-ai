@@ -152,9 +152,9 @@ function RouteComponent() {
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
         <div className="bg-base-100 lg:rounded-r-box sticky top-16 z-30 shadow-md">
-          <div className="flex flex-row items-center justify-between p-1 pt-2 lg:hidden">
-            <div className="flex">
-              <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm mx-1">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 p-1 pt-2 lg:hidden">
+            <div className="flex gap-2">
+              <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm">
                 <MenuIcon className="size-6" />
               </label>
               <NewConversationSelector
