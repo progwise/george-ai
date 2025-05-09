@@ -33,6 +33,11 @@
   input[type='date'] {
     @apply text-center;
   }
+
+  input[type='checkbox']:indeterminate {
+    /* fill the checkbox when indeterminated */
+    background-color: var(--input-color);
+  }
 }
 
 @utility container {
