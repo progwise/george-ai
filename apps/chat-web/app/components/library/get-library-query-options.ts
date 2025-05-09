@@ -6,8 +6,8 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-const aiLibraryEditQueryDocument = graphql(`
-  query aiLibraryEdit($id: String!) {
+const aiLibraryDetailsQueryDocument = graphql(`
+  query aiLibraryDetails($id: String!, $userId: String!, $ownerId: String!) {
     aiLibrary(id: $id) {
       id
       name
@@ -18,20 +18,22 @@ const aiLibraryEditQueryDocument = graphql(`
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
-  .validator(({ libraryId }: { libraryId: string }) => ({
-    id: z.string().nonempty().parse(libraryId),
+  .validator(({ libraryId, userId, ownerId }: { libraryId: string; userId: string; ownerId: string }) => ({
+    libraryId: z.string().nonempty().parse(libraryId),
+    userId: z.string().nonempty().parse(userId),
+    ownerId: z.string().nonempty().parse(ownerId),
   }))
-  .handler(async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data))
+  .handler(
+    async (ctx) =>
+      await backendRequest(aiLibraryDetailsQueryDocument, {
+        id: ctx.data.libraryId,
+        userId: ctx.data.userId,
+        ownerId: ctx.data.ownerId,
+      }),
+  )
 
-export const getLibraryQueryOptions = (libraryId: string) =>
+export const getLibraryQueryOptions = (libraryId: string, userId: string) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, libraryId],
-    queryFn: async () => getLibrary({ data: { libraryId } }),
-    select: (data) => {
-      if (!data.aiLibrary) {
-        throw Error('Library not found')
-      }
-
-      return data.aiLibrary
-    },
+    queryKey: [queryKeys.AiLibrary, libraryId, userId],
+    queryFn: () => getLibrary({ data: { libraryId, userId, ownerId: userId } }),
   })

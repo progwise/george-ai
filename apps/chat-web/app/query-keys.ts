@@ -4,6 +4,7 @@ export const queryKeys = {
   AiAssistantForEdit: 'AiAssistantForEdit',
   MyAiAssistants: 'MyAiAssistants',
   AiAssistantLibraries: 'AiAssistantLibraries',
+  AiLibrary: 'AiLibrary',
   AiLibraries: 'AiLibraries',
   AiLibraryFiles: 'AiLibraryFiles',
   GoogleDriveFiles: 'GoogleDriveFiles',

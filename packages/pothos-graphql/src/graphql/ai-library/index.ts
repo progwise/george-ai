@@ -29,6 +29,14 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
+    participants: t.prismaField({
+      type: ['User'],
+      nullable: false,
+      select: { participants: { select: { user: true } } },
+      resolve: (_query, library) => {
+        return library.participants.map((participant) => participant.user)
+      },
+    }),
   }),
 })
 
@@ -60,13 +68,13 @@ builder.queryField('aiLibraries', (t) =>
   t.prismaField({
     type: ['AiLibrary'],
     args: {
-      ownerId: t.arg.string(),
+      userId: t.arg.string(),
     },
     nullable: false,
-    resolve: (query, _source, { ownerId }) => {
+    resolve: (query, _source, { userId }) => {
       return prisma.aiLibrary.findMany({
         ...query,
-        where: { ownerId },
+        where: { participants: { some: { userId } } },
       })
     },
   }),
@@ -102,6 +110,11 @@ builder.mutationField('createAiLibrary', (t) =>
         data: {
           ...data,
           ownerId,
+          participants: {
+            create: {
+              userId: ownerId,
+            },
+          },
         },
       })
     },

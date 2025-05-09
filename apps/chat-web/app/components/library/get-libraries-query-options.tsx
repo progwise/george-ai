@@ -7,8 +7,8 @@ import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
 const librariesDocument = graphql(/* GraphQL */ `
-  query aiLibraries($ownerId: String!) {
-    aiLibraries(ownerId: $ownerId) {
+  query aiLibraries($userId: String!) {
+    aiLibraries(userId: $userId) {
       id
       name
       owner {
@@ -22,15 +22,15 @@ const librariesDocument = graphql(/* GraphQL */ `
 `)
 
 const getLibraries = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
+  .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler(async (ctx) => {
-    return backendRequest(librariesDocument, { ownerId: ctx.data })
+    return backendRequest(librariesDocument, { userId: ctx.data })
   })
 
-export const getLibrariesQueryOptions = (ownerId: string) =>
+export const getLibrariesQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, ownerId],
+    queryKey: [queryKeys.AiLibraries, userId],
     queryFn: async () => {
-      return getLibraries({ data: ownerId })
+      return getLibraries({ data: userId })
     },
   })

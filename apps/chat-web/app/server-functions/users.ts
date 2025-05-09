@@ -1,11 +1,13 @@
+import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../gql'
+import { UsersQuery } from '../gql/graphql'
 import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
-const myConversationUsersDocument = graphql(`
+const UsersDocument = graphql(`
   query myConversationUsers($userId: String!) {
     myConversationUsers(userId: $userId) {
       id
@@ -17,19 +19,21 @@ const myConversationUsersDocument = graphql(`
   }
 `)
 
-export const getMyConversationUsers = createServerFn({ method: 'GET' })
+export type User = UsersQuery['users'][0]
+
+export const getUsers = createServerFn({ method: 'GET' })
   .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler((ctx) =>
-    backendRequest(myConversationUsersDocument, {
+    backendRequest(UsersDocument, {
       userId: ctx.data,
     }),
   )
 
-export const myConversationUsersQueryOptions = (userId?: string) => ({
-  queryKey: [queryKeys.ConversationUsers, userId],
-  queryFn: () => (userId ? getMyConversationUsers({ data: userId }) : null),
-  enabled: userId !== undefined,
-})
+export const getUsersQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.ConversationUsers, userId],
+    queryFn: () => getUsers({ data: userId }),
+  })
 
 export const sendConfirmationMail = createServerFn({ method: 'POST' })
   .validator((data: { userId: string; confirmationUrl: string }) => {

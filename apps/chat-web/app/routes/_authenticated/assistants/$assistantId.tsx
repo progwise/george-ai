@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
@@ -16,15 +16,16 @@ import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getAssistant = createServerFn({ method: 'GET' })
-  .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
+  .validator(({ assistantId, userId, ownerId }: { assistantId: string; userId: string; ownerId: string }) => ({
     assistantId: z.string().nonempty().parse(assistantId),
+    userId: z.string().nonempty().parse(userId),
     ownerId: z.string().nonempty().parse(ownerId),
   }))
   .handler(
     async (ctx) =>
       await backendRequest(
         graphql(`
-          query aiAssistantDetails($id: String!, $ownerId: String!) {
+          query aiAssistantDetails($id: String!, $userId: String!, $ownerId: String!) {
             aiAssistant(id: $id) {
               ...AssistantForm_Assistant
               ...AssistantSelector_Assistant
@@ -37,13 +38,14 @@ const getAssistant = createServerFn({ method: 'GET' })
             aiLibraryUsage(assistantId: $id) {
               ...AssistantLibraries_LibraryUsage
             }
-            aiLibraries(ownerId: $ownerId) {
+            aiLibraries(userId: $userId) {
               ...AssistantLibraries_Library
             }
           }
         `),
         {
           id: ctx.data.assistantId,
+          userId: ctx.data.userId,
           ownerId: ctx.data.ownerId,
         },
       ),
@@ -59,12 +61,11 @@ function RouteComponent() {
   const navigate = useNavigate()
   const ownerId = Route.useRouteContext().user.id
   const { assistantId } = Route.useParams()
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useSuspenseQuery({
     queryKey: [queryKeys.AiAssistantForEdit, assistantId, ownerId],
-    queryFn: () => getAssistant({ data: { ownerId, assistantId } }),
+    queryFn: () => getAssistant({ data: { assistantId, userId: ownerId, ownerId } }),
   })
-
-  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}
+  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data
 
   if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
