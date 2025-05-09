@@ -99,29 +99,29 @@ export const ConversationSelector = ({
               <div className="font-semibold">{date}</div>
               <ul>
                 {conversations.map((conversation) => (
-                  <li key={conversation.id} className="center grid grid-cols-1">
-                    <div className="grid grid-cols-[30px_1fr]">
+                  <li key={conversation.id} className="center grid grid-cols-[1fr_10fr] items-center">
+                    <div>
                       <input
                         type="checkbox"
                         className="checkbox checkbox-xs"
                         onChange={() => handleCheckConversation(conversation.id)}
                       />
-                      <Link
-                        className="mt-1 block rounded-md"
-                        activeProps={{ className: 'menu-active' }}
-                        onClick={onClick}
-                        to="/conversations/$"
-                        params={{ _splat: conversation.id }}
-                      >
-                        <div>
-                          {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
-                        </div>
-                        <div className="mt-1 block">
-                          {conversation.assistants?.map((assistant) => assistant.name).join(', ') ||
-                            t('texts.noAssistant')}
-                        </div>
-                      </Link>
                     </div>
+                    <Link
+                      className="mt-1 block rounded-md"
+                      activeProps={{ className: 'menu-active' }}
+                      onClick={onClick}
+                      to="/conversations/$"
+                      params={{ _splat: conversation.id }}
+                    >
+                      <div>
+                        {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>
+                      </div>
+                      <div className="mt-1 block">
+                        {conversation.assistants?.map((assistant) => assistant.name).join(', ') ||
+                          t('texts.noAssistant')}
+                      </div>
+                    </Link>
                   </li>
                 ))}
               </ul>
