@@ -70,6 +70,21 @@ jobs:
 
   test:
     runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: chatweb-test
+          POSTGRES_USER: chatweb-test
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js
@@ -81,4 +96,7 @@ jobs:
         with:
           version: 9.15.4
           run_install: true
-      - run: pnpm run test
+      - name: Run Tests
+        run: pnpm run test
+        env:
+          DATABASE_URL_TEST: ${{ 'postgresql://chatweb-test:password@localhost:5432/chatweb-test?schema=public' }}

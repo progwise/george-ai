@@ -2,6 +2,7 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { getProfileQueryOptions } from '../../../auth/get-profile-query'
@@ -142,33 +143,52 @@ function RouteComponent() {
   }
 
   return (
-    <div className="drawer grow lg:drawer-open lg:-mt-4">
+    <div
+      className={twMerge(
+        'drawer lg:drawer-open grow',
+        'min-h-[calc(100dvh_-_--spacing(16))]', // full height minus the top bar
+      )}
+    >
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
-        <div className="sticky top-[72px] z-30 mt-[-16px] flex flex-row items-center justify-between bg-base-100 p-1 pt-2 lg:top-0 lg:mt-0">
-          <div className="flex">
-            <label htmlFor="conversation-drawer" className="btn drawer-button btn-sm mx-1 lg:hidden">
-              <MenuIcon className="size-6" />
-            </label>
-            <div className="lg:hidden">
+        <div className="bg-base-100 lg:rounded-r-box sticky top-16 z-30 shadow-md">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 p-1 pt-2 lg:hidden">
+            <div className="flex gap-2">
+              <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm">
+                <MenuIcon className="size-6" />
+              </label>
               <NewConversationSelector
                 humans={assignableUsers.myConversationUsers}
                 assistants={assignableAssistants.aiAssistants}
                 userId={userId}
               />
             </div>
+
+            {selectedConversation?.aiConversation && (
+              <div className="flex">
+                <ParticipantsDialog
+                  conversation={selectedConversation.aiConversation}
+                  assistants={assignableAssistants.aiAssistants}
+                  humans={assignableUsers.myConversationUsers}
+                  dialogMode="add"
+                  userId={userId}
+                />
+                <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
+              </div>
+            )}
           </div>
 
           {selectedConversation?.aiConversation && (
-            <div className="flex lg:hidden">
-              <ParticipantsDialog
+            <div className="flex items-center justify-end p-1">
+              <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
                 humans={assignableUsers.myConversationUsers}
-                dialogMode="add"
                 userId={userId}
               />
-              <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
+              <div className="hidden lg:flex">
+                <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
+              </div>
             </div>
           )}
         </div>
@@ -176,17 +196,6 @@ function RouteComponent() {
         <div className="flex h-full flex-col">
           {selectedConversation?.aiConversation && (
             <>
-              <div className="sticky top-[116px] z-30 flex items-center justify-end bg-base-100 p-1 shadow-md lg:top-20 lg:mt-[-108px] lg:rounded-r-box">
-                <ConversationParticipants
-                  conversation={selectedConversation.aiConversation}
-                  assistants={assignableAssistants.aiAssistants}
-                  humans={assignableUsers.myConversationUsers}
-                  userId={userId}
-                />
-                <div className="hidden lg:flex">
-                  <DeleteLeaveConversationDialog conversation={selectedConversation.aiConversation} userId={userId} />
-                </div>
-              </div>
               <ConversationHistory conversation={selectedConversation.aiConversation} />
               <ConversationForm
                 conversation={selectedConversation.aiConversation}
@@ -198,23 +207,24 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className="drawer-side z-50 lg:sticky lg:z-40 lg:mt-[-104px] lg:flex lg:h-screen lg:flex-col lg:pt-[76px]">
+      <div
+        className={twMerge(
+          'drawer-side max-lg:z-50 lg:top-16',
+          'lg:h-[calc(100dvh_-_--spacing(16))]', // full height minus the top bar
+        )}
+      >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="flex h-full w-80 flex-col items-center bg-base-200 lg:pt-2">
-          <div className="sticky z-50 border-b py-2">
-            <NewConversationSelector
-              humans={assignableUsers.myConversationUsers}
-              assistants={assignableAssistants.aiAssistants}
-              isOpen={conversations?.aiConversations?.length === 0}
-              userId={userId}
-            />
-          </div>
+        <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
           <div className="flex-1 overflow-scroll px-2">
             {conversations.aiConversations && (
               <ConversationSelector
                 conversations={conversations.aiConversations}
                 selectedConversationId={selectedConversationId}
                 onClick={handleConversationClick}
+                userId={userId}
+                humans={assignableUsers.myConversationUsers}
+                assistants={assignableAssistants.aiAssistants}
+                isOpen={conversations?.aiConversations?.length === 0}
               />
             )}
           </div>

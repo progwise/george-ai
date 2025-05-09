@@ -1,6 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
+@plugin "daisyui/theme" {
+  name: 'light';
+  default: true;
+  --depth: 0;
+}
+@plugin "daisyui/theme" {
+  name: 'dark';
+  --depth: 0;
+}
+@plugin "@tailwindcss/typography";
+
+@plugin "tailwindcss-animated";
 
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -12,4 +27,28 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+}
+
+@layer overwrite {
+  input,
+  textarea {
+    @apply focus:outline-none;
+  }
+
+  input[type='number'] {
+    @apply text-right;
+  }
+
+  input[type='date'] {
+    @apply text-center;
+  }
+
+  /* Adjust button in navbar */
+  .navbar .btn {
+    @apply font-normal;
+  }
+}
+
+@utility container {
+  @apply mx-auto px-1;
 }

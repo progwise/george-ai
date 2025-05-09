@@ -38,6 +38,7 @@ model User {
   profile                    UserProfile?
   conversations              AiConversation[]
   crawlerRuns                AiLibraryCrawlerRun[]
+  conversationInvitation     AiConversationInvitation[]
 }
 
 model UserProfile {
@@ -95,6 +96,7 @@ model AiAssistantEUActAnswers {
   questionId  String
   answer      String?
   notes       String?
+
   @@id([assistantId, questionId])
 }
 
@@ -204,13 +206,16 @@ model AiLibraryCrawlerCronJob {
 }
 
 model AiConversation {
-  id           String                      @id @default(cuid())
-  createdAt    DateTime                    @default(now())
-  updatedAt    DateTime                    @updatedAt
-  messages     AiConversationMessage[]
-  participants AiConversationParticipant[]
-  owner        User                        @relation(fields: [ownerId], references: [id])
-  ownerId      String
+  id      String @id @default(cuid())
+  ownerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages                AiConversationMessage[]
+  participants            AiConversationParticipant[]
+  owner                   User                        @relation(fields: [ownerId], references: [id])
+  conversationInvitations AiConversationInvitation[]
 }
 
 model AiConversationParticipant {
@@ -237,4 +242,23 @@ model AiConversationMessage {
   hidden         Boolean                   @default(false)
   conversation   AiConversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   conversationId String
+}
+
+model AiConversationInvitation {
+  id                         String    @id @default(cuid())
+  email                      String
+  inviterId                  String
+  confirmedByEmail           String?
+  confirmationDate           DateTime?
+  conversationId             String
+  date                       DateTime  @default(now())
+  allowDifferentEmailAddress Boolean   @default(false)
+  allowMultipleParticipants  Boolean   @default(false)
+  isUsed                     Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inviter      User           @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  conversation AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

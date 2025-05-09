@@ -58,7 +58,7 @@ const QuestionCard = (props: QuestionCardProps) => {
         <button
           type="button"
           onClick={() => setShowNotes(!showNotes)}
-          className="btn btn-ghost no-animation btn-sm w-min"
+          className="no-animation btn btn-ghost btn-sm w-min"
         >
           {showNotes ? t('actions.hideNotes') : t('actions.addNotes')}
         </button>
@@ -73,7 +73,7 @@ const QuestionCard = (props: QuestionCardProps) => {
               onChange={() => {
                 handleResponseChange(option.id, notes ?? '')
               }}
-              className="radio-info radio radio-xs"
+              className="radio radio-info radio-xs"
             />
             <span className="ml-1">{option.title[language]}</span>
           </label>
@@ -81,7 +81,7 @@ const QuestionCard = (props: QuestionCardProps) => {
       </div>
       {showNotes && (
         <EditableDiv
-          className="textarea textarea-info focus:outline-none"
+          className="focus:outline-hidden textarea textarea-info"
           onBlur={(newNotes) => handleResponseChange(value ?? undefined, newNotes)}
           disabled={false}
           value={notes ?? ''}
