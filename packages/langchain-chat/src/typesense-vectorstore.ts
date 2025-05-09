@@ -7,7 +7,7 @@ import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { loadFile } from './langchain-file'
-import { generateQAPairs } from './qa-generator'
+import { generateQAPairs } from './qa-generator-remote'
 import { summarizeDocument } from './summarizer'
 import { calculateChunkParams } from './vectorstore-settings'
 
@@ -134,7 +134,7 @@ export const embedFile = async (
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize,
     chunkOverlap,
-    separators: ['\n\n', '\n', '.', ' ', ''], // from coarse to fine
+    separators: ['\n\n', '\n', '.', ' ', ''],
   })
 
   await removeFileByName(libraryId, file.name)
