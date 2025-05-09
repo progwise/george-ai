@@ -214,18 +214,18 @@ function RouteComponent() {
         )}
       >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="bg-base-200 flex h-full w-80 flex-col items-center">
-          <div className="border-b py-2">
-            <NewConversationSelector
-              humans={assignableUsers.myConversationUsers}
-              assistants={assignableAssistants.aiAssistants}
-              isOpen={conversations?.aiConversations?.length === 0}
-              userId={userId}
-            />
-          </div>
+        <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
           <div className="flex-1 overflow-scroll px-2">
             {conversations.aiConversations && (
-              <ConversationSelector conversations={conversations.aiConversations} onClick={handleConversationClick} />
+              <ConversationSelector
+                conversations={conversations.aiConversations}
+                selectedConversationId={selectedConversationId}
+                onClick={handleConversationClick}
+                userId={userId}
+                humans={assignableUsers.myConversationUsers}
+                assistants={assignableAssistants.aiAssistants}
+                isOpen={conversations?.aiConversations?.length === 0}
+              />
             )}
           </div>
         </div>
