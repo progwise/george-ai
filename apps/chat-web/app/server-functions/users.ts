@@ -37,7 +37,7 @@ export const getUsers = createServerFn({ method: 'GET' })
 
 export const getUsersQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: [queryKeys.ConversationUsers, userId],
+    queryKey: [queryKeys.Users, userId],
     queryFn: () => getUsers({ data: userId }),
   })
 

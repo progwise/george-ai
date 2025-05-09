@@ -10,7 +10,7 @@ export const queryKeys = {
   Conversations: 'Conversations',
   Conversation: 'Conversation',
   ConversationMessages: 'ConversationMessages',
-  ConversationUsers: 'ConversationUsers',
+  Users: 'Users',
   ConversationAssignableAssistants: 'ConversationAssignableAssistants',
   ConversationInvitation: 'ConversationInvitation',
   BackendUrl: 'BackendUrl',
