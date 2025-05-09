@@ -6,6 +6,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
 import { removeConversationParticipant } from '../../server-functions/conversationParticipations'
+import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationParticipantsDialog } from './conversation-participants-dialog'
 
@@ -29,16 +30,10 @@ const ConversationParticipants_AssistantFragment = graphql(`
   }
 `)
 
-export const ConversationParticipants_HumanFragment = graphql(`
-  fragment ConversationParticipants_Human on User {
-    ...ConversationParticipantsDialog_Human
-  }
-`)
-
 interface ConversationParticipantsProps {
   conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
   assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
-  humans: FragmentType<typeof ConversationParticipants_HumanFragment>[]
+  users: User[]
   userId: string
 }
 
@@ -48,7 +43,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
-  const humans = useFragment(ConversationParticipants_HumanFragment, props.humans)
+  const { users } = props
 
   const isOwner = props.userId === conversation.ownerId
 
@@ -113,7 +108,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
           <ConversationParticipantsDialog
             conversation={conversation}
             assistants={assistants}
-            humans={humans}
+            users={users}
             dialogMode="add"
             userId={props.userId}
           />

@@ -17,6 +17,7 @@ import { graphql } from '../../../gql'
 import { MenuIcon } from '../../../icons/menu-icon'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
+import { getUsersQueryOptions } from '../../../server-functions/users'
 
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
@@ -46,20 +47,6 @@ const ConversationQueryDocument = graphql(`
 export const getConversation = createServerFn({ method: 'GET' })
   .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(ConversationQueryDocument, ctx.data))
-
-const AssignableUsersDocument = graphql(`
-  query getAssignableUsers($userId: String!) {
-    users(userId: $userId) {
-      ...NewConversationSelector_Human
-      ...ConversationParticipants_Human
-      ...ConversationParticipantsDialog_Human
-    }
-  }
-`)
-
-export const getAssignableHumans = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
-  .handler(async (ctx) => backendRequest(AssignableUsersDocument, ctx.data))
 
 const AssignableAssistantsDocument = graphql(`
   query getAssignableAssistants($userId: String!) {
@@ -115,10 +102,7 @@ function RouteComponent() {
         : null,
   })
 
-  const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery({
-    queryKey: [queryKeys.ConversationAssignableUsers, userId],
-    queryFn: () => getAssignableHumans({ data: { userId } }),
-  })
+  const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery(getUsersQueryOptions(userId))
 
   const { data: assignableAssistants, isLoading: assignableAssistantsIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
@@ -151,7 +135,7 @@ function RouteComponent() {
               <MenuIcon className="size-6" />
             </label>
             <NewConversationSelector
-              humans={assignableUsers.users}
+              users={assignableUsers.users}
               assistants={assignableAssistants.aiAssistants}
               userId={userId}
             />
@@ -162,7 +146,7 @@ function RouteComponent() {
               <ConversationParticipantsDialog
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
-                humans={assignableUsers.users}
+                users={assignableUsers.users}
                 dialogMode="add"
                 userId={userId}
               />
@@ -178,7 +162,7 @@ function RouteComponent() {
                 <ConversationParticipants
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
-                  humans={assignableUsers.users}
+                  users={assignableUsers.users}
                   userId={userId}
                 />
                 <div className="hidden lg:flex">
@@ -201,7 +185,7 @@ function RouteComponent() {
         <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
           <div className="sticky z-50 border-b py-2">
             <NewConversationSelector
-              humans={assignableUsers.users}
+              users={assignableUsers.users}
               assistants={assignableAssistants.aiAssistants}
               isOpen={conversations?.aiConversations?.length === 0}
               userId={userId}

@@ -9,9 +9,11 @@ import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
 import { addConversationParticipants } from '../../server-functions/conversationParticipations'
 import { createConversation } from '../../server-functions/conversations'
+import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
+import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 
@@ -34,24 +36,10 @@ const ConversationParticipantsDialog_AssistantFragment = graphql(`
   }
 `)
 
-const ConversationParticipantsDialog_HumanFragment = graphql(`
-  fragment ConversationParticipantsDialog_Human on User {
-    id
-    username
-    email
-    profile {
-      business
-      position
-      firstName
-      lastName
-    }
-  }
-`)
-
 interface ParticipantsDialogProps {
   conversation?: FragmentType<typeof ConversationParticipantsDialog_ConversationFragment>
   assistants: FragmentType<typeof ConversationParticipantsDialog_AssistantFragment>[]
-  humans: FragmentType<typeof ConversationParticipantsDialog_HumanFragment>[]
+  users: User[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
@@ -59,7 +47,6 @@ interface ParticipantsDialogProps {
 
 export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
-  const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
   const [emailChips, setEmailChips] = useState<string[]>([])
@@ -73,7 +60,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
 
   const conversation = useFragment(ConversationParticipantsDialog_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipantsDialog_AssistantFragment, props.assistants)
-  const humans = useFragment(ConversationParticipantsDialog_HumanFragment, props.humans)
+  const { users } = props
 
   const assignedAssistantIds = useMemo(
     () =>
@@ -96,24 +83,10 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
     [conversation],
   )
 
-  const availableHumans = useMemo(() => {
-    if (!humans || !usersFilter || usersFilter.length < 2) {
-      return []
-    }
-
-    const filter = usersFilter.toLowerCase()
-    const list = humans.filter(
-      (user) =>
-        !assignedUserIds?.includes(user.id) &&
-        (user.username.toLowerCase().includes(filter) ||
-          user.email.toLowerCase().includes(filter) ||
-          (user.profile?.firstName && user.profile.firstName.toLowerCase().includes(filter)) ||
-          (user.profile?.lastName && user.profile.lastName.toLowerCase().includes(filter)) ||
-          (user.profile?.business && user.profile.business.toLowerCase().includes(filter)) ||
-          (user.profile?.position && user.profile.position.toLowerCase().includes(filter))),
-    )
-    return list
-  }, [humans, assignedUserIds, usersFilter])
+  const availableUsers = useMemo(
+    () => users.filter((user) => !assignedUserIds?.includes(user.id)),
+    [users, assignedUserIds],
+  )
 
   const isCreatingNewConversation = props.dialogMode === 'new'
   const isOwner = isCreatingNewConversation || props.userId === conversation?.ownerId
@@ -294,64 +267,12 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
           </div>
 
           <div className="flex-1">
-            <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
-            <input
-              type="text"
-              className="input input-bordered input-md mt-2 w-full"
-              onChange={(event) => setUsersFilter(event.currentTarget.value)}
-              name={'userFilter'}
-              placeholder={t('placeholders.searchUsers')}
+            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
+            <UsersSelector
+              users={availableUsers}
+              selectedUserIds={selectedUserIds}
+              setSelectedUserIds={setSelectedUserIds}
             />
-            <label className="label cursor-pointer items-center justify-start gap-2">
-              <input
-                disabled={availableHumans.length < 1}
-                type="checkbox"
-                name="selectAll"
-                className="checkbox checkbox-info checkbox-xs"
-                checked={selectedUserIds.length > 0}
-                ref={(element) => {
-                  if (!element) return
-                  element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
-                }}
-                onChange={(event) => {
-                  const value = event.target.checked
-                  if (value) {
-                    setSelectedUserIds(availableHumans.map((human) => human.id))
-                  } else {
-                    setSelectedUserIds([])
-                  }
-                }}
-              />
-              {availableHumans.length < 1 ? (
-                <span className="info label-text font-bold">{t('texts.noUsersFound')}</span>
-              ) : (
-                <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
-              )}
-            </label>
-            <div className="max-h-48 flex-grow overflow-y-auto">
-              {availableHumans.map((human) => (
-                <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="userIds"
-                    value={human.id}
-                    className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedUserIds.includes(human.id)}
-                    onChange={(event) => {
-                      const value = event.target.checked
-                      if (value) {
-                        setSelectedUserIds((prev) => [...prev, human.id])
-                      } else {
-                        setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
-                      }
-                    }}
-                  />
-                  <span className="label-text text-sm leading-tight">
-                    {`${human.username} (${human.email} ${human.profile && human.profile.business !== null ? '| ' + human.profile?.business : ''} )`}
-                  </span>
-                </label>
-              ))}
-            </div>
           </div>
 
           {isOwner && (
