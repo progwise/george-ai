@@ -396,6 +396,7 @@ export type Mutation = {
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
   reProcessFile?: Maybe<AiLibraryFile>
+  removeAiConversations: Scalars['Boolean']['output']
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeUserProfile?: Maybe<UserProfile>
@@ -546,6 +547,11 @@ export type MutationProcessFileArgs = {
 
 export type MutationReProcessFileArgs = {
   fileId: Scalars['String']['input']
+}
+
+export type MutationRemoveAiConversationsArgs = {
+  conversationIds: Array<Scalars['String']['input']>
+  userId: Scalars['String']['input']
 }
 
 export type MutationRemoveConversationParticipantArgs = {
@@ -1952,6 +1958,13 @@ export type DeleteConversationMutation = {
   __typename?: 'Mutation'
   deleteAiConversation?: { __typename?: 'AiConversation'; id: string } | null
 }
+
+export type RemoveConversationsMutationVariables = Exact<{
+  conversationIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+  userId: Scalars['String']['input']
+}>
+
+export type RemoveConversationsMutation = { __typename?: 'Mutation'; removeAiConversations: boolean }
 
 export type LeaveConversationMutationVariables = Exact<{
   participantId: Scalars['String']['input']
@@ -7091,6 +7104,55 @@ export const DeleteConversationDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteConversationMutation, DeleteConversationMutationVariables>
+export const RemoveConversationsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeConversations' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'conversationIds' } },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeAiConversations' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'conversationIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'conversationIds' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveConversationsMutation, RemoveConversationsMutationVariables>
 export const LeaveConversationDocument = {
   kind: 'Document',
   definitions: [
