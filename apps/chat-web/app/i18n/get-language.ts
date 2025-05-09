@@ -1,6 +1,7 @@
+import { Language } from './index'
 import { getTranslatedValue } from './use-translation-hook'
 
-const getLanguageString = (languages: readonly string[]) => {
+const getLanguageString = (languages: readonly string[]): Language => {
   for (const language of languages) {
     if (language.startsWith('de')) {
       return 'de'
@@ -12,7 +13,7 @@ const getLanguageString = (languages: readonly string[]) => {
   return 'en'
 }
 
-const getLanguage = async () => {
+const getLanguage = async (): Promise<Language> => {
   if (typeof window !== 'undefined') {
     const languageString = getLanguageString(window.navigator.languages)
     return languageString
@@ -29,7 +30,7 @@ const getLanguage = async () => {
   }
 }
 
-const translate = (key: string, language: 'en' | 'de') => {
+const translate = (key: string, language: Language) => {
   return getTranslatedValue(key, language === 'de' ? 'de' : 'en')
 }
 

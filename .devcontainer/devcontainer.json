@@ -14,7 +14,8 @@
         "bradlc.vscode-tailwindcss",
         "bierner.markdown-mermaid",
         "github.vscode-github-actions",
-        "prisma.prisma"
+        "prisma.prisma",
+        "vitest.explorer"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
