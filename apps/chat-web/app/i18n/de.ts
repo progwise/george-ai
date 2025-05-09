@@ -10,6 +10,7 @@ export default {
     create: 'Erstellen',
     createProfile: 'Benutzerprofil erstellen',
     delete: 'Löschen',
+    details: 'Details',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
     hideNotes: 'Notizen ausblenden',
@@ -77,7 +78,6 @@ export default {
       name: 'Name Ihres Assistenten',
     },
     removeLibrary: 'Bibliothek entfernen',
-    setLLM: 'Sprachmodell nicht auf Assistenten festgelegt',
     usageLabel: 'Beschreibung der Verwendung',
     usagePlaceholder:
       'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',
@@ -105,6 +105,8 @@ export default {
     delete: 'Konversation löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    errorDetails: 'Fehlerdetails',
+    errorProcessingMessage: 'Fehler beim Verarbeiten der Nachricht',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
     failedToCreateConversation: 'Konversation konnte nicht erstellt werden: {error}',
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
@@ -119,6 +121,8 @@ export default {
     removeMultiple: 'Konversationen entfernen',
     removeMultipleConfirmation:
       'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    setLLM: 'Assistent hat kein Sprachmodell',
+    tokenLimitExceeded: 'Tokenlimit überschritten',
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
