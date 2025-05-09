@@ -268,6 +268,13 @@ export type AiLibraryCrawlerCronJobInput = {
   wednesday: Scalars['Boolean']['input']
 }
 
+export type AiLibraryCrawlerInput = {
+  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  maxDepth: Scalars['Int']['input']
+  maxPages: Scalars['Int']['input']
+  url: Scalars['String']['input']
+}
+
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
@@ -372,6 +379,7 @@ export type Mutation = {
   createAiConversation?: Maybe<AiConversation>
   createAiLibrary?: Maybe<AiLibrary>
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  createContactRequest: Scalars['Boolean']['output']
   createConversationInvitations?: Maybe<AiConversation>
   createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
@@ -399,6 +407,7 @@ export type Mutation = {
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
+  updateAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateMessage?: Maybe<AiConversationMessage>
@@ -463,11 +472,14 @@ export type MutationCreateAiLibraryArgs = {
 }
 
 export type MutationCreateAiLibraryCrawlerArgs = {
-  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  data: AiLibraryCrawlerInput
   libraryId: Scalars['String']['input']
-  maxDepth: Scalars['Int']['input']
-  maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
+}
+
+export type MutationCreateContactRequestArgs = {
+  emailOrPhone: Scalars['String']['input']
+  message: Scalars['String']['input']
+  name: Scalars['String']['input']
 }
 
 export type MutationCreateConversationInvitationsArgs = {
@@ -585,6 +597,11 @@ export type MutationUpdateAiAssistantArgs = {
 
 export type MutationUpdateAiLibraryArgs = {
   data: AiLibraryInput
+  id: Scalars['String']['input']
+}
+
+export type MutationUpdateAiLibraryCrawlerArgs = {
+  data: AiLibraryCrawlerInput
   id: Scalars['String']['input']
 }
 
@@ -1349,16 +1366,21 @@ export type ParticipantsDialog_HumanFragment = {
   } | null
 } & { ' $fragmentName'?: 'ParticipantsDialog_HumanFragment' }
 
+export type CreateContactRequestMutationVariables = Exact<{
+  name: Scalars['String']['input']
+  emailOrPhone: Scalars['String']['input']
+  message: Scalars['String']['input']
+}>
+
+export type CreateContactRequestMutation = { __typename?: 'Mutation'; createContactRequest: boolean }
+
 export type VersionQueryVariables = Exact<{ [key: string]: never }>
 
 export type VersionQuery = { __typename?: 'Query'; version?: string | null }
 
 export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
-  maxDepth: Scalars['Int']['input']
-  maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
-  cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
+  data: AiLibraryCrawlerInput
 }>
 
 export type CreateAiLibraryCrawlerMutation = {
@@ -1378,7 +1400,12 @@ export type CrawlerTable_LibraryFragment = {
       lastRun?: string | null
       filesCount: number
       cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
-    } & { ' $fragmentRefs'?: { RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment } }
+    } & {
+      ' $fragmentRefs'?: {
+        RunCrawlerButton_CrawlerFragment: RunCrawlerButton_CrawlerFragment
+        UpdateCrawlerButton_CrawlerFragment: UpdateCrawlerButton_CrawlerFragment
+      }
+    }
   >
 } & { ' $fragmentName'?: 'CrawlerTable_LibraryFragment' }
 
@@ -1416,6 +1443,38 @@ export type RunCrawlerMutationVariables = Exact<{
 export type RunCrawlerMutation = {
   __typename?: 'Mutation'
   runAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; lastRun?: string | null } | null
+}
+
+export type UpdateCrawlerButton_CrawlerFragment = {
+  __typename?: 'AiLibraryCrawler'
+  id: string
+  url: string
+  maxDepth: number
+  maxPages: number
+  cronJob?: {
+    __typename?: 'AiLibraryCrawlerCronJob'
+    id: string
+    active: boolean
+    hour: number
+    minute: number
+    monday: boolean
+    tuesday: boolean
+    wednesday: boolean
+    thursday: boolean
+    friday: boolean
+    saturday: boolean
+    sunday: boolean
+  } | null
+} & { ' $fragmentName'?: 'UpdateCrawlerButton_CrawlerFragment' }
+
+export type UpdateAiLibraryCrawlerMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiLibraryCrawlerInput
+}>
+
+export type UpdateAiLibraryCrawlerMutation = {
+  __typename?: 'Mutation'
+  updateAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
 }
 
 export type DropFilesMutationVariables = Exact<{
@@ -3129,6 +3188,45 @@ export const RunCrawlerButton_CrawlerFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
+export const UpdateCrawlerButton_CrawlerFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateCrawlerButton_CrawlerFragment, unknown>
 export const CrawlerTable_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3160,6 +3258,7 @@ export const CrawlerTable_LibraryFragmentDoc = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' } },
               ],
             },
           },
@@ -3175,6 +3274,40 @@ export const CrawlerTable_LibraryFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
+              ],
+            },
+          },
         ],
       },
     },
@@ -4706,6 +4839,59 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const CreateContactRequestDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createContactRequest' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'emailOrPhone' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'message' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createContactRequest' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'emailOrPhone' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'emailOrPhone' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'message' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'message' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateContactRequestMutation, CreateContactRequestMutationVariables>
 export const VersionDocument = {
   kind: 'Document',
   definitions: [
@@ -4732,23 +4918,11 @@ export const CreateAiLibraryCrawlerDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerCronJobInput' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerInput' } },
+          },
         },
       ],
       selectionSet: {
@@ -4765,23 +4939,8 @@ export const CreateAiLibraryCrawlerDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'maxDepth' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxDepth' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'maxPages' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'maxPages' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'url' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'url' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'cronJob' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'cronJob' } },
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
             ],
             selectionSet: {
@@ -4880,6 +5039,40 @@ export const CrawlerTableDocument = {
     },
     {
       kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'CrawlerTable_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
@@ -4906,6 +5099,7 @@ export const CrawlerTableDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' } },
               ],
             },
           },
@@ -4964,6 +5158,56 @@ export const RunCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<RunCrawlerMutation, RunCrawlerMutationVariables>
+export const UpdateAiLibraryCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateAiLibraryCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawlerInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateAiLibraryCrawlerMutation, UpdateAiLibraryCrawlerMutationVariables>
 export const DropFilesDocument = {
   kind: 'Document',
   definitions: [

@@ -5,11 +5,15 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
+import { useLanguage } from '../i18n/language-provider'
 import { useTranslation } from '../i18n/use-translation-hook'
 import AcademicCapIcon from '../icons/academic-cap-icon'
 import BowlerHatIcon from '../icons/bowler-hat-icon'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { ConversationIcon } from '../icons/conversation-icon'
+import { EnglishFlagIcon } from '../icons/english-flag-icon'
+import { ExitIcon } from '../icons/exit-icon'
+import { GermanFlagIcon } from '../icons/german-flag-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
 import UserIcon from '../icons/user-icon'
@@ -37,6 +41,7 @@ interface TopNavigationProps {
 }
 
 export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
+  const { language, setLanguage } = useLanguage()
   const { t } = useTranslation()
   const { login, logout, isReady } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -70,6 +75,10 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
     return () => document.removeEventListener('click', handleOutsideClick)
   }, [isMenuOpen, handleOutsideClick])
 
+  const handleLanguageToggle = () => {
+    setLanguage(language === 'en' ? 'de' : 'en')
+  }
+
   return (
     <>
       <div className="container fixed inset-x-0 top-2 z-50">
@@ -94,17 +103,31 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
               )
             )}
 
-            <label className="swap swap-rotate" aria-label="Toggle theme">
-              <input
-                type="checkbox"
-                className="theme-controller"
-                value="dark" /* DaisyUI applies this theme when checked */
-                checked={theme === 'dark'}
-                onChange={handleThemeToggle}
-              />
-              <SunIcon className="swap-off size-6 fill-current" />
-              <MoonIcon className="swap-on size-6 fill-current" />
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="swap swap-rotate" aria-label="Toggle theme">
+                <input
+                  type="checkbox"
+                  className="theme-controller"
+                  value="dark"
+                  checked={theme === 'dark'}
+                  onChange={handleThemeToggle}
+                />
+                <SunIcon className="swap-off size-6 fill-current" />
+                <MoonIcon className="swap-on size-6 fill-current" />
+              </label>
+              <button
+                type="button"
+                onClick={handleLanguageToggle}
+                className="btn btn-circle btn-ghost btn-sm flex items-center"
+              >
+                {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+              </button>
+              {user && (
+                <button type="button" className="btn btn-ghost" onClick={logout}>
+                  <ExitIcon className="size-6" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/******************* Desktop ******************  */}
@@ -148,7 +171,13 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                     <SunIcon className="swap-off size-6 fill-current" />
                     <MoonIcon className="swap-on size-6 fill-current" />
                   </label>
-
+                  <button
+                    type="button"
+                    onClick={handleLanguageToggle}
+                    className="btn btn-circle btn-ghost btn-sm flex items-center gap-2"
+                  >
+                    {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+                  </button>
                   {isReady && (
                     <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
                       <UserIcon className="size-6" />
@@ -157,16 +186,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                   )}
                 </>
               ) : (
-                <>
-                  <a
-                    href="https://calendly.com/michael-vogt-progwise/30min"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-accent"
-                  >
-                    {t('topNavigation.demo')}
-                  </a>
-
+                <div className="flex items-center gap-2">
                   <label className="swap swap-rotate" aria-label="Toggle theme">
                     <input
                       type="checkbox"
@@ -178,14 +198,20 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
                     <SunIcon className="swap-off size-6 fill-current" />
                     <MoonIcon className="swap-on size-6 fill-current" />
                   </label>
-
+                  <button
+                    type="button"
+                    onClick={handleLanguageToggle}
+                    className="btn btn-circle btn-ghost btn-sm flex items-center"
+                  >
+                    {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+                  </button>
                   {isReady && (
-                    <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
+                    <button type="button" className="btn btn-ghost" onClick={() => login()}>
                       <UserIcon className="size-6" />
                       {t('actions.signIn')}
                     </button>
                   )}
-                </>
+                </div>
               )}
             </div>
           </div>

@@ -10,7 +10,6 @@ import { queryKeys } from '../../query-keys'
 import { createConversation } from '../../server-functions/conversations'
 import { addConversationParticipants } from '../../server-functions/participations'
 import { DialogForm } from '../dialog-form'
-import { Input } from '../form/input'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { EmailChipsInput } from './email-chips-input'
@@ -245,7 +244,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const description =
     props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
   const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
-  const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}...`
+  const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
   const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding || isSendingInvitation
 
@@ -297,8 +296,10 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           </div>
 
           <div className="flex-1">
-            <h4 className="-mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
-            <Input
+            <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
+            <input
+              type="text"
+              className="input input-bordered input-md mt-2 w-full"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
