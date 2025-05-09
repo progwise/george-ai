@@ -374,6 +374,7 @@ type Mutation {
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
+  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(
     conversationId: String!
     data: [ConversationInvitationInput!]!
