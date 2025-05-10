@@ -14,7 +14,6 @@ const ConversationHistory_ConversationFragment = graphql(`
     ownerId
     messages {
       id
-      senderId
       sequenceNumber
       content
       source
@@ -25,7 +24,6 @@ const ConversationHistory_ConversationFragment = graphql(`
         name
         isBot
         assistantId
-        userId
       }
     }
   }
@@ -33,7 +31,7 @@ const ConversationHistory_ConversationFragment = graphql(`
 
 interface ConversationHistoryProps {
   conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
-  currentUserId: string
+  userId: string
 }
 
 interface IncomingMessage {
@@ -52,7 +50,7 @@ interface IncomingMessage {
 }
 
 export const ConversationHistory = (props: ConversationHistoryProps) => {
-  const { conversation: conversationFragment, currentUserId } = props
+  const { conversation: conversationFragment, userId } = props
   const conversation = useFragment(ConversationHistory_ConversationFragment, conversationFragment)
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
@@ -125,7 +123,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         <ConversationMessage
           key={message.id}
           isLoading={false}
-          currentUserId={currentUserId}
+          userId={userId}
           conversationOwnerId={conversation.ownerId}
           message={{
             id: message.id,
@@ -139,7 +137,6 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
               assistantId: message.sender.assistantId || undefined,
               name: message.sender.name || 'Unknown',
               isBot: message.sender.isBot,
-              userId: message.sender.userId ?? undefined,
             },
           }}
         />
@@ -148,7 +145,7 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         <ConversationMessage
           key={message.id}
           isLoading={true}
-          currentUserId={currentUserId}
+          userId={userId}
           conversationOwnerId={conversation.ownerId}
           message={{
             id: message.id,
@@ -162,7 +159,6 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
               name: message.sender.name,
               isBot: message.sender.isBot,
               assistantId: message.sender.assistantId,
-              userId: message.sender.id,
             },
           }}
         />

@@ -5,45 +5,34 @@ import { graphql } from '../gql'
 import { backendRequest } from './backend'
 
 const CreateMessageDocument = graphql(`
-  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $senderId: String!) {
-    sendMessage(userId: $userId, data: $data, senderId: $senderId) {
+  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {
+    sendMessage(userId: $userId, data: $data) {
       id
-      senderId
       createdAt
     }
   }
 `)
 
 export const sendMessage = createServerFn({ method: 'POST' })
-  .validator(
-    (data: {
-      content: string
-      conversationId: string
-      userId: string
-      recipientAssistantIds: string[]
-      senderId: string
-    }) =>
-      z
-        .object({
-          content: z.string(),
-          conversationId: z.string(),
-          userId: z.string(),
-          recipientAssistantIds: z.array(z.string()),
-          senderId: z.string(),
-        })
-        .parse(data),
+  .validator((data: { content: string; conversationId: string; userId: string; recipientAssistantIds: string[] }) =>
+    z
+      .object({
+        content: z.string(),
+        conversationId: z.string(),
+        userId: z.string(),
+        recipientAssistantIds: z.array(z.string()),
+      })
+      .parse(data),
   )
   .handler((ctx) => {
     const messageData = {
       content: ctx.data.content,
       conversationId: ctx.data.conversationId,
       recipientAssistantIds: ctx.data.recipientAssistantIds,
-      senderId: ctx.data.senderId,
     }
 
     return backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
-      senderId: ctx.data.senderId,
       data: messageData,
     })
   })

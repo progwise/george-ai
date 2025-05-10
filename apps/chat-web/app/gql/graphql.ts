@@ -515,7 +515,6 @@ export type MutationDeleteAiLibraryCrawlerArgs = {
 
 export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
-  userId: Scalars['String']['input']
 }
 
 export type MutationDropFileArgs = {
@@ -579,7 +578,6 @@ export type MutationSendConfirmationMailArgs = {
 
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
-  senderId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
 
@@ -1235,7 +1233,6 @@ export type ConversationHistory_ConversationFragment = {
   messages: Array<{
     __typename?: 'AiConversationMessage'
     id: string
-    senderId: string
     sequenceNumber: any
     content?: string | null
     source?: string | null
@@ -1248,7 +1245,6 @@ export type ConversationHistory_ConversationFragment = {
           name?: string | null
           isBot: boolean
           assistantId?: string | null
-          userId?: string | null
         }
       | {
           __typename?: 'HumanParticipant'
@@ -1256,7 +1252,6 @@ export type ConversationHistory_ConversationFragment = {
           name?: string | null
           isBot: boolean
           assistantId?: string | null
-          userId?: string | null
         }
   }>
 } & { ' $fragmentName'?: 'ConversationHistory_ConversationFragment' }
@@ -1281,7 +1276,6 @@ export type UnhideMessageMutation = {
 
 export type DeleteMessageMutationVariables = Exact<{
   messageId: Scalars['String']['input']
-  userId: Scalars['String']['input']
 }>
 
 export type DeleteMessageMutation = {
@@ -1944,12 +1938,11 @@ export type TypeRefFragment = {
 export type SendMessageMutationVariables = Exact<{
   userId: Scalars['String']['input']
   data: AiConversationMessageInput
-  senderId: Scalars['String']['input']
 }>
 
 export type SendMessageMutation = {
   __typename?: 'Mutation'
-  sendMessage: Array<{ __typename?: 'AiConversationMessage'; id: string; senderId: string; createdAt: string }>
+  sendMessage: Array<{ __typename?: 'AiConversationMessage'; id: string; createdAt: string }>
 }
 
 export type CreateConversationMutationVariables = Exact<{
@@ -2811,7 +2804,6 @@ export const ConversationHistory_ConversationFragmentDoc = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'senderId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sequenceNumber' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
@@ -2827,7 +2819,6 @@ export const ConversationHistory_ConversationFragmentDoc = {
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                     ],
                   },
                 },
@@ -4860,11 +4851,6 @@ export const DeleteMessageDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -4877,11 +4863,6 @@ export const DeleteMessageDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'messageId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {
@@ -6317,7 +6298,6 @@ export const GetConversationDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'senderId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sequenceNumber' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'source' } },
@@ -6333,7 +6313,6 @@ export const GetConversationDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                     ],
                   },
                 },
@@ -7043,11 +7022,6 @@ export const SendMessageDocument = {
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversationMessageInput' } },
           },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'senderId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -7066,17 +7040,11 @@ export const SendMessageDocument = {
                 name: { kind: 'Name', value: 'data' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
               },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'senderId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'senderId' } },
-              },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'senderId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
               ],
             },

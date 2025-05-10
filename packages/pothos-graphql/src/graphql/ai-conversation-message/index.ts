@@ -54,7 +54,6 @@ const messageInput = builder.inputType('AiConversationMessageInput', {
     conversationId: t.string({ required: true }),
     content: t.string({ required: true }),
     recipientAssistantIds: t.stringList({ required: true }),
-    senderId: t.string({ required: true }),
   }),
 })
 
@@ -80,27 +79,8 @@ builder.mutationField('deleteMessage', (t) =>
     type: 'AiConversationMessage',
     args: {
       messageId: t.arg.string({ required: true }),
-      userId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { messageId, userId }) => {
-      const message = await prisma.aiConversationMessage.findUniqueOrThrow({
-        where: { id: messageId },
-        select: { conversationId: true },
-      })
-
-      if (!message) {
-        throw new Error('Message not found')
-      }
-
-      const conversation = await prisma.aiConversation.findUniqueOrThrow({
-        where: { id: message.conversationId },
-        select: { ownerId: true },
-      })
-
-      if (conversation.ownerId !== userId) {
-        throw new Error('You are not authorized to delete this message')
-      }
-
+    resolve: async (_query, _source, { messageId }) => {
       return await prisma.aiConversationMessage.delete({
         where: { id: messageId },
       })
@@ -149,7 +129,6 @@ builder.mutationField('sendMessage', (t) =>
     args: {
       userId: t.arg.string({ required: true }),
       data: t.arg({ type: messageInput, required: true }),
-      senderId: t.arg.string({ required: true }),
     },
     resolve: async (_query, _source, { userId, data }) => {
       const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
@@ -267,7 +246,7 @@ builder.mutationField('sendMessage', (t) =>
             languageModel: (assistant.languageModel as SupportedModel) || 'gpt-3',
             description:
               assistant.description ||
-              'You are a helpful assistant and no prompt was speficied. Please state that you need a prompt to work properly.',
+              'You are a helpful assistant and no prompt was specified. Please state that you need a prompt to work properly.',
           },
           libraries: assistant.usages.map((usage) => ({
             id: usage.library.id,

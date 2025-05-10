@@ -40,10 +40,10 @@ type Documents = {
   '\n        mutation createAiAssistant($ownerId: String!, $name: String!) {\n          createAiAssistant(ownerId: $ownerId, name: $name) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateAiAssistantDocument
   '\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantSelector_AssistantFragmentDoc
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationForm_ConversationFragmentDoc
-  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      senderId\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n        userId\n      }\n    }\n  }\n': typeof types.ConversationHistory_ConversationFragmentDoc
+  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n': typeof types.ConversationHistory_ConversationFragmentDoc
   '\n  mutation hideMessage($messageId: String!) {\n    hideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.HideMessageDocument
   '\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.UnhideMessageDocument
-  '\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.DeleteMessageDocument
+  '\n  mutation deleteMessage($messageId: String!) {\n    deleteMessage(messageId: $messageId) {\n      id\n    }\n  }\n': typeof types.DeleteMessageDocument
   '\n  fragment ConversationParticipants_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      name\n      userId\n      assistantId\n    }\n    ...ParticipantsDialog_Conversation\n  }\n': typeof types.ConversationParticipants_ConversationFragmentDoc
   '\n  fragment ConversationParticipants_Assistant on AiAssistant {\n    ...ParticipantsDialog_Assistant\n  }\n': typeof types.ConversationParticipants_AssistantFragmentDoc
   '\n  fragment ConversationParticipants_Human on User {\n    ...ParticipantsDialog_Human\n  }\n': typeof types.ConversationParticipants_HumanFragmentDoc
@@ -91,7 +91,7 @@ type Documents = {
   '\n  mutation createUserProfile($userId: String!) {\n    createUserProfile(userId: $userId) {\n      id\n    }\n  }\n': typeof types.CreateUserProfileDocument
   '\n  mutation removeUserProfile($userId: String!) {\n    removeUserProfile(userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveUserProfileDocument
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.IntrospectionQueryDocument
-  '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $senderId: String!) {\n    sendMessage(userId: $userId, data: $data, senderId: $senderId) {\n      id\n      senderId\n      createdAt\n    }\n  }\n': typeof types.SendMessageDocument
+  '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n': typeof types.SendMessageDocument
   '\n  mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {\n    createAiConversation(ownerId: $ownerId, data: $data) {\n      id\n    }\n  }\n': typeof types.CreateConversationDocument
   '\n  mutation deleteConversation($conversationId: String!) {\n    deleteAiConversation(conversationId: $conversationId) {\n      id\n    }\n  }\n': typeof types.DeleteConversationDocument
   '\n  mutation leaveConversation($participantId: String!) {\n    leaveAiConversation(id: $participantId) {\n      id\n    }\n  }\n': typeof types.LeaveConversationDocument
@@ -157,13 +157,13 @@ const documents: Documents = {
     types.AssistantSelector_AssistantFragmentDoc,
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationForm_ConversationFragmentDoc,
-  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      senderId\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n        userId\n      }\n    }\n  }\n':
+  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n':
     types.ConversationHistory_ConversationFragmentDoc,
   '\n  mutation hideMessage($messageId: String!) {\n    hideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n':
     types.HideMessageDocument,
   '\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n':
     types.UnhideMessageDocument,
-  '\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n':
+  '\n  mutation deleteMessage($messageId: String!) {\n    deleteMessage(messageId: $messageId) {\n      id\n    }\n  }\n':
     types.DeleteMessageDocument,
   '\n  fragment ConversationParticipants_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      name\n      userId\n      assistantId\n    }\n    ...ParticipantsDialog_Conversation\n  }\n':
     types.ConversationParticipants_ConversationFragmentDoc,
@@ -258,7 +258,7 @@ const documents: Documents = {
     types.RemoveUserProfileDocument,
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
     types.IntrospectionQueryDocument,
-  '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $senderId: String!) {\n    sendMessage(userId: $userId, data: $data, senderId: $senderId) {\n      id\n      senderId\n      createdAt\n    }\n  }\n':
+  '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n':
     types.SendMessageDocument,
   '\n  mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {\n    createAiConversation(ownerId: $ownerId, data: $data) {\n      id\n    }\n  }\n':
     types.CreateConversationDocument,
@@ -456,8 +456,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      senderId\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n        userId\n      }\n    }\n  }\n',
-): (typeof documents)['\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      senderId\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n        userId\n      }\n    }\n  }\n']
+  source: '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -474,8 +474,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n']
+  source: '\n  mutation deleteMessage($messageId: String!) {\n    deleteMessage(messageId: $messageId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation deleteMessage($messageId: String!) {\n    deleteMessage(messageId: $messageId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -762,8 +762,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $senderId: String!) {\n    sendMessage(userId: $userId, data: $data, senderId: $senderId) {\n      id\n      senderId\n      createdAt\n    }\n  }\n',
-): (typeof documents)['\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!, $senderId: String!) {\n    sendMessage(userId: $userId, data: $data, senderId: $senderId) {\n      id\n      senderId\n      createdAt\n    }\n  }\n']
+  source: '\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n',
+): (typeof documents)['\n  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {\n    sendMessage(userId: $userId, data: $data) {\n      id\n      createdAt\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
