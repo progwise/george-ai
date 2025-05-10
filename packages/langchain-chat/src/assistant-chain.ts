@@ -93,7 +93,7 @@ export async function* askAssistantChain(input: {
   if (trimmedLibrarySearchResults.length === 0) {
     yield '> No relevant information found in the libraries.\n\n'
   } else {
-    yield `> Found relevant ${trimmedLibrarySearchResults.length} information in the libraries:\n`
+    yield `> Found ${trimmedLibrarySearchResults.length} items in the libraries:\n`
   }
 
   console.log('trimmedLibrarySearchResults', trimmedLibrarySearchResults)

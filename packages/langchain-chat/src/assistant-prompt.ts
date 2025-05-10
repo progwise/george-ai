@@ -7,7 +7,7 @@ export const getSanitizedQuestion = async (
   data: { assistantBaseInformation: BaseMessage[]; chatHistory: BaseMessage[]; question: string },
 ) => {
   const { assistantBaseInformation, chatHistory, question } = data
-  // Sanitize the question to gain control over the max tokens used by the quesiton
+  // Sanitize the question to gain control over the max tokens used
   const sanitizeQuestionPrompt = await getSanitizeQuestionPrompt().invoke({
     assistant_base_information: assistantBaseInformation,
     model,
