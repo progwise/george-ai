@@ -6,10 +6,13 @@ export interface QAPair {
   difficulty?: string
 }
 
-const LOCAL_API_URL = 'http://host.docker.internal:3000/generate'
+export const generateQAPairs = async (
+  chunk: string,
+  summary: string,
+  context = ''
+): Promise<QAPair[]> => {
+  const prompt = `You are a helpful assistant. Given the following summary and document chunk, generate question-answer pairs.
 
-export const generateQAPairs = async (chunk: string, summary: string, context = ''): Promise<QAPair[]> => {
-  const prompt = `Given the following summary and document chunk, generate question-answer pairs.
 Summary: ${summary}
 Context: ${context}
 Chunk: ${chunk}
@@ -20,36 +23,38 @@ Each QA pair should have:
 - (Optional) Evaluation criteria
 - (Optional) Category and difficulty
 
-Return in JSON format.`
+Return the result in JSON array format.`
 
   try {
-    const response = await fetch(LOCAL_API_URL, {
+    const res = await fetch('http://host.docker.internal:3000/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'Qwen/Qwen2.5-Coder-7B-Instruct',
+        model: 'mlx-community/gemma-3-27b-it-qat-6bit',
         prompt,
-        maxTokens: 500
+        maxTokens: 300
       })
     })
 
-    const data = await response.json()
+    const data = await res.json()
 
-    if (!data || typeof data !== 'object' || !data.output) {
-      throw new Error('Invalid response from local API')
+    if (!data || !data.output) {
+      console.error('No output from model API')
+      return []
     }
 
-    const parsedResult = JSON.parse(data.output)
-
-    if (!Array.isArray(parsedResult)) {
-      throw new Error('Parsed result is not an array')
+    let parsedResult
+    try {
+      parsedResult = JSON.parse(data.output)
+      if (!Array.isArray(parsedResult)) throw new Error('Parsed result is not an array')
+    } catch {
+      console.error('Failed to parse model response as JSON:', data.output)
+      return []
     }
 
-    return parsedResult as QAPair[]
+    return parsedResult
   } catch (err) {
-    console.error('QA generation error:', err)
+    console.error('Failed to generate QA pairs:', err)
     return []
   }
 }
