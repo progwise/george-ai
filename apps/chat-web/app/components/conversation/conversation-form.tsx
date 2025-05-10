@@ -241,10 +241,10 @@ export const ConversationForm = (props: ConversationFormProps) => {
       <DialogForm
         ref={errorDialogRef}
         title={t('conversations.errorDetails')}
-        description={<pre className="mt-2 whitespace-pre-wrap">{errorDetails}</pre>}
+        description={<div className="overflow-x-auto break-all">{errorDetails}</div>}
         onSubmit={() => errorDialogRef.current?.close()}
         submitButtonText={t('actions.close')}
-        className="rounded-box p-4 font-sans shadow-lg"
+        showOnlyCloseButton
       />
     </>
   )
