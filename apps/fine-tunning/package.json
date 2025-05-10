@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/splendidcomputer/MLX-Finetune/issues"
   },
-  "homepage": "https://github.com/splendidcomputer/MLX-Finetune#readme"
+  "homepage": "https://github.com/splendidcomputer/MLX-Finetune#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
 }
