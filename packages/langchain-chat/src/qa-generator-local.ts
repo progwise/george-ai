@@ -6,11 +6,7 @@ export interface QAPair {
   difficulty?: string
 }
 
-export const generateQAPairs = async (
-  chunk: string,
-  summary: string,
-  context = ''
-): Promise<QAPair[]> => {
+export const generateQAPairs = async (chunk: string, summary: string, context = ''): Promise<QAPair[]> => {
   const prompt = `You are a helpful assistant. Given the following summary and document chunk, generate question-answer pairs.
 
 Summary: ${summary}
@@ -32,9 +28,16 @@ Return the result in JSON array format.`
       body: JSON.stringify({
         model: 'mlx-community/gemma-3-27b-it-qat-6bit',
         prompt,
-        maxTokens: 300
-      })
+        maxTokens: 300,
+      }),
     })
+
+    if (!res.ok) {
+      console.error(`API call failed with status: ${res.status} ${res.statusText}`)
+      const errorText = await res.text()
+      console.error('Error response:', errorText)
+      return []
+    }
 
     const data = await res.json()
 
@@ -47,8 +50,8 @@ Return the result in JSON array format.`
     try {
       parsedResult = JSON.parse(data.output)
       if (!Array.isArray(parsedResult)) throw new Error('Parsed result is not an array')
-    } catch {
-      console.error('Failed to parse model response as JSON:', data.output)
+    } catch (parseError) {
+      console.error('Failed to parse model response as JSON:', data.output, parseError)
       return []
     }
 
