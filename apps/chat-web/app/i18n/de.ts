@@ -142,10 +142,13 @@ export default {
     utcHint: 'UTC-Zeitzone',
   },
   errors: {
+    businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
     copyFailed: 'Kopieren fehlgeschlagen',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
-    businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
+    messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
+    noFreeMessages:
+      'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an.',
     notAllowed: 'Nicht erlaubt',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     requiredField: 'Erforderlich',

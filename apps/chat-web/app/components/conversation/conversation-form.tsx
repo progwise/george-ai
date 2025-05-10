@@ -71,11 +71,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
       if (!data.content || data.content.trim().length < 3) {
-        throw new Error('Message must be at least 3 characters')
+        throw new Error(t('errors.messageTooShort'))
       }
 
       if (remainingMessages < 1) {
-        throw new Error('You have no more free messages left. Create your profile and ask for more...')
+        throw new Error(t('errors.noFreeMessages'))
       }
 
       const result = await sendMessage({
@@ -105,6 +105,10 @@ export const ConversationForm = (props: ConversationFormProps) => {
         errorMessage = t('conversations.setLLM')
       } else if (error.message.includes("This model's maximum context length")) {
         errorMessage = t('conversations.tokenLimitExceeded')
+      } else if (error.message === t('errors.messageTooShort')) {
+        errorMessage = t('errors.messageTooShort')
+      } else if (error.message === t('errors.noFreeMessages')) {
+        errorMessage = t('errors.noFreeMessages')
       }
 
       toastError(

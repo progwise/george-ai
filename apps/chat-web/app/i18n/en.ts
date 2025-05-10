@@ -139,10 +139,12 @@ export default {
     utcHint: 'UTC time',
   },
   errors: {
+    businessAndPositionRequired: 'Business and Position are required.',
     copyFailed: 'Copy failed',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
-    businessAndPositionRequired: 'Business and Position are required.',
+    messageTooShort: 'Message must be at least 3 characters.',
+    noFreeMessages: 'You have no more free messages left. Create your profile and ask for more.',
     notAllowed: 'Not allowed',
     profileNotFound: 'Profile not found or deleted.',
     requiredField: 'Required',
