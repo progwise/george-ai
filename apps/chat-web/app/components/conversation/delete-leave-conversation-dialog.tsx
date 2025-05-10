@@ -106,7 +106,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
         onClick={handleOpen}
         data-tip={buttonTooltip}
       >
-        <Icon className="size-6" />
+        <Icon className="text-error size-6" />
       </button>
 
       <LoadingSpinner isLoading={isPending} />
