@@ -7,17 +7,17 @@ const relevancePrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
     `You are a helpful assistant that has the provided name and access to the assistant's base information, conversation history, and the current user question.
-    Your boss has asked you to determine whether the following statement is relevant to this assistant, considering the assistant's base information, the available library data, and the conversation history:
+    You are asked you to decide whether the current user question is relevant to the assistant's base information and the conversation history.
     Return 'yes' if the condition applies to the conversation and 'no' if it does not.
     Your answer must be either 'yes' or 'no', without any additional text or translation of the word.
     
-    Hier sind Deine Basisinformation zu Dir selbst, d.h. Dein Name als Assistent, Deine Beschreibung und weitere Anweisungen
+    This is your identity. This is information about you and your rules:
     {assistant_base_information}
     
-    Hier ist die Konversationshistorie
+    This is the conversation history so far:
     {chat_history}
     
-    Hier ist die aktuelle Frage des Benutzers
+    This is the current user question:
     {question}`,
   ],
   new MessagesPlaceholder('assistant_base_information'),

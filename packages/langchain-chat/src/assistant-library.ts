@@ -50,41 +50,33 @@ const getLibraryPrompt = async ({
   const prompt = await ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You need to determine whether the following library is relevant to the current user question.
+      `You need to determine whether the following library is relevant to the current user question combined with the latest chat history.
       Relevance is decided based on the library's name, description and usedFor information,
       as well as the conversation history and the current user question.
-      You must provide a pure JSON response without any additional text.
-      The result must be valid JSON that can be parsed without errors.
-      Ensure there is no extra text, only properly formatted JSON in the following structure:
+
+      You also need to provide search propmpt that can be used to search for relevant information in the library.
+      This prompt should be a list of keywords that someone would use the query that information from google search console.
+      Please exclude all keywords that are given in the library name, description and usedFor information.
+      Please add keywords for the year or any specific information the user is searching for.
+      Please order the keywords from the most relevant to the least relevant. E.g. the year is more relevant than the name of the ship.
       
+      These are 2 fields for the following output structure.
+
       {json_format}
-      
-      Your task is also produce a single concise but contextually rich search query that captures the key details of what the user is asking, considering all previous messages in the conversation.
-        The result should be a short phrase or sentence that includes the latest request, suitable for a similarity search.
-        Add the search prompt to the JSON as the value of the key "searchPrompt".
-        
-      Here is the base information for the library you have to create the search query for:
 
-      name of the library: {library_name}
-      common description of the library: {library_description}
-      Library should be used for: {library_used_for}
 
-        
-        Here is the conversation history:
-        
-        {chat_history}
-        
-        Here is the current user question:
-        
-        {question}
-        
-        Please make the search term short and do not include any expression or term or word that was already used in the assistant description or in the library description.
+      You have to answer with this JSON structure only. No additional text, explanation or white space is allowed. Your answer will be parsed as JSON.
         `,
     ],
+    ['system', 'Here is the library name:'],
     new MessagesPlaceholder('library_name'),
+    ['system', 'Here is the library description:'],
     new MessagesPlaceholder('library_description'),
+    ['system', 'Here is the the explanation of what the library should be used for:'],
     new MessagesPlaceholder('library_used_for'),
+    ['system', 'This is the latest chat history:'],
     new MessagesPlaceholder('chat_history'),
+    ['system', 'This is the users question:'],
     new MessagesPlaceholder('question'),
   ])
   return await prompt.invoke({

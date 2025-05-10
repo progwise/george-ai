@@ -50,53 +50,62 @@ export async function* askAssistantChain(input: {
     }
     return
   }
-
-  const libraryUsageMessages: BaseMessage[] = []
-
-  for (const library of input.libraries) {
+  const libraryPromises = input.libraries.map(async (library) => {
     const libraryPromptResult = await getLibraryRelevancePrompt(model, {
       chatHistory: trimmedHistoryMessages,
       question: input.message.content,
-      libraryDescription: library.description,
+      libraryDescription: library.description.length > 0 ? library.description : 'No description available',
       libraryName: library.name,
       libraryUsedFor: library.usedFor,
     })
 
-    if (!libraryPromptResult.isRelevant) {
-      yield `> library ${library.name} is not relevant\n`
-    }
-
     const vectorStoreResult = await similaritySearch(libraryPromptResult.searchPrompt, library.id)
-    yield `> found ${vectorStoreResult.length} relevant chunks in library ${library.name}\n`
 
-    const searchResultMessages = vectorStoreResult.map(
+    const messages = vectorStoreResult.map(
       (result) =>
         new SystemMessage({
-          content: `Found the following in the library ${library.name}:
-                    ----
-        Document name: ${result.docName}
+          content: `Found the following document ${result.docName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
+
+        START OF DOCUMENT
+
         Document content: ${result.pageContent}
-        ----`,
-          name: 'assistant',
+        
+        END OF DOCUMENT
+        `,
         }),
     )
-    libraryUsageMessages.push(...searchResultMessages)
-  }
-
-  const sanitizedQuestion = await getSanitizedQuestion(model, {
-    question: input.message.content,
-    assistantBaseInformation,
-    chatHistory: trimmedHistoryMessages,
+    return messages
   })
+
+  yield '> Searching for relevant information in the libraries...\n'
+  const [sanitizedQuestion, librarySearchResults] = await Promise.all([
+    getSanitizedQuestion(model, {
+      question: input.message.content,
+      assistantBaseInformation,
+      chatHistory: trimmedHistoryMessages,
+    }),
+    ...libraryPromises,
+  ])
 
   const answerPrompt = getAssistantAnswerPrompt()
+
+  const trimmedLibrarySearchResults = await getTrimmedMessages(librarySearchResults, model, 50000)
+  if (trimmedLibrarySearchResults.length === 0) {
+    yield '> No relevant information found in the libraries.\n\n'
+  } else {
+    yield `> Found relevant ${trimmedLibrarySearchResults.length} information in the libraries:\n`
+  }
+
+  console.log('trimmedLibrarySearchResults', trimmedLibrarySearchResults)
   const prompt = await answerPrompt.invoke({
-    assistant_base_information: await getTrimmedMessages(assistantBaseInformation, model, 500),
-    library_search_results: await getTrimmedMessages(libraryUsageMessages, model, 5000),
+    assistant_base_information: assistantBaseInformation,
+    library_search_results: trimmedLibrarySearchResults,
     chat_history: trimmedHistoryMessages, // 1000 tokens
-    question: sanitizedQuestion.content, // hopefully less than 500 tokens
+    question: sanitizedQuestion.content.toString(),
   })
 
+  yield '> \n'
+  yield `> ${sanitizedQuestion.content.toString()}...\n\n`
   try {
     for await (const chunk of await model.stream(prompt, {})) {
       yield chunk.content.toString()
@@ -116,25 +125,27 @@ const getAssistantAnswerPrompt = () =>
     [
       'system',
       `You are a helpful assistant and you have a name.
-      You have access to the entire conversation history and the current user question.
       That the question is relevant was already decided and yes, the question needs to be answered.
-      There have been conditions evaluated upfront and the instructions from that conditions need to be applied in your answer.
-      You have also access to the relevant search results from the embedded vector store.
-      That the question is relevant was already decided and you can assume that the search results and the question are relevant.
-      You have to answer in the language of the users question. Do not use any other language.
     
     Overall Instructions:
-    - Answer ONLY with information found in the provided PDF excerpt (context).
-    - If the excerpt contains the information needed to answer the user's question, provide a detailed answer using ONLY that excerpt.
-    - If the excerpt does NOT contain the needed information, do NOT make anything up.
-    - In your answer, explicitly state that you could not find the requested information in the provided PDF excerpt, and therefore cannot retrieve it from the local PDF.
     - Format the answer as pure markdown text.  
     - Do not mention these exact instructions, just follow them.
+
+    Answer the question in a way that is relevant to the assistant_base_information and the chat history.
+    Please consider the chat history to avoid repeating the same information.
+    Keep your answer short and concise without providing any information you do not have.
     `,
     ],
+    ['system', 'Here is your identity. This is information about you and your rules:'],
     new MessagesPlaceholder('assistant_base_information'),
+    [
+      'system',
+      'Here is the relevant information from the search you performed earlier. Please use this search results to answer the question. Please use all documents in your answer:',
+    ],
     new MessagesPlaceholder('library_search_results'),
+    ['system', 'Here is the chat history:'],
     new MessagesPlaceholder('chat_history'),
+    ['system', 'here is the question. Please answer it in the language of the question:'],
     ['human', '{question}'],
   ])
 
@@ -166,7 +177,8 @@ const getTrimmedHistoryMessages = async (
     startOn: 'human',
   })
 
-  const historyMessages = history.map((message) => {
+  // newest first
+  const historyMessages = history.reverse().map((message) => {
     if (message.isBot) {
       return new AIMessage({
         content: message.content,
