@@ -17,6 +17,7 @@ export default {
     leave: 'Leave',
     new: 'New conversation',
     redirecting: 'Redirecting...',
+    remove: 'Remove',
     removeProfile: 'Remove user profile',
     reProcess: 'Re-Process',
     save: 'Save',
@@ -113,6 +114,9 @@ export default {
     noMessages: 'You have no more free messages left. Create your profile and ask for more...',
     owner: 'Owner',
     promptPlaceholder: 'Ask anything',
+    removeMultiple: 'Remove conversations',
+    removeMultipleConfirmation:
+      'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone. Please confirm.',
   },
   crawlers: {
     addNew: 'Create new crawler',
@@ -270,6 +274,7 @@ export default {
     noFilesFound: 'No files found',
     noUsersAvailable: 'No users available',
     noUsersFound: 'No users found',
+    numberOfConversationsToRemove: ' conversation(s) will be removed.',
     removedProfile: 'Profile removed',
     profileConfirmed: 'Profile confirmed',
     profileFoundFor: 'Profile found for',
