@@ -58,7 +58,6 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
     content: z.string(),
     conversationId: z.string(),
     recipientAssistantIds: z.array(z.string()),
-    senderId: z.string(),
   })
 }
 

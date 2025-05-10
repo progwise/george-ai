@@ -173,7 +173,6 @@ input AiConversationMessageInput {
   content: String!
   conversationId: String!
   recipientAssistantIds: [String!]!
-  senderId: String!
 }
 
 interface AiConversationParticipant {

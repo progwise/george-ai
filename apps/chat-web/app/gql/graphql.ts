@@ -192,7 +192,6 @@ export type AiConversationMessageInput = {
   content: Scalars['String']['input']
   conversationId: Scalars['String']['input']
   recipientAssistantIds: Array<Scalars['String']['input']>
-  senderId: Scalars['String']['input']
 }
 
 export type AiConversationParticipant = {
