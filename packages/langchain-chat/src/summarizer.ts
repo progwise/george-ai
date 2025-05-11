@@ -6,6 +6,6 @@ export const summarizeDocument = async (text: string): Promise<string> => {
   const prompt = `Summarize the following document:
 
 ${text}`
-  const result = await model.call(prompt)
+  const result = await model.invoke(prompt)
   return result.trim()
 }

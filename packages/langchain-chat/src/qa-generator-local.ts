@@ -22,7 +22,7 @@ Each QA pair should have:
 Return the result in JSON array format.`
 
   try {
-    const res = await fetch('http://host.docker.internal:3000/generate', {
+    const res = await fetch('http://host.docker.internal:4567/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

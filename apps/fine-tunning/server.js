@@ -4,7 +4,7 @@ const path = require('path')
 const app = express()
 app.use(express.json())
 
-const PORT = 3000
+const PORT = 4567
 
 app.post('/generate', async (req, res) => {
   const { model, prompt, adapterPath, maxTokens } = req.body
@@ -20,7 +20,7 @@ app.post('/generate', async (req, res) => {
     --max-tokens ${maxTokens || 300} \
     ${adapterPath ? `--adapter-path ${adapterPath}` : ''}`
 
-  console.log(`🚀 Generating response with:\n${cmd}`)
+  console.log(`Generating response with:\n${cmd}`)
 
   exec(cmd, (error, stdout, stderr) => {
     if (error) {

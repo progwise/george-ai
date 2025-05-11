@@ -46,7 +46,7 @@ node server.js
 You’ll see:
 
 ```
-API server running at http://localhost:3000
+API server running at http://localhost:4567
 ```
 
 ---
@@ -77,7 +77,7 @@ Fine-tunes a model using the specified dataset and parameters.
 ### Qwen 0.5B
 
 ```bash
-curl -X POST http://localhost:3000/generate \
+curl -X POST http://localhost:4567/generate \
   -H "Content-Type: application/json" \
   -d '{
     "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -89,7 +89,7 @@ curl -X POST http://localhost:3000/generate \
 ### Qwen 7B
 
 ```bash
-curl -X POST http://localhost:3000/generate \
+curl -X POST http://localhost:4567/generate \
   -H "Content-Type: application/json" \
   -d '{
     "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
@@ -103,7 +103,7 @@ curl -X POST http://localhost:3000/generate \
 ### Qwen 0.5B
 
 ```bash
-curl -X POST http://localhost:3000/fine-tune \
+curl -X POST http://localhost:4567/fine-tune \
 -H "Content-Type: application/json" \
 -d '{
   "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -119,7 +119,7 @@ curl -X POST http://localhost:3000/fine-tune \
 ### Qwen 7B
 
 ```bash
-curl -X POST http://localhost:3000/fine-tune \
+curl -X POST http://localhost:4567/fine-tune \
 -H "Content-Type: application/json" \
 -d '{
   "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
@@ -150,7 +150,7 @@ Generates text using a model and (optionally) fine-tuned adapters.
 **Example:**
 
 ```bash
-curl -X POST http://localhost:3000/generate \
+curl -X POST http://localhost:4567/generate \
 -H "Content-Type: application/json" \
 -d '{
   "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -161,7 +161,7 @@ curl -X POST http://localhost:3000/generate \
 ```
 
 ```bash
-curl -X POST http://localhost:3000/generate \
+curl -X POST http://localhost:4567/generate \
 -H "Content-Type: application/json" \
 -d '{
   "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -178,7 +178,7 @@ curl -X POST http://localhost:3000/generate \
 #### Train:
 
 ```bash
-curl -X POST http://localhost:3000/fine-tune   -H "Content-Type: application/json"   -d '{
+curl -X POST http://localhost:4567/fine-tune   -H "Content-Type: application/json"   -d '{
     "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
     "learningRate": 1e-5,
     "iters": 100,
@@ -191,7 +191,7 @@ curl -X POST http://localhost:3000/fine-tune   -H "Content-Type: application/jso
 #### Query:
 
 ```bash
-curl -X POST http://localhost:3000/generate \
+curl -X POST http://localhost:4567/generate \
   -H "Content-Type: application/json" \
   -d '{
     "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
@@ -206,7 +206,7 @@ curl -X POST http://localhost:3000/generate \
 #### Train:
 
 ```bash
-curl -X POST http://localhost:3000/fine-tune   -H "Content-Type: application/json"   -d '{
+curl -X POST http://localhost:4567/fine-tune   -H "Content-Type: application/json"   -d '{
     "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
     "learningRate": 1e-5,
     "iters": 100,
@@ -219,7 +219,7 @@ curl -X POST http://localhost:3000/fine-tune   -H "Content-Type: application/jso
 #### Query:
 
 ```bash
-curl -X POST http://localhost:3000/generate \
+curl -X POST http://localhost:4567/generate \
   -H "Content-Type: application/json" \
   -d '{
     "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
