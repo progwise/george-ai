@@ -27,7 +27,7 @@ const getSanitizeQuestionPrompt = () =>
       You are not allowed to answer the question, just re-write it.
       Do not include any information that you re-writed the question. Just answer with the re-written question.
 
-      You have to answer in the language of the users question. Do not use any other language.`,
+      You have to answer in the language of the user's question. Do not use any other language.`,
     ],
     new MessagesPlaceholder('assistant_base_information'),
     new MessagesPlaceholder('chat_history'),

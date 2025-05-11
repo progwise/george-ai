@@ -76,7 +76,7 @@ const getLibraryPrompt = async ({
     new MessagesPlaceholder('library_used_for'),
     ['system', 'This is the latest chat history:'],
     new MessagesPlaceholder('chat_history'),
-    ['system', 'This is the users question:'],
+    ['system', "This is the user's question:"],
     new MessagesPlaceholder('question'),
   ])
   return await prompt.invoke({
