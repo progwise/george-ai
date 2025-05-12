@@ -1,19 +1,20 @@
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
+import { useLanguage } from '../i18n/language-provider'
 import { useTranslation } from '../i18n/use-translation-hook'
-import AcademicCapIcon from '../icons/academic-cap-icon'
-import BowlerHatIcon from '../icons/bowler-hat-icon'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
-import { ConversationIcon } from '../icons/conversation-icon'
+import { EnglishFlagIcon } from '../icons/english-flag-icon'
+import { GermanFlagIcon } from '../icons/german-flag-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
-import UserIcon from '../icons/user-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
+import { ScrollObserver } from './scroll-observer'
 
 const THEME_KEY = 'theme'
 const DEFAULT_THEME = 'light'
@@ -37,12 +38,12 @@ interface TopNavigationProps {
 }
 
 export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
+  const { language, setLanguage } = useLanguage()
   const { t } = useTranslation()
   const { login, logout, isReady } = useAuth()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const drawerCheckboxRef = useRef<HTMLInputElement>(null)
+  const [isAtTop, setIsAtTop] = useState(false)
+  const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -51,149 +52,84 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
 
   const handleThemeToggle = useCallback(() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light')), [])
 
-  const closeMenu = useCallback(() => {
-    setIsMenuOpen(false)
-    if (drawerCheckboxRef.current) drawerCheckboxRef.current.checked = false
-  }, [])
-
-  const handleOutsideClick = useCallback(
-    (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        closeMenu()
-      }
-    },
-    [closeMenu],
-  )
-
-  useEffect(() => {
-    if (isMenuOpen) document.addEventListener('click', handleOutsideClick)
-    return () => document.removeEventListener('click', handleOutsideClick)
-  }, [isMenuOpen, handleOutsideClick])
+  const handleLanguageToggle = () => {
+    setLanguage(language === 'en' ? 'de' : 'en')
+  }
 
   return (
     <>
-      <div className="container fixed inset-x-0 top-2 z-50">
-        <nav className="navbar rounded-box bg-base-200 shadow-xl">
-          {/******************* Mobile ******************  */}
-          <div className="flex w-full items-center justify-between lg:hidden">
-            <div className="flex items-center gap-2">
-              <Link to="/" className="btn btn-ghost" aria-label="Home">
-                <BowlerLogoIcon className="size-8" />
+      <header
+        className={twMerge(
+          'fixed inset-x-0 top-0 z-50 transition-all',
+          !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
+        )}
+      >
+        <nav className="navbar gap-2 text-sm lg:gap-4">
+          {/* Logo and Brand-Name */}
+          <Link to="/" className="flex grow items-center gap-2 text-nowrap text-xl font-bold">
+            <BowlerLogoIcon className="size-10" />
+            <h1>George-AI</h1>
+          </Link>
+
+          {/* Links to other pages */}
+          <div className="flex items-center gap-1 max-lg:hidden">
+            <TopNavigationLink to="/conversations/$">{t('topNavigation.conversations')}</TopNavigationLink>
+            <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
+            <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
+          </div>
+
+          {/* Theme-Switcher */}
+          <label className="swap swap-rotate btn btn-ghost btn-circle btn-sm" aria-label="Toggle theme">
+            <input
+              type="checkbox"
+              className="theme-controller"
+              value="dark" /* DaisyUI applies this theme when checked */
+              checked={theme === 'dark'}
+              onChange={handleThemeToggle}
+            />
+            <SunIcon className="swap-off size-6 fill-current stroke-0" />
+            <MoonIcon className="swap-on size-6 fill-current stroke-0" />
+          </label>
+
+          {/* Language Switcher */}
+          <button
+            type="button"
+            onClick={handleLanguageToggle}
+            className="btn btn-circle btn-ghost btn-sm flex items-center"
+          >
+            {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
+          </button>
+
+          {/* Authenctation Links */}
+          <div className="flex items-center justify-center gap-4">
+            {user && (
+              <Link to="/profile" className="contents">
+                <span className="max-w-48 truncate max-lg:hidden">{user.name}</span>
+                <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
+                  <span className="text-base">{user.name?.at(0)?.toUpperCase()}</span>
+                </div>
               </Link>
-            </div>
-            {user ? (
-              <Link to="/profile" className="btn btn-ghost gap-2">
-                <span className="max-w-48 truncate">{user.name}</span>
-              </Link>
-            ) : (
-              isReady && (
-                <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-                  <UserIcon className="size-6" />
-                  {t('actions.signIn')}
-                </button>
-              )
             )}
 
-            <label className="swap swap-rotate" aria-label="Toggle theme">
-              <input
-                type="checkbox"
-                className="theme-controller"
-                value="dark" /* DaisyUI applies this theme when checked */
-                checked={theme === 'dark'}
-                onChange={handleThemeToggle}
-              />
-              <SunIcon className="swap-off size-6 fill-current" />
-              <MoonIcon className="swap-on size-6 fill-current" />
-            </label>
-          </div>
+            {isReady && user && (
+              <button type="button" className="btn btn-outline btn-sm max-lg:hidden" onClick={logout}>
+                {t('actions.signOut')}
+              </button>
+            )}
 
-          {/******************* Desktop ******************  */}
-          <div className="hidden w-full items-center justify-between lg:flex">
-            <div className="flex items-center gap-4">
-              <Link to="/" className="btn btn-ghost" aria-label="Home">
-                <BowlerLogoIcon className="size-8" />
-                {t('brand')}
-              </Link>
-            </div>
-
-            <div className="flex gap-4">
-              <TopNavigationLink to="/conversations/$">
-                <ConversationIcon className="size-6" />
-                {t('topNavigation.conversations')}
-              </TopNavigationLink>
-              <TopNavigationLink to="/assistants">
-                <BowlerHatIcon className="size-6" />
-                {t('topNavigation.assistants')}
-              </TopNavigationLink>
-              <TopNavigationLink to="/libraries">
-                <AcademicCapIcon className="size-6" />
-                {t('topNavigation.libraries')}
-              </TopNavigationLink>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <TopNavigationLink to="/profile">
-                    <span className="max-w-40 truncate">{user?.name || 'no name'}</span>
-                  </TopNavigationLink>
-                  <label className="swap swap-rotate" aria-label="Toggle theme">
-                    <input
-                      type="checkbox"
-                      className="theme-controller"
-                      value="dark"
-                      checked={theme === 'dark'}
-                      onChange={handleThemeToggle}
-                    />
-                    <SunIcon className="swap-off size-6 fill-current" />
-                    <MoonIcon className="swap-on size-6 fill-current" />
-                  </label>
-
-                  {isReady && (
-                    <button type="button" className="btn btn-ghost gap-2" onClick={logout}>
-                      <UserIcon className="size-6" />
-                      {t('actions.signOut')}
-                    </button>
-                  )}
-                </>
-              ) : (
-                <>
-                  <a
-                    href="https://calendly.com/michael-vogt-progwise/30min"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-accent"
-                  >
-                    {t('topNavigation.demo')}
-                  </a>
-
-                  <label className="swap swap-rotate" aria-label="Toggle theme">
-                    <input
-                      type="checkbox"
-                      className="theme-controller"
-                      value="dark"
-                      checked={theme === 'dark'}
-                      onChange={handleThemeToggle}
-                    />
-                    <SunIcon className="swap-off size-6 fill-current" />
-                    <MoonIcon className="swap-on size-6 fill-current" />
-                  </label>
-
-                  {isReady && (
-                    <button type="button" className="btn btn-ghost gap-2" onClick={() => login()}>
-                      <UserIcon className="size-6" />
-                      {t('actions.signIn')}
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
+            {isReady && !user && (
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => login()}>
+                {t('actions.signIn')}
+              </button>
+            )}
           </div>
         </nav>
-      </div>
+      </header>
 
       {/* The navbar is position fixed, this div moves the page content below the navbar. */}
-      <div className="h-24" />
+      <div className="h-16" />
+
+      <ScrollObserver onScroll={handleScroll} />
     </>
   )
 }

@@ -246,6 +246,13 @@ input AiLibraryCrawlerCronJobInput {
   wednesday: Boolean!
 }
 
+input AiLibraryCrawlerInput {
+  cronJob: AiLibraryCrawlerCronJobInput
+  maxDepth: Int!
+  maxPages: Int!
+  url: String!
+}
+
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
@@ -366,13 +373,8 @@ type Mutation {
   createAiAssistant(name: String!, ownerId: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
-  createAiLibraryCrawler(
-    cronJob: AiLibraryCrawlerCronJobInput
-    libraryId: String!
-    maxDepth: Int!
-    maxPages: Int!
-    url: String!
-  ): AiLibraryCrawler
+  createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
+  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(
     conversationId: String!
     data: [ConversationInvitationInput!]!
@@ -393,6 +395,7 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
+  removeAiConversations(conversationIds: [String!]!, userId: String!): Boolean!
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
@@ -403,6 +406,7 @@ type Mutation {
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
+  updateAiLibraryCrawler(data: AiLibraryCrawlerInput!, id: String!): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage

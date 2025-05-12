@@ -1,3 +1,4 @@
+import { JSX } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { twMerge } from 'tailwind-merge'
 
@@ -5,7 +6,6 @@ import { useTranslation } from '../i18n/use-translation-hook'
 import { CheckIcon } from '../icons/check-icon'
 import ErrorIcon from '../icons/error-icon'
 
-const toastContainerClasses = 'flex w-fit rounded-lg shadow-lg text-sm alert py-0 pr-1'
 const ToastContent = ({
   icon: Icon,
   message,
@@ -13,17 +13,17 @@ const ToastContent = ({
   onClose,
 }: {
   icon: React.ElementType
-  message: string
-  type: 'alert-error' | 'alert-success'
+  message: string | JSX.Element
+  type: 'alert-error' | 'alert-success' | 'alert-warning'
   onClose: () => void
 }) => {
   const { t } = useTranslation()
 
   return (
-    <div className={twMerge(toastContainerClasses, type)} role="alert">
+    <div className={twMerge('alert flex w-fit rounded-lg py-0 pr-1 text-sm shadow-lg', type)} role="alert">
       <Icon className="size-5 flex-shrink-0" />
       <p className="flex-1">{message}</p>
-      <button type="button" className="btn btn-square btn-ghost" onClick={onClose}>
+      <button type="button" className="btn btn-outline btn-sm my-1" onClick={onClose}>
         {t('actions.close')}
       </button>
     </div>
@@ -43,7 +43,18 @@ export const GeorgeToaster = () => {
   )
 }
 
-export const toastError = (message: string) => {
+export const toastWarning = (message: string | JSX.Element) => {
+  return toast.custom((toastInstance) => (
+    <ToastContent
+      icon={CheckIcon}
+      message={message}
+      type="alert-warning"
+      onClose={() => toast.remove(toastInstance.id)}
+    />
+  ))
+}
+
+export const toastError = (message: string | JSX.Element) => {
   return toast.custom((toastInstance) => (
     <ToastContent
       icon={ErrorIcon}
@@ -54,7 +65,7 @@ export const toastError = (message: string) => {
   ))
 }
 
-export const toastSuccess = (message: string) => {
+export const toastSuccess = (message: string | JSX.Element) => {
   return toast.custom((toastInstance) => (
     <ToastContent
       icon={CheckIcon}

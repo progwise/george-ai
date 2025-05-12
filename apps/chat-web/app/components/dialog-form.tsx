@@ -14,6 +14,7 @@ export interface DialogFormProps {
   submitButtonText?: string
   submitButtonTooltipText?: string
   className?: string
+  buttonOptions?: 'onlyClose' | 'cancelAndConfirm'
 }
 
 export const DialogForm = ({
@@ -26,6 +27,7 @@ export const DialogForm = ({
   submitButtonText,
   submitButtonTooltipText,
   className,
+  buttonOptions = 'cancelAndConfirm',
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,23 +43,28 @@ export const DialogForm = ({
   // using react portals prevents animation issues with the modal
   return createPortal(
     <dialog className="modal" ref={ref}>
-      <div className={twMerge('modal-box', className)}>
+      <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}
-        <form method="dialog" onSubmit={handleSubmit}>
-          <div className="flex flex-row justify-items-stretch gap-2">{children}</div>
-          <div className="modal-action">
-            <button type="button" className="btn btn-sm" onClick={handleClose}>
-              {t('actions.cancel')}
-            </button>
-            <div
-              className={` ${disabledSubmit ? 'lg:tooltip lg:tooltip-left' : ''} `}
-              data-tip={submitButtonTooltipText}
-            >
-              <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
-                {submitButtonText || t('actions.confirm')}
+        <form method="dialog" onSubmit={handleSubmit} className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-2">{children}</div>
+          <div className="modal-action flex justify-end gap-2">
+            {buttonOptions === 'onlyClose' ? (
+              <button type="button" className="btn btn-primary btn-sm" onClick={handleClose}>
+                {submitButtonText || t('actions.close')}
               </button>
-            </div>
+            ) : (
+              <>
+                <button type="button" className="btn btn-sm" onClick={handleClose}>
+                  {t('actions.cancel')}
+                </button>
+                <div className={`${disabledSubmit ? 'tooltip tooltip-left' : ''}`} data-tip={submitButtonTooltipText}>
+                  <button type="submit" className="btn btn-primary btn-sm" disabled={disabledSubmit}>
+                    {submitButtonText || t('actions.confirm')}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </form>
       </div>

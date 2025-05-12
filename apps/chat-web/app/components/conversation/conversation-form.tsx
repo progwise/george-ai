@@ -10,6 +10,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
+import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
 
@@ -34,6 +35,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
   const [isAtBottom, setIsAtBottom] = useState(true)
+  const [errorDetails, setErrorDetails] = useState<string | null>(null)
+  const errorDialogRef = useRef<HTMLDialogElement>(null)
 
   // store the unselected ids, so when an assistant gets added it is automatically selected
   const [unselectedAssistantIds, setUnselectedAssistantIds] = useState<string[]>([])
@@ -68,11 +71,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
       if (!data.content || data.content.trim().length < 3) {
-        throw new Error('Message must be at least 3 characters')
+        throw new Error(t('errors.messageTooShort'))
       }
 
       if (remainingMessages < 1) {
-        throw new Error('You have no more free messages left. Create your profile and ask for more...')
+        throw new Error(t('errors.noFreeMessages'))
       }
 
       const result = await sendMessage({
@@ -95,7 +98,27 @@ export const ConversationForm = (props: ConversationFormProps) => {
       scrollToBottom()
     },
     onError: (error) => {
-      toastError(error.message)
+      let errorMessage = t('conversations.errorProcessingMessage')
+      const details = error.message
+
+      if (error.message.includes('Unknown language model')) {
+        errorMessage = t('conversations.setLLM')
+      } else if (error.message.includes("This model's maximum context length")) {
+        errorMessage = t('conversations.tokenLimitExceeded')
+      } else if (error.message === t('errors.messageTooShort')) {
+        errorMessage = t('errors.messageTooShort')
+      } else if (error.message === t('errors.noFreeMessages')) {
+        errorMessage = t('errors.noFreeMessages')
+      }
+
+      toastError(
+        <div className="flex items-center">
+          <span>{errorMessage}</span>
+          <button type="button" onClick={() => handleShowErrorDialog(details)} className="btn btn-link btn-sm">
+            {t('actions.details')}
+          </button>
+        </div>,
+      )
     },
   })
 
@@ -125,6 +148,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
     formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   }
 
+  const handleShowErrorDialog = (details: string) => {
+    setErrorDetails(details)
+    errorDialogRef.current?.showModal()
+  }
+
   const name = props.user.name || props.user.username
 
   return (
@@ -140,7 +168,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
         </button>
       )}
 
-      <div className="rounded-box bg-base-100 sticky bottom-[72px] z-30 mx-1 mt-20 border p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
+      <div className="rounded-box bg-base-100 mt-75 sticky bottom-[72px] z-30 mx-1 border p-2 shadow-md lg:bottom-2 lg:mx-8 lg:mt-4">
         <form onSubmit={handleSubmit} className="flex flex-col" ref={formRef}>
           <EditableDiv
             className="focus:outline-hidden focus:border-primary max-h-[10rem] min-h-[3rem] overflow-y-auto rounded-md p-2"
@@ -155,11 +183,12 @@ export const ConversationForm = (props: ConversationFormProps) => {
               {name[0].toUpperCase()}
             </div>
 
-            <div className="flex min-w-0 grow flex-col">
+            <div className="flex grow flex-col">
               <span className="truncate text-sm font-semibold">{name}</span>
-              <span className="text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
+              <span className="truncate text-xs opacity-60">{dateTimeString(new Date().toISOString(), language)}</span>
             </div>
-            <div className="hidden items-center gap-2 lg:flex">
+
+            <div className="no-scrollbar hidden items-center gap-2 overflow-x-auto lg:flex">
               {conversation.assistants?.map((assistant) => (
                 <label key={assistant.id} className="label cursor-pointer gap-2">
                   <input
@@ -178,11 +207,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
             </div>
 
             <div className="dropdown dropdown-end dropdown-top flex-none lg:hidden">
-              <div tabIndex={0} role="button" className="btn btn-ghost">
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-sm">
                 ...
               </div>
               <ul tabIndex={0} className="z-1 dropdown-content menu rounded-box bg-base-100 w-52 p-2 shadow-sm">
-                {conversation.assistants.map((assistant) => (
+                {conversation.assistants?.map((assistant) => (
                   <li key={assistant.id}>
                     <label className="flex items-center gap-2">
                       <input
@@ -212,6 +241,15 @@ export const ConversationForm = (props: ConversationFormProps) => {
           </div>
         </form>
       </div>
+
+      <DialogForm
+        ref={errorDialogRef}
+        title={t('conversations.errorDetails')}
+        description={<div className="overflow-x-auto break-all">{errorDetails}</div>}
+        onSubmit={() => errorDialogRef.current?.close()}
+        submitButtonText={t('actions.close')}
+        buttonOptions="onlyClose"
+      />
     </>
   )
 }
