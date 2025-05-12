@@ -1,33 +1,28 @@
 import { FragmentType, graphql, useFragment } from '../../gql'
-import { ParticipantsDialog } from './participants-dialog'
+import { User } from '../../server-functions/users'
+import { ConversationParticipantsDialog } from './conversation-participants-dialog'
 
-const NewConversationSelector_AssistantFragment = graphql(`
+export const NewConversationSelector_AssistantFragment = graphql(`
   fragment NewConversationSelector_Assistant on AiAssistant {
-    ...ParticipantsDialog_Assistant
-  }
-`)
-
-export const NewConversationSelector_HumanFragment = graphql(`
-  fragment NewConversationSelector_Human on User {
-    ...ParticipantsDialog_Human
+    ...ConversationParticipantsDialog_Assistant
   }
 `)
 
 interface NewConversationSelectorProps {
   assistants: FragmentType<typeof NewConversationSelector_AssistantFragment>[]
-  humans: FragmentType<typeof NewConversationSelector_HumanFragment>[]
+  users: User[]
   isOpen?: boolean
   userId: string
 }
 
 export const NewConversationSelector = (props: NewConversationSelectorProps) => {
   const assistants = useFragment(NewConversationSelector_AssistantFragment, props.assistants)
-  const humans = useFragment(NewConversationSelector_HumanFragment, props.humans)
+  const { users } = props
 
   return (
-    <ParticipantsDialog
+    <ConversationParticipantsDialog
       assistants={assistants}
-      humans={humans}
+      users={users}
       dialogMode="new"
       isOpen={props.isOpen}
       userId={props.userId}

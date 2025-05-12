@@ -34,6 +34,7 @@ model User {
   isAdmin                    Boolean                     @default(false)
   assistants                 AiAssistant[]
   libraries                  AiLibrary[]
+  assistantParticipations    AiAssistantParticipant[]
   libraryParticipations      AiLibraryParticipant[]
   conversationParticipations AiConversationParticipant[]
   profile                    UserProfile?
@@ -71,6 +72,7 @@ model AiAssistant {
   owner                      User                        @relation(fields: [ownerId], references: [id])
   ownerId                    String
   usages                     AiLibraryUsage[]
+  participants               AiAssistantParticipant[]
   conversationParticipations AiConversationParticipant[]
   languageModel              String?                     @default("OpenAI")
   baseCases                  AiAssistantBaseCase[]
@@ -99,6 +101,18 @@ model AiAssistantEUActAnswers {
   notes       String?
 
   @@id([assistantId, questionId])
+}
+
+model AiAssistantParticipant {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  assistantId String
+  userId      String
+
+  assistant AiAssistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([assistantId, userId])
 }
 
 model AiLibrary {
@@ -233,14 +247,15 @@ model AiConversation {
 }
 
 model AiConversationParticipant {
-  id                  String                  @id @default(cuid())
-  createdAt           DateTime                @default(now())
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now())
+  conversationId String
+  userId         String?
+  assistantId    String?
+
   conversation        AiConversation          @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  conversationId      String
   user                User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId              String?
   assistant           AiAssistant?            @relation(fields: [assistantId], references: [id], onDelete: Cascade)
-  assistantId         String?
   conversationMessage AiConversationMessage[]
 }
 

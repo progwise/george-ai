@@ -10,6 +10,7 @@ export default {
     create: 'Create',
     createProfile: 'Create user profile',
     delete: 'Delete',
+    details: 'Details',
     drop: 'Drop',
     edit: 'Edit',
     hideNotes: 'Hide notes',
@@ -17,6 +18,7 @@ export default {
     leave: 'Leave',
     new: 'New conversation',
     redirecting: 'Redirecting...',
+    remove: 'Remove',
     removeProfile: 'Remove user profile',
     reProcess: 'Re-Process',
     save: 'Save',
@@ -26,7 +28,7 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send',
     signIn: 'Sign in',
-    signInForAssistantPs: 'Sign in to see your assistants.',
+    signInForAssistants: 'Sign in to see your assistants.',
     signInForConversations: 'Sign in to use conversations.',
     signInForGoogleAuth: 'Sign in to use Google authentication.',
     signInForLibraries: 'Sign in to see your libraries.',
@@ -59,6 +61,7 @@ export default {
     addNewButton: 'Create assistant',
     addNewDescription:
       'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
+    addParticipantsConfirmation: 'You can add participants to this assistant.',
     delete: 'Delete assistant',
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
@@ -68,6 +71,7 @@ export default {
     myAssistants: 'My assistants',
     noAssistantsFound: 'No assistants found',
     noLibrariesToAdd: 'All libraries added',
+    owner: 'Owner',
     placeholders: {
       description: 'Describe your assistant',
       euAiActNotePlaceholder: 'Additional information or context...',
@@ -76,10 +80,10 @@ export default {
       name: 'Name your assistant',
     },
     removeLibrary: 'Remove library',
-    setLLM: 'Language model not set on assistant',
     usageLabel: 'Describe the usage of this library',
     usagePlaceholder:
       'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
+    users: 'Users',
   },
   brand: 'George-Ai',
   contactForm: {
@@ -99,10 +103,13 @@ export default {
     nameRequired: 'Name is required.',
   },
   conversations: {
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
     delete: 'Delete conversation',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
+    errorProcessingMessage: 'Error processing message',
+    errorDetails: 'Error Details',
     failedToAddParticipants: 'Failed to add participants: {error}',
     failedToCreateConversation: 'Failed to create conversation: {error}',
     historyPlaceholder: 'No messages yet. Start the conversation!',
@@ -113,6 +120,11 @@ export default {
     noMessages: 'You have no more free messages left. Create your profile and ask for more...',
     owner: 'Owner',
     promptPlaceholder: 'Ask anything',
+    removeMultiple: 'Remove conversations',
+    removeMultipleConfirmation:
+      'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone. Please confirm.',
+    setLLM: 'Language model not set on assistant',
+    tokenLimitExceeded: 'Token limit exceeded',
   },
   crawlers: {
     addNew: 'Create new crawler',
@@ -131,10 +143,12 @@ export default {
     utcHint: 'UTC time',
   },
   errors: {
+    businessAndPositionRequired: 'Business and Position are required.',
     copyFailed: 'Copy failed',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
-    businessAndPositionRequired: 'Business and Position are required.',
+    messageTooShort: 'Message must be at least 3 characters.',
+    noFreeMessages: 'No free messages left. Upgrade your subscription.',
     notAllowed: 'Not allowed',
     profileNotFound: 'Profile not found or deleted.',
     requiredField: 'Required',
@@ -254,8 +268,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
-    addParticipantsConfirmation:
-      'You can add participants to the current conversation. You can change these participants any time.',
     allowDifferentEmail: 'Allow different email address',
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
@@ -270,6 +282,7 @@ export default {
     noFilesFound: 'No files found',
     noUsersAvailable: 'No users available',
     noUsersFound: 'No users found',
+    numberOfConversationsToRemove: ' conversation(s) will be removed.',
     removedProfile: 'Profile removed',
     profileConfirmed: 'Profile confirmed',
     profileFoundFor: 'Profile found for',
@@ -281,7 +294,7 @@ export default {
     with: 'with',
   },
   tooltips: {
-    addNoParticipantsSelected: 'No assistant, user or email selected',
+    addNoParticipantsSelected: 'No participant is selected',
     cannotSendInvitation: 'Create the conversation to send invitations.',
     copyConversationLink: 'Copy link',
     copyInvitationLink: 'Copy invitation link',

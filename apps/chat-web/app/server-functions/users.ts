@@ -8,13 +8,19 @@ import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
 const UsersDocument = graphql(`
-  query myConversationUsers($userId: String!) {
-    myConversationUsers(userId: $userId) {
+  query users($userId: String!) {
+    users(userId: $userId) {
       id
       username
       name
       createdAt
       email
+      profile {
+        firstName
+        lastName
+        business
+        position
+      }
     }
   }
 `)
@@ -31,7 +37,7 @@ export const getUsers = createServerFn({ method: 'GET' })
 
 export const getUsersQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: [queryKeys.ConversationUsers, userId],
+    queryKey: [queryKeys.Users, userId],
     queryFn: () => getUsers({ data: userId }),
   })
 

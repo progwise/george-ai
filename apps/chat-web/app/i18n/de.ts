@@ -10,6 +10,7 @@ export default {
     create: 'Erstellen',
     createProfile: 'Benutzerprofil erstellen',
     delete: 'Löschen',
+    details: 'Details',
     drop: 'Entfernen',
     edit: 'Bearbeiten',
     hideNotes: 'Notizen ausblenden',
@@ -17,6 +18,7 @@ export default {
     new: 'Neue Konversation',
     leave: 'Verlassen',
     redirecting: 'Umleitung...',
+    remove: 'Entfernen',
     removeProfile: 'Benutzerprofil entfernen',
     reProcess: 'Erneut verarbeiten',
     save: 'Speichern',
@@ -59,6 +61,7 @@ export default {
     addNewButton: 'Assistent erstellen',
     addNewDescription:
       'Ein Assistent führt Sie durch die Ai von George. Er unterstützt Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
+    addParticipantsConfirmation: 'Sie können diesem Assistenten Teilnehmer hinzufügen.',
     delete: 'Assistent löschen',
     deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
@@ -68,6 +71,7 @@ export default {
     myAssistants: 'Meine Assistenten',
     noAssistantsFound: 'Keine Assistenten gefunden',
     noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
+    owner: 'Besitzer',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
       euAiActNotePlaceholder: 'Zusätzliche Information oder Kontext...',
@@ -76,10 +80,10 @@ export default {
       name: 'Name Ihres Assistenten',
     },
     removeLibrary: 'Bibliothek entfernen',
-    setLLM: 'Sprachmodell nicht auf Assistenten festgelegt',
     usageLabel: 'Beschreibung der Verwendung',
     usagePlaceholder:
       'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',
+    users: 'Benutzer',
   },
   brand: 'George-Ai',
   contactForm: {
@@ -99,11 +103,14 @@ export default {
     nameRequired: 'Name ist erforderlich.',
   },
   conversations: {
+    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
     delete: 'Konversation löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    errorDetails: 'Fehlerdetails',
+    errorProcessingMessage: 'Fehler beim Verarbeiten der Nachricht',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
     failedToCreateConversation: 'Konversation konnte nicht erstellt werden: {error}',
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
@@ -115,6 +122,11 @@ export default {
     noMessages: 'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an ...',
     owner: 'Besitzer',
     promptPlaceholder: 'Stelle irgendeine Frage',
+    removeMultiple: 'Konversationen entfernen',
+    removeMultipleConfirmation:
+      'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    setLLM: 'Assistent hat kein Sprachmodell',
+    tokenLimitExceeded: 'Tokenlimit überschritten',
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
@@ -134,10 +146,12 @@ export default {
     utcHint: 'UTC-Zeitzone',
   },
   errors: {
+    businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
     copyFailed: 'Kopieren fehlgeschlagen',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
-    businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
+    messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
+    noFreeMessages: 'Keine freien Nachrichten mehr. Aktualisieren Sie Ihr Abonnement.',
     notAllowed: 'Nicht erlaubt',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     requiredField: 'Erforderlich',
@@ -258,7 +272,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
-    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     allowDifferentEmail: 'Andere E-Mail-Adresse zulassen',
     allowMultipleParticipants: 'Mehrere Teilnehmer zulassen',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
@@ -274,6 +287,7 @@ export default {
     noFilesFound: 'Keine Dateien gefunden',
     noUsersAvailable: 'Keine Benutzer verfügbar',
     noUsersFound: 'Keine Benutzer gefunden',
+    numberOfConversationsToRemove: ' Konversation(en) werden/wird entfernt.',
     removedProfile: 'Profil entfernt',
     profileConfirmed: 'Profil bestätigt',
     profileFoundFor: 'Benutzerprofil gefunden für',
@@ -285,7 +299,7 @@ export default {
     with: 'mit',
   },
   tooltips: {
-    addNoParticipantsSelected: 'Kein Assistent, Benutzer oder E-Mail ausgewählt',
+    addNoParticipantsSelected: 'Es ist kein Teilnehmer ausgewählt',
     cannotSendInvitation: 'Erstellen Sie die Konversation, um Einladungen zu senden.',
     copyConversationLink: 'Link kopieren',
     copyInvitationLink: 'Einladungslink kopieren',
