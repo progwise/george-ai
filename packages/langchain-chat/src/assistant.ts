@@ -18,6 +18,7 @@ export const getAssistantBaseMessages = (input: { assistant: Assistant; librarie
       Your description is ${input.assistant.description}.
       `,
   }),
+  new SystemMessage({ content: `Today is the ${new Date(Date.now()).toDateString()}` }),
   ...input.libraries.map(
     (library) =>
       new SystemMessage({

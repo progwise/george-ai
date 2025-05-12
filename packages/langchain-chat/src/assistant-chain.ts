@@ -96,7 +96,6 @@ export async function* askAssistantChain(input: {
     yield `> Found ${trimmedLibrarySearchResults.length} items in the libraries:\n`
   }
 
-  console.log('trimmedLibrarySearchResults', trimmedLibrarySearchResults)
   const prompt = await answerPrompt.invoke({
     assistant_base_information: assistantBaseInformation,
     library_search_results: trimmedLibrarySearchResults,

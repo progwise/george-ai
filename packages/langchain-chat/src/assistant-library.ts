@@ -55,7 +55,7 @@ const getLibraryPrompt = async ({
       You also need to provide relevant and specific keywords derived from the users's question that can be used to search for relevant information in the library and on the internet.
       Please exclude all keywords that are given in the library name, description and usedFor information to avoid too many search hits when using this keywords.
       Please add keywords for the year or any specific information the user is searching for.
-      Please order the keywords from the most relevant to the least relevant. E.g. the year is more relevant than the name of the ship.
+      Please order the keywords from the most relevant to the least relevant.
       
       These are 2 fields for the following output structure.
 

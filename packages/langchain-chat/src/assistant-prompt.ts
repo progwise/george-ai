@@ -29,7 +29,9 @@ const getSanitizeQuestionPrompt = () =>
 
       You have to answer in the language of the user's question. Do not use any other language.`,
     ],
+    ['system', 'Here is your identity'],
     new MessagesPlaceholder('assistant_base_information'),
+    ['system', 'Here is the chat history so far:'],
     new MessagesPlaceholder('chat_history'),
     ['human', '{question}'],
   ])
