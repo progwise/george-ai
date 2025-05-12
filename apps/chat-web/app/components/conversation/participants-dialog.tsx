@@ -320,8 +320,14 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 <label className="flex cursor-pointer items-center gap-2">
                   <input
                     type="checkbox"
+                    name="selectAll"
                     className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedUserIds.length === availableHumans.length}
+                    checked={selectedUserIds.length > 0}
+                    ref={(element) => {
+                      if (!element) return
+                      element.indeterminate =
+                        selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
+                    }}
                     onChange={(event) => {
                       if (event.target.checked) {
                         setSelectedUserIds(availableHumans.map((human) => human.id))
