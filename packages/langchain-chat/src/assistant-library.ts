@@ -1,66 +1,92 @@
+import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
-export const getLibraryPrompt = async ({
-  assistantBaseInformation,
-  libraryBaseInformation,
+export const getLibraryRelevancePrompt = async (
+  model: BaseChatModel,
+  {
+    chatHistory,
+    question,
+    libraryDescription,
+    libraryName,
+    libraryUsedFor,
+  }: {
+    chatHistory: BaseMessage[]
+    question: string
+    libraryDescription: string
+    libraryName: string
+    libraryUsedFor: string
+  },
+) => {
+  const prompt = await getLibraryPrompt({
+    chatHistory,
+    question,
+    libraryDescription,
+    libraryName,
+    libraryUsedFor,
+  })
+
+  const libraryPromptResult = await model.invoke(prompt, {})
+  const libraryPromptResultParsed = JSON.parse(libraryPromptResult.content.toString())
+  return {
+    isRelevant: libraryPromptResultParsed.isRelevant as boolean,
+    searchPrompt: libraryPromptResultParsed.searchPrompt as string,
+  }
+}
+
+const getLibraryPrompt = async ({
   chatHistory,
   question,
+  libraryDescription,
+  libraryName,
+  libraryUsedFor,
 }: {
-  assistantBaseInformation: BaseMessage[]
-  libraryBaseInformation: BaseMessage[]
   chatHistory: BaseMessage[]
   question: string
+  libraryDescription: string
+  libraryName: string
+  libraryUsedFor: string
 }) => {
   const prompt = await ChatPromptTemplate.fromMessages([
     [
       'system',
-      `You need to determine whether the following library is relevant to the current user question. Relevance is decided based onthe library's base information, the conversation history and the current user question.
-      You must provide a pure JSON response without any additional text.
-      The result must be valid JSON that can be parsed without errors.
-      Ensure there is no extra text, only properly formatted JSON in the following structure:
+      `You need to determine whether the following library is relevant to the user's question.
       
+      You also need to provide relevant and specific keywords derived from the users's question that can be used to search for relevant information in the library and on the internet.
+      Please exclude all keywords that are given in the library name, description and usedFor information to avoid too many search hits when using this keywords.
+      Please add keywords for the year or any specific information the user is searching for.
+      Please order the keywords from the most relevant to the least relevant.
+      
+      These are 2 fields for the following output structure.
+
       {json_format}
-      
-      Your task is also produce a single concise but contextually rich search query that captures the key details of what the user is asking, considering all previous messages in the conversation.
-        The result should be a short phrase or sentence that includes the latest request, suitable for a similarity search.
-        Add the search prompt to the JSON as the value of the key "searchPrompt".
-        
-      Here is the base information for the library you have to create the search query for:
 
-      {library_base_information}
+      use isRelevant for your decision if the library should be searched
+      use searchPrompt for a list of keywords, separated by spaces as one single string
 
-
-        Here is your identity, base information about you as an assistant, which rules to follow and to what information you have access to. Please do not consider other libraries than the one given above to create the search query:
-        
-        {assistant_base_information}
-        
-        Here is the conversation history:
-        
-        {chat_history}
-        
-        Here is the current user question:
-        
-        {question}
-        
-        Please make the search term short and do not include any expression or term or word that was already used in the assistant description or in the library description.
+      You have to answer with this JSON structure only. No additional text, explanation or white space is allowed. Your answer will be parsed as JSON.
         `,
     ],
-    new MessagesPlaceholder('library_base_information'),
-    new MessagesPlaceholder('assistant_base_information'),
+    ['system', 'Here is the library name:'],
+    new MessagesPlaceholder('library_name'),
+    ['system', 'Here is the library description:'],
+    new MessagesPlaceholder('library_description'),
+    ['system', 'Here is the explanation of what the library should be used for:'],
+    new MessagesPlaceholder('library_used_for'),
+    ['system', 'This is the latest chat history:'],
     new MessagesPlaceholder('chat_history'),
+    ['system', "This is the user's question:"],
     new MessagesPlaceholder('question'),
   ])
   return await prompt.invoke({
-    assistant_base_information: assistantBaseInformation,
-    library_base_information: libraryBaseInformation,
+    library_name: libraryName,
+    library_description: libraryDescription,
+    library_used_for: libraryUsedFor,
     chat_history: chatHistory,
     question: question,
     json_format: JSON.stringify({
       isRelevant: true,
       searchPrompt: 'search prompt',
-      libraryName: 'library name',
-      libraryDescription: 'library description',
     }),
   })
 }

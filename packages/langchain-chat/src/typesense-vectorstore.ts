@@ -163,9 +163,8 @@ export const embedFile = async (
     name: file.name,
     originUri: file.originUri,
     mimeType: file.mimeType,
-    chunks: fileParts.length,
-    size: fileParts.reduce((acc, part) => acc + part.pageContent.length, 0),
-    fineTuningData,
+    chunks: splitDocument.length,
+    size: splitDocument.reduce((acc, part) => acc + part.pageContent.length, 0),
   }
 }
 
@@ -187,20 +186,24 @@ export const similaritySearch = async (
   question: string,
   library: string,
 ): Promise<{ pageContent: string; docName: string }[]> => {
-  const questionAsVector = await embeddings.embedQuery(question)
-  const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
+  // const questionAsVector = await embeddings.embedQuery(question)
+  // const vectorQuery = `vec:([${questionAsVector.join(',')}])`
   await ensureVectorStore(library)
-  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
+  const queryAsString = Array.isArray(question) ? question.join(' ') : question
+  const multiSearchParams = {
     searches: [
       {
         collection: getTypesenseSchemaName(library),
-        q: question,
+        q: queryAsString,
         query_by: 'text,docName',
-        vector_query: vectorQuery,
-        per_page: 10,
+        // vector_query: vectorQuery,
+        per_page: 200,
+        order_by: '_text_match:desc',
       },
     ],
-  })
+  }
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
 
   const docs = searchResponse.results
     .flatMap((result) => result.hits)
