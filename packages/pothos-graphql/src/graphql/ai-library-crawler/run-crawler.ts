@@ -31,11 +31,14 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
   })
 
   try {
-    const crawledPages = await crawl({
+    const crawledPages: { url: string; title: string; content: string }[] = []
+    for await (const crawledPages of crawl({
       url: crawler.url,
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
-    })
+    })) {
+      console.log('Crawled pages:', crawledPages)
+    }
 
     const endedAt = new Date()
     await prisma.aiLibraryCrawlerRun.update({

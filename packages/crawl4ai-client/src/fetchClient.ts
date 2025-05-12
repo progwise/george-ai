@@ -8,6 +8,18 @@ const clientUnauthorized = createClient<paths>({
   baseUrl: CRAWL4AI_BASE_URL,
 })
 
+export const getCrawl4AiToken = async () => {
+  const tokenResponse = await clientUnauthorized.POST('/token', {
+    body: { email: 'dev@progwise.net' },
+  })
+
+  return tokenResponse.data as {
+    email: string
+    access_token: string
+    token_type: string
+  }
+}
+
 const authMiddleware: Middleware = {
   onRequest: async ({ request }) => {
     const tokenResponse = await clientUnauthorized.POST('/token', {
