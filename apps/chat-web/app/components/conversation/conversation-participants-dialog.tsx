@@ -7,16 +7,18 @@ import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { queryKeys } from '../../query-keys'
+import { addConversationParticipants } from '../../server-functions/conversationParticipations'
 import { createConversation } from '../../server-functions/conversations'
-import { addConversationParticipants } from '../../server-functions/participations'
+import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
+import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 
-const ParticipantsDialog_ConversationFragment = graphql(`
-  fragment ParticipantsDialog_Conversation on AiConversation {
+const ConversationParticipantsDialog_ConversationFragment = graphql(`
+  fragment ConversationParticipantsDialog_Conversation on AiConversation {
     id
     ownerId
     participants {
@@ -27,39 +29,24 @@ const ParticipantsDialog_ConversationFragment = graphql(`
   }
 `)
 
-const ParticipantsDialog_AssistantFragment = graphql(`
-  fragment ParticipantsDialog_Assistant on AiAssistant {
+const ConversationParticipantsDialog_AssistantFragment = graphql(`
+  fragment ConversationParticipantsDialog_Assistant on AiAssistant {
     id
     name
   }
 `)
 
-const ParticipantsDialog_HumanFragment = graphql(`
-  fragment ParticipantsDialog_Human on User {
-    id
-    username
-    email
-    profile {
-      business
-      position
-      firstName
-      lastName
-    }
-  }
-`)
-
 interface ParticipantsDialogProps {
-  conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
-  humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
+  conversation?: FragmentType<typeof ConversationParticipantsDialog_ConversationFragment>
+  assistants: FragmentType<typeof ConversationParticipantsDialog_AssistantFragment>[]
+  users: User[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
 }
 
-export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
+export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
-  const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
   const [emailChips, setEmailChips] = useState<string[]>([])
@@ -71,9 +58,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
-  const assistants = useFragment(ParticipantsDialog_AssistantFragment, props.assistants)
-  const humans = useFragment(ParticipantsDialog_HumanFragment, props.humans)
+  const conversation = useFragment(ConversationParticipantsDialog_ConversationFragment, props.conversation)
+  const assistants = useFragment(ConversationParticipantsDialog_AssistantFragment, props.assistants)
+  const { users } = props
 
   const assignedAssistantIds = useMemo(
     () =>
@@ -96,26 +83,10 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     [conversation],
   )
 
-  const availableHumans = useMemo(() => {
-    if (!humans || !usersFilter || usersFilter.length < 2) {
-      setSelectedUserIds([])
-      return []
-    }
-
-    const filter = usersFilter.toLowerCase()
-    const list = humans.filter(
-      (user) =>
-        !assignedUserIds?.includes(user.id) &&
-        (user.username.toLowerCase().includes(filter) ||
-          user.email.toLowerCase().includes(filter) ||
-          (user.profile?.firstName && user.profile.firstName.toLowerCase().includes(filter)) ||
-          (user.profile?.lastName && user.profile.lastName.toLowerCase().includes(filter)) ||
-          (user.profile?.business && user.profile.business.toLowerCase().includes(filter)) ||
-          (user.profile?.position && user.profile.position.toLowerCase().includes(filter))),
-    )
-    setSelectedUserIds((prev) => prev.filter((id) => list.some((human) => human.id === id)))
-    return list
-  }, [humans, assignedUserIds, usersFilter])
+  const availableUsers = useMemo(
+    () => users.filter((user) => !assignedUserIds?.includes(user.id)),
+    [users, assignedUserIds],
+  )
 
   const isCreatingNewConversation = props.dialogMode === 'new'
   const isOwner = isCreatingNewConversation || props.userId === conversation?.ownerId
@@ -242,7 +213,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
-    props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
+    props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
   const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
   const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
   const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
@@ -264,7 +235,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="w-full max-w-5xl"
+        className="max-w-5xl"
       >
         <div className="grid grid-cols-3 gap-4 *:flex *:max-h-64 *:flex-col *:gap-2 max-md:grid-cols-1">
           {/* Assistants Column */}
@@ -303,69 +274,11 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           {/* User Column */}
           <div className="h-64">
             <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
-            <input
-              type="text"
-              className="input input-bordered input-sm w-full shrink-0"
-              onChange={(event) => setUsersFilter(event.currentTarget.value)}
-              name={'userFilter'}
-              placeholder={t('placeholders.searchUsers')}
+            <UsersSelector
+              users={availableUsers}
+              selectedUserIds={selectedUserIds}
+              setSelectedUserIds={setSelectedUserIds}
             />
-
-            {availableHumans.length < 1 && usersFilter && usersFilter.length >= 2 && (
-              <p className="text-sm">{t('texts.noUsersFound')}</p>
-            )}
-
-            {availableHumans.length > 0 && (
-              <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
-                <label className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="selectAll"
-                    className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedUserIds.length > 0}
-                    ref={(element) => {
-                      if (!element) return
-                      element.indeterminate =
-                        selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
-                    }}
-                    onChange={(event) => {
-                      if (event.target.checked) {
-                        setSelectedUserIds(availableHumans.map((human) => human.id))
-                      } else {
-                        setSelectedUserIds([])
-                      }
-                    }}
-                  />
-                  <span className="text-sm">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
-                </label>
-                <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
-                  {availableHumans.map((human) => {
-                    const formattedHuman = `${human.username} (${human.email}${human.profile && human.profile.business ? ' | ' + human.profile.business : ''})`
-                    return (
-                      <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
-                        <input
-                          type="checkbox"
-                          name="userIds"
-                          value={human.id}
-                          className="checkbox checkbox-info checkbox-xs"
-                          checked={selectedUserIds.includes(human.id)}
-                          onChange={(event) => {
-                            if (event.target.checked) {
-                              setSelectedUserIds((prev) => [...prev, human.id])
-                            } else {
-                              setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
-                            }
-                          }}
-                        />
-                        <span className="truncate text-sm leading-tight" title={formattedHuman}>
-                          {formattedHuman}
-                        </span>
-                      </label>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Invite Column */}
@@ -378,24 +291,24 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
                 placeholder={t('placeholders.emailToInvite')}
               />
               {emailError && <p className="text-error text-sm">{emailError}</p>}
-              <div className="flex flex-col gap-1">
-                <label className="flex items-center gap-2">
+              <div className="flex flex-col gap-1 text-sm">
+                <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowDifferentEmailAddress}
                     className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowDifferentEmailAddress(event.target.checked)}
                   />
-                  <span className="text-sm">{t('texts.allowDifferentEmail')}</span>
+                  <span>{t('texts.allowDifferentEmail')}</span>
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowMultipleParticipants}
                     className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowMultipleParticipants(event.target.checked)}
                   />
-                  <span className="text-sm">{t('texts.allowMultipleParticipants')}</span>
+                  <span>{t('texts.allowMultipleParticipants')}</span>
                 </label>
               </div>
             </div>
