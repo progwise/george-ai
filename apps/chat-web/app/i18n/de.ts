@@ -147,8 +147,7 @@ export default {
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
-    noFreeMessages:
-      'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an.',
+    noFreeMessages: 'Keine freien Nachrichten mehr. Aktualisieren Sie Ihr Abonnement.',
     notAllowed: 'Nicht erlaubt',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     requiredField: 'Erforderlich',
