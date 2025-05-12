@@ -11,9 +11,6 @@ const evaluateConditionPrompt = ChatPromptTemplate.fromMessages([
     Given the current user question and the conversation history, evaluate if the condition is true or false.
     Return 'true' if the condition is true and 'false' if it is false.
     Your answer can only be 'true' or 'false' without any additional text and without translation of the word.
-    Here is the condition: {condition}
-    Here is the current user question: {question}
-    Here is the conversation history: {chat_history}
     `,
   ],
   new MessagesPlaceholder('condition'),
