@@ -7,7 +7,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-## Instal Dependencies
+## Install Dependencies
 
 ```bash
 python3 -m pip install --upgrade pip

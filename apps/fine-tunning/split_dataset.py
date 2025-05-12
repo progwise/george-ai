@@ -6,9 +6,6 @@ based on specified ratios.
 
 Usage:
     python split_dataset.py input_file.jsonl [--train 0.8 --valid 0.1 --test 0.1 --output split_output]
-
-Author:
-    Mostafa Razavi Ghods
 """
 
 import json

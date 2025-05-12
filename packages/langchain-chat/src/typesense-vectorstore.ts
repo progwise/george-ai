@@ -134,7 +134,7 @@ export const embedFile = async (
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize,
     chunkOverlap,
-    separators: ['\n\n', '\n', '.', ' ', ''], // from coarse to fine
+    separators: ['\n\n', '\n', '.', ' '],
   })
 
   await removeFileByName(libraryId, file.name)
@@ -154,7 +154,7 @@ export const embedFile = async (
   console.log('Processing complete.\n')
 
   const jsonlData = fineTuningData.map((qa) => JSON.stringify(qa)).join('\n')
-  fs.writeFileSync('qa-data.jsonl', jsonlData)
+  fs.writeFileSync('../fine-tunning/jsonl/raw/qa-data.jsonl', jsonlData)
 
   await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
 

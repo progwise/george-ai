@@ -1,4 +1,3 @@
 packages:
-  - 'apps/chat-web'
-  - 'apps/georgeai-server'
+  - 'apps/*'
   - 'packages/*'
