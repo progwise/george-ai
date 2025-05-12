@@ -28,7 +28,7 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send',
     signIn: 'Sign in',
-    signInForAssistantPs: 'Sign in to see your assistants.',
+    signInForAssistants: 'Sign in to see your assistants.',
     signInForConversations: 'Sign in to use conversations.',
     signInForGoogleAuth: 'Sign in to use Google authentication.',
     signInForLibraries: 'Sign in to see your libraries.',

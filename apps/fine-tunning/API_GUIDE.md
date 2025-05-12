@@ -228,3 +228,20 @@ curl -X POST http://localhost:4567/generate \
     "maxTokens": 150
 }'
 ```
+
+
+### Testing the Server from Inside VSCode Dev Containers
+
+To test the server running on your host machine from inside a VSCode dev container, run the following `curl` command in your terminal:
+
+```bash
+curl -X POST http://host.docker.internal:4567/generate \
+-H "Content-Type: application/json" \
+-d '{
+    "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+    "prompt": "Explain the theory of relativity in simple terms.",
+    "maxTokens": 200
+}'
+```
+
+This sends a POST request to the server at `host.docker.internal`, which allows the container to reach the server running on the host machine.
