@@ -29,7 +29,7 @@ const getNewModelInstance = (languageModel: SupportedModel): AssistantModel => {
       })
     case 'gpt-4':
       return new ChatOpenAI({
-        modelName: 'gpt-4',
+        modelName: 'gpt-4o-mini',
         temperature: 0.7,
         maxTokens: 500,
       })

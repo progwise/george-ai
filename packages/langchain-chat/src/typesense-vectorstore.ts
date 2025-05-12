@@ -167,17 +167,20 @@ export const similaritySearch = async (
   question: string,
   library: string,
 ): Promise<{ pageContent: string; docName: string }[]> => {
-  const questionAsVector = await embeddings.embedQuery(question)
-  const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
+  // const questionAsVector = await embeddings.embedQuery(question)
+  // const vectorQuery = `vec:([${questionAsVector.join(',')}])`
   await ensureVectorStore(library)
+  const queryAsString = Array.isArray(question) ? question.join(' ') : question
   const multiSearchParams = {
     searches: [
       {
         collection: getTypesenseSchemaName(library),
-        q: question,
+        q: queryAsString,
         query_by: 'text,docName',
-        vector_query: vectorQuery,
+        // vector_query: vectorQuery,
         per_page: 200,
+        order_by: '_text_match:desc',
       },
     ],
   }
