@@ -145,7 +145,7 @@ const getAssistantAnswerPrompt = () =>
     new MessagesPlaceholder('library_search_results'),
     ['system', 'Here is the chat history:'],
     new MessagesPlaceholder('chat_history'),
-    ['system', 'here is the question. Please answer it in the language of the question:'],
+    ['system', "Here is the question. Please answer it in the language of the following human's question:"],
     ['human', '{question}'],
   ])
 

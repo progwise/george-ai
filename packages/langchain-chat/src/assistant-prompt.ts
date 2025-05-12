@@ -23,9 +23,9 @@ const getSanitizeQuestionPrompt = () =>
       'system',
       `You need to sanitize the question provided.
       Do not answer the question, just re-write the question in a way that it is relevant to the assistant_base_information and the chat_history.
-      Your answer should be maximum 500 tokens.
+      Your answer should be a maximum of 500 tokens.
       You are not allowed to answer the question, just re-write it.
-      Do not include any information that you re-writed the question. Just answer with the re-written question.
+      Do not include any information that you re-wrote the question. Just answer with the re-written question.
 
       You have to answer in the language of the user's question. Do not use any other language.`,
     ],
