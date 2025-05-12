@@ -1604,29 +1604,31 @@ export type AiLibrariesQueryVariables = Exact<{
 
 export type AiLibrariesQuery = {
   __typename?: 'Query'
-  aiLibraries: Array<{
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-    createdAt: string
-    updatedAt?: string | null
-    owner?: { __typename?: 'User'; id: string; name?: string | null } | null
-  }>
+  aiLibraries: Array<
+    {
+      __typename?: 'AiLibrary'
+      id: string
+      name: string
+      createdAt: string
+      updatedAt?: string | null
+      owner?: { __typename?: 'User'; id: string; name?: string | null } | null
+    } & { ' $fragmentRefs'?: { LibrarySelector_LibraryFragment: LibrarySelector_LibraryFragment } }
+  >
 }
 
 export type AiLibraryDetailsQueryVariables = Exact<{
   id: Scalars['String']['input']
-  userId: Scalars['String']['input']
-  ownerId: Scalars['String']['input']
 }>
 
 export type AiLibraryDetailsQuery = {
   __typename?: 'Query'
   aiLibrary?:
-    | ({ __typename?: 'AiLibrary'; id: string; name: string } & {
+    | ({ __typename?: 'AiLibrary'; id: string } & {
         ' $fragmentRefs'?: {
           LibraryFormFragmentFragment: LibraryFormFragmentFragment
           DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment
+          LibrarySelector_LibraryFragment: LibrarySelector_LibraryFragment
+          LibraryParticipants_LibraryFragment: LibraryParticipants_LibraryFragment
         }
       })
     | null
@@ -1688,6 +1690,10 @@ export type LibraryParticipants_LibraryFragment = ({
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null }>
 } & { ' $fragmentRefs'?: { LibraryParticipantsDialog_LibraryFragment: LibraryParticipantsDialog_LibraryFragment } }) & {
   ' $fragmentName'?: 'LibraryParticipants_LibraryFragment'
+}
+
+export type LibrarySelector_LibraryFragment = { __typename?: 'AiLibrary'; id: string; name: string } & {
+  ' $fragmentName'?: 'LibrarySelector_LibraryFragment'
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -1826,7 +1832,6 @@ export type RemoveUserProfileMutation = {
 export type AiAssistantDetailsQueryVariables = Exact<{
   id: Scalars['String']['input']
   userId: Scalars['String']['input']
-  ownerId: Scalars['String']['input']
 }>
 
 export type AiAssistantDetailsQuery = {
@@ -3482,6 +3487,23 @@ export const LibraryParticipants_LibraryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<LibraryParticipants_LibraryFragment, unknown>
+export const LibrarySelector_LibraryFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibrarySelector_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LibrarySelector_LibraryFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -5661,9 +5683,22 @@ export const AiLibrariesDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibrarySelector_Library' } },
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibrarySelector_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
         ],
       },
     },
@@ -5680,16 +5715,6 @@ export const AiLibraryDetailsDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -5710,10 +5735,31 @@ export const AiLibraryDetailsDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryFormFragment' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibrarySelector_Library' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipants_Library' } },
               ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
             },
           },
         ],
@@ -5746,6 +5792,42 @@ export const AiLibraryDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibrarySelector_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'LibraryParticipants_Library' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'participants' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' } },
         ],
       },
     },
@@ -6543,11 +6625,6 @@ export const AiAssistantDetailsDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'ownerId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],

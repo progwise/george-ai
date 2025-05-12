@@ -1,13 +1,22 @@
 import { useNavigate } from '@tanstack/react-router'
 
-import { AiLibrary } from '../../gql/graphql'
+import { FragmentType, graphql, useFragment } from '../../gql'
 import { Listbox } from '../listbox'
 
+const LibrarySelector_LibraryFragment = graphql(`
+  fragment LibrarySelector_Library on AiLibrary {
+    id
+    name
+  }
+`)
+
 interface LibrarySelectorProps {
-  libraries: Pick<AiLibrary, 'id' | 'name'>[]
-  selectedLibrary: Pick<AiLibrary, 'id' | 'name'>
+  libraries: FragmentType<typeof LibrarySelector_LibraryFragment>[]
+  selectedLibrary: FragmentType<typeof LibrarySelector_LibraryFragment>
 }
-export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorProps) => {
+export const LibrarySelector = (props: LibrarySelectorProps) => {
+  const libraries = useFragment(LibrarySelector_LibraryFragment, props.libraries)
+  const selectedLibrary = useFragment(LibrarySelector_LibraryFragment, props.selectedLibrary)
   const navigate = useNavigate()
 
   return (

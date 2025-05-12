@@ -4,15 +4,17 @@ import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-rout
 import { DeleteLibraryDialog } from '../../../../components/library/delete-library-dialog'
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries-query-options'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library-query-options'
+import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../../icons/back-icon'
+import { getUsersQueryOptions } from '../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
     context.queryClient.ensureQueryData(getLibrariesQueryOptions(context.user.id))
-    context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId))
+    context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId, context.user.id))
   },
 })
 
@@ -22,7 +24,10 @@ function RouteComponent() {
   const {
     data: { aiLibraries },
   } = useSuspenseQuery(getLibrariesQueryOptions(user.id))
-  const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
+  const {
+    data: { aiLibrary },
+  } = useSuspenseQuery(getLibraryQueryOptions(libraryId, user.id))
+  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions(user.id))
 
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -31,10 +36,11 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between">
         <div className="w-64">
-          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
+          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary!} />
         </div>
-        <div className="flex gap-2">
-          <DeleteLibraryDialog library={aiLibrary} />
+        <div className="flex w-5/6 gap-2">
+          <LibraryParticipants library={aiLibrary!} users={usersData.users} userId={user.id} />
+          <DeleteLibraryDialog library={aiLibrary!} />
           <button
             type="button"
             onClick={() => navigate({ to: '..' })}

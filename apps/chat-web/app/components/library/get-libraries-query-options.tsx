@@ -6,7 +6,7 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-const librariesDocument = graphql(/* GraphQL */ `
+const librariesDocument = graphql(`
   query aiLibraries($userId: String!) {
     aiLibraries(userId: $userId) {
       id
@@ -17,6 +17,7 @@ const librariesDocument = graphql(/* GraphQL */ `
       }
       createdAt
       updatedAt
+      ...LibrarySelector_Library
     }
   }
 `)
