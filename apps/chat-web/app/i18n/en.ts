@@ -10,6 +10,7 @@ export default {
     create: 'Create',
     createProfile: 'Create user profile',
     delete: 'Delete',
+    details: 'Details',
     drop: 'Drop',
     edit: 'Edit',
     hideNotes: 'Hide notes',
@@ -77,7 +78,6 @@ export default {
       name: 'Name your assistant',
     },
     removeLibrary: 'Remove library',
-    setLLM: 'Language model not set on assistant',
     usageLabel: 'Describe the usage of this library',
     usagePlaceholder:
       'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
@@ -104,6 +104,8 @@ export default {
     assistants: 'Assistants',
     delete: 'Delete conversation',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
+    errorProcessingMessage: 'Error processing message',
+    errorDetails: 'Error Details',
     failedToAddParticipants: 'Failed to add participants: {error}',
     failedToCreateConversation: 'Failed to create conversation: {error}',
     historyPlaceholder: 'No messages yet. Start the conversation!',
@@ -117,6 +119,8 @@ export default {
     removeMultiple: 'Remove conversations',
     removeMultipleConfirmation:
       'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone. Please confirm.',
+    setLLM: 'Language model not set on assistant',
+    tokenLimitExceeded: 'Token limit exceeded',
   },
   crawlers: {
     addNew: 'Create new crawler',
@@ -135,10 +139,12 @@ export default {
     utcHint: 'UTC time',
   },
   errors: {
+    businessAndPositionRequired: 'Business and Position are required.',
     copyFailed: 'Copy failed',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
-    businessAndPositionRequired: 'Business and Position are required.',
+    messageTooShort: 'Message must be at least 3 characters.',
+    noFreeMessages: 'You have no more free messages left. Create your profile and ask for more.',
     notAllowed: 'Not allowed',
     profileNotFound: 'Profile not found or deleted.',
     requiredField: 'Required',
