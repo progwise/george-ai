@@ -44,7 +44,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: Us
         onChange={(event) => setUserSearch(event.currentTarget.value)}
         name="userSearch"
         placeholder={t('placeholders.searchUsers')}
-        className="input"
+        className="input input-sm w-full shrink-0"
       />
       <label className="label cursor-pointer justify-start gap-2">
         <input
@@ -74,14 +74,14 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: Us
         )}
       </label>
 
-      <div className="h-48 w-full overflow-y-scroll">
+      <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2 empty:hidden">
         {displayedUsers.map((user) => (
-          <label key={user.id} className="label cursor-pointer justify-start gap-2">
+          <label key={user.id} className="label cursor-pointer gap-2 text-sm">
             <input
               type="checkbox"
               name="userIds"
               value={user.id}
-              className="checkbox-info checkbox checkbox-sm"
+              className="checkbox-info checkbox checkbox-xs"
               checked={selectedUserIds.includes(user.id)}
               onChange={(event) => {
                 const value = event.target.checked
@@ -92,7 +92,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: Us
                 }
               }}
             />
-            <span className="label-text truncate">
+            <span className="truncate leading-tight">
               {user.username} ({user.email}
               {user.profile?.business && ` | ${user.profile.business}`})
             </span>

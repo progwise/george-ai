@@ -235,39 +235,45 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="w-full max-w-[800px] px-4 sm:px-6 md:px-8"
+        className="max-w-5xl"
       >
-        <div className="flex w-full flex-col gap-4 sm:flex-row">
-          <div className="flex-1">
-            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.assistants')}</h4>
+        <div className="grid grid-cols-3 gap-4 *:flex *:max-h-64 *:flex-col *:gap-2 max-md:grid-cols-1">
+          {/* Assistants Column */}
+          <div>
+            <h4 className="text-lg font-semibold underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
               <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
-              availableAssistants.map((assistant) => (
-                <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="assistants"
-                    value={assistant.id}
-                    className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedAssistantIds.includes(assistant.id)}
-                    onChange={(event) => {
-                      const value = event.target.checked
-                      if (value) {
-                        setSelectedAssistantIds((prev) => [...prev, assistant.id])
-                      } else {
-                        setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
-                      }
-                    }}
-                  />
-                  <span className="label-text">{assistant.name}</span>
-                </label>
-              ))
+              <div className="hover:border-base-300 rounded-box flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
+                {availableAssistants.map((assistant) => (
+                  <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      name="assistants"
+                      value={assistant.id}
+                      className="checkbox checkbox-info checkbox-xs"
+                      checked={selectedAssistantIds.includes(assistant.id)}
+                      onChange={(event) => {
+                        const value = event.target.checked
+                        if (value) {
+                          setSelectedAssistantIds((prev) => [...prev, assistant.id])
+                        } else {
+                          setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
+                        }
+                      }}
+                    />
+                    <span className="truncate text-sm" title={assistant.name}>
+                      {assistant.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
             )}
           </div>
 
-          <div className="flex-1">
-            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.humans')}</h4>
+          {/* User Column */}
+          <div className="h-64">
+            <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
             <UsersSelector
               users={availableUsers}
               selectedUserIds={selectedUserIds}
@@ -275,33 +281,34 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
             />
           </div>
 
+          {/* Invite Column */}
           {isOwner && (
-            <div className="flex-1">
-              <h4 className="mb-2 text-lg font-semibold underline">{t('labels.invitation')}</h4>
+            <div>
+              <h4 className="text-lg font-semibold underline">{t('labels.invitation')}</h4>
               <EmailChipsInput
                 emails={emailChips}
                 setEmails={setEmailChips}
                 placeholder={t('placeholders.emailToInvite')}
               />
               {emailError && <p className="text-error text-sm">{emailError}</p>}
-              <div className="mt-2 flex flex-col gap-1">
-                <label className="flex items-center gap-2">
+              <div className="flex flex-col gap-1 text-sm">
+                <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowDifferentEmailAddress}
                     className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowDifferentEmailAddress(event.target.checked)}
                   />
-                  <span className="text-sm">{t('texts.allowDifferentEmail')}</span>
+                  <span>{t('texts.allowDifferentEmail')}</span>
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowMultipleParticipants}
                     className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowMultipleParticipants(event.target.checked)}
                   />
-                  <span className="text-sm">{t('texts.allowMultipleParticipants')}</span>
+                  <span>{t('texts.allowMultipleParticipants')}</span>
                 </label>
               </div>
             </div>

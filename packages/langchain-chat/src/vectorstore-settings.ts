@@ -1,7 +1,7 @@
 import { Document } from 'langchain/document'
 
 export const MIN_CHUNK_SIZE = 500
-export const MAX_CHUNK_SIZE = 2000
+export const MAX_CHUNK_SIZE = 1000
 export const OVERLAP_RATIO = 0.1
 
 export const calculateChunkParams = (documents: Document[]) => {

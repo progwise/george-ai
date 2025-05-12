@@ -78,13 +78,14 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
         submitButtonText={t('actions.add')}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
       >
-        <h4 className="underline">{t('assistants.users')}</h4>
-
-        <UsersSelector
-          users={assignableUsers}
-          selectedUserIds={selectedUserIds}
-          setSelectedUserIds={setSelectedUserIds}
-        />
+        <div className="h-64">
+          <h4 className="underline">{t('assistants.users')}</h4>
+          <UsersSelector
+            users={assignableUsers}
+            selectedUserIds={selectedUserIds}
+            setSelectedUserIds={setSelectedUserIds}
+          />
+        </div>
       </DialogForm>
     </>
   )
