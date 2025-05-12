@@ -14,7 +14,7 @@ export interface DialogFormProps {
   submitButtonText?: string
   submitButtonTooltipText?: string
   className?: string
-  showOnlyCloseButton?: boolean
+  buttonOptions?: 'onlyClose' | 'cancelAndConfirm'
 }
 
 export const DialogForm = ({
@@ -27,7 +27,7 @@ export const DialogForm = ({
   submitButtonText,
   submitButtonTooltipText,
   className,
-  showOnlyCloseButton,
+  buttonOptions = 'cancelAndConfirm',
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,7 +49,7 @@ export const DialogForm = ({
         <form method="dialog" onSubmit={handleSubmit} className="flex flex-1 flex-col">
           <div className="flex flex-1 flex-col gap-2">{children}</div>
           <div className="modal-action flex justify-end gap-2">
-            {showOnlyCloseButton ? (
+            {buttonOptions === 'onlyClose' ? (
               <button type="button" className="btn btn-primary btn-sm" onClick={handleClose}>
                 {submitButtonText || t('actions.close')}
               </button>

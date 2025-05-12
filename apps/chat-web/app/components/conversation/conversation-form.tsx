@@ -248,7 +248,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
         description={<div className="overflow-x-auto break-all">{errorDetails}</div>}
         onSubmit={() => errorDialogRef.current?.close()}
         submitButtonText={t('actions.close')}
-        showOnlyCloseButton
+        buttonOptions="onlyClose"
       />
     </>
   )
