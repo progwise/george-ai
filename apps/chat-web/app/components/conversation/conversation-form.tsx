@@ -10,6 +10,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { queryKeys } from '../../query-keys'
 import { sendMessage } from '../../server-functions/conversations'
+import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
 
@@ -34,6 +35,8 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
   const [isAtBottom, setIsAtBottom] = useState(true)
+  const [errorDetails, setErrorDetails] = useState<string | null>(null)
+  const errorDialogRef = useRef<HTMLDialogElement>(null)
 
   // store the unselected ids, so when an assistant gets added it is automatically selected
   const [unselectedAssistantIds, setUnselectedAssistantIds] = useState<string[]>([])
@@ -68,11 +71,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
       if (!data.content || data.content.trim().length < 3) {
-        throw new Error('Message must be at least 3 characters')
+        throw new Error(t('errors.messageTooShort'))
       }
 
       if (remainingMessages < 1) {
-        throw new Error('You have no more free messages left. Create your profile and ask for more...')
+        throw new Error(t('errors.noFreeMessages'))
       }
 
       const result = await sendMessage({
@@ -95,9 +98,28 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       scrollToBottom()
     },
-    //TODO: Handle other possible errors
-    onError: () => {
-      toastError(t('assistants.setLLM'))
+    onError: (error) => {
+      let errorMessage = t('conversations.errorProcessingMessage')
+      const details = error.message
+
+      if (error.message.includes('Unknown language model')) {
+        errorMessage = t('conversations.setLLM')
+      } else if (error.message.includes("This model's maximum context length")) {
+        errorMessage = t('conversations.tokenLimitExceeded')
+      } else if (error.message === t('errors.messageTooShort')) {
+        errorMessage = t('errors.messageTooShort')
+      } else if (error.message === t('errors.noFreeMessages')) {
+        errorMessage = t('errors.noFreeMessages')
+      }
+
+      toastError(
+        <div className="flex items-center">
+          <span>{errorMessage}</span>
+          <button type="button" onClick={() => handleShowErrorDialog(details)} className="btn btn-link btn-sm">
+            {t('actions.details')}
+          </button>
+        </div>,
+      )
     },
   })
 
@@ -125,6 +147,11 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const handleSubmitMessage = () => {
     formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+  }
+
+  const handleShowErrorDialog = (details: string) => {
+    setErrorDetails(details)
+    errorDialogRef.current?.showModal()
   }
 
   const name = props.user.name || props.user.username
@@ -215,6 +242,15 @@ export const ConversationForm = (props: ConversationFormProps) => {
           </div>
         </form>
       </div>
+
+      <DialogForm
+        ref={errorDialogRef}
+        title={t('conversations.errorDetails')}
+        description={<div className="overflow-x-auto break-all">{errorDetails}</div>}
+        onSubmit={() => errorDialogRef.current?.close()}
+        submitButtonText={t('actions.close')}
+        buttonOptions="onlyClose"
+      />
     </>
   )
 }
