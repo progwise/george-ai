@@ -43,7 +43,7 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <>
       <div className="flex items-center gap-1">
         <input
           name="emailInput"
@@ -62,15 +62,13 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
         </button>
       </div>
       {error && <p className="text-error text-sm">{error}</p>}
-      <div
-        className={`flex max-h-32 flex-wrap items-center gap-1 overflow-auto rounded-md ${emails.length > 0 && 'border-base-300 bg-base-100 border p-1'}`}
-      >
+      <div className="rounded-box border-base-300 flex flex-col gap-1 overflow-y-auto border p-1 empty:hidden">
         {emails.map((email) => (
-          <div key={email} className="bg-base-300 flex w-full items-center gap-1 rounded-full px-2 py-0.5 text-sm">
-            <span className="flex-1 truncate font-normal">{email}</span>
+          <div key={email} className="bg-base-300 rounded-field flex items-center gap-1 px-2 py-0.5 text-sm">
+            <span className="flex-1 truncate">{email}</span>
             <button
               type="button"
-              className="hover:text-primary-focus btn btn-circle btn-ghost btn-xs"
+              className="btn btn-circle btn-ghost btn-xs"
               onClick={() => setEmails(emails.filter((event) => event !== email))}
             >
               <CrossIcon />
@@ -78,6 +76,6 @@ export const EmailChipsInput = ({ emails, setEmails, placeholder }: EmailChipsIn
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 }
