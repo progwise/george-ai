@@ -305,7 +305,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
             <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
             <input
               type="text"
-              className="input input-bordered input-sm w-full"
+              className="input input-bordered input-sm w-full shrink-0"
               onChange={(event) => setUsersFilter(event.currentTarget.value)}
               name={'userFilter'}
               placeholder={t('placeholders.searchUsers')}
