@@ -7,9 +7,12 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { queryKeys } from '../../query-keys'
 import { addConversationParticipants } from '../../server-functions/conversationParticipations'
-import { createConversation } from '../../server-functions/conversations'
+import {
+  createConversation,
+  getConversationQueryOptions,
+  getConversationsQueryOptions,
+} from '../../server-functions/conversations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
@@ -122,8 +125,8 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
     },
     onSettled: async () => {
       if (conversation) {
-        await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversation.id] })
-        await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
+        await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
+        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
       }
       setEmailChips([])
       setEmailError(null)
@@ -156,7 +159,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
           return
         }
 
-        await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
+        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
         navigate({ to: `/conversations/${conversationId}` })
 
         if (emailChips.length > 0) {

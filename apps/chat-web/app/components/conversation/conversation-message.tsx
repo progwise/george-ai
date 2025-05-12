@@ -10,8 +10,8 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CollapseArrows } from '../../icons/collapse-arrows-icon'
 import { ExpandArrows } from '../../icons/expand-arrows-icon'
-import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { getConversationQueryOptions } from '../../server-functions/conversations'
 import { FormattedMarkdown } from '../formatted-markdown'
 
 const HideMessageDocument = graphql(`
@@ -75,9 +75,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
       await hideMessage({ data: { messageId } })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, message.conversationId],
-      })
+      queryClient.invalidateQueries(getConversationQueryOptions(message.conversationId))
     },
   })
 
@@ -86,9 +84,7 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
       await unhideMessage({ data: { messageId } })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, message.conversationId],
-      })
+      queryClient.invalidateQueries(getConversationQueryOptions(message.conversationId))
     },
   })
 
