@@ -6,6 +6,7 @@ import { getLibrariesQueryOptions } from '../../../../components/library/get-lib
 import { getLibraryQueryOptions } from '../../../../components/library/get-library-query-options'
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
+import { LoadingSpinner } from '../../../../components/loading-spinner'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../../icons/back-icon'
 import { getUsersQueryOptions } from '../../../../server-functions/users'
@@ -32,15 +33,19 @@ function RouteComponent() {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
+  if (!aiLibrary || !aiLibraries || !usersData) {
+    return <LoadingSpinner />
+  }
+
   return (
     <article className="flex w-full flex-col gap-4">
       <div className="flex justify-between">
         <div className="w-64">
-          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary!} />
+          <LibrarySelector libraries={aiLibraries} selectedLibrary={aiLibrary} />
         </div>
         <div className="flex w-5/6 gap-2">
-          <LibraryParticipants library={aiLibrary!} users={usersData.users} userId={user.id} />
-          <DeleteLibraryDialog library={aiLibrary!} />
+          <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
+          <DeleteLibraryDialog library={aiLibrary} />
           <button
             type="button"
             onClick={() => navigate({ to: '..' })}

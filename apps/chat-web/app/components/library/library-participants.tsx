@@ -4,10 +4,10 @@ import { twMerge } from 'tailwind-merge'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { queryKeys } from '../../query-keys'
 import { removeLibraryParticipant } from '../../server-functions/libraryParticipations'
 import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { getLibraryQueryOptions } from './get-library-query-options'
 import { LibraryParticipantsDialog } from './library-participants-dialog'
 
@@ -40,17 +40,11 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
-      if (!isOwner) {
-        throw new Error('Only the owner can remove participants')
-      }
-      return await removeLibraryParticipant({ data: { userId, libraryId } })
+      return await removeLibraryParticipant({ data: { userId, libraryId, currentUserId: props.userId } })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id, library.ownerId))
-
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraries, props.userId],
-      })
+      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.id))
     },
   })
 
@@ -83,8 +77,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
                 </button>
               )}
               <span className="max-w-36 truncate">{participant.name}</span>
-              {/* add localization */}
-              {isParticipantOwner && <span className="pl-1 font-bold">({t('assistants.owner')})</span>}
+              {isParticipantOwner && <span className="pl-1 font-bold">({t('libraries.owner')})</span>}
             </div>
           )
         })}

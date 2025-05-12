@@ -402,7 +402,7 @@ type Mutation {
   removeAiConversations(conversationIds: [String!]!, userId: String!): Boolean!
   removeAssistantParticipant(assistantId: String!, currentUserId: String!, userId: String!): User!
   removeConversationParticipant(id: String!): AiConversationParticipant
-  removeLibraryParticipant(libraryId: String!, userId: String!): User!
+  removeLibraryParticipant(currentUserId: String!, libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
   resetAssessmentAnswers(assistantId: String!): DateTime!

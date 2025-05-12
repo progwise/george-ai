@@ -103,7 +103,7 @@ type Documents = {
   '\n        mutation removeConversations($conversationIds: [String!]!, $userId: String!) {\n          removeAiConversations(conversationIds: $conversationIds, userId: $userId)\n        }\n      ': typeof types.RemoveConversationsDocument
   '\n  mutation leaveConversation($participantId: String!) {\n    leaveAiConversation(id: $participantId) {\n      id\n    }\n  }\n': typeof types.LeaveConversationDocument
   '\n  mutation addLibraryParticipant($libraryId: String!, $userIds: [String!]!) {\n    addLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddLibraryParticipantDocument
-  '\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId) {\n      id\n    }\n  }\n': typeof types.RemoveLibraryParticipantDocument
+  '\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!, $currentUserId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId, currentUserId: $currentUserId) {\n      id\n    }\n  }\n': typeof types.RemoveLibraryParticipantDocument
   '\n  query users($userId: String!) {\n    users(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n      profile {\n        firstName\n        lastName\n        business\n        position\n      }\n    }\n  }\n': typeof types.UsersDocument
   '\n        mutation sendConfirmationMail($userId: String!, $confirmationUrl: String!) {\n          sendConfirmationMail(userId: $userId, confirmationUrl: $confirmationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ConfirmUserProfileDocument
@@ -287,7 +287,7 @@ const documents: Documents = {
     types.LeaveConversationDocument,
   '\n  mutation addLibraryParticipant($libraryId: String!, $userIds: [String!]!) {\n    addLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n      id\n    }\n  }\n':
     types.AddLibraryParticipantDocument,
-  '\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId) {\n      id\n    }\n  }\n':
+  '\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!, $currentUserId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId, currentUserId: $currentUserId) {\n      id\n    }\n  }\n':
     types.RemoveLibraryParticipantDocument,
   '\n  query users($userId: String!) {\n    users(userId: $userId) {\n      id\n      username\n      name\n      createdAt\n      email\n      profile {\n        firstName\n        lastName\n        business\n        position\n      }\n    }\n  }\n':
     types.UsersDocument,
@@ -849,8 +849,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId) {\n      id\n    }\n  }\n']
+  source: '\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!, $currentUserId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId, currentUserId: $currentUserId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation removeLibraryParticipant($userId: String!, $libraryId: String!, $currentUserId: String!) {\n    removeLibraryParticipant(userId: $userId, libraryId: $libraryId, currentUserId: $currentUserId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

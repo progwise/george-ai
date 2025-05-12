@@ -582,6 +582,7 @@ export type MutationRemoveConversationParticipantArgs = {
 }
 
 export type MutationRemoveLibraryParticipantArgs = {
+  currentUserId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
@@ -2099,6 +2100,7 @@ export type AddLibraryParticipantMutation = {
 export type RemoveLibraryParticipantMutationVariables = Exact<{
   userId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+  currentUserId: Scalars['String']['input']
 }>
 
 export type RemoveLibraryParticipantMutation = {
@@ -7808,6 +7810,11 @@ export const RemoveLibraryParticipantDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -7825,6 +7832,11 @@ export const RemoveLibraryParticipantDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'libraryId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'currentUserId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
               },
             ],
             selectionSet: {

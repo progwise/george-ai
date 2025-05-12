@@ -78,10 +78,14 @@ function RouteComponent() {
     saveLibrary(formData)
   }
 
+  if (!aiLibrary) {
+    return <LoadingSpinner />
+  }
+
   return (
     <>
       <LoadingSpinner isLoading={saveIsPending} />
-      <LibraryForm library={aiLibrary!} ownerId={user.id} handleSubmit={handleSubmit} disabled={saveIsPending} />
+      <LibraryForm library={aiLibrary} ownerId={user.id} handleSubmit={handleSubmit} disabled={saveIsPending} />
     </>
   )
 }
