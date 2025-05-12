@@ -163,11 +163,26 @@ export default {
   flowWeb: 'Ablauf: Nur Web',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
   hero: {
-    chatGreeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistenz.',
-    chatMessage: 'Wenn Sie uns Ihre Email Adresse oder Telefonnummer hinterlassen melden wir uns bei Ihnen persönlich.',
-    chatStatus: 'Online & bereit zu helfen',
+    badge: 'Vorstellung von George-AI',
+    chat: {
+      title: 'George-AI Unterhaltung',
+      message: {
+        greeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistenz.',
+        info: 'Wenn Sie uns Ihre Email Adresse oder Telefonnummer hinterlassen melden wir uns bei Ihnen persönlich.',
+      },
+    },
+    description:
+      'Erstellen, Anpassen und Bereitstellen von KI-Assistenten, die Ihre Daten verstehen und Ihren Regeln folgen.',
+    features: {
+      customAssistants: 'Individuelle Assistenten',
+      knowledgeLibraries: 'Wissen-Bibliotheken',
+    },
     meeting: 'Beratungstermin vereinbaren',
     more: 'Mehr erfahren',
+    title: {
+      part1: 'Ihr AI-Assistant,',
+      part2: 'Neugedacht',
+    },
   },
   home: {
     altImage: 'George KI',
@@ -191,6 +206,8 @@ export default {
   labels: {
     actions: 'Aktionen',
     activatedAt: 'Aktiviert am',
+    active: 'Aktiv',
+    assistant: 'Assistent',
     adminProfileActivation: 'Admin-Profilaktivierung',
     awaitingActivation: 'Warten auf Aktivierung',
     awaitingConfirmation: 'Warten auf Bestätigung',
@@ -215,6 +232,7 @@ export default {
     invitation: 'Einladung',
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',
+    library: 'Bibliothek',
     llmTemperature: 'LLM Temperatur',
     monday: 'Montag',
     name: 'Name',

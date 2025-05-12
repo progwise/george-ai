@@ -160,11 +160,25 @@ export default {
   flowWeb: 'Flow: Only Web',
   greeting: 'Hello, I am your travel assistant. How can I help you?',
   hero: {
-    chatGreeting: 'Hello! I’m George, your personal AI assistant.',
-    chatMessage: 'If you leave your email address or phone number, we’ll get back to you personally.',
-    chatStatus: 'Online & ready to help',
+    badge: 'Introducing George-AI',
+    chat: {
+      title: 'George-AI Conversation',
+      message: {
+        greeting: 'Hello! I’m George, your personal AI assistant.',
+        info: 'If you leave your email address or phone number, we’ll get back to you personally.',
+      },
+    },
+    description: 'Build, customize, and deploy AI assistants that understand your data and follow your rules.',
+    features: {
+      customAssistants: 'Custom Assistants',
+      knowledgeLibraries: 'Knowledge Libraries',
+    },
     meeting: 'Schedule a consultation',
     more: 'Learn more',
+    title: {
+      part1: 'Your AI Assistant,',
+      part2: 'Reimagined',
+    },
   },
   home: {
     altImage: 'George AI',
@@ -186,6 +200,8 @@ export default {
   labels: {
     actions: 'Actions',
     activatedAt: 'Activated at',
+    active: 'Active',
+    assistant: 'Assistent',
     adminProfileActivation: 'Admin Profile Activation',
     awaitingActivation: 'Awaiting activation',
     awaitingConfirmation: 'Awaiting confirmation',
@@ -211,6 +227,7 @@ export default {
     invitation: 'Invitation',
     languageModel: 'Language Model',
     lastName: 'Last Name',
+    library: 'Library',
     llmTemperature: 'LLM Temperature',
     monday: 'Monday',
     name: 'Name',
