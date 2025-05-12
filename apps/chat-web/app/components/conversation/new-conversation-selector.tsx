@@ -1,7 +1,7 @@
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { ParticipantsDialog } from './participants-dialog'
 
-const NewConversationSelector_AssistantFragment = graphql(`
+export const NewConversationSelector_AssistantFragment = graphql(`
   fragment NewConversationSelector_Assistant on AiAssistant {
     ...ParticipantsDialog_Assistant
   }
