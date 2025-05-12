@@ -10,7 +10,7 @@ const BottomNavigationMobile = () => {
 
   return (
     <div className="dock z-40 lg:hidden">
-      <Link to="/conversations/$" activeProps={{ className: 'dock-active' }}>
+      <Link to="/conversations" activeProps={{ className: 'dock-active' }}>
         <ConversationIcon className="size-6" />
         <span className="dock-label">{t('topNavigation.conversations')}</span>
       </Link>

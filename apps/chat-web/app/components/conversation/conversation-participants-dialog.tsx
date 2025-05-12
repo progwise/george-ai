@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
@@ -43,6 +44,7 @@ interface ParticipantsDialogProps {
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
+  className?: string
 }
 
 export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) => {
@@ -222,7 +224,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <button type="button" className={`${buttonClass} btn btn-sm`} onClick={handleOpen}>
+      <button type="button" className={twMerge('btn btn-sm', buttonClass, props.className)} onClick={handleOpen}>
         {props.dialogMode === 'add' && <PlusIcon />}
         {buttonText}
       </button>
