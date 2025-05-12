@@ -7,7 +7,7 @@ import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { loadFile } from './langchain-file'
-import { generateQAPairs } from './qa-generator-local'
+import { generateQAPairs } from './qa-generator-remote'
 import { summarizeDocument } from './summarizer'
 import { calculateChunkParams } from './vectorstore-settings'
 
@@ -154,7 +154,7 @@ export const embedFile = async (
   console.log('Processing complete.\n')
 
   const jsonlData = fineTuningData.map((qa) => JSON.stringify(qa)).join('\n')
-  fs.writeFileSync('train-data.jsonl', jsonlData)
+  fs.writeFileSync('qa-data.jsonl', jsonlData)
 
   await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
 

@@ -19,7 +19,8 @@ Each QA pair should have:
 - (Optional) Evaluation criteria
 - (Optional) Category and difficulty
 
-Return the result in JSON array format.`
+Make sure that your reply is cmpletely JSONL foramt.`
+
 
   try {
     const res = await fetch('http://host.docker.internal:4567/generate', {
@@ -27,6 +28,7 @@ Return the result in JSON array format.`
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'mlx-community/gemma-3-27b-it-qat-6bit',
+        // model: 'Qwen/Qwen2.5-Coder-0.5B-Instruct',
         prompt,
         maxTokens: 300,
       }),
