@@ -5,11 +5,8 @@ import { dateString } from '@george-ai/web-utils'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import {
-  NewConversationSelector,
-  NewConversationSelector_AssistantFragment,
-  NewConversationSelector_HumanFragment,
-} from './new-conversation-selector'
+import { User } from '../../server-functions/users'
+import { NewConversationSelector, NewConversationSelector_AssistantFragment } from './new-conversation-selector'
 import { RemoveConversationsDialog } from './remove-conversations-dialog'
 
 export const ConversationSelector_ConversationFragment = graphql(`
@@ -33,7 +30,7 @@ interface ConversationSelectorProps {
   userId: string
   onClick?: () => void
   assistants: FragmentType<typeof NewConversationSelector_AssistantFragment>[]
-  humans: FragmentType<typeof NewConversationSelector_HumanFragment>[]
+  humans: User[]
   isOpen?: boolean
 }
 
@@ -42,7 +39,7 @@ export const ConversationSelector = ({
   userId,
   onClick,
   assistants: assistantsFragment,
-  humans: humansFragment,
+  humans,
   selectedConversationId: selectedConversationId,
 }: ConversationSelectorProps) => {
   const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
@@ -85,7 +82,7 @@ export const ConversationSelector = ({
         </div>
         <div className="sticky z-50 border-b py-2">
           <NewConversationSelector
-            humans={humansFragment}
+            users={humans}
             assistants={assistantsFragment}
             isOpen={conversations?.length === 0}
             userId={userId}

@@ -7,36 +7,25 @@ const relevancePrompt = ChatPromptTemplate.fromMessages([
   [
     'system',
     `You are a helpful assistant that has the provided name and access to the assistant's base information, conversation history, and the current user question.
-    Your boss has asked you to determine whether the following statement is relevant to this assistant, considering the assistant's base information, the available library data, and the conversation history:
+    You are asked to decide whether the current user's question is relevant to the assistant's base information, the conversation history and the assistants libraries.
     Return 'yes' if the condition applies to the conversation and 'no' if it does not.
-    Your answer must be either 'yes' or 'no', without any additional text or translation of the word.
-    
-    Hier sind Deine Basisinformation zu Dir selbst, d.h. Dein Name als Assistent, Deine Beschreibung und weitere Anweisungen
-    {assistant_base_information}
-
-    Ausserdem hast Du Zugriff auf die folgenden Bibliotheken:
-    {library_base_information}
-    
-    Hier ist die Konversationshistorie
-    {chat_history}
-    
-    Hier ist die aktuelle Frage des Benutzers
-    {question}`,
+    Your answer must be either 'yes' or 'no', without any additional text or translation of the word.`,
   ],
+  ['system', 'This is your identity. This is information about you and your rules:'],
   new MessagesPlaceholder('assistant_base_information'),
+  ['system', 'This is the conversation history so far:'],
   new MessagesPlaceholder('chat_history'),
+  ['system', 'This is the current user question:'],
   ['human', '{question}'],
 ])
 
 export const getRelevance = async ({
   assistantBaseInformation,
-  libraryBaseInformation,
   question,
   chatHistory,
   modelName,
 }: {
   assistantBaseInformation: BaseMessage[]
-  libraryBaseInformation: BaseMessage[]
   question: string
   chatHistory: BaseMessage[]
   modelName: SupportedModel
@@ -45,7 +34,6 @@ export const getRelevance = async ({
     question,
     assistant_base_information: assistantBaseInformation,
     chat_history: chatHistory,
-    library_base_information: libraryBaseInformation,
   })
 
   const model = getModel(modelName)

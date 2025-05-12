@@ -28,7 +28,7 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send',
     signIn: 'Sign in',
-    signInForAssistantPs: 'Sign in to see your assistants.',
+    signInForAssistants: 'Sign in to see your assistants.',
     signInForConversations: 'Sign in to use conversations.',
     signInForGoogleAuth: 'Sign in to use Google authentication.',
     signInForLibraries: 'Sign in to see your libraries.',
@@ -61,6 +61,7 @@ export default {
     addNewButton: 'Create assistant',
     addNewDescription:
       'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
+    addParticipantsConfirmation: 'You can add participants to this assistant.',
     delete: 'Delete assistant',
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
@@ -70,6 +71,7 @@ export default {
     myAssistants: 'My assistants',
     noAssistantsFound: 'No assistants found',
     noLibrariesToAdd: 'All libraries added',
+    owner: 'Owner',
     placeholders: {
       description: 'Describe your assistant',
       euAiActNotePlaceholder: 'Additional information or context...',
@@ -81,6 +83,7 @@ export default {
     usageLabel: 'Describe the usage of this library',
     usagePlaceholder:
       'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
+    users: 'Users',
   },
   brand: 'George-Ai',
   contactForm: {
@@ -100,6 +103,7 @@ export default {
     nameRequired: 'Name is required.',
   },
   conversations: {
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
@@ -267,8 +271,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
-    addParticipantsConfirmation:
-      'You can add participants to the current conversation. You can change these participants any time.',
     allowDifferentEmail: 'Allow different email address',
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
@@ -295,7 +297,7 @@ export default {
     with: 'with',
   },
   tooltips: {
-    addNoParticipantsSelected: 'No assistant, user or email selected',
+    addNoParticipantsSelected: 'No participant is selected',
     cannotSendInvitation: 'Create the conversation to send invitations.',
     copyConversationLink: 'Copy link',
     copyInvitationLink: 'Copy invitation link',

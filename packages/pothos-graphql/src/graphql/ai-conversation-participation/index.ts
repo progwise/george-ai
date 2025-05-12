@@ -3,7 +3,7 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiParticipation')
 
-const participantInterface = builder.prismaInterface('AiConversationParticipant', {
+const conversationParticipantInterface = builder.prismaInterface('AiConversationParticipant', {
   name: 'AiConversationParticipant',
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
@@ -55,7 +55,7 @@ const participantInterface = builder.prismaInterface('AiConversationParticipant'
 
 builder.prismaObject('AiConversationParticipant', {
   variant: 'HumanParticipant',
-  interfaces: [participantInterface],
+  interfaces: [conversationParticipantInterface],
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     user: t.relation('user'),
@@ -64,7 +64,7 @@ builder.prismaObject('AiConversationParticipant', {
 
 builder.prismaObject('AiConversationParticipant', {
   variant: 'AssistantParticipant',
-  interfaces: [participantInterface],
+  interfaces: [conversationParticipantInterface],
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     assistant: t.relation('assistant'),

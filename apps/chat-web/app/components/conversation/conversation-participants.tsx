@@ -5,9 +5,10 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { queryKeys } from '../../query-keys'
-import { removeConversationParticipant } from '../../server-functions/participations'
+import { removeConversationParticipant } from '../../server-functions/conversationParticipations'
+import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
-import { ParticipantsDialog } from './participants-dialog'
+import { ConversationParticipantsDialog } from './conversation-participants-dialog'
 
 const ConversationParticipants_ConversationFragment = graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {
@@ -19,26 +20,20 @@ const ConversationParticipants_ConversationFragment = graphql(`
       userId
       assistantId
     }
-    ...ParticipantsDialog_Conversation
+    ...ConversationParticipantsDialog_Conversation
   }
 `)
 
 const ConversationParticipants_AssistantFragment = graphql(`
   fragment ConversationParticipants_Assistant on AiAssistant {
-    ...ParticipantsDialog_Assistant
-  }
-`)
-
-export const ConversationParticipants_HumanFragment = graphql(`
-  fragment ConversationParticipants_Human on User {
-    ...ParticipantsDialog_Human
+    ...ConversationParticipantsDialog_Assistant
   }
 `)
 
 interface ConversationParticipantsProps {
   conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
   assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
-  humans: FragmentType<typeof ConversationParticipants_HumanFragment>[]
+  users: User[]
   userId: string
 }
 
@@ -48,7 +43,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
 
   const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
   const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
-  const humans = useFragment(ConversationParticipants_HumanFragment, props.humans)
+  const { users } = props
 
   const isOwner = props.userId === conversation.ownerId
 
@@ -110,10 +105,10 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
       })}
       {isOwner && (
         <div className="max-lg:hidden">
-          <ParticipantsDialog
+          <ConversationParticipantsDialog
             conversation={conversation}
             assistants={assistants}
-            humans={humans}
+            users={users}
             dialogMode="add"
             userId={props.userId}
           />
