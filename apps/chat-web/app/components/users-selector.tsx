@@ -69,7 +69,9 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
                 }
               }}
             />
-            <span className="text-sm">{`${displayedUsers.length} ${t('texts.usersFound')}`}</span>
+            <span className="text-sm">
+              {displayedUsers.length} {t('texts.usersFound')}
+            </span>
           </label>
           <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
             {displayedUsers.map((user) => {
