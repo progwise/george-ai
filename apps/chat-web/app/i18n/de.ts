@@ -61,6 +61,7 @@ export default {
     addNewButton: 'Assistent erstellen',
     addNewDescription:
       'Ein Assistent führt Sie durch die Ai von George. Er unterstützt Sie bei Ihrer täglichen Arbeit und braucht einen Namen.',
+    addParticipantsConfirmation: 'Sie können diesem Assistenten Teilnehmer hinzufügen.',
     delete: 'Assistent löschen',
     deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
@@ -70,6 +71,7 @@ export default {
     myAssistants: 'Meine Assistenten',
     noAssistantsFound: 'Keine Assistenten gefunden',
     noLibrariesToAdd: 'Alle Bibliotheken hinzugefügt',
+    owner: 'Besitzer',
     placeholders: {
       description: 'Beschreiben Sie Ihren Assistenten',
       euAiActNotePlaceholder: 'Zusätzliche Information oder Kontext...',
@@ -81,6 +83,7 @@ export default {
     usageLabel: 'Beschreibung der Verwendung',
     usagePlaceholder:
       'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',
+    users: 'Benutzer',
   },
   brand: 'George-Ai',
   contactForm: {
@@ -100,11 +103,14 @@ export default {
     nameRequired: 'Name ist erforderlich.',
   },
   conversations: {
+    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
-    delete: 'Konversation löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteConversation: 'Konversation löschen',
+    deleteMessage: 'Nachricht löschen',
+    deleteMessageConfirmation: 'Sie sind dabei, diese Nachricht zu löschen. Bitte bestätigen Sie.',
     errorDetails: 'Fehlerdetails',
     errorProcessingMessage: 'Fehler beim Verarbeiten der Nachricht',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
@@ -144,6 +150,7 @@ export default {
   errors: {
     businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
     copyFailed: 'Kopieren fehlgeschlagen',
+    deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
@@ -268,7 +275,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
-    addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     allowDifferentEmail: 'Andere E-Mail-Adresse zulassen',
     allowMultipleParticipants: 'Mehrere Teilnehmer zulassen',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
@@ -296,11 +302,12 @@ export default {
     with: 'mit',
   },
   tooltips: {
-    addNoParticipantsSelected: 'Kein Assistent, Benutzer oder E-Mail ausgewählt',
+    addNoParticipantsSelected: 'Es ist kein Teilnehmer ausgewählt',
     cannotSendInvitation: 'Erstellen Sie die Konversation, um Einladungen zu senden.',
     copyConversationLink: 'Link kopieren',
     copyInvitationLink: 'Einladungslink kopieren',
     delete: 'Löschen',
+    deleteMessage: 'Nachricht löschen',
     edit: 'Bearbeiten',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',

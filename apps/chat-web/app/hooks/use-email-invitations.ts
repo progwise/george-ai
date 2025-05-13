@@ -5,7 +5,7 @@ import { validateEmails } from '../components/conversation/email-validation'
 import { toastError, toastSuccess } from '../components/georgeToaster'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { queryKeys } from '../query-keys'
-import { createConversationInvitation } from '../server-functions/participations'
+import { createConversationInvitation } from '../server-functions/conversationParticipations'
 
 export const useEmailInvitations = (conversationId: string, userId: string) => {
   const { t } = useTranslation()

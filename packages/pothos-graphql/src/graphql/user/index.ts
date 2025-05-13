@@ -121,7 +121,7 @@ builder.mutationField('createUser', (t) =>
   }),
 )
 
-builder.queryField('myConversationUsers', (t) =>
+builder.queryField('users', (t) =>
   t.prismaField({
     type: ['User'],
     nullable: { list: false, items: false },

@@ -47,6 +47,11 @@
   .navbar .btn {
     @apply font-normal;
   }
+
+  input[type='checkbox']:indeterminate {
+    /* fill the checkbox when indeterminated */
+    background-color: var(--input-color);
+  }
 }
 
 @utility container {

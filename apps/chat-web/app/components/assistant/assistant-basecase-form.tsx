@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { queryKeys } from '../../query-keys'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 
@@ -82,7 +82,7 @@ export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
       return await upsertAiBaseCases({ data })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistantForEdit, assistant.id, props.userId] })
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, props.userId))
     },
   })
 
