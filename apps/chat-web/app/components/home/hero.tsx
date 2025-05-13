@@ -28,7 +28,7 @@ export const Hero = () => {
           <SparklesIcon />
           {t('hero.badge')}
         </span>
-        <h1 className="text-4xl font-bold md:text-6xl lg:text-7xl">
+        <h1 className="text-pretty text-4xl font-bold md:text-6xl lg:text-7xl">
           {t('hero.title.part1')}
           <br />
           <span className="from-base-content to-primary bg-gradient-to-r bg-clip-text text-transparent print:text-black">
