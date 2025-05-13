@@ -23,7 +23,7 @@ export const Hero = () => {
 
   return (
     <>
-      <div className="mx-auto my-5 flex w-full max-w-3xl flex-col gap-5 lg:m-10">
+      <div className="mx-auto my-5 flex w-full max-w-3xl flex-col gap-5 lg:my-10">
         <span className="badge badge-primary badge-lg badge-soft">
           <SparklesIcon />
           {t('hero.badge')}
