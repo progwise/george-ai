@@ -13,15 +13,11 @@ export const Hero = () => {
   const { user } = useRouteContext({ from: '/' })
   const { t } = useTranslation()
 
-  const now = new Date(Date.now())
-  now.setHours(now.getHours() - 3)
-  now.setMinutes(3)
-  const assistantVersion =
-    now.getFullYear() * 100000000 +
-    now.getMonth() * 1000000 +
-    now.getDay() * 10000 +
-    now.getUTCHours() * 100 +
-    now.getMinutes()
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = (now.getMonth() + 1).toString().padStart(2, '0')
+  const day = now.getDate().toString().padStart(2, '0')
+  const assistantVersion = `${year}.${month}.${day}`
 
   return (
     <>
