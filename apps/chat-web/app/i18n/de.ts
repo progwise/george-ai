@@ -163,7 +163,7 @@ export default {
   flowWeb: 'Ablauf: Nur Web',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
   hero: {
-    badge: 'George-Ai',
+    badge: 'Vorstellung George-Ai',
     chat: {
       title: 'George-Ai Homepage',
       message: {
