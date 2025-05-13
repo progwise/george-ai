@@ -524,6 +524,7 @@ export type MutationDeleteAiLibraryCrawlerArgs = {
 
 export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationDropFileArgs = {
@@ -1312,6 +1313,7 @@ export type UnhideMessageMutation = {
 
 export type DeleteMessageMutationVariables = Exact<{
   messageId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }>
 
 export type DeleteMessageMutation = {
@@ -4867,6 +4869,11 @@ export const DeleteMessageDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -4879,6 +4886,11 @@ export const DeleteMessageDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'messageId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {

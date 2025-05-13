@@ -53,23 +53,25 @@ const unhideMessage = createServerFn({ method: 'POST' })
   )
 
 const DeleteMessageDocument = graphql(`
-  mutation deleteMessage($messageId: String!) {
-    deleteMessage(messageId: $messageId) {
+  mutation deleteMessage($messageId: String!, $userId: String!) {
+    deleteMessage(messageId: $messageId, userId: $userId) {
       id
     }
   }
 `)
 export const deleteMessage = createServerFn({ method: 'POST' })
-  .validator((data: { messageId: string }) =>
+  .validator((data: { messageId: string; userId: string }) =>
     z
       .object({
         messageId: z.string(),
+        userId: z.string(),
       })
       .parse(data),
   )
   .handler((ctx) =>
     backendRequest(DeleteMessageDocument, {
       messageId: ctx.data.messageId,
+      userId: ctx.data.userId,
     }),
   )
 
@@ -130,7 +132,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
 
   const { mutate: deleteMessageMutate, isPending: isDeletePending } = useMutation({
     mutationFn: async (messageId: string) => {
-      await deleteMessage({ data: { messageId } })
+      await deleteMessage({ data: { messageId, userId } })
     },
     onSettled: () => {
       queryClient.invalidateQueries({
