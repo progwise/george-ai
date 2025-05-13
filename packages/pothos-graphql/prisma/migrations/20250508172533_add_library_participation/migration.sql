@@ -15,8 +15,9 @@ CREATE UNIQUE INDEX "AiLibraryParticipant_libraryId_userId_key" ON "AiLibraryPar
 ALTER TABLE "AiLibraryParticipant" ADD CONSTRAINT "AiLibraryParticipant_libraryId_fkey" FOREIGN KEY ("libraryId") REFERENCES "AiLibrary"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Populate AiConversationParticipant with data from existing libraries
-INSERT INTO "AiLibraryParticipant" ("libraryId", "userId")
+INSERT INTO "AiLibraryParticipant" ("id", "libraryId", "userId")
 SELECT
+    gen_random_uuid(),
     l."id" AS "libraryId",
     l."ownerId" AS "userId"
 FROM "AiLibrary" l;
