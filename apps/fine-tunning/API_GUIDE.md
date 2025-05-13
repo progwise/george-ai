@@ -245,3 +245,15 @@ curl -X POST http://host.docker.internal:4567/generate \
 ```
 
 This sends a POST request to the server at `host.docker.internal`, which allows the container to reach the server running on the host machine.
+
+**Stream**
+
+```bash
+
+ curl -N -X POST http://host.docker.internal:4567/generate -H "Content-Type: application/json" -d '{
+    "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+    "prompt": "Once upon a time...",
+    "maxTokens": 2000
+}'
+
+```

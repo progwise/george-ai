@@ -1,5 +1,6 @@
-const express = require('express');
-const { exec } = require('child_process');
+import express from 'express';
+import { spawn, exec } from 'child_process';
+
 const app = express();
 app.use(express.json());
 
@@ -36,7 +37,7 @@ app.post('/fine-tune', async (req, res) => {
         --iters ${iters || 100} \
         --fine-tune-type ${fineTuneType}`;
 
-    console.log(`🚀 Running:\n${cmd}`);
+    console.log(`Running:\n${cmd}`);
 
     exec(cmd, { env: { ...process.env } }, (error, stdout, stderr) => {
         if (error) {
@@ -55,41 +56,48 @@ app.post('/fine-tune', async (req, res) => {
 });
 
 app.post('/generate', async (req, res) => {
-    const {
-        model,
-        prompt,
-        adapterPath,
-        maxTokens
-    } = req.body;
+    const { model, prompt, adapterPath, maxTokens } = req.body;
 
     if (!model || !prompt) {
         return res.status(400).json({ error: 'Missing required fields: model and prompt' });
     }
 
-    const cmd = `python3 -m mlx_lm.generate \
-        --model "${model}" \
-        --prompt "${prompt}" \
-        --max-tokens ${maxTokens || 300} \
-        ${adapterPath ? `--adapter-path ${adapterPath}` : ''}`;
+    const args = [
+        '-m', 'mlx_lm',
+        'generate',
+        '--model', model,
+        '--prompt', prompt,
+        '--max-tokens', maxTokens || '300',
+    ];
 
-    console.log(`Generating response with:\n${cmd}`);
+    if (adapterPath) {
+        args.push('--adapter-path', adapterPath);
+    }
 
-    exec(cmd, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Generation error:\n${stderr}`);
-            return res.status(500).json({ error: stderr });
-        }
+    console.log(`Streaming with: python3 ${args.join(' ')}`);
 
-        console.log(`Generation output:\n${stdout}`);
-        return res.status(200).json({
-            message: 'Text generation complete',
-            output: stdout
-        });
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    const child = spawn('python3', args);
+
+    child.stdout.on('data', (chunk) => {
+        res.write(chunk);
+    });
+
+    child.stderr.on('data', (chunk) => {
+        console.error(`stderr: ${chunk}`);
+    });
+
+    child.on('close', (code) => {
+        res.end(`\n\n[Process exited with code ${code}]`);
+    });
+
+    child.on('error', (err) => {
+        console.error(`Failed to start process: ${err}`);
+        res.status(500).end('Internal Server Error');
     });
 });
-
-// app.get('/health', (req, res) => res.send('OK'));
-
 
 app.listen(PORT, () => {
     console.log(`API server running at http://localhost:${PORT}`);
