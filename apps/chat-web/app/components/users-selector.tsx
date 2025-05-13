@@ -13,6 +13,7 @@ interface UsersSelectorProps {
 export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, className }: UsersSelectorProps) => {
   const { t } = useTranslation()
   const [userSearch, setUserSearch] = useState<string>('')
+  const isSearchEnabled = useMemo(() => userSearch.length >= 2, [userSearch])
 
   const displayedUsers = useMemo(() => {
     const search = userSearch.toLowerCase()
@@ -20,7 +21,6 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       const isCurrentlySelected = selectedUserIds.includes(user.id)
 
       // only search if the user has typed at least 2 characters
-      const isSearchEnabled = userSearch.length >= 2
       const isSearchMatching: boolean =
         isSearchEnabled &&
         (user.username.toLowerCase().includes(search) ||
@@ -34,9 +34,9 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       return isCurrentlySelected || isSearchMatching
     })
     return list
-  }, [users, userSearch, selectedUserIds])
+  }, [users, userSearch, selectedUserIds, isSearchEnabled])
 
-  const showNoUsersFound = userSearch.length >= 2 && displayedUsers.length < 1
+  const showNoUsersFound = isSearchEnabled && displayedUsers.length < 1
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
