@@ -25,7 +25,7 @@ export const Hero = () => {
 
   return (
     <>
-      <div className="mx-auto mt-5 flex w-full max-w-3xl flex-col gap-1 lg:mt-10 lg:gap-4">
+      <div className="mx-auto my-5 flex w-full max-w-3xl flex-col gap-5 lg:m-10">
         <span className="badge badge-primary badge-lg badge-soft">
           <SparklesIcon />
           {t('hero.badge')}
@@ -52,7 +52,7 @@ export const Hero = () => {
             {t('hero.more')}
           </Link>
         </div>
-        <ul className="text-base-content/60 flex flex-wrap gap-2 *:flex *:items-center *:gap-2 lg:gap-6">
+        <ul className="text-base-content/60 flex flex-wrap gap-6 *:flex *:items-center *:gap-2">
           <li>
             <BotIcon /> {t('hero.features.customAssistants')}
           </li>
