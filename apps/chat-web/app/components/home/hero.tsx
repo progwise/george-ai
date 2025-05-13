@@ -10,7 +10,7 @@ import { HeroBadge } from './hero-badge'
 import { HomeChat } from './home-chat'
 
 export const Hero = () => {
-  const { user } = useRouteContext({ from: '/' })
+  const { user, language } = useRouteContext({ from: '/' })
   const { t } = useTranslation()
 
   const now = new Date()
@@ -18,6 +18,8 @@ export const Hero = () => {
   const month = (now.getMonth() + 1).toString().padStart(2, '0')
   const day = now.getDate().toString().padStart(2, '0')
   const assistantVersion = `${year}.${month}.${day}`
+
+  const formatter = new Intl.NumberFormat(language)
 
   return (
     <>
@@ -101,7 +103,7 @@ export const Hero = () => {
             className="animate-duration-[3000ms] absolute -bottom-6 -left-6"
             icon={<LibraryIcon />}
             title={`23 ${t('labels.libraries')}`}
-            text={`3723 ${t('labels.files')}`}
+            text={`${formatter.format(3723)} ${t('labels.files')}`}
           />
         </div>
       </div>
