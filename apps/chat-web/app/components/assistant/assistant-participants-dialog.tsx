@@ -84,7 +84,7 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
             users={assignableUsers}
             selectedUserIds={selectedUserIds}
             setSelectedUserIds={setSelectedUserIds}
-            className="h-64"
+            className="h-56"
           />
         </div>
       </DialogForm>
