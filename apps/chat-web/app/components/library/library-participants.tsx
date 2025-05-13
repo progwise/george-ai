@@ -55,7 +55,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
   }
 
   return (
-    <div className="flex w-full items-center justify-between gap-2 overflow-x-scroll">
+    <div className="flex w-full items-center justify-between gap-2 overflow-auto">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
       <div className="no-scrollbar flex gap-2 overflow-x-scroll p-1">
         {library.participants.map((participant) => {
