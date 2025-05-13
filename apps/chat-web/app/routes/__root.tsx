@@ -64,7 +64,7 @@ const RootDocument = () => {
       <head>
         <HeadContent />
       </head>
-      <body className="container">
+      <body className="px-body">
         <LanguageProvider initialLanguage={language as Language}>
           <AuthProvider>
             <>

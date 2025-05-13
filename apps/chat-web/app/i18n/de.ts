@@ -166,11 +166,27 @@ export default {
   flowWeb: 'Ablauf: Nur Web',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
   hero: {
-    chatGreeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistenz.',
-    chatMessage: 'Wenn Sie uns Ihre Email Adresse oder Telefonnummer hinterlassen melden wir uns bei Ihnen persönlich.',
-    chatStatus: 'Online & bereit zu helfen',
+    badge: 'Vorstellung George-Ai',
+    chat: {
+      title: 'George-Ai Homepage',
+      message: {
+        greeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistent.',
+        info: 'Wenn Sie mir Ihre Email Adresse oder Telefonnummer hinterlassen, melden wir uns bei Ihnen persönlich.',
+      },
+    },
+    description:
+      'Wenn erfahrene Mitarbeitende gehen, verschwinden oft auch Antworten. Mit George-Ai sichern Sie ihr Wissen in KI-Modellen – und bewahren es für morgen.',
+    features: {
+      customAssistants: 'Individuelle Assistenten',
+      knowledgeLibraries: 'Wissens-Bibliotheken',
+      selfLearning: 'Selbstlernend',
+    },
     meeting: 'Beratungstermin vereinbaren',
     more: 'Mehr erfahren',
+    title: {
+      part1: 'Wissen retten.',
+      part2: 'Geld, Zeit und Nerven sparen.',
+    },
   },
   home: {
     altImage: 'George KI',
@@ -194,6 +210,8 @@ export default {
   labels: {
     actions: 'Aktionen',
     activatedAt: 'Aktiviert am',
+    active: 'Aktiv',
+    assistant: 'Assistent',
     adminProfileActivation: 'Admin-Profilaktivierung',
     awaitingActivation: 'Warten auf Aktivierung',
     awaitingConfirmation: 'Warten auf Bestätigung',
@@ -218,6 +236,8 @@ export default {
     invitation: 'Einladung',
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',
+    libraries: 'Bibliotheken',
+    library: 'Bibliothek',
     llmTemperature: 'LLM Temperatur',
     monday: 'Montag',
     name: 'Name',
@@ -239,6 +259,7 @@ export default {
     updatedAt: 'Geändert',
     usedMessages: 'Vorhandene Nachrichten',
     usedStorage: 'Verwendeter Speicher',
+    version: 'Version',
     wednesday: 'Mittwoch',
   },
   libraries: {

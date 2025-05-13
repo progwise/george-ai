@@ -8,14 +8,21 @@
   name: 'light';
   default: true;
   --depth: 0;
+  --color-primary: var(--color-blue-700);
 }
 @plugin "daisyui/theme" {
   name: 'dark';
   --depth: 0;
+  --color-primary: var(--color-blue-500);
 }
 @plugin "@tailwindcss/typography";
 
 @plugin "tailwindcss-animated";
+
+@theme {
+  /* horizontal spacing on body */
+  --spacing-body: --spacing(2);
+}
 
 @layer utilities {
   /* Hide scrollbar for Chrome, Safari and Opera */
