@@ -13,6 +13,7 @@ interface UsersSelectorProps {
 export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, className }: UsersSelectorProps) => {
   const { t } = useTranslation()
   const [userSearch, setUserSearch] = useState<string>('')
+  const isSearchEnabled = useMemo(() => userSearch.length >= 2, [userSearch])
 
   const displayedUsers = useMemo(() => {
     const search = userSearch.toLowerCase()
@@ -20,7 +21,6 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       const isCurrentlySelected = selectedUserIds.includes(user.id)
 
       // only search if the user has typed at least 2 characters
-      const isSearchEnabled = userSearch.length >= 2
       const isSearchMatching: boolean =
         isSearchEnabled &&
         (user.username.toLowerCase().includes(search) ||
@@ -34,9 +34,10 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       return isCurrentlySelected || isSearchMatching
     })
     return list
-  }, [users, userSearch, selectedUserIds])
+  }, [users, userSearch, selectedUserIds, isSearchEnabled])
 
-  const showNoUsersFound = userSearch.length >= 2 && displayedUsers.length < 1
+  const showNoUsersFound = isSearchEnabled && displayedUsers.length < 1
+  const allDisplayedUserSelected = displayedUsers.length === selectedUserIds.length
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -50,7 +51,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       {showNoUsersFound && <p className="text-sm">{t('texts.noUsersFound')}</p>}
       {displayedUsers.length > 0 && (
         <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
-          <label className="flex cursor-pointer items-center gap-2">
+          <label className="label text-base-content">
             <input
               type="checkbox"
               name="selectAll"
@@ -58,23 +59,25 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
               checked={selectedUserIds.length > 0}
               ref={(element) => {
                 if (!element) return
-                element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < displayedUsers.length
+                element.indeterminate = selectedUserIds.length > 0 && !allDisplayedUserSelected
               }}
-              onChange={(event) => {
-                if (event.target.checked) {
-                  setSelectedUserIds(displayedUsers.map((user) => user.id))
-                } else {
+              onChange={() => {
+                if (allDisplayedUserSelected) {
                   setSelectedUserIds([])
+                } else {
+                  setSelectedUserIds(displayedUsers.map((user) => user.id))
                 }
               }}
             />
-            <span className="text-sm">{`${displayedUsers.length} ${t('texts.usersFound')}`}</span>
+            <span className="text-sm">
+              {displayedUsers.length} {t('texts.usersFound')}
+            </span>
           </label>
           <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
             {displayedUsers.map((user) => {
               const formattedUser = `${user.username} (${user.email}${user.profile?.business ? ' | ' + user.profile.business : ''})`
               return (
-                <label key={user.id} className="label cursor-pointer items-center justify-start gap-2">
+                <label key={user.id} className="label">
                   <input
                     type="checkbox"
                     name="userIds"
