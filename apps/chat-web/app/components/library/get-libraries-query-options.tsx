@@ -17,7 +17,6 @@ const librariesDocument = graphql(`
       }
       createdAt
       updatedAt
-      ...LibrarySelector_Library
     }
   }
 `)

@@ -69,12 +69,8 @@ builder.mutationField('removeAssistantParticipant', (t) =>
         },
       })
 
-      if (!participant) {
-        throw new Error('Participant not found')
-      }
-
       await prisma.aiAssistantParticipant.delete({
-        where: { id: participant.id },
+        where: { id: participant?.id },
       })
 
       return prisma.user.findUniqueOrThrow({

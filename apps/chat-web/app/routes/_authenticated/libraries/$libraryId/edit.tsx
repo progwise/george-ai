@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -47,8 +47,8 @@ const changeLibrary = createServerFn({ method: 'POST' })
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/edit')({
   component: RouteComponent,
-  loader: ({ context, params }) => {
-    context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId, context.user.id))
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId))
   },
 })
 
@@ -57,15 +57,13 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
   const { libraryId } = Route.useParams()
 
-  const {
-    data: { aiLibrary },
-  } = useSuspenseQuery(getLibraryQueryOptions(libraryId, user.id))
+  const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
     onSettled: () => {
       queryClient.invalidateQueries(getLibrariesQueryOptions(user.id))
-      queryClient.invalidateQueries(getLibraryQueryOptions(libraryId, user.id))
+      queryClient.invalidateQueries(getLibraryQueryOptions(libraryId))
       navigate({ to: '..' })
     },
   })
@@ -79,7 +77,7 @@ function RouteComponent() {
   }
 
   if (!aiLibrary) {
-    return <LoadingSpinner />
+    throw notFound()
   }
 
   return (

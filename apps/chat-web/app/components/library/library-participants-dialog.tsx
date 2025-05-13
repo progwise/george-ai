@@ -4,12 +4,12 @@ import { useMemo, useRef, useState } from 'react'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { queryKeys } from '../../query-keys'
 import { addLibraryParticipants } from '../../server-functions/libraryParticipations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { getLibraryQueryOptions } from './get-library-query-options'
 
 const LibraryParticipantsDialog_LibraryFragment = graphql(`
@@ -49,10 +49,8 @@ export const LibraryParticipantsDialog = (props: DialogFormProps) => {
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id, library.ownerId))
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiLibraries, props.userId],
-      })
+      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions(props.userId))
 
       dialogRef.current?.close()
     },

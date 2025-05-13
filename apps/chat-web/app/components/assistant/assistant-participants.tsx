@@ -17,6 +17,7 @@ const AssistantParticipants_AssistantFragment = graphql(`
     participants {
       id
       name
+      username
     }
     ...AssistantParticipantsDialog_Assistant
   }
@@ -80,7 +81,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
                   <CrossIcon />
                 </button>
               )}
-              <span className="max-w-36 truncate">{participant.name}</span>
+              <span className="max-w-36 truncate">{participant.name ?? participant.username}</span>
               {isParticipantOwner && <span className="pl-1 font-bold">({t('assistants.owner')})</span>}
             </div>
           )

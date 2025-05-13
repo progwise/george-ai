@@ -44,7 +44,7 @@ builder.mutationField('removeLibraryParticipant', (t) =>
       libraryId: t.arg.string({ required: true }),
       currentUserId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { userId, libraryId, currentUserId }) => {
+    resolve: async (query, _source, { userId, libraryId, currentUserId }) => {
       const library = await prisma.aiLibrary.findUniqueOrThrow({
         where: { id: libraryId },
       })
@@ -60,15 +60,12 @@ builder.mutationField('removeLibraryParticipant', (t) =>
         },
       })
 
-      if (!participant) {
-        throw new Error('Participant not found')
-      }
-
       await prisma.aiLibraryParticipant.delete({
-        where: { id: participant.id },
+        where: { id: participant?.id },
       })
 
       return prisma.user.findUniqueOrThrow({
+        ...query,
         where: { id: userId },
       })
     },

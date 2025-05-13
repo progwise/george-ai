@@ -18,6 +18,7 @@ const LibraryParticipants_LibraryFragment = graphql(`
     participants {
       id
       name
+      username
     }
     ...LibraryParticipantsDialog_Library
   }
@@ -43,7 +44,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
       return await removeLibraryParticipant({ data: { userId, libraryId, currentUserId: props.userId } })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id, library.ownerId))
+      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
       await queryClient.invalidateQueries(getLibrariesQueryOptions(library.id))
     },
   })
@@ -76,7 +77,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
                   <CrossIcon />
                 </button>
               )}
-              <span className="max-w-36 truncate">{participant.name}</span>
+              <span className="max-w-36 truncate">{participant.name ?? participant.username}</span>
               {isParticipantOwner && <span className="pl-1 font-bold">({t('libraries.owner')})</span>}
             </div>
           )

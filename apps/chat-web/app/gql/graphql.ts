@@ -1261,7 +1261,7 @@ export type AssistantParticipants_AssistantFragment = ({
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string; name?: string | null }>
+  participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
 } & {
   ' $fragmentRefs'?: { AssistantParticipantsDialog_AssistantFragment: AssistantParticipantsDialog_AssistantFragment }
 }) & { ' $fragmentName'?: 'AssistantParticipants_AssistantFragment' }
@@ -1605,16 +1605,14 @@ export type AiLibrariesQueryVariables = Exact<{
 
 export type AiLibrariesQuery = {
   __typename?: 'Query'
-  aiLibraries: Array<
-    {
-      __typename?: 'AiLibrary'
-      id: string
-      name: string
-      createdAt: string
-      updatedAt?: string | null
-      owner?: { __typename?: 'User'; id: string; name?: string | null } | null
-    } & { ' $fragmentRefs'?: { LibrarySelector_LibraryFragment: LibrarySelector_LibraryFragment } }
-  >
+  aiLibraries: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+    createdAt: string
+    updatedAt?: string | null
+    owner?: { __typename?: 'User'; id: string; name?: string | null } | null
+  }>
 }
 
 export type AiLibraryDetailsQueryVariables = Exact<{
@@ -1624,11 +1622,10 @@ export type AiLibraryDetailsQueryVariables = Exact<{
 export type AiLibraryDetailsQuery = {
   __typename?: 'Query'
   aiLibrary?:
-    | ({ __typename?: 'AiLibrary'; id: string } & {
+    | ({ __typename?: 'AiLibrary'; id: string; name: string } & {
         ' $fragmentRefs'?: {
           LibraryFormFragmentFragment: LibraryFormFragmentFragment
           DeleteLibraryDialog_LibraryFragment: DeleteLibraryDialog_LibraryFragment
-          LibrarySelector_LibraryFragment: LibrarySelector_LibraryFragment
           LibraryParticipants_LibraryFragment: LibraryParticipants_LibraryFragment
         }
       })
@@ -1688,13 +1685,9 @@ export type LibraryParticipants_LibraryFragment = ({
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string; name?: string | null }>
+  participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
 } & { ' $fragmentRefs'?: { LibraryParticipantsDialog_LibraryFragment: LibraryParticipantsDialog_LibraryFragment } }) & {
   ' $fragmentName'?: 'LibraryParticipants_LibraryFragment'
-}
-
-export type LibrarySelector_LibraryFragment = { __typename?: 'AiLibrary'; id: string; name: string } & {
-  ' $fragmentName'?: 'LibrarySelector_LibraryFragment'
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -2883,6 +2876,7 @@ export const AssistantParticipants_AssistantFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
               ],
             },
           },
@@ -3460,6 +3454,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
               ],
             },
           },
@@ -3489,23 +3484,6 @@ export const LibraryParticipants_LibraryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<LibraryParticipants_LibraryFragment, unknown>
-export const LibrarySelector_LibraryFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibrarySelector_Library' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<LibrarySelector_LibraryFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -5685,22 +5663,9 @@ export const AiLibrariesDocument = {
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibrarySelector_Library' } },
               ],
             },
           },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibrarySelector_Library' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
         ],
       },
     },
@@ -5737,9 +5702,9 @@ export const AiLibraryDetailsDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryFormFragment' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'DeleteLibraryDialog_Library' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibrarySelector_Library' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipants_Library' } },
               ],
             },
@@ -5799,18 +5764,6 @@ export const AiLibraryDetailsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibrarySelector_Library' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'LibraryParticipants_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
@@ -5826,6 +5779,7 @@ export const AiLibraryDetailsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
               ],
             },
           },
@@ -6806,6 +6760,7 @@ export const AiAssistantDetailsDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
               ],
             },
           },
