@@ -24,7 +24,7 @@ export const getAssistantBaseMessages = (input: { assistant: Assistant; librarie
       new SystemMessage({
         content: `You have access to the following library:
       name: ${library.name}
-      description: ${!library.description || library.description.length < 0 ? 'No description for library ' + library.name : library.description}`,
+      description: ${!library.description || library.description.length < 1 ? 'No description for library ' + library.name : library.description}`,
       }),
   ),
   ...input.assistant.baseCases.map(
