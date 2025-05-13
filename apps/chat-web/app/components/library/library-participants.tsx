@@ -9,7 +9,7 @@ import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { getLibraryQueryOptions } from './get-library-query-options'
-import { LibraryParticipantsDialog } from './library-participants-dialog'
+import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
 
 const LibraryParticipants_LibraryFragment = graphql(`
   fragment LibraryParticipants_Library on AiLibrary {
@@ -20,7 +20,7 @@ const LibraryParticipants_LibraryFragment = graphql(`
       name
       username
     }
-    ...LibraryParticipantsDialog_Library
+    ...LibraryParticipantsDialogButton_Library
   }
 `)
 
@@ -83,7 +83,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
           )
         })}
       </div>
-      {isOwner && <LibraryParticipantsDialog library={library} users={users} userId={props.userId} />}
+      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} userId={props.userId} />}
     </div>
   )
 }

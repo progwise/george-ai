@@ -17,8 +17,8 @@ import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 
-const ConversationParticipantsDialog_ConversationFragment = graphql(`
-  fragment ConversationParticipantsDialog_Conversation on AiConversation {
+const ConversationParticipantsDialogButton_ConversationFragment = graphql(`
+  fragment ConversationParticipantsDialogButton_Conversation on AiConversation {
     id
     ownerId
     participants {
@@ -29,23 +29,23 @@ const ConversationParticipantsDialog_ConversationFragment = graphql(`
   }
 `)
 
-const ConversationParticipantsDialog_AssistantFragment = graphql(`
-  fragment ConversationParticipantsDialog_Assistant on AiAssistant {
+const ConversationParticipantsDialogButton_AssistantFragment = graphql(`
+  fragment ConversationParticipantsDialogButton_Assistant on AiAssistant {
     id
     name
   }
 `)
 
-interface ParticipantsDialogProps {
-  conversation?: FragmentType<typeof ConversationParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ConversationParticipantsDialog_AssistantFragment>[]
+interface ParticipantsDialogButtonProps {
+  conversation?: FragmentType<typeof ConversationParticipantsDialogButton_ConversationFragment>
+  assistants: FragmentType<typeof ConversationParticipantsDialogButton_AssistantFragment>[]
   users: User[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
 }
 
-export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) => {
+export const ConversationParticipantsDialogButton = (props: ParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
@@ -58,8 +58,8 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const conversation = useFragment(ConversationParticipantsDialog_ConversationFragment, props.conversation)
-  const assistants = useFragment(ConversationParticipantsDialog_AssistantFragment, props.assistants)
+  const conversation = useFragment(ConversationParticipantsDialogButton_ConversationFragment, props.conversation)
+  const assistants = useFragment(ConversationParticipantsDialogButton_AssistantFragment, props.assistants)
   const { users } = props
 
   const assignedAssistantIds = useMemo(

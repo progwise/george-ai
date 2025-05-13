@@ -9,7 +9,7 @@ import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { ConversationForm } from '../../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
-import { ConversationParticipantsDialog } from '../../../components/conversation/conversation-participants-dialog'
+import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
@@ -40,7 +40,7 @@ const ConversationQueryDocument = graphql(`
       ...ConversationDelete_Conversation
       ...ConversationHistory_Conversation
       ...ConversationForm_Conversation
-      ...ConversationParticipantsDialog_Conversation
+      ...ConversationParticipantsDialogButton_Conversation
     }
   }
 `)
@@ -54,7 +54,7 @@ const AssignableAssistantsDocument = graphql(`
     aiAssistants(userId: $userId) {
       ...NewConversationSelector_Assistant
       ...ConversationParticipants_Assistant
-      ...ConversationParticipantsDialog_Assistant
+      ...ConversationParticipantsDialogButton_Assistant
     }
   }
 `)
@@ -150,7 +150,7 @@ function RouteComponent() {
 
             {selectedConversation?.aiConversation && (
               <div className="flex">
-                <ConversationParticipantsDialog
+                <ConversationParticipantsDialogButton
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
                   users={assignableUsers.users}

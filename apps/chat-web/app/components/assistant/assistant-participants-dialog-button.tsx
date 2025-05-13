@@ -4,16 +4,15 @@ import { useMemo, useRef, useState } from 'react'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { addLibraryParticipants } from '../../server-functions/libraryParticipations'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
+import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
-import { getLibrariesQueryOptions } from './get-libraries-query-options'
-import { getLibraryQueryOptions } from './get-library-query-options'
 
-const LibraryParticipantsDialog_LibraryFragment = graphql(`
-  fragment LibraryParticipantsDialog_Library on AiLibrary {
+const AssistantParticipantsDialogButton_AssistantFragment = graphql(`
+  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {
     id
     ownerId
     participants {
@@ -23,34 +22,33 @@ const LibraryParticipantsDialog_LibraryFragment = graphql(`
 `)
 
 interface DialogFormProps {
-  library: FragmentType<typeof LibraryParticipantsDialog_LibraryFragment>
+  assistant: FragmentType<typeof AssistantParticipantsDialogButton_AssistantFragment>
   users: User[]
   userId: string
 }
 
-export const LibraryParticipantsDialog = (props: DialogFormProps) => {
+export const AssistantParticipantsDialogButton = (props: DialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
 
-  const library = useFragment(LibraryParticipantsDialog_LibraryFragment, props.library)
+  const assistant = useFragment(AssistantParticipantsDialogButton_AssistantFragment, props.assistant)
   const { users } = props
   const assignableUsers = useMemo(
-    () => users.filter((user) => !library.participants.some((participant) => participant.id === user.id)),
-    [users, library.participants],
+    () => users.filter((user) => !assistant.participants.some((participant) => participant.id === user.id)),
+    [users, assistant.participants],
   )
 
   const { mutate: addParticipants, isPending } = useMutation({
     mutationFn: async () => {
-      return await addLibraryParticipants({
-        data: { libraryId: library.id, userIds: selectedUserIds },
+      return await addAssistantParticipants({
+        data: { assistantId: assistant.id, userIds: selectedUserIds, currentUserId: props.userId },
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(props.userId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
 
       dialogRef.current?.close()
     },
@@ -74,14 +72,14 @@ export const LibraryParticipantsDialog = (props: DialogFormProps) => {
       <DialogForm
         ref={dialogRef}
         title={t('texts.addParticipants')}
-        description={t('libraries.addParticipantsConfirmation')}
+        description={t('assistants.addParticipantsConfirmation')}
         onSubmit={handleSubmit}
         disabledSubmit={selectedUserIds.length < 1}
         submitButtonText={t('actions.add')}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
       >
         <div className="h-64">
-          <h4 className="underline">{t('libraries.users')}</h4>
+          <h4 className="underline">{t('assistants.users')}</h4>
           <UsersSelector
             users={assignableUsers}
             selectedUserIds={selectedUserIds}

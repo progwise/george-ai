@@ -1250,12 +1250,12 @@ export type CreateAiAssistantMutation = {
   createAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
-export type AssistantParticipantsDialog_AssistantFragment = {
+export type AssistantParticipantsDialogButton_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string }>
-} & { ' $fragmentName'?: 'AssistantParticipantsDialog_AssistantFragment' }
+} & { ' $fragmentName'?: 'AssistantParticipantsDialogButton_AssistantFragment' }
 
 export type AssistantParticipants_AssistantFragment = ({
   __typename?: 'AiAssistant'
@@ -1263,7 +1263,9 @@ export type AssistantParticipants_AssistantFragment = ({
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
 } & {
-  ' $fragmentRefs'?: { AssistantParticipantsDialog_AssistantFragment: AssistantParticipantsDialog_AssistantFragment }
+  ' $fragmentRefs'?: {
+    AssistantParticipantsDialogButton_AssistantFragment: AssistantParticipantsDialogButton_AssistantFragment
+  }
 }) & { ' $fragmentName'?: 'AssistantParticipants_AssistantFragment' }
 
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
@@ -1323,7 +1325,7 @@ export type UnhideMessageMutation = {
   unhideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
 }
 
-export type ConversationParticipantsDialog_ConversationFragment = {
+export type ConversationParticipantsDialogButton_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
   ownerId: string
@@ -1331,13 +1333,13 @@ export type ConversationParticipantsDialog_ConversationFragment = {
     | { __typename?: 'AssistantParticipant'; id: string; userId?: string | null; assistantId?: string | null }
     | { __typename?: 'HumanParticipant'; id: string; userId?: string | null; assistantId?: string | null }
   >
-} & { ' $fragmentName'?: 'ConversationParticipantsDialog_ConversationFragment' }
+} & { ' $fragmentName'?: 'ConversationParticipantsDialogButton_ConversationFragment' }
 
-export type ConversationParticipantsDialog_AssistantFragment = {
+export type ConversationParticipantsDialogButton_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   name: string
-} & { ' $fragmentName'?: 'ConversationParticipantsDialog_AssistantFragment' }
+} & { ' $fragmentName'?: 'ConversationParticipantsDialogButton_AssistantFragment' }
 
 export type ConversationParticipants_ConversationFragment = ({
   __typename?: 'AiConversation'
@@ -1361,13 +1363,13 @@ export type ConversationParticipants_ConversationFragment = ({
   >
 } & {
   ' $fragmentRefs'?: {
-    ConversationParticipantsDialog_ConversationFragment: ConversationParticipantsDialog_ConversationFragment
+    ConversationParticipantsDialogButton_ConversationFragment: ConversationParticipantsDialogButton_ConversationFragment
   }
 }) & { ' $fragmentName'?: 'ConversationParticipants_ConversationFragment' }
 
 export type ConversationParticipants_AssistantFragment = ({ __typename?: 'AiAssistant' } & {
   ' $fragmentRefs'?: {
-    ConversationParticipantsDialog_AssistantFragment: ConversationParticipantsDialog_AssistantFragment
+    ConversationParticipantsDialogButton_AssistantFragment: ConversationParticipantsDialogButton_AssistantFragment
   }
 }) & { ' $fragmentName'?: 'ConversationParticipants_AssistantFragment' }
 
@@ -1393,7 +1395,7 @@ export type ConversationDelete_ConversationFragment = {
 
 export type NewConversationSelector_AssistantFragment = ({ __typename?: 'AiAssistant' } & {
   ' $fragmentRefs'?: {
-    ConversationParticipantsDialog_AssistantFragment: ConversationParticipantsDialog_AssistantFragment
+    ConversationParticipantsDialogButton_AssistantFragment: ConversationParticipantsDialogButton_AssistantFragment
   }
 }) & { ' $fragmentName'?: 'NewConversationSelector_AssistantFragment' }
 
@@ -1674,21 +1676,23 @@ export type CreateAiLibraryMutation = {
   createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
-export type LibraryParticipantsDialog_LibraryFragment = {
+export type LibraryParticipantsDialogButton_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string }>
-} & { ' $fragmentName'?: 'LibraryParticipantsDialog_LibraryFragment' }
+} & { ' $fragmentName'?: 'LibraryParticipantsDialogButton_LibraryFragment' }
 
 export type LibraryParticipants_LibraryFragment = ({
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
-} & { ' $fragmentRefs'?: { LibraryParticipantsDialog_LibraryFragment: LibraryParticipantsDialog_LibraryFragment } }) & {
-  ' $fragmentName'?: 'LibraryParticipants_LibraryFragment'
-}
+} & {
+  ' $fragmentRefs'?: {
+    LibraryParticipantsDialogButton_LibraryFragment: LibraryParticipantsDialogButton_LibraryFragment
+  }
+}) & { ' $fragmentName'?: 'LibraryParticipants_LibraryFragment' }
 
 export type UserProfileForm_UserProfileFragment = {
   __typename?: 'UserProfile'
@@ -1759,7 +1763,7 @@ export type GetConversationQuery = {
           ConversationDelete_ConversationFragment: ConversationDelete_ConversationFragment
           ConversationHistory_ConversationFragment: ConversationHistory_ConversationFragment
           ConversationForm_ConversationFragment: ConversationForm_ConversationFragment
-          ConversationParticipantsDialog_ConversationFragment: ConversationParticipantsDialog_ConversationFragment
+          ConversationParticipantsDialogButton_ConversationFragment: ConversationParticipantsDialogButton_ConversationFragment
         }
       })
     | null
@@ -1776,7 +1780,7 @@ export type GetAssignableAssistantsQuery = {
       ' $fragmentRefs'?: {
         NewConversationSelector_AssistantFragment: NewConversationSelector_AssistantFragment
         ConversationParticipants_AssistantFragment: ConversationParticipants_AssistantFragment
-        ConversationParticipantsDialog_AssistantFragment: ConversationParticipantsDialog_AssistantFragment
+        ConversationParticipantsDialogButton_AssistantFragment: ConversationParticipantsDialogButton_AssistantFragment
       }
     }
   >
@@ -2831,12 +2835,12 @@ export const AssistantLibraries_LibraryUsageFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AssistantLibraries_LibraryUsageFragment, unknown>
-export const AssistantParticipantsDialog_AssistantFragmentDoc = {
+export const AssistantParticipantsDialogButton_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -2855,7 +2859,7 @@ export const AssistantParticipantsDialog_AssistantFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<AssistantParticipantsDialog_AssistantFragment, unknown>
+} as unknown as DocumentNode<AssistantParticipantsDialogButton_AssistantFragment, unknown>
 export const AssistantParticipants_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2880,13 +2884,13 @@ export const AssistantParticipants_AssistantFragmentDoc = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -2994,12 +2998,12 @@ export const ConversationHistory_ConversationFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationHistory_ConversationFragment, unknown>
-export const ConversationParticipantsDialog_ConversationFragmentDoc = {
+export const ConversationParticipantsDialogButton_ConversationFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Conversation' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Conversation' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3022,7 +3026,7 @@ export const ConversationParticipantsDialog_ConversationFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<ConversationParticipantsDialog_ConversationFragment, unknown>
+} as unknown as DocumentNode<ConversationParticipantsDialogButton_ConversationFragment, unknown>
 export const ConversationParticipants_ConversationFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3048,13 +3052,16 @@ export const ConversationParticipants_ConversationFragmentDoc = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Conversation' } },
+          {
+            kind: 'FragmentSpread',
+            name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Conversation' },
+          },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Conversation' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Conversation' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3078,12 +3085,12 @@ export const ConversationParticipants_ConversationFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationParticipants_ConversationFragment, unknown>
-export const ConversationParticipantsDialog_AssistantFragmentDoc = {
+export const ConversationParticipantsDialogButton_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3094,7 +3101,7 @@ export const ConversationParticipantsDialog_AssistantFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<ConversationParticipantsDialog_AssistantFragment, unknown>
+} as unknown as DocumentNode<ConversationParticipantsDialogButton_AssistantFragment, unknown>
 export const ConversationParticipants_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3105,13 +3112,13 @@ export const ConversationParticipants_AssistantFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3209,13 +3216,13 @@ export const NewConversationSelector_AssistantFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3409,12 +3416,12 @@ export const LibraryFormFragmentFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<LibraryFormFragmentFragment, unknown>
-export const LibraryParticipantsDialog_LibraryFragmentDoc = {
+export const LibraryParticipantsDialogButton_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' },
+      name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -3433,7 +3440,7 @@ export const LibraryParticipantsDialog_LibraryFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<LibraryParticipantsDialog_LibraryFragment, unknown>
+} as unknown as DocumentNode<LibraryParticipantsDialogButton_LibraryFragment, unknown>
 export const LibraryParticipants_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -3458,13 +3465,13 @@ export const LibraryParticipants_LibraryFragmentDoc = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' },
+      name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -5714,7 +5721,7 @@ export const AiLibraryDetailsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' },
+      name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -5783,7 +5790,7 @@ export const AiLibraryDetailsDocument = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialog_Library' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' } },
         ],
       },
     },
@@ -6146,7 +6153,7 @@ export const GetConversationDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationForm_Conversation' } },
                 {
                   kind: 'FragmentSpread',
-                  name: { kind: 'Name', value: 'ConversationParticipantsDialog_Conversation' },
+                  name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Conversation' },
                 },
               ],
             },
@@ -6156,7 +6163,7 @@ export const GetConversationDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Conversation' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Conversation' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiConversation' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -6200,7 +6207,10 @@ export const GetConversationDocument = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Conversation' } },
+          {
+            kind: 'FragmentSpread',
+            name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Conversation' },
+          },
         ],
       },
     },
@@ -6331,7 +6341,10 @@ export const GetAssignableAssistantsDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'NewConversationSelector_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipants_Assistant' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' } },
+                {
+                  kind: 'FragmentSpread',
+                  name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
+                },
               ],
             },
           },
@@ -6340,7 +6353,7 @@ export const GetAssignableAssistantsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -6357,7 +6370,7 @@ export const GetAssignableAssistantsDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' } },
         ],
       },
     },
@@ -6368,7 +6381,7 @@ export const GetAssignableAssistantsDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' } },
         ],
       },
     },
@@ -6660,7 +6673,7 @@ export const AiAssistantDetailsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' },
+      name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -6764,7 +6777,7 @@ export const AiAssistantDetailsDocument = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' } },
         ],
       },
     },

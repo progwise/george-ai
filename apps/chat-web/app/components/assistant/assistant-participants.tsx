@@ -8,7 +8,7 @@ import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { removeAssistantParticipant } from '../../server-functions/assistantParticipations'
 import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
-import { AssistantParticipantsDialog } from './assistant-participants-dialog'
+import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
 
 const AssistantParticipants_AssistantFragment = graphql(`
   fragment AssistantParticipants_Assistant on AiAssistant {
@@ -19,7 +19,7 @@ const AssistantParticipants_AssistantFragment = graphql(`
       name
       username
     }
-    ...AssistantParticipantsDialog_Assistant
+    ...AssistantParticipantsDialogButton_Assistant
   }
 `)
 
@@ -87,7 +87,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
           )
         })}
       </div>
-      {isOwner && <AssistantParticipantsDialog assistant={assistant} users={users} userId={props.userId} />}
+      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} userId={props.userId} />}
     </div>
   )
 }
