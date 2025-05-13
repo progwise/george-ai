@@ -7,9 +7,10 @@ interface UsersSelectorProps {
   users: User[]
   selectedUserIds: string[]
   setSelectedUserIds: Dispatch<SetStateAction<string[]>>
+  className?: string
 }
 
-export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: UsersSelectorProps) => {
+export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, className }: UsersSelectorProps) => {
   const { t } = useTranslation()
   const [userSearch, setUserSearch] = useState<string>('')
 
@@ -35,10 +36,10 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: Us
     return list
   }, [users, userSearch, selectedUserIds])
 
-  const allDisplayedUserSelected = displayedUsers.length === selectedUserIds.length
+  const showNoUsersFound = userSearch.length >= 2 && displayedUsers.length < 1
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col gap-2 ${className}`}>
       <input
         type="text"
         onChange={(event) => setUserSearch(event.currentTarget.value)}
@@ -46,59 +47,58 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds }: Us
         placeholder={t('placeholders.searchUsers')}
         className="input input-sm w-full shrink-0"
       />
-      <label className="label cursor-pointer justify-start gap-2">
-        <input
-          disabled={displayedUsers.length < 1}
-          type="checkbox"
-          name="selectAll"
-          className="checkbox checkbox-primary checkbox-sm"
-          checked={selectedUserIds.length > 0}
-          ref={(element) => {
-            if (!element) return
-
-            element.indeterminate = selectedUserIds.length > 0 && !allDisplayedUserSelected
-          }}
-          onChange={() => {
-            if (allDisplayedUserSelected) {
-              setSelectedUserIds([])
-            } else {
-              setSelectedUserIds(displayedUsers.map((user) => user.id))
-            }
-          }}
-        />
-
-        {displayedUsers.length < 1 ? (
-          <span className="info label-text font-bold">{t('texts.noUsersFound')}</span>
-        ) : (
-          <span className="info label-text font-bold">{`${displayedUsers.length} ${t('texts.usersFound')}`}</span>
-        )}
-      </label>
-
-      <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2 empty:hidden">
-        {displayedUsers.map((user) => (
-          <label key={user.id} className="label cursor-pointer gap-2 text-sm">
+      {showNoUsersFound && <p className="text-sm">{t('texts.noUsersFound')}</p>}
+      {displayedUsers.length > 0 && (
+        <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
+          <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
-              name="userIds"
-              value={user.id}
-              className="checkbox-info checkbox checkbox-xs"
-              checked={selectedUserIds.includes(user.id)}
+              name="selectAll"
+              className="checkbox checkbox-info checkbox-xs"
+              checked={selectedUserIds.length > 0}
+              ref={(element) => {
+                if (!element) return
+                element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < displayedUsers.length
+              }}
               onChange={(event) => {
-                const value = event.target.checked
-                if (value) {
-                  setSelectedUserIds((prev) => [...prev, user.id])
+                if (event.target.checked) {
+                  setSelectedUserIds(displayedUsers.map((user) => user.id))
                 } else {
-                  setSelectedUserIds((prev) => prev.filter((id) => id !== user.id))
+                  setSelectedUserIds([])
                 }
               }}
             />
-            <span className="truncate leading-tight">
-              {user.username} ({user.email}
-              {user.profile?.business && ` | ${user.profile.business}`})
-            </span>
+            <span className="text-sm">{`${displayedUsers.length} ${t('texts.usersFound')}`}</span>
           </label>
-        ))}
-      </div>
+          <div className="border-base-300 flex min-w-full flex-col gap-2 overflow-y-auto border-t py-2">
+            {displayedUsers.map((user) => {
+              const formattedUser = `${user.username} (${user.email}${user.profile?.business ? ' | ' + user.profile.business : ''})`
+              return (
+                <label key={user.id} className="label cursor-pointer items-center justify-start gap-2">
+                  <input
+                    type="checkbox"
+                    name="userIds"
+                    value={user.id}
+                    className="checkbox checkbox-info checkbox-xs"
+                    checked={selectedUserIds.includes(user.id)}
+                    onChange={(event) => {
+                      const value = event.target.checked
+                      if (value) {
+                        setSelectedUserIds((prev) => [...prev, user.id])
+                      } else {
+                        setSelectedUserIds((prev) => prev.filter((id) => id !== user.id))
+                      }
+                    }}
+                  />
+                  <span className="truncate text-sm leading-tight" title={formattedUser}>
+                    {formattedUser}
+                  </span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
