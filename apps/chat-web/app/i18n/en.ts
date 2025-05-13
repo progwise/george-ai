@@ -162,7 +162,7 @@ export default {
   hero: {
     badge: 'George-Ai',
     chat: {
-      title: 'George-Ai Homepagen',
+      title: 'George-Ai Homepage',
       message: {
         greeting: 'Hello! I’m George, your personal AI assistant.',
         info: 'If you leave your email address or phone number, we’ll get back to you personally.',
