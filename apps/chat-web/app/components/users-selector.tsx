@@ -51,7 +51,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
       {showNoUsersFound && <p className="text-sm">{t('texts.noUsersFound')}</p>}
       {displayedUsers.length > 0 && (
         <div className="rounded-box hover:border-base-300 flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
-          <label className="flex cursor-pointer items-center gap-2">
+          <label className="label text-base-content">
             <input
               type="checkbox"
               name="selectAll"
