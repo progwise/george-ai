@@ -4,11 +4,11 @@ import { HomeDe } from '../components/home/home-de'
 import { HomeEn } from '../components/home/home-en'
 
 const Home = () => {
-  const { user, language } = Route.useRouteContext()
+  const { language } = Route.useRouteContext()
   if (language === 'de') {
-    return <HomeDe user={user ?? null} />
+    return <HomeDe />
   }
-  return <HomeEn user={user ?? null} />
+  return <HomeEn />
 }
 
 export const Route = createFileRoute('/')({
