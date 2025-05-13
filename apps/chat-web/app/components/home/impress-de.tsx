@@ -1,6 +1,6 @@
 export const ImpressDe = () => {
   return (
-    <section aria-label="impressum George-AI.net" className="prose prose-sm prose-gray contents">
+    <section aria-label="impressum George-AI.net" className="prose prose-sm prose-gray">
       <h2>Impressum</h2>
       <div className="flex flex-col gap-4 lg:flex-row">
         <div>
