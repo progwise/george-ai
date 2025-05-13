@@ -37,6 +37,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
   }, [users, userSearch, selectedUserIds, isSearchEnabled])
 
   const showNoUsersFound = isSearchEnabled && displayedUsers.length < 1
+  const allDisplayedUserSelected = displayedUsers.length === selectedUserIds.length
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
@@ -58,13 +59,13 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
               checked={selectedUserIds.length > 0}
               ref={(element) => {
                 if (!element) return
-                element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < displayedUsers.length
+                element.indeterminate = selectedUserIds.length > 0 && !allDisplayedUserSelected
               }}
-              onChange={(event) => {
-                if (event.target.checked) {
-                  setSelectedUserIds(displayedUsers.map((user) => user.id))
-                } else {
+              onChange={() => {
+                if (allDisplayedUserSelected) {
                   setSelectedUserIds([])
+                } else {
+                  setSelectedUserIds(displayedUsers.map((user) => user.id))
                 }
               }}
             />
