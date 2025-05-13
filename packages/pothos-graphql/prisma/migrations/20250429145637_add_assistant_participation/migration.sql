@@ -15,8 +15,9 @@ CREATE UNIQUE INDEX "AiAssistantParticipant_assistantId_userId_key" ON "AiAssist
 ALTER TABLE "AiAssistantParticipant" ADD CONSTRAINT "AiAssistantParticipant_assistantId_fkey" FOREIGN KEY ("assistantId") REFERENCES "AiAssistant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- Populate AiAssistantParticipant with data from existing assistants
-INSERT INTO "AiAssistantParticipant" ("assistantId", "userId")
+INSERT INTO "AiAssistantParticipant" ("id", "assistantId", "userId")
 SELECT
+  gen_random_uuid(),
   a."id" as "assistantId",
   a."ownerId" as "userId"
 FROM "AiAssistant" a;
