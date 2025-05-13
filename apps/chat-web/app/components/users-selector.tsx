@@ -77,7 +77,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
             {displayedUsers.map((user) => {
               const formattedUser = `${user.username} (${user.email}${user.profile?.business ? ' | ' + user.profile.business : ''})`
               return (
-                <label key={user.id} className="label cursor-pointer items-center justify-start gap-2">
+                <label key={user.id} className="label">
                   <input
                     type="checkbox"
                     name="userIds"
