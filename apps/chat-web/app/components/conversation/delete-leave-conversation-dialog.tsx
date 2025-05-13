@@ -93,10 +93,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   const isPending = isDeletePending || isLeavePending
   const Icon = isOwner ? TrashIcon : ExitIcon
 
-  const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
+  const title = `${isOwner ? t('conversations.deleteConversation') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
   const submitButtonText = isOwner ? t('actions.delete') : t('actions.leave')
-  const buttonTooltip = isOwner ? t('conversations.delete') : t('conversations.leave')
+  const buttonTooltip = isOwner ? t('conversations.deleteConversation') : t('conversations.leave')
 
   return (
     <>
@@ -106,7 +106,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
         onClick={handleOpen}
         data-tip={buttonTooltip}
       >
-        <Icon className="size-6" />
+        <Icon className="text-error size-6" />
       </button>
 
       <LoadingSpinner isLoading={isPending} />

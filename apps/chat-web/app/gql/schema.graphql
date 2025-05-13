@@ -109,6 +109,7 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
+  participants: [User!]!
   updatedAt: DateTime
   url: String
 }
@@ -354,6 +355,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
+  addAssistantParticipants(assistantId: String!, currentUserId: String!, userIds: [String!]!): [User!]!
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -374,6 +376,7 @@ type Mutation {
   createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
   createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
   createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
+  createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(
     conversationId: String!
     data: [ConversationInvitationInput!]!
@@ -385,7 +388,7 @@ type Mutation {
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiLibrary(id: String!): AiLibrary
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
-  deleteMessage(messageId: String!): AiConversationMessage
+  deleteMessage(messageId: String!, userId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage
@@ -394,6 +397,8 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
+  removeAiConversations(conversationIds: [String!]!, userId: String!): Boolean!
+  removeAssistantParticipant(assistantId: String!, currentUserId: String!, userId: String!): User!
   removeConversationParticipant(id: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(userId: String!): UserProfile
@@ -415,7 +420,7 @@ type Mutation {
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(id: String!): AiAssistant
-  aiAssistants(ownerId: String!): [AiAssistant!]!
+  aiAssistants(userId: String!): [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
   aiConversations(userId: String!): [AiConversation!]!
@@ -423,9 +428,9 @@ type Query {
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
-  myConversationUsers(userId: String!): [User!]!
   user(email: String!): User
   userProfile(userId: String!): UserProfile
+  users(userId: String!): [User!]!
   version: String
 }
 

@@ -9,15 +9,16 @@ import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { ConversationForm } from '../../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
+import { ConversationParticipantsDialog } from '../../../components/conversation/conversation-participants-dialog'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
-import { ParticipantsDialog } from '../../../components/conversation/participants-dialog'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { graphql } from '../../../gql'
 import { MenuIcon } from '../../../icons/menu-icon'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
+import { getUsersQueryOptions } from '../../../server-functions/users'
 
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
@@ -39,7 +40,7 @@ const ConversationQueryDocument = graphql(`
       ...ConversationDelete_Conversation
       ...ConversationHistory_Conversation
       ...ConversationForm_Conversation
-      ...ParticipantsDialog_Conversation
+      ...ConversationParticipantsDialog_Conversation
     }
   }
 `)
@@ -48,32 +49,18 @@ export const getConversation = createServerFn({ method: 'GET' })
   .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(ConversationQueryDocument, ctx.data))
 
-const AssignableUsersDocument = graphql(`
-  query getAssignableUsers($userId: String!) {
-    myConversationUsers(userId: $userId) {
-      ...NewConversationSelector_Human
-      ...ConversationParticipants_Human
-      ...ParticipantsDialog_Human
-    }
-  }
-`)
-
-export const getAssignableHumans = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
-  .handler(async (ctx) => backendRequest(AssignableUsersDocument, ctx.data))
-
 const AssignableAssistantsDocument = graphql(`
-  query getAssignableAssistants($ownerId: String!) {
-    aiAssistants(ownerId: $ownerId) {
+  query getAssignableAssistants($userId: String!) {
+    aiAssistants(userId: $userId) {
       ...NewConversationSelector_Assistant
       ...ConversationParticipants_Assistant
-      ...ParticipantsDialog_Assistant
+      ...ConversationParticipantsDialog_Assistant
     }
   }
 `)
 
 export const getAssignableAssistants = createServerFn({ method: 'GET' })
-  .validator((data: { ownerId: string }) => z.object({ ownerId: z.string() }).parse(data))
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
   .handler(async (ctx) => backendRequest(AssignableAssistantsDocument, ctx.data))
 
 export const Route = createFileRoute('/_authenticated/conversations/$')({
@@ -116,14 +103,11 @@ function RouteComponent() {
         : null,
   })
 
-  const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery({
-    queryKey: [queryKeys.ConversationAssignableUsers, userId],
-    queryFn: () => getAssignableHumans({ data: { userId } }),
-  })
+  const { data: assignableUsers, isLoading: assignableUsersIsLoading } = useSuspenseQuery(getUsersQueryOptions(userId))
 
   const { data: assignableAssistants, isLoading: assignableAssistantsIsLoading } = useSuspenseQuery({
     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-    queryFn: () => getAssignableAssistants({ data: { ownerId: userId } }),
+    queryFn: () => getAssignableAssistants({ data: { userId } }),
   })
 
   if ((conversations?.aiConversations?.length || 0) > 0 && !selectedConversationId) {
@@ -152,13 +136,13 @@ function RouteComponent() {
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" ref={drawerCheckboxRef} />
       <div className="drawer-content flex flex-col">
         <div className="bg-base-100 lg:rounded-r-box sticky top-16 z-30 shadow-md">
-          <div className="flex flex-row items-center justify-between p-1 pt-2 lg:hidden">
-            <div className="flex">
-              <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm mx-1">
+          <div className="flex flex-row flex-wrap items-center justify-between gap-2 p-1 pt-2 lg:hidden">
+            <div className="flex gap-2">
+              <label htmlFor="conversation-drawer" className="drawer-button btn btn-sm">
                 <MenuIcon className="size-6" />
               </label>
               <NewConversationSelector
-                humans={assignableUsers.myConversationUsers}
+                users={assignableUsers.users}
                 assistants={assignableAssistants.aiAssistants}
                 userId={userId}
               />
@@ -166,10 +150,10 @@ function RouteComponent() {
 
             {selectedConversation?.aiConversation && (
               <div className="flex">
-                <ParticipantsDialog
+                <ConversationParticipantsDialog
                   conversation={selectedConversation.aiConversation}
                   assistants={assignableAssistants.aiAssistants}
-                  humans={assignableUsers.myConversationUsers}
+                  users={assignableUsers.users}
                   dialogMode="add"
                   userId={userId}
                 />
@@ -183,7 +167,7 @@ function RouteComponent() {
               <ConversationParticipants
                 conversation={selectedConversation.aiConversation}
                 assistants={assignableAssistants.aiAssistants}
-                humans={assignableUsers.myConversationUsers}
+                users={assignableUsers.users}
                 userId={userId}
               />
               <div className="hidden lg:flex">
@@ -196,7 +180,7 @@ function RouteComponent() {
         <div className="flex h-full flex-col">
           {selectedConversation?.aiConversation && (
             <>
-              <ConversationHistory conversation={selectedConversation.aiConversation} />
+              <ConversationHistory conversation={selectedConversation.aiConversation} userId={userId} />
               <ConversationForm
                 conversation={selectedConversation.aiConversation}
                 user={user}
@@ -214,18 +198,18 @@ function RouteComponent() {
         )}
       >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="bg-base-200 flex h-full w-80 flex-col items-center">
-          <div className="border-b py-2">
-            <NewConversationSelector
-              humans={assignableUsers.myConversationUsers}
-              assistants={assignableAssistants.aiAssistants}
-              isOpen={conversations?.aiConversations?.length === 0}
-              userId={userId}
-            />
-          </div>
+        <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
           <div className="flex-1 overflow-scroll px-2">
             {conversations.aiConversations && (
-              <ConversationSelector conversations={conversations.aiConversations} onClick={handleConversationClick} />
+              <ConversationSelector
+                conversations={conversations.aiConversations}
+                selectedConversationId={selectedConversationId}
+                onClick={handleConversationClick}
+                userId={userId}
+                humans={assignableUsers.users}
+                assistants={assignableAssistants.aiAssistants}
+                isOpen={conversations?.aiConversations?.length === 0}
+              />
             )}
           </div>
         </div>

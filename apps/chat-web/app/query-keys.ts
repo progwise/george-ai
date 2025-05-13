@@ -1,7 +1,6 @@
 export const queryKeys = {
   KeycloakInstance: 'KeycloakInstance',
-  AiAssistants: 'AiAssistants',
-  AiAssistantForEdit: 'AiAssistantForEdit',
+  AiAssistant: 'AiAssistant',
   MyAiAssistants: 'MyAiAssistants',
   AiAssistantLibraries: 'AiAssistantLibraries',
   AiLibraries: 'AiLibraries',
@@ -10,8 +9,7 @@ export const queryKeys = {
   Conversations: 'Conversations',
   Conversation: 'Conversation',
   ConversationMessages: 'ConversationMessages',
-  ConversationUsers: 'ConversationUsers',
-  ConversationAssignableUsers: 'ConversationAssignableUsers',
+  Users: 'Users',
   ConversationAssignableAssistants: 'ConversationAssignableAssistants',
   ConversationInvitation: 'ConversationInvitation',
   BackendUrl: 'BackendUrl',

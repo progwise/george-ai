@@ -1,11 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate, useParams } from '@tanstack/react-router'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
-import { confirmInvitation } from '../../../server-functions/participations'
+import { confirmInvitation } from '../../../server-functions/conversationParticipations'
 
 const conversationInvitationQueryOptions = (conversationId?: string, invitationId?: string) => ({
   queryKey: [queryKeys.ConversationInvitation, conversationId, invitationId],

@@ -148,3 +148,33 @@ builder.mutationField('deleteAiConversation', (t) =>
     },
   }),
 )
+
+builder.mutationField('removeAiConversations', (t) =>
+  t.field({
+    type: 'Boolean',
+    nullable: false,
+    args: {
+      conversationIds: t.arg.stringList({ required: true }),
+      userId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { conversationIds, userId }) => {
+      await prisma.aiConversation.deleteMany({
+        where: {
+          ownerId: userId,
+          id: {
+            in: conversationIds,
+          },
+        },
+      })
+      await prisma.aiConversationParticipant.deleteMany({
+        where: {
+          conversationId: {
+            in: conversationIds,
+          },
+          userId,
+        },
+      })
+      return true
+    },
+  }),
+)
