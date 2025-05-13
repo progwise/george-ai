@@ -532,6 +532,7 @@ export type MutationDeleteAiLibraryCrawlerArgs = {
 
 export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationDropFileArgs = {
@@ -1281,6 +1282,7 @@ export type ConversationForm_ConversationFragment = {
 export type ConversationHistory_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
+  ownerId: string
   messages: Array<{
     __typename?: 'AiConversationMessage'
     id: string
@@ -1323,6 +1325,16 @@ export type UnhideMessageMutationVariables = Exact<{
 export type UnhideMessageMutation = {
   __typename?: 'Mutation'
   unhideMessage?: { __typename?: 'AiConversationMessage'; id: string; hidden?: boolean | null } | null
+}
+
+export type DeleteMessageMutationVariables = Exact<{
+  messageId: Scalars['String']['input']
+  userId: Scalars['String']['input']
+}>
+
+export type DeleteMessageMutation = {
+  __typename?: 'Mutation'
+  deleteMessage?: { __typename?: 'AiConversationMessage'; id: string } | null
 }
 
 export type ConversationParticipantsDialogButton_ConversationFragment = {
@@ -2965,6 +2977,7 @@ export const ConversationHistory_ConversationFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'messages' },
@@ -4977,6 +4990,53 @@ export const UnhideMessageDocument = {
     },
   ],
 } as unknown as DocumentNode<UnhideMessageMutation, UnhideMessageMutationVariables>
+export const DeleteMessageDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteMessage' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteMessage' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'messageId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'messageId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteMessageMutation, DeleteMessageMutationVariables>
 export const CreateContactRequestDocument = {
   kind: 'Document',
   definitions: [
@@ -6254,6 +6314,7 @@ export const GetConversationDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'messages' },
