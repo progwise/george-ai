@@ -180,7 +180,7 @@ function RouteComponent() {
         <div className="flex h-full flex-col">
           {selectedConversation?.aiConversation && (
             <>
-              <ConversationHistory conversation={selectedConversation.aiConversation} />
+              <ConversationHistory conversation={selectedConversation.aiConversation} userId={userId} />
               <ConversationForm
                 conversation={selectedConversation.aiConversation}
                 user={user}

@@ -93,10 +93,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   const isPending = isDeletePending || isLeavePending
   const Icon = isOwner ? TrashIcon : ExitIcon
 
-  const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
+  const title = `${isOwner ? t('conversations.deleteConversation') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
   const submitButtonText = isOwner ? t('actions.delete') : t('actions.leave')
-  const buttonTooltip = isOwner ? t('conversations.delete') : t('conversations.leave')
+  const buttonTooltip = isOwner ? t('conversations.deleteConversation') : t('conversations.leave')
 
   return (
     <>

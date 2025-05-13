@@ -106,9 +106,11 @@ export default {
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
-    delete: 'Konversation löschen',
     deleteConfirmation:
       'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteConversation: 'Konversation löschen',
+    deleteMessage: 'Nachricht löschen',
+    deleteMessageConfirmation: 'Sie sind dabei, diese Nachricht zu löschen. Bitte bestätigen Sie.',
     errorDetails: 'Fehlerdetails',
     errorProcessingMessage: 'Fehler beim Verarbeiten der Nachricht',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
@@ -148,6 +150,7 @@ export default {
   errors: {
     businessAndPositionRequired: 'Unternehmen und Position sind erforderlich.',
     copyFailed: 'Kopieren fehlgeschlagen',
+    deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
@@ -304,6 +307,7 @@ export default {
     copyConversationLink: 'Link kopieren',
     copyInvitationLink: 'Einladungslink kopieren',
     delete: 'Löschen',
+    deleteMessage: 'Nachricht löschen',
     edit: 'Bearbeiten',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',

@@ -42,9 +42,10 @@ type Documents = {
   '\n  fragment AssistantParticipants_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n      name\n    }\n    ...AssistantParticipantsDialog_Assistant\n  }\n': typeof types.AssistantParticipants_AssistantFragmentDoc
   '\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantSelector_AssistantFragmentDoc
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationForm_ConversationFragmentDoc
-  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n': typeof types.ConversationHistory_ConversationFragmentDoc
+  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n': typeof types.ConversationHistory_ConversationFragmentDoc
   '\n  mutation hideMessage($messageId: String!) {\n    hideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.HideMessageDocument
   '\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n': typeof types.UnhideMessageDocument
+  '\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.DeleteMessageDocument
   '\n  fragment ConversationParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n': typeof types.ConversationParticipantsDialog_ConversationFragmentDoc
   '\n  fragment ConversationParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.ConversationParticipantsDialog_AssistantFragmentDoc
   '\n  fragment ConversationParticipants_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      name\n      userId\n      assistantId\n    }\n    ...ConversationParticipantsDialog_Conversation\n  }\n': typeof types.ConversationParticipants_ConversationFragmentDoc
@@ -161,12 +162,14 @@ const documents: Documents = {
     types.AssistantSelector_AssistantFragmentDoc,
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    id\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationForm_ConversationFragmentDoc,
-  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n':
+  '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n':
     types.ConversationHistory_ConversationFragmentDoc,
   '\n  mutation hideMessage($messageId: String!) {\n    hideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n':
     types.HideMessageDocument,
   '\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n':
     types.UnhideMessageDocument,
+  '\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n':
+    types.DeleteMessageDocument,
   '\n  fragment ConversationParticipantsDialog_Conversation on AiConversation {\n    id\n    ownerId\n    participants {\n      id\n      userId\n      assistantId\n    }\n  }\n':
     types.ConversationParticipantsDialog_ConversationFragmentDoc,
   '\n  fragment ConversationParticipantsDialog_Assistant on AiAssistant {\n    id\n    name\n  }\n':
@@ -468,8 +471,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n',
-): (typeof documents)['\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n']
+  source: '\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n',
+): (typeof documents)['\n  fragment ConversationHistory_Conversation on AiConversation {\n    id\n    ownerId\n    messages {\n      id\n      sequenceNumber\n      content\n      source\n      createdAt\n      hidden\n      sender {\n        id\n        name\n        isBot\n        assistantId\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -482,6 +485,12 @@ export function graphql(
 export function graphql(
   source: '\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n',
 ): (typeof documents)['\n  mutation unhideMessage($messageId: String!) {\n    unhideMessage(messageId: $messageId) {\n      id\n      hidden\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation deleteMessage($messageId: String!, $userId: String!) {\n    deleteMessage(messageId: $messageId, userId: $userId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
