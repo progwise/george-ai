@@ -163,25 +163,26 @@ export default {
   flowWeb: 'Ablauf: Nur Web',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
   hero: {
-    badge: 'Vorstellung von George-AI',
+    badge1: 'George-Ai',
     chat: {
-      title: 'George-AI Unterhaltung',
+      title: 'George-Ai Homepage',
       message: {
-        greeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistenz.',
-        info: 'Wenn Sie uns Ihre Email Adresse oder Telefonnummer hinterlassen melden wir uns bei Ihnen persönlich.',
+        greeting: 'Hallo! Ich bin George, Ihre persönliche KI-Assistent.',
+        info: 'Wenn Sie mir Ihre Email Adresse oder Telefonnummer hinterlassen, melden wir uns bei Ihnen persönlich.',
       },
     },
     description:
-      'Erstellen, Anpassen und Bereitstellen von KI-Assistenten, die Ihre Daten verstehen und Ihren Regeln folgen.',
+      'Wenn erfahrene Mitarbeitende gehen, verschwinden oft auch Antworten. Mit George-Ai sichern Sie ihr Wissen in KI-Modellen – und bewahren es für morgen.',
     features: {
       customAssistants: 'Individuelle Assistenten',
-      knowledgeLibraries: 'Wissen-Bibliotheken',
+      knowledgeLibraries: 'Wissens-Bibliotheken',
+      selfLearning: 'Selbstlernend',
     },
     meeting: 'Beratungstermin vereinbaren',
     more: 'Mehr erfahren',
     title: {
-      part1: 'Ihr AI-Assistant,',
-      part2: 'Neugedacht',
+      part1: 'Wissen retten.',
+      part2: 'Geld, Zeit und Nerven sparen.',
     },
   },
   home: {
@@ -232,6 +233,7 @@ export default {
     invitation: 'Einladung',
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',
+    libraries: 'Bibliotheken',
     library: 'Bibliothek',
     llmTemperature: 'LLM Temperatur',
     monday: 'Montag',
@@ -254,6 +256,7 @@ export default {
     updatedAt: 'Geändert',
     usedMessages: 'Vorhandene Nachrichten',
     usedStorage: 'Verwendeter Speicher',
+    version: 'Version',
     wednesday: 'Mittwoch',
   },
   libraries: {

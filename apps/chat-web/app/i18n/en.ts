@@ -160,24 +160,26 @@ export default {
   flowWeb: 'Flow: Only Web',
   greeting: 'Hello, I am your travel assistant. How can I help you?',
   hero: {
-    badge: 'Introducing George-AI',
+    badge1: 'George-Ai',
     chat: {
-      title: 'George-AI Conversation',
+      title: 'George-Ai Homepagen',
       message: {
         greeting: 'Hello! I’m George, your personal AI assistant.',
         info: 'If you leave your email address or phone number, we’ll get back to you personally.',
       },
     },
-    description: 'Build, customize, and deploy AI assistants that understand your data and follow your rules.',
+    description:
+      'When experienced employees leave, answers often disappear. With George-Ai, you preserve their knowledge in AI models – and keep it for tomorrow.',
     features: {
       customAssistants: 'Custom Assistants',
       knowledgeLibraries: 'Knowledge Libraries',
+      selfLearning: 'Self-learning',
     },
     meeting: 'Schedule a consultation',
     more: 'Learn more',
     title: {
-      part1: 'Your AI Assistant,',
-      part2: 'Reimagined',
+      part1: 'Preserve knowledge.',
+      part2: 'Protect your budget, time, and team.',
     },
   },
   home: {
@@ -201,7 +203,7 @@ export default {
     actions: 'Actions',
     activatedAt: 'Activated at',
     active: 'Active',
-    assistant: 'Assistent',
+    assistant: 'Assistant',
     adminProfileActivation: 'Admin Profile Activation',
     awaitingActivation: 'Awaiting activation',
     awaitingConfirmation: 'Awaiting confirmation',
@@ -227,6 +229,7 @@ export default {
     invitation: 'Invitation',
     languageModel: 'Language Model',
     lastName: 'Last Name',
+    libraries: 'Libraries',
     library: 'Library',
     llmTemperature: 'LLM Temperature',
     monday: 'Monday',
@@ -249,6 +252,7 @@ export default {
     updatedAt: 'Updated',
     usedMessages: 'Used Messages',
     usedStorage: 'Used Storage',
+    version: 'Release',
     wednesday: 'Wednesday',
   },
   libraries: {
