@@ -6,6 +6,7 @@ import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
 import { schema } from '@george-ai/pothos-graphql'
+import { createContext } from '@george-ai/pothos-graphql/src/graphql/context'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { conversationMessagesSSE } from './conversation-messages-sse'
@@ -14,6 +15,7 @@ import { dataUploadMiddleware } from './upload'
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
+  context: async ({ request }) => createContext(request),
 })
 
 const yogaRouter = express.Router({})

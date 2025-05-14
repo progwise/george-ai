@@ -326,16 +326,22 @@ importers:
         version: link:../langchain-chat
       '@pothos/core':
         specifier: ^4.3.0
-        version: 4.5.0(graphql@16.10.0)
+        version: 4.6.2(graphql@16.10.0)
       '@pothos/plugin-prisma':
         specifier: ^4.4.0
-        version: 4.4.0(@pothos/core@4.5.0(graphql@16.10.0))(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(graphql@16.10.0)(typescript@5.8.2)
+        version: 4.4.0(@pothos/core@4.6.2(graphql@16.10.0))(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(graphql@16.10.0)(typescript@5.8.2)
+      '@pothos/plugin-scope-auth':
+        specifier: ^4.1.3
+        version: 4.1.3(@pothos/core@4.6.2(graphql@16.10.0))(graphql@16.10.0)
       '@pothos/plugin-simple-objects':
         specifier: ^4.1.0
-        version: 4.1.0(@pothos/core@4.5.0(graphql@16.10.0))(graphql@16.10.0)
+        version: 4.1.0(@pothos/core@4.6.2(graphql@16.10.0))(graphql@16.10.0)
       '@prisma/client':
         specifier: ^6.4.1
         version: 6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)
+      '@types/jsonwebtoken':
+        specifier: ^9.0.9
+        version: 9.0.9
       cron:
         specifier: ^4.3.0
         version: 4.3.0
@@ -348,6 +354,12 @@ importers:
       graphql-yoga:
         specifier: ^5.10.2
         version: 5.12.2(graphql@16.10.0)
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      jwks-rsa:
+        specifier: ^3.2.0
+        version: 3.2.0
       nodemailer:
         specifier: ^6.10.0
         version: 6.10.0
@@ -2411,10 +2423,10 @@ packages:
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
-  '@pothos/core@4.5.0':
-    resolution: {integrity: sha512-OBktnbaTkcS3pZMGCC2375tNSypsvVRP2SJSjN0VW9MXlJFP9+2lZTNeKyGFndTH5QLbxoLUe3nUSVdkBHMLzA==}
+  '@pothos/core@4.6.2':
+    resolution: {integrity: sha512-3mwMf1t87VnfFIAZNJPptR3+k3TVLsynV35PXsFrodtCGv/IOlRDJNjgavIeObPz5qI38cjJ6DeFy6XDXrvudQ==}
     peerDependencies:
-      graphql: '>=16.6.0'
+      graphql: ^16.10.0
 
   '@pothos/plugin-prisma@4.4.0':
     resolution: {integrity: sha512-TlXJ8QVOihpPbJGGHwOv2MUFv61xHU2xgGyTVp7KWNLQ6hzP9RH3nSQY7H1pNLOYR5wK+RyREJcaswVNwtxuqw==}
@@ -2424,6 +2436,12 @@ packages:
       '@prisma/client': '*'
       graphql: '>=16.6.0'
       typescript: '>=4.7.2'
+
+  '@pothos/plugin-scope-auth@4.1.3':
+    resolution: {integrity: sha512-lFxrvplt2MQ2OHAcIF1Rikz/VlVkluIhvXT2JNW0X5JGDjCf2kKgHU5cSWjQMDq8s3k9He1HZFYYdli1z77YDA==}
+    peerDependencies:
+      '@pothos/core': '*'
+      graphql: ^16.10.0
 
   '@pothos/plugin-simple-objects@4.1.0':
     resolution: {integrity: sha512-R4u3Hnd6btWt1XHG3bgBa463XbDgH380GRWg88FMrDfoqqkB1EI02gsWgmASqHHJgFI35V9Tc62loGy2XpTUyA==}
@@ -3256,8 +3274,14 @@ packages:
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
+  '@types/express-serve-static-core@4.19.6':
+    resolution: {integrity: sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==}
+
   '@types/express-serve-static-core@5.0.6':
     resolution: {integrity: sha512-3xhRnjJPkULekpSzgtoNYYcTWgEZkp4myc+Saevii5JPnHNvHMRlBSHDbs7Bh1iPPoVTERHEZXyhyLbMEsExsA==}
+
+  '@types/express@4.17.21':
+    resolution: {integrity: sha512-ejlPM315qwLpaQlQDTjPdsUFSc6ZsP4AN6AlWnogPjQ7CVi7PYF3YVz+CY3jE2pwYf7E/7HlDAN0rV2GxTG0HQ==}
 
   '@types/express@5.0.0':
     resolution: {integrity: sha512-DvZriSMehGHL1ZNLzi6MidnsDhUZM/x2pRdDIKdwbUNqqwHxMlRdkxtn6/EPKyqKpHqTl/4nRZsRNLpZxZRpPQ==}
@@ -3276,6 +3300,9 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/jsonwebtoken@9.0.9':
+    resolution: {integrity: sha512-uoe+GxEuHbvy12OUQct2X9JenKM3qAscquYymuQN4fMWG9DBQtykrQEFcAbVACF7qaLw9BePSodUL0kquqBJpQ==}
 
   '@types/luxon@3.6.2':
     resolution: {integrity: sha512-R/BdP7OxEMc44l2Ex5lSXHoIXTB2JLNa3y2QISIbr58U/YcsffyQrYW//hZSdrfxrjRZj3GcUoxMPGdO8gSYuw==}
@@ -5133,6 +5160,9 @@ packages:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
 
+  jose@4.15.9:
+    resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
+
   jose@5.10.0:
     resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
@@ -5198,6 +5228,10 @@ packages:
 
   jwa@1.4.1:
     resolution: {integrity: sha512-qiLX/xhEEFKUAJ6FiBMbes3w9ATzyk5W7Hvzpa/SLYdxNtng+gcurvrI7TbACjIXlsJyr05/S1oUhZrc63evQA==}
+
+  jwks-rsa@3.2.0:
+    resolution: {integrity: sha512-PwchfHcQK/5PSydeKCs1ylNym0w/SSv8a62DgHJ//7x2ZclCoinlsjAfDxAAbpoTPybOum/Jgy+vkvMmKz89Ww==}
+    engines: {node: '>=14'}
 
   jws@3.2.2:
     resolution: {integrity: sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA==}
@@ -5356,6 +5390,9 @@ packages:
     resolution: {integrity: sha512-6b6gd/RUXKaw5keVdSEtqFVdzWnU5jMxTUjA2bVcMNPLwSQ08Sv/UodBVtETLCn7k4S1Ibxwh7k68IwLZPgKaA==}
     engines: {node: '>= 12.0.0'}
 
+  limiter@1.1.5:
+    resolution: {integrity: sha512-FWWMIEOxz3GwUI4Ts/IvgVy6LPvoMPgjMdQ185nN6psJyBJ4yOpzqm695/h5umdLJg2vW3GR5iG11MAkR2AzJA==}
+
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
@@ -5386,6 +5423,9 @@ packages:
 
   lodash.castarray@4.4.0:
     resolution: {integrity: sha512-aVx8ztPv7/2ULbArGJ2Y42bG1mEQ5mGjpdvrbJcJFU3TbYybe+QlLS4pst9zV52ymy2in1KpFPiZnAOATxD4+Q==}
+
+  lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
 
   lodash.defaults@4.2.0:
     resolution: {integrity: sha512-qjxPLHd3r5DnsdGacqOMU6pb/avJzdh9tFX2ymgoZE27BmjXrNy/y4LoaiTeAb+O3gL8AfpJGtqfX/ae2leYYQ==}
@@ -5459,6 +5499,13 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lru-cache@6.0.0:
+    resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
+    engines: {node: '>=10'}
+
+  lru-memoizer@2.3.0:
+    resolution: {integrity: sha512-GXn7gyHAMhO13WSKrIiNfztwxodVsP8IoZ3XfrJV4yH2x0/OeTO/FIaAHTY5YekdGgW94njfuKmyyt1E0mR6Ug==}
 
   luxon@3.6.1:
     resolution: {integrity: sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ==}
@@ -9688,21 +9735,26 @@ snapshots:
   '@polka/url@1.0.0-next.29':
     optional: true
 
-  '@pothos/core@4.5.0(graphql@16.10.0)':
+  '@pothos/core@4.6.2(graphql@16.10.0)':
     dependencies:
       graphql: 16.10.0
 
-  '@pothos/plugin-prisma@4.4.0(@pothos/core@4.5.0(graphql@16.10.0))(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(graphql@16.10.0)(typescript@5.8.2)':
+  '@pothos/plugin-prisma@4.4.0(@pothos/core@4.6.2(graphql@16.10.0))(@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2))(graphql@16.10.0)(typescript@5.8.2)':
     dependencies:
-      '@pothos/core': 4.5.0(graphql@16.10.0)
+      '@pothos/core': 4.6.2(graphql@16.10.0)
       '@prisma/client': 6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)
       '@prisma/generator-helper': 6.4.1
       graphql: 16.10.0
       typescript: 5.8.2
 
-  '@pothos/plugin-simple-objects@4.1.0(@pothos/core@4.5.0(graphql@16.10.0))(graphql@16.10.0)':
+  '@pothos/plugin-scope-auth@4.1.3(@pothos/core@4.6.2(graphql@16.10.0))(graphql@16.10.0)':
     dependencies:
-      '@pothos/core': 4.5.0(graphql@16.10.0)
+      '@pothos/core': 4.6.2(graphql@16.10.0)
+      graphql: 16.10.0
+
+  '@pothos/plugin-simple-objects@4.1.0(@pothos/core@4.6.2(graphql@16.10.0))(graphql@16.10.0)':
+    dependencies:
+      '@pothos/core': 4.6.2(graphql@16.10.0)
       graphql: 16.10.0
 
   '@prisma/client@6.4.1(prisma@6.4.1(typescript@5.8.2))(typescript@5.8.2)':
@@ -11290,12 +11342,26 @@ snapshots:
 
   '@types/estree@1.0.6': {}
 
+  '@types/express-serve-static-core@4.19.6':
+    dependencies:
+      '@types/node': 22.13.8
+      '@types/qs': 6.9.18
+      '@types/range-parser': 1.2.7
+      '@types/send': 0.17.4
+
   '@types/express-serve-static-core@5.0.6':
     dependencies:
       '@types/node': 22.13.8
       '@types/qs': 6.9.18
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
+
+  '@types/express@4.17.21':
+    dependencies:
+      '@types/body-parser': 1.19.5
+      '@types/express-serve-static-core': 4.19.6
+      '@types/qs': 6.9.18
+      '@types/serve-static': 1.15.7
 
   '@types/express@5.0.0':
     dependencies:
@@ -11317,6 +11383,11 @@ snapshots:
   '@types/js-yaml@4.0.9': {}
 
   '@types/json-schema@7.0.15': {}
+
+  '@types/jsonwebtoken@9.0.9':
+    dependencies:
+      '@types/ms': 2.1.0
+      '@types/node': 22.13.8
 
   '@types/luxon@3.6.2': {}
 
@@ -13296,7 +13367,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -13492,6 +13563,8 @@ snapshots:
 
   jiti@2.4.2: {}
 
+  jose@4.15.9: {}
+
   jose@5.10.0: {}
 
   js-levenshtein@1.1.6: {}
@@ -13560,6 +13633,17 @@ snapshots:
       buffer-equal-constant-time: 1.0.1
       ecdsa-sig-formatter: 1.0.11
       safe-buffer: 5.2.1
+
+  jwks-rsa@3.2.0:
+    dependencies:
+      '@types/express': 4.17.21
+      '@types/jsonwebtoken': 9.0.9
+      debug: 4.4.0(supports-color@9.4.0)
+      jose: 4.15.9
+      limiter: 1.1.5
+      lru-memoizer: 2.3.0
+    transitivePeerDependencies:
+      - supports-color
 
   jws@3.2.2:
     dependencies:
@@ -13670,6 +13754,8 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.29.2
       lightningcss-win32-x64-msvc: 1.29.2
 
+  limiter@1.1.5: {}
+
   lines-and-columns@1.2.4: {}
 
   listhen@1.9.0:
@@ -13719,6 +13805,8 @@ snapshots:
       p-locate: 5.0.0
 
   lodash.castarray@4.4.0: {}
+
+  lodash.clonedeep@4.5.0: {}
 
   lodash.defaults@4.2.0: {}
 
@@ -13785,6 +13873,15 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  lru-cache@6.0.0:
+    dependencies:
+      yallist: 4.0.0
+
+  lru-memoizer@2.3.0:
+    dependencies:
+      lodash.clonedeep: 4.5.0
+      lru-cache: 6.0.0
 
   luxon@3.6.1: {}
 
@@ -14973,7 +15070,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 
