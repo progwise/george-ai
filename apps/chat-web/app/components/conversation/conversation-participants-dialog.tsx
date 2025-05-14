@@ -283,6 +283,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
               users={availableUsers}
               selectedUserIds={selectedUserIds}
               setSelectedUserIds={setSelectedUserIds}
+              className="min-h-0"
             />
           </div>
 
