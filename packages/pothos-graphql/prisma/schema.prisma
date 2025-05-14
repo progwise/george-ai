@@ -195,7 +195,7 @@ model AiLibraryCrawlerRun {
   runByUserId  String?
   runByCronJob Boolean   @default(false)
 
-  crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id])
+  crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
   runBy   User?            @relation(fields: [runByUserId], references: [id])
 }
 
