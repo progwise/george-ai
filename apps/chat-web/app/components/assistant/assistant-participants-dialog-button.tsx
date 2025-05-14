@@ -5,7 +5,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
-import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
+import { addAssistantParticipants } from '../../server-functions/assistant-participations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
@@ -21,13 +21,13 @@ const AssistantParticipantsDialogButton_AssistantFragment = graphql(`
   }
 `)
 
-interface DialogFormProps {
+interface AssistantParticipantsDialogFormProps {
   assistant: FragmentType<typeof AssistantParticipantsDialogButton_AssistantFragment>
   users: User[]
   userId: string
 }
 
-export const AssistantParticipantsDialogButton = (props: DialogFormProps) => {
+export const AssistantParticipantsDialogButton = (props: AssistantParticipantsDialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 

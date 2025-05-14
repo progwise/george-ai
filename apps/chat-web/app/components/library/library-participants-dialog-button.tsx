@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { addLibraryParticipants } from '../../server-functions/libraryParticipations'
+import { addLibraryParticipants } from '../../server-functions/library-participations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
@@ -22,13 +22,13 @@ const LibraryParticipantsDialogButton_LibraryFragment = graphql(`
   }
 `)
 
-interface DialogFormProps {
+interface LibraryParticipantsDialogFormProps {
   library: FragmentType<typeof LibraryParticipantsDialogButton_LibraryFragment>
   users: User[]
   userId: string
 }
 
-export const LibraryParticipantsDialogButton = (props: DialogFormProps) => {
+export const LibraryParticipantsDialogButton = (props: LibraryParticipantsDialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 

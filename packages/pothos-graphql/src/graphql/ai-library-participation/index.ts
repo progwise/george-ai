@@ -53,10 +53,9 @@ builder.mutationField('removeLibraryParticipant', (t) =>
         throw new Error('Only the owner can remove participants')
       }
 
-      await prisma.aiLibraryParticipant.deleteMany({
+      await prisma.aiLibraryParticipant.delete({
         where: {
-          userId,
-          libraryId,
+          libraryId_userId: { userId, libraryId },
         },
       })
 

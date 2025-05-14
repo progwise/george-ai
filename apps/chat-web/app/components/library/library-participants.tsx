@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { removeLibraryParticipant } from '../../server-functions/libraryParticipations'
+import { removeLibraryParticipant } from '../../server-functions/library-participations'
 import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { getLibrariesQueryOptions } from './get-libraries-query-options'
@@ -64,8 +64,8 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
             <div
               key={participant.id}
               className={twMerge(
-                'badge badge-primary badge-lg text-nowrap text-xs',
-                isParticipantOwner && 'badge-accent',
+                'badge badge-lg text-nowrap text-xs',
+                isParticipantOwner ? 'badge-accent' : 'badge-primary',
               )}
             >
               {participant.id !== props.userId && isOwner && (

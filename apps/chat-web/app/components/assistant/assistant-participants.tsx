@@ -5,7 +5,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
-import { removeAssistantParticipant } from '../../server-functions/assistantParticipations'
+import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
 import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
@@ -68,8 +68,8 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
             <div
               key={participant.id}
               className={twMerge(
-                'badge badge-primary badge-lg text-nowrap text-xs',
-                isParticipantOwner && 'badge-accent',
+                'badge badge-lg text-nowrap text-xs',
+                isParticipantOwner ? 'badge-accent' : 'badge-primary',
               )}
             >
               {participant.id !== props.userId && isOwner && (
