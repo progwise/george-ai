@@ -11,6 +11,7 @@ import { convertMdToHtml } from './markdown-converter'
 const ConversationHistory_ConversationFragment = graphql(`
   fragment ConversationHistory_Conversation on AiConversation {
     id
+    ownerId
     messages {
       id
       sequenceNumber
@@ -30,6 +31,7 @@ const ConversationHistory_ConversationFragment = graphql(`
 
 interface ConversationHistoryProps {
   conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
+  userId: string
 }
 
 interface IncomingMessage {
@@ -43,10 +45,13 @@ interface IncomingMessage {
     assistantId?: string
     name: string
     isBot: boolean
+    userId?: string
   }
 }
 
 export const ConversationHistory = (props: ConversationHistoryProps) => {
+  const { conversation: conversationFragment, userId } = props
+  const conversation = useFragment(ConversationHistory_ConversationFragment, conversationFragment)
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
     queryFn: async () => {
@@ -55,7 +60,6 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
     },
     staleTime: Infinity,
   })
-  const conversation = useFragment(ConversationHistory_ConversationFragment, props.conversation)
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])
   const { t } = useTranslation()
 
@@ -119,6 +123,8 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         <ConversationMessage
           key={message.id}
           isLoading={false}
+          userId={userId}
+          conversationOwnerId={conversation.ownerId}
           message={{
             id: message.id,
             content: message.content || '',
@@ -139,6 +145,8 @@ export const ConversationHistory = (props: ConversationHistoryProps) => {
         <ConversationMessage
           key={message.id}
           isLoading={true}
+          userId={userId}
+          conversationOwnerId={conversation.ownerId}
           message={{
             id: message.id,
             content: message.content,

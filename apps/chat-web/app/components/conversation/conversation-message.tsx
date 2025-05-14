@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
@@ -10,9 +11,12 @@ import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CollapseArrows } from '../../icons/collapse-arrows-icon'
 import { ExpandArrows } from '../../icons/expand-arrows-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import { backendRequest } from '../../server-functions/backend'
 import { getConversationQueryOptions } from '../../server-functions/conversations'
+import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
+import { toastError } from '../georgeToaster'
 
 const HideMessageDocument = graphql(`
   mutation hideMessage($messageId: String!) {
@@ -48,8 +52,33 @@ const unhideMessage = createServerFn({ method: 'POST' })
     }),
   )
 
+const DeleteMessageDocument = graphql(`
+  mutation deleteMessage($messageId: String!, $userId: String!) {
+    deleteMessage(messageId: $messageId, userId: $userId) {
+      id
+    }
+  }
+`)
+export const deleteMessage = createServerFn({ method: 'POST' })
+  .validator((data: { messageId: string; userId: string }) =>
+    z
+      .object({
+        messageId: z.string(),
+        userId: z.string(),
+      })
+      .parse(data),
+  )
+  .handler((ctx) =>
+    backendRequest(DeleteMessageDocument, {
+      messageId: ctx.data.messageId,
+      userId: ctx.data.userId,
+    }),
+  )
+
 interface ConversationMessageProps {
   isLoading: boolean
+  userId: string
+  conversationOwnerId: string
   message: {
     id: string
     content: string
@@ -66,9 +95,10 @@ interface ConversationMessageProps {
   }
 }
 
-export const ConversationMessage = ({ isLoading, message }: ConversationMessageProps) => {
+export const ConversationMessage = ({ isLoading, message, conversationOwnerId, userId }: ConversationMessageProps) => {
   const queryClient = useQueryClient()
   const { t, language } = useTranslation()
+  const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { mutate: hideMessageMutate } = useMutation({
     mutationFn: async (messageId: string) => {
@@ -96,12 +126,24 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
     }
   }
 
+  const { mutate: deleteMessageMutate, isPending: isDeletePending } = useMutation({
+    mutationFn: async (messageId: string) => {
+      await deleteMessage({ data: { messageId, userId } })
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(getConversationQueryOptions(message.conversationId))
+    },
+    onError: () => {
+      toastError(t('errors.deleteMessage'))
+    },
+  })
+
   return (
     <div
       key={message.id}
       className={twMerge('card text-base-content mx-1.5 border p-3 shadow-md lg:mx-10', message.hidden && 'opacity-50')}
     >
-      <div className="mb-2 flex items-center gap-3">
+      <div className="mb-2 flex items-center gap-2">
         <div
           className={twMerge(
             'flex h-8 w-8 items-center justify-center rounded-full',
@@ -133,8 +175,28 @@ export const ConversationMessage = ({ isLoading, message }: ConversationMessageP
           onClick={handleHideMessage}
           data-tip={message.hidden ? t('tooltips.unhide') : t('tooltips.hide')}
         >
-          {message.hidden ? <ExpandArrows /> : <CollapseArrows />}
+          {message.hidden ? <ExpandArrows className="size-5" /> : <CollapseArrows className="size-5" />}
         </button>
+        {conversationOwnerId === userId && (
+          <>
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs tooltip tooltip-left self-start"
+              onClick={() => deleteDialogRef.current?.showModal()}
+              data-tip={t('tooltips.deleteMessage')}
+              disabled={isDeletePending}
+            >
+              <TrashIcon className="size-5" />
+            </button>
+            <DialogForm
+              ref={deleteDialogRef}
+              title={t('conversations.deleteMessage')}
+              description={t('conversations.deleteMessageConfirmation')}
+              onSubmit={() => deleteMessageMutate(message.id)}
+              submitButtonText={t('actions.delete')}
+            />
+          </>
+        )}
       </div>
       {!message.hidden && (
         <div className="border-base-200 border-t pt-3">

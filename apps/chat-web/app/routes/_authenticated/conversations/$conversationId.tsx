@@ -74,7 +74,7 @@ function RouteComponent() {
       </div>
 
       <div className="flex h-full flex-col">
-        <ConversationHistory conversation={conversation} />
+        <ConversationHistory conversation={conversation} userId={user.id} />
         <ConversationForm conversation={conversation} user={user} profile={profile ?? undefined} />
       </div>
     </>

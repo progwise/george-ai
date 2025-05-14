@@ -75,16 +75,18 @@ export const sendMessage = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler((ctx) =>
-    backendRequest(CreateMessageDocument, {
+  .handler((ctx) => {
+    const messageData = {
+      content: ctx.data.content,
+      conversationId: ctx.data.conversationId,
+      recipientAssistantIds: ctx.data.recipientAssistantIds,
+    }
+
+    return backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
-      data: {
-        conversationId: ctx.data.conversationId,
-        content: ctx.data.content,
-        recipientAssistantIds: ctx.data.recipientAssistantIds,
-      },
-    }),
-  )
+      data: messageData,
+    })
+  })
 
 const CreateConversationDocument = graphql(`
   mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {
