@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { validateEmails } from '../components/conversation/email-validation'
 import { toastError, toastSuccess } from '../components/georgeToaster'
 import { useTranslation } from '../i18n/use-translation-hook'
-import { queryKeys } from '../query-keys'
 import { createConversationInvitation } from '../server-functions/conversationParticipations'
+import { getConversationQueryOptions } from '../server-functions/conversations'
 
 export const useEmailInvitations = (conversationId: string, userId: string) => {
   const { t } = useTranslation()
@@ -15,7 +15,7 @@ export const useEmailInvitations = (conversationId: string, userId: string) => {
   const { mutateAsync: createInvitation } = useMutation({
     mutationFn: createConversationInvitation,
     onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversationId] })
+      await queryClient.invalidateQueries(getConversationQueryOptions(conversationId))
     },
   })
 
@@ -61,7 +61,7 @@ export const useEmailInvitations = (conversationId: string, userId: string) => {
         toastSuccess(t('invitations.invitationSent'))
       }
 
-      await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversationId] })
+      await queryClient.invalidateQueries(getConversationQueryOptions(conversationId))
     } finally {
       setIsSendingInvitation(false)
     }
