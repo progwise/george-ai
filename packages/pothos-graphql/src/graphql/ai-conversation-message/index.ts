@@ -33,8 +33,8 @@ builder.queryField('aiConversationMessages', (t) =>
       conversationId: t.arg.string(),
       userId: t.arg.string(),
     },
-    resolve: (query, _source, { conversationId, userId }) => {
-      const participant = prisma.aiConversationParticipant.findFirst({
+    resolve: async (query, _source, { conversationId, userId }) => {
+      const participant = await prisma.aiConversationParticipant.findFirst({
         where: { conversationId, userId },
       })
       if (!participant) {
@@ -79,12 +79,21 @@ builder.mutationField('deleteMessage', (t) =>
     type: 'AiConversationMessage',
     args: {
       messageId: t.arg.string({ required: true }),
+      userId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { messageId }) => {
-      const message = await prisma.aiConversationMessage.delete({
+    resolve: async (_query, _source, { messageId, userId }) => {
+      const message = await prisma.aiConversationMessage.findUniqueOrThrow({
+        where: { id: messageId },
+        select: { conversation: { select: { ownerId: true } } },
+      })
+
+      if (message.conversation.ownerId !== userId) {
+        throw new Error('You are not authorized to delete this message')
+      }
+
+      return await prisma.aiConversationMessage.delete({
         where: { id: messageId },
       })
-      return message
     },
   }),
 )
@@ -247,7 +256,7 @@ builder.mutationField('sendMessage', (t) =>
             languageModel: (assistant.languageModel as SupportedModel) || 'gpt-3',
             description:
               assistant.description ||
-              'You are a helpful assistant and no prompt was speficied. Please state that you need a prompt to work properly.',
+              'You are a helpful assistant and no prompt was specified. Please state that you need a prompt to work properly.',
           },
           libraries: assistant.usages.map((usage) => ({
             id: usage.library.id,

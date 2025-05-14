@@ -8,8 +8,11 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ExitIcon } from '../../icons/exit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { deleteConversation, leaveConversation } from '../../server-functions/conversations'
+import {
+  deleteConversation,
+  getConversationsQueryOptions,
+  leaveConversation,
+} from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 
@@ -54,9 +57,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, props.userId],
-      })
+      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
       navigate({ to: '..' })
     },
   })
@@ -71,9 +72,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, props.userId],
-      })
+      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
       navigate({ to: '..' })
     },
   })
@@ -93,10 +92,10 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
   const isPending = isDeletePending || isLeavePending
   const Icon = isOwner ? TrashIcon : ExitIcon
 
-  const title = `${isOwner ? t('conversations.delete') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
+  const title = `${isOwner ? t('conversations.deleteConversation') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
   const submitButtonText = isOwner ? t('actions.delete') : t('actions.leave')
-  const buttonTooltip = isOwner ? t('conversations.delete') : t('conversations.leave')
+  const buttonTooltip = isOwner ? t('conversations.deleteConversation') : t('conversations.leave')
 
   return (
     <>

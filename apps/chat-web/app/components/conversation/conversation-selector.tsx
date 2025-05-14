@@ -108,8 +108,8 @@ export const ConversationSelector = ({
                       className="mt-1 block rounded-md"
                       activeProps={{ className: 'menu-active' }}
                       onClick={onClick}
-                      to="/conversations/$"
-                      params={{ _splat: conversation.id }}
+                      to="/conversations/$conversationId"
+                      params={{ conversationId: conversation.id }}
                     >
                       <div>
                         {conversation.owner.name} <span className="font-bold">({t('conversations.owner')})</span>

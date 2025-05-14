@@ -1,8 +1,59 @@
+import { queryOptions } from '@tanstack/react-query'
+import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../gql'
+import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
+
+const ConversationsQueryDocument = graphql(`
+  query getUserConversations($userId: String!) {
+    aiConversations(userId: $userId) {
+      id
+      ...ConversationSelector_Conversation
+    }
+  }
+`)
+
+export const getConversations = createServerFn({ method: 'GET' })
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
+  .handler(async (ctx) => backendRequest(ConversationsQueryDocument, ctx.data))
+
+export const getConversationsQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.Conversations, userId],
+    queryFn: () => getConversations({ data: { userId } }),
+  })
+
+const ConversationQueryDocument = graphql(`
+  query getConversation($conversationId: String!) {
+    aiConversation(conversationId: $conversationId) {
+      ...ConversationParticipants_Conversation
+      ...ConversationDelete_Conversation
+      ...ConversationHistory_Conversation
+      ...ConversationForm_Conversation
+      ...ConversationParticipantsDialog_Conversation
+    }
+  }
+`)
+
+export const getConversation = createServerFn({ method: 'GET' })
+  .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
+  .handler(async (ctx) => {
+    const { aiConversation } = await backendRequest(ConversationQueryDocument, ctx.data)
+
+    if (!aiConversation) {
+      throw notFound()
+    }
+
+    return aiConversation
+  })
+
+export const getConversationQueryOptions = (conversationId: string) => ({
+  queryKey: [queryKeys.Conversation, conversationId],
+  queryFn: () => getConversation({ data: { conversationId } }),
+})
 
 const CreateMessageDocument = graphql(`
   mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {
@@ -24,16 +75,18 @@ export const sendMessage = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler((ctx) =>
-    backendRequest(CreateMessageDocument, {
+  .handler((ctx) => {
+    const messageData = {
+      content: ctx.data.content,
+      conversationId: ctx.data.conversationId,
+      recipientAssistantIds: ctx.data.recipientAssistantIds,
+    }
+
+    return backendRequest(CreateMessageDocument, {
       userId: ctx.data.userId,
-      data: {
-        conversationId: ctx.data.conversationId,
-        content: ctx.data.content,
-        recipientAssistantIds: ctx.data.recipientAssistantIds,
-      },
-    }),
-  )
+      data: messageData,
+    })
+  })
 
 const CreateConversationDocument = graphql(`
   mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {

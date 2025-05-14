@@ -5,8 +5,7 @@ import { useRef } from 'react'
 import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { removeConversations } from '../../server-functions/conversations'
+import { getConversationsQueryOptions, removeConversations } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationSelector_ConversationFragment } from './conversation-selector'
@@ -33,9 +32,7 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
         data: { conversationIds: props.checkedConversationIds, userId: props.userId },
       }),
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, props.userId],
-      })
+      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
       props.resetCheckedConversationIds()
       if (currentConversationIsChecked) {
         navigate({ to: '..' })

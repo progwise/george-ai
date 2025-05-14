@@ -54,7 +54,7 @@ export async function* askAssistantChain(input: {
     const libraryPromptResult = await getLibraryRelevancePrompt(model, {
       chatHistory: trimmedHistoryMessages,
       question: input.message.content,
-      libraryDescription: library.description.length > 0 ? library.description : 'No description available',
+      libraryDescription: library.description,
       libraryName: library.name,
       libraryUsedFor: library.usedFor,
     })
@@ -148,7 +148,10 @@ const getAssistantAnswerPrompt = () =>
     ['human', '{question}'],
   ])
 
-const getTrimmedMessages = async (messages: BaseMessage[], model: AssistantModel, maxTokens: number) => {
+const getTrimmedMessages = async (messages: BaseMessage[] | null, model: AssistantModel, maxTokens: number) => {
+  if (!messages || messages.length < 1) {
+    return []
+  }
   const trimmer = trimMessages({
     maxTokens: maxTokens,
     strategy: 'last',

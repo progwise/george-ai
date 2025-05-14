@@ -43,9 +43,9 @@ const getLibraryPrompt = async ({
 }: {
   chatHistory: BaseMessage[]
   question: string
-  libraryDescription: string
+  libraryDescription: string | null
   libraryName: string
-  libraryUsedFor: string
+  libraryUsedFor: string | null
 }) => {
   const prompt = await ChatPromptTemplate.fromMessages([
     [
@@ -80,8 +80,12 @@ const getLibraryPrompt = async ({
   ])
   return await prompt.invoke({
     library_name: libraryName,
-    library_description: libraryDescription,
-    library_used_for: libraryUsedFor,
+    library_description:
+      !libraryDescription || libraryDescription.length < 1
+        ? `No description for library ${libraryName}`
+        : libraryDescription,
+    library_used_for:
+      !libraryUsedFor || libraryUsedFor.length < 1 ? `Use the library ${libraryName} for any question` : libraryUsedFor,
     chat_history: chatHistory,
     question: question,
     json_format: JSON.stringify({
