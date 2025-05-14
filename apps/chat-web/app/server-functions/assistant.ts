@@ -46,3 +46,23 @@ export const getAssistantQueryOptions = (assistantId: string, userId: string) =>
     queryKey: [queryKeys.AiAssistant, assistantId, userId],
     queryFn: () => getAssistant({ data: { assistantId, userId } }),
   })
+
+const AssignableAssistantsDocument = graphql(`
+  query getAssignableAssistants($userId: String!) {
+    aiAssistants(userId: $userId) {
+      ...NewConversationSelector_Assistant
+      ...ConversationParticipants_Assistant
+      ...ConversationParticipantsDialogButton_Assistant
+    }
+  }
+`)
+
+export const getAssignableAssistants = createServerFn({ method: 'GET' })
+  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
+  .handler(async (ctx) => backendRequest(AssignableAssistantsDocument, ctx.data))
+
+export const getAssignableAssistantsQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.ConversationAssignableAssistants, userId],
+    queryFn: () => getAssignableAssistants({ data: { userId } }),
+  })

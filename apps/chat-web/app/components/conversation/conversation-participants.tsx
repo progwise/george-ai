@@ -4,8 +4,8 @@ import { twMerge } from 'tailwind-merge'
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { queryKeys } from '../../query-keys'
 import { removeConversationParticipant } from '../../server-functions/conversation-participations'
+import { getConversationQueryOptions, getConversationsQueryOptions } from '../../server-functions/conversations'
 import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
@@ -55,13 +55,8 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
       return await removeConversationParticipant({ data: { participantId } })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, conversation.id],
-      })
-
-      await queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversations, props.userId],
-      })
+      await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
+      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
     },
   })
 
