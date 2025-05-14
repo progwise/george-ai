@@ -4,10 +4,14 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { ChatOllama } from '@langchain/ollama'
 import { ChatOpenAI } from '@langchain/openai'
 
-export type SupportedModel = 'gpt-3' | 'gpt-4' | 'gemini-1.5' | 'ollama-mistral' | 'ollama-llama3.1'
+import { localLLMConfig } from './local-llm-settings'
+import { ChatLocalMLX } from './local-mlx-llm'
+
+export type SupportedModel = 'gpt-3' | 'gpt-4' | 'gemini-1.5' | 'ollama-mistral' | 'ollama-llama3.1' | 'local-mlx-api'
+
 export type AssistantModel = BaseChatModel<BaseChatModelCallOptions, AIMessageChunk>
 
-const models = new Map<SupportedModel, AssistantModel>([])
+const models = new Map<SupportedModel, AssistantModel>()
 
 export const getModel = (languageModel: SupportedModel): AssistantModel => {
   if (models.has(languageModel)) {
@@ -38,7 +42,6 @@ const getNewModelInstance = (languageModel: SupportedModel): AssistantModel => {
         model: 'gemini-1.5-pro',
         temperature: 0,
         maxRetries: 2,
-        // other params...
       })
     case 'ollama-mistral':
       return new ChatOllama({
@@ -49,6 +52,10 @@ const getNewModelInstance = (languageModel: SupportedModel): AssistantModel => {
       return new ChatOllama({
         model: 'llama3.1:latest',
         baseUrl: process.env.OLLAMA_BASE_URL,
+      })
+    case 'local-mlx-api':
+      return new ChatLocalMLX({
+        endpoint: localLLMConfig.endpoint,
       })
     default:
       throw new Error(`Unknown language model: ${languageModel}`)
