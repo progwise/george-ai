@@ -8,8 +8,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { User, UserProfile } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
-import { queryKeys } from '../../query-keys'
-import { sendMessage } from '../../server-functions/conversations'
+import { getConversationQueryOptions, sendMessage } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
@@ -90,9 +89,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     },
     onSettled: () => {
       // refetch the conversation to get the new message
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, conversation.id],
-      })
+      queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
 
       queryClient.invalidateQueries(getProfileQueryOptions(props.user.id))
 

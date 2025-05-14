@@ -12,8 +12,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CollapseArrows } from '../../icons/collapse-arrows-icon'
 import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
+import { getConversationQueryOptions } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { toastError } from '../georgeToaster'
@@ -105,9 +105,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
       await hideMessage({ data: { messageId } })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, message.conversationId],
-      })
+      queryClient.invalidateQueries(getConversationQueryOptions(message.conversationId))
     },
   })
 
@@ -116,9 +114,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
       await unhideMessage({ data: { messageId } })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, message.conversationId],
-      })
+      queryClient.invalidateQueries(getConversationQueryOptions(message.conversationId))
     },
   })
 
@@ -135,9 +131,7 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
       await deleteMessage({ data: { messageId, userId } })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.Conversation, message.conversationId],
-      })
+      queryClient.invalidateQueries(getConversationQueryOptions(message.conversationId))
     },
     onError: () => {
       toastError(t('errors.deleteMessage'))
