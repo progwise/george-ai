@@ -5,6 +5,28 @@ import { KEYCLOAK_CLIENT_ID, KEYCLOAK_REALM, KEYCLOAK_URL } from '../constants'
 import { graphql } from '../gql'
 import { backendRequest } from '../server-functions/backend'
 
+const createUserProfileMutationDocument = graphql(`
+  mutation createUserProfile($userId: String!) {
+    createUserProfile(userId: $userId) {
+      id
+    }
+  }
+`)
+
+export const createUserProfile = createServerFn({ method: 'POST' })
+  .validator((data: { userId: string }) => {
+    return z
+      .object({
+        userId: z.string().nonempty(),
+      })
+      .parse(data)
+  })
+  .handler(async (ctx) => {
+    return await backendRequest(createUserProfileMutationDocument, {
+      userId: ctx.data.userId,
+    })
+  })
+
 export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(() => {
   const keycloakConfig = {
     url: KEYCLOAK_URL!,
@@ -17,7 +39,7 @@ export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(() =>
   return keycloakConfig
 })
 
-const loginDocument = graphql(/* GraphQL */ `
+const loginDocument = graphql(`
   mutation login($jwtToken: String!) {
     login(jwtToken: $jwtToken) {
       id
@@ -37,7 +59,19 @@ export const ensureBackendUser = createServerFn({ method: 'POST' })
     return z.string().nonempty().parse(data)
   })
   .handler(async (ctx) => {
-    return await backendRequest(loginDocument, {
+    const loginResult = await backendRequest(loginDocument, {
       jwtToken: ctx.data,
     })
+
+    if (!loginResult.login) {
+      throw new Error('Error creating user profile')
+    }
+
+    try {
+      await createUserProfile({ data: { userId: loginResult.login.id } })
+    } catch (error) {
+      console.log('Error creating user profile:', error)
+    }
+
+    return loginResult
   })
