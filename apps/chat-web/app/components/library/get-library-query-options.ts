@@ -23,21 +23,18 @@ const getLibrary = createServerFn({ method: 'GET' })
   .validator(({ libraryId }: { libraryId: string }) => ({
     libraryId: z.string().nonempty().parse(libraryId),
   }))
-  .handler(
-    async (ctx) =>
-      await backendRequest(aiLibraryDetailsQueryDocument, {
-        id: ctx.data.libraryId,
-      }),
-  )
+  .handler(async (ctx) => {
+    const { aiLibrary } = await backendRequest(aiLibraryDetailsQueryDocument, {
+      id: ctx.data.libraryId,
+    })
+    if (!aiLibrary) {
+      throw notFound()
+    }
+    return aiLibrary
+  })
 
 export const getLibraryQueryOptions = (libraryId: string) =>
   queryOptions({
     queryKey: [queryKeys.AiLibrary, libraryId],
     queryFn: () => getLibrary({ data: { libraryId } }),
-    select: (data) => {
-      if (!data.aiLibrary) {
-        throw notFound()
-      }
-      return data.aiLibrary
-    },
   })
