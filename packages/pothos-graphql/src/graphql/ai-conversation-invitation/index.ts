@@ -32,17 +32,16 @@ const sendInvitationEmail = async ({
 }
 
 builder.mutationField('createConversationInvitations', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConversation',
     args: {
       conversationId: t.arg.string({ required: true }),
-      inviterId: t.arg.string({ required: true }),
       data: t.arg({
         type: [conversationInvitationInput],
         required: true,
       }),
     },
-    resolve: async (_query, _source, { conversationId, inviterId, data }) => {
+    resolve: async (_query, _source, { conversationId, data }, { user }) => {
       if (!data || data.length === 0) {
         throw new Error('At least one invitation is required')
       }
@@ -53,7 +52,7 @@ builder.mutationField('createConversationInvitations', (t) =>
         allowDifferentEmailAddress: invitation.allowDifferentEmailAddress,
         allowMultipleParticipants: invitation.allowMultipleParticipants,
         conversationId,
-        inviterId,
+        inviterId: user.id,
       }))
 
       // Create multiple invitations
@@ -88,15 +87,13 @@ builder.mutationField('createConversationInvitations', (t) =>
 )
 
 builder.mutationField('confirmConversationInvitation', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConversation',
     args: {
       conversationId: t.arg.string({ required: true }),
       invitationId: t.arg.string({ required: true }),
-      userId: t.arg.string({ required: true }),
-      email: t.arg.string({ required: false }),
     },
-    resolve: async (_query, _source, { conversationId, invitationId, userId, email }) => {
+    resolve: async (_query, _source, { conversationId, invitationId }, { user }) => {
       // Validate if the conversation exists
       const conversation = await prisma.aiConversation.findUnique({
         where: { id: conversationId },
@@ -122,7 +119,7 @@ builder.mutationField('confirmConversationInvitation', (t) =>
 
       // Check if the user is already a participant
       const existingParticipant = await prisma.aiConversationParticipant.findFirst({
-        where: { conversationId, userId },
+        where: { conversationId, userId: user.id },
       })
 
       if (existingParticipant) {
@@ -132,7 +129,7 @@ builder.mutationField('confirmConversationInvitation', (t) =>
       // Validate email based on the allowDifferentEmailAddress flag
       if (
         !invitation.allowDifferentEmailAddress &&
-        (!email || invitation.email.toLowerCase() !== email.toLowerCase())
+        (!user.email || invitation.email.toLowerCase() !== user.email.toLowerCase())
       ) {
         throw new Error('Email address does not match the invitation for this single-use invitation')
       }
@@ -141,7 +138,7 @@ builder.mutationField('confirmConversationInvitation', (t) =>
       await prisma.aiConversationParticipant.create({
         data: {
           conversationId,
-          userId,
+          userId: user.id,
         },
       })
 
@@ -150,7 +147,7 @@ builder.mutationField('confirmConversationInvitation', (t) =>
         where: { id: invitationId },
         data: {
           confirmationDate: new Date(),
-          confirmedByEmail: email?.toLowerCase() || invitation.email.toLowerCase(),
+          confirmedByEmail: user.email?.toLowerCase() || invitation.email.toLowerCase(),
           isUsed: true,
         },
       })

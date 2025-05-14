@@ -68,19 +68,16 @@ builder.queryField('aiConversation', (t) =>
 )
 
 builder.queryField('aiConversations', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiConversation'],
     nullable: {
       list: false,
       items: false,
     },
-    args: {
-      userId: t.arg.string(),
-    },
-    resolve: (query, _source, { userId }) => {
+    resolve: (query, _source, _args, { user }) => {
       return prisma.aiConversation.findMany({
         ...query,
-        where: { participants: { some: { userId } } },
+        where: { participants: { some: { userId: user.id } } },
         orderBy: { createdAt: 'desc' },
       })
     },
@@ -95,14 +92,12 @@ const conversationCreateInput = builder.inputType('AiConversationCreateInput', {
 })
 
 builder.mutationField('createAiConversation', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConversation',
     args: {
-      ownerId: t.arg.string({ required: true }),
       data: t.arg({ type: conversationCreateInput, required: true }),
-      email: t.arg.string({ required: false }),
     },
-    resolve: async (_query, _source, { data, ownerId, email }) => {
+    resolve: async (_query, _source, { data }, { user }) => {
       const conversation = await prisma.aiConversation.create({
         data: {
           participants: {
@@ -113,19 +108,19 @@ builder.mutationField('createAiConversation', (t) =>
               ...data.userIds.map((userId) => ({ userId })),
             ],
           },
-          ownerId,
+          ownerId: user.id,
         },
       })
 
       // Create the invitation only if an email is provided
-      if (email && email.trim() !== '') {
+      if (user.email && user.email.trim() !== '') {
         await prisma.aiConversationInvitation.create({
           data: {
-            email: email.trim().toLowerCase(),
+            email: user.email.trim().toLowerCase(),
             allowDifferentEmailAddress: false,
             allowMultipleParticipants: false,
             conversationId: conversation.id,
-            inviterId: ownerId,
+            inviterId: user.id,
           },
         })
       }
@@ -150,17 +145,16 @@ builder.mutationField('deleteAiConversation', (t) =>
 )
 
 builder.mutationField('removeAiConversations', (t) =>
-  t.field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: 'Boolean',
     nullable: false,
     args: {
       conversationIds: t.arg.stringList({ required: true }),
-      userId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { conversationIds, userId }) => {
+    resolve: async (_source, { conversationIds }, { user }) => {
       await prisma.aiConversation.deleteMany({
         where: {
-          ownerId: userId,
+          ownerId: user.id,
           id: {
             in: conversationIds,
           },
@@ -171,7 +165,7 @@ builder.mutationField('removeAiConversations', (t) =>
           conversationId: {
             in: conversationIds,
           },
-          userId,
+          userId: user.id,
         },
       })
       return true

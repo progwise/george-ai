@@ -67,28 +67,25 @@ const UserProfileInput = builder.inputType('UserProfileInput', {
 })
 
 builder.mutationField('createUserProfile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
-    args: {
-      userId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { userId }) => {
+    resolve: async (query, _source, _args, { user }) => {
       const previousRegistration = await prisma.userProfile.findFirst({
-        where: { userId },
+        where: { userId: user.id },
       })
       if (previousRegistration) {
         throw new Error('User already had a profile')
       }
-      const user = await prisma.user.findFirstOrThrow({
-        where: { id: userId },
+      const currentUser = await prisma.user.findFirstOrThrow({
+        where: { id: user.id },
       })
       return prisma.userProfile.create({
         ...query,
         data: {
-          userId,
-          email: user.email,
-          firstName: user.given_name,
-          lastName: user.family_name,
+          userId: currentUser.id,
+          email: currentUser.email,
+          firstName: currentUser.given_name,
+          lastName: currentUser.family_name,
           freeMessages: 20,
           freeStorage: 100000,
         },
@@ -98,39 +95,35 @@ builder.mutationField('createUserProfile', (t) =>
 )
 
 builder.mutationField('removeUserProfile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
-    args: {
-      userId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { userId }) => {
+    resolve: async (query, _source, _args, { user }) => {
       return prisma.userProfile.delete({
         ...query,
-        where: { userId },
+        where: { userId: user.id },
       })
     },
   }),
 )
 
 builder.mutationField('updateUserProfile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
     args: {
-      userId: t.arg.string({ required: true }),
       input: t.arg({ type: UserProfileInput, required: true }),
     },
-    resolve: async (query, _source, { userId, input }) => {
+    resolve: async (query, _source, { input }, { user }) => {
       const existingProfile = await prisma.userProfile.findUnique({
-        where: { userId },
+        where: { userId: user?.id },
       })
 
       if (!existingProfile) {
-        throw new Error(`User profile not found for userId: ${userId}`)
+        throw new Error(`User profile not found for userId: ${user.id}`)
       }
 
       return prisma.userProfile.update({
         ...query,
-        where: { userId },
+        where: { userId: user.id },
         data: {
           ...input,
           freeMessages: input.freeMessages ?? existingProfile.freeMessages,
@@ -160,15 +153,14 @@ builder.mutationField('confirmUserProfile', (t) =>
 )
 
 builder.mutationField('sendConfirmationMail', (t) =>
-  t.field({
+  t.withAuth({ isLoggedIn: true }).field({
     type: 'Boolean',
     args: {
-      userId: t.arg.string({ required: true }),
       confirmationUrl: t.arg.string({ required: true }),
     },
-    resolve: async (_parent, { userId, confirmationUrl }) => {
+    resolve: async (_parent, { confirmationUrl }, { user }) => {
       const profile = await prisma.userProfile.findFirst({
-        where: { userId },
+        where: { userId: user.id },
       })
       if (!profile) {
         throw new Error('Profile not found')
@@ -202,35 +194,29 @@ builder.mutationField('sendConfirmationMail', (t) =>
 )
 
 builder.queryField('userProfile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
-    args: {
-      userId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { userId }) => {
+    resolve: async (query, _source, _args, { user }) => {
       return prisma.userProfile.findFirst({
         ...query,
-        where: { userId },
+        where: { userId: user.id },
       })
     },
   }),
 )
 
 builder.mutationField('activateUserProfile', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
-    args: {
-      profileId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _source, { profileId }) => {
+    resolve: async (_query, _source, _args, { user }) => {
       const userProfile = await prisma.userProfile.findFirst({
         where: {
-          OR: [{ id: profileId }, { userId: profileId }],
+          userId: user.id,
         },
       })
 
       if (!userProfile) {
-        throw new Error(`User profile not found for profileId: ${profileId}`)
+        throw new Error(`User profile not found for userId: ${user.id}`)
       }
 
       const updatedProfile = await prisma.userProfile.update({

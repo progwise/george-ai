@@ -82,9 +82,8 @@ builder.mutationField('runAiLibraryCrawler', (t) =>
     type: 'AiLibraryCrawler',
     args: {
       crawlerId: t.arg.string(),
-      userId: t.arg.string(),
     },
-    resolve: async (_query, _source, { crawlerId, userId }) => runCrawler({ crawlerId, userId }),
+    resolve: async (_query, _source, { crawlerId }, { user }) => runCrawler({ crawlerId, userId: user?.id }),
   }),
 )
 

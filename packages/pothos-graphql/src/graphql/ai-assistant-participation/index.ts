@@ -2,20 +2,19 @@ import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 builder.mutationField('addAssistantParticipants', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['User'],
     nullable: false,
     args: {
       assistantId: t.arg.string({ required: true }),
       userIds: t.arg.stringList({ required: true }),
-      currentUserId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { assistantId, userIds, currentUserId }) => {
+    resolve: async (query, _source, { assistantId, userIds }, { user }) => {
       const assistant = await prisma.aiAssistant.findUniqueOrThrow({
         where: { id: assistantId },
       })
 
-      if (assistant.ownerId !== currentUserId) {
+      if (assistant.ownerId !== user.id) {
         throw new Error('Only the owner can add participants')
       }
 
@@ -45,20 +44,19 @@ builder.mutationField('addAssistantParticipants', (t) =>
 )
 
 builder.mutationField('removeAssistantParticipant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     nullable: false,
     args: {
       userId: t.arg.string({ required: true }),
       assistantId: t.arg.string({ required: true }),
-      currentUserId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { userId, assistantId, currentUserId }) => {
+    resolve: async (_query, _source, { userId, assistantId }, { user }) => {
       const assistant = await prisma.aiAssistant.findUniqueOrThrow({
         where: { id: assistantId },
       })
 
-      if (assistant.ownerId !== currentUserId) {
+      if (assistant.ownerId !== user.id) {
         throw new Error('Only the owner can remove participants')
       }
 

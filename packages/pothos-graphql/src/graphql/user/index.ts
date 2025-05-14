@@ -18,19 +18,19 @@ builder.prismaObject('User', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     registered: t.field({
       type: 'Boolean',
-      resolve: async (source) => {
+      resolve: async (_source, _args, { user }) => {
         const count = await prisma.userProfile.count({
-          where: { userId: source.id },
+          where: { userId: user?.id },
         })
         return count > 0
       },
     }),
     profile: t.prismaField({
       type: 'UserProfile',
-      resolve: async (query, source) => {
+      resolve: async (query, _source, _args, { user }) => {
         return prisma.userProfile.findFirst({
           ...query,
-          where: { userId: source.id },
+          where: { userId: user?.id },
         })
       },
     }),
@@ -47,15 +47,12 @@ export const UserInput = builder.inputType('UserInput', {
 })
 
 builder.queryField('user', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
-    args: {
-      email: t.arg.string(),
-    },
-    resolve: (query, _source, { email }) => {
+    resolve: (query, _source, _args, { user }) => {
       return prisma.user.findUnique({
         ...query,
-        where: { email: email },
+        where: { email: user.email },
       })
     },
   }),
@@ -122,17 +119,14 @@ builder.mutationField('createUser', (t) =>
 )
 
 builder.queryField('users', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['User'],
     nullable: { list: false, items: false },
-    args: {
-      userId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { userId }) => {
+    resolve: async (query, _source, _args, { user }) => {
       return prisma.user.findMany({
         ...query,
         where: {
-          id: { not: userId },
+          id: { not: user.id },
         },
       })
     },
