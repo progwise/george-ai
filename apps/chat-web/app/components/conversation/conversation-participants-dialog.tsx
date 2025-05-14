@@ -272,13 +272,13 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
           </div>
 
           {/* User Column */}
-          <div>
+          <div className="h-64">
             <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
             <UsersSelector
               users={availableUsers}
               selectedUserIds={selectedUserIds}
               setSelectedUserIds={setSelectedUserIds}
-              className="h-56"
+              className="min-h-0"
             />
           </div>
 
