@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -74,10 +74,6 @@ function RouteComponent() {
     const formData = new FormData(form)
 
     saveLibrary(formData)
-  }
-
-  if (!aiLibrary) {
-    throw notFound()
   }
 
   return (

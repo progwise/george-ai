@@ -40,7 +40,7 @@ const ConversationParticipantsDialogButton_AssistantFragment = graphql(`
   }
 `)
 
-interface ParticipantsDialogButtonProps {
+interface ConversationParticipantsDialogButtonProps {
   conversation?: FragmentType<typeof ConversationParticipantsDialogButton_ConversationFragment>
   assistants: FragmentType<typeof ConversationParticipantsDialogButton_AssistantFragment>[]
   users: User[]
@@ -50,7 +50,7 @@ interface ParticipantsDialogButtonProps {
   className?: string
 }
 
-export const ConversationParticipantsDialogButton = (props: ParticipantsDialogButtonProps) => {
+export const ConversationParticipantsDialogButton = (props: ConversationParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
