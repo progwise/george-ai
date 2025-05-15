@@ -1,83 +1,130 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { JSX } from 'react'
-import { twMerge } from 'tailwind-merge'
+import { Link } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { JSX, useCallback, useEffect, useRef, useState } from 'react'
+import { getCookie } from 'vinxi/http'
 
+import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
-import { Language } from '../i18n'
+import { useLanguage } from '../i18n/language-provider'
+import { useTranslation } from '../i18n/use-translation-hook'
+import { MenuEllipsisIcon } from '../icons/menu-ellipsis-icon'
+import MoonIcon from '../icons/moon-icon'
+import SunIcon from '../icons/sun-icon'
 
-interface SettingsDropDownItem {
-  id: string
-  title: string
-  icon?: JSX.Element
-}
+const THEME_KEY = 'theme'
+const DEFAULT_THEME = 'light'
+
+export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie(THEME_KEY))
 
 interface SettingsDropdownProps {
-  title: string
-  className?: string
-  options: Array<SettingsDropDownItem>
-  disabled?: boolean
-  action?: (item: SettingsDropDownItem) => void
   user?: Pick<User, 'id' | 'name'>
-  theme: string
-  language: Language // ??
-  // AuthContext?
+  theme?: string
 }
 
-export const SettingsDropdown = ({
-  title,
-  options,
-  action,
-  className,
-  disabled,
-}: SettingsDropdownProps): JSX.Element => {
-  // initialize according to language and other settings (pass them as props?)
+export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdownProps): JSX.Element => {
+  const { language, setLanguage } = useLanguage()
+  const { t } = useTranslation()
+  const { logout, isReady } = useAuth()
+  const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
+  const dropdownRef = useRef<HTMLDetailsElement>(null)
 
-  //   const themeIcon =
-  // const languageIcon =
-  //   const profile = { title: '' }
-  //   const themeSwitcher = { title: '', icon: <MoonIcon className="swap-on size-6 fill-current stroke-0" /> }
-  //   const languageSwitcher = { title: '', icon: <GermanFlagIcon className="size-6" /> }
-  //   const authStatus = { title: ''}
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    document.cookie = `${THEME_KEY}=${theme}; path=/; max-age=31536000`
+  }, [theme])
 
-  const handleOptionClick = (item: SettingsDropDownItem) => {
-    if (!disabled && action) {
-      action(item)
-      // blur the active element to prevent the dropdown from staying open
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur()
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        dropdownRef.current.removeAttribute('open')
       }
     }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleThemeToggle = useCallback(() => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+    dropdownRef.current?.removeAttribute('open')
+  }, [])
+
+  const handleLanguageToggle = () => {
+    setLanguage(language === 'en' ? 'de' : 'en')
+    dropdownRef.current?.removeAttribute('open')
   }
 
+  const themeText = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode')
+  const languageText = language === 'en' ? 'German' : 'Englisch'
+
   return (
-    <div className={twMerge('text-right', className)}>
-      <Menu>
-        <MenuButton
-          className="focus:outline-hidden input input-sm bg-base-100 flex w-full items-center justify-between gap-4 rounded-lg px-2 py-1 text-left text-sm"
-          disabled={disabled}
-        >
-          {title}
-        </MenuButton>
-        <MenuItems
-          transition
-          anchor="bottom end"
-          className="focus:outline-hidden border-base-content/25 bg-base-100 flex flex-col items-start gap-2 rounded-xl border px-3 py-2 text-sm transition duration-100 ease-out [--anchor-gap:var(--spacing-1)] data-[closed]:scale-95 data-[closed]:opacity-0"
-        >
-          {options.map((item) => (
-            <MenuItem key={item.id}>
+    <details className="dropdown dropdown-end" ref={dropdownRef}>
+      <summary className="btn btn-ghost btn-circle list-none">
+        {!user && <MenuEllipsisIcon className="size-6" />}
+
+        {user && (
+          <>
+            <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
+              <span className="btn btn-circle btn-md text-base">{user.name?.at(0)?.toUpperCase()}</span>
+            </div>
+          </>
+        )}
+      </summary>
+
+      <ul className="dropdown-content menu rounded-box bg-base-200 min-w-55 mt-2 shadow-sm">
+        {/* Link to profile */}
+        {user && (
+          <li className="border-b-2 border-b-neutral-300">
+            <Link to="/profile" onClick={() => dropdownRef.current?.removeAttribute('open')}>
+              <span className="max-w-48 truncate max-lg:hidden">{user.name}</span>
+            </Link>
+          </li>
+        )}
+
+        {/* Theme-Switcher */}
+        <li>
+          <label className="grid-cols-[1fr_min-content]">
+            {themeText}
+            <div className="swap swap-rotate">
+              <input
+                type="checkbox"
+                className="theme-controller"
+                value="dark" /* DaisyUI applies this theme when checked */
+                checked={theme === 'dark'}
+                onChange={handleThemeToggle}
+              />
+              <SunIcon className="swap-on size-4 fill-current stroke-0" />
+              <MoonIcon className="swap-off size-4 fill-current stroke-0" />
+            </div>
+          </label>
+        </li>
+
+        {/* Language-Switcher */}
+        <li>
+          <label className="grid-cols-[1fr_min-content]">
+            {languageText}
+            <div className="swap swap-rotate">
               <button
                 type="button"
-                onClick={() => handleOptionClick(item)}
-                className="btn btn-ghost btn-sm flex w-full justify-start font-normal"
-                disabled={disabled}
+                onClick={handleLanguageToggle}
+                className="btn btn-circle btn-ghost btn-sm flex size-4 items-center"
               >
-                {item.icon && <span>{item.icon}</span>}
-                <span>{item.title}</span>
+                {language === 'en' ? 'DE' : 'EN'}
               </button>
-            </MenuItem>
-          ))}
-        </MenuItems>
-      </Menu>
-    </div>
+            </div>
+          </label>
+        </li>
+
+        {/* Sign-Out */}
+        {isReady && user && (
+          <li>
+            <button type="button" onClick={logout}>
+              {t('actions.signOut')}
+            </button>
+          </li>
+        )}
+      </ul>
+    </details>
   )
 }

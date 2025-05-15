@@ -293,6 +293,10 @@ export default {
     searchUsers: 'Benutzer suchen...',
   },
   resetConversation: 'Konversation zurücksetzen',
+  settings: {
+    darkMode: 'Dunkelmodus',
+    lightMode: 'Hellmodus',
+  },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',

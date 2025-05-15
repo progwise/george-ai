@@ -1,23 +1,18 @@
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
-import { useLanguage } from '../i18n/language-provider'
 import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
-import { EnglishFlagIcon } from '../icons/english-flag-icon'
-import { GermanFlagIcon } from '../icons/german-flag-icon'
-import MoonIcon from '../icons/moon-icon'
-import SunIcon from '../icons/sun-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ScrollObserver } from './scroll-observer'
+import { SettingsDropdown } from './settings-drop-down'
 
 const THEME_KEY = 'theme'
-const DEFAULT_THEME = 'light'
 
 export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie(THEME_KEY))
 
@@ -38,23 +33,10 @@ interface TopNavigationProps {
 }
 
 export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
-  const { language, setLanguage } = useLanguage()
   const { t } = useTranslation()
-  const { login, logout, isReady } = useAuth()
-  const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
+  const { login, isReady } = useAuth()
   const [isAtTop, setIsAtTop] = useState(false)
   const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    document.cookie = `${THEME_KEY}=${theme}; path=/; max-age=31536000`
-  }, [theme])
-
-  const handleThemeToggle = useCallback(() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light')), [])
-
-  const handleLanguageToggle = () => {
-    setLanguage(language === 'en' ? 'de' : 'en')
-  }
 
   return (
     <>
@@ -78,45 +60,9 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
           </div>
 
-          {/* Theme-Switcher */}
-          <label className="swap swap-rotate btn btn-ghost btn-circle btn-sm" aria-label="Toggle theme">
-            <input
-              type="checkbox"
-              className="theme-controller"
-              value="dark" /* DaisyUI applies this theme when checked */
-              checked={theme === 'dark'}
-              onChange={handleThemeToggle}
-            />
-            <SunIcon className="swap-off size-6 fill-current stroke-0" />
-            <MoonIcon className="swap-on size-6 fill-current stroke-0" />
-          </label>
+          <SettingsDropdown user={user} theme={initialTheme} />
 
-          {/* Language Switcher */}
-          <button
-            type="button"
-            onClick={handleLanguageToggle}
-            className="btn btn-circle btn-ghost btn-sm flex items-center"
-          >
-            {language === 'en' ? <GermanFlagIcon className="size-6" /> : <EnglishFlagIcon className="size-6" />}
-          </button>
-
-          {/* Authenctation Links */}
           <div className="flex items-center justify-center gap-4">
-            {user && (
-              <Link to="/profile" className="contents">
-                <span className="max-w-48 truncate max-lg:hidden">{user.name}</span>
-                <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
-                  <span className="text-base">{user.name?.at(0)?.toUpperCase()}</span>
-                </div>
-              </Link>
-            )}
-
-            {isReady && user && (
-              <button type="button" className="btn btn-outline btn-sm max-lg:hidden" onClick={logout}>
-                {t('actions.signOut')}
-              </button>
-            )}
-
             {isReady && !user && (
               <button type="button" className="btn btn-outline btn-sm" onClick={() => login()}>
                 {t('actions.signIn')}
