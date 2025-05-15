@@ -2,16 +2,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
-import { AssistantParticipants_AssistantFragment, UserFragment } from '../../gql/graphql'
+import { LibraryParticipants_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
-import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
+import { removeLibraryParticipant } from '../../server-functions/library-participations'
 import { LoadingSpinner } from '../loading-spinner'
-import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
+import { getLibrariesQueryOptions } from './get-libraries-query-options'
+import { getLibraryQueryOptions } from './get-library-query-options'
+import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
 
 graphql(`
-  fragment AssistantParticipants_Assistant on AiAssistant {
+  fragment LibraryParticipants_Library on AiLibrary {
     id
     ownerId
     participants {
@@ -19,48 +20,43 @@ graphql(`
       name
       username
     }
-    ...AssistantParticipantsDialogButton_Assistant
+    ...LibraryParticipantsDialogButton_Library
   }
 `)
 
-interface AssistantParticipantsProps {
-  assistant: AssistantParticipants_AssistantFragment
+interface LibraryParticipantsProps {
+  library: LibraryParticipants_LibraryFragment
   users: UserFragment[]
   userId: string
 }
 
-export const AssistantParticipants = ({ assistant, users, userId }: AssistantParticipantsProps) => {
+export const LibraryParticipants = ({ library, users, userId }: LibraryParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  const isOwner = assistant.ownerId === userId
+  const isOwner = library.ownerId === userId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
-    mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
-      return await removeAssistantParticipant({
-        data: {
-          userId,
-          assistantId,
-          currentUserId: userId,
-        },
-      })
+    mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
+      return await removeLibraryParticipant({ data: { userId, libraryId, currentUserId: userId } })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
+      await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.id))
     },
   })
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
     event.preventDefault()
-    mutateRemove({ userId, assistantId: assistant.id })
+    mutateRemove({ userId, libraryId: library.id })
   }
 
   return (
-    <div className="flex w-full items-center justify-between gap-2 overflow-x-scroll">
+    <div className="flex w-full items-center justify-between gap-2 overflow-auto">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
       <div className="no-scrollbar flex gap-2 overflow-x-scroll p-1">
-        {assistant.participants.map((participant) => {
-          const isParticipantOwner = participant.id === assistant.ownerId
+        {library.participants.map((participant) => {
+          const isParticipantOwner = participant.id === library.ownerId
           return (
             <div
               key={participant.id}
@@ -79,12 +75,12 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
                 </button>
               )}
               <span className="max-w-36 truncate">{participant.name ?? participant.username}</span>
-              {isParticipantOwner && <span className="pl-1 font-bold">({t('assistants.owner')})</span>}
+              {isParticipantOwner && <span className="pl-1 font-bold">({t('libraries.owner')})</span>}
             </div>
           )
         })}
       </div>
-      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} userId={userId} />}
+      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} userId={userId} />}
     </div>
   )
 }

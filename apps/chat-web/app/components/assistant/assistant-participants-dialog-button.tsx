@@ -2,17 +2,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
-import { AssistantParticipantsDialog_AssistantFragment, UserFragment } from '../../gql/graphql'
+import { AssistantParticipantsDialogButton_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
-import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
+import { addAssistantParticipants } from '../../server-functions/assistant-participations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 
 graphql(`
-  fragment AssistantParticipantsDialog_Assistant on AiAssistant {
+  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {
     id
     ownerId
     participants {
@@ -21,13 +21,17 @@ graphql(`
   }
 `)
 
-interface DialogFormProps {
-  assistant: AssistantParticipantsDialog_AssistantFragment
+interface AssistantParticipantsDialogButtonProps {
+  assistant: AssistantParticipantsDialogButton_AssistantFragment
   users: UserFragment[]
   userId: string
 }
 
-export const AssistantParticipantsDialog = ({ assistant, users, userId }: DialogFormProps) => {
+export const AssistantParticipantsDialogButton = ({
+  assistant,
+  users,
+  userId,
+}: AssistantParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
@@ -76,12 +80,13 @@ export const AssistantParticipantsDialog = ({ assistant, users, userId }: Dialog
         submitButtonText={t('actions.add')}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
       >
-        <div className="h-64">
+        <div>
           <h4 className="underline">{t('assistants.users')}</h4>
           <UsersSelector
             users={assignableUsers}
             selectedUserIds={selectedUserIds}
             setSelectedUserIds={setSelectedUserIds}
+            className="h-56"
           />
         </div>
       </DialogForm>

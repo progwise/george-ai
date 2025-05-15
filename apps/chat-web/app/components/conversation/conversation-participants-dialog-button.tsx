@@ -5,14 +5,14 @@ import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
 import {
-  ConversationParticipantsDialog_AssistantFragment,
-  ConversationParticipantsDialog_ConversationFragment,
+  ConversationParticipantsDialogButton_AssistantFragment,
+  ConversationParticipantsDialogButton_ConversationFragment,
   UserFragment,
 } from '../../gql/graphql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { addConversationParticipants } from '../../server-functions/conversationParticipations'
+import { addConversationParticipants } from '../../server-functions/conversation-participations'
 import {
   createConversation,
   getConversationQueryOptions,
@@ -26,7 +26,7 @@ import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 
 graphql(`
-  fragment ConversationParticipantsDialog_Conversation on AiConversation {
+  fragment ConversationParticipantsDialogButton_Conversation on AiConversation {
     ...ConversationBase
     participants {
       id
@@ -37,15 +37,15 @@ graphql(`
 `)
 
 graphql(`
-  fragment ConversationParticipantsDialog_Assistant on AiAssistant {
+  fragment ConversationParticipantsDialogButton_Assistant on AiAssistant {
     id
     name
   }
 `)
 
-interface ParticipantsDialogProps {
-  conversation?: ConversationParticipantsDialog_ConversationFragment
-  assistants: ConversationParticipantsDialog_AssistantFragment[]
+interface ConversationParticipantsDialogButtonProps {
+  conversation?: ConversationParticipantsDialogButton_ConversationFragment
+  assistants: ConversationParticipantsDialogButton_AssistantFragment[]
   users: UserFragment[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
@@ -53,7 +53,7 @@ interface ParticipantsDialogProps {
   className?: string
 }
 
-export const ConversationParticipantsDialog = ({
+export const ConversationParticipantsDialogButton = ({
   conversation,
   assistants,
   users,
@@ -61,7 +61,7 @@ export const ConversationParticipantsDialog = ({
   isOpen,
   userId,
   className,
-}: ParticipantsDialogProps) => {
+}: ConversationParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
@@ -290,6 +290,7 @@ export const ConversationParticipantsDialog = ({
               users={availableUsers}
               selectedUserIds={selectedUserIds}
               setSelectedUserIds={setSelectedUserIds}
+              className="min-h-0"
             />
           </div>
 

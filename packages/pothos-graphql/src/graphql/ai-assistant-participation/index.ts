@@ -62,19 +62,11 @@ builder.mutationField('removeAssistantParticipant', (t) =>
         throw new Error('Only the owner can remove participants')
       }
 
-      const participant = await prisma.aiAssistantParticipant.findFirst({
+      await prisma.aiAssistantParticipant.deleteMany({
         where: {
           userId,
           assistantId,
         },
-      })
-
-      if (!participant) {
-        throw new Error('Participant not found')
-      }
-
-      await prisma.aiAssistantParticipant.delete({
-        where: { id: participant.id },
       })
 
       return prisma.user.findUniqueOrThrow({

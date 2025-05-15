@@ -3,6 +3,7 @@ export const queryKeys = {
   AiAssistant: 'AiAssistant',
   AiAssistants: 'AiAssistants',
   AiAssistantLibraries: 'AiAssistantLibraries',
+  AiLibrary: 'AiLibrary',
   AiLibraries: 'AiLibraries',
   AiLibraryFiles: 'AiLibraryFiles',
   GoogleDriveFiles: 'GoogleDriveFiles',

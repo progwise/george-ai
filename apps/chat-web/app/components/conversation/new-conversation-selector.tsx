@@ -1,10 +1,10 @@
 import { graphql } from '../../gql'
 import { NewConversationSelector_AssistantFragment, UserFragment } from '../../gql/graphql'
-import { ConversationParticipantsDialog } from './conversation-participants-dialog'
+import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
 
 graphql(`
   fragment NewConversationSelector_Assistant on AiAssistant {
-    ...ConversationParticipantsDialog_Assistant
+    ...ConversationParticipantsDialogButton_Assistant
   }
 `)
 
@@ -17,7 +17,7 @@ interface NewConversationSelectorProps {
 
 export const NewConversationSelector = ({ assistants, users, isOpen, userId }: NewConversationSelectorProps) => {
   return (
-    <ConversationParticipantsDialog
+    <ConversationParticipantsDialogButton
       assistants={assistants}
       users={users}
       dialogMode="new"

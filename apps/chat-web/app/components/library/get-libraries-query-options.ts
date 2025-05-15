@@ -19,23 +19,23 @@ graphql(`
 `)
 
 const librariesDocument = graphql(`
-  query aiLibraries($ownerId: String!) {
-    aiLibraries(ownerId: $ownerId) {
+  query aiLibraries($userId: String!) {
+    aiLibraries(userId: $userId) {
       ...AiLibraryBase
     }
   }
 `)
 
 const getLibraries = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
+  .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler(async (ctx) => {
-    return backendRequest(librariesDocument, { ownerId: ctx.data })
+    return backendRequest(librariesDocument, { userId: ctx.data })
   })
 
-export const getLibrariesQueryOptions = (ownerId: string) =>
+export const getLibrariesQueryOptions = (userId: string) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, ownerId],
+    queryKey: [queryKeys.AiLibraries, userId],
     queryFn: async () => {
-      return getLibraries({ data: ownerId })
+      return getLibraries({ data: userId })
     },
   })

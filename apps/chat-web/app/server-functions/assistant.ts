@@ -42,16 +42,15 @@ export const getAiAssistantsQueryOptions = (userId: string) =>
   })
 
 export const getAssistant = createServerFn({ method: 'GET' })
-  .validator(({ assistantId, userId, ownerId }: { assistantId: string; userId: string; ownerId: string }) => ({
+  .validator(({ assistantId, userId }: { assistantId: string; userId: string }) => ({
     assistantId: z.string().nonempty().parse(assistantId),
     userId: z.string().nonempty().parse(userId),
-    ownerId: z.string().nonempty().parse(ownerId),
   }))
   .handler(
     async (ctx) =>
       await backendRequest(
         graphql(`
-          query aiAssistantDetails($id: String!, $userId: String!, $ownerId: String!) {
+          query aiAssistantDetails($id: String!, $userId: String!) {
             aiAssistant(id: $id) {
               ...AssistantForm_Assistant
               ...AssistantSelector_Assistant
@@ -70,7 +69,6 @@ export const getAssistant = createServerFn({ method: 'GET' })
         {
           id: ctx.data.assistantId,
           userId: ctx.data.userId,
-          ownerId: ctx.data.ownerId,
         },
       ),
   )
@@ -78,25 +76,5 @@ export const getAssistant = createServerFn({ method: 'GET' })
 export const getAssistantQueryOptions = (assistantId: string, userId: string) =>
   queryOptions({
     queryKey: [queryKeys.AiAssistant, assistantId, userId],
-    queryFn: () => getAssistant({ data: { assistantId, userId, ownerId: userId } }),
+    queryFn: () => getAssistant({ data: { assistantId, userId } }),
   })
-
-const AssignableAssistantsDocument = graphql(`
-  query getAssignableAssistants($userId: String!) {
-    aiAssistants(userId: $userId) {
-      ...NewConversationSelector_Assistant
-      ...ConversationParticipants_Assistant
-      ...ConversationParticipantsDialog_Assistant
-    }
-  }
-`)
-
-export const getAssignableAssistants = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
-  .handler(async (ctx) => backendRequest(AssignableAssistantsDocument, ctx.data))
-
-// export const getAssignableAssistantsQueryOptions = (userId: string) =>
-//   queryOptions({
-//     queryKey: [queryKeys.ConversationAssignableAssistants, userId],
-//     queryFn: () => getAssignableAssistants({ data: { userId } }),
-//   })

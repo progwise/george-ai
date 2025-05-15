@@ -1,4 +1,5 @@
 import { queryOptions } from '@tanstack/react-query'
+import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -19,25 +20,27 @@ const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($id: String!) {
     aiLibrary(id: $id) {
       ...AiLibraryDetail
+      ...LibraryParticipants_Library
     }
   }
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
   .validator(({ libraryId }: { libraryId: string }) => ({
-    id: z.string().nonempty().parse(libraryId),
+    libraryId: z.string().nonempty().parse(libraryId),
   }))
-  .handler(async (ctx) => await backendRequest(aiLibraryDetailQueryDocument, ctx.data))
+  .handler(async (ctx) => {
+    const { aiLibrary } = await backendRequest(aiLibraryDetailQueryDocument, {
+      id: ctx.data.libraryId,
+    })
+    if (!aiLibrary) {
+      throw notFound()
+    }
+    return aiLibrary
+  })
 
 export const getLibraryQueryOptions = (libraryId: string) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, libraryId],
-    queryFn: async () => getLibrary({ data: { libraryId } }),
-    select: (data) => {
-      if (!data.aiLibrary) {
-        throw Error('Library not found')
-      }
-
-      return data.aiLibrary
-    },
+    queryKey: [queryKeys.AiLibrary, libraryId],
+    queryFn: () => getLibrary({ data: { libraryId } }),
   })

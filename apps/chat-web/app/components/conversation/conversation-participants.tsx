@@ -9,10 +9,10 @@ import {
 } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { removeConversationParticipant } from '../../server-functions/conversationParticipations'
+import { removeConversationParticipant } from '../../server-functions/conversation-participations'
 import { getConversationQueryOptions, getConversationsQueryOptions } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
-import { ConversationParticipantsDialog } from './conversation-participants-dialog'
+import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
 
 graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {
@@ -23,13 +23,13 @@ graphql(`
       userId
       assistantId
     }
-    ...ConversationParticipantsDialog_Conversation
+    ...ConversationParticipantsDialogButton_Conversation
   }
 `)
 
 graphql(`
   fragment ConversationParticipants_Assistant on AiAssistant {
-    ...ConversationParticipantsDialog_Assistant
+    ...ConversationParticipantsDialogButton_Assistant
   }
 `)
 
@@ -104,7 +104,7 @@ export const ConversationParticipants = ({
       })}
       {isOwner && (
         <div className="max-lg:hidden">
-          <ConversationParticipantsDialog
+          <ConversationParticipantsDialogButton
             conversation={conversation}
             assistants={assistants}
             users={users}
