@@ -15,12 +15,13 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
-    owner: t.relation('owner'),
+    owner: t.relation('owner', { nullable: false }),
     ownerId: t.exposeString('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    files: t.relation('files'),
+    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+    files: t.relation('files', { nullable: false }),
     filesCount: t.int({
+      nullable: false,
       resolve: async (parent) => {
         const count = await prisma.aiLibraryFile.count({
           where: { libraryId: parent.id },

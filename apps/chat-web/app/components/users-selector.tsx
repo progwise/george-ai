@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
+import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
-import { User } from '../server-functions/users'
 
 interface UsersSelectorProps {
-  users: User[]
+  users: UserFragment[]
   selectedUserIds: string[]
   setSelectedUserIds: Dispatch<SetStateAction<string[]>>
 }

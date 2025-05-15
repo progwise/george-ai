@@ -3,16 +3,19 @@ import { useState } from 'react'
 
 import { dateString } from '@george-ai/web-utils'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import {
+  ConversationSelector_ConversationFragment,
+  NewConversationSelector_AssistantFragment,
+  UserFragment,
+} from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { User } from '../../server-functions/users'
-import { NewConversationSelector, NewConversationSelector_AssistantFragment } from './new-conversation-selector'
+import { NewConversationSelector } from './new-conversation-selector'
 import { RemoveConversationsDialog } from './remove-conversations-dialog'
 
-export const ConversationSelector_ConversationFragment = graphql(`
+graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
-    id
-    createdAt
+    ...ConversationBase
     owner {
       id
       name
@@ -25,24 +28,23 @@ export const ConversationSelector_ConversationFragment = graphql(`
 `)
 
 interface ConversationSelectorProps {
-  conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
+  conversations: ConversationSelector_ConversationFragment[]
   selectedConversationId?: string
   userId: string
   onClick?: () => void
-  assistants: FragmentType<typeof NewConversationSelector_AssistantFragment>[]
-  humans: User[]
+  assistants: NewConversationSelector_AssistantFragment[]
+  humans: UserFragment[]
   isOpen?: boolean
 }
 
 export const ConversationSelector = ({
-  conversations: conversationsFragment,
+  conversations,
   userId,
   onClick,
   assistants: assistantsFragment,
   humans,
   selectedConversationId: selectedConversationId,
 }: ConversationSelectorProps) => {
-  const conversations = useFragment(ConversationSelector_ConversationFragment, conversationsFragment)
   const { t, language } = useTranslation()
   const [checkedConversationIds, setCheckedConversationIds] = useState<string[]>([])
 
@@ -73,7 +75,7 @@ export const ConversationSelector = ({
       <div className="grid grid-cols-[100px_1fr]">
         <div className="flex items-center justify-center">
           <RemoveConversationsDialog
-            conversations={conversationsFragment}
+            conversations={conversations}
             checkedConversationIds={checkedConversationIds}
             userId={userId}
             resetCheckedConversationIds={() => setCheckedConversationIds([])}

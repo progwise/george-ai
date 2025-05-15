@@ -6,13 +6,19 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-const aiLibraryEditQueryDocument = graphql(`
-  query aiLibraryEdit($id: String!) {
+graphql(`
+  fragment AiLibraryDetail on AiLibrary {
+    ...AiLibraryBase
+    ownerId
+    filesCount
+    description
+  }
+`)
+
+const aiLibraryDetailQueryDocument = graphql(`
+  query aiLibraryDetail($id: String!) {
     aiLibrary(id: $id) {
-      id
-      name
-      ...LibraryFormFragment
-      ...DeleteLibraryDialog_Library
+      ...AiLibraryDetail
     }
   }
 `)
@@ -21,7 +27,7 @@ const getLibrary = createServerFn({ method: 'GET' })
   .validator(({ libraryId }: { libraryId: string }) => ({
     id: z.string().nonempty().parse(libraryId),
   }))
-  .handler(async (ctx) => await backendRequest(aiLibraryEditQueryDocument, ctx.data))
+  .handler(async (ctx) => await backendRequest(aiLibraryDetailQueryDocument, ctx.data))
 
 export const getLibraryQueryOptions = (libraryId: string) =>
   queryOptions({

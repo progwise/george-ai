@@ -1,7 +1,7 @@
 export const queryKeys = {
   KeycloakInstance: 'KeycloakInstance',
   AiAssistant: 'AiAssistant',
-  MyAiAssistants: 'MyAiAssistants',
+  AiAssistants: 'AiAssistants',
   AiAssistantLibraries: 'AiAssistantLibraries',
   AiLibraries: 'AiLibraries',
   AiLibraryFiles: 'AiLibraryFiles',

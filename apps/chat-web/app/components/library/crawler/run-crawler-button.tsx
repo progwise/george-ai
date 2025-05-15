@@ -2,13 +2,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { RunCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
 import { aiLibraryFilesQueryOptions } from '../embeddings-table'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
-const RunCrawlerButton_CrawlerFragment = graphql(`
+graphql(`
   fragment RunCrawlerButton_Crawler on AiLibraryCrawler {
     id
     isRunning
@@ -17,7 +18,7 @@ const RunCrawlerButton_CrawlerFragment = graphql(`
 
 interface RunCrawlerButtonProps {
   libraryId: string
-  crawler: FragmentType<typeof RunCrawlerButton_CrawlerFragment>
+  crawler: RunCrawlerButton_CrawlerFragment
   userId: string
 }
 
@@ -45,12 +46,11 @@ const runCrawler = createServerFn({ method: 'POST' })
   })
 
 export const RunCrawlerButton = ({ libraryId, crawler, userId }: RunCrawlerButtonProps) => {
-  const { id, isRunning } = useFragment(RunCrawlerButton_CrawlerFragment, crawler)
   const queryClient = useQueryClient()
 
   const runCrawlerMutation = useMutation({
     mutationFn: async () => {
-      return await runCrawler({ data: { crawlerId: id, userId } })
+      return await runCrawler({ data: { crawlerId: crawler.id, userId } })
     },
     onError: () => {
       // TODO: add alert
@@ -69,7 +69,7 @@ export const RunCrawlerButton = ({ libraryId, crawler, userId }: RunCrawlerButto
   return (
     <button
       type="button"
-      disabled={isRunning || runCrawlerMutation.isPending}
+      disabled={crawler.isRunning || runCrawlerMutation.isPending}
       onClick={handleClick}
       className="btn btn-primary btn-xs"
     >

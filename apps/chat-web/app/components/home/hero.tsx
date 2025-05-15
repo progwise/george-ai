@@ -83,7 +83,7 @@ export const Hero = () => {
             </div>
             <div className="chat chat-end animate-fade-left animate-delay-500">
               <div className="chat-bubble w-full">
-                <HomeChat user={user ?? null} />
+                <HomeChat user={user ?? undefined} />
               </div>
             </div>
           </div>
