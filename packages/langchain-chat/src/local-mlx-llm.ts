@@ -16,6 +16,21 @@ interface ChatLocalMLXOptions extends BaseChatModelParams {
   temperature?: number
 }
 
+function cleanModelOutput(text: string): string {
+  return text
+    .split('\n')
+    .filter(
+      (line) =>
+        !line.startsWith('==========') &&
+        !line.startsWith('Prompt:') &&
+        !line.startsWith('Generation:') &&
+        !line.startsWith('Peak memory:') &&
+        !line.startsWith('[Process exited with code') &&
+        line.trim() !== '',
+    )
+    .join('\n')
+}
+
 export class ChatLocalMLX extends BaseChatModel<BaseChatModelCallOptions, AIMessageChunk> {
   static lc_name() {
     return 'ChatLocalMLX'
@@ -65,17 +80,18 @@ export class ChatLocalMLX extends BaseChatModel<BaseChatModelCallOptions, AIMess
         }),
       })
     } catch (err) {
-      console.error('❌ [ChatLocalMLX] Could not reach local MLX API:', err)
+      console.error('[ChatLocalMLX] Could not reach local MLX API:', err)
       throw new Error(`Failed to reach local MLX API: ${err}`)
     }
 
     if (!res.ok) {
       const errorText = await res.text()
-      console.error(`❌ [ChatLocalMLX] MLX API error: ${res.status}: ${errorText}`)
+      console.error(`[ChatLocalMLX] MLX API error: ${res.status}: ${errorText}`)
       throw new Error(`Local MLX API returned ${res.status}: ${errorText}`)
     }
 
-    const text = await res.text()
+    const rawText = await res.text()
+    const text = cleanModelOutput(rawText)
     if (runManager?.handleLLMNewToken) {
       await runManager.handleLLMNewToken(text)
     }
