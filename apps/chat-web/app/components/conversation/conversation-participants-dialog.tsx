@@ -27,8 +27,7 @@ import { validateEmails } from './email-validation'
 
 graphql(`
   fragment ConversationParticipantsDialog_Conversation on AiConversation {
-    id
-    ownerId
+    ...ConversationBase
     participants {
       id
       userId
