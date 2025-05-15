@@ -19,7 +19,7 @@ Each QA pair should have:
 - (Optional) Evaluation criteria
 - (Optional) Category and difficulty
 
-Make sure that your reply is cmpletely JSONL foramt.`
+Make sure that your reply is completely JSONL format.`
 
   try {
     const res = await fetch('http://host.docker.internal:4567/generate', {

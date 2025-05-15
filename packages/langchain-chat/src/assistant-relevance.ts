@@ -30,14 +30,19 @@ export const getRelevance = async ({
   chatHistory: BaseMessage[]
   modelName: SupportedModel
 }) => {
-  const prompt = await relevancePrompt.invoke({
-    question,
-    assistant_base_information: assistantBaseInformation,
-    chat_history: chatHistory,
-  })
+  try {
+    const prompt = await relevancePrompt.invoke({
+      question,
+      assistant_base_information: assistantBaseInformation,
+      chat_history: chatHistory,
+    })
 
-  const model = getModel(modelName)
+    const model = getModel(modelName)
 
-  const isRelevantAnswer = await model.invoke(prompt, {})
-  return isRelevantAnswer.content.toString().toLowerCase().trim() === 'yes'
+    const isRelevantAnswer = await model.invoke(prompt, {})
+    return isRelevantAnswer.content.toString().toLowerCase().trim() === 'yes'
+  } catch (error) {
+    console.error('Error in getRelevance:', error)
+    throw error
+  }
 }
