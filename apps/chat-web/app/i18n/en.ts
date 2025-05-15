@@ -28,7 +28,7 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send',
     signIn: 'Sign in',
-    signInForAssistantPs: 'Sign in to see your assistants.',
+    signInForAssistants: 'Sign in to see your assistants.',
     signInForConversations: 'Sign in to use conversations.',
     signInForGoogleAuth: 'Sign in to use Google authentication.',
     signInForLibraries: 'Sign in to see your libraries.',
@@ -61,6 +61,7 @@ export default {
     addNewButton: 'Create assistant',
     addNewDescription:
       'An assistant guides you through George AI. It helps you with your daily work and you need to give him a name.',
+    addParticipantsConfirmation: 'You can add participants to this assistant.',
     delete: 'Delete assistant',
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
@@ -70,6 +71,7 @@ export default {
     myAssistants: 'My assistants',
     noAssistantsFound: 'No assistants found',
     noLibrariesToAdd: 'All libraries added',
+    owner: 'Owner',
     placeholders: {
       description: 'Describe your assistant',
       euAiActNotePlaceholder: 'Additional information or context...',
@@ -81,6 +83,7 @@ export default {
     usageLabel: 'Describe the usage of this library',
     usagePlaceholder:
       'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
+    users: 'Users',
   },
   brand: 'George-Ai',
   contactForm: {
@@ -100,10 +103,13 @@ export default {
     nameRequired: 'Name is required.',
   },
   conversations: {
+    addParticipantsConfirmation: 'You can add participants to the current conversation.',
     askAssistant: 'Ask {assistantName}',
     assistants: 'Assistants',
-    delete: 'Delete conversation',
     deleteConfirmation: 'You are about to delete this conversation. It cannot be restored. Please confirm.',
+    deleteConversation: 'Delete conversation',
+    deleteMessage: 'Delete message',
+    deleteMessageConfirmation: 'You are about to delete this message. Please confirm.',
     errorProcessingMessage: 'Error processing message',
     errorDetails: 'Error Details',
     failedToAddParticipants: 'Failed to add participants: {error}',
@@ -141,6 +147,7 @@ export default {
   errors: {
     businessAndPositionRequired: 'Business and Position are required.',
     copyFailed: 'Copy failed',
+    deleteMessage: 'Failed to delete message',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
     messageTooShort: 'Message must be at least 3 characters.',
@@ -156,11 +163,27 @@ export default {
   flowWeb: 'Flow: Only Web',
   greeting: 'Hello, I am your travel assistant. How can I help you?',
   hero: {
-    chatGreeting: 'Hello! I’m George, your personal AI assistant.',
-    chatMessage: 'If you leave your email address or phone number, we’ll get back to you personally.',
-    chatStatus: 'Online & ready to help',
+    badge: 'Introducing George-AI',
+    chat: {
+      title: 'George-Ai Homepage',
+      message: {
+        greeting: 'Hello! I’m George, your personal AI assistant.',
+        info: 'If you leave your email address or phone number, we’ll get back to you personally.',
+      },
+    },
+    description:
+      'When experienced employees leave, answers often disappear. With George-Ai, you preserve their knowledge in AI models – and keep it for tomorrow.',
+    features: {
+      customAssistants: 'Custom Assistants',
+      knowledgeLibraries: 'Knowledge Libraries',
+      selfLearning: 'Self-learning',
+    },
     meeting: 'Schedule a consultation',
     more: 'Learn more',
+    title: {
+      part1: 'Preserve knowledge.',
+      part2: 'Protect your budget, time, and team.',
+    },
   },
   home: {
     altImage: 'George AI',
@@ -182,6 +205,8 @@ export default {
   labels: {
     actions: 'Actions',
     activatedAt: 'Activated at',
+    active: 'Active',
+    assistant: 'Assistant',
     adminProfileActivation: 'Admin Profile Activation',
     awaitingActivation: 'Awaiting activation',
     awaitingConfirmation: 'Awaiting confirmation',
@@ -207,6 +232,8 @@ export default {
     invitation: 'Invitation',
     languageModel: 'Language Model',
     lastName: 'Last Name',
+    libraries: 'Libraries',
+    library: 'Library',
     llmTemperature: 'LLM Temperature',
     monday: 'Monday',
     name: 'Name',
@@ -228,6 +255,7 @@ export default {
     updatedAt: 'Updated',
     usedMessages: 'Used Messages',
     usedStorage: 'Used Storage',
+    version: 'Release',
     wednesday: 'Wednesday',
   },
   libraries: {
@@ -264,8 +292,6 @@ export default {
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
-    addParticipantsConfirmation:
-      'You can add participants to the current conversation. You can change these participants any time.',
     allowDifferentEmail: 'Allow different email address',
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
@@ -292,11 +318,12 @@ export default {
     with: 'with',
   },
   tooltips: {
-    addNoParticipantsSelected: 'No assistant, user or email selected',
+    addNoParticipantsSelected: 'No participant is selected',
     cannotSendInvitation: 'Create the conversation to send invitations.',
     copyConversationLink: 'Copy link',
     copyInvitationLink: 'Copy invitation link',
     delete: 'Delete',
+    deleteMessage: 'Delete message',
     edit: 'Edit',
     hide: 'Hide',
     goToOverview: 'Go to overview',

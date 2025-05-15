@@ -1,22 +1,28 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { queryKeys } from '../../query-keys'
-import { createConversation } from '../../server-functions/conversations'
-import { addConversationParticipants } from '../../server-functions/participations'
+import { addConversationParticipants } from '../../server-functions/conversationParticipations'
+import {
+  createConversation,
+  getConversationQueryOptions,
+  getConversationsQueryOptions,
+} from '../../server-functions/conversations'
+import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
+import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 
-const ParticipantsDialog_ConversationFragment = graphql(`
-  fragment ParticipantsDialog_Conversation on AiConversation {
+const ConversationParticipantsDialog_ConversationFragment = graphql(`
+  fragment ConversationParticipantsDialog_Conversation on AiConversation {
     id
     ownerId
     participants {
@@ -27,39 +33,25 @@ const ParticipantsDialog_ConversationFragment = graphql(`
   }
 `)
 
-const ParticipantsDialog_AssistantFragment = graphql(`
-  fragment ParticipantsDialog_Assistant on AiAssistant {
+const ConversationParticipantsDialog_AssistantFragment = graphql(`
+  fragment ConversationParticipantsDialog_Assistant on AiAssistant {
     id
     name
   }
 `)
 
-const ParticipantsDialog_HumanFragment = graphql(`
-  fragment ParticipantsDialog_Human on User {
-    id
-    username
-    email
-    profile {
-      business
-      position
-      firstName
-      lastName
-    }
-  }
-`)
-
 interface ParticipantsDialogProps {
-  conversation?: FragmentType<typeof ParticipantsDialog_ConversationFragment>
-  assistants: FragmentType<typeof ParticipantsDialog_AssistantFragment>[]
-  humans: FragmentType<typeof ParticipantsDialog_HumanFragment>[]
+  conversation?: FragmentType<typeof ConversationParticipantsDialog_ConversationFragment>
+  assistants: FragmentType<typeof ConversationParticipantsDialog_AssistantFragment>[]
+  users: User[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
+  className?: string
 }
 
-export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
+export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) => {
   const { t } = useTranslation()
-  const [usersFilter, setUsersFilter] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
   const [emailChips, setEmailChips] = useState<string[]>([])
@@ -71,9 +63,9 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const conversation = useFragment(ParticipantsDialog_ConversationFragment, props.conversation)
-  const assistants = useFragment(ParticipantsDialog_AssistantFragment, props.assistants)
-  const humans = useFragment(ParticipantsDialog_HumanFragment, props.humans)
+  const conversation = useFragment(ConversationParticipantsDialog_ConversationFragment, props.conversation)
+  const assistants = useFragment(ConversationParticipantsDialog_AssistantFragment, props.assistants)
+  const { users } = props
 
   const assignedAssistantIds = useMemo(
     () =>
@@ -96,26 +88,10 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     [conversation],
   )
 
-  const availableHumans = useMemo(() => {
-    if (!humans || !usersFilter || usersFilter.length < 2) {
-      setSelectedUserIds([])
-      return []
-    }
-
-    const filter = usersFilter.toLowerCase()
-    const list = humans.filter(
-      (user) =>
-        !assignedUserIds?.includes(user.id) &&
-        (user.username.toLowerCase().includes(filter) ||
-          user.email.toLowerCase().includes(filter) ||
-          (user.profile?.firstName && user.profile.firstName.toLowerCase().includes(filter)) ||
-          (user.profile?.lastName && user.profile.lastName.toLowerCase().includes(filter)) ||
-          (user.profile?.business && user.profile.business.toLowerCase().includes(filter)) ||
-          (user.profile?.position && user.profile.position.toLowerCase().includes(filter))),
-    )
-    setSelectedUserIds((prev) => prev.filter((id) => list.some((human) => human.id === id)))
-    return list
-  }, [humans, assignedUserIds, usersFilter])
+  const availableUsers = useMemo(
+    () => users.filter((user) => !assignedUserIds?.includes(user.id)),
+    [users, assignedUserIds],
+  )
 
   const isCreatingNewConversation = props.dialogMode === 'new'
   const isOwner = isCreatingNewConversation || props.userId === conversation?.ownerId
@@ -149,8 +125,8 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
     },
     onSettled: async () => {
       if (conversation) {
-        await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversation, conversation.id] })
-        await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
+        await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
+        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
       }
       setEmailChips([])
       setEmailError(null)
@@ -183,7 +159,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
           return
         }
 
-        await queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations, props.userId] })
+        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
         navigate({ to: `/conversations/${conversationId}` })
 
         if (emailChips.length > 0) {
@@ -242,7 +218,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
 
   const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
-    props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('texts.addParticipantsConfirmation')
+    props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
   const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
   const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
   const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
@@ -251,7 +227,7 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <button type="button" className={`${buttonClass} btn btn-sm`} onClick={handleOpen}>
+      <button type="button" className={twMerge('btn btn-sm', buttonClass, props.className)} onClick={handleOpen}>
         {props.dialogMode === 'add' && <PlusIcon />}
         {buttonText}
       </button>
@@ -264,125 +240,81 @@ export const ParticipantsDialog = (props: ParticipantsDialogProps) => {
         disabledSubmit={selectedUserIds.length < 1 && selectedAssistantIds.length < 1 && emailChips.length < 1}
         submitButtonText={submitButtonText}
         submitButtonTooltipText={t('tooltips.addNoParticipantsSelected')}
-        className="w-full max-w-[800px] px-4 sm:px-6 md:px-8"
+        className="max-w-5xl"
       >
-        <div className="flex w-full flex-col gap-4 sm:flex-row">
-          <div className="flex-1">
-            <h4 className="mb-2 text-lg font-semibold underline">{t('conversations.assistants')}</h4>
+        <div className="grid grid-cols-3 gap-4 *:flex *:max-h-64 *:flex-col *:gap-2 max-md:grid-cols-1">
+          {/* Assistants Column */}
+          <div>
+            <h4 className="text-lg font-semibold underline">{t('conversations.assistants')}</h4>
             {availableAssistants.length < 1 ? (
               <p>{t('texts.noAssistantsAvailable')}</p>
             ) : (
-              availableAssistants.map((assistant) => (
-                <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="assistants"
-                    value={assistant.id}
-                    className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedAssistantIds.includes(assistant.id)}
-                    onChange={(event) => {
-                      const value = event.target.checked
-                      if (value) {
-                        setSelectedAssistantIds((prev) => [...prev, assistant.id])
-                      } else {
-                        setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
-                      }
-                    }}
-                  />
-                  <span className="label-text">{assistant.name}</span>
-                </label>
-              ))
+              <div className="hover:border-base-300 rounded-box flex flex-col gap-2 overflow-y-auto border border-transparent p-2">
+                {availableAssistants.map((assistant) => (
+                  <label key={assistant.id} className="label cursor-pointer items-center justify-start gap-2">
+                    <input
+                      type="checkbox"
+                      name="assistants"
+                      value={assistant.id}
+                      className="checkbox checkbox-info checkbox-xs"
+                      checked={selectedAssistantIds.includes(assistant.id)}
+                      onChange={(event) => {
+                        const value = event.target.checked
+                        if (value) {
+                          setSelectedAssistantIds((prev) => [...prev, assistant.id])
+                        } else {
+                          setSelectedAssistantIds((prev) => prev.filter((id) => id !== assistant.id))
+                        }
+                      }}
+                    />
+                    <span className="truncate text-sm" title={assistant.name}>
+                      {assistant.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
             )}
           </div>
 
-          <div className="flex-1">
+          {/* User Column */}
+          <div className="h-64">
             <h4 className="text-lg font-semibold underline">{t('conversations.humans')}</h4>
-            <input
-              type="text"
-              className="input input-bordered input-md mt-2 w-full"
-              onChange={(event) => setUsersFilter(event.currentTarget.value)}
-              name={'userFilter'}
-              placeholder={t('placeholders.searchUsers')}
+            <UsersSelector
+              users={availableUsers}
+              selectedUserIds={selectedUserIds}
+              setSelectedUserIds={setSelectedUserIds}
+              className="min-h-0"
             />
-            <label className="label cursor-pointer items-center justify-start gap-2">
-              <input
-                disabled={availableHumans.length < 1}
-                type="checkbox"
-                name="selectAll"
-                className="checkbox checkbox-info checkbox-xs"
-                checked={selectedUserIds.length > 0}
-                ref={(element) => {
-                  if (!element) return
-                  element.indeterminate = selectedUserIds.length > 0 && selectedUserIds.length < availableHumans.length
-                }}
-                onChange={(event) => {
-                  const value = event.target.checked
-                  if (value) {
-                    setSelectedUserIds(availableHumans.map((human) => human.id))
-                  } else {
-                    setSelectedUserIds([])
-                  }
-                }}
-              />
-              {availableHumans.length < 1 ? (
-                <span className="info label-text font-bold">{t('texts.noUsersFound')}</span>
-              ) : (
-                <span className="info label-text font-bold">{`${availableHumans.length} ${t('texts.usersFound')}`}</span>
-              )}
-            </label>
-            <div className="max-h-48 flex-grow overflow-y-auto">
-              {availableHumans.map((human) => (
-                <label key={human.id} className="label cursor-pointer items-center justify-start gap-2">
-                  <input
-                    type="checkbox"
-                    name="userIds"
-                    value={human.id}
-                    className="checkbox checkbox-info checkbox-xs"
-                    checked={selectedUserIds.includes(human.id)}
-                    onChange={(event) => {
-                      const value = event.target.checked
-                      if (value) {
-                        setSelectedUserIds((prev) => [...prev, human.id])
-                      } else {
-                        setSelectedUserIds((prev) => prev.filter((id) => id !== human.id))
-                      }
-                    }}
-                  />
-                  <span className="label-text text-sm leading-tight">
-                    {`${human.username} (${human.email} ${human.profile && human.profile.business !== null ? '| ' + human.profile?.business : ''} )`}
-                  </span>
-                </label>
-              ))}
-            </div>
           </div>
 
+          {/* Invite Column */}
           {isOwner && (
-            <div className="flex-1">
-              <h4 className="mb-2 text-lg font-semibold underline">{t('labels.invitation')}</h4>
+            <div>
+              <h4 className="text-lg font-semibold underline">{t('labels.invitation')}</h4>
               <EmailChipsInput
                 emails={emailChips}
                 setEmails={setEmailChips}
                 placeholder={t('placeholders.emailToInvite')}
               />
               {emailError && <p className="text-error text-sm">{emailError}</p>}
-              <div className="mt-2 flex flex-col gap-1">
-                <label className="flex items-center gap-2">
+              <div className="flex flex-col gap-1 text-sm">
+                <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowDifferentEmailAddress}
                     className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowDifferentEmailAddress(event.target.checked)}
                   />
-                  <span className="text-sm">{t('texts.allowDifferentEmail')}</span>
+                  <span>{t('texts.allowDifferentEmail')}</span>
                 </label>
-                <label className="flex items-center gap-2">
+                <label className="label gap-2 text-wrap">
                   <input
                     type="checkbox"
                     checked={allowMultipleParticipants}
                     className="checkbox-info checkbox checkbox-xs"
                     onChange={(event) => setAllowMultipleParticipants(event.target.checked)}
                   />
-                  <span className="text-sm">{t('texts.allowMultipleParticipants')}</span>
+                  <span>{t('texts.allowMultipleParticipants')}</span>
                 </label>
               </div>
             </div>

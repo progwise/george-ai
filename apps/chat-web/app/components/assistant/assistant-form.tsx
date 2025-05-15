@@ -8,7 +8,7 @@ import { getLanguage, translate } from '../../i18n'
 import { Language } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
-import { queryKeys } from '../../query-keys'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
@@ -80,10 +80,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
-    onSettled: () =>
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistantForEdit, assistant.id, ownerId],
-      }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, ownerId)),
   })
 
   const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
@@ -99,10 +96,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         body: file,
       })
     },
-    onSettled: () =>
-      queryClient.invalidateQueries({
-        queryKey: [queryKeys.AiAssistantForEdit, assistant.id, ownerId],
-      }),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, ownerId)),
   })
 
   const handleUploadIcon = React.useCallback(

@@ -1,53 +1,17 @@
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { AiActGuide } from '../../../components/assistant/assistant-ai-act/ai-act-guide'
 import { AssistantBasecaseForm } from '../../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
+import { AssistantParticipants } from '../../../components/assistant/assistant-participants'
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
 import { LoadingSpinner } from '../../../components/loading-spinner'
-import { graphql } from '../../../gql/gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../icons/back-icon'
-import { queryKeys } from '../../../query-keys'
-import { backendRequest } from '../../../server-functions/backend'
-
-const getAssistant = createServerFn({ method: 'GET' })
-  .validator(({ assistantId, ownerId }: { assistantId: string; ownerId: string }) => ({
-    assistantId: z.string().nonempty().parse(assistantId),
-    ownerId: z.string().nonempty().parse(ownerId),
-  }))
-  .handler(
-    async (ctx) =>
-      await backendRequest(
-        graphql(`
-          query aiAssistantDetails($id: String!, $ownerId: String!) {
-            aiAssistant(id: $id) {
-              ...AssistantForm_Assistant
-              ...AssistantSelector_Assistant
-              ...AssistantLibraries_Assistant
-              ...AssistantBasecaseForm_Assistant
-            }
-            aiAssistants(ownerId: $ownerId) {
-              ...AssistantSelector_Assistant
-            }
-            aiLibraryUsage(assistantId: $id) {
-              ...AssistantLibraries_LibraryUsage
-            }
-            aiLibraries(ownerId: $ownerId) {
-              ...AssistantLibraries_Library
-            }
-          }
-        `),
-        {
-          id: ctx.data.assistantId,
-          ownerId: ctx.data.ownerId,
-        },
-      ),
-  )
+import { getAssistantQueryOptions } from '../../../server-functions/assistant'
+import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
   component: RouteComponent,
@@ -59,12 +23,11 @@ function RouteComponent() {
   const navigate = useNavigate()
   const ownerId = Route.useRouteContext().user.id
   const { assistantId } = Route.useParams()
-  const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.AiAssistantForEdit, assistantId, ownerId],
-    queryFn: () => getAssistant({ data: { ownerId, assistantId } }),
-  })
+  const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId, ownerId))
 
-  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data || {}
+  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions(ownerId))
+
+  const { aiAssistant, aiAssistants, aiLibraries, aiLibraryUsage } = data
 
   if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
@@ -72,11 +35,12 @@ function RouteComponent() {
 
   return (
     <article className="container flex w-full flex-col gap-4">
-      <div className="flex justify-between">
+      <div className="flex gap-2">
         <div className="w-64">
           <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-5/6 gap-2">
+          <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
           <button
             type="button"
             className="btn btn-sm tooltip tooltip-left"

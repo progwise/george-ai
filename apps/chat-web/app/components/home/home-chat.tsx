@@ -69,54 +69,34 @@ export const HomeChat = ({ user }: HomeChatProps) => {
   }
 
   return (
-    <div className="rounded-box bg-base-100 w-full max-w-md overflow-hidden shadow-2xl" data-theme="light">
-      <div className="bg-base-200 p-5">
-        <div className="mb-4 flex items-center">
-          <div className="bg-primary text-primary-content size-10 rounded-full" />
-          <div className="ml-3">
-            <h3 className="font-semibold text-gray-800">George-AI</h3>
-            <p className="text-sm text-gray-600">{t('hero.chatStatus')}</p>
-          </div>
-        </div>
-        <div className="chat chat-start">
-          <div className="chat-bubble space-y-2">
-            <p>{t('hero.chatGreeting')}</p>
-            <p>{t('hero.chatMessage')}</p>
-          </div>
-        </div>
-      </div>
-      <div className="px-4 pb-4">
-        <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
-          <LoadingSpinner isLoading={isPending} />
-          <Input
-            placeholder={t('contactForm.namePlaceholder')}
-            name={'name'}
-            schema={formSchema}
-            value={user?.name || ''}
-            label={t('contactForm.nameLabel')}
-          />
-          <Input
-            placeholder={t('contactForm.messagePlaceholder')}
-            name="message"
-            label={t('contactForm.messageLabel')}
-            type="textarea"
-            className="min-h-14"
-            schema={formSchema}
-          />
-          <Input
-            placeholder={t('contactForm.emailOrPhonePlaceholder')}
-            name="emailOrPhone"
-            type="text"
-            label={t('contactForm.emailOrPhoneLabel')}
-            value={user?.email || ''}
-            schema={formSchema}
-          />
-          <button type="submit" className="btn btn-sm absolute bottom-2 right-1 z-50">
-            {' '}
-            {t('actions.sendMessage')}
-          </button>
-        </form>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
+      <LoadingSpinner isLoading={isPending} />
+      <Input
+        placeholder={t('contactForm.namePlaceholder')}
+        name={'name'}
+        schema={formSchema}
+        value={user?.name || ''}
+        label={t('contactForm.nameLabel')}
+      />
+      <Input
+        placeholder={t('contactForm.messagePlaceholder')}
+        name="message"
+        label={t('contactForm.messageLabel')}
+        type="textarea"
+        className="min-h-14"
+        schema={formSchema}
+      />
+      <Input
+        placeholder={t('contactForm.emailOrPhonePlaceholder')}
+        name="emailOrPhone"
+        type="text"
+        label={t('contactForm.emailOrPhoneLabel')}
+        value={user?.email || ''}
+        schema={formSchema}
+      />
+      <button type="submit" className="btn btn-sm absolute bottom-2 right-1 z-50">
+        {t('actions.sendMessage')}
+      </button>
+    </form>
   )
 }

@@ -64,7 +64,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
           !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
         )}
       >
-        <nav className="navbar gap-2 text-sm lg:gap-4">
+        <nav className="navbar px-body gap-2 text-sm lg:gap-4">
           {/* Logo and Brand-Name */}
           <Link to="/" className="flex grow items-center gap-2 text-nowrap text-xl font-bold">
             <BowlerLogoIcon className="size-10" />
@@ -73,7 +73,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
 
           {/* Links to other pages */}
           <div className="flex items-center gap-1 max-lg:hidden">
-            <TopNavigationLink to="/conversations/$">{t('topNavigation.conversations')}</TopNavigationLink>
+            <TopNavigationLink to="/conversations">{t('topNavigation.conversations')}</TopNavigationLink>
             <TopNavigationLink to="/assistants">{t('topNavigation.assistants')}</TopNavigationLink>
             <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
           </div>

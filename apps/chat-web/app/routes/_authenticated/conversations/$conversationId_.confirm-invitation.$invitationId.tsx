@@ -1,11 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate, useParams } from '@tanstack/react-router'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
-import { confirmInvitation } from '../../../server-functions/participations'
+import { confirmInvitation } from '../../../server-functions/conversationParticipations'
 
 const conversationInvitationQueryOptions = (conversationId?: string, invitationId?: string) => ({
   queryKey: [queryKeys.ConversationInvitation, conversationId, invitationId],
@@ -18,19 +17,20 @@ const conversationInvitationQueryOptions = (conversationId?: string, invitationI
   enabled: !!conversationId && !!invitationId,
 })
 
-export const Route = createFileRoute('/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId')({
-  component: RouteComponent,
-  loader: async ({ context, params }) => {
-    context.queryClient.ensureQueryData(conversationInvitationQueryOptions(params.conversationId, params.invitationId))
+export const Route = createFileRoute('/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId')(
+  {
+    component: RouteComponent,
+    loader: async ({ context, params }) => {
+      context.queryClient.ensureQueryData(
+        conversationInvitationQueryOptions(params.conversationId, params.invitationId),
+      )
+    },
+    staleTime: 0,
   },
-  staleTime: 0,
-})
+)
 
 function RouteComponent() {
-  const { conversationId, invitationId } = useParams({
-    from: '/_authenticated/conversations/$conversationId/confirm-invitation/$invitationId',
-    strict: true,
-  })
+  const { conversationId, invitationId } = Route.useParams()
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const navigate = useNavigate()
