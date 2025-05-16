@@ -5,7 +5,7 @@ Split a dataset in JSONL format into training, validation, and test sets
 based on specified ratios.
 
 Usage:
-    python split_dataset.py input_file.jsonl [--train 0.8 --valid 0.1 --test 0.1 --output split_output]
+    python3 split_dataset.py input_file.jsonl --train 0.8 --valid 0.1 --test 0.1 --output split_output
 
 Author:
     Mostafa Razavi Ghods
