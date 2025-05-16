@@ -90,10 +90,29 @@ export class ChatLocalMLX extends BaseChatModel<BaseChatModelCallOptions, AIMess
       throw new Error(`Local MLX API returned ${res.status}: ${errorText}`)
     }
 
-    const rawText = await res.text()
-    const text = cleanModelOutput(rawText)
-    if (runManager?.handleLLMNewToken) {
-      await runManager.handleLLMNewToken(text)
+    // --- STREAMING SUPPORT ---
+    let text = ''
+    if (res.body && typeof window !== 'undefined') {
+      // Browser: Stream response using ReadableStream
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value, { stream: true })
+        const cleaned = cleanModelOutput(chunk)
+        text += cleaned
+        if (runManager?.handleLLMNewToken) {
+          await runManager.handleLLMNewToken(cleaned)
+        }
+      }
+    } else {
+      // Node.js or fallback: read all at once
+      const rawText = await res.text()
+      text = cleanModelOutput(rawText)
+      if (runManager?.handleLLMNewToken) {
+        await runManager.handleLLMNewToken(text)
+      }
     }
     return text
   }
