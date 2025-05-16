@@ -267,6 +267,7 @@ export default {
     addNew: 'Neue Bibliothek erstellen',
     addNewButton: 'Bibliothek erstellen',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
+    addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
@@ -284,6 +285,7 @@ export default {
     },
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
+    users: 'Benutzer',
   },
   placeholders: {
     condition: 'Wenn',
