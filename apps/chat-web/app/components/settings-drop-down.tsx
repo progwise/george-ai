@@ -7,6 +7,7 @@ import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
 import { useLanguage } from '../i18n/language-provider'
 import { useTranslation } from '../i18n/use-translation-hook'
+import { ExitIcon } from '../icons/exit-icon'
 import { MenuEllipsisIcon } from '../icons/menu-ellipsis-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
@@ -56,30 +57,32 @@ export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdown
   }
 
   const themeText = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode')
-  const languageText = language === 'en' ? 'German' : 'Englisch'
+  const languageText = language === 'en' ? 'Language: German' : 'Sprache: Englisch'
 
   return (
     <details className="dropdown dropdown-end" ref={dropdownRef}>
+      {/* menu button */}
       <summary className="btn btn-ghost btn-circle list-none">
-        {!user && <MenuEllipsisIcon className="size-6" />}
-
-        {user && (
-          <>
-            <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
-              <span className="btn btn-circle btn-md text-base">{user.name?.at(0)?.toUpperCase()}</span>
-            </div>
-          </>
+        {user ? (
+          <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
+            <span className="btn btn-circle btn-md text-base">{user.name?.at(0)?.toUpperCase()}</span>
+          </div>
+        ) : (
+          <MenuEllipsisIcon className="size-6" />
         )}
       </summary>
 
       <ul className="dropdown-content menu rounded-box bg-base-200 min-w-55 mt-2 shadow-sm">
         {/* Link to profile */}
         {user && (
-          <li className="border-b-2 border-b-neutral-300">
-            <Link to="/profile" onClick={() => dropdownRef.current?.removeAttribute('open')}>
-              <span className="max-w-48 truncate max-lg:hidden">{user.name}</span>
-            </Link>
-          </li>
+          <>
+            <li>
+              <Link to="/profile" onClick={() => dropdownRef.current?.removeAttribute('open')}>
+                <span className="truncate">{user.name}</span>
+              </Link>
+            </li>
+            <div className="divider m-0" />
+          </>
         )}
 
         {/* Theme-Switcher */}
@@ -94,35 +97,39 @@ export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdown
                 checked={theme === 'dark'}
                 onChange={handleThemeToggle}
               />
-              <SunIcon className="swap-on size-4 fill-current stroke-0" />
-              <MoonIcon className="swap-off size-4 fill-current stroke-0" />
+              <SunIcon className="swap-on" />
+              <MoonIcon className="swap-off" />
             </div>
           </label>
         </li>
 
         {/* Language-Switcher */}
         <li>
-          <label className="grid-cols-[1fr_min-content]">
+          <button onClick={handleLanguageToggle} type="button" className="grid-cols-[1fr_min-content]">
             {languageText}
-            <div className="swap swap-rotate">
-              <button
-                type="button"
-                onClick={handleLanguageToggle}
-                className="btn btn-circle btn-ghost btn-sm flex size-4 items-center"
-              >
-                {language === 'en' ? 'DE' : 'EN'}
-              </button>
-            </div>
-          </label>
+            <span>{language === 'en' ? 'DE' : 'EN'}</span>
+          </button>
         </li>
 
         {/* Sign-Out */}
         {isReady && user && (
-          <li>
-            <button type="button" onClick={logout}>
-              {t('actions.signOut')}
-            </button>
-          </li>
+          <>
+            <div className="divider m-0" />
+            <li>
+              <label className="grid-cols-[1fr_min-content]">
+                {t('actions.signOut')}
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-circle btn-btn-ghost btn-sm flex size-4 items-center"
+                    onClick={logout}
+                  >
+                    <ExitIcon className="size-4 fill-current stroke-0"></ExitIcon>
+                  </button>
+                </div>
+              </label>
+            </li>
+          </>
         )}
       </ul>
     </details>

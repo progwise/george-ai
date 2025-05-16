@@ -290,8 +290,8 @@ export default {
   },
   resetConversation: 'Reset conversation',
   settings: {
-    darkMode: 'Dark mode',
-    lightMode: 'Light mode',
+    darkMode: 'Theme: Dark',
+    lightMode: 'Theme: Light',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',

@@ -294,8 +294,8 @@ export default {
   },
   resetConversation: 'Konversation zurücksetzen',
   settings: {
-    darkMode: 'Dunkelmodus',
-    lightMode: 'Hellmodus',
+    darkMode: 'Farbschema: Dunkel',
+    lightMode: 'Farbschema: Hell',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',

@@ -32,7 +32,7 @@ interface TopNavigationProps {
   theme?: string
 }
 
-export default function TopNavigation({ user, theme: initialTheme }: TopNavigationProps) {
+export default function TopNavigation({ user, theme }: TopNavigationProps) {
   const { t } = useTranslation()
   const { login, isReady } = useAuth()
   const [isAtTop, setIsAtTop] = useState(false)
@@ -60,7 +60,7 @@ export default function TopNavigation({ user, theme: initialTheme }: TopNavigati
             <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
           </div>
 
-          <SettingsDropdown user={user} theme={initialTheme} />
+          <SettingsDropdown user={user} theme={theme} />
 
           <div className="flex items-center justify-center gap-4">
             {isReady && !user && (
