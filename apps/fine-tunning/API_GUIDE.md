@@ -110,7 +110,7 @@ curl -X POST http://localhost:4567/fine-tune \
   "learningRate": 1e-5,
   "iters": 100,
   "fineTuneType": "lora",
-  "dataPath": "./jsonl/george-ai",
+  "dataPath": "./split_output",
   "numLayers": 4,
   "huggingFaceToken": "your_hf_token_here"
 }'
@@ -126,7 +126,7 @@ curl -X POST http://localhost:4567/fine-tune \
   "learningRate": 1e-5,
   "iters": 100,
   "fineTuneType": "lora",
-  "dataPath": "./jsonl/george-ai",
+  "dataPath": "./split_output",
   "numLayers": 4,
   "huggingFaceToken": "your_hf_token_here"
 }'
@@ -154,7 +154,7 @@ curl -X POST http://localhost:4567/generate \
 -H "Content-Type: application/json" \
 -d '{
   "model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
-  "prompt": "What is 9 + 3?",
+  "prompt": "Can I create custom dashboards in George-AI?",
   "adapterPath": "adapters",
   "maxTokens": 100
 }'
