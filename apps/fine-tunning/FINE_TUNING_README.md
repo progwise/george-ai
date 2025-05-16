@@ -39,7 +39,7 @@ python3 fine_tune.py --model Qwen/Qwen2.5-Coder-7B-Instruct --data split_output
 ## Prompting new
 
 ```bash
-python3 prompt.py --model Qwen/Qwen2.5-Coder-7B-Instruct --prompt "Can I create custom dashboards in George-AI?"
+python3 prompt.py --model Qwen/Qwen2.5-Coder-0.5B-Instruct --prompt "Can I create custom dashboards in George-AI?"
 ```
 
 ---

@@ -1,2 +1,5 @@
 mlx-lm
 datasets
+transformers
+peft
+huggingface_hub
