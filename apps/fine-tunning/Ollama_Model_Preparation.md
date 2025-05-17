@@ -6,6 +6,50 @@
 
 ---
 
+## Prerequisites
+
+First you need to do the fine-tuning in order to have the adapter weights.
+
+Outside dev containers in a bash terminal execute the following in this current directory inside the `george-ai` repo
+
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python3 -m pip install --upgrade pip
+```
+
+
+
+### Downlaod & Test LLMs from Hugging Face (if you already have not done)
+
+downlaod model from Hugging Face and create chat utilities and test it.
+
+**Qwen 0.5B-Instruct:**
+
+```bash
+python3 -m mlx_lm.generate --prompt "tell me a limerick about cheese" --model Qwen/Qwen2.5-Coder-0.5B-Instruct
+```
+
+### Split the dataset
+
+Split the dataset into training, validation, and test sets based on specified ratios.
+
+```bash
+python3 split_dataset.py jsonl/george-ai/dataset.jsonl --train 0.8 --valid 0.1 --test 0.1 --output split_output
+```
+
+### Fine tuning
+
+Perfrom the Fine tuning to prepare the adapter weights.
+
+```bash
+python3 fine_tune.py --model Qwen/Qwen2.5-Coder-0.5B-Instruct --data split_output
+```
+
+
+
 ## Step 1 – Fuse Adapter Weights
 
 To fuse the learned adapters into the base model, use the following script, making sure that paths are correct.
@@ -40,6 +84,12 @@ if __name__ == "__main__":
     fuse_adapter()
 ```
 
+you can simply run by using the following command:
+
+```bash
+python3 fuse.py
+```
+
 ---
 
 ## Step 2 – Convert Safetensors to `.gguf`
@@ -52,6 +102,7 @@ Install `cmake` and `curl` using Homebrew:
 brew install cmake curl
 ```
 
+
 Ensure Homebrew’s bin is in your `PATH` (Apple Silicon):
 
 ```bash
@@ -59,11 +110,21 @@ echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
+Or you can install cmake using pip
+
 ### 2.2 Clone & Build `llama.cpp`
 
 ```bash
 git clone https://github.com/ggml-org/llama.cpp.git
 cd llama.cpp
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install cmake
+python3 -m pip install --upgrade pip
+
+
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j8
 ```
@@ -92,7 +153,17 @@ From inside the `llama.cpp/`  repo, run:
 ```bash
 python3 convert_hf_to_gguf.py \
   /absolute/path/to/qwen25_coder_05b_instruct_merged \
-  --outfile /absolute/path/to/qwen25_coder_05b_instruct_merged/qwen2.5_coder_0.5b_instruct_fp16.gguf
+  --outfile /absolute/path/to/fine-tunning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf
+```
+
+or if you have cloned the llama.cpp next to the george-ai you can use the following:
+
+```bash
+mkdir gguf_models
+pip install transformers torch sentencepiece
+python3 convert_hf_to_gguf.py \
+  ../george-ai/apps/fine-tunning/fused_model/qwen25_coder_05b_instruct_merged \
+  --outfile ../george-ai/apps/fine-tunning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf 
 ```
 
 This loads your Hugging Face config, tokenizer, and safetensors weights, and writes a single `.gguf` file in FP16.

@@ -5,6 +5,7 @@ adapters_*
 
 # Virtual environment
 venv
+.venv
 *.env
 
 # Node modules
