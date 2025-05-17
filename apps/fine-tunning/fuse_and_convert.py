@@ -2,71 +2,75 @@ import os
 import subprocess
 import sys
 
-# Define paths
+# Paths — adjust llama_cpp to your actual checkout
+# LLAMA_CPP = " ../../../../public/llama.cpp"
 BASE_MODEL = "Qwen/Qwen2.5-Coder-0.5B-Instruct"
 ADAPTER_PATH = "./adapters_Qwen25_Coder_05B_Instruct"
-MERGED_MODEL_PATH = "./fused_model/qwen25_coder_05b_instruct_merged"
-GGUF_MODEL_PATH = "./gguf_models/qwen25_coder_05b_instruct_merged.gguf"
-MODEFILE_PATH = "./Modelfile"
-OLLAMA_MODEL_NAME = "qwen25-coder-05b-instruct"
+MERGED_MODEL = "./fused_model/qwen25_coder_05b_instruct_merged"
+# GGUF_OUT = "./gguf_models/qwen25_coder_05b_instruct_merged.gguf"
+# MODEFILE_PATH = "./Modelfile"
+# OLLAMA_NAME = "qwen25-coder-05b-instruct"
 
 
-def run_command(command, cwd=None):
-    """Run a shell command and handle errors."""
+def run_command(cmd, cwd=None):
     try:
-        subprocess.run(command, check=True, cwd=cwd)
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred while executing: {' '.join(command)}")
+        print("▶️", " ".join(cmd))
+        subprocess.run(cmd, check=True, cwd=cwd)
+    except subprocess.CalledProcessError:
+        print(f"✖️ Error running: {' '.join(cmd)}")
         sys.exit(1)
 
 
 def fuse_adapter():
-    """Fuse the LoRA adapter into the base model."""
-    print("Fusing adapter into the base model...")
+    print("🔗 Fusing LoRA adapter into base model…")
     run_command([
         "python3", "-m", "mlx_lm.fuse",
         "--model", BASE_MODEL,
         "--adapter-path", ADAPTER_PATH,
-        "--save-path", MERGED_MODEL_PATH
+        "--save-path", MERGED_MODEL
     ])
-    print(f"Adapter fused. Merged model saved at {MERGED_MODEL_PATH}")
+    print("✅ Adapter fused.")
 
 
-def convert_to_gguf():
-    """Convert the merged model to GGUF format."""
-    print("Converting merged model to GGUF format...")
-    run_command([
-        "python3", "convert.py",
-        MERGED_MODEL_PATH,
-        GGUF_MODEL_PATH
-    ])
-    print(f"Conversion complete. GGUF model saved at {GGUF_MODEL_PATH}")
+# def convert_to_gguf():
+#     print("🔄 Converting merged model to GGUF…")
+#     convert_script = os.path.join(LLAMA_CPP, "convert_hf_to_gguf.py")
+#     if not os.path.exists(convert_script):
+#         print(f"✖️ Could not find conversion script at {convert_script}")
+#         sys.exit(1)
+
+#     run_command([
+#         "python3",
+#         convert_script,
+#         MERGED_MODEL,
+#         "--outfile", GGUF_OUT
+#     ])
+#     print("✅ GGUF conversion done.")
 
 
-def create_modelfile():
-    """Create a Modelfile for Ollama."""
-    print("Creating Modelfile for Ollama...")
-    with open(MODEFILE_PATH, "w") as f:
-        f.write(f"FROM {GGUF_MODEL_PATH}\n")
-    print(f"Modelfile created at {MODEFILE_PATH}")
+# def create_modelfile():
+#     print("📄 Writing Modelfile for Ollama…")
+#     with open(MODEFILE_PATH, "w") as f:
+#         f.write(f"FROM {GGUF_OUT}\n")
+#     print("✅ Modelfile created.")
 
 
-def build_ollama_model():
-    """Build the model in Ollama."""
-    print("Building the model in Ollama...")
-    run_command([
-        "ollama", "create", f"{OLLAMA_MODEL_NAME}:latest", "-f", MODEFILE_PATH
-    ])
-    print(f"Ollama model '{OLLAMA_MODEL_NAME}:latest' created successfully.")
+# def build_ollama_model():
+#     print("🏗️ Building Ollama model…")
+#     run_command([
+#         "ollama", "create", f"{OLLAMA_NAME}:latest",
+#         "-f", MODEFILE_PATH
+#     ])
+#     print(f"✅ Ollama model `{OLLAMA_NAME}:latest` ready.")
 
 
-def main():
-    fuse_adapter()
-    convert_to_gguf()
-    create_modelfile()
-    build_ollama_model()
-    print("All steps completed successfully.")
+# def main():
+#     fuse_adapter()
+#     convert_to_gguf()
+#     create_modelfile()
+#     build_ollama_model()
+#     print("🎉 All done!")
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -3,3 +3,5 @@ datasets
 transformers
 peft
 huggingface_hub
+torch
+tabulate
