@@ -201,6 +201,9 @@ importers:
       graphql-yoga:
         specifier: ^5.10.2
         version: 5.12.2(graphql@16.10.0)
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
     devDependencies:
       '@eslint/js':
         specifier: ^9.16.0
@@ -211,6 +214,9 @@ importers:
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.0
+      '@types/jsonwebtoken':
+        specifier: ^9.0.9
+        version: 9.0.9
       eslint:
         specifier: ^9.17.0
         version: 9.21.0(jiti@2.4.2)

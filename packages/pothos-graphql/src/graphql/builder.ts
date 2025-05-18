@@ -5,20 +5,22 @@ import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
 import { Prisma, PrismaClient } from '@george-ai/prismaClient'
 
-import type { GraphQLContext, LoggedInContext } from './context'
+import { Context, LoggedInContext } from './context'
 import PrismaTypes from '.pothos/plugin-prisma/generated'
 
 const prisma = new PrismaClient({})
 
 const builder = new SchemaBuilder<{
-  Context: GraphQLContext
   DefaultInputFieldRequiredness: true
   PrismaTypes: PrismaTypes
+  Context: Context
   AuthScopes: {
     isLoggedIn: boolean
+    hasUserId: string
   }
   AuthContexts: {
     isLoggedIn: LoggedInContext
+    hasUserId: LoggedInContext
   }
   Objects: {
     AiLibraryUsageResult: {
@@ -54,9 +56,13 @@ const builder = new SchemaBuilder<{
     onUnusedQuery: process.env.NODE_ENV === 'production' ? null : 'warn',
   },
   scopeAuth: {
-    authScopes: (context: GraphQLContext) => ({
-      isLoggedIn: !!context.user?.id,
+    authScopes: async (context) => ({
+      isLoggedIn: !!context.session,
+      hasUserId: (userId: string) => context.session?.user.id === userId,
     }),
+    unauthorizedError: () => {
+      throw Error('Unauthorized')
+    },
   },
 })
 
