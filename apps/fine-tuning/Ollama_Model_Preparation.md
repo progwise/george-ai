@@ -23,7 +23,7 @@ python3 -m pip install --upgrade pip
 
 ### Downlaod & Test LLMs from Hugging Face (if you already have not done)
 
-downlaod model from Hugging Face and create chat utilities and test it.
+Downlaod the model from Hugging Face and create chat utilities and test it.
 
 **Qwen 0.5B-Instruct:**
 
@@ -93,14 +93,20 @@ python3 fuse.py
 
 ## Step 2 – Convert Safetensors to `.gguf`
 
-### 2.1 Install Prerequisites
+For this step we need to clone another repository `https://github.com/ggml-org/llama.cpp.git`.
+For simplicity with the relative paths in this guide clone it next the `george-ai` repo.
+
+To do the conversion from `.safetensors` format to `.gguf` we to install `cmake`.
+
+To do this you can install `cmake` on your machine using homebrew or install it in your pip virtual environment (recommended).
+
+### 2.1 Install `cmake` using homebrew
 
 Install `cmake` and `curl` using Homebrew:
 
 ```bash
 brew install cmake curl
 ```
-
 
 Ensure Homebrew’s bin is in your `PATH` (Apple Silicon):
 
@@ -109,7 +115,7 @@ echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-Or you can install cmake using pip
+Or you can install `cmake` using pip
 
 ### 2.2 Clone & Build `llama.cpp`
 
@@ -158,7 +164,7 @@ python3 convert_hf_to_gguf.py \
 or if you have cloned the llama.cpp next to the george-ai you can use the following:
 
 ```bash
-mkdir gguf_models
+mkdir ../george-ai/apps/fine-tuning/gguf_models
 pip install transformers torch sentencepiece
 python3 convert_hf_to_gguf.py \
   ../george-ai/apps/fine-tuning/fused_model/qwen25_coder_05b_instruct_merged \
@@ -185,7 +191,7 @@ Optionally, add parameters:
 FROM /absolute/path/to/qwen2.5_coder_0.5b_instruct_fp16.gguf
 PARAMETER temperature 0.7
 PARAMETER max_tokens 512
-SYSTEM "You are an expert Qwen assistant."
+SYSTEM "You are an expert George-AI Qwen assistant."
 ```
 
 ### 3.2 Register the Model
@@ -193,7 +199,7 @@ SYSTEM "You are an expert Qwen assistant."
 Register your model with Ollama using the following command:
 
 ```bash
-ollama create qwen2.5-coder-0.5b:instruct -f Modelfile
+ollama create qwen2.5-coder-0.5b:george -f Modelfile
 ```
 
 ### 3.3 Start an Interactive Chat
@@ -201,7 +207,7 @@ ollama create qwen2.5-coder-0.5b:instruct -f Modelfile
 Launch a chat session:
 
 ```bash
-ollama run qwen2.5-coder-0.5b:instruct
+ollama run qwen2.5-coder-0.5b:george
 ```
 
 You can now interact with your fine-tuned Qwen model.
