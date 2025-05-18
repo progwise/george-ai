@@ -85,6 +85,7 @@ export const LibraryParticipantsDialogButton = (props: LibraryParticipantsDialog
             users={assignableUsers}
             selectedUserIds={selectedUserIds}
             setSelectedUserIds={setSelectedUserIds}
+            className="h-56"
           />
         </div>
       </DialogForm>

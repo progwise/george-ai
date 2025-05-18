@@ -121,15 +121,10 @@ builder.mutationField('createAiAssistant', (t) =>
     args: {
       name: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { name }, context) => {
+    resolve: async (query, _source, { name }, context) => {
       const userId = context.session.user.id
-      const owner = await prisma.user.findFirst({
-        where: { id: userId },
-      })
-      if (!owner) {
-        throw new Error(`User with id ${userId} not found`)
-      }
       return prisma.aiAssistant.create({
+        ...query,
         data: {
           name,
           ownerId: userId,

@@ -108,9 +108,7 @@ builder.mutationField('createAiLibrary', (t) =>
           ...data,
           ownerId: userId,
           participants: {
-            create: {
-              userId,
-            },
+            create: [{ userId }],
           },
         },
       })
