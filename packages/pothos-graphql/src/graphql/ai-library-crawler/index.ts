@@ -78,12 +78,13 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 )
 
 builder.mutationField('runAiLibraryCrawler', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryCrawler',
     args: {
       crawlerId: t.arg.string(),
     },
-    resolve: async (_query, _source, { crawlerId }, { user }) => runCrawler({ crawlerId, userId: user?.id }),
+    resolve: async (_query, _source, { crawlerId }, context) =>
+      runCrawler({ crawlerId, userId: context.session.user.id }),
   }),
 )
 

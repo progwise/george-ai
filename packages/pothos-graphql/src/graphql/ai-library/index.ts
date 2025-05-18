@@ -60,10 +60,10 @@ builder.queryField('aiLibraries', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiLibrary'],
     nullable: false,
-    resolve: (query, _source, _args, { user }) => {
+    resolve: (query, _source, _args, context) => {
       return prisma.aiLibrary.findMany({
         ...query,
-        where: { ownerId: user.id },
+        where: { ownerId: context.session.user.id },
       })
     },
   }),
@@ -92,12 +92,12 @@ builder.mutationField('createAiLibrary', (t) =>
     args: {
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
-    resolve: (query, _source, { data }, { user }) => {
+    resolve: (query, _source, { data }, context) => {
       return prisma.aiLibrary.create({
         ...query,
         data: {
           ...data,
-          ownerId: user.id,
+          ownerId: context.session.user.id,
         },
       })
     },

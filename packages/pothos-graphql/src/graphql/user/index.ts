@@ -18,19 +18,19 @@ builder.prismaObject('User', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     registered: t.field({
       type: 'Boolean',
-      resolve: async (_source, _args, { user }) => {
+      resolve: async (source) => {
         const count = await prisma.userProfile.count({
-          where: { userId: user?.id },
+          where: { userId: source.id },
         })
         return count > 0
       },
     }),
     profile: t.prismaField({
       type: 'UserProfile',
-      resolve: async (query, _source, _args, { user }) => {
+      resolve: async (query, source) => {
         return prisma.userProfile.findFirst({
           ...query,
-          where: { userId: user?.id },
+          where: { userId: source.id },
         })
       },
     }),
@@ -49,10 +49,13 @@ export const UserInput = builder.inputType('UserInput', {
 builder.queryField('user', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
-    resolve: (query, _source, _args, { user }) => {
+    args: {
+      email: t.arg.string(),
+    },
+    resolve: (query, _source, { email }) => {
       return prisma.user.findUnique({
         ...query,
-        where: { email: user.email },
+        where: { email },
       })
     },
   }),
@@ -66,34 +69,61 @@ builder.mutationField('login', (t) =>
     },
     resolve: async (query, _source, { jwtToken }) => {
       const parsedToken = JSON.parse(Buffer.from(jwtToken.split('.')[1], 'base64').toString())
-      const { preferred_username, name, given_name, family_name, email } = parsedToken
-      const user = await prisma.user.upsert({
-        ...query,
-        where: { username: preferred_username },
-        update: {
-          lastLogin: new Date(),
-        },
-        create: {
-          email,
-          name,
-          given_name,
-          family_name,
-          username: preferred_username,
-        },
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          name: true,
-          given_name: true,
-          family_name: true,
-          lastLogin: true,
-          createdAt: true,
-          updatedAt: true,
-          profile: true,
-          isAdmin: true,
+      const { sub, preferred_username, name, given_name, family_name, email } = parsedToken
+
+      // Try to find user by email or username
+      let user = await prisma.user.findFirst({
+        where: {
+          OR: [{ id: sub }, { email }, { username: preferred_username }],
         },
       })
+
+      if (user) {
+        // If the user exists but has a different id, update the id to sub if needed
+        if (user.id !== sub) {
+          user = await prisma.user.update({
+            ...query,
+            where: { id: user.id },
+            data: {
+              id: sub,
+              username: preferred_username,
+              email,
+              name,
+              given_name,
+              family_name,
+              lastLogin: new Date(),
+            },
+          })
+        } else {
+          user = await prisma.user.update({
+            ...query,
+            where: { id: sub },
+            data: {
+              username: preferred_username,
+              email,
+              name,
+              given_name,
+              family_name,
+              lastLogin: new Date(),
+            },
+          })
+        }
+      } else {
+        // Create a new user with sub as the ID
+        user = await prisma.user.create({
+          ...query,
+          data: {
+            id: sub,
+            username: preferred_username,
+            email,
+            name,
+            given_name,
+            family_name,
+            lastLogin: new Date(),
+          },
+        })
+      }
+
       return user
     },
   }),
@@ -122,11 +152,11 @@ builder.queryField('users', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['User'],
     nullable: { list: false, items: false },
-    resolve: async (query, _source, _args, { user }) => {
+    resolve: async (query, _source, _args, context) => {
       return prisma.user.findMany({
         ...query,
         where: {
-          id: { not: user.id },
+          id: { not: context.session.user.id },
         },
       })
     },

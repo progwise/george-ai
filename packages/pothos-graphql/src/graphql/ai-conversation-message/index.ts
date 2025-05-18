@@ -32,9 +32,9 @@ builder.queryField('aiConversationMessages', (t) =>
     args: {
       conversationId: t.arg.string(),
     },
-    resolve: async (query, _source, { conversationId }, { user }) => {
+    resolve: async (query, _source, { conversationId }, context) => {
       const participant = await prisma.aiConversationParticipant.findFirst({
-        where: { conversationId, userId: user.id },
+        where: { conversationId, userId: context.session.user.id },
       })
       if (!participant) {
         throw new Error('User is not a participant in this conversation')
@@ -79,13 +79,13 @@ builder.mutationField('deleteMessage', (t) =>
     args: {
       messageId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { messageId }, { user }) => {
+    resolve: async (_query, _source, { messageId }, context) => {
       const message = await prisma.aiConversationMessage.findUniqueOrThrow({
         where: { id: messageId },
         select: { conversation: { select: { ownerId: true } } },
       })
 
-      if (message.conversation.ownerId !== user.id) {
+      if (message.conversation.ownerId !== context.session.user.id) {
         throw new Error('You are not authorized to delete this message')
       }
 
@@ -137,10 +137,11 @@ builder.mutationField('sendMessage', (t) =>
     args: {
       data: t.arg({ type: messageInput, required: true }),
     },
-    resolve: async (_query, _source, { data }, { user }) => {
+    resolve: async (_query, _source, { data }, context) => {
+      const userId = context.session.user.id
       const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
         select: { id: true, user: true, assistant: true },
-        where: { conversationId: data.conversationId, userId: user.id },
+        where: { conversationId: data.conversationId, userId },
       })
       const assistantsToAsk = await prisma.aiAssistant.findMany({
         select: {
@@ -192,7 +193,7 @@ builder.mutationField('sendMessage', (t) =>
           createdAt: newUserMessage.createdAt,
           updatedAt: newUserMessage.updatedAt,
           sender: {
-            id: user.id,
+            id: userId,
             name: participant.user?.name || 'Unknown',
             isBot: false,
             assistantId: undefined,

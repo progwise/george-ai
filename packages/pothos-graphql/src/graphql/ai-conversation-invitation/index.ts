@@ -41,7 +41,7 @@ builder.mutationField('createConversationInvitations', (t) =>
         required: true,
       }),
     },
-    resolve: async (_query, _source, { conversationId, data }, { user }) => {
+    resolve: async (_query, _source, { conversationId, data }, context) => {
       if (!data || data.length === 0) {
         throw new Error('At least one invitation is required')
       }
@@ -52,7 +52,7 @@ builder.mutationField('createConversationInvitations', (t) =>
         allowDifferentEmailAddress: invitation.allowDifferentEmailAddress,
         allowMultipleParticipants: invitation.allowMultipleParticipants,
         conversationId,
-        inviterId: user.id,
+        inviterId: context.session.user.id,
       }))
 
       // Create multiple invitations
@@ -93,7 +93,8 @@ builder.mutationField('confirmConversationInvitation', (t) =>
       conversationId: t.arg.string({ required: true }),
       invitationId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { conversationId, invitationId }, { user }) => {
+    resolve: async (_query, _source, { conversationId, invitationId }, context) => {
+      const user = context.session.user
       // Validate if the conversation exists
       const conversation = await prisma.aiConversation.findUnique({
         where: { id: conversationId },

@@ -53,7 +53,7 @@ builder.prismaObject('AiConversation', {
 })
 
 builder.queryField('aiConversation', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConversation',
     args: {
       conversationId: t.arg.string(),
@@ -74,10 +74,10 @@ builder.queryField('aiConversations', (t) =>
       list: false,
       items: false,
     },
-    resolve: (query, _source, _args, { user }) => {
+    resolve: (query, _source, _args, context) => {
       return prisma.aiConversation.findMany({
         ...query,
-        where: { participants: { some: { userId: user.id } } },
+        where: { participants: { some: { userId: context.session.user.id } } },
         orderBy: { createdAt: 'desc' },
       })
     },
@@ -97,7 +97,8 @@ builder.mutationField('createAiConversation', (t) =>
     args: {
       data: t.arg({ type: conversationCreateInput, required: true }),
     },
-    resolve: async (_query, _source, { data }, { user }) => {
+    resolve: async (_query, _source, { data }, context) => {
+      const user = context.session.user
       const conversation = await prisma.aiConversation.create({
         data: {
           participants: {
@@ -116,7 +117,7 @@ builder.mutationField('createAiConversation', (t) =>
       if (user.email && user.email.trim() !== '') {
         await prisma.aiConversationInvitation.create({
           data: {
-            email: user.email.trim().toLowerCase(),
+            email: user.email,
             allowDifferentEmailAddress: false,
             allowMultipleParticipants: false,
             conversationId: conversation.id,
@@ -144,17 +145,18 @@ builder.mutationField('deleteAiConversation', (t) =>
   }),
 )
 
-builder.mutationField('removeAiConversations', (t) =>
+builder.mutationField('deleteAiConversations', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: 'Boolean',
     nullable: false,
     args: {
       conversationIds: t.arg.stringList({ required: true }),
     },
-    resolve: async (_source, { conversationIds }, { user }) => {
+    resolve: async (_source, { conversationIds }, context) => {
+      const userId = context.session.user.id
       await prisma.aiConversation.deleteMany({
         where: {
-          ownerId: user.id,
+          ownerId: userId,
           id: {
             in: conversationIds,
           },
@@ -165,7 +167,7 @@ builder.mutationField('removeAiConversations', (t) =>
           conversationId: {
             in: conversationIds,
           },
-          userId: user.id,
+          userId,
         },
       })
       return true
