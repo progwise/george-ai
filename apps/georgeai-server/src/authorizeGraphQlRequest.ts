@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 
-import type { Context } from '@george-ai/pothos-graphql'
+import { prisma } from '@george-ai/pothos-graphql'
+import { Context } from '@george-ai/pothos-graphql'
 
 // Authorize GraphQL requests using either an API key, a user JWT, or a dev user header (in dev mode).
 export const authorizeGraphQlRequest = async (request: Request): Promise<Context> => {
@@ -15,6 +16,8 @@ export const authorizeGraphQlRequest = async (request: Request): Promise<Context
   if (jwtToken) {
     const decoded = jwt.decode(jwtToken) as { sub?: string; preferred_username?: string; email?: string } | null
     if (decoded?.sub) {
+      const userProfileResult = await prisma.userProfile.findUnique({ where: { userId: decoded.sub } })
+
       return {
         session: {
           user: {
@@ -22,6 +25,7 @@ export const authorizeGraphQlRequest = async (request: Request): Promise<Context
             username: decoded.preferred_username ?? decoded.sub,
             email: decoded.email ?? '',
           },
+          userProfile: userProfileResult ?? undefined,
           jwt: jwtToken,
         },
       }
