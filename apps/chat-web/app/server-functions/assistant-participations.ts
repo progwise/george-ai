@@ -29,25 +29,25 @@ export const addAssistantParticipants = createServerFn({ method: 'POST' })
   )
 
 const RemoveAssistantParticipantDocument = graphql(`
-  mutation removeAssistantParticipant($userId: String!, $assistantId: String!) {
-    removeAssistantParticipant(userId: $userId, assistantId: $assistantId) {
+  mutation removeAssistantParticipant($assistantId: String!, $participantId: String!) {
+    removeAssistantParticipant(assistantId: $assistantId, participantId: $participantId) {
       id
     }
   }
 `)
 
 export const removeAssistantParticipant = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; assistantId: string }) =>
+  .validator((data: { assistantId: string; participantId: string }) =>
     z
       .object({
-        userId: z.string(),
         assistantId: z.string(),
+        participantId: z.string(),
       })
       .parse(data),
   )
   .handler((ctx) =>
     backendRequest(RemoveAssistantParticipantDocument, {
-      userId: ctx.data.userId,
       assistantId: ctx.data.assistantId,
+      participantId: ctx.data.participantId,
     }),
   )

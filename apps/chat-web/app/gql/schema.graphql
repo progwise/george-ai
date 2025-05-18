@@ -391,9 +391,9 @@ type Mutation {
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
-  removeAssistantParticipant(assistantId: String!, userId: String!): User!
+  removeAssistantParticipant(assistantId: String!, participantId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
-  removeLibraryParticipant(currentUserId: String!, libraryId: String!, userId: String!): User!
+  removeLibraryParticipant(libraryId: String!, participantId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(profileId: String!): UserProfile
   resetAssessmentAnswers(assistantId: String!): DateTime!

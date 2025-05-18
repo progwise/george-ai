@@ -560,7 +560,7 @@ export type MutationReProcessFileArgs = {
 
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
-  userId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
 }
 
 export type MutationRemoveConversationParticipantArgs = {
@@ -568,9 +568,8 @@ export type MutationRemoveConversationParticipantArgs = {
 }
 
 export type MutationRemoveLibraryParticipantArgs = {
-  currentUserId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-  userId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
 }
 
 export type MutationRemoveLibraryUsageArgs = {
@@ -1756,8 +1755,8 @@ export type AddAssistantParticipantMutation = {
 }
 
 export type RemoveAssistantParticipantMutationVariables = Exact<{
-  userId: Scalars['String']['input']
   assistantId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
 }>
 
 export type RemoveAssistantParticipantMutation = {
@@ -2049,9 +2048,8 @@ export type AddLibraryParticipantMutation = {
 }
 
 export type RemoveLibraryParticipantMutationVariables = Exact<{
-  userId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-  currentUserId: Scalars['String']['input']
+  participantId: Scalars['String']['input']
 }>
 
 export type RemoveLibraryParticipantMutation = {
@@ -6214,12 +6212,12 @@ export const RemoveAssistantParticipantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -6232,13 +6230,13 @@ export const RemoveAssistantParticipantDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'userId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'assistantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+                name: { kind: 'Name', value: 'participantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
               },
             ],
             selectionSet: {
@@ -7561,17 +7559,12 @@ export const RemoveLibraryParticipantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -7584,18 +7577,13 @@ export const RemoveLibraryParticipantDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'userId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-              },
-              {
-                kind: 'Argument',
                 name: { kind: 'Name', value: 'libraryId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'currentUserId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'currentUserId' } },
+                name: { kind: 'Name', value: 'participantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
               },
             ],
             selectionSet: {

@@ -101,14 +101,15 @@ builder.mutationField('createAiLibrary', (t) =>
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
     resolve: (query, _source, { data }, context) => {
+      const userId = context.session.user.id
       return prisma.aiLibrary.create({
         ...query,
         data: {
           ...data,
-          ownerId: context.session.user.id,
+          ownerId: userId,
           participants: {
             create: {
-              userId: context.session.user.id,
+              userId,
             },
           },
         },

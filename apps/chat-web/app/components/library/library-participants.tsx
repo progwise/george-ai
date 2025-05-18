@@ -40,8 +40,8 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
   const isOwner = library.ownerId === props.userId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
-    mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
-      return await removeLibraryParticipant({ data: { userId, libraryId, currentUserId: props.userId } })
+    mutationFn: async ({ libraryId, participantId }: { libraryId: string; participantId: string }) => {
+      return await removeLibraryParticipant({ data: { libraryId, participantId } })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
@@ -51,7 +51,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
     event.preventDefault()
-    mutateRemove({ userId, libraryId: library.id })
+    mutateRemove({ participantId: userId, libraryId: library.id })
   }
 
   return (

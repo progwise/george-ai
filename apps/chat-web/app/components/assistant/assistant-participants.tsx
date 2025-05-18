@@ -39,10 +39,10 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
   const isOwner = assistant.ownerId === props.userId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
-    mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
+    mutationFn: async ({ participantId, assistantId }: { participantId: string; assistantId: string }) => {
       return await removeAssistantParticipant({
         data: {
-          userId,
+          participantId,
           assistantId,
         },
       })
@@ -52,9 +52,9 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
     },
   })
 
-  const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
+  const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, participantId: string) => {
     event.preventDefault()
-    mutateRemove({ userId, assistantId: assistant.id })
+    mutateRemove({ participantId, assistantId: assistant.id })
   }
 
   return (

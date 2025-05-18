@@ -48,10 +48,10 @@ builder.mutationField('removeAssistantParticipant', (t) =>
     type: 'User',
     nullable: false,
     args: {
-      userId: t.arg.string({ required: true }),
       assistantId: t.arg.string({ required: true }),
+      participantId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { userId, assistantId }, context) => {
+    resolve: async (_query, _source, { assistantId, participantId }, context) => {
       const assistant = await prisma.aiAssistant.findUniqueOrThrow({
         where: { id: assistantId },
       })
@@ -62,13 +62,13 @@ builder.mutationField('removeAssistantParticipant', (t) =>
 
       await prisma.aiAssistantParticipant.deleteMany({
         where: {
-          userId,
+          userId: participantId,
           assistantId,
         },
       })
 
       return prisma.user.findUniqueOrThrow({
-        where: { id: userId },
+        where: { id: participantId },
       })
     },
   }),
