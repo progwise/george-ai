@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
 
-import type { Context } from '@george-ai/pothos-graphql/src/graphql/context'
+import type { Context } from '@george-ai/pothos-graphql'
 
-// This function authorizes incoming GraphQL requests using either an API key, a user JWT, or a dev user header (in dev mode).
+// Authorize GraphQL requests using either an API key, a user JWT, or a dev user header (in dev mode).
 export const authorizeGraphQlRequest = async (request: Request): Promise<Context> => {
-  // Allow requests with the correct API key (for trusted service-to-service calls)
+  // Allow requests with the correct API key
   const apiKey = request.headers.get('x-api-key')
   if (process.env.GRAPHQL_API_KEY && apiKey === process.env.GRAPHQL_API_KEY) {
     return { session: null }
@@ -28,7 +28,7 @@ export const authorizeGraphQlRequest = async (request: Request): Promise<Context
     }
   }
 
-  // DEV ONLY: Allow a fake session if X-Dev-User header is present (for local development/testing)
+  // DEV ONLY: Use x-dev-user header for local development/testing
   if (process.env.NODE_ENV !== 'production') {
     const devUser = request.headers.get('x-dev-user')
     if (devUser) {
