@@ -154,7 +154,7 @@ export const embedFile = async (
   console.log('Processing complete.\n')
 
   const jsonlData = fineTuningData.map((qa) => JSON.stringify(qa)).join('\n')
-  fs.writeFileSync('../fine-tunning/jsonl/raw/qa-data.jsonl', jsonlData)
+  fs.writeFileSync('../fine-tuning/jsonl/raw/qa-data.jsonl', jsonlData)
 
   await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
 

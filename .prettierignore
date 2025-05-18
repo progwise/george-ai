@@ -8,4 +8,4 @@ apps/chat-web/app/routeTree.gen.ts
 .posgres-data*
 .typesense-data
 .node_modules
-apps/fine-tunning/*
+apps/fine-tuning/*

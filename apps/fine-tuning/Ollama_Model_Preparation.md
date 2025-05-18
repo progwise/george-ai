@@ -1,16 +1,15 @@
 # Adapter Fusion and Format Conversion (Safetensors to `.gguf` for Ollama)
 
-**Note:** This guide uses the `Qwen` LLM.
-
 **Requirements:** An Apple Silicon Mac running macOS.
 
----
+**Note:** This guide uses the `Qwen` LLM.
+
 
 ## Prerequisites
 
 First you need to do the fine-tuning in order to have the adapter weights.
 
-Outside dev containers in a bash terminal execute the following in this current directory inside the `george-ai` repo
+Outside dev containers in a bash terminal execute the following in this current directory inside the `george-ai` repo i. e.: `george-ai/apps/fine-tuning"
 
 
 ```bash
@@ -130,7 +129,7 @@ cmake --build build --config Release -j8
 ```
 ### 2.3 Prepare Model Directory
 
-In `George-AI` repo in `/apps/fine-tunning` make sure that Your Model Folder looks like:
+In `George-AI` repo in `/apps/fine-tuning` make sure that Your Model Folder looks like:
 
 ```pgsql
 qwen25_coder_05b_instruct_merged/
@@ -153,7 +152,7 @@ From inside the `llama.cpp/`  repo, run:
 ```bash
 python3 convert_hf_to_gguf.py \
   /absolute/path/to/qwen25_coder_05b_instruct_merged \
-  --outfile /absolute/path/to/fine-tunning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf
+  --outfile /absolute/path/to/fine-tuning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf
 ```
 
 or if you have cloned the llama.cpp next to the george-ai you can use the following:
@@ -162,8 +161,8 @@ or if you have cloned the llama.cpp next to the george-ai you can use the follow
 mkdir gguf_models
 pip install transformers torch sentencepiece
 python3 convert_hf_to_gguf.py \
-  ../george-ai/apps/fine-tunning/fused_model/qwen25_coder_05b_instruct_merged \
-  --outfile ../george-ai/apps/fine-tunning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf 
+  ../george-ai/apps/fine-tuning/fused_model/qwen25_coder_05b_instruct_merged \
+  --outfile ../george-ai/apps/fine-tuning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf 
 ```
 
 This loads your Hugging Face config, tokenizer, and safetensors weights, and writes a single `.gguf` file in FP16.
