@@ -17,7 +17,6 @@ const AssistantCard_AssistantFragment = graphql(`
 
 export interface AssistantCardProps {
   assistant: FragmentType<typeof AssistantCard_AssistantFragment>
-  userId: string
 }
 
 export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
@@ -54,7 +53,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
             <div className="badge badge-outline">Sequential</div>
           </div>
           <div className="flex w-full place-content-between">
-            <AssistantDeleteDialog assistant={assistant} userId={props.userId} />
+            <AssistantDeleteDialog assistant={assistant} />
             <Link
               type="button"
               className="btn btn-ghost btn-sm"

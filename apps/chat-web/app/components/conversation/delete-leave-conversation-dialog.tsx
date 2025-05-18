@@ -57,7 +57,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       navigate({ to: '..' })
     },
   })
@@ -72,7 +72,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       navigate({ to: '..' })
     },
   })

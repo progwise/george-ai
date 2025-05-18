@@ -56,7 +56,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
     },
   })
 

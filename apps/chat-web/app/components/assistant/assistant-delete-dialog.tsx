@@ -48,7 +48,6 @@ const AssistantDelete_AssistantFragment = graphql(`
 
 export interface AssistantDeleteDialogProps {
   assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
-  userId: string
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
@@ -66,7 +65,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
         throw new Error('Failed to delete assistant')
       }
       navigate({ to: `/assistants` })
-      queryClient.invalidateQueries({ queryKey: [queryKeys.MyAiAssistants, props.userId] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.MyAiAssistants] })
       dialogRef.current?.close()
     },
   })

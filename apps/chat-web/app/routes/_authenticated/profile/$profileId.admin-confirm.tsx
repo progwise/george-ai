@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_authenticated/profile/$profileId/admin-c
   component: RouteComponent,
   loader: async ({ params }: { params: { profileId: string } }) => {
     const { profileId } = params
-    return await getUserProfile({ data: { userId: profileId } })
+    return await getUserProfile({ data: { profileId } })
   },
 })
 

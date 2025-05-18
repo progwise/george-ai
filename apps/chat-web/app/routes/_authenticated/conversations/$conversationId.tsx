@@ -17,8 +17,8 @@ export const Route = createFileRoute('/_authenticated/conversations/$conversatio
   component: RouteComponent,
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getUsersQueryOptions(context.user.id)),
-      context.queryClient.ensureQueryData(getAssignableAssistantsQueryOptions(context.user.id)),
+      context.queryClient.ensureQueryData(getUsersQueryOptions()),
+      context.queryClient.ensureQueryData(getAssignableAssistantsQueryOptions()),
       context.queryClient.ensureQueryData(getConversationQueryOptions(params.conversationId)),
       context.queryClient.ensureQueryData(getProfileQueryOptions(context.user.id)),
     ])
@@ -30,10 +30,10 @@ function RouteComponent() {
   const { conversationId } = Route.useParams()
   const {
     data: { users },
-  } = useSuspenseQuery(getUsersQueryOptions(user.id))
+  } = useSuspenseQuery(getUsersQueryOptions())
   const {
     data: { aiAssistants },
-  } = useSuspenseQuery(getAssignableAssistantsQueryOptions(user.id))
+  } = useSuspenseQuery(getAssignableAssistantsQueryOptions())
   const { data: conversation } = useSuspenseQuery(getConversationQueryOptions(conversationId))
   const { data: profile } = useSuspenseQuery(getProfileQueryOptions(user.id))
 

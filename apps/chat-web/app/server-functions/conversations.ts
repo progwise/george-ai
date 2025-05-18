@@ -8,22 +8,22 @@ import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
 const ConversationsQueryDocument = graphql(`
-  query getUserConversations($userId: String!) {
-    aiConversations(userId: $userId) {
+  query getUserConversations {
+    aiConversations {
       id
       ...ConversationSelector_Conversation
     }
   }
 `)
 
-export const getConversations = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => z.object({ userId: z.string() }).parse(data))
-  .handler(async (ctx) => backendRequest(ConversationsQueryDocument, ctx.data))
+export const getConversations = createServerFn({ method: 'GET' }).handler(async (ctx) =>
+  backendRequest(ConversationsQueryDocument, ctx.data),
+)
 
-export const getConversationsQueryOptions = (userId: string) =>
+export const getConversationsQueryOptions = () =>
   queryOptions({
-    queryKey: [queryKeys.Conversations, userId],
-    queryFn: () => getConversations({ data: { userId } }),
+    queryKey: [queryKeys.Conversations],
+    queryFn: () => getConversations(),
   })
 
 const ConversationQueryDocument = graphql(`
@@ -56,8 +56,8 @@ export const getConversationQueryOptions = (conversationId: string) => ({
 })
 
 const CreateMessageDocument = graphql(`
-  mutation sendMessage($userId: String!, $data: AiConversationMessageInput!) {
-    sendMessage(userId: $userId, data: $data) {
+  mutation sendMessage($data: AiConversationMessageInput!) {
+    sendMessage(data: $data) {
       id
       createdAt
     }
@@ -65,12 +65,11 @@ const CreateMessageDocument = graphql(`
 `)
 
 export const sendMessage = createServerFn({ method: 'POST' })
-  .validator((data: { content: string; conversationId: string; userId: string; recipientAssistantIds: string[] }) =>
+  .validator((data: { content: string; conversationId: string; recipientAssistantIds: string[] }) =>
     z
       .object({
         content: z.string(),
         conversationId: z.string(),
-        userId: z.string(),
         recipientAssistantIds: z.array(z.string()),
       })
       .parse(data),
@@ -83,36 +82,29 @@ export const sendMessage = createServerFn({ method: 'POST' })
     }
 
     return backendRequest(CreateMessageDocument, {
-      userId: ctx.data.userId,
       data: messageData,
     })
   })
 
 const CreateConversationDocument = graphql(`
-  mutation createConversation($ownerId: String!, $data: AiConversationCreateInput!) {
-    createAiConversation(ownerId: $ownerId, data: $data) {
+  mutation createConversation($data: AiConversationCreateInput!) {
+    createAiConversation(data: $data) {
       id
     }
   }
 `)
 
 export const createConversation = createServerFn({ method: 'POST' })
-  .validator((data: { userIds: string[]; assistantIds: string[]; ownerId: string }) =>
+  .validator((data: { userIds: string[]; assistantIds: string[] }) =>
     z
       .object({
         userIds: z.array(z.string()),
         assistantIds: z.array(z.string()),
-        ownerId: z.string(),
       })
       .parse(data),
   )
   .handler((ctx) => {
-    if (!ctx.data.ownerId) {
-      throw new Error('ownerId is required')
-    }
-
     return backendRequest(CreateConversationDocument, {
-      ownerId: ctx.data.ownerId,
       data: {
         assistantIds: ctx.data.assistantIds,
         userIds: ctx.data.userIds,
@@ -136,20 +128,19 @@ export const deleteConversation = createServerFn({ method: 'POST' })
     })
   })
 
-export const removeConversations = createServerFn({ method: 'POST' })
-  .validator((data: { conversationIds: string[]; userId: string }) => {
+export const deleteConversations = createServerFn({ method: 'POST' })
+  .validator((data: { conversationIds: string[] }) => {
     return z
       .object({
         conversationIds: z.array(z.string()),
-        userId: z.string(),
       })
       .parse(data)
   })
   .handler(async (ctx) => {
     return backendRequest(
       graphql(`
-        mutation removeConversations($conversationIds: [String!]!, $userId: String!) {
-          removeAiConversations(conversationIds: $conversationIds, userId: $userId)
+        mutation deleteConversations($conversationIds: [String!]!) {
+          deleteAiConversations(conversationIds: $conversationIds)
         }
       `),
       ctx.data,
@@ -158,7 +149,7 @@ export const removeConversations = createServerFn({ method: 'POST' })
 
 const LeaveConversationDocument = graphql(`
   mutation leaveConversation($participantId: String!) {
-    leaveAiConversation(id: $participantId) {
+    leaveAiConversation(participantId: $participantId) {
       id
     }
   }

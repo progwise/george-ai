@@ -34,9 +34,14 @@ export const UserProfileForm_UserProfileFragment = graphql(`
   }
 `)
 
+const parseOptionalInt = (value: string) => {
+  const parsed = parseInt(value, 10)
+  return value === '' || Number.isNaN(parsed) ? undefined : parsed
+}
+
 export const getFormSchema = (language: Language) =>
   z.object({
-    userId: z.string().min(1, translate('errors.requiredField', language)),
+    profileId: z.string().min(1, translate('errors.requiredField', language)),
     email: z
       .string()
       .email({ message: translate('errors.invalidEmail', language) })
@@ -45,8 +50,8 @@ export const getFormSchema = (language: Language) =>
     lastName: z.string().min(1, translate('errors.requiredField', language)),
     business: z.string().min(1, translate('errors.requiredField', language)),
     position: z.string().min(1, translate('errors.requiredField', language)),
-    freeMessages: z.preprocess((value) => parseInt(String(value), 10), z.number().optional()),
-    freeStorage: z.preprocess((value) => parseInt(String(value), 10), z.number().optional()),
+    freeMessages: z.string().transform(parseOptionalInt).optional(),
+    freeStorage: z.string().transform(parseOptionalInt).optional(),
   })
 
 export const updateProfile = createServerFn({ method: 'POST' })
@@ -65,14 +70,14 @@ export const updateProfile = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(
       graphql(`
-        mutation saveUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
-          updateUserProfile(userId: $userId, input: $userProfileInput) {
+        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {
+          updateUserProfile(profileId: $profileId, input: $userProfileInput) {
             id
           }
         }
       `),
       {
-        userId: data.userId,
+        profileId: data.profileId,
         userProfileInput: {
           email: data.email,
           firstName: data.firstName,
@@ -118,8 +123,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       }}
       className="flex w-full flex-col items-center gap-x-2 sm:grid sm:w-auto sm:grid-cols-2"
     >
-      <input type="hidden" name="id" value={userProfile.id} />
-      <input type="hidden" name="userId" value={userProfile.userId} />
+      <input type="hidden" name="profileId" value={userProfile.id} />
 
       <Input
         name="createdAt"

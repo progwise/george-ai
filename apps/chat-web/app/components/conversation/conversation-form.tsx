@@ -79,7 +79,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       const result = await sendMessage({
         data: {
-          userId: props.user.id,
           conversationId: conversation.id!,
           recipientAssistantIds: data.recipientAssistantIds,
           content: data.content,

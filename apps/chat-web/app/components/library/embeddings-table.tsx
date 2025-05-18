@@ -156,7 +156,7 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
-    queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
+    queryClient.invalidateQueries(getLibrariesQueryOptions())
     queryClient.invalidateQueries(getProfileQueryOptions(userId))
   }
 

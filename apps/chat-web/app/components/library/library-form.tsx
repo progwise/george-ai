@@ -13,19 +13,17 @@ const LibraryFormFragment = graphql(`
 
 export interface LibraryEditFormProps {
   library: FragmentType<typeof LibraryFormFragment>
-  ownerId: string
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
 export const LibraryForm = (props: LibraryEditFormProps): React.ReactElement => {
-  const { ownerId, handleSubmit, disabled } = props
+  const { handleSubmit, disabled } = props
   const library = useFragment(LibraryFormFragment, props.library)
   const { t } = useTranslation()
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="url" value="wasauchimmer" />
       <input type="hidden" name="libraryId" value={library.id || ''} />
 

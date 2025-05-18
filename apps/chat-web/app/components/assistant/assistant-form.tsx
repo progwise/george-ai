@@ -65,11 +65,9 @@ const updateAssistant = createServerFn({ method: 'POST' })
 export interface AssistantEditFormProps {
   assistant: FragmentType<typeof AssistantForm_AssistantFragment>
   disabled: boolean
-  userId: string
 }
 
 export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement => {
-  const ownerId = props.userId
   const formRef = React.useRef<HTMLFormElement>(null)
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
@@ -80,7 +78,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
@@ -96,7 +94,7 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
         body: file,
       })
     },
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const handleUploadIcon = React.useCallback(
@@ -125,7 +123,6 @@ export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement
 
   return (
     <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
-      <input type="hidden" name="ownerId" value={ownerId} />
       <input type="hidden" name="id" value={assistant.id} />
 
       <IconUpload

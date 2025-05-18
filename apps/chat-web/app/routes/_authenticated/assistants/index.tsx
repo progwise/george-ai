@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { AssistantCard } from '../../../components/assistant/assistant-card'
 import { AssistantNewDialog } from '../../../components/assistant/assistant-new-dialog'
@@ -11,23 +10,18 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getMyAiAssistants = createServerFn({ method: 'GET' })
-  .validator((userId: string) => z.string().nonempty().parse(userId))
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        query aiAssistantCards($userId: String!) {
-          aiAssistants(userId: $userId) {
-            id
-            ...AssistantCard_Assistant
-          }
+const getMyAiAssistants = createServerFn({ method: 'GET' }).handler(() =>
+  backendRequest(
+    graphql(`
+      query aiAssistantCards {
+        aiAssistants {
+          id
+          ...AssistantCard_Assistant
         }
-      `),
-      {
-        userId: ctx.data,
-      },
-    ),
-  )
+      }
+    `),
+  ),
+)
 
 export const Route = createFileRoute('/_authenticated/assistants/')({
   component: RouteComponent,
@@ -39,7 +33,7 @@ function RouteComponent() {
   const { data, isLoading } = useQuery({
     queryKey: [queryKeys.MyAiAssistants, user.id],
     queryFn: async () => {
-      return getMyAiAssistants({ data: user.id })
+      return getMyAiAssistants()
     },
   })
 
@@ -53,16 +47,14 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           <span>{t('assistants.myAssistants')}</span>
         </h3>
-        {<AssistantNewDialog userId={user.id} />}
+        {<AssistantNewDialog />}
       </div>
 
       <div className="flex flex-wrap gap-4">
         {!data?.aiAssistants || data.aiAssistants.length < 1 ? (
           <h3>{t('assistants.noAssistantsFound')}</h3>
         ) : (
-          data?.aiAssistants?.map((assistant) => (
-            <AssistantCard key={assistant.id} assistant={assistant} userId={user.id} />
-          ))
+          data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)
         )}
       </div>
     </article>

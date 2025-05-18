@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import z from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
 
@@ -17,8 +17,8 @@ import { backendRequest } from '../../../server-functions/backend'
 import { sendConfirmationMail } from '../../../server-functions/users'
 
 const userProfileQueryDocument = graphql(`
-  query userProfile($userId: String!) {
-    userProfile(userId: $userId) {
+  query userProfile($profileId: String!) {
+    userProfile(profileId: $profileId) {
       id
       confirmationDate
       ...UserProfileForm_UserProfile
@@ -27,56 +27,46 @@ const userProfileQueryDocument = graphql(`
 `)
 
 export const getUserProfile = createServerFn({ method: 'GET' })
-  .validator((userId: string) => {
-    return z.string().nonempty().parse(userId)
+  .validator((profileId: string) => {
+    return z.string().nonempty().parse(profileId)
   })
   .handler(async (ctx) => {
     return await backendRequest(userProfileQueryDocument, {
-      userId: ctx.data,
+      profileId: ctx.data,
     })
   })
 
 const createUserProfileMutationDocument = graphql(`
-  mutation createUserProfile($userId: String!) {
-    createUserProfile(userId: $userId) {
+  mutation createUserProfile {
+    createUserProfile {
       id
     }
   }
 `)
 
-export const createUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string }) => {
-    return z
-      .object({
-        userId: z.string().nonempty(),
-      })
-      .parse(data)
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(createUserProfileMutationDocument, {
-      userId: ctx.data.userId,
-    })
-  })
+export const createUserProfile = createServerFn({ method: 'POST' }).handler(async () => {
+  return await backendRequest(createUserProfileMutationDocument)
+})
 
 const removeUserProfileDocument = graphql(`
-  mutation removeUserProfile($userId: String!) {
-    removeUserProfile(userId: $userId) {
+  mutation removeUserProfile($profileId: String!) {
+    removeUserProfile(profileId: $profileId) {
       id
     }
   }
 `)
 
 export const removeUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string }) => {
+  .validator((data: { profileId: string }) => {
     return z
       .object({
-        userId: z.string().nonempty(),
+        profileId: z.string().nonempty(),
       })
       .parse(data)
   })
   .handler(async (ctx) => {
     return await backendRequest(removeUserProfileDocument, {
-      userId: ctx.data.userId,
+      profileId: ctx.data.profileId,
     })
   })
 
@@ -89,7 +79,6 @@ function RouteComponent() {
   const { t, language } = useTranslation()
   const { user } = Route.useRouteContext()
 
-  const userId = user?.id || ''
   const formSchema = getFormSchema(language)
 
   const {
@@ -107,7 +96,7 @@ function RouteComponent() {
   })
 
   const { mutate: createProfileMutation, isPending: createProfileIsPending } = useMutation({
-    mutationFn: async () => createUserProfile({ data: { userId: user.id } }),
+    mutationFn: async () => createUserProfile(),
     onSettled: () => {
       refetchProfile()
       queryClient.invalidateQueries(getProfileQueryOptions(user.id))
@@ -115,7 +104,7 @@ function RouteComponent() {
   })
 
   const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
-    mutationFn: async () => removeUserProfile({ data: { userId: user.id } }),
+    mutationFn: async () => removeUserProfile({ data: { profileId: userProfile?.userProfile?.id || 'no_profile_id' } }),
     onSettled: () => {
       toastSuccess(t('texts.removedProfile'))
       refetchProfile()
@@ -128,8 +117,6 @@ function RouteComponent() {
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async (formData: FormData) => {
-      const userIdFromForm = formData.get('userId') as string
-
       // Update the profile
       await updateProfile({
         data: {
@@ -141,7 +128,6 @@ function RouteComponent() {
       // Send the confirmation email
       return await sendConfirmationMail({
         data: {
-          userId: userIdFromForm || userId,
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
         },
       })

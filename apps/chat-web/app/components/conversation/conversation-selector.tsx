@@ -7,7 +7,7 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { User } from '../../server-functions/users'
 import { NewConversationSelector, NewConversationSelector_AssistantFragment } from './new-conversation-selector'
-import { RemoveConversationsDialog } from './remove-conversations-dialog'
+import { DeleteConversationsDialog } from './remove-conversations-dialog'
 
 export const ConversationSelector_ConversationFragment = graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
@@ -72,7 +72,7 @@ export const ConversationSelector = ({
     <>
       <div className="grid grid-cols-[100px_1fr]">
         <div className="flex items-center justify-center">
-          <RemoveConversationsDialog
+          <DeleteConversationsDialog
             conversations={conversationsFragment}
             checkedConversationIds={checkedConversationIds}
             userId={userId}

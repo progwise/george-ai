@@ -102,7 +102,6 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
         data: {
           userIds: [...selectedUserIds, props.userId],
           assistantIds: [...selectedAssistantIds],
-          ownerId: props.userId,
         },
       })
     },
@@ -126,7 +125,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
     onSettled: async () => {
       if (conversation) {
         await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
-        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+        await queryClient.invalidateQueries(getConversationsQueryOptions())
       }
       setEmailChips([])
       setEmailError(null)
@@ -159,7 +158,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
           return
         }
 
-        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+        await queryClient.invalidateQueries(getConversationsQueryOptions())
         navigate({ to: `/conversations/${conversationId}` })
 
         if (emailChips.length > 0) {
@@ -208,7 +207,7 @@ export const ConversationParticipantsDialog = (props: ParticipantsDialogProps) =
     }
   }
 
-  const { sendEmailInvitations, isSendingInvitation } = useEmailInvitations(conversation?.id ?? '', props.userId)
+  const { sendEmailInvitations, isSendingInvitation } = useEmailInvitations(conversation?.id ?? '')
 
   useEffect(() => {
     if (props.isOpen && dialogRef.current) {

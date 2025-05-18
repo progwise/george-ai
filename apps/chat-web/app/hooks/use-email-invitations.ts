@@ -7,7 +7,7 @@ import { useTranslation } from '../i18n/use-translation-hook'
 import { createConversationInvitation } from '../server-functions/conversationParticipations'
 import { getConversationQueryOptions } from '../server-functions/conversations'
 
-export const useEmailInvitations = (conversationId: string, userId: string) => {
+export const useEmailInvitations = (conversationId: string) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [isSendingInvitation, setIsSendingInvitation] = useState(false)
@@ -40,7 +40,6 @@ export const useEmailInvitations = (conversationId: string, userId: string) => {
           createInvitation({
             data: {
               conversationId,
-              inviterId: userId,
               data: {
                 email,
                 allowDifferentEmailAddress,

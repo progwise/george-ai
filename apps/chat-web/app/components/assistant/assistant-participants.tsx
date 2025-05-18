@@ -43,12 +43,11 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
         data: {
           userId,
           assistantId,
-          currentUserId: props.userId,
         },
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
     },
   })
 
@@ -86,7 +85,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
           )
         })}
       </div>
-      {isOwner && <AssistantParticipantsDialog assistant={assistant} users={users} userId={props.userId} />}
+      {isOwner && <AssistantParticipantsDialog assistant={assistant} users={users} />}
     </div>
   )
 }

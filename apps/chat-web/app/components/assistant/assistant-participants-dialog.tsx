@@ -24,7 +24,6 @@ const AssistantParticipantsDialog_AssistantFragment = graphql(`
 interface DialogFormProps {
   assistant: FragmentType<typeof AssistantParticipantsDialog_AssistantFragment>
   users: User[]
-  userId: string
 }
 
 export const AssistantParticipantsDialog = (props: DialogFormProps) => {
@@ -44,11 +43,11 @@ export const AssistantParticipantsDialog = (props: DialogFormProps) => {
   const { mutate: addParticipants, isPending } = useMutation({
     mutationFn: async () => {
       return await addAssistantParticipants({
-        data: { assistantId: assistant.id, userIds: selectedUserIds, currentUserId: props.userId },
+        data: { assistantId: assistant.id, userIds: selectedUserIds },
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
 
       dialogRef.current?.close()
     },

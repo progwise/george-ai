@@ -53,7 +53,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/edit'
 })
 
 function RouteComponent() {
-  const { user, queryClient } = Route.useRouteContext()
+  const { queryClient } = Route.useRouteContext()
   const navigate = Route.useNavigate()
   const { libraryId } = Route.useParams()
 
@@ -62,7 +62,7 @@ function RouteComponent() {
   const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
     mutationFn: (data: FormData) => changeLibrary({ data }),
     onSettled: () => {
-      queryClient.invalidateQueries(getLibrariesQueryOptions(user.id))
+      queryClient.invalidateQueries(getLibrariesQueryOptions())
       queryClient.invalidateQueries(getLibraryQueryOptions(libraryId))
       navigate({ to: '..' })
     },
@@ -79,7 +79,7 @@ function RouteComponent() {
   return (
     <>
       <LoadingSpinner isLoading={saveIsPending} />
-      <LibraryForm library={aiLibrary} ownerId={user.id} handleSubmit={handleSubmit} disabled={saveIsPending} />
+      <LibraryForm library={aiLibrary} handleSubmit={handleSubmit} disabled={saveIsPending} />
     </>
   )
 }

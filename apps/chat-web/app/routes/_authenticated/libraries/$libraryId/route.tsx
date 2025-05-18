@@ -11,17 +11,16 @@ import { BackIcon } from '../../../../icons/back-icon'
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    context.queryClient.ensureQueryData(getLibrariesQueryOptions(context.user.id))
+    context.queryClient.ensureQueryData(getLibrariesQueryOptions())
     context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId))
   },
 })
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { user } = Route.useRouteContext()
   const {
     data: { aiLibraries },
-  } = useSuspenseQuery(getLibrariesQueryOptions(user.id))
+  } = useSuspenseQuery(getLibrariesQueryOptions())
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   const { t } = useTranslation()

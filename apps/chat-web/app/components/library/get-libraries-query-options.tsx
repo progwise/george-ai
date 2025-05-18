@@ -1,14 +1,13 @@
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
-const librariesDocument = graphql(/* GraphQL */ `
-  query aiLibraries($ownerId: String!) {
-    aiLibraries(ownerId: $ownerId) {
+const librariesDocument = graphql(`
+  query aiLibraries {
+    aiLibraries {
       id
       name
       owner {
@@ -21,16 +20,14 @@ const librariesDocument = graphql(/* GraphQL */ `
   }
 `)
 
-const getLibraries = createServerFn({ method: 'GET' })
-  .validator((ownerId: string) => z.string().nonempty().parse(ownerId))
-  .handler(async (ctx) => {
-    return backendRequest(librariesDocument, { ownerId: ctx.data })
-  })
+const getLibraries = createServerFn({ method: 'GET' }).handler(async () => {
+  return backendRequest(librariesDocument)
+})
 
-export const getLibrariesQueryOptions = (ownerId: string) =>
+export const getLibrariesQueryOptions = () =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, ownerId],
+    queryKey: [queryKeys.AiLibraries],
     queryFn: async () => {
-      return getLibraries({ data: ownerId })
+      return getLibraries()
     },
   })

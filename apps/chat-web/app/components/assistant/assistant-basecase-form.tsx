@@ -67,7 +67,6 @@ const AssistantBasecaseForm_AssistantFragment = graphql(`
 
 export interface AssistantBaseCaseFormProps {
   assistant: FragmentType<typeof AssistantBasecaseForm_AssistantFragment>
-  userId: string
 }
 
 export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
@@ -82,7 +81,7 @@ export const AssistantBasecaseForm = (props: AssistantBaseCaseFormProps) => {
       return await upsertAiBaseCases({ data })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, props.userId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
     },
   })
 
