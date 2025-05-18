@@ -73,10 +73,9 @@ builder.queryField('aiAssistants', (t) =>
       items: false,
     },
     resolve: (query, _source, _args, context) => {
-      const userId = context.session.user.id
       return prisma.aiAssistant.findMany({
         ...query,
-        where: { participants: { some: { userId } } },
+        where: { participants: { some: { userId: context.session.user.id } } },
       })
     },
   }),

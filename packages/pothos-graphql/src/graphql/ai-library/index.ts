@@ -71,7 +71,7 @@ builder.queryField('aiLibraries', (t) =>
     resolve: (query, _source, _args, context) => {
       return prisma.aiLibrary.findMany({
         ...query,
-        where: { ownerId: context.session.user.id },
+        where: { participants: { some: { userId: context.session.user.id } } },
       })
     },
   }),
