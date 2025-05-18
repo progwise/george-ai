@@ -5,14 +5,14 @@ import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
-import { addAssistantParticipants } from '../../server-functions/assistantParticipations'
+import { addAssistantParticipants } from '../../server-functions/assistant-participations'
 import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 
-const AssistantParticipantsDialog_AssistantFragment = graphql(`
-  fragment AssistantParticipantsDialog_Assistant on AiAssistant {
+const AssistantParticipantsDialogButton_AssistantFragment = graphql(`
+  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {
     id
     ownerId
     participants {
@@ -21,19 +21,19 @@ const AssistantParticipantsDialog_AssistantFragment = graphql(`
   }
 `)
 
-interface DialogFormProps {
-  assistant: FragmentType<typeof AssistantParticipantsDialog_AssistantFragment>
+interface AssistantParticipantsDialogFormProps {
+  assistant: FragmentType<typeof AssistantParticipantsDialogButton_AssistantFragment>
   users: User[]
 }
 
-export const AssistantParticipantsDialog = (props: DialogFormProps) => {
+export const AssistantParticipantsDialogButton = (props: AssistantParticipantsDialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
 
-  const assistant = useFragment(AssistantParticipantsDialog_AssistantFragment, props.assistant)
+  const assistant = useFragment(AssistantParticipantsDialogButton_AssistantFragment, props.assistant)
   const { users } = props
   const assignableUsers = useMemo(
     () => users.filter((user) => !assistant.participants.some((participant) => participant.id === user.id)),

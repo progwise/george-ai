@@ -33,7 +33,7 @@ const ConversationQueryDocument = graphql(`
       ...ConversationDelete_Conversation
       ...ConversationHistory_Conversation
       ...ConversationForm_Conversation
-      ...ConversationParticipantsDialog_Conversation
+      ...ConversationParticipantsDialogButton_Conversation
     }
   }
 `)

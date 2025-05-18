@@ -50,7 +50,7 @@ const AssignableAssistantsDocument = graphql(`
     aiAssistants {
       ...NewConversationSelector_Assistant
       ...ConversationParticipants_Assistant
-      ...ConversationParticipantsDialog_Assistant
+      ...ConversationParticipantsDialogButton_Assistant
     }
   }
 `)

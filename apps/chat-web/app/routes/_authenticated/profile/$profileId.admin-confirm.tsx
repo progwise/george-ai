@@ -34,7 +34,7 @@ function RouteComponent() {
       return await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
     },

@@ -156,7 +156,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
       toastSuccess(t('texts.profileSaved'))

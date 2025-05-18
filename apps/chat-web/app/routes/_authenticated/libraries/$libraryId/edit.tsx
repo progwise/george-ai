@@ -47,8 +47,8 @@ const changeLibrary = createServerFn({ method: 'POST' })
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/edit')({
   component: RouteComponent,
-  loader: ({ context, params }) => {
-    context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId))
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId))
   },
 })
 

@@ -29,6 +29,14 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
+    participants: t.prismaField({
+      type: ['User'],
+      nullable: false,
+      select: { participants: { select: { user: true } } },
+      resolve: (_query, library) => {
+        return library.participants.map((participant) => participant.user)
+      },
+    }),
   }),
 })
 
@@ -98,6 +106,11 @@ builder.mutationField('createAiLibrary', (t) =>
         data: {
           ...data,
           ownerId: context.session.user.id,
+          participants: {
+            create: {
+              userId: context.session.user.id,
+            },
+          },
         },
       })
     },

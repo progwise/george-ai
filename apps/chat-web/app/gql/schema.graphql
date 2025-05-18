@@ -200,6 +200,7 @@ type AiLibrary {
   name: String!
   owner: User
   ownerId: String!
+  participants: [User!]!
   updatedAt: DateTime
   url: String
 }
@@ -361,6 +362,7 @@ type Mutation {
     conversationId: String!
     userIds: [String!]
   ): [AiConversationParticipant!]
+  addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
@@ -391,6 +393,7 @@ type Mutation {
   reProcessFile(fileId: String!): AiLibraryFile
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
+  removeLibraryParticipant(currentUserId: String!, libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeUserProfile(profileId: String!): UserProfile
   resetAssessmentAnswers(assistantId: String!): DateTime!

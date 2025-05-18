@@ -5,7 +5,7 @@ import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { ConversationForm } from '../../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
-import { ConversationParticipantsDialog } from '../../../components/conversation/conversation-participants-dialog'
+import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
 import { MenuIcon } from '../../../icons/menu-icon'
@@ -49,7 +49,7 @@ function RouteComponent() {
           </div>
 
           <div className="flex">
-            <ConversationParticipantsDialog
+            <ConversationParticipantsDialogButton
               conversation={conversation}
               assistants={aiAssistants}
               users={users}

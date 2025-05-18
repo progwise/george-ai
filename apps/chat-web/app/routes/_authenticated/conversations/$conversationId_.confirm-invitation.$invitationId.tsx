@@ -4,7 +4,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
-import { confirmInvitation } from '../../../server-functions/conversationParticipations'
+import { confirmInvitation } from '../../../server-functions/conversation-participations'
 
 const conversationInvitationQueryOptions = (conversationId?: string, invitationId?: string) => ({
   queryKey: [queryKeys.ConversationInvitation, conversationId, invitationId],
