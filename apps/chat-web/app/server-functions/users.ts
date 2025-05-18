@@ -80,61 +80,51 @@ export const confirmUserProfile = createServerFn({ method: 'POST' })
     ),
   )
 
-export const getUserProfile = createServerFn({ method: 'GET' })
-  .validator((data: { profileId: string }) => z.string().nonempty().parse(data.profileId))
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        query getUserProfile($profileId: String!) {
-          userProfile(profileId: $profileId) {
-            id
-            userId
-            email
-            firstName
-            lastName
-            business
-            position
-            freeMessages
-            usedMessages
-            freeStorage
-            usedStorage
-            createdAt
-            updatedAt
-            confirmationDate
-            activationDate
-            expiresAt
-          }
+export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
+  backendRequest(
+    graphql(`
+      query getUserProfile {
+        userProfile {
+          id
+          userId
+          email
+          firstName
+          lastName
+          business
+          position
+          freeMessages
+          usedMessages
+          freeStorage
+          usedStorage
+          createdAt
+          updatedAt
+          confirmationDate
+          activationDate
+          expiresAt
         }
-      `),
-      {
-        profileId: ctx.data,
-      },
-    ),
-  )
+      }
+    `),
+    {
+      profileId: ctx.data,
+    },
+  ),
+)
 
-export const sendAdminNotificationMail = createServerFn({ method: 'POST' })
-  .validator((data: { profileId: string }) => {
-    return z
-      .object({
-        profileId: z.string().nonempty(),
-      })
-      .parse(data)
+export const sendAdminNotificationMail = createServerFn({ method: 'POST' }).handler(async () => {
+  const userProfile = await getUserProfile()
+
+  if (!userProfile?.userProfile) {
+    throw new Error('User profile not found')
+  }
+
+  await activateUserProfile({
+    data: {
+      profileId: userProfile.userProfile.id,
+    },
   })
-  .handler(async (ctx) => {
-    const userProfile = await getUserProfile({ data: { profileId: ctx.data.profileId } })
 
-    if (!userProfile?.userProfile) {
-      throw new Error('User profile not found')
-    }
-
-    await activateUserProfile({
-      data: {
-        profileId: userProfile.userProfile.id,
-      },
-    })
-
-    return { success: true }
-  })
+  return { success: true }
+})
 
 export const updateUserProfile = createServerFn({ method: 'POST' })
   .validator((data: { profileId: string; userProfileInput: { freeMessages?: number; freeStorage?: number } }) => {

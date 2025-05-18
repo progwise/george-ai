@@ -90,7 +90,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       // refetch the conversation to get the new message
       queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
 
-      queryClient.invalidateQueries(getProfileQueryOptions(props.user.id))
+      queryClient.invalidateQueries(getProfileQueryOptions())
 
       scrollToBottom()
     },

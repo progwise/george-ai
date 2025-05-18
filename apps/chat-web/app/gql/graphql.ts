@@ -694,10 +694,6 @@ export type QueryUserArgs = {
   email: Scalars['String']['input']
 }
 
-export type QueryUserProfileArgs = {
-  profileId: Scalars['String']['input']
-}
-
 export enum RetrievalFlow {
   OnlyLocal = 'OnlyLocal',
   OnlyWeb = 'OnlyWeb',
@@ -1715,9 +1711,7 @@ export type ChangeAiLibraryMutation = {
   updateAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
-export type UserProfileQueryVariables = Exact<{
-  profileId: Scalars['String']['input']
-}>
+export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type UserProfileQuery = {
   __typename?: 'Query'
@@ -2093,9 +2087,7 @@ export type ConfirmUserProfileMutation = {
   confirmUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
-export type GetUserProfileQueryVariables = Exact<{
-  profileId: Scalars['String']['input']
-}>
+export type GetUserProfileQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetUserProfileQuery = {
   __typename?: 'Query'
@@ -6029,26 +6021,12 @@ export const UserProfileDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'userProfile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'userProfile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'profileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -7715,26 +7693,12 @@ export const GetUserProfileDocument = {
       kind: 'OperationDefinition',
       operation: 'query',
       name: { kind: 'Name', value: 'getUserProfile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'userProfile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'profileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-              },
-            ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [

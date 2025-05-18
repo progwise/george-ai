@@ -423,7 +423,7 @@ type Query {
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
   user(email: String!): User
-  userProfile(profileId: String!): UserProfile
+  userProfile: UserProfile
   users: [User!]!
   version: String
 }

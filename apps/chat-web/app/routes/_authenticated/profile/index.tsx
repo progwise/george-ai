@@ -17,8 +17,8 @@ import { backendRequest } from '../../../server-functions/backend'
 import { sendConfirmationMail } from '../../../server-functions/users'
 
 const userProfileQueryDocument = graphql(`
-  query userProfile($profileId: String!) {
-    userProfile(profileId: $profileId) {
+  query userProfile {
+    userProfile {
       id
       confirmationDate
       ...UserProfileForm_UserProfile
@@ -26,15 +26,9 @@ const userProfileQueryDocument = graphql(`
   }
 `)
 
-export const getUserProfile = createServerFn({ method: 'GET' })
-  .validator((profileId: string) => {
-    return z.string().nonempty().parse(profileId)
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(userProfileQueryDocument, {
-      profileId: ctx.data,
-    })
-  })
+export const getUserProfile = createServerFn({ method: 'GET' }).handler(async () => {
+  return await backendRequest(userProfileQueryDocument)
+})
 
 const createUserProfileMutationDocument = graphql(`
   mutation createUserProfile {
@@ -87,19 +81,19 @@ function RouteComponent() {
     refetch: refetchProfile,
   } = useSuspenseQuery({
     queryKey: [queryKeys.UserProfileForEdit, user.id],
-    queryFn: () => getUserProfile({ data: user.id }),
+    queryFn: () => getUserProfile(),
   })
 
   const confirmationLink = useLinkProps({
     to: '/profile/$profileId/confirm',
-    params: { profileId: userProfile?.userProfile?.id || 'no_profile_id' },
+    params: { profileId: userProfile.userProfile?.id || 'no_profile_id' },
   })
 
   const { mutate: createProfileMutation, isPending: createProfileIsPending } = useMutation({
     mutationFn: async () => createUserProfile(),
     onSettled: () => {
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
+      queryClient.invalidateQueries(getProfileQueryOptions())
     },
   })
 
@@ -108,7 +102,7 @@ function RouteComponent() {
     onSettled: () => {
       toastSuccess(t('texts.removedProfile'))
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
+      queryClient.invalidateQueries(getProfileQueryOptions())
     },
     onError: (error) => {
       toastError('Failed to remove profile: ' + error.message)

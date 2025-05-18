@@ -165,7 +165,6 @@ builder.mutationField('sendConfirmationMail', (t) =>
     },
     resolve: async (_parent, { confirmationUrl }, context) => {
       const profile = await prisma.userProfile.findFirst({
-        //TODO: Would email be good enough here?
         where: { email: context.session.user.email },
       })
       if (!profile) {
@@ -202,13 +201,13 @@ builder.mutationField('sendConfirmationMail', (t) =>
 builder.queryField('userProfile', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
-    args: {
-      profileId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { profileId }) => {
+    resolve: async (query, _source, _args, context) => {
+      if (context.session.userProfile) {
+        return context.session.userProfile
+      }
       return prisma.userProfile.findFirst({
         ...query,
-        where: { userId: profileId },
+        where: { userId: context.session.user.id },
       })
     },
   }),

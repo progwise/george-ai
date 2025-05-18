@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated/conversations/$conversatio
       context.queryClient.ensureQueryData(getUsersQueryOptions()),
       context.queryClient.ensureQueryData(getAssignableAssistantsQueryOptions()),
       context.queryClient.ensureQueryData(getConversationQueryOptions(params.conversationId)),
-      context.queryClient.ensureQueryData(getProfileQueryOptions(context.user.id)),
+      context.queryClient.ensureQueryData(getProfileQueryOptions()),
     ])
   },
 })
@@ -35,7 +35,7 @@ function RouteComponent() {
     data: { aiAssistants },
   } = useSuspenseQuery(getAssignableAssistantsQueryOptions())
   const { data: conversation } = useSuspenseQuery(getConversationQueryOptions(conversationId))
-  const { data: profile } = useSuspenseQuery(getProfileQueryOptions(user.id))
+  const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
 
   return (
     <>

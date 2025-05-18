@@ -1,4 +1,4 @@
-import { User } from '@george-ai/prismaClient'
+import { User, UserProfile } from '@george-ai/prismaClient'
 
 type AuthUser = Partial<Omit<User, 'id' | 'email' | 'username'>> & {
   id: string
@@ -7,9 +7,9 @@ type AuthUser = Partial<Omit<User, 'id' | 'email' | 'username'>> & {
 }
 
 export interface Context {
-  session: { user: AuthUser; jwt: string } | null
+  session: { user: AuthUser; userProfile?: UserProfile; jwt: string } | null
 }
 
 export interface LoggedInContext extends Context {
-  session: { user: AuthUser; jwt: string }
+  session: { user: AuthUser; userProfile?: UserProfile; jwt: string }
 }
