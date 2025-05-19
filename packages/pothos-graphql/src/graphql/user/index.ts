@@ -71,58 +71,32 @@ builder.mutationField('login', (t) =>
       const parsedToken = JSON.parse(Buffer.from(jwtToken.split('.')[1], 'base64').toString())
       const { sub, preferred_username, name, given_name, family_name, email } = parsedToken
 
-      // Try to find user by email or username
+      // Try to find user by id, email, or username
       let user = await prisma.user.findFirst({
         where: {
           OR: [{ id: sub }, { email }, { username: preferred_username }],
         },
       })
 
-      if (user) {
-        // If the user exists but has a different id, update the id to sub if needed
-        if (user.id !== sub) {
-          user = await prisma.user.update({
-            ...query,
-            where: { id: user.id },
-            data: {
-              id: sub,
-              username: preferred_username,
-              email,
-              name,
-              given_name,
-              family_name,
-              lastLogin: new Date(),
-            },
-          })
-        } else {
-          user = await prisma.user.update({
-            ...query,
-            where: { id: sub },
-            data: {
-              username: preferred_username,
-              email,
-              name,
-              given_name,
-              family_name,
-              lastLogin: new Date(),
-            },
-          })
-        }
-      } else {
-        // Create a new user with sub as the ID
-        user = await prisma.user.create({
-          ...query,
-          data: {
-            id: sub,
-            username: preferred_username,
-            email,
-            name,
-            given_name,
-            family_name,
-            lastLogin: new Date(),
-          },
-        })
+      // Pick a unique field for upsert - id and fallback to username
+      const upsertWhere = user && user.id ? { id: user.id } : sub ? { id: sub } : { username: preferred_username }
+
+      const userData = {
+        id: sub,
+        username: preferred_username,
+        email,
+        name,
+        given_name,
+        family_name,
+        lastLogin: new Date(),
       }
+
+      user = await prisma.user.upsert({
+        ...query,
+        where: upsertWhere,
+        update: userData,
+        create: userData,
+      })
 
       return user
     },
