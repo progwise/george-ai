@@ -36,28 +36,6 @@ export const getUserProfile = createServerFn({ method: 'GET' })
     })
   })
 
-const createUserProfileMutationDocument = graphql(`
-  mutation createUserProfile($userId: String!) {
-    createUserProfile(userId: $userId) {
-      id
-    }
-  }
-`)
-
-export const createUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string }) => {
-    return z
-      .object({
-        userId: z.string().nonempty(),
-      })
-      .parse(data)
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(createUserProfileMutationDocument, {
-      userId: ctx.data.userId,
-    })
-  })
-
 const removeUserProfileDocument = graphql(`
   mutation removeUserProfile($userId: String!) {
     removeUserProfile(userId: $userId) {
@@ -104,14 +82,6 @@ function RouteComponent() {
   const confirmationLink = useLinkProps({
     to: '/profile/$profileId/confirm',
     params: { profileId: userProfile?.userProfile?.id || 'no_profile_id' },
-  })
-
-  const { mutate: createProfileMutation, isPending: createProfileIsPending } = useMutation({
-    mutationFn: async () => createUserProfile({ data: { userId: user.id } }),
-    onSettled: () => {
-      refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
-    },
   })
 
   const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
@@ -198,24 +168,10 @@ function RouteComponent() {
     handleFormSubmission(formData)
   }
 
-  const isLoading =
-    userProfileIsLoading || createProfileIsPending || sendConfirmationMailIsPending || removeProfileIsPending
+  const isLoading = userProfileIsLoading || sendConfirmationMailIsPending || removeProfileIsPending
 
   if (isLoading) {
     return <LoadingSpinner isLoading={true} />
-  }
-
-  if (!userProfile?.userProfile) {
-    return (
-      <article className="flex w-full flex-col items-center gap-4">
-        <p>
-          {t('texts.profileNotFoundFor')} {user?.name}
-        </p>
-        <button type="button" className="btn btn-primary btn-sm w-48" onClick={() => createProfileMutation()}>
-          {t('actions.createProfile')}
-        </button>
-      </article>
-    )
   }
 
   return (

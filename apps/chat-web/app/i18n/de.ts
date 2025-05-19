@@ -8,7 +8,6 @@ export default {
     close: 'Schließen',
     confirm: 'Bestätigen',
     create: 'Erstellen',
-    createProfile: 'Benutzerprofil erstellen',
     delete: 'Löschen',
     details: 'Details',
     drop: 'Entfernen',
@@ -295,6 +294,10 @@ export default {
     searchUsers: 'Benutzer suchen...',
   },
   resetConversation: 'Konversation zurücksetzen',
+  settings: {
+    darkMode: 'Farbschema: Dunkel',
+    lightMode: 'Farbschema: Hell',
+  },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
