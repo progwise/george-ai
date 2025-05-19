@@ -115,6 +115,7 @@ export default {
     failedToAddParticipants: 'Failed to add participants: {error}',
     failedToCreateConversation: 'Failed to create conversation: {error}',
     historyPlaceholder: 'No messages yet. Start the conversation!',
+    historyPlaceholderShort: 'No message',
     humans: 'Users',
     leave: 'Leave conversation',
     leaveConfirmation: 'You are about to leave this conversation. It cannot be undone. Please confirm.',
@@ -126,6 +127,7 @@ export default {
     removeMultipleConfirmation:
       'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone. Please confirm.',
     setLLM: 'Language model not set on assistant',
+    title: 'Conversations',
     tokenLimitExceeded: 'Token limit exceeded',
   },
   crawlers: {

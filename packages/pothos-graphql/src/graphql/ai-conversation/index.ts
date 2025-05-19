@@ -13,6 +13,17 @@ builder.prismaObject('AiConversation', {
       nullable: false,
       query: () => ({ orderBy: [{ sequenceNumber: 'asc' }] }),
     }),
+    firstMessage: t.prismaField({
+      type: 'AiConversationMessage',
+      nullable: true,
+      resolve: (query, source) => {
+        return prisma.aiConversationMessage.findFirst({
+          ...query,
+          where: { conversationId: source.id },
+          orderBy: { source: 'asc' },
+        })
+      },
+    }),
     humans: t.prismaField({
       type: ['User'],
       nullable: {

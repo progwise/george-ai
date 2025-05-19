@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 import { FragmentType } from '../../gql'
@@ -12,10 +12,9 @@ import { ConversationSelector_ConversationFragment } from './conversation-select
 
 interface RemoveConversationsDialogProps {
   conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
-  checkedConversationIds: string[]
+  selectedConversationIds: string[]
   userId: string
-  resetCheckedConversationIds: () => void
-  selectedConversationId: string | undefined
+  resetSelectedConversationIds: () => void
 }
 
 export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps) => {
@@ -23,18 +22,19 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const { conversationId } = useParams({ strict: false })
 
-  const currentConversationIsChecked = props.checkedConversationIds.some((id) => id === props.selectedConversationId)
+  const displayedConversationIsSelected = !!conversationId && props.selectedConversationIds.includes(conversationId)
 
   const { mutate: removeConversationsMutate, isPending: isRemovePending } = useMutation({
     mutationFn: () =>
       removeConversations({
-        data: { conversationIds: props.checkedConversationIds, userId: props.userId },
+        data: { conversationIds: props.selectedConversationIds, userId: props.userId },
       }),
     onSettled: async () => {
       await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
-      props.resetCheckedConversationIds()
-      if (currentConversationIsChecked) {
+      props.resetSelectedConversationIds()
+      if (displayedConversationIsSelected) {
         navigate({ to: '..' })
       }
       dialogRef.current?.close()
@@ -54,18 +54,10 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
   const submitButtonText = t('actions.remove')
   const buttonTooltip = t('conversations.removeMultiple')
 
-  const trashIconDesign = props.checkedConversationIds.length < 1 ? 'size-6 text-neutral-content' : 'size-6 text-error'
-
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-right z-60 relative mx-1"
-        onClick={handleOpen}
-        data-tip={buttonTooltip}
-        disabled={props.checkedConversationIds.length < 1}
-      >
-        <TrashIcon className={trashIconDesign} />
+      <button type="button" className="btn btn-neutral btn-square" onClick={handleOpen} title={buttonTooltip}>
+        <TrashIcon />
       </button>
 
       <LoadingSpinner isLoading={isRemovePending} />
@@ -78,7 +70,7 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
         submitButtonText={submitButtonText}
       >
         <div>
-          {props.checkedConversationIds.length} {t('texts.numberOfConversationsToRemove')}
+          {props.selectedConversationIds.length} {t('texts.numberOfConversationsToRemove')}
         </div>
       </DialogForm>
     </>

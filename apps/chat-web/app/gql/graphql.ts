@@ -160,6 +160,7 @@ export type AiConversation = {
   __typename?: 'AiConversation'
   assistants: Array<AiAssistant>
   createdAt: Scalars['DateTime']['output']
+  firstMessage?: Maybe<AiConversationMessage>
   humans: Array<User>
   id: Scalars['ID']['output']
   messages: Array<AiConversationMessage>
@@ -1389,8 +1390,9 @@ export type ConversationSelector_ConversationFragment = {
   __typename?: 'AiConversation'
   id: string
   createdAt: string
-  owner: { __typename?: 'User'; id: string; name?: string | null }
-  assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
+  assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string; iconUrl?: string | null }>
+  humans: Array<{ __typename?: 'User'; name?: string | null; username: string }>
+  firstMessage?: { __typename?: 'AiConversationMessage'; content?: string | null } | null
 } & { ' $fragmentName'?: 'ConversationSelector_ConversationFragment' }
 
 export type ConversationDelete_ConversationFragment = {
@@ -3157,24 +3159,33 @@ export const ConversationSelector_ConversationFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'owner' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
             name: { kind: 'Name', value: 'assistants' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
               ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'humans' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'firstMessage' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'content' } }],
             },
           },
         ],
@@ -7324,24 +7335,33 @@ export const GetUserConversationsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'owner' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
             name: { kind: 'Name', value: 'assistants' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
               ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'humans' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+              ],
+            },
+          },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'firstMessage' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'content' } }],
             },
           },
         ],
