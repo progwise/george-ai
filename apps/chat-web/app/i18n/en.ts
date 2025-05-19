@@ -66,6 +66,8 @@ export default {
     deleteButton: 'Delete',
     deleteDescription: 'You are about to delete assistant {assistant.name}. Please confirm.',
     hasNoIcon: '{assistant.name} has no icon',
+    leave: 'Leave assistant',
+    leaveConfirmation: 'You are about to leave this assistant. It cannot be undone. Please confirm.',
     libraries: 'Used libraries',
     libraryToAdd: 'Add library',
     myAssistants: 'My assistants',

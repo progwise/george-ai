@@ -396,6 +396,7 @@ export type Mutation = {
   dropFiles?: Maybe<Array<AiLibraryFile>>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
+  leaveAssistantParticipant?: Maybe<User>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
@@ -549,6 +550,11 @@ export type MutationHideMessageArgs = {
 
 export type MutationLeaveAiConversationArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationLeaveAssistantParticipantArgs = {
+  assistantId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationLoginArgs = {
@@ -1148,9 +1154,11 @@ export type AssistantCard_AssistantFragment = ({
   name: string
   description?: string | null
   iconUrl?: string | null
-} & { ' $fragmentRefs'?: { AssistantDelete_AssistantFragment: AssistantDelete_AssistantFragment } }) & {
-  ' $fragmentName'?: 'AssistantCard_AssistantFragment'
-}
+} & {
+  ' $fragmentRefs'?: {
+    AssistantDeleteOrLeaveDialogButton_AssistantFragment: AssistantDeleteOrLeaveDialogButton_AssistantFragment
+  }
+}) & { ' $fragmentName'?: 'AssistantCard_AssistantFragment' }
 
 export type DeleteAiAssistantMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
@@ -1161,8 +1169,19 @@ export type DeleteAiAssistantMutation = {
   deleteAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
-export type AssistantDelete_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
-  ' $fragmentName'?: 'AssistantDelete_AssistantFragment'
+export type AssistantDeleteDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string } & {
+  ' $fragmentName'?: 'AssistantDeleteDialog_AssistantFragment'
+}
+
+export type AssistantDeleteOrLeaveDialogButton_AssistantFragment = ({ __typename?: 'AiAssistant'; ownerId: string } & {
+  ' $fragmentRefs'?: {
+    AssistantDeleteDialog_AssistantFragment: AssistantDeleteDialog_AssistantFragment
+    AssistantLeaveDialog_AssistantFragment: AssistantLeaveDialog_AssistantFragment
+  }
+}) & { ' $fragmentName'?: 'AssistantDeleteOrLeaveDialogButton_AssistantFragment' }
+
+export type AssistantLeaveDialog_AssistantFragment = { __typename?: 'AiAssistant'; id: string } & {
+  ' $fragmentName'?: 'AssistantLeaveDialog_AssistantFragment'
 }
 
 export type AssistantForm_AssistantFragment = {
@@ -1810,6 +1829,16 @@ export type RemoveAssistantParticipantMutationVariables = Exact<{
 export type RemoveAssistantParticipantMutation = {
   __typename?: 'Mutation'
   removeAssistantParticipant: { __typename?: 'User'; id: string }
+}
+
+export type LeaveAssistantParticipantMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+  assistantId: Scalars['String']['input']
+}>
+
+export type LeaveAssistantParticipantMutation = {
+  __typename?: 'Mutation'
+  leaveAssistantParticipant?: { __typename?: 'User'; id: string } | null
 }
 
 export type AiAssistantDetailsQueryVariables = Exact<{
@@ -2693,12 +2722,12 @@ export const AssistantBasecaseForm_AssistantFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AssistantBasecaseForm_AssistantFragment, unknown>
-export const AssistantDelete_AssistantFragmentDoc = {
+export const AssistantDeleteDialog_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantDelete_Assistant' },
+      name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -2709,7 +2738,54 @@ export const AssistantDelete_AssistantFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<AssistantDelete_AssistantFragment, unknown>
+} as unknown as DocumentNode<AssistantDeleteDialog_AssistantFragment, unknown>
+export const AssistantLeaveDialog_AssistantFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+    },
+  ],
+} as unknown as DocumentNode<AssistantLeaveDialog_AssistantFragment, unknown>
+export const AssistantDeleteOrLeaveDialogButton_AssistantFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDeleteOrLeaveDialogButton_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+    },
+  ],
+} as unknown as DocumentNode<AssistantDeleteOrLeaveDialogButton_AssistantFragment, unknown>
 export const AssistantCard_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -2724,19 +2800,38 @@ export const AssistantCard_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDelete_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDeleteOrLeaveDialogButton_Assistant' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantDelete_Assistant' },
+      name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDeleteOrLeaveDialogButton_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' } },
         ],
       },
     },
@@ -6076,13 +6171,32 @@ export const AiAssistantCardsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantDelete_Assistant' },
+      name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantDeleteOrLeaveDialogButton_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDeleteDialog_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLeaveDialog_Assistant' } },
         ],
       },
     },
@@ -6097,7 +6211,7 @@ export const AiAssistantCardsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDelete_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantDeleteOrLeaveDialogButton_Assistant' } },
         ],
       },
     },
@@ -6414,6 +6528,53 @@ export const RemoveAssistantParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveAssistantParticipantMutation, RemoveAssistantParticipantMutationVariables>
+export const LeaveAssistantParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'leaveAssistantParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'leaveAssistantParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LeaveAssistantParticipantMutation, LeaveAssistantParticipantMutationVariables>
 export const AiAssistantDetailsDocument = {
   kind: 'Document',
   definitions: [

@@ -3,7 +3,7 @@ import React from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { AssistantDeleteDialog } from './assistant-delete-dialog'
+import { AssistantDeleteOrLeaveDialogButton } from './assistant-delete-or-leave-dialog-button/assistant-delete-or-leave-dialog-button'
 
 const AssistantCard_AssistantFragment = graphql(`
   fragment AssistantCard_Assistant on AiAssistant {
@@ -11,7 +11,7 @@ const AssistantCard_AssistantFragment = graphql(`
     name
     description
     iconUrl
-    ...AssistantDelete_Assistant
+    ...AssistantDeleteOrLeaveDialogButton_Assistant
   }
 `)
 
@@ -54,7 +54,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
             <div className="badge badge-outline">Sequential</div>
           </div>
           <div className="flex w-full place-content-between">
-            <AssistantDeleteDialog assistant={assistant} userId={props.userId} />
+            <AssistantDeleteOrLeaveDialogButton assistant={assistant} userId={props.userId} />
             <Link
               type="button"
               className="btn btn-ghost btn-sm"

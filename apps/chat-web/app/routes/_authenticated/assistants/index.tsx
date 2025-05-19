@@ -11,7 +11,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getMyAiAssistants = createServerFn({ method: 'GET' })
+const getAssistants = createServerFn({ method: 'GET' })
   .validator((userId: string) => z.string().nonempty().parse(userId))
   .handler((ctx) =>
     backendRequest(
@@ -37,9 +37,9 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.MyAiAssistants, user.id],
+    queryKey: [queryKeys.AiAssistants, user.id],
     queryFn: async () => {
-      return getMyAiAssistants({ data: user.id })
+      return getAssistants({ data: user.id })
     },
   })
 

@@ -4,12 +4,12 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-import { DialogForm } from '../dialog-form'
+import { FragmentType, graphql, useFragment } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
+import { queryKeys } from '../../../query-keys'
+import { backendRequest } from '../../../server-functions/backend'
+import { DialogForm } from '../../dialog-form'
 
 const deleteAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
@@ -39,21 +39,21 @@ const deleteAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-const AssistantDelete_AssistantFragment = graphql(`
-  fragment AssistantDelete_Assistant on AiAssistant {
+const AssistantDeleteDialog_AssistantFragment = graphql(`
+  fragment AssistantDeleteDialog_Assistant on AiAssistant {
     id
     name
   }
 `)
 
 export interface AssistantDeleteDialogProps {
-  assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
+  assistant: FragmentType<typeof AssistantDeleteDialog_AssistantFragment>
   userId: string
 }
 
 export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantDelete_AssistantFragment, props.assistant)
+  const assistant = useFragment(AssistantDeleteDialog_AssistantFragment, props.assistant)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -66,7 +66,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
         throw new Error('Failed to delete assistant')
       }
       navigate({ to: `/assistants` })
-      queryClient.invalidateQueries({ queryKey: [queryKeys.MyAiAssistants, props.userId] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants, props.userId] })
       dialogRef.current?.close()
     },
   })
