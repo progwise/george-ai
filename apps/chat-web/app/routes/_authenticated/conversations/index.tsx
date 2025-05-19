@@ -1,7 +1,7 @@
 import { useSuspenseQueries } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { ConversationParticipantsDialog } from '../../../components/conversation/conversation-participants-dialog'
+import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
 import { getAssignableAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { getConversationsQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
@@ -40,7 +40,7 @@ function RouteComponent() {
   }
 
   return (
-    <ConversationParticipantsDialog
+    <ConversationParticipantsDialogButton
       className="hidden"
       userId={user.id}
       assistants={assistantsQuery.data.aiAssistants}

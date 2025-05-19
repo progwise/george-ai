@@ -263,6 +263,7 @@ export default {
     addNew: 'Create new library',
     addNewButton: 'Create library',
     addNewDescription: 'A library is a collection of files that can be used by assistants.',
+    addParticipantsConfirmation: 'You can add participants to this library.',
     addSingleFile: 'Add 1 File',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
@@ -280,6 +281,7 @@ export default {
     },
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
+    users: 'Users',
   },
   placeholders: {
     condition: 'if',
