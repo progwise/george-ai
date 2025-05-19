@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { JSX, useEffect, useRef, useState } from 'react'
+import { JSX, useEffect, useState } from 'react'
 import { getCookie } from 'vinxi/http'
 
 import { useAuth } from '../auth/auth'
@@ -25,7 +25,6 @@ interface SettingsDropdownProps {
 export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdownProps): JSX.Element => {
   const { t } = useTranslation()
   const { logout, isReady } = useAuth()
-  const ref = useRef<HTMLDivElement>(null)
   const { language, setLanguage } = useLanguage()
   const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
 
@@ -36,19 +35,17 @@ export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdown
 
   const handleThemeToggle = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
-    ref.current?.removeAttribute('open')
   }
 
   const handleLanguageToggle = () => {
     setLanguage(language === 'en' ? 'de' : 'en')
-    ref.current?.removeAttribute('open')
   }
 
   const themeText = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode')
   const languageText = language === 'en' ? 'Language: German' : 'Sprache: Englisch'
 
   return (
-    <div className="dropdown dropdown-end" ref={ref}>
+    <div className="dropdown dropdown-end">
       {/* menu button */}
       <div tabIndex={0} role="button" className="btn btn-ghost btn-circle list-none">
         {user ? (
@@ -120,7 +117,7 @@ export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdown
                   className="btn btn-circle btn-btn-ghost btn-sm flex size-4 items-center"
                   onClick={logout}
                 >
-                  <ExitIcon className="size-4 fill-current stroke-0"></ExitIcon>
+                  <ExitIcon />
                 </button>
               </label>
             </li>

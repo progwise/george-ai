@@ -1,6 +1,4 @@
 import { Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { getCookie } from '@tanstack/react-start/server'
 import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -10,11 +8,7 @@ import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
 import { ScrollObserver } from './scroll-observer'
-import { SettingsDropdown } from './settings-drop-down'
-
-const THEME_KEY = 'theme'
-
-export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie(THEME_KEY))
+import { SettingsDropdown } from './settings-dropdown'
 
 interface TopNavigationLinkProps {
   to: keyof FileRoutesByTo
