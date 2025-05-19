@@ -8,7 +8,6 @@ export default {
     close: 'Close',
     confirm: 'Confirm',
     create: 'Create',
-    createProfile: 'Create user profile',
     delete: 'Delete',
     details: 'Details',
     drop: 'Drop',

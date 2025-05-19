@@ -8,7 +8,6 @@ export default {
     close: 'Schließen',
     confirm: 'Bestätigen',
     create: 'Erstellen',
-    createProfile: 'Benutzerprofil erstellen',
     delete: 'Löschen',
     details: 'Details',
     drop: 'Entfernen',
