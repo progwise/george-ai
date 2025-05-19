@@ -290,6 +290,10 @@ export default {
     searchUsers: 'Search users...',
   },
   resetConversation: 'Reset conversation',
+  settings: {
+    darkMode: 'Theme: Dark',
+    lightMode: 'Theme: Light',
+  },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',
