@@ -274,6 +274,9 @@ export default {
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     googleDrive: 'Google Drive',
     lastUpdate: 'Letzte Aktualisierung',
+    leave: 'Bibliothek verlassen',
+    leaveConfirmation:
+      'Sie sind dabei, diese Bibliothek zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     myLibraries: 'Meine Bibliotheken',
     noLibrariesFound: 'Keine Bibliotheken gefunden',
     nameLibrary: 'Benennen Sie Ihre Bibliothek',

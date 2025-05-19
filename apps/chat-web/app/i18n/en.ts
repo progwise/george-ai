@@ -270,6 +270,8 @@ export default {
     dropFileFailure: 'Failed to drop files:',
     googleDrive: 'Google Drive',
     lastUpdate: 'Last update',
+    leave: 'Leave library',
+    leaveConfirmation: 'You are about to leave this library. It cannot be undone. Please confirm.',
     myLibraries: 'My libraries',
     noLibrariesFound: 'No libraries found',
     nameLibrary: 'Name your library',

@@ -66,3 +66,25 @@ builder.mutationField('removeLibraryParticipant', (t) =>
     },
   }),
 )
+
+builder.mutationField('leaveLibraryParticipant', (t) =>
+  t.prismaField({
+    type: 'User',
+    args: {
+      userId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { userId, libraryId }) => {
+      await prisma.aiLibraryParticipant.deleteMany({
+        where: {
+          userId,
+          libraryId,
+        },
+      })
+
+      return prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+      })
+    },
+  }),
+)

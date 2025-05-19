@@ -4,11 +4,12 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { backendRequest } from '../../server-functions/backend'
-import { getLibrariesQueryOptions } from './get-libraries-query-options'
+import { FragmentType, graphql, useFragment } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
+import { backendRequest } from '../../../server-functions/backend'
+import { DialogForm } from '../../dialog-form'
+import { getLibrariesQueryOptions } from '../get-libraries-query-options'
 
 const deleteFilesDocument = graphql(`
   mutation dropFiles($libraryId: String!) {
@@ -27,8 +28,8 @@ const deleteLibraryDocument = graphql(`
   }
 `)
 
-const DeleteLibraryDialog_LibraryFragment = graphql(`
-  fragment DeleteLibraryDialog_Library on AiLibrary {
+const LibraryDeleteDialog_LibraryFragment = graphql(`
+  fragment LibraryDeleteDialog_Library on AiLibrary {
     id
     name
     ownerId
@@ -51,16 +52,16 @@ const deleteLibrary = createServerFn({ method: 'GET' })
     return await backendRequest(deleteLibraryDocument, { id: ctx.data })
   })
 
-interface LibraryDeleteAssistantDialogProps {
-  library: FragmentType<typeof DeleteLibraryDialog_LibraryFragment>
+interface LibraryDeleteDialogProps {
+  library: FragmentType<typeof LibraryDeleteDialog_LibraryFragment>
 }
 
-export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) => {
+export const LibraryDeleteDialog = (props: LibraryDeleteDialogProps) => {
   const dialogReference = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const library = useFragment(DeleteLibraryDialog_LibraryFragment, props.library)
+  const library = useFragment(LibraryDeleteDialog_LibraryFragment, props.library)
 
   const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
     mutationFn: async () => {
@@ -75,7 +76,7 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
     },
   })
 
-  const handleDeleteConfirm = () => {
+  const handleSubmit = () => {
     deleteLibraryWithFiles()
   }
 
@@ -91,25 +92,15 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
       >
         <TrashIcon className="size-6" />
       </button>
-      <dialog ref={dialogReference} className="modal">
-        <div className="modal-box">
-          <h3 className="text-lg font-bold">{t('libraries.deleteLibrary', { libraryName: library.name })}</h3>
-          <p className="py-4">{t('libraries.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}</p>
-          <div className="modal-action">
-            <form method="dialog">
-              <button type="submit" className="btn btn-sm">
-                {t('actions.cancel')}
-              </button>
-            </form>
-            <button type="submit" className="btn btn-error btn-sm" disabled={isPending} onClick={handleDeleteConfirm}>
-              {t('actions.delete')}
-            </button>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button type="submit">cancel</button>
-        </form>
-      </dialog>
+
+      <DialogForm
+        ref={dialogReference}
+        title={t('libraries.deleteLibrary', { libraryName: library.name })}
+        description={t('libraries.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}
+        onSubmit={handleSubmit}
+        submitButtonText={t('actions.delete')}
+        disabledSubmit={isPending}
+      />
     </>
   )
 }

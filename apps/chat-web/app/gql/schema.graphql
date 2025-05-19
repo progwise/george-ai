@@ -384,7 +384,6 @@ type Mutation {
     data: [ConversationInvitationInput!]!
     inviterId: String!
   ): AiConversation
-  createUser(data: UserInput!, username: String!): User
   createUserProfile(userId: String!): UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
@@ -395,6 +394,7 @@ type Mutation {
   dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(id: String!): AiConversationParticipant
+  leaveLibraryParticipant(libraryId: String!, userId: String!): User
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile

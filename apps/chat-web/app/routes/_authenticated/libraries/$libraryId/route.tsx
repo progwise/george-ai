@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
 
-import { DeleteLibraryDialog } from '../../../../components/library/delete-library-dialog'
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries-query-options'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library-query-options'
+import { LibraryDeleteOrLeaveDialogButton } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-or-leave-dialog'
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
@@ -40,7 +40,7 @@ function RouteComponent() {
         </div>
         <div className="flex min-w-0 gap-2">
           <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
-          <DeleteLibraryDialog library={aiLibrary} />
+          <LibraryDeleteOrLeaveDialogButton library={aiLibrary} userId={user.id} />
           <button
             type="button"
             onClick={() => navigate({ to: '..' })}

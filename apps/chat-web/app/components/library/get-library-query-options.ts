@@ -13,7 +13,7 @@ const aiLibraryDetailsQueryDocument = graphql(`
       id
       name
       ...LibraryFormFragment
-      ...DeleteLibraryDialog_Library
+      ...LibraryDeleteOrLeaveDialogButton_Library
       ...LibraryParticipants_Library
     }
   }
