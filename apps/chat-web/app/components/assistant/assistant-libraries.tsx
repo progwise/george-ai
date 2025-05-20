@@ -117,7 +117,7 @@ export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLi
     mutationFn: (data: { assistantId: string; libraryId: string }) => removeLibraryUsage({ data }),
     onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
   })
-  const librariesToAdd = libraries.filter((library) => !usages?.some((usage) => usage.libraryId === library.id))
+  const librariesToAdd = libraries.filter((library) => !usages.some((usage) => usage.libraryId === library.id))
 
   return (
     <div className="flex flex-col gap-2">
