@@ -136,6 +136,15 @@ python3 convert_hf_to_gguf.py \
     --outfile ../george-ai/apps/fine-tuning/gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf
 ```
 
+From inside `george-ai`:
+
+```bash
+pip install transformers torch sentencepiece
+python3 hf-to-gguf/convert_hf_to_gguf.py \
+    ./fused_model/qwen25_coder_05b_instruct_merged \
+    --outfile ./gguf_models/qwen2.5_coder_0.5b_instruct_fp16.gguf
+```
+
 - This will generate a `.gguf` file in FP16 format, ready for use with Ollama.
 
 ---
