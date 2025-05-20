@@ -26,7 +26,7 @@ export const ComplianceArea = ({ area }: ComplianceAreaProps) => {
   return (
     <div className={`rounded-lg border p-3 ${mandatory && 'bg-info/20 border-info'}`}>
       <label className="flex cursor-pointer items-center gap-3">
-        <input disabled={mandatory} type="checkbox" checked={mandatory} className="checkbox checkbox-sm" />
+        <input type="checkbox" checked={mandatory} className="checkbox checkbox-sm" />
         <div>
           <span className="text-sm font-medium">{title[language]}</span>
           <p className="mt-1 text-xs">{description[language]}</p>
