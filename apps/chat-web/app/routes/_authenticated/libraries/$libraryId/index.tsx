@@ -2,7 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { getProfileQueryOptions } from '../../../../auth/get-profile-query'
-import { EmbeddingsTable, aiLibraryFilesQueryOptions } from '../../../../components/library/embeddings-table'
+import { EmbeddingsTable } from '../../../../components/library/embeddings-table'
+import { aiLibraryFilesQueryOptions } from '../../../../server-functions/library'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/')({
   component: RouteComponent,

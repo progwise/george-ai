@@ -6,7 +6,7 @@ import { graphql } from '../../../gql'
 import { RunCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
-import { aiLibraryFilesQueryOptions } from '../embeddings-table'
+import { aiLibraryFilesQueryOptions } from '../../../server-functions/library'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
 graphql(`

@@ -1,12 +1,9 @@
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { createServerFn } from '@tanstack/react-start'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
-import { z } from 'zod'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
-import { graphql } from '../../gql'
 import { UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
@@ -14,7 +11,7 @@ import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
+import { aiLibraryFilesQueryOptions, dropAllFiles, reProcessAllFiles } from '../../server-functions/library'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
@@ -26,102 +23,43 @@ interface EmbeddingsTableProps {
   profile?: UserProfileFragment
 }
 
-interface AiLibraryFile {
-  id: string
-  name: string
-  size?: number | null
-  chunks?: number | null
-  processedAt?: string | null
-  processingErrorMessage?: string | null
-  dropError?: string | null
-}
-
-const dropAllFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const dropFilePromises = ctx.data.map((fileId) =>
-      backendRequest(
-        graphql(`
-          mutation dropFile($id: String!) {
-            dropFile(fileId: $id) {
-              id
-            }
-          }
-        `),
-        { id: fileId },
-      ),
-    )
-    return await Promise.all(dropFilePromises)
-  })
-
-const reProcessAllFiles = createServerFn({ method: 'POST' })
-  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
-  .handler(async (ctx) => {
-    const reProcessFilePromises = ctx.data.map((fileId) =>
-      backendRequest(
-        graphql(`
-          mutation reProcessFile($id: String!) {
-            processFile(fileId: $id) {
-              id
-              chunks
-              size
-              uploadedAt
-              processedAt
-              processingErrorMessage
-            }
-          }
-        `),
-        { id: fileId },
-      ),
-    )
-    return await Promise.all(reProcessFilePromises)
-  })
-
-const getLibraryFiles = createServerFn({ method: 'GET' })
-  .validator(({ libraryId }: { libraryId: string }) => z.string().nonempty().parse(libraryId))
-  .handler(async (ctx) => {
-    return await backendRequest(
-      graphql(`
-        query EmbeddingsTable($libraryId: String!) {
-          aiLibraryFiles(libraryId: $libraryId) {
-            id
-            name
-            originUri
-            mimeType
-            size
-            chunks
-            uploadedAt
-            processedAt
-            processingErrorMessage
-            dropError
-          }
-        }
-      `),
-      { libraryId: ctx.data },
-    )
-  })
-
-export const aiLibraryFilesQueryOptions = (libraryId: string) =>
-  queryOptions({
-    queryKey: [queryKeys.AiLibraryFiles, libraryId],
-    queryFn: async () => {
-      const result = await getLibraryFiles({ data: { libraryId } })
-      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
-    },
-  })
-
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
 export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) => {
-  const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
-  const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
-    aiLibraryFilesQueryOptions(libraryId),
-  )
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
   const dialogRef = useRef<HTMLDialogElement>(null)
+
+  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
+
+  const itemsPerPage = 5
+
+  const totalPages = Math.ceil((data.aiLibraryFiles.length || 0) / itemsPerPage)
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = data.aiLibraryFiles.slice(indexOfFirstItem, indexOfLastItem) || []
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  const goToPage = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+  }
 
   useEffect(() => {
     const googleDriveAccessTokenString = localStorage.getItem('google_drive_access_token')
@@ -133,8 +71,6 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     }
     updateAccessToken()
   }, [])
-
-  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (googleDriveAccessToken) {
@@ -187,10 +123,10 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   }
 
   const handleSelectAll = () => {
-    if (selectedFiles.length === data?.aiLibraryFiles?.length) {
+    if (selectedFiles.length === data.aiLibraryFiles.length) {
       setSelectedFiles([])
     } else {
-      setSelectedFiles(data?.aiLibraryFiles?.map((file) => file.id) || [])
+      setSelectedFiles(data.aiLibraryFiles.map((file) => file.id) || [])
     }
   }
 
@@ -269,7 +205,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
           </form>
         </dialog>
       )}
-      {!data?.aiLibraryFiles?.length ? (
+      {!data.aiLibraryFiles.length ? (
         <div className="mt-6 text-center">{t('texts.noFilesFound')}</div>
       ) : (
         <>
@@ -279,14 +215,14 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
               <input
                 type="checkbox"
                 className="checkbox checkbox-sm"
-                checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+                checked={selectedFiles.length === data.aiLibraryFiles.length && data.aiLibraryFiles.length > 0}
                 onChange={handleSelectAll}
               />
               <span className="text-sm font-medium">{t('actions.selectAll')}</span>
             </label>
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-              {data?.aiLibraryFiles.map((file, index) => (
+              {data.aiLibraryFiles.map((file, index) => (
                 <div key={file.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
                   <div className="flex justify-between">
                     <label className="flex items-center gap-2">
@@ -348,12 +284,13 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                     <input
                       type="checkbox"
                       className="checkbox checkbox-xs"
-                      checked={selectedFiles.length === data?.aiLibraryFiles?.length && data.aiLibraryFiles.length > 0}
+                      checked={selectedFiles.length === data.aiLibraryFiles.length && data.aiLibraryFiles.length > 0}
                       onChange={handleSelectAll}
                     />
                   </th>
                   <th>#</th>
                   <th>{t('labels.name')}</th>
+                  <th>Source</th> {/* localize */}
                   <th>#{t('labels.size')}</th>
                   <th>#{t('labels.chunks')}</th>
                   <th>{t('labels.processed')}</th>
@@ -361,7 +298,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                 </tr>
               </thead>
               <tbody>
-                {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
+                {currentItems.map((file, index) => (
                   <tr key={file.id} className="hover:bg-base-200">
                     <td>
                       <input
@@ -372,7 +309,8 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                       />
                     </td>
                     <td>{index + 1}</td>
-                    <td>{truncateFileName(file.name, 49, 45)}</td>
+                    <td className="max-w-48 truncate">{file.name}</td>
+                    <td className="max-w-24 truncate">{file.originUri}</td>
                     <td>{file.size ?? '-'}</td>
                     <td>{file.chunks ?? '-'}</td>
                     <td>{dateTimeString(file.processedAt, language) || '-'}</td>
@@ -411,6 +349,41 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                 ))}
               </tbody>
             </table>
+
+            {totalPages > 1 && (
+              <div className="mt-4 flex justify-center">
+                <div className="join">
+                  <button
+                    type="button"
+                    className="join-item btn"
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                  >
+                    «
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                    <button
+                      type="button"
+                      key={pageNumber}
+                      className={`join-item btn ${currentPage === pageNumber && 'btn-active'}`}
+                      onClick={() => goToPage(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    className="join-item btn"
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                  >
+                    »
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

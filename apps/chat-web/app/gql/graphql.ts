@@ -1553,53 +1553,6 @@ export type CancelFileUploadMutationVariables = Exact<{
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload?: boolean | null }
 
-export type DropFileMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type DropFileMutation = {
-  __typename?: 'Mutation'
-  dropFile?: { __typename?: 'AiLibraryFile'; id: string } | null
-}
-
-export type ReProcessFileMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type ReProcessFileMutation = {
-  __typename?: 'Mutation'
-  processFile?: {
-    __typename?: 'AiLibraryFile'
-    id: string
-    chunks?: number | null
-    size?: number | null
-    uploadedAt?: string | null
-    processedAt?: string | null
-    processingErrorMessage?: string | null
-  } | null
-}
-
-export type EmbeddingsTableQueryVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type EmbeddingsTableQuery = {
-  __typename?: 'Query'
-  aiLibraryFiles?: Array<{
-    __typename?: 'AiLibraryFile'
-    id: string
-    name: string
-    originUri?: string | null
-    mimeType: string
-    size?: number | null
-    chunks?: number | null
-    uploadedAt?: string | null
-    processedAt?: string | null
-    processingErrorMessage?: string | null
-    dropError?: string | null
-  }> | null
-}
-
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -2737,6 +2690,53 @@ export type RemoveLibraryParticipantMutationVariables = Exact<{
 export type RemoveLibraryParticipantMutation = {
   __typename?: 'Mutation'
   removeLibraryParticipant: { __typename?: 'User'; id: string }
+}
+
+export type DropFileMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DropFileMutation = {
+  __typename?: 'Mutation'
+  dropFile?: { __typename?: 'AiLibraryFile'; id: string } | null
+}
+
+export type ReProcessFileMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type ReProcessFileMutation = {
+  __typename?: 'Mutation'
+  processFile?: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    chunks?: number | null
+    size?: number | null
+    uploadedAt?: string | null
+    processedAt?: string | null
+    processingErrorMessage?: string | null
+  } | null
+}
+
+export type EmbeddingsTableQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type EmbeddingsTableQuery = {
+  __typename?: 'Query'
+  aiLibraryFiles?: Array<{
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    originUri?: string | null
+    mimeType: string
+    size?: number | null
+    chunks?: number | null
+    uploadedAt?: string | null
+    processedAt?: string | null
+    processingErrorMessage?: string | null
+    dropError?: string | null
+  }> | null
 }
 
 export type UserFragment = {
@@ -6295,135 +6295,6 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
-export const DropFileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'dropFile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'dropFile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
-export const ReProcessFileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'reProcessFile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'processFile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ReProcessFileMutation, ReProcessFileMutationVariables>
-export const EmbeddingsTableDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'EmbeddingsTable' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibraryFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -8315,6 +8186,135 @@ export const RemoveLibraryParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveLibraryParticipantMutation, RemoveLibraryParticipantMutationVariables>
+export const DropFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
+export const ReProcessFileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'reProcessFile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ReProcessFileMutation, ReProcessFileMutationVariables>
+export const EmbeddingsTableDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'EmbeddingsTable' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
 export const UsersDocument = {
   kind: 'Document',
   definitions: [

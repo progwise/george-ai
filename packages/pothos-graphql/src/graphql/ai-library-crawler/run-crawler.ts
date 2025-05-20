@@ -53,7 +53,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
     const resultsFromUploadAndProcessing = await Promise.allSettled(
       crawledPages.map(async (page) => {
         const fileUpdateData = {
-          name: `${page.url} - ${page.title}`,
+          name: page.title,
           mimeType: 'text/markdown',
           libraryId: crawler.libraryId,
         }
