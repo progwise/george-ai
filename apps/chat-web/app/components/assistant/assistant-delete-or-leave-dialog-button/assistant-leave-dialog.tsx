@@ -1,11 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 import { FragmentType, graphql, useFragment } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
-import { getAssignableAssistantsQueryOptions } from '../../../server-functions/assistant'
+import { queryKeys } from '../../../query-keys'
 import { leaveAssistantParticipant } from '../../../server-functions/assistant-participations'
 import { DialogForm } from '../../dialog-form'
 
@@ -23,12 +22,11 @@ interface AssistantLeaveDialogProps {
 export const AssistantLeaveDialog = (props: AssistantLeaveDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
 
   const assistant = useFragment(AssistantLeaveDialog_AssistantFragment, props.assistant)
 
-  const { mutate: leaveAssistantMutate, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       return await leaveAssistantParticipant({
         data: {
@@ -37,26 +35,20 @@ export const AssistantLeaveDialog = (props: AssistantLeaveDialogProps) => {
         },
       })
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries(getAssignableAssistantsQueryOptions(props.userId))
-      navigate({ to: '..' })
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants, props.userId] })
+      dialogRef.current?.close()
     },
   })
-
-  const handleSubmit = () => {
-    leaveAssistantMutate()
-  }
-
-  const handleOpen = () => {
-    dialogRef.current?.showModal()
-  }
 
   return (
     <>
       <button
         type="button"
-        className="btn btn-ghost btn-sm tooltip"
-        onClick={handleOpen}
+        className="btn btn-ghost btn-sm tooltip tooltip-right"
+        onClick={() => {
+          dialogRef.current?.showModal()
+        }}
         data-tip={t('assistants.leave')}
       >
         <ExitIcon />
@@ -66,7 +58,9 @@ export const AssistantLeaveDialog = (props: AssistantLeaveDialogProps) => {
         ref={dialogRef}
         title={t('assistants.leave')}
         description={t('assistants.leaveConfirmation')}
-        onSubmit={handleSubmit}
+        onSubmit={() => {
+          mutate()
+        }}
         submitButtonText={t('actions.leave')}
         disabledSubmit={isPending}
       />
