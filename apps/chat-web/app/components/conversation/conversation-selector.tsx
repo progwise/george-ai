@@ -75,7 +75,6 @@ export const ConversationSelector = ({
       <div className="grid grid-cols-[100px_1fr]">
         <div className="flex items-center justify-center">
           <RemoveConversationsDialog
-            conversations={conversations}
             checkedConversationIds={checkedConversationIds}
             userId={userId}
             resetCheckedConversationIds={() => setCheckedConversationIds([])}
