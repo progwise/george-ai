@@ -82,6 +82,16 @@ builder.mutationField('login', (t) =>
           given_name,
           family_name,
           username: preferred_username,
+          profile: {
+            create: {
+              email,
+              firstName: given_name,
+              lastName: family_name,
+              business: name,
+              freeMessages: 20,
+              freeStorage: 100000,
+            },
+          },
         },
         select: {
           id: true,
@@ -97,25 +107,7 @@ builder.mutationField('login', (t) =>
           isAdmin: true,
         },
       })
-      return user
-    },
-  }),
-)
 
-builder.mutationField('createUser', (t) =>
-  t.prismaField({
-    type: 'User',
-    args: {
-      username: t.arg.string({ required: true }),
-      data: t.arg({ type: UserInput, required: true }),
-    },
-    resolve: async (_query, _source, { username, data }) => {
-      const user = prisma.user.create({
-        data: {
-          ...data,
-          username,
-        },
-      })
       return user
     },
   }),

@@ -17,7 +17,7 @@ export const getKeycloakConfig = createServerFn({ method: 'GET' }).handler(() =>
   return keycloakConfig
 })
 
-const loginDocument = graphql(/* GraphQL */ `
+const loginDocument = graphql(`
   mutation login($jwtToken: String!) {
     login(jwtToken: $jwtToken) {
       id

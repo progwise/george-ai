@@ -8,7 +8,6 @@ export default {
     close: 'Close',
     confirm: 'Confirm',
     create: 'Create',
-    createProfile: 'Create user profile',
     delete: 'Delete',
     details: 'Details',
     drop: 'Drop',
@@ -291,6 +290,10 @@ export default {
     searchUsers: 'Search users...',
   },
   resetConversation: 'Reset conversation',
+  settings: {
+    darkMode: 'Theme: Dark',
+    lightMode: 'Theme: Light',
+  },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
     addParticipants: 'Add participants',

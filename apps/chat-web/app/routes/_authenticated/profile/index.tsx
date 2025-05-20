@@ -30,18 +30,6 @@ export const getUserProfile = createServerFn({ method: 'GET' }).handler(async ()
   return await backendRequest(userProfileQueryDocument)
 })
 
-const createUserProfileMutationDocument = graphql(`
-  mutation createUserProfile {
-    createUserProfile {
-      id
-    }
-  }
-`)
-
-export const createUserProfile = createServerFn({ method: 'POST' }).handler(async () => {
-  return await backendRequest(createUserProfileMutationDocument)
-})
-
 const removeUserProfileDocument = graphql(`
   mutation removeUserProfile($profileId: String!) {
     removeUserProfile(profileId: $profileId) {
@@ -87,14 +75,6 @@ function RouteComponent() {
   const confirmationLink = useLinkProps({
     to: '/profile/$profileId/confirm',
     params: { profileId: userProfile.userProfile?.id || 'no_profile_id' },
-  })
-
-  const { mutate: createProfileMutation, isPending: createProfileIsPending } = useMutation({
-    mutationFn: async () => createUserProfile(),
-    onSettled: () => {
-      refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions())
-    },
   })
 
   const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
@@ -178,24 +158,10 @@ function RouteComponent() {
     handleFormSubmission(formData)
   }
 
-  const isLoading =
-    userProfileIsLoading || createProfileIsPending || sendConfirmationMailIsPending || removeProfileIsPending
+  const isLoading = userProfileIsLoading || sendConfirmationMailIsPending || removeProfileIsPending
 
   if (isLoading) {
     return <LoadingSpinner isLoading={true} />
-  }
-
-  if (!userProfile?.userProfile) {
-    return (
-      <article className="flex w-full flex-col items-center gap-4">
-        <p>
-          {t('texts.profileNotFoundFor')} {user?.name}
-        </p>
-        <button type="button" className="btn btn-primary btn-sm w-48" onClick={() => createProfileMutation()}>
-          {t('actions.createProfile')}
-        </button>
-      </article>
-    )
   }
 
   return (
