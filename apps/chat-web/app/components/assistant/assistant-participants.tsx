@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { AssistantParticipants_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
-import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
 
-const AssistantParticipants_AssistantFragment = graphql(`
+graphql(`
   fragment AssistantParticipants_Assistant on AiAssistant {
     id
     ownerId
@@ -24,19 +24,16 @@ const AssistantParticipants_AssistantFragment = graphql(`
 `)
 
 interface AssistantParticipantsProps {
-  assistant: FragmentType<typeof AssistantParticipants_AssistantFragment>
-  users: User[]
+  assistant: AssistantParticipants_AssistantFragment
+  users: UserFragment[]
   userId: string
 }
 
-export const AssistantParticipants = (props: AssistantParticipantsProps) => {
+export const AssistantParticipants = ({ assistant, users, userId }: AssistantParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  const assistant = useFragment(AssistantParticipants_AssistantFragment, props.assistant)
-  const { users } = props
-
-  const isOwner = assistant.ownerId === props.userId
+  const isOwner = assistant.ownerId === userId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
@@ -44,12 +41,12 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
         data: {
           userId,
           assistantId,
-          currentUserId: props.userId,
+          currentUserId: userId,
         },
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
     },
   })
 
@@ -72,7 +69,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
                 isParticipantOwner ? 'badge-accent' : 'badge-primary',
               )}
             >
-              {participant.id !== props.userId && isOwner && (
+              {participant.id !== userId && isOwner && (
                 <button
                   type="button"
                   className="btn btn-circle btn-ghost btn-xs"
@@ -87,7 +84,7 @@ export const AssistantParticipants = (props: AssistantParticipantsProps) => {
           )
         })}
       </div>
-      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} userId={props.userId} />}
+      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} userId={userId} />}
     </div>
   )
 }

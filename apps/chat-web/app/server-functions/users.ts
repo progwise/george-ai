@@ -3,29 +3,32 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../gql'
-import { UsersQuery } from '../gql/graphql'
 import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
-const UsersDocument = graphql(`
-  query users($userId: String!) {
-    users(userId: $userId) {
-      id
-      username
-      name
-      createdAt
-      email
-      profile {
-        firstName
-        lastName
-        business
-        position
-      }
+graphql(`
+  fragment User on User {
+    id
+    username
+    name
+    createdAt
+    email
+    profile {
+      firstName
+      lastName
+      business
+      position
     }
   }
 `)
 
-export type User = UsersQuery['users'][0]
+const UsersDocument = graphql(`
+  query users($userId: String!) {
+    users(userId: $userId) {
+      ...User
+    }
+  }
+`)
 
 export const getUsers = createServerFn({ method: 'GET' })
   .validator((userId: string) => z.string().nonempty().parse(userId))
@@ -86,7 +89,26 @@ export const confirmUserProfile = createServerFn({ method: 'POST' })
       },
     ),
   )
-
+graphql(`
+  fragment UserProfile on UserProfile {
+    id
+    userId
+    email
+    firstName
+    lastName
+    business
+    position
+    freeMessages
+    usedMessages
+    freeStorage
+    usedStorage
+    createdAt
+    updatedAt
+    confirmationDate
+    activationDate
+    expiresAt
+  }
+`)
 export const getUserProfile = createServerFn({ method: 'GET' })
   .validator((data: { userId: string }) => z.string().nonempty().parse(data.userId))
   .handler((ctx) =>
@@ -94,22 +116,7 @@ export const getUserProfile = createServerFn({ method: 'GET' })
       graphql(`
         query getUserProfile($userId: String!) {
           userProfile(userId: $userId) {
-            id
-            userId
-            email
-            firstName
-            lastName
-            business
-            position
-            freeMessages
-            usedMessages
-            freeStorage
-            usedStorage
-            createdAt
-            updatedAt
-            confirmationDate
-            activationDate
-            expiresAt
+            ...UserProfile
           }
         }
       `),
