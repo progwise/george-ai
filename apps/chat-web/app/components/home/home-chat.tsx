@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { validateForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
-import { User } from '../../gql/graphql'
+import { UserFragment } from '../../gql/graphql'
 import { getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
@@ -41,7 +41,7 @@ const sendContactRequest = createServerFn({
   )
 
 interface HomeChatProps {
-  user: Pick<User, 'email' | 'id' | 'name'> | null
+  user?: UserFragment
 }
 export const HomeChat = ({ user }: HomeChatProps) => {
   const { t, language } = useTranslation()

@@ -4,10 +4,10 @@ import { useRef } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
-import { AssistantDeleteDialog_AssistantFragment } from '../../../gql/graphql'
+import { AssistantBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
-import { queryKeys } from '../../../query-keys'
+import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
 
@@ -39,15 +39,8 @@ const deleteAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-graphql(`
-  fragment AssistantDeleteDialog_Assistant on AiAssistant {
-    id
-    name
-  }
-`)
-
 export interface AssistantDeleteDialogProps {
-  assistant: AssistantDeleteDialog_AssistantFragment
+  assistant: AssistantBaseFragment
   userId: string
 }
 
@@ -63,7 +56,7 @@ export const AssistantDeleteDialog = ({ assistant, userId }: AssistantDeleteDial
       if (!deletedId) {
         throw new Error('Failed to delete assistant')
       }
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants, userId] })
+      queryClient.invalidateQueries(getAiAssistantsQueryOptions(userId))
       dialogRef.current?.close()
     },
   })

@@ -3,7 +3,12 @@ import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import {
+  AiLibraryBaseFragment,
+  AssistantLibraries_AssistantFragment,
+  AssistantLibraries_LibraryUsageFragment,
+} from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { BookIcon } from '../../icons/book-icon'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -13,19 +18,14 @@ import { Dropdown } from '../dropdown'
 import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
-const AssistantLibraries_AssistantFragment = graphql(`
+graphql(`
   fragment AssistantLibraries_Assistant on AiAssistant {
     id
     ownerId
   }
 `)
-const AssistantLibraries_LibraryFragment = graphql(`
-  fragment AssistantLibraries_Library on AiLibrary {
-    id
-    name
-  }
-`)
-const AssistantLibraries_LibraryUsageFragment = graphql(`
+
+graphql(`
   fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {
     id
     assistantId
@@ -45,7 +45,7 @@ const addLibraryUsage = createServerFn({ method: 'POST' })
   }))
   .handler(async ({ data }) => {
     return await backendRequest(
-      graphql(/* GraphQL */ `
+      graphql(`
         mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {
           addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {
             id
@@ -63,7 +63,7 @@ const removeLibraryUsage = createServerFn({ method: 'POST' })
   }))
   .handler(async ({ data }) => {
     return await backendRequest(
-      graphql(/* GraphQL */ `
+      graphql(`
         mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {
           removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {
             id
@@ -82,7 +82,7 @@ const updateLibraryUsage = createServerFn({ method: 'POST' })
   .handler(
     async ({ data }) =>
       await backendRequest(
-        graphql(/* GraphQL */ `
+        graphql(`
           mutation updateLibraryUsage($id: String!, $usedFor: String!) {
             updateLibraryUsage(id: $id, usedFor: $usedFor) {
               id
@@ -94,33 +94,30 @@ const updateLibraryUsage = createServerFn({ method: 'POST' })
   )
 
 export interface AssistantLibrariesProps {
-  assistant: FragmentType<typeof AssistantLibraries_AssistantFragment>
-  libraries: FragmentType<typeof AssistantLibraries_LibraryFragment>[] | undefined
-  usages: FragmentType<typeof AssistantLibraries_LibraryUsageFragment>[] | undefined
+  assistant: AssistantLibraries_AssistantFragment
+  libraries: AiLibraryBaseFragment[]
+  usages: AssistantLibraries_LibraryUsageFragment[]
 }
 
-export const AssistantLibraries = (props: AssistantLibrariesProps) => {
+export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLibrariesProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantLibraries_AssistantFragment, props.assistant)
-  const libraries = useFragment(AssistantLibraries_LibraryFragment, props.libraries)
-  const usages = useFragment(AssistantLibraries_LibraryUsageFragment, props.usages)
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: (data: { id: string; usedFor: string }) => updateLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: addUsage, isPending: addUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => addLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: removeUsage, isPending: removeUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => removeLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
-  const librariesToAdd = libraries?.filter((library) => !usages?.some((usage) => usage.libraryId === library.id)) || []
+  const librariesToAdd = libraries.filter((library) => !usages.some((usage) => usage.libraryId === library.id))
 
   return (
     <div className="flex flex-col gap-2">

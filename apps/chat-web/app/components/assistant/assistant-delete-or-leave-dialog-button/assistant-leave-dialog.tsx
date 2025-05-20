@@ -1,22 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 
-import { graphql } from '../../../gql'
-import { AssistantLeaveDialog_AssistantFragment } from '../../../gql/graphql'
+import { AssistantBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
-import { queryKeys } from '../../../query-keys'
+import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { leaveAssistantParticipant } from '../../../server-functions/assistant-participations'
 import { DialogForm } from '../../dialog-form'
 
-graphql(`
-  fragment AssistantLeaveDialog_Assistant on AiAssistant {
-    id
-  }
-`)
-
 interface AssistantLeaveDialogProps {
-  assistant: AssistantLeaveDialog_AssistantFragment
+  assistant: AssistantBaseFragment
   userId: string
 }
 
@@ -35,7 +28,7 @@ export const AssistantLeaveDialog = ({ assistant, userId }: AssistantLeaveDialog
       })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants, userId] })
+      queryClient.invalidateQueries(getAiAssistantsQueryOptions(userId))
       dialogRef.current?.close()
     },
   })
