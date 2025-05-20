@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { ConversationHistory_ConversationFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { getBackendPublicUrl } from '../../server-functions/backend'
 import { ConversationMessage } from './conversation-message'
 import { convertMdToHtml } from './markdown-converter'
 
-const ConversationHistory_ConversationFragment = graphql(`
+graphql(`
   fragment ConversationHistory_Conversation on AiConversation {
-    id
-    ownerId
+    ...ConversationBase
     messages {
       id
       sequenceNumber
@@ -30,7 +30,7 @@ const ConversationHistory_ConversationFragment = graphql(`
 `)
 
 interface ConversationHistoryProps {
-  conversation: FragmentType<typeof ConversationHistory_ConversationFragment>
+  conversation: ConversationHistory_ConversationFragment
   userId: string
 }
 
@@ -49,9 +49,7 @@ interface IncomingMessage {
   }
 }
 
-export const ConversationHistory = (props: ConversationHistoryProps) => {
-  const { conversation: conversationFragment, userId } = props
-  const conversation = useFragment(ConversationHistory_ConversationFragment, conversationFragment)
+export const ConversationHistory = ({ conversation, userId }: ConversationHistoryProps) => {
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
     queryFn: async () => {

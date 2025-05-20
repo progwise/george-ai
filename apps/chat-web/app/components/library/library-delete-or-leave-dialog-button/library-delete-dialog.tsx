@@ -4,12 +4,13 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { AiLibraryDetailFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
-import { getLibrariesQueryOptions } from '../get-libraries-query-options'
+import { getLibrariesQueryOptions } from './../get-libraries-query-options'
 
 const deleteFilesDocument = graphql(`
   mutation dropFiles($libraryId: String!) {
@@ -28,18 +29,6 @@ const deleteLibraryDocument = graphql(`
   }
 `)
 
-const LibraryDeleteDialog_LibraryFragment = graphql(`
-  fragment LibraryDeleteDialog_Library on AiLibrary {
-    id
-    name
-    ownerId
-    filesCount
-    createdAt
-    description
-    url
-  }
-`)
-
 const deleteFiles = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
@@ -53,15 +42,14 @@ const deleteLibrary = createServerFn({ method: 'GET' })
   })
 
 interface LibraryDeleteDialogProps {
-  library: FragmentType<typeof LibraryDeleteDialog_LibraryFragment>
+  library: AiLibraryDetailFragment
 }
 
-export const LibraryDeleteDialog = (props: LibraryDeleteDialogProps) => {
+export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
   const dialogReference = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const library = useFragment(LibraryDeleteDialog_LibraryFragment, props.library)
 
   const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
     mutationFn: async () => {

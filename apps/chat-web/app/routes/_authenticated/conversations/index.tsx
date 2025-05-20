@@ -2,7 +2,7 @@ import { useSuspenseQueries } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
-import { getAssignableAssistantsQueryOptions } from '../../../server-functions/assistant'
+import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { getConversationsQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authenticated/conversations/')({
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(getConversationsQueryOptions(context.user.id)),
-      context.queryClient.ensureQueryData(getAssignableAssistantsQueryOptions(context.user.id)),
+      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions(context.user.id)),
       context.queryClient.ensureQueryData(getUsersQueryOptions(context.user.id)),
     ])
   },
@@ -24,7 +24,7 @@ function RouteComponent() {
   const [conversationsQuery, assistantsQuery, usersQuery] = useSuspenseQueries({
     queries: [
       getConversationsQueryOptions(user.id),
-      getAssignableAssistantsQueryOptions(user.id),
+      getAiAssistantsQueryOptions(user.id),
       getUsersQueryOptions(user.id),
     ],
   })

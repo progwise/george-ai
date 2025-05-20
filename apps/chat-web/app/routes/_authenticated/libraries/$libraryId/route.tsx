@@ -3,7 +3,7 @@ import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-rout
 
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries-query-options'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library-query-options'
-import { LibraryDeleteOrLeaveDialogButton } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-or-leave-dialog'
+import { LibraryDeleteOrLeaveDialogButton } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-or-leave-dialog-button'
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'

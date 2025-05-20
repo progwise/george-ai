@@ -7,6 +7,15 @@ import { graphql } from '../gql'
 import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
+graphql(`
+  fragment ConversationBase on AiConversation {
+    id
+    ownerId
+    createdAt
+    updatedAt
+  }
+`)
+
 const ConversationsQueryDocument = graphql(`
   query getUserConversations($userId: String!) {
     aiConversations(userId: $userId) {

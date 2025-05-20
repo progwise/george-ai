@@ -194,14 +194,14 @@ type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
-  files: [AiLibraryFile!]
-  filesCount: Int
+  files: [AiLibraryFile!]!
+  filesCount: Int!
   id: ID!
   name: String!
-  owner: User
+  owner: User!
   ownerId: String!
   participants: [User!]!
-  updatedAt: DateTime
+  updatedAt: DateTime!
   url: String
 }
 
@@ -430,7 +430,7 @@ type Query {
   aiLibraries(userId: String!): [AiLibrary!]!
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
-  aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
+  aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   user(email: String!): User
   userProfile(userId: String!): UserProfile
   users(userId: String!): [User!]!
