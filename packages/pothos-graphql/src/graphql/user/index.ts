@@ -69,35 +69,34 @@ builder.mutationField('login', (t) =>
     },
     resolve: async (query, _source, { jwtToken }) => {
       const parsedToken = JSON.parse(Buffer.from(jwtToken.split('.')[1], 'base64').toString())
-      const { sub, preferred_username, name, given_name, family_name, email } = parsedToken
-
-      // Try to find user by id, email, or username
-      let user = await prisma.user.findFirst({
-        where: {
-          OR: [{ id: sub }, { email }, { username: preferred_username }],
+      const { preferred_username, name, given_name, family_name, email } = parsedToken
+      const user = await prisma.user.upsert({
+        ...query,
+        where: { username: preferred_username },
+        update: {
+          lastLogin: new Date(),
+        },
+        create: {
+          email,
+          name,
+          given_name,
+          family_name,
+          username: preferred_username,
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          name: true,
+          given_name: true,
+          family_name: true,
+          lastLogin: true,
+          createdAt: true,
+          updatedAt: true,
+          profile: true,
+          isAdmin: true,
         },
       })
-
-      // Pick a unique field for upsert - id and fallback to username
-      const upsertWhere = user && user.id ? { id: user.id } : sub ? { id: sub } : { username: preferred_username }
-
-      const userData = {
-        id: sub,
-        username: preferred_username,
-        email,
-        name,
-        given_name,
-        family_name,
-        lastLogin: new Date(),
-      }
-
-      user = await prisma.user.upsert({
-        ...query,
-        where: upsertWhere,
-        update: userData,
-        create: userData,
-      })
-
       return user
     },
   }),
