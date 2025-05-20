@@ -1,42 +1,41 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { AssistantLeaveDialog_AssistantFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
 import { queryKeys } from '../../../query-keys'
 import { leaveAssistantParticipant } from '../../../server-functions/assistant-participations'
 import { DialogForm } from '../../dialog-form'
 
-const AssistantLeaveDialog_AssistantFragment = graphql(`
+graphql(`
   fragment AssistantLeaveDialog_Assistant on AiAssistant {
     id
   }
 `)
 
 interface AssistantLeaveDialogProps {
-  assistant: FragmentType<typeof AssistantLeaveDialog_AssistantFragment>
+  assistant: AssistantLeaveDialog_AssistantFragment
   userId: string
 }
 
-export const AssistantLeaveDialog = (props: AssistantLeaveDialogProps) => {
+export const AssistantLeaveDialog = ({ assistant, userId }: AssistantLeaveDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const dialogRef = useRef<HTMLDialogElement>(null)
-
-  const assistant = useFragment(AssistantLeaveDialog_AssistantFragment, props.assistant)
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
       return await leaveAssistantParticipant({
         data: {
-          userId: props.userId,
+          userId,
           assistantId: assistant.id,
         },
       })
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants, props.userId] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants, userId] })
       dialogRef.current?.close()
     },
   })
