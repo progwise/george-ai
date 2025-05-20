@@ -31,6 +31,7 @@ const googleDriveResponseSchema = z.object({
       name: z.string(),
       size: z.string().optional(),
       iconLink: z.string().optional(),
+      mimeType: z.string(),
     }),
   ),
 })
@@ -161,16 +162,17 @@ export const GoogleDriveFiles = ({
     enabled: !!googleDriveAccessToken?.access_token,
     queryFn: async () => {
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink)`,
+        `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink,mimeType)`,
         {
           headers: { Authorization: `Bearer ${googleDriveAccessToken.access_token}` },
         },
       )
       const responseJson = googleDriveResponseSchema.parse(await response.json())
-      return responseJson.files.map((file) => ({
+      return responseJson.files.map(({ mimeType, ...file }) => ({
         ...file,
         size: file.size ? parseInt(file.size) : 0,
         iconLink: getHighResIconUrl(file.iconLink ?? ''),
+        kind: mimeType,
       }))
     },
   })

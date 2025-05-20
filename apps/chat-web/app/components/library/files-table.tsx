@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'
 import { CrossIcon } from '../../icons/cross-icon'
+import { FolderIcon } from '../../icons/folder-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
 
@@ -92,7 +93,8 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
               {files.map((file) => {
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
-                const isFolder = file.kind === 'drive#folder'
+                const isFolder = file.kind === 'application/vnd.google-apps.folder'
+                const iconDesign = isFolder ? 'mb-3 me-3 ms-3 flex-none' : 'invisible mb-4 me-3 ms-3 flex-none'
 
                 return (
                   <div
@@ -109,6 +111,7 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
                     title={`${file.name} (${formatBytes(sizeValue)})`}
                   >
                     <input type="checkbox" className="checkbox checkbox-xs" checked={isSelected} readOnly />
+                    <FolderIcon className={iconDesign} />
                     <div className="flex flex-1 flex-col text-sm">
                       <div
                         className="break-words font-medium"
@@ -132,7 +135,7 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
               {files.map((file) => {
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
-                const isFolder = file.kind === 'drive#folder'
+                const isFolder = file.kind === 'application/vnd.google-apps.folder'
                 return (
                   <div
                     key={file.id}
