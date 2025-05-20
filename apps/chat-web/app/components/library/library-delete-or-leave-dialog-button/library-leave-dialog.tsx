@@ -43,20 +43,14 @@ export const LibraryLeaveDialog = (props: LibraryLeaveDialogProps) => {
     },
   })
 
-  const handleSubmit = () => {
-    leaveLibraryMutate()
-  }
-
-  const handleOpen = () => {
-    dialogRef.current?.showModal()
-  }
-
   return (
     <>
       <button
         type="button"
         className="btn btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
-        onClick={handleOpen}
+        onClick={() => {
+          dialogRef.current?.showModal()
+        }}
         data-tip={t('libraries.leave')}
       >
         <ExitIcon className="size-6" />
@@ -66,7 +60,9 @@ export const LibraryLeaveDialog = (props: LibraryLeaveDialogProps) => {
         ref={dialogRef}
         title={t('libraries.leave')}
         description={t('libraries.leaveConfirmation')}
-        onSubmit={handleSubmit}
+        onSubmit={() => {
+          leaveLibraryMutate()
+        }}
         submitButtonText={t('actions.leave')}
         disabledSubmit={isPending}
       />

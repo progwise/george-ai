@@ -76,10 +76,6 @@ export const LibraryDeleteDialog = (props: LibraryDeleteDialogProps) => {
     },
   })
 
-  const handleSubmit = () => {
-    deleteLibraryWithFiles()
-  }
-
   const fileCount = library.filesCount ?? 0
 
   return (
@@ -97,7 +93,9 @@ export const LibraryDeleteDialog = (props: LibraryDeleteDialogProps) => {
         ref={dialogReference}
         title={t('libraries.deleteLibrary', { libraryName: library.name })}
         description={t('libraries.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}
-        onSubmit={handleSubmit}
+        onSubmit={() => {
+          deleteLibraryWithFiles()
+        }}
         submitButtonText={t('actions.delete')}
         disabledSubmit={isPending}
       />
