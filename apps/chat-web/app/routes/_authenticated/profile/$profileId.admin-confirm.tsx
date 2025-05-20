@@ -1,11 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
-import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
+import { Navigate, createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { UserProfileForm, updateProfile } from '../../../components/user/user-profile-form'
-import { UserProfileForm_UserProfileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SaveIcon } from '../../../icons/save-icon'
 import { activateUserProfile, getUserProfile } from '../../../server-functions/users'
@@ -72,14 +71,14 @@ function RouteComponent() {
 
   if (!userProfile?.userProfile) {
     toastError(t('errors.profileNotFound'))
-    navigate({ to: '/' })
+    return <Navigate to="/" />
   }
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <h1>{t('labels.adminProfileActivation')}</h1>
       <UserProfileForm
-        userProfile={userProfile?.userProfile as UserProfileForm_UserProfileFragment}
+        userProfile={userProfile.userProfile}
         onSubmit={(data) => {
           updateProfileMutation.mutate(data)
         }}
