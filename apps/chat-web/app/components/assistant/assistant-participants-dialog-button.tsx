@@ -50,7 +50,7 @@ export const AssistantParticipantsDialogButton = ({
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
 
       dialogRef.current?.close()
     },

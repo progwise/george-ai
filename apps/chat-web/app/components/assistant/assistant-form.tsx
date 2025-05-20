@@ -77,7 +77,7 @@ export const AssistantForm = ({ assistant, disabled, userId }: AssistantEditForm
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, userId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
@@ -93,7 +93,7 @@ export const AssistantForm = ({ assistant, disabled, userId }: AssistantEditForm
         body: file,
       })
     },
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, userId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const handleUploadIcon = React.useCallback(

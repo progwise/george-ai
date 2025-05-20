@@ -1,7 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 
 import { graphql } from '../../gql'
-import { AssistantSelector_AssistantFragment } from '../../gql/graphql'
+import { AssistantBaseFragment, AssistantSelector_AssistantFragment } from '../../gql/graphql'
 import { Listbox } from '../listbox'
 
 graphql(`
@@ -12,7 +12,7 @@ graphql(`
 `)
 
 interface AssistantSelectorProps {
-  assistants: AssistantSelector_AssistantFragment[]
+  assistants: AssistantBaseFragment[]
   selectedAssistant: AssistantSelector_AssistantFragment
 }
 

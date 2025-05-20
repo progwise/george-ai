@@ -42,24 +42,20 @@ export const getAiAssistantsQueryOptions = (userId: string) =>
   })
 
 export const getAssistant = createServerFn({ method: 'GET' })
-  .validator(({ assistantId, userId }: { assistantId: string; userId: string }) => ({
+  .validator(({ assistantId }: { assistantId: string }) => ({
     assistantId: z.string().nonempty().parse(assistantId),
-    userId: z.string().nonempty().parse(userId),
   }))
   .handler(
     async (ctx) =>
       await backendRequest(
         graphql(`
-          query aiAssistantDetails($id: String!, $userId: String!) {
+          query aiAssistantDetails($id: String!) {
             aiAssistant(id: $id) {
               ...AssistantForm_Assistant
               ...AssistantSelector_Assistant
               ...AssistantLibraries_Assistant
               ...AssistantBasecaseForm_Assistant
               ...AssistantParticipants_Assistant
-            }
-            aiAssistants(userId: $userId) {
-              ...AssistantSelector_Assistant
             }
             aiLibraryUsage(assistantId: $id) {
               ...AssistantLibraries_LibraryUsage
@@ -68,13 +64,12 @@ export const getAssistant = createServerFn({ method: 'GET' })
         `),
         {
           id: ctx.data.assistantId,
-          userId: ctx.data.userId,
         },
       ),
   )
 
-export const getAssistantQueryOptions = (assistantId: string, userId: string) =>
+export const getAssistantQueryOptions = (assistantId: string) =>
   queryOptions({
-    queryKey: [queryKeys.AiAssistant, assistantId, userId],
-    queryFn: () => getAssistant({ data: { assistantId, userId } }),
+    queryKey: [queryKeys.AiAssistant, assistantId],
+    queryFn: () => getAssistant({ data: { assistantId } }),
   })

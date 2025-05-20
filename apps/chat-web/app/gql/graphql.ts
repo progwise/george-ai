@@ -1889,7 +1889,6 @@ export type AiAssistantCardsQuery = {
 
 export type AiAssistantDetailsQueryVariables = Exact<{
   id: Scalars['String']['input']
-  userId: Scalars['String']['input']
 }>
 
 export type AiAssistantDetailsQuery = {
@@ -1912,7 +1911,6 @@ export type AiAssistantDetailsQuery = {
     }>
     participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
   } | null
-  aiAssistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
   aiLibraryUsage: Array<{
     __typename?: 'AiLibraryUsage'
     id: string
@@ -7273,11 +7271,6 @@ export const AiAssistantDetailsDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -7301,21 +7294,6 @@ export const AiAssistantDetailsDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantBasecaseForm_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipants_Assistant' } },
               ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiAssistants' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantSelector_Assistant' } }],
             },
           },
           {

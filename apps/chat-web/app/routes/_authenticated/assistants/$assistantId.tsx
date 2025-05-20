@@ -11,7 +11,7 @@ import { getLibrariesQueryOptions } from '../../../components/library/get-librar
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../icons/back-icon'
-import { getAssistantQueryOptions } from '../../../server-functions/assistant'
+import { getAiAssistantsQueryOptions, getAssistantQueryOptions } from '../../../server-functions/assistant'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
@@ -24,14 +24,17 @@ function RouteComponent() {
   const navigate = useNavigate()
   const ownerId = Route.useRouteContext().user.id
   const { assistantId } = Route.useParams()
-  const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId, ownerId))
+  const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
 
   const { data: usersData } = useSuspenseQuery(getUsersQueryOptions(ownerId))
   const {
     data: { aiLibraries },
   } = useSuspenseQuery(getLibrariesQueryOptions(ownerId))
+  const {
+    data: { aiAssistants },
+  } = useSuspenseQuery(getAiAssistantsQueryOptions(ownerId))
 
-  const { aiAssistant, aiAssistants, aiLibraryUsage } = data
+  const { aiAssistant, aiLibraryUsage } = data
 
   if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
     return <LoadingSpinner />
@@ -41,7 +44,7 @@ function RouteComponent() {
     <article className="container flex w-full flex-col gap-4">
       <div className="flex gap-2">
         <div className="w-64">
-          <AssistantSelector assistants={aiAssistants!} selectedAssistant={aiAssistant!} />
+          <AssistantSelector assistants={aiAssistants} selectedAssistant={aiAssistant!} />
         </div>
         <div className="flex w-5/6 gap-2">
           <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
@@ -62,7 +65,7 @@ function RouteComponent() {
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>
         <div className="card rounded-box bg-base-200 grid grow px-3 py-3 sm:w-1/2">
-          <AssistantBasecaseForm assistant={aiAssistant} userId={ownerId} />
+          <AssistantBasecaseForm assistant={aiAssistant} />
         </div>
       </div>
       {assistantId && <AiActGuide assistantId={assistantId} />}

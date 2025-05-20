@@ -105,17 +105,17 @@ export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLi
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: (data: { id: string; usedFor: string }) => updateLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: addUsage, isPending: addUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => addLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: removeUsage, isPending: removeUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => removeLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId)),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
   const librariesToAdd = libraries.filter((library) => !usages.some((usage) => usage.libraryId === library.id))
 

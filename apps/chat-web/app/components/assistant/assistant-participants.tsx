@@ -46,7 +46,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id, assistant.ownerId))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
     },
   })
 
