@@ -66,19 +66,16 @@ builder.queryField('aiAssistant', (t) =>
 )
 
 builder.queryField('aiAssistants', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiAssistant'],
-    args: {
-      userId: t.arg.string(),
-    },
     nullable: {
       list: false,
       items: false,
     },
-    resolve: (query, _source, { userId }) => {
+    resolve: (query, _source, _args, context) => {
       return prisma.aiAssistant.findMany({
         ...query,
-        where: { participants: { some: { userId } } },
+        where: { participants: { some: { userId: context.session.user.id } } },
       })
     },
   }),
@@ -100,7 +97,7 @@ builder.mutationField('deleteAiAssistant', (t) =>
 )
 
 builder.mutationField('updateAiAssistant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAssistant',
     args: {
       id: t.arg.string({ required: true }),
@@ -118,26 +115,20 @@ builder.mutationField('updateAiAssistant', (t) =>
 )
 
 builder.mutationField('createAiAssistant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAssistant',
     args: {
-      ownerId: t.arg.string({ required: true }),
       name: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { ownerId, name }) => {
-      const owner = await prisma.user.findFirst({
-        where: { id: ownerId },
-      })
-      if (!owner) {
-        throw new Error(`User with id ${ownerId} not found`)
-      }
-
+    resolve: async (query, _source, { name }, context) => {
+      const userId = context.session.user.id
       return prisma.aiAssistant.create({
+        ...query,
         data: {
           name,
-          ownerId,
+          ownerId: userId,
           participants: {
-            create: [{ userId: ownerId }],
+            create: [{ userId }],
           },
         },
       })

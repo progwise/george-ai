@@ -3,7 +3,7 @@ import cronstrue from 'cronstrue'
 
 import { dateTimeStringShort } from '@george-ai/web-utils'
 
-import { graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { AddCrawlerButton } from './add-crawler-button'
 import { DeleteCrawlerButton } from './delete-crawler-button'
@@ -16,30 +16,29 @@ import 'cronstrue/locales/de'
 
 interface CrawlerTableProps {
   libraryId: string
-  userId: string
 }
 
-const CrawlerTable_LibraryFragment = graphql(`
-  fragment CrawlerTable_Library on AiLibrary {
-    crawlers {
-      id
-      url
-      maxDepth
-      maxPages
-      lastRun
-      cronJob {
-        cronExpression
-      }
-      filesCount
-      ...RunCrawlerButton_Crawler
-      ...UpdateCrawlerButton_Crawler
+graphql(`
+  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {
+    id
+    url
+    maxDepth
+    maxPages
+    lastRun
+    cronJob {
+      cronExpression
     }
+    filesCount
+    ...RunCrawlerButton_Crawler
+    ...UpdateCrawlerButton_Crawler
   }
 `)
 
-export const CrawlerTable = ({ libraryId, userId }: CrawlerTableProps) => {
-  const { data } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
-  const aiLibrary = useFragment(CrawlerTable_LibraryFragment, data.aiLibrary)
+export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
+  const {
+    data: { aiLibrary },
+  } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
+
   const { t, language } = useTranslation()
 
   return (
@@ -69,7 +68,7 @@ export const CrawlerTable = ({ libraryId, userId }: CrawlerTableProps) => {
               </td>
               <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
               <td className="flex gap-2">
-                <RunCrawlerButton libraryId={libraryId} crawler={crawler} userId={userId} />
+                <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
                 <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
                 <DeleteCrawlerButton
                   crawlerId={crawler.id}

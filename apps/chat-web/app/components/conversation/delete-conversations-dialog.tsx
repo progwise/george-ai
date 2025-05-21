@@ -2,22 +2,18 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
-import { getConversationsQueryOptions, removeConversations } from '../../server-functions/conversations'
+import { deleteConversations, getConversationsQueryOptions } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
-import { ConversationSelector_ConversationFragment } from './conversation-selector'
 
-interface RemoveConversationsDialogProps {
-  conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
+interface DeleteConversationsDialogProps {
   selectedConversationIds: string[]
-  userId: string
   resetSelectedConversationIds: () => void
 }
 
-export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps) => {
+export const DeleteConversationsDialog = (props: DeleteConversationsDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -26,13 +22,13 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
 
   const displayedConversationIsSelected = !!conversationId && props.selectedConversationIds.includes(conversationId)
 
-  const { mutate: removeConversationsMutate, isPending: isRemovePending } = useMutation({
+  const { mutate: deleteConversationsMutate, isPending: isDeletePending } = useMutation({
     mutationFn: () =>
-      removeConversations({
-        data: { conversationIds: props.selectedConversationIds, userId: props.userId },
+      deleteConversations({
+        data: { conversationIds: props.selectedConversationIds },
       }),
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       props.resetSelectedConversationIds()
       if (displayedConversationIsSelected) {
         navigate({ to: '..' })
@@ -42,7 +38,7 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
   })
 
   const handleSubmit = () => {
-    removeConversationsMutate()
+    deleteConversationsMutate()
   }
 
   const handleOpen = () => {
@@ -60,7 +56,7 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
         <TrashIcon />
       </button>
 
-      <LoadingSpinner isLoading={isRemovePending} />
+      <LoadingSpinner isLoading={isDeletePending} />
 
       <DialogForm
         ref={dialogRef}

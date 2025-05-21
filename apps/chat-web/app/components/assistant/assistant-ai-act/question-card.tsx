@@ -1,11 +1,12 @@
 import { useState } from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { QuestionCard_QuestionFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { EditableDiv } from '../../editable-div'
 
-const QuestionCard_questionFragment = graphql(`
-  fragment QuestionCard_question on AiActQuestion {
+graphql(`
+  fragment QuestionCard_Question on AiActQuestion {
     id
     title {
       de
@@ -28,19 +29,18 @@ const QuestionCard_questionFragment = graphql(`
 `)
 
 interface QuestionCardProps {
-  question: FragmentType<typeof QuestionCard_questionFragment>
+  question: QuestionCard_QuestionFragment
   onResponseChange: (value?: string | null, notes?: string | null) => void
 }
 
-const QuestionCard = (props: QuestionCardProps) => {
+const QuestionCard = ({ question, onResponseChange }: QuestionCardProps) => {
   const { t, language } = useTranslation()
-  const question = useFragment(QuestionCard_questionFragment, props.question)
   const { title, notes, value, hint, options } = question
   const [showNotes, setShowNotes] = useState((notes?.length || 0) > 0)
 
   const handleResponseChange = (optionValue?: string, notes?: string) => {
     const sanitizedNotes = !notes ? notes : notes.trim()
-    props.onResponseChange(optionValue, sanitizedNotes)
+    onResponseChange(optionValue, sanitizedNotes)
   }
 
   return (

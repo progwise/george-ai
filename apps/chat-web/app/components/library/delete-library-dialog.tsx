@@ -4,7 +4,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { backendRequest } from '../../server-functions/backend'
@@ -27,18 +28,6 @@ const deleteLibraryDocument = graphql(`
   }
 `)
 
-const DeleteLibraryDialog_LibraryFragment = graphql(`
-  fragment DeleteLibraryDialog_Library on AiLibrary {
-    id
-    name
-    ownerId
-    filesCount
-    createdAt
-    description
-    url
-  }
-`)
-
 const deleteFiles = createServerFn({ method: 'POST' })
   .validator((data: string) => z.string().nonempty().parse(data))
   .handler(async (ctx) => {
@@ -52,15 +41,14 @@ const deleteLibrary = createServerFn({ method: 'GET' })
   })
 
 interface LibraryDeleteAssistantDialogProps {
-  library: FragmentType<typeof DeleteLibraryDialog_LibraryFragment>
+  library: AiLibraryDetailFragment
 }
 
-export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) => {
+export const DeleteLibraryDialog = ({ library }: LibraryDeleteAssistantDialogProps) => {
   const dialogReference = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const library = useFragment(DeleteLibraryDialog_LibraryFragment, props.library)
 
   const { mutate: deleteLibraryWithFiles, isPending } = useMutation({
     mutationFn: async () => {
@@ -68,7 +56,7 @@ export const DeleteLibraryDialog = (props: LibraryDeleteAssistantDialogProps) =>
       await deleteLibrary({ data: library.id })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.ownerId))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions())
       navigate({ to: '..' })
 
       dialogReference.current?.close()

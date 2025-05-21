@@ -11,6 +11,10 @@ RUN apt-get update \
     libpango1.0-dev \
     libgif-dev build-essential \
     g++
+
+# Install mob.sh
+RUN curl -sL https://raw.githubusercontent.com/remotemobprogramming/mob/refs/heads/main/install.sh | sh
+
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
