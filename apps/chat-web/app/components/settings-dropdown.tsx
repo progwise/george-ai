@@ -5,7 +5,7 @@ import { getCookie } from 'vinxi/http'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
-import { useLanguage } from '../i18n/language-provider'
+import { useLanguage } from '../i18n/use-language-hook'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { ExitIcon } from '../icons/exit-icon'
 import { MenuEllipsisIcon } from '../icons/menu-ellipsis-icon'

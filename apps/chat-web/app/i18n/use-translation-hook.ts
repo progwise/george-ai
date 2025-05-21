@@ -1,7 +1,7 @@
 import de from './de'
 import en from './en'
 import { Language } from './index'
-import { useLanguage } from './language-provider'
+import { useLanguage } from './use-language-hook'
 
 const getTranslatedValue = (key: string, language: Language, values?: Record<string, string | number>): string => {
   const keys = key.split('.')
