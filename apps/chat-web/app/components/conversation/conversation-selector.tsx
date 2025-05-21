@@ -10,8 +10,8 @@ import {
   UserFragment,
 } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { DeleteConversationsDialog } from './delete-conversations-dialog'
 import { NewConversationSelector } from './new-conversation-selector'
-import { DeleteConversationsDialog } from './remove-conversations-dialog'
 
 graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
