@@ -64,7 +64,7 @@ function RouteComponent() {
       >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
 
-        <div className="bg-base-100 lg:bg-base-200 px-body border-base-300 flex h-full flex-col gap-2 border-r pt-4">
+        <div className="bg-base-100 lg:bg-base-200 *:px-body border-base-300 flex h-full flex-col gap-2 border-r pt-4">
           <h2 className="mb-2 text-lg font-semibold">{t('conversations.title')}</h2>
 
           <div className="flex gap-2">
