@@ -6,14 +6,13 @@ import { AuthProvider } from '../auth/auth'
 import { getUserQueryOptions } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
-import { getTheme } from '../components/settings-dropdown'
 import TopNavigation from '../components/top-navigation'
+import { getThemeQueryOptions } from '../hooks/use-theme'
 import { getLanguageQueryOptions, useLanguage } from '../i18n/use-language-hook'
 import appCss from '../index.css?url'
 
 interface RouterContext {
   queryClient: QueryClient
-  theme: 'light' | 'dark' | null
 }
 
 const TanStackRouterDevtools =
@@ -41,7 +40,7 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
-  const { user, theme } = Route.useRouteContext()
+  const { user } = Route.useRouteContext()
   const { language } = useLanguage()
 
   React.useEffect(() => {
@@ -60,14 +59,14 @@ const RootDocument = () => {
     s.parentNode?.insertBefore(g, s)
   }, [])
   return (
-    <html data-theme={theme ?? 'light'} lang={language}>
+    <html lang={language}>
       <head>
         <HeadContent />
       </head>
       <body className="px-body">
         <AuthProvider>
           <>
-            <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
+            <TopNavigation user={user ?? undefined} />
             <div className="flex grow flex-col">
               <Outlet />
             </div>
@@ -89,16 +88,13 @@ const RootDocument = () => {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
-    const [theme, user] = await Promise.all([
-      getTheme(),
+    const [user] = await Promise.all([
       context.queryClient.ensureQueryData(getUserQueryOptions()),
       context.queryClient.ensureQueryData(getLanguageQueryOptions()),
+      context.queryClient.ensureQueryData(getThemeQueryOptions()),
     ])
 
-    return {
-      user,
-      theme,
-    }
+    return { user }
   },
   head: () => ({
     meta: [
