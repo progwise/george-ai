@@ -267,7 +267,7 @@ export default {
     addParticipantsConfirmation: 'You can add participants to this library.',
     addSingleFile: 'Add 1 File',
     deleteLibrary: 'Delete {libraryName} library',
-    deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} files.',
+    deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s).',
     dropFileError: 'Failed to delete file',
     dropFileFailure: 'Failed to drop files:',
     googleDrive: 'Google Drive',

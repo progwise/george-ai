@@ -272,7 +272,7 @@ export default {
     addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
-    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Dateien gelöscht.',
+    deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht.',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     googleDrive: 'Google Drive',
