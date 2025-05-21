@@ -34,7 +34,7 @@ app.use('/graphql', (req, res, next) => {
     const userJwt = req.headers['x-user-jwt']
     const devUser = req.headers['x-dev-user']
 
-    // API key is valid if it matches the configured value (either via x-api-key or Authorization header)
+    // API key is valid if it matches the configured value (Authorization header)
     const apiKeyValid =
       apiKey === process.env.GRAPHQL_API_KEY || authorization === `ApiKey ${process.env.GRAPHQL_API_KEY}`
 
