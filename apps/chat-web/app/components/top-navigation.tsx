@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../auth/auth'
-import { User } from '../gql/graphql'
+import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
@@ -22,7 +22,7 @@ const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
 )
 
 interface TopNavigationProps {
-  user?: Pick<User, 'id' | 'name'>
+  user?: UserFragment
   theme?: string
 }
 

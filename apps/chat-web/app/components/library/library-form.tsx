@@ -1,25 +1,15 @@
 import React from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 
-const LibraryFormFragment = graphql(`
-  fragment LibraryFormFragment on AiLibrary {
-    id
-    name
-    description
-  }
-`)
-
 export interface LibraryEditFormProps {
-  library: FragmentType<typeof LibraryFormFragment>
+  library: AiLibraryDetailFragment
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   disabled: boolean
 }
 
-export const LibraryForm = (props: LibraryEditFormProps): React.ReactElement => {
-  const { handleSubmit, disabled } = props
-  const library = useFragment(LibraryFormFragment, props.library)
+export const LibraryForm = ({ library, handleSubmit, disabled }: LibraryEditFormProps): React.ReactElement => {
   const { t } = useTranslation()
 
   return (

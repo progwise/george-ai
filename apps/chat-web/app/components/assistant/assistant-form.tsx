@@ -3,9 +3,9 @@ import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
-import { getLanguage, translate } from '../../i18n'
-import { Language } from '../../i18n'
+import { graphql } from '../../gql'
+import { AssistantForm_AssistantFragment } from '../../gql/graphql'
+import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
@@ -14,7 +14,7 @@ import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
 
-const AssistantForm_AssistantFragment = graphql(`
+graphql(`
   fragment AssistantForm_Assistant on AiAssistant {
     id
     name
@@ -63,16 +63,14 @@ const updateAssistant = createServerFn({ method: 'POST' })
   })
 
 export interface AssistantEditFormProps {
-  assistant: FragmentType<typeof AssistantForm_AssistantFragment>
+  assistant: AssistantForm_AssistantFragment
   disabled: boolean
 }
 
-export const AssistantForm = (props: AssistantEditFormProps): React.ReactElement => {
+export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): React.ReactElement => {
   const formRef = React.useRef<HTMLFormElement>(null)
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantForm_AssistantFragment, props.assistant)
-  const { disabled } = props
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 

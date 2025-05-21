@@ -2,16 +2,13 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { FragmentType } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { deleteConversations, getConversationsQueryOptions } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
-import { ConversationSelector_ConversationFragment } from './conversation-selector'
 
 interface DeleteConversationsDialogProps {
-  conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
   checkedConversationIds: string[]
   resetCheckedConversationIds: () => void
   selectedConversationId: string | undefined

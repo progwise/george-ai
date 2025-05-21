@@ -5,17 +5,22 @@ import { graphql } from '../../gql'
 import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
+graphql(`
+  fragment AiLibraryBase on AiLibrary {
+    id
+    name
+    createdAt
+    updatedAt
+    owner {
+      name
+    }
+  }
+`)
+
 const librariesDocument = graphql(`
   query aiLibraries {
     aiLibraries {
-      id
-      name
-      owner {
-        id
-        name
-      }
-      createdAt
-      updatedAt
+      ...AiLibraryBase
     }
   }
 `)

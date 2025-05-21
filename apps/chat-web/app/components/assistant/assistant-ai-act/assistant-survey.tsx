@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import React from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { AssistantSurvey_AssessmentFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { getAiActAssessmentQueryOptions, resetAssessment, updateBasicSystemInfo } from './checklist-server'
 import QuestionCard from './question-card'
 
-const AssistantSurvey_AssessmentFragment = graphql(`
+graphql(`
   fragment AssistantSurvey_Assessment on AiActAssessment {
     assistantId
 
@@ -24,7 +25,7 @@ const AssistantSurvey_AssessmentFragment = graphql(`
       }
       questions {
         id
-        ...QuestionCard_question
+        ...QuestionCard_Question
       }
       title {
         de
@@ -47,13 +48,12 @@ const AssistantSurvey_AssessmentFragment = graphql(`
 `)
 
 export interface AssistantSurveyProps {
-  assessment: FragmentType<typeof AssistantSurvey_AssessmentFragment>
+  assessment: AssistantSurvey_AssessmentFragment
 }
 
 // Basic System Info component for initial AI Act risk assessment
-export const AssistantSurvey = (props: AssistantSurveyProps) => {
+export const AssistantSurvey = ({ assessment }: AssistantSurveyProps) => {
   const queryClient = useQueryClient()
-  const assessment = useFragment(AssistantSurvey_AssessmentFragment, props.assessment)
   const { assistantId, assistantSurvey } = assessment
   const { language, t } = useTranslation()
 

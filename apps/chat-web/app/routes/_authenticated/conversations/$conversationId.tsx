@@ -9,7 +9,7 @@ import { ConversationParticipantsDialogButton } from '../../../components/conver
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
 import { MenuIcon } from '../../../icons/menu-icon'
-import { getAssignableAssistantsQueryOptions } from '../../../server-functions/assistant'
+import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { getConversationQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_authenticated/conversations/$conversatio
   loader: async ({ context, params }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(getUsersQueryOptions()),
-      context.queryClient.ensureQueryData(getAssignableAssistantsQueryOptions()),
+      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
       context.queryClient.ensureQueryData(getConversationQueryOptions(params.conversationId)),
       context.queryClient.ensureQueryData(getProfileQueryOptions()),
     ])
@@ -33,7 +33,7 @@ function RouteComponent() {
   } = useSuspenseQuery(getUsersQueryOptions())
   const {
     data: { aiAssistants },
-  } = useSuspenseQuery(getAssignableAssistantsQueryOptions())
+  } = useSuspenseQuery(getAiAssistantsQueryOptions())
   const { data: conversation } = useSuspenseQuery(getConversationQueryOptions(conversationId))
   const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
 

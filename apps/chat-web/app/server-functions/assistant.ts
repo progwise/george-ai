@@ -6,6 +6,36 @@ import { graphql } from '../gql'
 import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
+graphql(`
+  fragment AssistantBase on AiAssistant {
+    id
+    name
+    description
+    iconUrl
+    updatedAt
+  }
+`)
+
+const getAiAssistants = createServerFn({ method: 'GET' }).handler(() =>
+  backendRequest(
+    graphql(`
+      query aiAssistantCards {
+        aiAssistants {
+          ...AssistantBase
+        }
+      }
+    `),
+  ),
+)
+
+export const getAiAssistantsQueryOptions = () =>
+  queryOptions({
+    queryKey: [queryKeys.AiAssistants],
+    queryFn: async () => {
+      return getAiAssistants()
+    },
+  })
+
 export const getAssistant = createServerFn({ method: 'GET' })
   .validator(({ assistantId }: { assistantId: string }) => ({
     assistantId: z.string().nonempty().parse(assistantId),
@@ -22,14 +52,8 @@ export const getAssistant = createServerFn({ method: 'GET' })
               ...AssistantBasecaseForm_Assistant
               ...AssistantParticipants_Assistant
             }
-            aiAssistants {
-              ...AssistantSelector_Assistant
-            }
             aiLibraryUsage(assistantId: $id) {
               ...AssistantLibraries_LibraryUsage
-            }
-            aiLibraries {
-              ...AssistantLibraries_Library
             }
           }
         `),
@@ -43,24 +67,4 @@ export const getAssistantQueryOptions = (assistantId: string) =>
   queryOptions({
     queryKey: [queryKeys.AiAssistant, assistantId],
     queryFn: () => getAssistant({ data: { assistantId } }),
-  })
-
-const AssignableAssistantsDocument = graphql(`
-  query getAssignableAssistants {
-    aiAssistants {
-      ...NewConversationSelector_Assistant
-      ...ConversationParticipants_Assistant
-      ...ConversationParticipantsDialogButton_Assistant
-    }
-  }
-`)
-
-export const getAssignableAssistants = createServerFn({ method: 'GET' }).handler(async () =>
-  backendRequest(AssignableAssistantsDocument),
-)
-
-export const getAssignableAssistantsQueryOptions = () =>
-  queryOptions({
-    queryKey: [queryKeys.ConversationAssignableAssistants],
-    queryFn: () => getAssignableAssistants(),
   })

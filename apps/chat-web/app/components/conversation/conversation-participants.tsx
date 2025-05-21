@@ -1,19 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import {
+  ConversationParticipants_AssistantFragment,
+  ConversationParticipants_ConversationFragment,
+  UserFragment,
+} from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { removeConversationParticipant } from '../../server-functions/conversation-participations'
 import { getConversationQueryOptions, getConversationsQueryOptions } from '../../server-functions/conversations'
-import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
 
-const ConversationParticipants_ConversationFragment = graphql(`
+graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {
-    id
-    ownerId
+    ...ConversationBase
     participants {
       id
       name
@@ -24,28 +27,29 @@ const ConversationParticipants_ConversationFragment = graphql(`
   }
 `)
 
-const ConversationParticipants_AssistantFragment = graphql(`
+graphql(`
   fragment ConversationParticipants_Assistant on AiAssistant {
     ...ConversationParticipantsDialogButton_Assistant
   }
 `)
 
 interface ConversationParticipantsProps {
-  conversation: FragmentType<typeof ConversationParticipants_ConversationFragment>
-  assistants: FragmentType<typeof ConversationParticipants_AssistantFragment>[]
-  users: User[]
+  conversation: ConversationParticipants_ConversationFragment
+  assistants: ConversationParticipants_AssistantFragment[]
+  users: UserFragment[]
   userId: string
 }
 
-export const ConversationParticipants = (props: ConversationParticipantsProps) => {
+export const ConversationParticipants = ({
+  conversation,
+  assistants,
+  users,
+  userId,
+}: ConversationParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  const conversation = useFragment(ConversationParticipants_ConversationFragment, props.conversation)
-  const assistants = useFragment(ConversationParticipants_AssistantFragment, props.assistants)
-  const { users } = props
-
-  const isOwner = props.userId === conversation.ownerId
+  const isOwner = userId === conversation.ownerId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ participantId }: { participantId: string }) => {
@@ -84,7 +88,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
               participant.assistantId && 'badge-secondary',
             )}
           >
-            {participant.userId !== props.userId && isOwner && (
+            {participant.userId !== userId && isOwner && (
               <button
                 type="button"
                 className="btn btn-ghost btn-xs btn-circle"
@@ -105,7 +109,7 @@ export const ConversationParticipants = (props: ConversationParticipantsProps) =
             assistants={assistants}
             users={users}
             dialogMode="add"
-            userId={props.userId}
+            userId={userId}
           />
         </div>
       )}

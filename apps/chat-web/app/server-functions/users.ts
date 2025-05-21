@@ -3,33 +3,39 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../gql'
-import { UsersQuery } from '../gql/graphql'
 import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
 
-const UsersDocument = graphql(`
-  query users {
-    users {
-      id
-      username
-      name
-      createdAt
-      email
-      profile {
-        firstName
-        lastName
-        business
-        position
-      }
+graphql(`
+  fragment User on User {
+    id
+    username
+    name
+    createdAt
+    email
+    profile {
+      firstName
+      lastName
+      business
+      position
     }
   }
 `)
 
-export type User = UsersQuery['users'][0]
+const UsersDocument = graphql(`
+  query users {
+    users {
+      ...User
+    }
+  }
+`)
 
-export const getUsers = createServerFn({ method: 'GET' }).handler(() => {
-  return backendRequest(UsersDocument)
-})
+export const getUsers = createServerFn({ method: 'GET' }).handler((ctx) =>
+  backendRequest(UsersDocument, {
+    userId: ctx.data,
+  }),
+)
+
 export const getUsersQueryOptions = () =>
   queryOptions({
     queryKey: [queryKeys.Users],
@@ -79,33 +85,37 @@ export const confirmUserProfile = createServerFn({ method: 'POST' })
       },
     ),
   )
-
+graphql(`
+  fragment UserProfile on UserProfile {
+    id
+    userId
+    email
+    firstName
+    lastName
+    business
+    position
+    freeMessages
+    usedMessages
+    freeStorage
+    usedStorage
+    createdAt
+    updatedAt
+    confirmationDate
+    activationDate
+    expiresAt
+  }
+`)
 export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
   backendRequest(
     graphql(`
       query getUserProfile {
         userProfile {
-          id
-          userId
-          email
-          firstName
-          lastName
-          business
-          position
-          freeMessages
-          usedMessages
-          freeStorage
-          usedStorage
-          createdAt
-          updatedAt
-          confirmationDate
-          activationDate
-          expiresAt
+          ...UserProfile
         }
       }
     `),
     {
-      profileId: ctx.data,
+      userId: ctx.data,
     },
   ),
 )

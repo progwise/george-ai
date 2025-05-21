@@ -7,7 +7,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
-import { UserProfile } from '../../gql/graphql'
+import { UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
@@ -23,7 +23,7 @@ import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
-  profile?: Pick<UserProfile, 'freeStorage' | 'usedStorage'>
+  profile?: UserProfileFragment
 }
 
 interface AiLibraryFile {

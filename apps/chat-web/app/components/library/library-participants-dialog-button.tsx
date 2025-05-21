@@ -1,18 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { LibraryParticipantsDialogButton_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { addLibraryParticipants } from '../../server-functions/library-participations'
-import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { getLibraryQueryOptions } from './get-library-query-options'
 
-const LibraryParticipantsDialogButton_LibraryFragment = graphql(`
+graphql(`
   fragment LibraryParticipantsDialogButton_Library on AiLibrary {
     id
     ownerId
@@ -23,19 +23,17 @@ const LibraryParticipantsDialogButton_LibraryFragment = graphql(`
 `)
 
 interface LibraryParticipantsDialogFormProps {
-  library: FragmentType<typeof LibraryParticipantsDialogButton_LibraryFragment>
-  users: User[]
+  library: LibraryParticipantsDialogButton_LibraryFragment
+  users: UserFragment[]
 }
 
-export const LibraryParticipantsDialogButton = (props: LibraryParticipantsDialogFormProps) => {
+export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParticipantsDialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
 
-  const library = useFragment(LibraryParticipantsDialogButton_LibraryFragment, props.library)
-  const { users } = props
   const assignableUsers = useMemo(
     () => users.filter((user) => !library.participants.some((participant) => participant.id === user.id)),
     [users, library.participants],

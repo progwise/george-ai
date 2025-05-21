@@ -2,14 +2,15 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { UpdateCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
 import { CrawlerForm, crawlerFormSchema, getCrawlerFormData } from './crawler-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
-const UpdateCrawlerButton_CrawlerFragment = graphql(`
+graphql(`
   fragment UpdateCrawlerButton_Crawler on AiLibraryCrawler {
     id
     url
@@ -61,19 +62,18 @@ const updateCrawlerFunction = createServerFn({ method: 'POST' })
 
 interface UpdateCrawlerButtonProps {
   libraryId: string
-  crawler: FragmentType<typeof UpdateCrawlerButton_CrawlerFragment>
+  crawler: UpdateCrawlerButton_CrawlerFragment
 }
 
-export const UpdateCrawlerButton = (props: UpdateCrawlerButtonProps) => {
+export const UpdateCrawlerButton = ({ libraryId, crawler }: UpdateCrawlerButtonProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
-  const crawler = useFragment(UpdateCrawlerButton_CrawlerFragment, props.crawler)
   const { t } = useTranslation()
 
   const { mutate: updateCrawlerMutation, isPending } = useMutation({
     mutationFn: updateCrawlerFunction,
     onSuccess: async () => {
-      await queryClient.invalidateQueries(getCrawlersQueryOptions(props.libraryId))
+      await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
       dialogRef.current?.close()
     },
   })

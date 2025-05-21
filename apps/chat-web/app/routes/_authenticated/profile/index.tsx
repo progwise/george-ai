@@ -182,7 +182,6 @@ function RouteComponent() {
       {userProfile?.userProfile && (
         <UserProfileForm
           userProfile={userProfile.userProfile}
-          handleSendConfirmationMail={(formData: FormData) => handleSendConfirmationMail(formData)}
           onSubmit={(formData: FormData) => {
             handleFormSubmit(formData)
           }}

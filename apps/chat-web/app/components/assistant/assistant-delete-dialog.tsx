@@ -4,7 +4,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { AssistantBaseFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
@@ -39,20 +40,12 @@ const deleteAssistant = createServerFn({ method: 'POST' })
     )
   })
 
-const AssistantDelete_AssistantFragment = graphql(`
-  fragment AssistantDelete_Assistant on AiAssistant {
-    id
-    name
-  }
-`)
-
 export interface AssistantDeleteDialogProps {
-  assistant: FragmentType<typeof AssistantDelete_AssistantFragment>
+  assistant: AssistantBaseFragment
 }
 
-export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
+export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps) => {
   const queryClient = useQueryClient()
-  const assistant = useFragment(AssistantDelete_AssistantFragment, props.assistant)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -65,7 +58,7 @@ export const AssistantDeleteDialog = (props: AssistantDeleteDialogProps) => {
         throw new Error('Failed to delete assistant')
       }
       navigate({ to: `/assistants` })
-      queryClient.invalidateQueries({ queryKey: [queryKeys.MyAiAssistants] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] })
       dialogRef.current?.close()
     },
   })
