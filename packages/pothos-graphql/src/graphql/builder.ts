@@ -16,11 +16,9 @@ const builder = new SchemaBuilder<{
   Context: Context
   AuthScopes: {
     isLoggedIn: boolean
-    hasUserId: string
   }
   AuthContexts: {
     isLoggedIn: LoggedInContext
-    hasUserId: LoggedInContext
   }
   Objects: {
     AiLibraryUsageResult: {
@@ -58,7 +56,6 @@ const builder = new SchemaBuilder<{
   scopeAuth: {
     authScopes: async (context) => ({
       isLoggedIn: !!context.session,
-      hasUserId: (userId: string) => context.session?.user.id === userId,
     }),
     unauthorizedError: () => {
       throw Error('Unauthorized')
