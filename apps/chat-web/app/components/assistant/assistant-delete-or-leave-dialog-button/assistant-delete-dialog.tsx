@@ -1,16 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { AssistantBaseFragment } from '../../gql/graphql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { queryKeys } from '../../query-keys'
-import { backendRequest } from '../../server-functions/backend'
-import { DialogForm } from '../dialog-form'
+import { graphql } from '../../../gql'
+import { AssistantBaseFragment } from '../../../gql/graphql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
+import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
+import { backendRequest } from '../../../server-functions/backend'
+import { DialogForm } from '../../dialog-form'
 
 const deleteAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
@@ -45,10 +44,9 @@ export interface AssistantDeleteDialogProps {
 }
 
 export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps) => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const { t } = useTranslation()
-  const navigate = useNavigate()
 
   const { mutate, isPending } = useMutation({
     mutationFn: deleteAssistant,
@@ -57,8 +55,7 @@ export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps)
       if (!deletedId) {
         throw new Error('Failed to delete assistant')
       }
-      navigate({ to: `/assistants` })
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] })
+      queryClient.invalidateQueries(getAiAssistantsQueryOptions())
       dialogRef.current?.close()
     },
   })
@@ -75,7 +72,7 @@ export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps)
     <>
       <button
         type="button"
-        className="btn btn-ghost btn-sm tooltip"
+        className="btn btn-ghost btn-sm tooltip tooltip-right"
         onClick={showDialog}
         data-tip={t('assistants.delete')}
       >

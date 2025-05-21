@@ -10,8 +10,8 @@ import { HeroBadge } from './hero-badge'
 import { HomeChat } from './home-chat'
 
 export const Hero = () => {
-  const { user, language } = useRouteContext({ from: '/' })
-  const { t } = useTranslation()
+  const { user } = useRouteContext({ from: '/' })
+  const { t, language } = useTranslation()
 
   const now = new Date()
   const year = now.getFullYear()

@@ -4,12 +4,13 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 import { z } from 'zod'
 
-import { graphql } from '../../gql'
-import { AiLibraryDetailFragment } from '../../gql/graphql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { TrashIcon } from '../../icons/trash-icon'
-import { backendRequest } from '../../server-functions/backend'
-import { getLibrariesQueryOptions } from './get-libraries-query-options'
+import { graphql } from '../../../gql'
+import { AiLibraryDetailFragment } from '../../../gql/graphql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
+import { backendRequest } from '../../../server-functions/backend'
+import { DialogForm } from '../../dialog-form'
+import { getLibrariesQueryOptions } from './../get-libraries-query-options'
 
 const deleteFilesDocument = graphql(`
   mutation dropFiles($libraryId: String!) {
@@ -40,11 +41,11 @@ const deleteLibrary = createServerFn({ method: 'GET' })
     return await backendRequest(deleteLibraryDocument, { id: ctx.data })
   })
 
-interface LibraryDeleteAssistantDialogProps {
+interface LibraryDeleteDialogProps {
   library: AiLibraryDetailFragment
 }
 
-export const DeleteLibraryDialog = ({ library }: LibraryDeleteAssistantDialogProps) => {
+export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
   const dialogReference = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -63,10 +64,6 @@ export const DeleteLibraryDialog = ({ library }: LibraryDeleteAssistantDialogPro
     },
   })
 
-  const handleDeleteConfirm = () => {
-    deleteLibraryWithFiles()
-  }
-
   const fileCount = library.filesCount ?? 0
 
   return (
@@ -79,25 +76,17 @@ export const DeleteLibraryDialog = ({ library }: LibraryDeleteAssistantDialogPro
       >
         <TrashIcon className="size-6" />
       </button>
-      <dialog ref={dialogReference} className="modal">
-        <div className="modal-box">
-          <h3 className="text-lg font-bold">{t('libraries.deleteLibrary', { libraryName: library.name })}</h3>
-          <p className="py-4">{t('libraries.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}</p>
-          <div className="modal-action">
-            <form method="dialog">
-              <button type="submit" className="btn btn-sm">
-                {t('actions.cancel')}
-              </button>
-            </form>
-            <button type="submit" className="btn btn-error btn-sm" disabled={isPending} onClick={handleDeleteConfirm}>
-              {t('actions.delete')}
-            </button>
-          </div>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button type="submit">cancel</button>
-        </form>
-      </dialog>
+
+      <DialogForm
+        ref={dialogReference}
+        title={t('libraries.deleteLibrary', { libraryName: library.name })}
+        description={t('libraries.deleteLibraryConfirmation', { libraryName: library.name, fileCount })}
+        onSubmit={() => {
+          deleteLibraryWithFiles()
+        }}
+        submitButtonText={t('actions.delete')}
+        disabledSubmit={isPending}
+      />
     </>
   )
 }
