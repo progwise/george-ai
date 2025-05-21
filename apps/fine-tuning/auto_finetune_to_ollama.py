@@ -85,12 +85,26 @@ def main(config_path):
     fine_tune_params = config["fine_tune_params"]
     ollama_model_name = config["ollama_model_name"]
 
+    # Intermediary cleanup options (default: False = cleanup)
+    keep_split_data = config.get("keep_split_data", False)
+    keep_fused_model = config.get("keep_fused_model", False)
+    keep_gguf_files = config.get("keep_gguf_files", False)
+    keep_adapter_weights = config.get("keep_adapter_weights", False)
+    adapter_weights_dir = config.get("adapter_weights_dir", None)
+
     # Paths
     split_output_dir = "split_output"
     fused_model_dir = "./fused_model"
     gguf_models_dir = "./gguf_models"
     model_name = ollama_model_name.split(":")[0]
     gguf_file = f"{gguf_models_dir}/{model_name}/{model_name}_fp16.gguf"
+
+    # If adapter_weights_dir is not set in config, try to auto-detect as before
+    if not adapter_weights_dir:
+        for entry in os.listdir("."):
+            if entry.startswith("adapters_") and os.path.isdir(entry):
+                adapter_weights_dir = entry
+                break
 
     try:
         # Step 1: Split the dataset
@@ -191,13 +205,21 @@ def main(config_path):
             f"Model '{ollama_model_name}' successfully created and registered with Ollama.")
 
     finally:
-        # Cleanup intermediary files and directories with user consent
-        print("Do you want to clean up intermediary files and directories? (y/n): ", end="")
-        answer = input().strip().lower()
-        if answer == "y":
-            cleanup([split_output_dir, fused_model_dir, gguf_models_dir])
+        # Cleanup intermediary files and directories based on config options
+        cleanup_targets = []
+        if not keep_split_data:
+            cleanup_targets.append(split_output_dir)
+        if not keep_fused_model:
+            cleanup_targets.append(fused_model_dir)
+        if not keep_gguf_files:
+            cleanup_targets.append(gguf_models_dir)
+        if not keep_adapter_weights and adapter_weights_dir:
+            cleanup_targets.append(adapter_weights_dir)
+        if cleanup_targets:
+            print("Cleaning up intermediary files and directories...")
+            cleanup(cleanup_targets)
         else:
-            print("Skipping cleanup. Intermediary files and directories are kept.")
+            print("All intermediary files and directories are kept (per config).")
 
 
 if __name__ == "__main__":

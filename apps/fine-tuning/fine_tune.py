@@ -19,10 +19,10 @@ import sys
 import mlx_lm.lora
 
 
-def run_finetune(model_name: str, data_folder: str):
-    adapter_path = f"adapters_{model_name.split('/')[-1].replace('.', '').replace('-', '_')}"
+def run_finetune(model_name: str, data_folder: str, adapter_dir: str = "."):
+    adapter_path = f"{adapter_dir}/adapters_{model_name.split('/')[-1].replace('.', '').replace('-', '_')}"
 
-  # Simulate CLI args for mlx_lm.lora.main()
+    # Simulate CLI args for mlx_lm.lora.main()
     sys.argv = [
         "lora",
         "--model", model_name,
@@ -45,6 +45,8 @@ if __name__ == "__main__":
                         help="Model name, e.g., Qwen/Qwen2.5-Coder-0.5B-Instruct")
     parser.add_argument("--data", required=True,
                         help="Path to the dataset folder")
+    parser.add_argument("--adapter-dir", default=".",
+                        help="Directory to store adapter weights (default: current directory)")
 
     args = parser.parse_args()
-    run_finetune(args.model, args.data)
+    run_finetune(args.model, args.data, args.adapter_dir)

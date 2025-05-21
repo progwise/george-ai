@@ -1,5 +1,5 @@
 {
-  "base_model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
   "dataset_path": "jsonl/george-ai/dataset.jsonl",
   "train_ratio": 0.8,
   "valid_ratio": 0.1,
@@ -10,7 +10,7 @@
     "iters": 100,
     "fine_tune_type": "lora"
   },
-  "ollama_model_name": "qwen2.5-coder-0.5b:george",
+  "ollama_model_name": "qwen2.5-coder-7b:george",
   "keep_split_data": false,
   "keep_fused_model": false,
   "keep_gguf_files": false,
