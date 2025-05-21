@@ -9,6 +9,7 @@ import { z } from 'zod'
 
 import { toastError } from '../components/georgeToaster'
 import { getKeycloakConfig } from './auth.server'
+import { getUserQueryOptions } from './get-user'
 
 export const KEYCLOAK_TOKEN_COOKIE_NAME = 'keycloak-token'
 const isClientSide = typeof window !== 'undefined'
@@ -39,6 +40,7 @@ const setKeycloakTokenInCookie = createServerFn({ method: 'POST' })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
+  const { refetch: refetchUserQuery } = useQuery(getUserQueryOptions())
   const keycloakRef = useRef<Keycloak | undefined>(undefined)
   const [isReady, setIsReady] = useState(false)
   const { data: keycloakConfig } = useQuery({
@@ -69,8 +71,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await setKeycloakTokenInCookie({ data: { token: currentToken } })
     await new Promise((resolve) => setTimeout(resolve, 100))
 
+    await refetchUserQuery()
     await router.invalidate()
-  }, [router])
+  }, [refetchUserQuery, router])
 
   useEffect(() => {
     if (isClientSide && !keycloakRef.current?.didInitialize && keycloakConfig) {

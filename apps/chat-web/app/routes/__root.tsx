@@ -3,7 +3,7 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanst
 import React, { Suspense } from 'react'
 
 import { AuthProvider } from '../auth/auth'
-import { getUser } from '../auth/get-user'
+import { getUserQueryOptions } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import { getTheme } from '../components/settings-dropdown'
@@ -91,9 +91,13 @@ const RootDocument = () => {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  beforeLoad: async () => {
-    const [theme, language] = await Promise.all([getTheme(), getLanguage()])
-    const user = await getUser()
+  beforeLoad: async ({ context }) => {
+    const [theme, language, user] = await Promise.all([
+      getTheme(),
+      getLanguage(),
+      context.queryClient.ensureQueryData(getUserQueryOptions()),
+    ])
+
     return {
       language,
       user,

@@ -7,6 +7,7 @@ export const queryKeys = {
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',
   Conversation: 'Conversation',
+  User: 'User',
   Users: 'Users',
   ConversationInvitation: 'ConversationInvitation',
   BackendUrl: 'BackendUrl',
