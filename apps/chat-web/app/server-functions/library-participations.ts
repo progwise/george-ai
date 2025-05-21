@@ -29,25 +29,25 @@ export const addLibraryParticipants = createServerFn({ method: 'POST' })
   )
 
 const RemoveLibraryParticipantDocument = graphql(`
-  mutation removeLibraryParticipant($libraryId: String!, $participantId: String!) {
-    removeLibraryParticipant(libraryId: $libraryId, participantId: $participantId) {
+  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {
+    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {
       id
     }
   }
 `)
 
 export const removeLibraryParticipant = createServerFn({ method: 'POST' })
-  .validator((data: { libraryId: string; participantId: string }) =>
+  .validator((data: { libraryId: string; userId: string }) =>
     z
       .object({
         libraryId: z.string(),
-        participantId: z.string(),
+        userId: z.string(),
       })
       .parse(data),
   )
   .handler((ctx) =>
     backendRequest(RemoveLibraryParticipantDocument, {
       libraryId: ctx.data.libraryId,
-      participantId: ctx.data.participantId,
+      userId: ctx.data.userId,
     }),
   )

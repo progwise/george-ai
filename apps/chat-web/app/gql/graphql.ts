@@ -385,7 +385,6 @@ export type Mutation = {
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   createContactRequest: Scalars['Boolean']['output']
   createConversationInvitations?: Maybe<AiConversation>
-  createUser?: Maybe<User>
   createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
@@ -497,11 +496,6 @@ export type MutationCreateConversationInvitationsArgs = {
   data: Array<ConversationInvitationInput>
 }
 
-export type MutationCreateUserArgs = {
-  data: UserInput
-  username: Scalars['String']['input']
-}
-
 export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -560,7 +554,7 @@ export type MutationReProcessFileArgs = {
 
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
-  participantId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationRemoveConversationParticipantArgs = {
@@ -569,7 +563,7 @@ export type MutationRemoveConversationParticipantArgs = {
 
 export type MutationRemoveLibraryParticipantArgs = {
   libraryId: Scalars['String']['input']
-  participantId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationRemoveLibraryUsageArgs = {
@@ -1722,13 +1716,6 @@ export type UserProfileQuery = {
     | null
 }
 
-export type CreateUserProfileMutationVariables = Exact<{ [key: string]: never }>
-
-export type CreateUserProfileMutation = {
-  __typename?: 'Mutation'
-  createUserProfile?: { __typename?: 'UserProfile'; id: string } | null
-}
-
 export type RemoveUserProfileMutationVariables = Exact<{
   profileId: Scalars['String']['input']
 }>
@@ -1750,7 +1737,7 @@ export type AddAssistantParticipantMutation = {
 
 export type RemoveAssistantParticipantMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
-  participantId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }>
 
 export type RemoveAssistantParticipantMutation = {
@@ -2043,7 +2030,7 @@ export type AddLibraryParticipantMutation = {
 
 export type RemoveLibraryParticipantMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
-  participantId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }>
 
 export type RemoveLibraryParticipantMutation = {
@@ -6067,29 +6054,6 @@ export const UserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>
-export const CreateUserProfileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'createUserProfile' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'createUserProfile' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<CreateUserProfileMutation, CreateUserProfileMutationVariables>
 export const RemoveUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -6195,7 +6159,7 @@ export const RemoveAssistantParticipantDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -6213,8 +6177,8 @@ export const RemoveAssistantParticipantDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'participantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {
@@ -7542,7 +7506,7 @@ export const RemoveLibraryParticipantDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -7560,8 +7524,8 @@ export const RemoveLibraryParticipantDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'participantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'participantId' } },
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
               },
             ],
             selectionSet: {

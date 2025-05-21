@@ -48,7 +48,7 @@ const builder = new SchemaBuilder<{
   }
 }>({
   defaultInputFieldRequiredness: true,
-  plugins: [SimpleObjectsPlugin, PrismaPlugin, ScopeAuthPlugin],
+  plugins: [ScopeAuthPlugin, SimpleObjectsPlugin, PrismaPlugin],
   prisma: {
     client: prisma,
     exposeDescriptions: true,

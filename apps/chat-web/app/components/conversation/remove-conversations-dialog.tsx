@@ -13,7 +13,6 @@ import { ConversationSelector_ConversationFragment } from './conversation-select
 interface DeleteConversationsDialogProps {
   conversations: FragmentType<typeof ConversationSelector_ConversationFragment>[] | null
   checkedConversationIds: string[]
-  userId: string
   resetCheckedConversationIds: () => void
   selectedConversationId: string | undefined
 }

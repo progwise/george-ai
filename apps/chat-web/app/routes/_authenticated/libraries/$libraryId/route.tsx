@@ -30,7 +30,7 @@ function RouteComponent() {
 
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const user = Route.useRouteContext().user
+  const { user } = Route.useRouteContext()
 
   return (
     <article className="flex w-full flex-col gap-4">

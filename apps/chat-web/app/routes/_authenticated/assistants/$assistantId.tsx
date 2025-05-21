@@ -21,7 +21,8 @@ export const Route = createFileRoute('/_authenticated/assistants/$assistantId')(
 function RouteComponent() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const ownerId = Route.useRouteContext().user.id
+  const { user } = Route.useRouteContext()
+  const ownerId = user.id
   const { assistantId } = Route.useParams()
   const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
 

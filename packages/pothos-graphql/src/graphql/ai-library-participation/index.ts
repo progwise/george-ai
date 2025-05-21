@@ -41,27 +41,26 @@ builder.mutationField('removeLibraryParticipant', (t) =>
     nullable: false,
     args: {
       libraryId: t.arg.string({ required: true }),
-      participantId: t.arg.string({ required: true }),
+      userId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { libraryId, participantId }, context) => {
-      const userId = context.session.user.id
+    resolve: async (query, _source, { libraryId, userId }, context) => {
       const library = await prisma.aiLibrary.findUniqueOrThrow({
         where: { id: libraryId },
       })
 
-      if (library.ownerId !== userId) {
+      if (library.ownerId !== context.session.user.id) {
         throw new Error('Only the owner can remove participants')
       }
 
       await prisma.aiLibraryParticipant.delete({
         where: {
-          libraryId_userId: { userId: participantId, libraryId },
+          libraryId_userId: { userId, libraryId },
         },
       })
 
       return prisma.user.findUniqueOrThrow({
         ...query,
-        where: { id: participantId },
+        where: { id: userId },
       })
     },
   }),

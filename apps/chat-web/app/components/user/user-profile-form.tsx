@@ -34,11 +34,6 @@ export const UserProfileForm_UserProfileFragment = graphql(`
   }
 `)
 
-const parseOptionalInt = (value: string) => {
-  const parsed = parseInt(value, 10)
-  return value === '' || Number.isNaN(parsed) ? undefined : parsed
-}
-
 export const getFormSchema = (language: Language) =>
   z.object({
     profileId: z.string().min(1, translate('errors.requiredField', language)),
@@ -50,8 +45,8 @@ export const getFormSchema = (language: Language) =>
     lastName: z.string().min(1, translate('errors.requiredField', language)),
     business: z.string().min(1, translate('errors.requiredField', language)),
     position: z.string().min(1, translate('errors.requiredField', language)),
-    freeMessages: z.string().transform(parseOptionalInt).optional(),
-    freeStorage: z.string().transform(parseOptionalInt).optional(),
+    freeMessages: z.coerce.number().optional(),
+    freeStorage: z.coerce.number().optional(),
   })
 
 export const updateProfile = createServerFn({ method: 'POST' })
