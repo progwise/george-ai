@@ -23,32 +23,29 @@ graphql(`
 `)
 
 const UsersDocument = graphql(`
-  query users($userId: String!) {
-    users(userId: $userId) {
+  query users {
+    users {
       ...User
     }
   }
 `)
 
-export const getUsers = createServerFn({ method: 'GET' })
-  .validator((userId: string) => z.string().nonempty().parse(userId))
-  .handler((ctx) =>
-    backendRequest(UsersDocument, {
-      userId: ctx.data,
-    }),
-  )
+export const getUsers = createServerFn({ method: 'GET' }).handler((ctx) =>
+  backendRequest(UsersDocument, {
+    userId: ctx.data,
+  }),
+)
 
-export const getUsersQueryOptions = (userId: string) =>
+export const getUsersQueryOptions = () =>
   queryOptions({
-    queryKey: [queryKeys.Users, userId],
-    queryFn: () => getUsers({ data: userId }),
+    queryKey: [queryKeys.Users],
+    queryFn: () => getUsers(),
   })
 
 export const sendConfirmationMail = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; confirmationUrl: string }) => {
+  .validator((data: { confirmationUrl: string }) => {
     return z
       .object({
-        userId: z.string().nonempty(),
         confirmationUrl: z.string().nonempty(),
       })
       .parse(data)
@@ -56,12 +53,11 @@ export const sendConfirmationMail = createServerFn({ method: 'POST' })
   .handler((ctx) =>
     backendRequest(
       graphql(`
-        mutation sendConfirmationMail($userId: String!, $confirmationUrl: String!) {
-          sendConfirmationMail(userId: $userId, confirmationUrl: $confirmationUrl)
+        mutation sendConfirmationMail($confirmationUrl: String!) {
+          sendConfirmationMail(confirmationUrl: $confirmationUrl)
         }
       `),
       {
-        userId: ctx.data.userId,
         confirmationUrl: ctx.data.confirmationUrl,
       },
     ),
@@ -109,52 +105,42 @@ graphql(`
     expiresAt
   }
 `)
-export const getUserProfile = createServerFn({ method: 'GET' })
-  .validator((data: { userId: string }) => z.string().nonempty().parse(data.userId))
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        query getUserProfile($userId: String!) {
-          userProfile(userId: $userId) {
-            ...UserProfile
-          }
+export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
+  backendRequest(
+    graphql(`
+      query getUserProfile {
+        userProfile {
+          ...UserProfile
         }
-      `),
-      {
-        userId: ctx.data,
-      },
-    ),
-  )
+      }
+    `),
+    {
+      userId: ctx.data,
+    },
+  ),
+)
 
-export const sendAdminNotificationMail = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string }) => {
-    return z
-      .object({
-        userId: z.string().nonempty(),
-      })
-      .parse(data)
+export const sendAdminNotificationMail = createServerFn({ method: 'POST' }).handler(async () => {
+  const userProfile = await getUserProfile()
+
+  if (!userProfile?.userProfile) {
+    throw new Error('User profile not found')
+  }
+
+  await activateUserProfile({
+    data: {
+      profileId: userProfile.userProfile.id,
+    },
   })
-  .handler(async (ctx) => {
-    const userProfile = await getUserProfile({ data: { userId: ctx.data.userId } })
 
-    if (!userProfile?.userProfile) {
-      throw new Error('User profile not found')
-    }
-
-    await activateUserProfile({
-      data: {
-        profileId: userProfile.userProfile.id,
-      },
-    })
-
-    return { success: true }
-  })
+  return { success: true }
+})
 
 export const updateUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; userProfileInput: { freeMessages?: number; freeStorage?: number } }) => {
+  .validator((data: { profileId: string; userProfileInput: { freeMessages?: number; freeStorage?: number } }) => {
     return z
       .object({
-        userId: z.string().nonempty(),
+        profileId: z.string().nonempty(),
         userProfileInput: z.object({
           freeMessages: z.number().optional(),
           freeStorage: z.number().optional(),
@@ -171,14 +157,14 @@ export const updateUserProfile = createServerFn({ method: 'POST' })
 
     return backendRequest(
       graphql(`
-        mutation updateUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
-          updateUserProfile(userId: $userId, input: $userProfileInput) {
+        mutation updateUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {
+          updateUserProfile(profileId: $profileId, input: $userProfileInput) {
             id
           }
         }
       `),
       {
-        userId: ctx.data.userId,
+        profileId: ctx.data.profileId,
         userProfileInput,
       },
     )

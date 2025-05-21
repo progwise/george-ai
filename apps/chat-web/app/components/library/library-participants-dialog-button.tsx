@@ -25,10 +25,9 @@ graphql(`
 interface LibraryParticipantsDialogFormProps {
   library: LibraryParticipantsDialogButton_LibraryFragment
   users: UserFragment[]
-  userId: string
 }
 
-export const LibraryParticipantsDialogButton = ({ library, users, userId }: LibraryParticipantsDialogFormProps) => {
+export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParticipantsDialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
@@ -48,7 +47,7 @@ export const LibraryParticipantsDialogButton = ({ library, users, userId }: Libr
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions())
 
       dialogRef.current?.close()
     },
@@ -84,6 +83,7 @@ export const LibraryParticipantsDialogButton = ({ library, users, userId }: Libr
             users={assignableUsers}
             selectedUserIds={selectedUserIds}
             setSelectedUserIds={setSelectedUserIds}
+            className="h-56"
           />
         </div>
       </DialogForm>

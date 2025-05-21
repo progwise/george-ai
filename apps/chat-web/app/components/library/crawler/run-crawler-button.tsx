@@ -19,38 +19,36 @@ graphql(`
 interface RunCrawlerButtonProps {
   libraryId: string
   crawler: RunCrawlerButton_CrawlerFragment
-  userId: string
 }
 
 const runCrawler = createServerFn({ method: 'POST' })
-  .validator((data: { crawlerId: string; userId: string }) =>
+  .validator((data: { crawlerId: string }) =>
     z
       .object({
         crawlerId: z.string().nonempty(),
-        userId: z.string().nonempty(),
       })
       .parse(data),
   )
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        mutation runCrawler($crawlerId: String!, $userId: String!) {
-          runAiLibraryCrawler(crawlerId: $crawlerId, userId: $userId) {
+        mutation runCrawler($crawlerId: String!) {
+          runAiLibraryCrawler(crawlerId: $crawlerId) {
             id
             lastRun
           }
         }
       `),
-      ctx.data,
+      { crawlerId: ctx.data.crawlerId },
     )
   })
 
-export const RunCrawlerButton = ({ libraryId, crawler, userId }: RunCrawlerButtonProps) => {
+export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) => {
   const queryClient = useQueryClient()
 
   const runCrawlerMutation = useMutation({
     mutationFn: async () => {
-      return await runCrawler({ data: { crawlerId: crawler.id, userId } })
+      return await runCrawler({ data: { crawlerId: crawler.id } })
     },
     onError: () => {
       // TODO: add alert

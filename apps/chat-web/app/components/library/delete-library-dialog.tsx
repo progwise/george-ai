@@ -56,7 +56,7 @@ export const DeleteLibraryDialog = ({ library }: LibraryDeleteAssistantDialogPro
       await deleteLibrary({ data: library.id })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.ownerId))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions())
       navigate({ to: '..' })
 
       dialogReference.current?.close()

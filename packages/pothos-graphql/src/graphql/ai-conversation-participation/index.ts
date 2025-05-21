@@ -113,11 +113,11 @@ builder.mutationField('removeConversationParticipant', (t) =>
   t.prismaField({
     type: 'AiConversationParticipant',
     args: {
-      id: t.arg.string({ required: true }),
+      participantId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { id }) => {
+    resolve: async (_query, _source, { participantId }) => {
       return prisma.aiConversationParticipant.delete({
-        where: { id },
+        where: { id: participantId },
       })
     },
   }),
@@ -127,11 +127,11 @@ builder.mutationField('leaveAiConversation', (t) =>
   t.prismaField({
     type: 'AiConversationParticipant',
     args: {
-      id: t.arg.string({ required: true }),
+      participantId: t.arg.string({ required: true }),
     },
-    resolve: (_query, _source, { id }) => {
+    resolve: (_query, _source, { participantId }) => {
       return prisma.aiConversationParticipant.delete({
-        where: { id },
+        where: { id: participantId },
       })
     },
   }),

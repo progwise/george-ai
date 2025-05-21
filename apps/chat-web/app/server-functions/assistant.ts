@@ -16,28 +16,23 @@ graphql(`
   }
 `)
 
-const getAiAssistants = createServerFn({ method: 'GET' })
-  .validator((userId: string) => z.string().nonempty().parse(userId))
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        query aiAssistantCards($userId: String!) {
-          aiAssistants(userId: $userId) {
-            ...AssistantBase
-          }
+const getAiAssistants = createServerFn({ method: 'GET' }).handler(() =>
+  backendRequest(
+    graphql(`
+      query aiAssistantCards {
+        aiAssistants {
+          ...AssistantBase
         }
-      `),
-      {
-        userId: ctx.data,
-      },
-    ),
-  )
+      }
+    `),
+  ),
+)
 
-export const getAiAssistantsQueryOptions = (userId: string) =>
+export const getAiAssistantsQueryOptions = () =>
   queryOptions({
-    queryKey: [queryKeys.AiAssistants, userId],
+    queryKey: [queryKeys.AiAssistants],
     queryFn: async () => {
-      return getAiAssistants({ data: userId })
+      return getAiAssistants()
     },
   })
 

@@ -78,7 +78,6 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
 
       const result = await sendMessage({
         data: {
-          userId: user.id,
           conversationId: conversation.id!,
           recipientAssistantIds: data.recipientAssistantIds,
           content: data.content,
@@ -90,7 +89,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
       // refetch the conversation to get the new message
       queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
 
-      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
+      queryClient.invalidateQueries(getProfileQueryOptions())
 
       scrollToBottom()
     },

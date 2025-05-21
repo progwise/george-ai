@@ -12,9 +12,8 @@ export const Route = createFileRoute('/_authenticated/assistants/')({
 })
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext()
   const { t } = useTranslation()
-  const { data, isLoading } = useQuery(getAiAssistantsQueryOptions(user.id))
+  const { data, isLoading } = useQuery(getAiAssistantsQueryOptions())
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -26,16 +25,14 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           <span>{t('assistants.myAssistants')}</span>
         </h3>
-        {<AssistantNewDialog userId={user.id} />}
+        {<AssistantNewDialog />}
       </div>
 
       <div className="flex flex-wrap gap-4">
         {!data?.aiAssistants || data.aiAssistants.length < 1 ? (
           <h3>{t('assistants.noAssistantsFound')}</h3>
         ) : (
-          data?.aiAssistants?.map((assistant) => (
-            <AssistantCard key={assistant.id} assistant={assistant} userId={user.id} />
-          ))
+          data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)
         )}
       </div>
     </article>

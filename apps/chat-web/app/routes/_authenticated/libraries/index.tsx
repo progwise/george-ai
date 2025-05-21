@@ -11,14 +11,13 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 export const Route = createFileRoute('/_authenticated/libraries/')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    context.queryClient.ensureQueryData(getLibrariesQueryOptions(context.user.id))
+    context.queryClient.ensureQueryData(getLibrariesQueryOptions())
   },
 })
 
 function RouteComponent() {
-  const { user } = Route.useRouteContext()
   const navigate = useNavigate()
-  const { data, isLoading } = useSuspenseQuery(getLibrariesQueryOptions(user.id))
+  const { data, isLoading } = useSuspenseQuery(getLibrariesQueryOptions())
   const { t, language } = useTranslation()
 
   if (isLoading) {
@@ -29,7 +28,7 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold">{t('libraries.myLibraries')}</h3>
-        <LibraryNewDialog userId={user.id} />
+        <LibraryNewDialog />
       </div>
 
       {data.aiLibraries.length < 1 ? (
