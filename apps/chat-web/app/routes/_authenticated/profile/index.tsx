@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import z from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
 
@@ -17,8 +17,8 @@ import { backendRequest } from '../../../server-functions/backend'
 import { sendConfirmationMail } from '../../../server-functions/users'
 
 const userProfileQueryDocument = graphql(`
-  query userProfile($userId: String!) {
-    userProfile(userId: $userId) {
+  query userProfile {
+    userProfile {
       id
       confirmationDate
       ...UserProfileForm_UserProfile
@@ -26,35 +26,29 @@ const userProfileQueryDocument = graphql(`
   }
 `)
 
-export const getUserProfile = createServerFn({ method: 'GET' })
-  .validator((userId: string) => {
-    return z.string().nonempty().parse(userId)
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(userProfileQueryDocument, {
-      userId: ctx.data,
-    })
-  })
+export const getUserProfile = createServerFn({ method: 'GET' }).handler(async () => {
+  return await backendRequest(userProfileQueryDocument)
+})
 
 const removeUserProfileDocument = graphql(`
-  mutation removeUserProfile($userId: String!) {
-    removeUserProfile(userId: $userId) {
+  mutation removeUserProfile($profileId: String!) {
+    removeUserProfile(profileId: $profileId) {
       id
     }
   }
 `)
 
 export const removeUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string }) => {
+  .validator((data: { profileId: string }) => {
     return z
       .object({
-        userId: z.string().nonempty(),
+        profileId: z.string().nonempty(),
       })
       .parse(data)
   })
   .handler(async (ctx) => {
     return await backendRequest(removeUserProfileDocument, {
-      userId: ctx.data.userId,
+      profileId: ctx.data.profileId,
     })
   })
 
@@ -67,7 +61,6 @@ function RouteComponent() {
   const { t, language } = useTranslation()
   const { user } = Route.useRouteContext()
 
-  const userId = user?.id || ''
   const formSchema = getFormSchema(language)
 
   const {
@@ -76,20 +69,20 @@ function RouteComponent() {
     refetch: refetchProfile,
   } = useSuspenseQuery({
     queryKey: [queryKeys.UserProfileForEdit, user.id],
-    queryFn: () => getUserProfile({ data: user.id }),
+    queryFn: () => getUserProfile(),
   })
 
   const confirmationLink = useLinkProps({
     to: '/profile/$profileId/confirm',
-    params: { profileId: userProfile?.userProfile?.id || 'no_profile_id' },
+    params: { profileId: userProfile.userProfile?.id || 'no_profile_id' },
   })
 
   const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
-    mutationFn: async () => removeUserProfile({ data: { userId: user.id } }),
+    mutationFn: async () => removeUserProfile({ data: { profileId: userProfile?.userProfile?.id || 'no_profile_id' } }),
     onSettled: () => {
       toastSuccess(t('texts.removedProfile'))
       refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions(user.id))
+      queryClient.invalidateQueries(getProfileQueryOptions())
     },
     onError: (error) => {
       toastError('Failed to remove profile: ' + error.message)
@@ -98,8 +91,6 @@ function RouteComponent() {
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async (formData: FormData) => {
-      const userIdFromForm = formData.get('userId') as string
-
       // Update the profile
       await updateProfile({
         data: {
@@ -111,7 +102,6 @@ function RouteComponent() {
       // Send the confirmation email
       return await sendConfirmationMail({
         data: {
-          userId: userIdFromForm || userId,
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
         },
       })
@@ -140,7 +130,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
       toastSuccess(t('texts.profileSaved'))

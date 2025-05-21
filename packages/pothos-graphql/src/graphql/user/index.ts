@@ -47,7 +47,7 @@ export const UserInput = builder.inputType('UserInput', {
 })
 
 builder.queryField('user', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     args: {
       email: t.arg.string(),
@@ -55,7 +55,7 @@ builder.queryField('user', (t) =>
     resolve: (query, _source, { email }) => {
       return prisma.user.findUnique({
         ...query,
-        where: { email: email },
+        where: { email },
       })
     },
   }),
@@ -114,17 +114,14 @@ builder.mutationField('login', (t) =>
 )
 
 builder.queryField('users', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['User'],
     nullable: { list: false, items: false },
-    args: {
-      userId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { userId }) => {
+    resolve: async (query, _source, _args, context) => {
       return prisma.user.findMany({
         ...query,
         where: {
-          id: { not: userId },
+          id: { not: context.session.user.id },
         },
       })
     },

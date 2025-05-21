@@ -41,10 +41,9 @@ const deleteAssistant = createServerFn({ method: 'POST' })
 
 export interface AssistantDeleteDialogProps {
   assistant: AssistantBaseFragment
-  userId: string
 }
 
-export const AssistantDeleteDialog = ({ assistant, userId }: AssistantDeleteDialogProps) => {
+export const AssistantDeleteDialog = ({ assistant }: AssistantDeleteDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -56,7 +55,7 @@ export const AssistantDeleteDialog = ({ assistant, userId }: AssistantDeleteDial
       if (!deletedId) {
         throw new Error('Failed to delete assistant')
       }
-      queryClient.invalidateQueries(getAiAssistantsQueryOptions(userId))
+      queryClient.invalidateQueries(getAiAssistantsQueryOptions())
       dialogRef.current?.close()
     },
   })

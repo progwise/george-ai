@@ -12,9 +12,9 @@ export const Route = createFileRoute('/_authenticated/conversations')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions(context.user.id)),
-      context.queryClient.ensureQueryData(getUsersQueryOptions(context.user.id)),
-      context.queryClient.ensureQueryData(getConversationsQueryOptions(context.user.id)),
+      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
+      context.queryClient.ensureQueryData(getUsersQueryOptions()),
+      context.queryClient.ensureQueryData(getConversationsQueryOptions()),
     ])
   },
 })
@@ -26,13 +26,13 @@ function RouteComponent() {
 
   const {
     data: { aiAssistants },
-  } = useSuspenseQuery(getAiAssistantsQueryOptions(user.id))
+  } = useSuspenseQuery(getAiAssistantsQueryOptions())
   const {
     data: { users },
-  } = useSuspenseQuery(getUsersQueryOptions(user.id))
+  } = useSuspenseQuery(getUsersQueryOptions())
   const {
     data: { aiConversations },
-  } = useSuspenseQuery(getConversationsQueryOptions(user.id))
+  } = useSuspenseQuery(getConversationsQueryOptions())
 
   const handleConversationClick = () => {
     if (drawerCheckboxRef.current) {

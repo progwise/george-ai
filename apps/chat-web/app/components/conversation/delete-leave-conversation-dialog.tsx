@@ -52,7 +52,8 @@ export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLe
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(userId))
+      dialogRef.current?.close()
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       navigate({ to: '..' })
     },
   })
@@ -67,7 +68,8 @@ export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLe
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(userId))
+      dialogRef.current?.close()
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       navigate({ to: '..' })
     },
   })
@@ -78,10 +80,6 @@ export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLe
     } else if (isParticipant) {
       leaveConversationMutate()
     }
-  }
-
-  const handleOpen = () => {
-    dialogRef.current?.showModal()
   }
 
   const isPending = isDeletePending || isLeavePending
@@ -97,7 +95,7 @@ export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLe
       <button
         type="button"
         className="btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-left mx-1"
-        onClick={handleOpen}
+        onClick={() => dialogRef.current?.showModal()}
         data-tip={buttonTooltip}
       >
         <Icon className="text-error size-6" />

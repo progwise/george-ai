@@ -28,7 +28,7 @@ export const AssistantLeaveDialog = ({ assistant, userId }: AssistantLeaveDialog
       })
     },
     onSettled: () => {
-      queryClient.invalidateQueries(getAiAssistantsQueryOptions(userId))
+      queryClient.invalidateQueries(getAiAssistantsQueryOptions())
       dialogRef.current?.close()
     },
   })

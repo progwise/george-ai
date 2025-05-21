@@ -4,18 +4,17 @@ import { useRef } from 'react'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
-import { getConversationsQueryOptions, removeConversations } from '../../server-functions/conversations'
+import { deleteConversations, getConversationsQueryOptions } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 
-interface RemoveConversationsDialogProps {
+interface DeleteConversationsDialogProps {
   checkedConversationIds: string[]
-  userId: string
   resetCheckedConversationIds: () => void
   selectedConversationId: string | undefined
 }
 
-export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps) => {
+export const DeleteConversationsDialog = (props: DeleteConversationsDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -23,13 +22,13 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
 
   const currentConversationIsChecked = props.checkedConversationIds.some((id) => id === props.selectedConversationId)
 
-  const { mutate: removeConversationsMutate, isPending: isRemovePending } = useMutation({
+  const { mutate: deleteConversationsMutate, isPending: isDeletePending } = useMutation({
     mutationFn: () =>
-      removeConversations({
-        data: { conversationIds: props.checkedConversationIds, userId: props.userId },
+      deleteConversations({
+        data: { conversationIds: props.checkedConversationIds },
       }),
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       props.resetCheckedConversationIds()
       if (currentConversationIsChecked) {
         navigate({ to: '..' })
@@ -39,7 +38,7 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
   })
 
   const handleSubmit = () => {
-    removeConversationsMutate()
+    deleteConversationsMutate()
   }
 
   const handleOpen = () => {
@@ -65,7 +64,7 @@ export const RemoveConversationsDialog = (props: RemoveConversationsDialogProps)
         <TrashIcon className={trashIconDesign} />
       </button>
 
-      <LoadingSpinner isLoading={isRemovePending} />
+      <LoadingSpinner isLoading={isDeletePending} />
 
       <DialogForm
         ref={dialogRef}

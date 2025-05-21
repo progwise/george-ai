@@ -11,7 +11,7 @@ export const AssistantDeleteOrLeaveDialogButton = ({ assistant, userId }: Assist
   const isOwner = userId === assistant.ownerId
 
   return isOwner ? (
-    <AssistantDeleteDialog assistant={assistant} userId={userId} />
+    <AssistantDeleteDialog assistant={assistant} />
   ) : (
     <AssistantLeaveDialog assistant={assistant} userId={userId} />
   )

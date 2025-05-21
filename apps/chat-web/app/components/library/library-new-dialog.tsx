@@ -14,7 +14,6 @@ const createNewLibrary = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     return z
       .object({
-        ownerId: z.string().nonempty(),
         name: z.string().min(1),
         description: z.string().optional(),
       })
@@ -24,15 +23,14 @@ const createNewLibrary = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(
       graphql(`
-        mutation createAiLibrary($ownerId: String!, $data: AiLibraryInput!) {
-          createAiLibrary(ownerId: $ownerId, data: $data) {
+        mutation createAiLibrary($data: AiLibraryInput!) {
+          createAiLibrary(data: $data) {
             id
             name
           }
         }
       `),
       {
-        ownerId: data.ownerId,
         data: {
           name: data.name,
           description: data.description,
@@ -41,11 +39,7 @@ const createNewLibrary = createServerFn({ method: 'POST' })
     )
   })
 
-interface LibraryNewDialogProps {
-  userId: string
-}
-
-export const LibraryNewDialog = ({ userId }: LibraryNewDialogProps) => {
+export const LibraryNewDialog = () => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -81,7 +75,6 @@ export const LibraryNewDialog = ({ userId }: LibraryNewDialogProps) => {
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >
-        <input type="hidden" name="ownerId" value={userId} />
         <div className="flex w-full flex-col gap-4">
           <Input
             name="name"

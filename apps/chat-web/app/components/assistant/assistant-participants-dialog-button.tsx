@@ -24,14 +24,9 @@ graphql(`
 interface AssistantParticipantsDialogButtonProps {
   assistant: AssistantParticipantsDialogButton_AssistantFragment
   users: UserFragment[]
-  userId: string
 }
 
-export const AssistantParticipantsDialogButton = ({
-  assistant,
-  users,
-  userId,
-}: AssistantParticipantsDialogButtonProps) => {
+export const AssistantParticipantsDialogButton = ({ assistant, users }: AssistantParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
@@ -46,7 +41,7 @@ export const AssistantParticipantsDialogButton = ({
   const { mutate: addParticipants, isPending } = useMutation({
     mutationFn: async () => {
       return await addAssistantParticipants({
-        data: { assistantId: assistant.id, userIds: selectedUserIds, currentUserId: userId },
+        data: { assistantId: assistant.id, userIds: selectedUserIds },
       })
     },
     onSettled: async () => {

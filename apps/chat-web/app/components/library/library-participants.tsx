@@ -38,11 +38,11 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
-      return await removeLibraryParticipant({ data: { userId, libraryId, currentUserId: userId } })
+      return await removeLibraryParticipant({ data: { userId, libraryId } })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.id))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions())
     },
   })
 
@@ -80,7 +80,7 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
           )
         })}
       </div>
-      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} userId={userId} />}
+      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} />}
     </div>
   )
 }

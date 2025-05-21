@@ -11,10 +11,7 @@ import { activateUserProfile, getUserProfile } from '../../../server-functions/u
 
 export const Route = createFileRoute('/_authenticated/profile/$profileId/admin-confirm')({
   component: RouteComponent,
-  loader: async ({ params }: { params: { profileId: string } }) => {
-    const { profileId } = params
-    return await getUserProfile({ data: { userId: profileId } })
-  },
+  loader: () => getUserProfile(),
 })
 
 function RouteComponent() {
@@ -29,7 +26,7 @@ function RouteComponent() {
       return await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
     },
