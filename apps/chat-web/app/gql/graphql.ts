@@ -396,6 +396,7 @@ export type Mutation = {
   dropFiles?: Maybe<Array<AiLibraryFile>>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
+  leaveAssistantParticipant?: Maybe<User>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
@@ -534,6 +535,10 @@ export type MutationHideMessageArgs = {
 
 export type MutationLeaveAiConversationArgs = {
   participantId: Scalars['String']['input']
+}
+
+export type MutationLeaveAssistantParticipantArgs = {
+  assistantId: Scalars['String']['input']
 }
 
 export type MutationLoginArgs = {
@@ -1797,6 +1802,15 @@ export type RemoveAssistantParticipantMutation = {
   removeAssistantParticipant: { __typename?: 'User'; id: string }
 }
 
+export type LeaveAssistantParticipantMutationVariables = Exact<{
+  assistantId: Scalars['String']['input']
+}>
+
+export type LeaveAssistantParticipantMutation = {
+  __typename?: 'Mutation'
+  leaveAssistantParticipant?: { __typename?: 'User'; id: string } | null
+}
+
 export type AssistantBaseFragment = {
   __typename?: 'AiAssistant'
   id: string
@@ -1804,6 +1818,7 @@ export type AssistantBaseFragment = {
   description?: string | null
   iconUrl?: string | null
   updatedAt?: string | null
+  ownerId: string
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{ [key: string]: never }>
@@ -1817,6 +1832,7 @@ export type AiAssistantCardsQuery = {
     description?: string | null
     iconUrl?: string | null
     updatedAt?: string | null
+    ownerId: string
   }>
 }
 
@@ -4233,6 +4249,7 @@ export const AssistantBaseFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
         ],
       },
     },
@@ -7000,6 +7017,43 @@ export const RemoveAssistantParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveAssistantParticipantMutation, RemoveAssistantParticipantMutationVariables>
+export const LeaveAssistantParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'leaveAssistantParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'leaveAssistantParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LeaveAssistantParticipantMutation, LeaveAssistantParticipantMutationVariables>
 export const AiAssistantCardsDocument = {
   kind: 'Document',
   definitions: [
@@ -7033,6 +7087,7 @@ export const AiAssistantCardsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
         ],
       },
     },

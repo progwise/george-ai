@@ -65,6 +65,9 @@ export default {
     deleteButton: 'Löschen',
     deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
     hasNoIcon: '{assistant.name} hat kein Icon',
+    leave: 'Assistenten verlassen',
+    leaveConfirmation:
+      'Sie sind dabei, dieser Assistenten zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     libraries: 'Verwendete Bibliotheken',
     libraryToAdd: 'Bibliothek hinzufügen',
     myAssistants: 'Meine Assistenten',

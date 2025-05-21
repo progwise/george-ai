@@ -12,6 +12,7 @@ export const Route = createFileRoute('/_authenticated/assistants/')({
 })
 
 function RouteComponent() {
+  const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const { data, isLoading } = useQuery(getAiAssistantsQueryOptions())
 
@@ -32,7 +33,9 @@ function RouteComponent() {
         {!data?.aiAssistants || data.aiAssistants.length < 1 ? (
           <h3>{t('assistants.noAssistantsFound')}</h3>
         ) : (
-          data?.aiAssistants?.map((assistant) => <AssistantCard key={assistant.id} assistant={assistant} />)
+          data?.aiAssistants?.map((assistant) => (
+            <AssistantCard key={assistant.id} assistant={assistant} userId={user.id} />
+          ))
         )}
       </div>
     </article>
