@@ -397,6 +397,7 @@ export type Mutation = {
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
+  leaveLibraryParticipant?: Maybe<User>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile?: Maybe<AiLibraryFile>
@@ -539,6 +540,10 @@ export type MutationLeaveAiConversationArgs = {
 
 export type MutationLeaveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
+}
+
+export type MutationLeaveLibraryParticipantArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationLoginArgs = {
@@ -1525,24 +1530,6 @@ export type UpdateAiLibraryCrawlerMutation = {
   updateAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
 }
 
-export type DropFilesMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type DropFilesMutation = {
-  __typename?: 'Mutation'
-  dropFiles?: Array<{ __typename?: 'AiLibraryFile'; id: string; libraryId: string }> | null
-}
-
-export type DeleteAiLibraryMutationVariables = Exact<{
-  id: Scalars['String']['input']
-}>
-
-export type DeleteAiLibraryMutation = {
-  __typename?: 'Mutation'
-  deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
-}
-
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -1683,6 +1670,24 @@ export type ProcessFileMutation = {
     uploadedAt?: string | null
     processedAt?: string | null
   } | null
+}
+
+export type DropFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type DropFilesMutation = {
+  __typename?: 'Mutation'
+  dropFiles?: Array<{ __typename?: 'AiLibraryFile'; id: string; libraryId: string }> | null
+}
+
+export type DeleteAiLibraryMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteAiLibraryMutation = {
+  __typename?: 'Mutation'
+  deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
 }
 
 export type CreateAiLibraryMutationVariables = Exact<{
@@ -2753,6 +2758,15 @@ export type RemoveLibraryParticipantMutationVariables = Exact<{
 export type RemoveLibraryParticipantMutation = {
   __typename?: 'Mutation'
   removeLibraryParticipant: { __typename?: 'User'; id: string }
+}
+
+export type LeaveLibraryParticipantMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type LeaveLibraryParticipantMutation = {
+  __typename?: 'Mutation'
+  leaveLibraryParticipant?: { __typename?: 'User'; id: string } | null
 }
 
 export type UserFragment = {
@@ -6162,83 +6176,6 @@ export const UpdateAiLibraryCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAiLibraryCrawlerMutation, UpdateAiLibraryCrawlerMutationVariables>
-export const DropFilesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'dropFiles' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'dropFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DropFilesMutation, DropFilesMutationVariables>
-export const DeleteAiLibraryDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteAiLibrary' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteAiLibrary' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteAiLibraryMutation, DeleteAiLibraryMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -6690,6 +6627,83 @@ export const ProcessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
+export const DropFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'dropFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dropFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DropFilesMutation, DropFilesMutationVariables>
+export const DeleteAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAiLibraryMutation, DeleteAiLibraryMutationVariables>
 export const CreateAiLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -8370,6 +8384,43 @@ export const RemoveLibraryParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveLibraryParticipantMutation, RemoveLibraryParticipantMutationVariables>
+export const LeaveLibraryParticipantDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'leaveLibraryParticipant' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'leaveLibraryParticipant' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LeaveLibraryParticipantMutation, LeaveLibraryParticipantMutationVariables>
 export const UsersDocument = {
   kind: 'Document',
   definitions: [
