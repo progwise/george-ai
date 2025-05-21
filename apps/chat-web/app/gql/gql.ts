@@ -82,7 +82,7 @@ type Documents = {
   '\n  mutation removeUserProfile($profileId: String!) {\n    removeUserProfile(profileId: $profileId) {\n      id\n    }\n  }\n': typeof types.RemoveUserProfileDocument
   '\n  mutation addAssistantParticipant($assistantId: String!, $userIds: [String!]!) {\n    addAssistantParticipants(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddAssistantParticipantDocument
   '\n  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {\n    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveAssistantParticipantDocument
-  '\n  mutation leaveAssistantParticipant($userId: String!, $assistantId: String!) {\n    leaveAssistantParticipant(userId: $userId, assistantId: $assistantId) {\n      id\n    }\n  }\n': typeof types.LeaveAssistantParticipantDocument
+  '\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n': typeof types.LeaveAssistantParticipantDocument
   '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n': typeof types.AssistantBaseFragmentDoc
   '\n      query aiAssistantCards {\n        aiAssistants {\n          ...AssistantBase\n        }\n      }\n    ': typeof types.AiAssistantCardsDocument
   '\n          query aiAssistantDetails($id: String!) {\n            aiAssistant(id: $id) {\n              ...AssistantForm_Assistant\n              ...AssistantSelector_Assistant\n              ...AssistantLibraries_Assistant\n              ...AssistantBasecaseForm_Assistant\n              ...AssistantParticipants_Assistant\n            }\n            aiLibraryUsage(assistantId: $id) {\n              ...AssistantLibraries_LibraryUsage\n            }\n          }\n        ': typeof types.AiAssistantDetailsDocument
@@ -243,7 +243,7 @@ const documents: Documents = {
     types.AddAssistantParticipantDocument,
   '\n  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {\n    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n':
     types.RemoveAssistantParticipantDocument,
-  '\n  mutation leaveAssistantParticipant($userId: String!, $assistantId: String!) {\n    leaveAssistantParticipant(userId: $userId, assistantId: $assistantId) {\n      id\n    }\n  }\n':
+  '\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n':
     types.LeaveAssistantParticipantDocument,
   '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n':
     types.AssistantBaseFragmentDoc,
@@ -718,8 +718,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation leaveAssistantParticipant($userId: String!, $assistantId: String!) {\n    leaveAssistantParticipant(userId: $userId, assistantId: $assistantId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation leaveAssistantParticipant($userId: String!, $assistantId: String!) {\n    leaveAssistantParticipant(userId: $userId, assistantId: $assistantId) {\n      id\n    }\n  }\n']
+  source: '\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

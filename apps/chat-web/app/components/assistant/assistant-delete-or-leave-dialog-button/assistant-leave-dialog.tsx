@@ -10,10 +10,9 @@ import { DialogForm } from '../../dialog-form'
 
 interface AssistantLeaveDialogProps {
   assistant: AssistantBaseFragment
-  userId: string
 }
 
-export const AssistantLeaveDialog = ({ assistant, userId }: AssistantLeaveDialogProps) => {
+export const AssistantLeaveDialog = ({ assistant }: AssistantLeaveDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -22,7 +21,6 @@ export const AssistantLeaveDialog = ({ assistant, userId }: AssistantLeaveDialog
     mutationFn: async () => {
       return await leaveAssistantParticipant({
         data: {
-          userId,
           assistantId: assistant.id,
         },
       })

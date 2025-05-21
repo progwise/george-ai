@@ -53,25 +53,23 @@ export const removeAssistantParticipant = createServerFn({ method: 'POST' })
   )
 
 const LeaveAssistantParticipantDocument = graphql(`
-  mutation leaveAssistantParticipant($userId: String!, $assistantId: String!) {
-    leaveAssistantParticipant(userId: $userId, assistantId: $assistantId) {
+  mutation leaveAssistantParticipant($assistantId: String!) {
+    leaveAssistantParticipant(assistantId: $assistantId) {
       id
     }
   }
 `)
 
 export const leaveAssistantParticipant = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; assistantId: string }) =>
+  .validator((data: { assistantId: string }) =>
     z
       .object({
-        userId: z.string(),
         assistantId: z.string(),
       })
       .parse(data),
   )
   .handler((ctx) =>
     backendRequest(LeaveAssistantParticipantDocument, {
-      userId: ctx.data.userId,
       assistantId: ctx.data.assistantId,
     }),
   )

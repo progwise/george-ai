@@ -539,7 +539,6 @@ export type MutationLeaveAiConversationArgs = {
 
 export type MutationLeaveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
-  userId: Scalars['String']['input']
 }
 
 export type MutationLoginArgs = {
@@ -1804,7 +1803,6 @@ export type RemoveAssistantParticipantMutation = {
 }
 
 export type LeaveAssistantParticipantMutationVariables = Exact<{
-  userId: Scalars['String']['input']
   assistantId: Scalars['String']['input']
 }>
 
@@ -7029,11 +7027,6 @@ export const LeaveAssistantParticipantDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
@@ -7045,11 +7038,6 @@ export const LeaveAssistantParticipantDocument = {
             kind: 'Field',
             name: { kind: 'Name', value: 'leaveAssistantParticipant' },
             arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'userId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
-              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantId' },

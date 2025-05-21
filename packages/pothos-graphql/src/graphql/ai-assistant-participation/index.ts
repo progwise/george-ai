@@ -75,22 +75,20 @@ builder.mutationField('removeAssistantParticipant', (t) =>
 )
 
 builder.mutationField('leaveAssistantParticipant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     args: {
-      userId: t.arg.string({ required: true }),
       assistantId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { userId, assistantId }) => {
+    resolve: async (_query, _source, { assistantId }, context) => {
       await prisma.aiAssistantParticipant.deleteMany({
         where: {
-          userId,
           assistantId,
         },
       })
 
       return prisma.user.findUniqueOrThrow({
-        where: { id: userId },
+        where: { id: context.session.user.id },
       })
     },
   }),

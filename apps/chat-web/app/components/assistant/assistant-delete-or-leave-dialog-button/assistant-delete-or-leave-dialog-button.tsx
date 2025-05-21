@@ -10,9 +10,5 @@ interface AssistantDeleteOrLeaveDialogButtonProps {
 export const AssistantDeleteOrLeaveDialogButton = ({ assistant, userId }: AssistantDeleteOrLeaveDialogButtonProps) => {
   const isOwner = userId === assistant.ownerId
 
-  return isOwner ? (
-    <AssistantDeleteDialog assistant={assistant} />
-  ) : (
-    <AssistantLeaveDialog assistant={assistant} userId={userId} />
-  )
+  return isOwner ? <AssistantDeleteDialog assistant={assistant} /> : <AssistantLeaveDialog assistant={assistant} />
 }
