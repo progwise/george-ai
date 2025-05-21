@@ -11,10 +11,9 @@ import { getLibrariesQueryOptions } from '../get-libraries-query-options'
 
 interface LibraryLeaveDialogProps {
   library: AiLibraryBaseFragment
-  userId: string
 }
 
-export const LibraryLeaveDialog = ({ library, userId }: LibraryLeaveDialogProps) => {
+export const LibraryLeaveDialog = ({ library }: LibraryLeaveDialogProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -24,13 +23,12 @@ export const LibraryLeaveDialog = ({ library, userId }: LibraryLeaveDialogProps)
     mutationFn: async () => {
       return await leaveLibraryParticipant({
         data: {
-          userId,
           libraryId: library.id,
         },
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions())
       navigate({ to: '..' })
     },
   })

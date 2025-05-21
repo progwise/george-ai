@@ -10,5 +10,5 @@ interface LibraryDeleteOrLeaveDialogButtonProps {
 export const LibraryDeleteOrLeaveDialogButton = ({ library, userId }: LibraryDeleteOrLeaveDialogButtonProps) => {
   const isOwner = userId === library.ownerId
 
-  return isOwner ? <LibraryDeleteDialog library={library} /> : <LibraryLeaveDialog library={library} userId={userId} />
+  return isOwner ? <LibraryDeleteDialog library={library} /> : <LibraryLeaveDialog library={library} />
 }

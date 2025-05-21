@@ -65,10 +65,9 @@ const updateAssistant = createServerFn({ method: 'POST' })
 export interface AssistantEditFormProps {
   assistant: AssistantForm_AssistantFragment
   disabled: boolean
-  userId: string
 }
 
-export const AssistantForm = ({ assistant, disabled, userId }: AssistantEditFormProps): React.ReactElement => {
+export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): React.ReactElement => {
   const formRef = React.useRef<HTMLFormElement>(null)
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
@@ -122,7 +121,6 @@ export const AssistantForm = ({ assistant, disabled, userId }: AssistantEditForm
 
   return (
     <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
-      <input type="hidden" name="ownerId" value={userId} />
       <input type="hidden" name="id" value={assistant.id} />
 
       <IconUpload

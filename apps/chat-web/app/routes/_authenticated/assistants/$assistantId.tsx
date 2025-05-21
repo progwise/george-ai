@@ -22,17 +22,18 @@ export const Route = createFileRoute('/_authenticated/assistants/$assistantId')(
 function RouteComponent() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const ownerId = Route.useRouteContext().user.id
+  const { user } = Route.useRouteContext()
+  const ownerId = user.id
   const { assistantId } = Route.useParams()
   const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
 
-  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions(ownerId))
+  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
   const {
     data: { aiLibraries },
-  } = useSuspenseQuery(getLibrariesQueryOptions(ownerId))
+  } = useSuspenseQuery(getLibrariesQueryOptions())
   const {
     data: { aiAssistants },
-  } = useSuspenseQuery(getAiAssistantsQueryOptions(ownerId))
+  } = useSuspenseQuery(getAiAssistantsQueryOptions())
 
   const { aiAssistant, aiLibraryUsage } = data
 
@@ -60,7 +61,7 @@ function RouteComponent() {
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
         <div className="card rounded-box bg-base-200 grid grow px-3 py-3 sm:w-1/2">
-          <AssistantForm assistant={aiAssistant} disabled={!ownerId} userId={ownerId} />
+          <AssistantForm assistant={aiAssistant} disabled={!ownerId} />
           <hr className="my-3" />
           <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
         </div>

@@ -41,7 +41,6 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
         data: {
           userId,
           assistantId,
-          currentUserId: userId,
         },
       })
     },
@@ -84,7 +83,8 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
           )
         })}
       </div>
-      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} userId={userId} />}
+
+      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} />}
     </div>
   )
 }

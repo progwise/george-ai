@@ -60,7 +60,7 @@ export const ConversationParticipants = ({
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
-      await queryClient.invalidateQueries(getConversationsQueryOptions(userId))
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
     },
   })
 

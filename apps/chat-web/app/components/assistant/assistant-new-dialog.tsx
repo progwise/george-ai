@@ -14,34 +14,28 @@ const createNewAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     return z
       .object({
-        ownerId: z.string().nonempty(),
         name: z.string().min(1),
       })
       .parse(Object.fromEntries(data))
   })
   .handler(async (ctx) => {
     const data = await ctx.data
-    console.log(data)
     return await backendRequest(
       graphql(`
-        mutation createAiAssistant($ownerId: String!, $name: String!) {
-          createAiAssistant(ownerId: $ownerId, name: $name) {
+        mutation createAiAssistant($name: String!) {
+          createAiAssistant(name: $name) {
             id
             name
           }
         }
       `),
       {
-        ...data,
+        name: data.name,
       },
     )
   })
 
-interface AssistantNewDialogProps {
-  userId: string
-}
-
-export const AssistantNewDialog = ({ userId }: AssistantNewDialogProps) => {
+export const AssistantNewDialog = () => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -77,7 +71,6 @@ export const AssistantNewDialog = ({ userId }: AssistantNewDialogProps) => {
         onSubmit={onSubmit}
         disabledSubmit={isPending}
       >
-        <input type="hidden" name="ownerId" value={userId} />
         <Input
           name="name"
           type="text"

@@ -7,15 +7,14 @@ import { EmbeddingsTable, aiLibraryFilesQueryOptions } from '../../../../compone
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    context.queryClient.ensureQueryData(getProfileQueryOptions(context.user.id))
+    context.queryClient.ensureQueryData(getProfileQueryOptions())
     context.queryClient.ensureQueryData(aiLibraryFilesQueryOptions(params.libraryId))
   },
 })
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { user } = Route.useRouteContext()
-  const { data: profile } = useSuspenseQuery(getProfileQueryOptions(user.id))
+  const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
 
-  return <EmbeddingsTable libraryId={libraryId} userId={user.id} profile={profile ?? undefined} />
+  return <EmbeddingsTable libraryId={libraryId} profile={profile ?? undefined} />
 }

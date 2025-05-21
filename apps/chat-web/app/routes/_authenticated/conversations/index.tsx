@@ -10,9 +10,9 @@ export const Route = createFileRoute('/_authenticated/conversations/')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getConversationsQueryOptions(context.user.id)),
-      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions(context.user.id)),
-      context.queryClient.ensureQueryData(getUsersQueryOptions(context.user.id)),
+      context.queryClient.ensureQueryData(getConversationsQueryOptions()),
+      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
+      context.queryClient.ensureQueryData(getUsersQueryOptions()),
     ])
   },
 })
@@ -22,11 +22,7 @@ function RouteComponent() {
   const navigate = Route.useNavigate()
 
   const [conversationsQuery, assistantsQuery, usersQuery] = useSuspenseQueries({
-    queries: [
-      getConversationsQueryOptions(user.id),
-      getAiAssistantsQueryOptions(user.id),
-      getUsersQueryOptions(user.id),
-    ],
+    queries: [getConversationsQueryOptions(), getAiAssistantsQueryOptions(), getUsersQueryOptions()],
   })
 
   const latestConversation = conversationsQuery.data.aiConversations.at(0)

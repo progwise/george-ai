@@ -31,7 +31,6 @@ export const Route = createFileRoute('/_authenticated/conversations/$conversatio
 
 function RouteComponent() {
   const { conversationId, invitationId } = Route.useParams()
-  const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const navigate = useNavigate()
 
@@ -41,8 +40,6 @@ function RouteComponent() {
         data: {
           conversationId,
           invitationId,
-          userId: user.id,
-          email: user.email?.toLowerCase(),
         },
       })
     },
