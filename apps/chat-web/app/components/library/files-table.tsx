@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CheckIcon } from '../../icons/check-icon'
 import { CrossIcon } from '../../icons/cross-icon'
+import { FileIcon } from '../../icons/file-icon'
+import { FolderIcon } from '../../icons/folder-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
 
@@ -92,7 +94,8 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
               {files.map((file) => {
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
-                const isFolder = file.kind === 'drive#folder'
+                const isFolder = file.kind === 'application/vnd.google-apps.folder'
+                const iconDesign = 'me-3 ms-3 flex-none size-6'
 
                 return (
                   <div
@@ -108,7 +111,19 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
                     aria-label={`File ${file.name}, ${isSelected ? 'selected' : 'not selected'}`}
                     title={`${file.name} (${formatBytes(sizeValue)})`}
                   >
-                    <input type="checkbox" className="checkbox checkbox-xs" checked={isSelected} readOnly />
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-xs me-3 ms-3 flex-none"
+                      checked={isSelected}
+                      readOnly
+                    />
+                    {file.iconLink ? (
+                      <img src={file.iconLink} alt="" className={iconDesign + 'object-contain'} />
+                    ) : isFolder ? (
+                      <FolderIcon className={iconDesign} />
+                    ) : (
+                      <FileIcon className={iconDesign} />
+                    )}
                     <div className="flex flex-1 flex-col text-sm">
                       <div
                         className="break-words font-medium"
@@ -132,7 +147,7 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
               {files.map((file) => {
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
-                const isFolder = file.kind === 'drive#folder'
+                const isFolder = file.kind === 'application/vnd.google-apps.folder'
                 return (
                   <div
                     key={file.id}
