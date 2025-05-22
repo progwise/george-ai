@@ -315,7 +315,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                       <td className="truncate">
                         {file.originUri &&
                           (file.originUri.startsWith('http') ? (
-                            <Link to={file.originUri} className="link" target="_blank">
+                            <Link to={file.originUri} className="link" target="_blank" title={file.originUri}>
                               {file.originUri}
                             </Link>
                           ) : (
