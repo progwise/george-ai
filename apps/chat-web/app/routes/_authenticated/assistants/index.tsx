@@ -1,33 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
 
 import { AssistantCard } from '../../../components/assistant/assistant-card'
 import { AssistantNewDialog } from '../../../components/assistant/assistant-new-dialog'
 import { LoadingSpinner } from '../../../components/loading-spinner'
-import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { queryKeys } from '../../../query-keys'
-import { backendRequest } from '../../../server-functions/backend'
-
-const getMyAiAssistants = createServerFn({ method: 'GET' })
-  .validator((userId: string) => z.string().nonempty().parse(userId))
-  .handler((ctx) =>
-    backendRequest(
-      graphql(`
-        query aiAssistantCards($userId: String!) {
-          aiAssistants(userId: $userId) {
-            id
-            ...AssistantCard_Assistant
-          }
-        }
-      `),
-      {
-        userId: ctx.data,
-      },
-    ),
-  )
+import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 
 export const Route = createFileRoute('/_authenticated/assistants/')({
   component: RouteComponent,
@@ -36,12 +14,7 @@ export const Route = createFileRoute('/_authenticated/assistants/')({
 function RouteComponent() {
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
-  const { data, isLoading } = useQuery({
-    queryKey: [queryKeys.MyAiAssistants, user.id],
-    queryFn: async () => {
-      return getMyAiAssistants({ data: user.id })
-    },
-  })
+  const { data, isLoading } = useQuery(getAiAssistantsQueryOptions())
 
   if (isLoading) {
     return <LoadingSpinner />
@@ -53,7 +26,7 @@ function RouteComponent() {
         <h3 className="text-base font-semibold">
           <span>{t('assistants.myAssistants')}</span>
         </h3>
-        {<AssistantNewDialog userId={user.id} />}
+        {<AssistantNewDialog />}
       </div>
 
       <div className="flex flex-wrap gap-4">

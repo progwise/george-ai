@@ -9,7 +9,7 @@ export function createRouter() {
 
   const router = createTanStackRouter({
     routeTree,
-    context: { queryClient, language: 'en', theme: 'light' },
+    context: { queryClient },
     defaultPreload: 'intent',
     defaultErrorComponent: () => <div>Ups, something went wrong!</div>,
     defaultNotFoundComponent: () => <div>Not found!</div>,

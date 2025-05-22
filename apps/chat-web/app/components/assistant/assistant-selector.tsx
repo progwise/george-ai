@@ -1,9 +1,10 @@
 import { useNavigate } from '@tanstack/react-router'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { AssistantBaseFragment, AssistantSelector_AssistantFragment } from '../../gql/graphql'
 import { Listbox } from '../listbox'
 
-const AssistantSelector_AssistantFragment = graphql(`
+graphql(`
   fragment AssistantSelector_Assistant on AiAssistant {
     id
     name
@@ -11,13 +12,11 @@ const AssistantSelector_AssistantFragment = graphql(`
 `)
 
 interface AssistantSelectorProps {
-  assistants: FragmentType<typeof AssistantSelector_AssistantFragment>[]
-  selectedAssistant: FragmentType<typeof AssistantSelector_AssistantFragment>
+  assistants: AssistantBaseFragment[]
+  selectedAssistant: AssistantSelector_AssistantFragment
 }
 
-export const AssistantSelector = (props: AssistantSelectorProps) => {
-  const assistants = useFragment(AssistantSelector_AssistantFragment, props.assistants)
-  const selectedAssistant = useFragment(AssistantSelector_AssistantFragment, props.selectedAssistant)
+export const AssistantSelector = ({ assistants, selectedAssistant }: AssistantSelectorProps) => {
   const navigate = useNavigate()
   return (
     <Listbox

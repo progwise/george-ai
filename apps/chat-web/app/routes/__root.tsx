@@ -3,19 +3,16 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanst
 import React, { Suspense } from 'react'
 
 import { AuthProvider } from '../auth/auth'
-import { getUser } from '../auth/get-user'
+import { getUserQueryOptions } from '../auth/get-user'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
-import TopNavigation, { getTheme } from '../components/top-navigation'
-import { Language } from '../i18n'
-import { getLanguage } from '../i18n/language-provider'
-import { LanguageProvider } from '../i18n/language-provider'
+import TopNavigation from '../components/top-navigation'
+import { getThemeQueryOptions } from '../hooks/use-theme'
+import { getLanguageQueryOptions, useLanguage } from '../i18n/use-language-hook'
 import appCss from '../index.css?url'
 
 interface RouterContext {
   queryClient: QueryClient
-  language: Language
-  theme: 'light' | 'dark' | null
 }
 
 const TanStackRouterDevtools =
@@ -43,7 +40,9 @@ const TanStackQueryDevtools =
       )
 
 const RootDocument = () => {
-  const { user, theme, language } = Route.useRouteContext()
+  const { user } = Route.useRouteContext()
+  const { language } = useLanguage()
+
   React.useEffect(() => {
     if (typeof window === 'undefined' || !window.document || window.document.location.hostname === 'localhost') {
       return
@@ -60,44 +59,42 @@ const RootDocument = () => {
     s.parentNode?.insertBefore(g, s)
   }, [])
   return (
-    <html data-theme={theme ?? 'light'} lang={language}>
+    <html lang={language}>
       <head>
         <HeadContent />
       </head>
       <body className="px-body">
-        <LanguageProvider initialLanguage={language as Language}>
-          <AuthProvider>
-            <>
-              <TopNavigation user={user ?? undefined} theme={theme ?? undefined} />
-              <div className="flex grow flex-col">
-                <Outlet />
-              </div>
-              <Scripts />
-              <Suspense>
-                <TanStackRouterDevtools />
-              </Suspense>
-              <Suspense>
-                <TanStackQueryDevtools />
-              </Suspense>
-              <GeorgeToaster />
-            </>
-          </AuthProvider>
-          <BottomNavigationMobile />
-        </LanguageProvider>
+        <AuthProvider>
+          <>
+            <TopNavigation user={user ?? undefined} />
+            <div className="flex grow flex-col">
+              <Outlet />
+            </div>
+            <Scripts />
+            <Suspense>
+              <TanStackRouterDevtools />
+            </Suspense>
+            <Suspense>
+              <TanStackQueryDevtools />
+            </Suspense>
+            <GeorgeToaster />
+          </>
+        </AuthProvider>
+        <BottomNavigationMobile />
       </body>
     </html>
   )
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  beforeLoad: async () => {
-    const [theme, language] = await Promise.all([getTheme(), getLanguage()])
-    const user = await getUser()
-    return {
-      language,
-      user,
-      theme,
-    }
+  beforeLoad: async ({ context }) => {
+    const [user] = await Promise.all([
+      context.queryClient.ensureQueryData(getUserQueryOptions()),
+      context.queryClient.ensureQueryData(getLanguageQueryOptions()),
+      context.queryClient.ensureQueryData(getThemeQueryOptions()),
+    ])
+
+    return { user }
   },
   head: () => ({
     meta: [

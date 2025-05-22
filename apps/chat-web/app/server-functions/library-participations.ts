@@ -29,27 +29,47 @@ export const addLibraryParticipants = createServerFn({ method: 'POST' })
   )
 
 const RemoveLibraryParticipantDocument = graphql(`
-  mutation removeLibraryParticipant($userId: String!, $libraryId: String!, $currentUserId: String!) {
-    removeLibraryParticipant(userId: $userId, libraryId: $libraryId, currentUserId: $currentUserId) {
+  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {
+    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {
       id
     }
   }
 `)
 
 export const removeLibraryParticipant = createServerFn({ method: 'POST' })
-  .validator((data: { userId: string; libraryId: string; currentUserId: string }) =>
+  .validator((data: { libraryId: string; userId: string }) =>
     z
       .object({
-        userId: z.string(),
         libraryId: z.string(),
-        currentUserId: z.string(),
+        userId: z.string(),
       })
       .parse(data),
   )
   .handler((ctx) =>
     backendRequest(RemoveLibraryParticipantDocument, {
-      userId: ctx.data.userId,
       libraryId: ctx.data.libraryId,
-      currentUserId: ctx.data.currentUserId,
+      userId: ctx.data.userId,
+    }),
+  )
+
+const LeaveLibraryParticipantDocument = graphql(`
+  mutation leaveLibraryParticipant($libraryId: String!) {
+    leaveLibraryParticipant(libraryId: $libraryId) {
+      id
+    }
+  }
+`)
+
+export const leaveLibraryParticipant = createServerFn({ method: 'POST' })
+  .validator((data: { libraryId: string }) =>
+    z
+      .object({
+        libraryId: z.string(),
+      })
+      .parse(data),
+  )
+  .handler((ctx) =>
+    backendRequest(LeaveLibraryParticipantDocument, {
+      libraryId: ctx.data.libraryId,
     }),
   )

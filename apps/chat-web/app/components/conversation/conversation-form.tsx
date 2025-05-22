@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
-import { FragmentType, graphql, useFragment } from '../../gql'
-import { User, UserProfile } from '../../gql/graphql'
+import { graphql } from '../../gql'
+import { ConversationForm_ConversationFragment, UserFragment, UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { getConversationQueryOptions, sendMessage } from '../../server-functions/conversations'
@@ -13,9 +13,9 @@ import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
 
-const ConversationForm_ConversationFragment = graphql(`
+graphql(`
   fragment ConversationForm_Conversation on AiConversation {
-    id
+    ...ConversationBase
     assistants {
       id
       name
@@ -24,13 +24,12 @@ const ConversationForm_ConversationFragment = graphql(`
 `)
 
 interface ConversationFormProps {
-  conversation: FragmentType<typeof ConversationForm_ConversationFragment>
-  user: Pick<User, 'id' | 'name' | 'username'>
-  profile?: Pick<UserProfile, 'id' | 'freeMessages' | 'usedMessages'>
+  conversation: ConversationForm_ConversationFragment
+  user: UserFragment
+  profile?: UserProfileFragment
 }
-export const ConversationForm = (props: ConversationFormProps) => {
+export const ConversationForm = ({ conversation, user, profile }: ConversationFormProps) => {
   const { t, language } = useTranslation()
-  const conversation = useFragment(ConversationForm_ConversationFragment, props.conversation)
   const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
   const [isAtBottom, setIsAtBottom] = useState(true)
@@ -42,7 +41,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
   const formRef = useRef<HTMLFormElement>(null)
 
-  const remainingMessages = (props.profile?.freeMessages || 0) - (props.profile?.usedMessages || 0)
+  const remainingMessages = (profile?.freeMessages || 0) - (profile?.usedMessages || 0)
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -79,7 +78,6 @@ export const ConversationForm = (props: ConversationFormProps) => {
 
       const result = await sendMessage({
         data: {
-          userId: props.user.id,
           conversationId: conversation.id!,
           recipientAssistantIds: data.recipientAssistantIds,
           content: data.content,
@@ -91,7 +89,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
       // refetch the conversation to get the new message
       queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
 
-      queryClient.invalidateQueries(getProfileQueryOptions(props.user.id))
+      queryClient.invalidateQueries(getProfileQueryOptions())
 
       scrollToBottom()
     },
@@ -151,7 +149,7 @@ export const ConversationForm = (props: ConversationFormProps) => {
     errorDialogRef.current?.showModal()
   }
 
-  const name = props.user.name || props.user.username
+  const name = user.name || user.username
 
   return (
     <>

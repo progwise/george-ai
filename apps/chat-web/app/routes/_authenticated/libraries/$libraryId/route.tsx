@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
 
-import { DeleteLibraryDialog } from '../../../../components/library/delete-library-dialog'
 import { getLibrariesQueryOptions } from '../../../../components/library/get-libraries-query-options'
 import { getLibraryQueryOptions } from '../../../../components/library/get-library-query-options'
+import { LibraryDeleteOrLeaveDialogButton } from '../../../../components/library/library-delete-or-leave-dialog-button/library-delete-or-leave-dialog-button'
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getLibrariesQueryOptions(context.user.id)),
+      context.queryClient.ensureQueryData(getLibrariesQueryOptions()),
       context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId)),
     ])
   },
@@ -22,15 +22,15 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { user } = Route.useRouteContext()
   const {
     data: { aiLibraries },
-  } = useSuspenseQuery(getLibrariesQueryOptions(user.id))
+  } = useSuspenseQuery(getLibrariesQueryOptions())
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
-  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions(user.id))
+  const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
 
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = Route.useRouteContext()
 
   return (
     <article className="flex w-full flex-col gap-4">
@@ -40,11 +40,11 @@ function RouteComponent() {
         </div>
         <div className="flex min-w-0 gap-2">
           <LibraryParticipants library={aiLibrary} users={usersData.users} userId={user.id} />
-          <DeleteLibraryDialog library={aiLibrary} />
+          <LibraryDeleteOrLeaveDialogButton library={aiLibrary} userId={user.id} />
           <button
             type="button"
             onClick={() => navigate({ to: '..' })}
-            className="btn btn-sm tooltip tooltip-bottom"
+            className="btn btn-sm tooltip tooltip-left"
             data-tip={t('tooltips.goToOverview')}
           >
             <BackIcon />

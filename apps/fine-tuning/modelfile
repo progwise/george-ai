@@ -1,0 +1,4 @@
+FROM ./gguf_models/em-german-leo-mistral/em-german-leo-mistral_fp16.gguf
+# Optional parameters for model configuration:
+# PARAMETER temperature 0.7
+# SYSTEM "You are an expert George-AI assistant."

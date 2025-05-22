@@ -3,7 +3,12 @@ import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import {
+  ConversationParticipantsDialogButton_AssistantFragment,
+  ConversationParticipantsDialogButton_ConversationFragment,
+  UserFragment,
+} from '../../gql/graphql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
@@ -13,7 +18,6 @@ import {
   getConversationQueryOptions,
   getConversationsQueryOptions,
 } from '../../server-functions/conversations'
-import { User } from '../../server-functions/users'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
@@ -21,10 +25,9 @@ import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
 
-const ConversationParticipantsDialogButton_ConversationFragment = graphql(`
+graphql(`
   fragment ConversationParticipantsDialogButton_Conversation on AiConversation {
-    id
-    ownerId
+    ...ConversationBase
     participants {
       id
       userId
@@ -33,7 +36,7 @@ const ConversationParticipantsDialogButton_ConversationFragment = graphql(`
   }
 `)
 
-const ConversationParticipantsDialogButton_AssistantFragment = graphql(`
+graphql(`
   fragment ConversationParticipantsDialogButton_Assistant on AiAssistant {
     id
     name
@@ -41,16 +44,24 @@ const ConversationParticipantsDialogButton_AssistantFragment = graphql(`
 `)
 
 interface ConversationParticipantsDialogButtonProps {
-  conversation?: FragmentType<typeof ConversationParticipantsDialogButton_ConversationFragment>
-  assistants: FragmentType<typeof ConversationParticipantsDialogButton_AssistantFragment>[]
-  users: User[]
+  conversation?: ConversationParticipantsDialogButton_ConversationFragment
+  assistants: ConversationParticipantsDialogButton_AssistantFragment[]
+  users: UserFragment[]
   dialogMode: 'new' | 'add'
   isOpen?: boolean
   userId: string
   className?: string
 }
 
-export const ConversationParticipantsDialogButton = (props: ConversationParticipantsDialogButtonProps) => {
+export const ConversationParticipantsDialogButton = ({
+  conversation,
+  assistants,
+  users,
+  dialogMode,
+  isOpen,
+  userId,
+  className,
+}: ConversationParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [selectedAssistantIds, setSelectedAssistantIds] = useState<string[]>([])
@@ -62,10 +73,6 @@ export const ConversationParticipantsDialogButton = (props: ConversationParticip
   const dialogRef = useRef<HTMLDialogElement>(null)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-
-  const conversation = useFragment(ConversationParticipantsDialogButton_ConversationFragment, props.conversation)
-  const assistants = useFragment(ConversationParticipantsDialogButton_AssistantFragment, props.assistants)
-  const { users } = props
 
   const assignedAssistantIds = useMemo(
     () =>
@@ -93,16 +100,15 @@ export const ConversationParticipantsDialogButton = (props: ConversationParticip
     [users, assignedUserIds],
   )
 
-  const isCreatingNewConversation = props.dialogMode === 'new'
-  const isOwner = isCreatingNewConversation || props.userId === conversation?.ownerId
+  const isCreatingNewConversation = dialogMode === 'new'
+  const isOwner = isCreatingNewConversation || userId === conversation?.ownerId
 
   const { mutateAsync: createNewConversation, isPending: isCreating } = useMutation({
     mutationFn: async () => {
       return await createConversation({
         data: {
-          userIds: [...selectedUserIds, props.userId],
+          userIds: [...selectedUserIds, userId],
           assistantIds: [...selectedAssistantIds],
-          ownerId: props.userId,
         },
       })
     },
@@ -126,7 +132,7 @@ export const ConversationParticipantsDialogButton = (props: ConversationParticip
     onSettled: async () => {
       if (conversation) {
         await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
-        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+        await queryClient.invalidateQueries(getConversationsQueryOptions())
       }
       setEmailChips([])
       setEmailError(null)
@@ -138,7 +144,7 @@ export const ConversationParticipantsDialogButton = (props: ConversationParticip
   }
 
   const handleSubmit = async () => {
-    if (props.dialogMode === 'new') {
+    if (dialogMode === 'new') {
       if (emailChips.length > 0) {
         const { invalidEmails } = validateEmails(emailChips)
 
@@ -159,7 +165,7 @@ export const ConversationParticipantsDialogButton = (props: ConversationParticip
           return
         }
 
-        await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+        await queryClient.invalidateQueries(getConversationsQueryOptions())
         navigate({ to: `/conversations/${conversationId}` })
 
         if (emailChips.length > 0) {
@@ -208,27 +214,27 @@ export const ConversationParticipantsDialogButton = (props: ConversationParticip
     }
   }
 
-  const { sendEmailInvitations, isSendingInvitation } = useEmailInvitations(conversation?.id ?? '', props.userId)
+  const { sendEmailInvitations, isSendingInvitation } = useEmailInvitations(conversation?.id ?? '')
 
   useEffect(() => {
-    if (props.isOpen && dialogRef.current) {
+    if (isOpen && dialogRef.current) {
       dialogRef.current.showModal()
     }
-  }, [props.isOpen])
+  }, [isOpen])
 
-  const title = props.dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
+  const title = dialogMode === 'new' ? t('texts.newConversation') : t('texts.addParticipants')
   const description =
-    props.dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
-  const submitButtonText = props.dialogMode === 'new' ? t('actions.create') : t('actions.add')
-  const buttonText = props.dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
-  const buttonClass = props.dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
+    dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
+  const submitButtonText = dialogMode === 'new' ? t('actions.create') : t('actions.add')
+  const buttonText = dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
+  const buttonClass = dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding || isSendingInvitation
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <button type="button" className={twMerge('btn btn-sm', buttonClass, props.className)} onClick={handleOpen}>
-        {props.dialogMode === 'add' && <PlusIcon />}
+      <button type="button" className={twMerge('btn btn-sm', buttonClass, className)} onClick={handleOpen}>
+        {dialogMode === 'add' && <PlusIcon />}
         {buttonText}
       </button>
 

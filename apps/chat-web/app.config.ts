@@ -19,7 +19,7 @@ export default defineConfig({
   vite: {
     build: {
       rollupOptions: {
-        external: ['node:buffer', 'node:worker_threads', 'node:async_hooks'],
+        external: ['node:buffer', 'node:worker_threads', 'node:async_hooks', 'node:stream', 'node:stream/web'],
       },
     },
     plugins: [
