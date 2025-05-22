@@ -1,6 +1,3 @@
-import { client, getCrawl4AiToken } from './fetchClient'
-import { ApiResponse } from './types'
-
 interface CrawlOptions {
   url: string
   maxDepth: number
@@ -8,99 +5,69 @@ interface CrawlOptions {
 }
 
 export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
-  yield `start crawling ${url}`
+  console.log(`start crawling ${url}`)
 
-  // const result = await client.POST('/crawl/stream', {
-  //   body: {
-  //     urls: [url],
-  //     crawler_config: {
-  //       type: 'CrawlerRunConfig',
-  //       params: {
-  //         deep_crawl_strategy: {
-  //           type: 'BestFirstCrawlingStrategy',
-  //           params: {
-  //             max_depth: maxDepth,
-  //             max_pages: maxPages,
-  //             include_external: false,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // })
-
-  const token = await getCrawl4AiToken()
-  const response = await fetch('http://gai-crawl4ai:11235/crawl/stream', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token.access_token}`,
-    },
-    body: JSON.stringify({
-      urls: [url],
-      crawler_config: {
-        type: 'CrawlerRunConfig',
-        params: {
-          stream: true,
-          deep_crawl_strategy: {
-            type: 'BestFirstCrawlingStrategy',
-            params: {
-              max_depth: maxDepth,
-              max_pages: maxPages,
-              include_external: false,
-            },
-          },
-        },
+  const encodedUrl = encodeURIComponent(url)
+  const response = await fetch(
+    `http://host.docker.internal:8000/crawl?url=${encodedUrl}&maxDepth=${maxDepth}&maxPages=${maxPages}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/jsonl',
       },
-    }),
-  })
+    },
+  )
 
   const reader = response.body?.getReader()
   if (!reader) {
     throw new Error('Failed to get response body reader')
   }
 
+  let readMode: 'read-metadata' | 'read-markdown' | null = null
+  let currentMetadata: string | null = null
+  let currentMarkdown: string | null = null
   while (true) {
     const { done, value } = await reader.read()
     if (done) {
+      console.log('Stream finished')
       break
     }
 
-    const chunk = new TextDecoder().decode(value)
-    chunk
-      .trim()
-      .split('\n')
-      .forEach((line) => {
-        if (!line) return
-        try {
-          //const obj = JSON.parse(line)
-          console.log('Parsed object:', line)
-        } catch (e) {
-          console.error('Error parsing stream line:', e)
+    const textValue = new TextDecoder('utf-8').decode(value, { stream: true })
+    const lines = textValue.split('\n').filter((line) => line.trim() !== '')
+    if (lines.length === 0) {
+      console.log('No lines in stream')
+      continue
+    }
+
+    for (const line of lines) {
+      if (line.startsWith('---BEGIN CRAWLER RESULT---')) {
+        readMode = 'read-metadata'
+        currentMetadata = null
+        currentMarkdown = null
+      } else if (line.startsWith('---END CRAWLER RESULT---')) {
+        yield { metaData: currentMetadata, markdown: currentMarkdown }
+        readMode = null
+        currentMetadata = null
+        currentMarkdown = null
+      } else if (line.startsWith('---BEGIN MARKDOWN---')) {
+        readMode = 'read-markdown'
+        currentMarkdown = null
+      } else {
+        if (readMode === 'read-metadata') {
+          if (currentMetadata) {
+            currentMetadata += '\n' + line
+          } else {
+            currentMetadata = line
+          }
+        } else if (readMode === 'read-markdown') {
+          if (currentMarkdown) {
+            currentMarkdown += '\n' + line
+          } else {
+            currentMarkdown = line
+          }
         }
-      })
+      }
+    }
   }
-  yield `Finished crawling ${url}`
 }
-
-//   const data = result.data as ApiResponse | undefined
-
-//   if (!data?.success) {
-//     throw new Error('Crawl failed', {
-//       cause: data,
-//     })
-//   }
-
-//   const filesWithoutContent = data.results.filter((result) => !result.markdown?.raw_markdown)
-//   const filesWithContent = data.results.filter((result) => result.markdown?.raw_markdown)
-
-//   if (filesWithoutContent.length > 0) {
-//     console.warn('Crawl Warning', 'Some files do not have content', filesWithoutContent)
-//   }
-
-//   return filesWithContent.map((file) => ({
-//     url: file.url,
-//     content: file.markdown.raw_markdown,
-//     title: file.metadata.title,
-//   }))
-// }

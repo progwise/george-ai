@@ -31,13 +31,61 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
   })
 
   try {
-    const crawledPages: { url: string; title: string; content: string }[] = []
-    for await (const crawledPages of crawl({
+    const crawledPages: {
+      url: string | null
+      markdown: string | null
+      metaData: string | null
+      error: string | null
+    }[] = []
+    for await (const crawledPage of crawl({
       url: crawler.url,
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
     })) {
-      console.log('Crawled pages:', crawledPages)
+      if (!crawledPage.metaData) {
+        crawledPages.push({ ...crawledPage, url: null, error: 'No metadata' })
+        continue
+      }
+      const metaData = JSON.parse(crawledPage.metaData)
+      if (!crawledPage.markdown) {
+        crawledPages.push({ ...crawledPage, url: metaData.url, error: 'No content' })
+        continue
+      }
+      const markdown = crawledPage.markdown
+      if (!metaData.url) {
+        crawledPages.push({ ...crawledPage, url: null, error: 'No url' })
+        continue
+      }
+      const fileUpdateData = {
+        name: `${metaData.url} - ${metaData.title}`,
+        mimeType: 'text/markdown',
+        libraryId: crawler.libraryId,
+      }
+
+      try {
+        const file = await prisma.aiLibraryFile.upsert({
+          where: {
+            crawledByCrawlerId_originUri: {
+              crawledByCrawlerId: crawler.id,
+              originUri: metaData.url,
+            },
+          },
+          create: {
+            ...fileUpdateData,
+            originUri: metaData.url,
+            crawledByCrawlerId: crawler.id,
+          },
+          update: fileUpdateData,
+        })
+
+        await fs.writeFile(getFilePath(file.id), markdown)
+        await completeFileUpload(file.id)
+        await processFile(file.id)
+      } catch (error) {
+        console.error('Error during file processing', error)
+        crawledPages.push({ ...crawledPage, url: metaData.url, error: 'File processing error' })
+        continue
+      }
     }
 
     const endedAt = new Date()
@@ -52,40 +100,6 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
         pagesCrawled: crawledPages.length,
       },
     })
-
-    const resultsFromUploadAndProcessing = await Promise.allSettled(
-      crawledPages.map(async (page) => {
-        const fileUpdateData = {
-          name: `${page.url} - ${page.title}`,
-          mimeType: 'text/markdown',
-          libraryId: crawler.libraryId,
-        }
-
-        const file = await prisma.aiLibraryFile.upsert({
-          where: {
-            crawledByCrawlerId_originUri: {
-              crawledByCrawlerId: crawler.id,
-              originUri: page.url,
-            },
-          },
-          create: {
-            ...fileUpdateData,
-            originUri: page.url,
-            crawledByCrawlerId: crawler.id,
-          },
-          update: fileUpdateData,
-        })
-
-        await fs.writeFile(getFilePath(file.id), page.content)
-        await completeFileUpload(file.id)
-        await processFile(file.id)
-      }),
-    )
-
-    const hasUploadingOrProcessingErrors = resultsFromUploadAndProcessing.some((result) => result.status === 'rejected')
-    if (hasUploadingOrProcessingErrors) {
-      throw new Error('Some files failed to upload or to process')
-    }
 
     return prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
   } catch (error) {
