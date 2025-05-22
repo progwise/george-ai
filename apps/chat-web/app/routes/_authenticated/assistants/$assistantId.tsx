@@ -11,10 +11,14 @@ import { getLibrariesQueryOptions } from '../../../components/library/get-librar
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../icons/back-icon'
-import { getAiAssistantsQueryOptions, getAssistantQueryOptions } from '../../../server-functions/assistant'
+import { getAiAssistantsQueryOptions, getAssistant } from '../../../server-functions/assistant'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
+  loader: async ({ params }) => {
+    const data = await getAssistant({ data: { assistantId: params.assistantId } })
+    return { assistantData: data }
+  },
   component: RouteComponent,
   staleTime: 0,
 })
@@ -25,7 +29,9 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const ownerId = user.id
   const { assistantId } = Route.useParams()
-  const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
+
+  const { assistantData } = Route.useLoaderData()
+  const { aiAssistant, aiLibraryUsage } = assistantData
 
   const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
   const {
@@ -35,9 +41,7 @@ function RouteComponent() {
     data: { aiAssistants },
   } = useSuspenseQuery(getAiAssistantsQueryOptions())
 
-  const { aiAssistant, aiLibraryUsage } = data
-
-  if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
+  if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage) {
     return <LoadingSpinner />
   }
 

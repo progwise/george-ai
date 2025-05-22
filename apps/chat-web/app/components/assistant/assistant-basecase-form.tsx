@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
@@ -7,7 +8,6 @@ import { z } from 'zod'
 import { graphql } from '../../gql'
 import { AssistantBasecaseForm_AssistantFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 
@@ -71,17 +71,15 @@ export interface AssistantBaseCaseFormProps {
 }
 
 export const AssistantBasecaseForm = ({ assistant }: AssistantBaseCaseFormProps) => {
-  const queryClient = useQueryClient()
   const { t } = useTranslation()
   const formRef = React.useRef<HTMLFormElement>(null)
+  const router = useRouter()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
       return await upsertAiBaseCases({ data })
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
-    },
+    onSettled: () => router.invalidate(),
   })
 
   useEffect(() => {

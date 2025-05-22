@@ -1,5 +1,5 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
+import { Link, useRouter } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -12,7 +12,6 @@ import {
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { BookIcon } from '../../icons/book-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest } from '../../server-functions/backend'
 import { Dropdown } from '../dropdown'
 import { Input } from '../form/input'
@@ -101,21 +100,21 @@ export interface AssistantLibrariesProps {
 
 export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLibrariesProps) => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { mutate: updateUsage, isPending: updateUsageIsPending } = useMutation({
     mutationFn: (data: { id: string; usedFor: string }) => updateLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+    onSettled: () => router.invalidate(),
   })
 
   const { mutate: addUsage, isPending: addUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => addLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+    onSettled: () => router.invalidate(),
   })
 
   const { mutate: removeUsage, isPending: removeUsageIsPending } = useMutation({
     mutationFn: (data: { assistantId: string; libraryId: string }) => removeLibraryUsage({ data }),
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+    onSettled: () => router.invalidate(),
   })
   const librariesToAdd = libraries.filter((library) => !usages.some((usage) => usage.libraryId === library.id))
 
