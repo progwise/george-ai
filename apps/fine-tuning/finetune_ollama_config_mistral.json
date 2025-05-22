@@ -10,9 +10,9 @@
     "iters": 100,
     "fine_tune_type": "lora"
   },
-  "ollama_model_name": "em-german-leo-mistral:george",
-  "keep_split_data": false,
-  "keep_fused_model": false,
-  "keep_gguf_files": false,
-  "keep_adapter_weights": false
+  "ollama_model_name": "em-german-leo-mistral-george",
+  "keep_split_data": true,
+  "keep_fused_model": true,
+  "keep_gguf_files": true,
+  "keep_adapter_weights": true
 }

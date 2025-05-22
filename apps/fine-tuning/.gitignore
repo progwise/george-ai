@@ -1,6 +1,7 @@
 # Fine-tuning
 split_output
 adapters_*
+finetune-output/
 
 
 # Virtual environment

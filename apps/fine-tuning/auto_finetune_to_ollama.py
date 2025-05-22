@@ -8,7 +8,7 @@ This script will:
     - Split your dataset for training/validation/testing.
     - Fine-tune the specified base model using MLX-LM and save adapters.
     - Fuse the LoRA adapter into the base model.
-    - Convert the merged model to GGUF format for Ollama/llama.cpp.
+    - Convert the fused model to GGUF format for Ollama/llama.cpp.
     - Prepare an Ollama Modelfile and register the model with Ollama.
 
 Arguments:
@@ -92,18 +92,28 @@ def main(config_path):
     keep_adapter_weights = config.get("keep_adapter_weights", False)
     adapter_weights_dir = config.get("adapter_weights_dir", None)
 
-    # Paths
-    split_output_dir = "split_output"
-    fused_model_dir = "./fused_model"
-    gguf_models_dir = "./gguf_models"
-    model_name = ollama_model_name.split(":")[0]
-    gguf_file = f"{gguf_models_dir}/{model_name}/{model_name}_fp16.gguf"
+    # Create a top-level output directory next to this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_root = os.path.join(script_dir, "finetune-output")
+    os.makedirs(output_root, exist_ok=True)
 
-    # If adapter_weights_dir is not set in config, try to auto-detect as before
+    # Per-model working directory under finetune-output
+    model_name = ollama_model_name.split(":")[0]
+    model_dir = os.path.join(output_root, model_name)
+    os.makedirs(model_dir, exist_ok=True)
+
+    # Paths (all under model_dir)
+    split_output_dir = os.path.join(model_dir, "split_output")
+    fused_model_dir = os.path.join(model_dir, "fused_model")
+    gguf_model_dir = os.path.join(model_dir, "gguf_model")
+    gguf_file = os.path.join(gguf_model_dir, f"{model_name}_fp16.gguf")
+    modelfile_path = os.path.join(model_dir, "modelfile")
+
+    # Adapter weights directory (from config or auto-detect under model_dir)
     if not adapter_weights_dir:
-        for entry in os.listdir("."):
-            if entry.startswith("adapters_") and os.path.isdir(entry):
-                adapter_weights_dir = entry
+        for entry in os.listdir(model_dir):
+            if entry.startswith("adapters_") and os.path.isdir(os.path.join(model_dir, entry)):
+                adapter_weights_dir = os.path.join(model_dir, entry)
                 break
 
     try:
@@ -129,7 +139,8 @@ def main(config_path):
             subprocess.run([
                 "python3", "fine_tune.py",
                 "--model", base_model,
-                "--data", split_output_dir
+                "--data", split_output_dir,
+                "--adapter-dir", model_dir  # ensure adapters go in model_dir
             ], check=True)
             print("\033[92m[ok]\033[0m")
         except subprocess.CalledProcessError as e:
@@ -139,10 +150,27 @@ def main(config_path):
 
         # Step 3: Fuse adapter weights
         print("Fusing adapter weights...")
+        # Find adapter weights directory under model_dir
+        adapter_path = None
+        for entry in os.listdir(model_dir):
+            full_path = os.path.join(model_dir, entry)
+            if entry.startswith("adapters_") and os.path.isdir(full_path):
+                adapter_path = full_path
+                break
+        if not adapter_path:
+            print("\033[91m[failed]\033[0m")
+            print("Error: Could not find adapter weights directory in model_dir.")
+            return
+        # Set fused model output directory to match mlx_lm.fuse default
+        fused_model_dir = os.path.join(model_dir, "fused_model")
+        fused_model_name = f"{model_name.replace('.', '').replace('-', '_')}_fused"
+        fused_model_path = os.path.join(fused_model_dir, fused_model_name)
         try:
             subprocess.run([
-                "python3", "fuse.py",
-                "--base-model", base_model
+                "python3", "-m", "mlx_lm.fuse",
+                "--model", base_model,
+                "--adapter-path", adapter_path,
+                "--save-path", fused_model_path
             ], check=True)
             print("\033[92m[ok]\033[0m")
         except subprocess.CalledProcessError as e:
@@ -153,24 +181,18 @@ def main(config_path):
         # Step 4: Convert to .gguf format
         print("Converting to .gguf format...")
         os.makedirs(os.path.dirname(gguf_file), exist_ok=True)
-        # Try to find the correct merged model subdirectory
-        merged_model_dir = None
-        if os.path.isdir(fused_model_dir):
-            # Look for a subdirectory in fused_model_dir that contains config.json
-            for entry in os.listdir(fused_model_dir):
-                candidate = os.path.join(fused_model_dir, entry)
-                if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "config.json")):
-                    merged_model_dir = candidate
-                    break
-        if merged_model_dir is None:
+        # Use fused_model_path as the directory for conversion
+        if os.path.isdir(fused_model_path) and os.path.isfile(os.path.join(fused_model_path, "config.json")):
+            conversion_input_dir = fused_model_path
+        else:
             print("\033[91m[failed]\033[0m")
             print(
-                "Error: Could not find merged model directory with config.json inside './fused_model'.")
+                f"Error: Could not find fused model directory with config.json at {fused_model_path}.")
             return
         try:
             subprocess.run([
                 "python3", "hf-to-gguf/convert_hf_to_gguf.py",
-                merged_model_dir,
+                conversion_input_dir,
                 "--outfile", gguf_file
             ], check=True)
             print("\033[92m[ok]\033[0m")
@@ -182,7 +204,7 @@ def main(config_path):
         # Step 5: Create the modelfile
         print("Creating the modelfile...")
         try:
-            create_modelfile(gguf_file)
+            create_modelfile(gguf_file, modelfile_path)
             print("\033[92m[ok]\033[0m")
         except Exception as e:
             print("\033[91m[failed]\033[0m")
@@ -193,7 +215,7 @@ def main(config_path):
         print("Registering the model with Ollama...")
         try:
             subprocess.run([
-                "ollama", "create", ollama_model_name, "-f", "modelfile"
+                "ollama", "create", ollama_model_name, "-f", modelfile_path
             ], check=True)
             print("\033[92m[ok]\033[0m")
         except subprocess.CalledProcessError as e:
@@ -212,7 +234,7 @@ def main(config_path):
         if not keep_fused_model:
             cleanup_targets.append(fused_model_dir)
         if not keep_gguf_files:
-            cleanup_targets.append(gguf_models_dir)
+            cleanup_targets.append(gguf_model_dir)
         if not keep_adapter_weights and adapter_weights_dir:
             cleanup_targets.append(adapter_weights_dir)
         if cleanup_targets:
