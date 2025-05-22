@@ -4,34 +4,22 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { ChatOllama } from '@langchain/ollama'
 import { ChatOpenAI } from '@langchain/openai'
 
-import { localLLMConfig } from './local-llm-settings'
-import { ChatLocalMLX } from './local-mlx-llm'
-
-export type SupportedModel = 'gpt-3' | 'gpt-4' | 'gemini-1.5' | 'ollama-mistral' | 'ollama-llama3.1' | 'local-mlx-api'
-
+export type SupportedModel = 'gpt-3' | 'gpt-4' | 'gemini-1.5' | 'ollama-mistral' | 'ollama-llama3.1'
 export type AssistantModel = BaseChatModel<BaseChatModelCallOptions, AIMessageChunk>
 
-const models = new Map<string, AssistantModel>()
+const models = new Map<SupportedModel, AssistantModel>([])
 
-export const getModel = (
-  languageModel: SupportedModel,
-  overrides?: Partial<{ model: string; endpoint: string; maxTokens: number; temperature: number }>,
-): AssistantModel => {
-  const cacheKey = overrides?.model ? `${languageModel}:${overrides.model}` : languageModel
-
-  if (models.has(cacheKey)) {
-    return models.get(cacheKey)!
+export const getModel = (languageModel: SupportedModel): AssistantModel => {
+  if (models.has(languageModel)) {
+    return models.get(languageModel)!
   }
 
-  const model = getNewModelInstance(languageModel, overrides)
-  models.set(cacheKey, model)
+  const model = getNewModelInstance(languageModel)
+  models.set(languageModel, model)
   return model
 }
 
-const getNewModelInstance = (
-  languageModel: SupportedModel,
-  overrides?: Partial<{ model: string; endpoint: string; maxTokens: number; temperature: number }>,
-): AssistantModel => {
+const getNewModelInstance = (languageModel: SupportedModel): AssistantModel => {
   switch (languageModel) {
     case 'gpt-3':
       return new ChatOpenAI({
@@ -50,6 +38,7 @@ const getNewModelInstance = (
         model: 'gemini-1.5-pro',
         temperature: 0,
         maxRetries: 2,
+        // other params...
       })
     case 'ollama-mistral':
       return new ChatOllama({
@@ -60,13 +49,6 @@ const getNewModelInstance = (
       return new ChatOllama({
         model: 'llama3.1:latest',
         baseUrl: process.env.OLLAMA_BASE_URL,
-      })
-    case 'local-mlx-api':
-      return new ChatLocalMLX({
-        endpoint: overrides?.endpoint || localLLMConfig.endpoint,
-        model: overrides?.model || localLLMConfig.modelName,
-        maxTokens: overrides?.maxTokens || localLLMConfig.maxTokens,
-        temperature: overrides?.temperature || localLLMConfig.temperature,
       })
     default:
       throw new Error(`Unknown language model: ${languageModel}`)

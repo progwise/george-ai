@@ -1,4 +1,0 @@
-FROM /Users/mostafa/programing/progwise/george-ai/apps/fine-tuning/mistral_german/mistral_german.gguf
-# Optional parameters for model configuration:
-# PARAMETER temperature 0.7
-# SYSTEM "You are an expert George-AI assistant."

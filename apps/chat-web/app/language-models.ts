@@ -3,7 +3,6 @@ interface LanugageModel {
   name: string
   parameters?: Record<string, string>
 }
-
 const availableLanguageModelsProd: Array<LanugageModel> = [
   {
     id: 'gpt-3',
@@ -13,19 +12,7 @@ const availableLanguageModelsProd: Array<LanugageModel> = [
     id: 'gpt-4',
     name: 'OpenAI GPT-4',
   },
-  {
-    id: 'gemini-1.5',
-    name: 'Gemini 1.5',
-  },
-  {
-    id: 'local-mlx-api',
-    name: 'Local MLX API',
-    parameters: {
-      model: 'Qwen/Qwen2.5-Coder-0.5B-Instruct', // default HF model
-      temperature: '0.7',
-      maxTokens: '300',
-    },
-  },
+  { id: 'gemini-1.5', name: 'Gemini 1.5' },
 ]
 
 const availabeLanguageModelsDev: Array<LanugageModel> = [
@@ -46,7 +33,6 @@ const availabeLanguageModelsDev: Array<LanugageModel> = [
 ]
 
 const availableLanguageModels = [...availableLanguageModelsProd]
-
 if (process.env.NODE_ENV !== 'production') {
   availableLanguageModels.push(...availabeLanguageModelsDev)
 }
