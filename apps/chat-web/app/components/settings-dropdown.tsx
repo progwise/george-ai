@@ -1,37 +1,25 @@
 import { Link } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
-import { JSX, useEffect, useState } from 'react'
-import { getCookie } from 'vinxi/http'
+import { JSX } from 'react'
 
 import { useAuth } from '../auth/auth'
 import { User } from '../gql/graphql'
-import { useLanguage } from '../i18n/language-provider'
+import { useTheme } from '../hooks/use-theme'
+import { useLanguage } from '../i18n/use-language-hook'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { ExitIcon } from '../icons/exit-icon'
 import { MenuEllipsisIcon } from '../icons/menu-ellipsis-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
 
-const THEME_KEY = 'theme'
-const DEFAULT_THEME = 'light'
-
-export const getTheme = createServerFn({ method: 'GET' }).handler(() => getCookie(THEME_KEY))
-
 interface SettingsDropdownProps {
   user?: Pick<User, 'id' | 'name'>
-  theme?: string
 }
 
-export const SettingsDropdown = ({ user, theme: initialTheme }: SettingsDropdownProps): JSX.Element => {
+export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
   const { t } = useTranslation()
   const { logout, isReady } = useAuth()
   const { language, setLanguage } = useLanguage()
-  const [theme, setTheme] = useState<string>(initialTheme ?? DEFAULT_THEME)
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    document.cookie = `${THEME_KEY}=${theme}; path=/; max-age=31536000`
-  }, [theme])
+  const [theme, setTheme] = useTheme()
 
   const handleThemeToggle = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')

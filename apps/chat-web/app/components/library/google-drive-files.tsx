@@ -21,7 +21,6 @@ export interface GoogleDriveFilesProps {
   libraryId: string
   noFreeUploads: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
-  userId: string
 }
 const googleDriveResponseSchema = z.object({
   files: z.array(
@@ -149,7 +148,6 @@ export const GoogleDriveFiles = ({
   currentLocationHref,
   noFreeUploads,
   dialogRef,
-  userId,
 }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -182,7 +180,7 @@ export const GoogleDriveFiles = ({
       toastSuccess('Files embedded successfully')
       setSelectedFiles([])
       queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
-      queryClient.invalidateQueries({ queryKey: getProfileQueryOptions(userId) })
+      queryClient.invalidateQueries({ queryKey: getProfileQueryOptions() })
     },
     onError: (error) => {
       toastError(`Error embedding files: ${error.message}`)

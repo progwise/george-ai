@@ -1,28 +1,17 @@
 import { Link } from '@tanstack/react-router'
 import React from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { AssistantBaseFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { AssistantDeleteDialog } from './assistant-delete-dialog'
-
-const AssistantCard_AssistantFragment = graphql(`
-  fragment AssistantCard_Assistant on AiAssistant {
-    id
-    name
-    description
-    iconUrl
-    ...AssistantDelete_Assistant
-  }
-`)
+import { AssistantDeleteOrLeaveDialogButton } from './assistant-delete-or-leave-dialog-button/assistant-delete-or-leave-dialog-button'
 
 export interface AssistantCardProps {
-  assistant: FragmentType<typeof AssistantCard_AssistantFragment>
+  assistant: AssistantBaseFragment
   userId: string
 }
 
-export const AssistantCard = (props: AssistantCardProps): React.ReactElement => {
+export const AssistantCard = ({ assistant, userId }: AssistantCardProps): React.ReactElement => {
   const { t } = useTranslation()
-  const assistant = useFragment(AssistantCard_AssistantFragment, props.assistant)
 
   return (
     <div className="card bg-base-100 w-96 shadow-xl">
@@ -54,7 +43,7 @@ export const AssistantCard = (props: AssistantCardProps): React.ReactElement => 
             <div className="badge badge-outline">Sequential</div>
           </div>
           <div className="flex w-full place-content-between">
-            <AssistantDeleteDialog assistant={assistant} userId={props.userId} />
+            <AssistantDeleteOrLeaveDialogButton assistant={assistant} userId={userId} />
             <Link
               type="button"
               className="btn btn-ghost btn-sm"

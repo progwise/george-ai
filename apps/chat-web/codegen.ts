@@ -14,6 +14,9 @@ const config: CodegenConfig = {
   generates: {
     './app/gql/': {
       preset: 'client',
+      presetConfig: {
+        fragmentMasking: false,
+      },
     },
     './app/gql/validation.ts': {
       config: {

@@ -5,7 +5,8 @@ import { z } from 'zod'
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { useAuth } from '../../auth/auth'
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
 import { Language } from '../../i18n'
 import { getLanguage, translate } from '../../i18n/get-language'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -13,7 +14,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
 
-export const UserProfileForm_UserProfileFragment = graphql(`
+graphql(`
   fragment UserProfileForm_UserProfile on UserProfile {
     id
     userId
@@ -36,7 +37,7 @@ export const UserProfileForm_UserProfileFragment = graphql(`
 
 export const getFormSchema = (language: Language) =>
   z.object({
-    userId: z.string().min(1, translate('errors.requiredField', language)),
+    profileId: z.string().min(1, translate('errors.requiredField', language)),
     email: z
       .string()
       .email({ message: translate('errors.invalidEmail', language) })
@@ -45,8 +46,8 @@ export const getFormSchema = (language: Language) =>
     lastName: z.string().min(1, translate('errors.requiredField', language)),
     business: z.string().min(1, translate('errors.requiredField', language)),
     position: z.string().min(1, translate('errors.requiredField', language)),
-    freeMessages: z.preprocess((value) => parseInt(String(value), 10), z.number().optional()),
-    freeStorage: z.preprocess((value) => parseInt(String(value), 10), z.number().optional()),
+    freeMessages: z.coerce.number().optional(),
+    freeStorage: z.coerce.number().optional(),
   })
 
 export const updateProfile = createServerFn({ method: 'POST' })
@@ -65,14 +66,14 @@ export const updateProfile = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(
       graphql(`
-        mutation saveUserProfile($userId: String!, $userProfileInput: UserProfileInput!) {
-          updateUserProfile(userId: $userId, input: $userProfileInput) {
+        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {
+          updateUserProfile(profileId: $profileId, input: $userProfileInput) {
             id
           }
         }
       `),
       {
-        userId: data.userId,
+        profileId: data.profileId,
         userProfileInput: {
           email: data.email,
           firstName: data.firstName,
@@ -89,17 +90,15 @@ export const updateProfile = createServerFn({ method: 'POST' })
   })
 
 interface UserProfileFormProps {
-  userProfile: FragmentType<typeof UserProfileForm_UserProfileFragment>
-  handleSendConfirmationMail: (formData: FormData) => void
+  userProfile: UserProfileForm_UserProfileFragment
   onSubmit?: (data: FormData) => void
   isAdmin?: boolean
   saveButton?: ReactElement | null
   formRef?: RefObject<HTMLFormElement | null>
 }
 
-export const UserProfileForm = (props: UserProfileFormProps) => {
+export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveButton }: UserProfileFormProps) => {
   const { t, language } = useTranslation()
-  const userProfile = useFragment(UserProfileForm_UserProfileFragment, props.userProfile)
   const { logout } = useAuth()
 
   if (!language) {
@@ -110,16 +109,15 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
 
   return (
     <form
-      ref={props.formRef}
+      ref={formRef}
       onSubmit={(event) => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
-        props.onSubmit?.(formData)
+        onSubmit?.(formData)
       }}
       className="flex w-full flex-col items-center gap-x-2 sm:grid sm:w-auto sm:grid-cols-2"
     >
-      <input type="hidden" name="id" value={userProfile.id} />
-      <input type="hidden" name="userId" value={userProfile.userId} />
+      <input type="hidden" name="profileId" value={userProfile.id} />
 
       <Input
         name="createdAt"
@@ -193,7 +191,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.freeStorage')}
         value={userProfile.freeStorage}
         type="number"
-        disabled={!props.isAdmin}
+        disabled={!isAdmin}
       />
 
       <Input
@@ -201,7 +199,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
         label={t('labels.freeMessages')}
         value={userProfile.freeMessages}
         type="number"
-        disabled={!props.isAdmin}
+        disabled={!isAdmin}
       />
       <Input
         name="usedStorage"
@@ -228,7 +226,7 @@ export const UserProfileForm = (props: UserProfileFormProps) => {
       </div>
       <hr className="col-span-2 my-2" />
       <div className="col-span-2 flex justify-between">
-        {props.saveButton && <div className="col-span-2 flex justify-end">{props.saveButton}</div>}
+        {saveButton && <div className="col-span-2 flex justify-end">{saveButton}</div>}
 
         <button
           type="button"

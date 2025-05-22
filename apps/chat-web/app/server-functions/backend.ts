@@ -1,7 +1,9 @@
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import { createServerFn } from '@tanstack/react-start'
+import { getCookie } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
 
+import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth/auth'
 import { BACKEND_PUBLIC_URL, BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'
 
@@ -9,9 +11,16 @@ async function backendRequest<T, V extends Variables = Variables>(
   document: RequestDocument | TypedDocumentNode<T, V>,
   variables?: Variables,
 ): Promise<T> {
-  return request(BACKEND_URL + '/graphql', document, variables, {
+  // Get the JWT token from the cookie
+  const jwtToken = getCookie?.(KEYCLOAK_TOKEN_COOKIE_NAME)
+  const headers: Record<string, string> = {
     Authorization: `ApiKey ${GRAPHQL_API_KEY}`,
-  })
+  }
+  if (jwtToken) {
+    // Optionally include user JWT for user-specific requests
+    headers['x-user-jwt'] = jwtToken
+  }
+  return request(BACKEND_URL + '/graphql', document, variables, headers)
 }
 
 async function backendUpload(content: Blob, fileId: string) {
@@ -29,7 +38,7 @@ async function backendUpload(content: Blob, fileId: string) {
 
 export { backendRequest, backendUpload }
 
-const introspectionQueryDocument = graphql(/* GraphQL */ `
+const introspectionQueryDocument = graphql(`
   query IntrospectionQuery {
     __schema {
       description

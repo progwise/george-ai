@@ -1,17 +1,17 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { LibraryParticipants_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { removeLibraryParticipant } from '../../server-functions/library-participations'
-import { User } from '../../server-functions/users'
 import { LoadingSpinner } from '../loading-spinner'
 import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { getLibraryQueryOptions } from './get-library-query-options'
 import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
 
-const LibraryParticipants_LibraryFragment = graphql(`
+graphql(`
   fragment LibraryParticipants_Library on AiLibrary {
     id
     ownerId
@@ -25,27 +25,24 @@ const LibraryParticipants_LibraryFragment = graphql(`
 `)
 
 interface LibraryParticipantsProps {
-  library: FragmentType<typeof LibraryParticipants_LibraryFragment>
-  users: User[]
+  library: LibraryParticipants_LibraryFragment
+  users: UserFragment[]
   userId: string
 }
 
-export const LibraryParticipants = (props: LibraryParticipantsProps) => {
+export const LibraryParticipants = ({ library, users, userId }: LibraryParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
-  const library = useFragment(LibraryParticipants_LibraryFragment, props.library)
-  const { users } = props
-
-  const isOwner = library.ownerId === props.userId
+  const isOwner = library.ownerId === userId
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
-      return await removeLibraryParticipant({ data: { userId, libraryId, currentUserId: props.userId } })
+      return await removeLibraryParticipant({ data: { userId, libraryId } })
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
-      await queryClient.invalidateQueries(getLibrariesQueryOptions(library.id))
+      await queryClient.invalidateQueries(getLibrariesQueryOptions())
     },
   })
 
@@ -68,7 +65,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
                 isParticipantOwner ? 'badge-accent' : 'badge-primary',
               )}
             >
-              {participant.id !== props.userId && isOwner && (
+              {participant.id !== userId && isOwner && (
                 <button
                   type="button"
                   className="btn btn-circle btn-ghost btn-xs"
@@ -83,7 +80,7 @@ export const LibraryParticipants = (props: LibraryParticipantsProps) => {
           )
         })}
       </div>
-      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} userId={props.userId} />}
+      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} />}
     </div>
   )
 }

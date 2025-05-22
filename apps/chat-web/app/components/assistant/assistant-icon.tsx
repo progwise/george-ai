@@ -1,23 +1,13 @@
-import { FragmentType, graphql, useFragment } from '../../gql'
-
-const AssistantIcon_AssistantFragment = graphql(`
-  fragment AssistantIcon_assistantFragment on AiAssistant {
-    id
-    name
-    updatedAt
-    iconUrl
-  }
-`)
+import { AssistantBaseFragment } from '../../gql/graphql'
 
 interface AssistantIconProps {
-  assistant: FragmentType<typeof AssistantIcon_AssistantFragment>
+  assistant: AssistantBaseFragment
   className?: string
 }
 
-export const AssistantIcon = (props: AssistantIconProps): React.ReactElement => {
-  const assistant = useFragment(AssistantIcon_AssistantFragment, props.assistant)
+export const AssistantIcon = ({ assistant, className }: AssistantIconProps): React.ReactElement => {
   return (
-    <div className={props.className}>
+    <div className={className}>
       <img
         className="h-full w-full object-cover"
         src={assistant.iconUrl + '&updated=' + assistant.updatedAt}

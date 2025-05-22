@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../auth/auth'
-import { User } from '../gql/graphql'
+import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
@@ -22,11 +22,10 @@ const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
 )
 
 interface TopNavigationProps {
-  user?: Pick<User, 'id' | 'name'>
-  theme?: string
+  user?: UserFragment
 }
 
-export default function TopNavigation({ user, theme }: TopNavigationProps) {
+export default function TopNavigation({ user }: TopNavigationProps) {
   const { t } = useTranslation()
   const { login, isReady } = useAuth()
   const [isAtTop, setIsAtTop] = useState(false)
@@ -54,7 +53,7 @@ export default function TopNavigation({ user, theme }: TopNavigationProps) {
             <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
           </div>
 
-          <SettingsDropdown user={user} theme={theme} />
+          <SettingsDropdown user={user} />
 
           <div className="flex items-center justify-center gap-4">
             {isReady && !user && (

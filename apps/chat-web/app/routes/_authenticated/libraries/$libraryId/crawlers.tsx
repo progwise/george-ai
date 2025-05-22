@@ -8,6 +8,5 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { user } = Route.useRouteContext()
-  return <CrawlerTable libraryId={libraryId} userId={user.id} />
+  return <CrawlerTable libraryId={libraryId} />
 }

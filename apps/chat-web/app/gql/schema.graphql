@@ -194,14 +194,14 @@ type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
-  files: [AiLibraryFile!]
-  filesCount: Int
+  files: [AiLibraryFile!]!
+  filesCount: Int!
   id: ID!
   name: String!
-  owner: User
+  owner: User!
   ownerId: String!
   participants: [User!]!
-  updatedAt: DateTime
+  updatedAt: DateTime!
   url: String
 }
 
@@ -356,7 +356,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
-  addAssistantParticipants(assistantId: String!, currentUserId: String!, userIds: [String!]!): [User!]!
+  addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -367,48 +367,40 @@ type Mutation {
   cancelFileUpload(fileId: String!): Boolean
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
-  confirmConversationInvitation(
-    conversationId: String!
-    email: String
-    invitationId: String!
-    userId: String!
-  ): AiConversation
+  confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
-  createAiAssistant(name: String!, ownerId: String!): AiAssistant
-  createAiConversation(data: AiConversationCreateInput!, email: String, ownerId: String!): AiConversation
-  createAiLibrary(data: AiLibraryInput!, ownerId: String!): AiLibrary
+  createAiAssistant(name: String!): AiAssistant
+  createAiConversation(data: AiConversationCreateInput!): AiConversation
+  createAiLibrary(data: AiLibraryInput!): AiLibrary
   createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
-  createConversationInvitations(
-    conversationId: String!
-    data: [ConversationInvitationInput!]!
-    inviterId: String!
-  ): AiConversation
-  createUser(data: UserInput!, username: String!): User
-  createUserProfile(userId: String!): UserProfile
+  createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
+  createUserProfile: UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
+  deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibrary(id: String!): AiLibrary
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
-  deleteMessage(messageId: String!, userId: String!): AiConversationMessage
+  deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile
   dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage
-  leaveAiConversation(id: String!): AiConversationParticipant
+  leaveAiConversation(participantId: String!): AiConversationParticipant
+  leaveAssistantParticipant(assistantId: String!): User
+  leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile
   reProcessFile(fileId: String!): AiLibraryFile
-  removeAiConversations(conversationIds: [String!]!, userId: String!): Boolean!
-  removeAssistantParticipant(assistantId: String!, currentUserId: String!, userId: String!): User!
-  removeConversationParticipant(id: String!): AiConversationParticipant
-  removeLibraryParticipant(currentUserId: String!, libraryId: String!, userId: String!): User!
+  removeAssistantParticipant(assistantId: String!, userId: String!): User!
+  removeConversationParticipant(participantId: String!): AiConversationParticipant
+  removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  removeUserProfile(userId: String!): UserProfile
+  removeUserProfile(profileId: String!): UserProfile
   resetAssessmentAnswers(assistantId: String!): DateTime!
-  runAiLibraryCrawler(crawlerId: String!, userId: String!): AiLibraryCrawler
-  sendConfirmationMail(confirmationUrl: String!, userId: String!): Boolean
-  sendMessage(data: AiConversationMessageInput!, userId: String!): [AiConversationMessage!]!
+  runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
+  sendConfirmationMail(confirmationUrl: String!): Boolean
+  sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
@@ -416,24 +408,24 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
-  updateUserProfile(input: UserProfileInput!, userId: String!): UserProfile
+  updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
 }
 
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(id: String!): AiAssistant
-  aiAssistants(userId: String!): [AiAssistant!]!
+  aiAssistants: [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation
-  aiConversationMessages(conversationId: String!, userId: String!): [AiConversationMessage!]
-  aiConversations(userId: String!): [AiConversation!]!
-  aiLibraries(userId: String!): [AiLibrary!]!
+  aiConversationMessages(conversationId: String!): [AiConversationMessage!]
+  aiConversations: [AiConversation!]!
+  aiLibraries: [AiLibrary!]!
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
-  aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]
+  aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   user(email: String!): User
-  userProfile(userId: String!): UserProfile
-  users(userId: String!): [User!]!
+  userProfile: UserProfile
+  users: [User!]!
   version: String
 }
 

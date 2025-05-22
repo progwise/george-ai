@@ -4,7 +4,8 @@ import { useRef } from 'react'
 
 import { dateString } from '@george-ai/web-utils'
 
-import { FragmentType, graphql, useFragment } from '../../gql'
+import { graphql } from '../../gql'
+import { ConversationDelete_ConversationFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ExitIcon } from '../../icons/exit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -16,11 +17,9 @@ import {
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 
-const ConversationDelete_ConversationFragment = graphql(`
+graphql(`
   fragment ConversationDelete_Conversation on AiConversation {
-    id
-    ownerId
-    createdAt
+    ...ConversationBase
     assistants {
       name
     }
@@ -32,22 +31,18 @@ const ConversationDelete_ConversationFragment = graphql(`
 `)
 
 interface DeleteLeaveConversationDialogProps {
-  conversation: FragmentType<typeof ConversationDelete_ConversationFragment>
+  conversation: ConversationDelete_ConversationFragment
   userId: string
 }
 
-export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDialogProps) => {
+export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLeaveConversationDialogProps) => {
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const dialogRef = useRef<HTMLDialogElement>(null)
 
-  const conversation = useFragment(ConversationDelete_ConversationFragment, props.conversation)
-
-  const isOwner = props.userId === conversation.ownerId
-  const userParticipant = props.userId
-    ? conversation.participants.find((participant) => participant.userId === props.userId)
-    : null
+  const isOwner = userId === conversation.ownerId
+  const userParticipant = userId ? conversation.participants.find((participant) => participant.userId === userId) : null
   const isParticipant = !!userParticipant
 
   const { mutate: deleteConversationMutate, isPending: isDeletePending } = useMutation({
@@ -57,7 +52,8 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      dialogRef.current?.close()
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       navigate({ to: '..' })
     },
   })
@@ -72,7 +68,8 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       })
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries(getConversationsQueryOptions(props.userId))
+      dialogRef.current?.close()
+      await queryClient.invalidateQueries(getConversationsQueryOptions())
       navigate({ to: '..' })
     },
   })
@@ -83,10 +80,6 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
     } else if (isParticipant) {
       leaveConversationMutate()
     }
-  }
-
-  const handleOpen = () => {
-    dialogRef.current?.showModal()
   }
 
   const isPending = isDeletePending || isLeavePending
@@ -102,7 +95,7 @@ export const DeleteLeaveConversationDialog = (props: DeleteLeaveConversationDial
       <button
         type="button"
         className="btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-left mx-1"
-        onClick={handleOpen}
+        onClick={() => dialogRef.current?.showModal()}
         data-tip={buttonTooltip}
       >
         <Icon className="text-error size-6" />

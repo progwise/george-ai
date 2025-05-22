@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
-import { FragmentType, graphql, useFragment } from '../../../gql'
+import { graphql } from '../../../gql'
+import { RiskAreasIdentification_AssessmentFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ComplianceArea } from './compliance-area'
 
-const RiskAreasIdentification_AssessmentFragment = graphql(`
+graphql(`
   fragment RiskAreasIdentification_Assessment on AiActAssessment {
     identifyRiskInfo {
       title {
@@ -59,39 +60,22 @@ const RiskAreasIdentification_AssessmentFragment = graphql(`
 `)
 
 interface RiskAreasIdentificationProps {
-  assessment: FragmentType<typeof RiskAreasIdentification_AssessmentFragment>
+  assessment: RiskAreasIdentification_AssessmentFragment
 }
 
-export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => {
+export const RiskAreasIdentification = ({ assessment }: RiskAreasIdentificationProps) => {
   const { t, language } = useTranslation()
-  const assessment = useFragment(RiskAreasIdentification_AssessmentFragment, props.assessment)
   const basicInfo = assessment.assistantSurvey
   const riskIndicator = basicInfo.riskIndicator
   const questions = basicInfo.questions
   const identifyRiskInfo = assessment.identifyRiskInfo
   const complianceAreas = identifyRiskInfo.complianceAreas
 
-  // State for selected compliance areas
-  const [selectedAreas, setSelectedAreas] = useState<string[]>([])
-
   // Determine EU AI Act applicability
   const euOperation = useMemo(
     () => questions.find((q) => q.id === 'euOperation')?.value === 'Yes' || false,
     [questions],
   )
-
-  // Handle area selection change
-  const handleAreaChange = (area: string) => {
-    setSelectedAreas((prev) => {
-      const newAreas = new Set(prev)
-      if (newAreas.has(area)) {
-        newAreas.delete(area)
-      } else {
-        newAreas.add(area)
-      }
-      return Array.from(newAreas)
-    })
-  }
 
   // Get styling based on risk level
   const getRiskStyle = () => {
@@ -200,12 +184,7 @@ export const RiskAreasIdentification = (props: RiskAreasIdentificationProps) => 
           <p className="text-sm">{t('aiAct.applicableHeadline')}:</p>
 
           {complianceAreas.map((area) => (
-            <ComplianceArea
-              key={area.id}
-              area={area}
-              onChange={() => handleAreaChange(area.id)}
-              selected={selectedAreas.some((a) => area.id === a)}
-            />
+            <ComplianceArea key={area.id} area={area} />
           ))}
         </div>
       )}

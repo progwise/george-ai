@@ -10,8 +10,8 @@ import { HeroBadge } from './hero-badge'
 import { HomeChat } from './home-chat'
 
 export const Hero = () => {
-  const { user, language } = useRouteContext({ from: '/' })
-  const { t } = useTranslation()
+  const { user } = useRouteContext({ from: '/' })
+  const { t, language } = useTranslation()
 
   const now = new Date()
   const year = now.getFullYear()
@@ -83,7 +83,7 @@ export const Hero = () => {
             </div>
             <div className="chat chat-end animate-fade-left animate-delay-500">
               <div className="chat-bubble w-full">
-                <HomeChat user={user ?? null} />
+                <HomeChat user={user ?? undefined} />
               </div>
             </div>
           </div>

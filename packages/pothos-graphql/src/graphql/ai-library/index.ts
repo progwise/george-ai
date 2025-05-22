@@ -15,12 +15,13 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     name: t.exposeString('name', { nullable: false }),
     description: t.exposeString('description'),
     url: t.exposeString('url'),
-    owner: t.relation('owner'),
+    owner: t.relation('owner', { nullable: false }),
     ownerId: t.exposeString('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    files: t.relation('files'),
+    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+    files: t.relation('files', { nullable: false }),
     filesCount: t.int({
+      nullable: false,
       resolve: async (parent) => {
         const count = await prisma.aiLibraryFile.count({
           where: { libraryId: parent.id },
@@ -65,16 +66,13 @@ builder.queryField('aiLibrary', (t) =>
 )
 
 builder.queryField('aiLibraries', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiLibrary'],
-    args: {
-      userId: t.arg.string(),
-    },
     nullable: false,
-    resolve: (query, _source, { userId }) => {
+    resolve: (query, _source, _args, context) => {
       return prisma.aiLibrary.findMany({
         ...query,
-        where: { participants: { some: { userId } } },
+        where: { participants: { some: { userId: context.session.user.id } } },
       })
     },
   }),
@@ -98,22 +96,20 @@ builder.mutationField('updateAiLibrary', (t) =>
 )
 
 builder.mutationField('createAiLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
-      ownerId: t.arg.string(),
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
-    resolve: (query, _source, { ownerId, data }) => {
+    resolve: (query, _source, { data }, context) => {
+      const userId = context.session.user.id
       return prisma.aiLibrary.create({
         ...query,
         data: {
           ...data,
-          ownerId,
+          ownerId: userId,
           participants: {
-            create: {
-              userId: ownerId,
-            },
+            create: [{ userId }],
           },
         },
       })

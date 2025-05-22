@@ -7,7 +7,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
-import { UserProfile } from '../../gql/graphql'
+import { UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
@@ -23,8 +23,7 @@ import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {
   libraryId: string
-  profile?: Pick<UserProfile, 'freeStorage' | 'usedStorage'>
-  userId: string
+  profile?: UserProfileFragment
 }
 
 interface AiLibraryFile {
@@ -114,7 +113,7 @@ export const aiLibraryFilesQueryOptions = (libraryId: string) =>
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
-export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableProps) => {
+export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) => {
   const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
@@ -156,8 +155,8 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
 
   const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
-    queryClient.invalidateQueries(getLibrariesQueryOptions(userId))
-    queryClient.invalidateQueries(getProfileQueryOptions(userId))
+    queryClient.invalidateQueries(getLibrariesQueryOptions())
+    queryClient.invalidateQueries(getProfileQueryOptions())
   }
 
   const dropAllFilesMutation = useMutation({
@@ -260,7 +259,6 @@ export const EmbeddingsTable = ({ libraryId, profile, userId }: EmbeddingsTableP
                 currentLocationHref={window.location.href}
                 noFreeUploads={remainingStorage < 100}
                 dialogRef={dialogRef}
-                userId={userId}
               />
             </div>
           </div>

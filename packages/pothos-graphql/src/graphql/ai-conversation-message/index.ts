@@ -27,15 +27,14 @@ builder.prismaObject('AiConversationMessage', {
 })
 
 builder.queryField('aiConversationMessages', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiConversationMessage'],
     args: {
       conversationId: t.arg.string(),
-      userId: t.arg.string(),
     },
-    resolve: async (query, _source, { conversationId, userId }) => {
+    resolve: async (query, _source, { conversationId }, context) => {
       const participant = await prisma.aiConversationParticipant.findFirst({
-        where: { conversationId, userId },
+        where: { conversationId, userId: context.session.user.id },
       })
       if (!participant) {
         throw new Error('User is not a participant in this conversation')
@@ -75,19 +74,18 @@ builder.mutationField('updateMessage', (t) =>
 )
 
 builder.mutationField('deleteMessage', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConversationMessage',
     args: {
       messageId: t.arg.string({ required: true }),
-      userId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { messageId, userId }) => {
+    resolve: async (_query, _source, { messageId }, context) => {
       const message = await prisma.aiConversationMessage.findUniqueOrThrow({
         where: { id: messageId },
         select: { conversation: { select: { ownerId: true } } },
       })
 
-      if (message.conversation.ownerId !== userId) {
+      if (message.conversation.ownerId !== context.session.user.id) {
         throw new Error('You are not authorized to delete this message')
       }
 
@@ -130,17 +128,17 @@ builder.mutationField('unhideMessage', (t) =>
 )
 
 builder.mutationField('sendMessage', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiConversationMessage'],
     nullable: {
       list: false,
       items: false,
     },
     args: {
-      userId: t.arg.string({ required: true }),
       data: t.arg({ type: messageInput, required: true }),
     },
-    resolve: async (_query, _source, { userId, data }) => {
+    resolve: async (_query, _source, { data }, context) => {
+      const userId = context.session.user.id
       const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
         select: { id: true, user: true, assistant: true },
         where: { conversationId: data.conversationId, userId },

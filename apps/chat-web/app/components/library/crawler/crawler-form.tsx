@@ -75,7 +75,7 @@ interface CrawlerFormProps {
 
 export const CrawlerForm = ({ initialData, isPending }: CrawlerFormProps) => {
   const { t } = useTranslation()
-  const [crawlerActive, setCrawlerActive] = useState(initialData?.cronJob?.active ?? true)
+  const [crawlerActive, setCrawlerActive] = useState(initialData ? !!initialData.cronJob?.active : true)
 
   // Format time for the time input (HH:MM)
   const formatTime = (hour: number = 0, minute: number = 0) => {

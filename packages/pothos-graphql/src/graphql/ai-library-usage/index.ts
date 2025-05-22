@@ -18,6 +18,7 @@ export const AiLibraryUsage = builder.prismaObject('AiLibraryUsage', {
 builder.queryField('aiLibraryUsage', (t) =>
   t.prismaField({
     type: ['AiLibraryUsage'],
+    nullable: false,
     args: {
       assistantId: t.arg.string({ required: false }),
       libraryId: t.arg.string({ required: false }),

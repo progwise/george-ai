@@ -1,25 +1,17 @@
 import { useMutation } from '@tanstack/react-query'
-import { createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
+import { Navigate, createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
-import {
-  UserProfileForm,
-  UserProfileForm_UserProfileFragment,
-  updateProfile,
-} from '../../../components/user/user-profile-form'
-import { FragmentType } from '../../../gql'
+import { UserProfileForm, updateProfile } from '../../../components/user/user-profile-form'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SaveIcon } from '../../../icons/save-icon'
 import { activateUserProfile, getUserProfile } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/profile/$profileId/admin-confirm')({
   component: RouteComponent,
-  loader: async ({ params }: { params: { profileId: string } }) => {
-    const { profileId } = params
-    return await getUserProfile({ data: { userId: profileId } })
-  },
+  loader: () => getUserProfile(),
 })
 
 function RouteComponent() {
@@ -34,7 +26,7 @@ function RouteComponent() {
       return await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
     },
@@ -76,15 +68,14 @@ function RouteComponent() {
 
   if (!userProfile?.userProfile) {
     toastError(t('errors.profileNotFound'))
-    navigate({ to: '/' })
+    return <Navigate to="/" />
   }
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
       <h1>{t('labels.adminProfileActivation')}</h1>
       <UserProfileForm
-        userProfile={userProfile?.userProfile as FragmentType<typeof UserProfileForm_UserProfileFragment>}
-        handleSendConfirmationMail={() => {}}
+        userProfile={userProfile.userProfile}
         onSubmit={(data) => {
           updateProfileMutation.mutate(data)
         }}
