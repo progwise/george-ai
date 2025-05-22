@@ -229,6 +229,7 @@ export default {
     email: 'E-Mail',
     expiresAt: 'Läuft ab',
     files: 'Dateien',
+    filesPerPage: 'Dateien pro Seite',
     firstName: 'Vorname',
     freeMessages: 'Anzahl Nachrichten',
     freeStorage: 'Freier Speicher',

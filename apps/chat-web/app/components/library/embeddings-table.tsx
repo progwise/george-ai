@@ -46,6 +46,14 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     return 1
   })
 
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return parseInt(params.get('perPage') || '5', 10)
+    }
+    return 5
+  })
+
   const [sortColumn, setSortColumn] = useState<SortColumn>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
@@ -65,7 +73,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href)
-      url.searchParams.set('page', currentPage.toString())
+      url.searchParams.set('perPage', itemsPerPage.toString())
 
       if (sortColumn) {
         url.searchParams.set('sortBy', sortColumn)
@@ -77,7 +85,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
       window.history.replaceState({}, '', url.toString())
     }
-  }, [currentPage, sortColumn, sortDirection])
+  }, [itemsPerPage, sortColumn, sortDirection])
 
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
@@ -86,7 +94,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
   const filesWithIndex = data.aiLibraryFiles.map((file, index) => ({
     ...file,
-    originalIndex: index + 1, // Add 1 to make it 1-based instead of 0-based
+    originalIndex: index + 1,
   }))
 
   const sortedData = [...filesWithIndex].sort((a, b) => {
@@ -123,7 +131,6 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     return sortDirection === 'asc' ? comparison : -comparison
   })
 
-  const itemsPerPage = 5
   const totalPages = Math.ceil(data.aiLibraryFiles.length / itemsPerPage)
   const indexOfFirstItem = (currentPage - 1) * itemsPerPage
   const currentItems = sortedData.slice(indexOfFirstItem, currentPage * itemsPerPage)
@@ -142,6 +149,12 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
   const goToPage = (pageNumber: number) => {
     setCurrentPage(pageNumber)
+  }
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newItemsPerPage = parseInt(e.target.value, 10)
+    setItemsPerPage(newItemsPerPage)
+    setCurrentPage(1)
   }
 
   const handleSort = (column: SortColumn) => {
@@ -271,11 +284,23 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
             {t('actions.reProcess')}
           </button>
         </div>
-        <div className="text-right text-sm">
-          <div className="font-semibold">{t('labels.remainingStorage')}</div>
-          <div>
-            {remainingStorage} / {profile?.freeStorage}
+
+        <div className="flex items-center gap-10">
+          <div className="text-right text-sm">
+            <div className="font-semibold">{t('labels.remainingStorage')}</div>
+            <div>
+              {remainingStorage} / {profile?.freeStorage}
+            </div>
           </div>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">{t('labels.filesPerPage')}:</legend>
+            <select className="select" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+          </fieldset>
         </div>
       </nav>
       {googleDriveAccessToken && (
@@ -377,7 +402,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
           {/* Desktop Table */}
           <div className="hidden lg:block">
-            <div className="h-80">
+            <div>
               <table className="table table-fixed">
                 <thead className="bg-base-200">
                   <tr>

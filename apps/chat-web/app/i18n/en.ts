@@ -224,6 +224,7 @@ export default {
     email: 'Email',
     expiresAt: 'Expires',
     files: 'Files',
+    filesPerPage: 'Files per page',
     firstName: 'First Name',
     freeMessages: 'Free Messages',
     freeStorage: 'Free Storage',
