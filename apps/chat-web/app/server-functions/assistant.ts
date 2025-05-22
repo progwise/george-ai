@@ -32,9 +32,7 @@ const getAiAssistants = createServerFn({ method: 'GET' }).handler(() =>
 export const getAiAssistantsQueryOptions = () =>
   queryOptions({
     queryKey: [queryKeys.AiAssistants],
-    queryFn: async () => {
-      return getAiAssistants()
-    },
+    queryFn: () => getAiAssistants(),
   })
 
 export const getAssistant = createServerFn({ method: 'GET' })

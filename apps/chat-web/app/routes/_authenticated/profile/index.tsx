@@ -1,17 +1,14 @@
-import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import z from 'zod'
 
 import { validateForm } from '@george-ai/web-utils'
 
-import { getProfileQueryOptions } from '../../../auth/get-profile-query'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { UserProfileForm, getFormSchema, updateProfile } from '../../../components/user/user-profile-form'
 import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { TrashIcon } from '../../../icons/trash-icon'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 import { sendConfirmationMail } from '../../../server-functions/users'
@@ -30,34 +27,11 @@ export const getUserProfile = createServerFn({ method: 'GET' }).handler(async ()
   return await backendRequest(userProfileQueryDocument)
 })
 
-const removeUserProfileDocument = graphql(`
-  mutation removeUserProfile($profileId: String!) {
-    removeUserProfile(profileId: $profileId) {
-      id
-    }
-  }
-`)
-
-export const removeUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { profileId: string }) => {
-    return z
-      .object({
-        profileId: z.string().nonempty(),
-      })
-      .parse(data)
-  })
-  .handler(async (ctx) => {
-    return await backendRequest(removeUserProfileDocument, {
-      profileId: ctx.data.profileId,
-    })
-  })
-
 export const Route = createFileRoute('/_authenticated/profile/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const queryClient = useQueryClient()
   const { t, language } = useTranslation()
   const { user } = Route.useRouteContext()
 
@@ -68,7 +42,7 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfileForEdit, user.id],
+    queryKey: [queryKeys.UserProfile, user.id],
     queryFn: () => getUserProfile(),
   })
 
@@ -77,21 +51,8 @@ function RouteComponent() {
     params: { profileId: userProfile.userProfile?.id || 'no_profile_id' },
   })
 
-  const { mutate: removeProfileMutation, isPending: removeProfileIsPending } = useMutation({
-    mutationFn: async () => removeUserProfile({ data: { profileId: userProfile?.userProfile?.id || 'no_profile_id' } }),
-    onSettled: () => {
-      toastSuccess(t('texts.removedProfile'))
-      refetchProfile()
-      queryClient.invalidateQueries(getProfileQueryOptions())
-    },
-    onError: (error) => {
-      toastError('Failed to remove profile: ' + error.message)
-    },
-  })
-
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async (formData: FormData) => {
-      // Update the profile
       await updateProfile({
         data: {
           formData,
@@ -99,7 +60,6 @@ function RouteComponent() {
         },
       })
 
-      // Send the confirmation email
       return await sendConfirmationMail({
         data: {
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
@@ -141,7 +101,7 @@ function RouteComponent() {
   }
 
   const handleFormSubmission = (formData: FormData) => {
-    if (userProfile?.userProfile?.confirmationDate) {
+    if (userProfile.userProfile?.confirmationDate) {
       handleSaveChanges(formData)
     } else {
       handleSendConfirmationMail(formData)
@@ -158,7 +118,7 @@ function RouteComponent() {
     handleFormSubmission(formData)
   }
 
-  const isLoading = userProfileIsLoading || sendConfirmationMailIsPending || removeProfileIsPending
+  const isLoading = userProfileIsLoading || sendConfirmationMailIsPending
 
   if (isLoading) {
     return <LoadingSpinner isLoading={true} />
@@ -166,20 +126,7 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
-      <p className="flex items-center gap-2">
-        {t('texts.profileFoundFor')} {user?.name}
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm btn-circle lg:tooltip lg:tooltip-bottom"
-          onClick={() => {
-            removeProfileMutation()
-          }}
-          data-tip={t('tooltips.removeProfile')}
-        >
-          <TrashIcon className="size-6" />
-        </button>
-      </p>
-      {userProfile?.userProfile && (
+      {userProfile.userProfile ? (
         <UserProfileForm
           userProfile={userProfile.userProfile}
           onSubmit={(formData: FormData) => {
@@ -200,6 +147,8 @@ function RouteComponent() {
             </button>
           }
         />
+      ) : (
+        <div>No user profile</div>
       )}
     </article>
   )
