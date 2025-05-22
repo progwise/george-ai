@@ -58,11 +58,26 @@ builder.queryField('aiConversation', (t) =>
     args: {
       conversationId: t.arg.string(),
     },
-    resolve: (query, _source, { conversationId }) => {
-      return prisma.aiConversation.findUnique({
+    resolve: async (query, _source, { conversationId }, context) => {
+      const user = context.session.user
+      const conversation = await prisma.aiConversation.findUnique({
         ...query,
         where: { id: conversationId },
       })
+      if (!conversation) return null
+      if (
+        user.isAdmin ||
+        conversation.ownerId === user.id ||
+        (await prisma.aiConversationParticipant.count({
+          where: {
+            conversationId,
+            OR: [{ userId: user.id }, { assistant: { ownerId: user.id } }],
+          },
+        })) > 0
+      ) {
+        return conversation
+      }
+      return null
     },
   }),
 )

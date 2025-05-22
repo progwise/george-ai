@@ -35,7 +35,8 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       nullable: false,
       select: { participants: { select: { user: true } } },
       resolve: (_query, library) => {
-        return library.participants.map((participant) => participant.user)
+        // Extract users from participants and filter out any null values
+        return library.participants.map((participant) => participant.user).filter((user) => !!user)
       },
     }),
   }),
@@ -51,16 +52,26 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
 })
 
 builder.queryField('aiLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
       id: t.arg.string(),
     },
-    resolve: (query, _source, { id }) => {
-      return prisma.aiLibrary.findUnique({
+    resolve: async (query, _source, { id }, context) => {
+      const user = context.session.user
+      const library = await prisma.aiLibrary.findUnique({
         ...query,
         where: { id },
       })
+      if (!library) return null
+      if (
+        user.isAdmin ||
+        library.ownerId === user.id ||
+        (await prisma.aiLibraryParticipant.count({ where: { libraryId: id, userId: user.id } })) > 0
+      ) {
+        return library
+      }
+      return null
     },
   }),
 )

@@ -34,7 +34,8 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
       nullable: false,
       select: { participants: { select: { user: true } } },
       resolve: (_query, assistant) => {
-        return assistant.participants.map((participant) => participant.user)
+        // Extract users from participants and filter out any null values
+        return assistant.participants.map((participant) => participant.user).filter((user) => !!user)
       },
     }),
   }),
@@ -51,16 +52,27 @@ const AiAssistantInput = builder.inputType('AiAssistantInput', {
 })
 
 builder.queryField('aiAssistant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAssistant',
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: (query, _source, { id }) => {
-      return prisma.aiAssistant.findUnique({
+    resolve: async (query, _source, { id }, context) => {
+      const user = context.session.user
+      const assistant = await prisma.aiAssistant.findUnique({
         ...query,
         where: { id },
+        include: { participants: { include: { user: true } } },
       })
+      if (!assistant) return null
+      if (
+        user.isAdmin ||
+        assistant.ownerId === user.id ||
+        (await prisma.aiAssistantParticipant.count({ where: { assistantId: id, userId: user.id } })) > 0
+      ) {
+        return assistant
+      }
+      return null
     },
   }),
 )
