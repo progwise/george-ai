@@ -10,10 +10,10 @@ import {
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { removeConversationParticipant } from '../../server-functions/conversation-participations'
-import { getConversationsQueryOptions } from '../../server-functions/conversations'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
 import { getConversationQueryOptions } from './get-conversation-query-options'
+import { getConversationsQueryOptions } from './get-conversations-query-options'
 
 graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {

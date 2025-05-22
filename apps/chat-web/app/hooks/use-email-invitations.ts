@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { validateEmails } from '../components/conversation/email-validation'
+import { getConversationQueryOptions } from '../components/conversation/get-conversation-query-options'
 import { toastError, toastSuccess } from '../components/georgeToaster'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { createConversationInvitation } from '../server-functions/conversation-participations'
-import { getConversationQueryOptions } from '../server-functions/conversations'
 
 export const useEmailInvitations = (conversationId: string) => {
   const { t } = useTranslation()

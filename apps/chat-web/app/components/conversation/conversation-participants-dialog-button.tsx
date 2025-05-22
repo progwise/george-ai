@@ -13,17 +13,15 @@ import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { addConversationParticipants } from '../../server-functions/conversation-participations'
-import {
-  createConversation,
-  getConversationQueryOptions,
-  getConversationsQueryOptions,
-} from '../../server-functions/conversations'
+import { createConversation } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
+import { getConversationQueryOptions } from './get-conversation-query-options'
+import { getConversationsQueryOptions } from './get-conversations-query-options'
 
 graphql(`
   fragment ConversationParticipantsDialogButton_Conversation on AiConversation {

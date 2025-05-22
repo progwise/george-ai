@@ -8,10 +8,11 @@ import { graphql } from '../../gql'
 import { ConversationForm_ConversationFragment, UserFragment, UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
-import { getConversationQueryOptions, sendMessage } from '../../server-functions/conversations'
+import { sendMessage } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
+import { getConversationQueryOptions } from './get-conversation-query-options'
 
 graphql(`
   fragment ConversationForm_Conversation on AiConversation {

@@ -4,8 +4,8 @@ import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
+import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations-query-options'
 import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
-import { getConversationsQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations')({
