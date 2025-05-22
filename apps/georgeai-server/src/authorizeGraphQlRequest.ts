@@ -9,17 +9,22 @@ export const authorizeGraphQlRequest = async (request: Request): Promise<Context
   const jwtToken = request.headers.get('x-user-jwt')
   if (jwtToken) {
     const decoded = jwt.decode(jwtToken) as { sub?: string; preferred_username?: string; email?: string } | null
-    if (decoded?.sub) {
-      const userProfileResult = await prisma.userProfile.findUnique({ where: { userId: decoded.sub } })
-
+    if (decoded?.email) {
+      const userInformation = await prisma.user.findUnique({
+        where: { email: decoded.email },
+        select: { id: true, username: true, email: true, profile: true },
+      })
+      if (!userInformation) {
+        return { session: null }
+      }
       return {
         session: {
           user: {
-            id: decoded.sub,
-            username: decoded.preferred_username ?? decoded.sub,
-            email: decoded.email ?? '',
+            id: userInformation.id,
+            username: userInformation.username,
+            email: decoded.email,
           },
-          userProfile: userProfileResult ?? undefined,
+          userProfile: userInformation.profile ?? undefined,
           jwt: jwtToken,
         },
       }
