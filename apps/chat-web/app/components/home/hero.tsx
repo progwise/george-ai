@@ -2,7 +2,7 @@ import { Link, useRouteContext } from '@tanstack/react-router'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import AcademicCapIcon from '../../icons/academic-cap-icon'
-import { ArrowRight } from '../../icons/arrow-right'
+import { ArrowRightIcon } from '../../icons/arrow-right-icon'
 import BotIcon from '../../icons/bot-icon'
 import LibraryIcon from '../../icons/library-icon'
 import SparklesIcon from '../../icons/sparkles-icon'
@@ -44,7 +44,7 @@ export const Hero = () => {
             className="btn btn-neutral"
           >
             {t('hero.meeting')}
-            <ArrowRight />
+            <ArrowRightIcon />
           </a>
           <Link to="/about" className="btn btn-outline">
             {t('hero.more')}

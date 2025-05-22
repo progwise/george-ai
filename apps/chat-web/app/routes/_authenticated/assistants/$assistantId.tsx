@@ -10,7 +10,7 @@ import { AssistantSelector } from '../../../components/assistant/assistant-selec
 import { getLibrariesQueryOptions } from '../../../components/library/get-libraries-query-options'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { BackIcon } from '../../../icons/back-icon'
+import { ArrowLeftIcon } from '../../../icons/arrow-left-icon'
 import { getAiAssistantsQueryOptions, getAssistantQueryOptions } from '../../../server-functions/assistant'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
@@ -55,7 +55,7 @@ function RouteComponent() {
             data-tip={t('tooltips.goToOverview')}
             onClick={() => navigate({ to: '..' })}
           >
-            <BackIcon />
+            <ArrowLeftIcon />
           </button>
         </div>
       </div>

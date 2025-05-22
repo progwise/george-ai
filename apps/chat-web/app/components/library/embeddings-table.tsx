@@ -7,6 +7,8 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { UserProfileFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { ChevronBottomIcon } from '../../icons/chevron-bottom-icon'
+import { ChevronUpIcon } from '../../icons/chevron-up-icon'
 import { CrossIcon } from '../../icons/cross-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
@@ -24,6 +26,9 @@ interface EmbeddingsTableProps {
   profile?: UserProfileFragment
 }
 
+type SortColumn = 'index' | 'name' | 'size' | 'chunks' | 'processedAt' | null
+type SortDirection = 'asc' | 'desc'
+
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
@@ -33,18 +38,95 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   const { data, isLoading } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
   const dialogRef = useRef<HTMLDialogElement>(null)
 
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return parseInt(params.get('page') || '1', 10)
+    }
+    return 1
+  })
+
+  const [sortColumn, setSortColumn] = useState<SortColumn>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return (params.get('sortBy') as SortColumn) || null
+    }
+    return null
+  })
+
+  const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      return (params.get('sortDir') as SortDirection) || 'asc'
+    }
+    return 'asc'
+  })
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      url.searchParams.set('page', currentPage.toString())
+
+      if (sortColumn) {
+        url.searchParams.set('sortBy', sortColumn)
+        url.searchParams.set('sortDir', sortDirection)
+      } else {
+        url.searchParams.delete('sortBy')
+        url.searchParams.delete('sortDir')
+      }
+
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [currentPage, sortColumn, sortDirection])
+
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
 
   const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
 
-  const itemsPerPage = 5
+  const filesWithIndex = data.aiLibraryFiles.map((file, index) => ({
+    ...file,
+    originalIndex: index + 1, // Add 1 to make it 1-based instead of 0-based
+  }))
 
-  const totalPages = Math.ceil((data.aiLibraryFiles.length || 0) / itemsPerPage)
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = data.aiLibraryFiles.slice(indexOfFirstItem, indexOfLastItem) || []
+  const sortedData = [...filesWithIndex].sort((a, b) => {
+    if (!sortColumn) return 0
+
+    let comparison = 0
+
+    switch (sortColumn) {
+      case 'index':
+        comparison = a.originalIndex - b.originalIndex
+        break
+      case 'name':
+        comparison = a.name.localeCompare(b.name)
+        break
+      case 'size': {
+        const sizeA = a.size ? parseFloat(String(a.size).replace(/[^0-9.]/g, '')) : 0
+        const sizeB = b.size ? parseFloat(String(b.size).replace(/[^0-9.]/g, '')) : 0
+        comparison = sizeA - sizeB
+        break
+      }
+      case 'chunks':
+        comparison = (a.chunks || 0) - (b.chunks || 0)
+        break
+      case 'processedAt': {
+        const dateA = a.processedAt ? new Date(a.processedAt).getTime() : 0
+        const dateB = b.processedAt ? new Date(b.processedAt).getTime() : 0
+        comparison = dateA - dateB
+        break
+      }
+      default:
+        return 0
+    }
+
+    return sortDirection === 'asc' ? comparison : -comparison
+  })
+
+  const itemsPerPage = 5
+  const totalPages = Math.ceil(data.aiLibraryFiles.length / itemsPerPage)
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage
+  const currentItems = sortedData.slice(indexOfFirstItem, currentPage * itemsPerPage)
 
   const goToNextPage = () => {
     if (currentPage < totalPages) {
@@ -60,6 +142,23 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
   const goToPage = (pageNumber: number) => {
     setCurrentPage(pageNumber)
+  }
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortColumn(column)
+      setSortDirection('asc')
+    }
+
+    setCurrentPage(1)
+  }
+
+  const getSortIndicator = (column: SortColumn) => {
+    if (sortColumn !== column) return null
+
+    return sortDirection === 'asc' ? <ChevronBottomIcon /> : <ChevronUpIcon />
   }
 
   useEffect(() => {
@@ -290,17 +389,38 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                         onChange={handleSelectAll}
                       />
                     </th>
-                    <th className="w-0">#</th>
-                    <th>{t('labels.name')}</th>
-                    <th>Source</th> {/* localize */}
-                    <th className="w-1/12">#{t('labels.size')}</th>
-                    <th className="w-1/12">#{t('labels.chunks')}</th>
-                    <th>{t('labels.processed')}</th>
+                    <th onClick={() => handleSort('index')} className="hover:bg-base-300 cursor-pointer">
+                      <div className="flex items-center gap-2">#{getSortIndicator('index')}</div>
+                    </th>
+                    <th
+                      onClick={() => handleSort('name')}
+                      className="hover:bg-base-300 flex cursor-pointer items-center gap-2"
+                    >
+                      {t('labels.name')} {getSortIndicator('name')}
+                    </th>
+                    <th>{t('libraries.source')}</th>
+                    <th
+                      onClick={() => handleSort('size')}
+                      className="hover:bg-base-300 flex cursor-pointer items-center gap-2"
+                    >
+                      #{t('labels.size')} {getSortIndicator('size')}
+                    </th>
+                    <th onClick={() => handleSort('chunks')} className="hover:bg-base-300 cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        #{t('labels.chunks')} {getSortIndicator('chunks')}
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleSort('processedAt')}
+                      className="hover:bg-base-300 flex cursor-pointer items-center gap-2"
+                    >
+                      {t('labels.processed')} {getSortIndicator('processedAt')}
+                    </th>
                     <th>{t('labels.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((file, index) => (
+                  {currentItems.map((file) => (
                     <tr key={file.id} className="hover:bg-base-200">
                       <td>
                         <input
@@ -310,7 +430,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                           onChange={() => handleSelectFile(file.id)}
                         />
                       </td>
-                      <td>{indexOfFirstItem + index + 1}</td>
+                      <td>{file.originalIndex}</td>
                       <td className="truncate">{file.name}</td>
                       <td className="truncate">
                         {file.originUri &&

@@ -290,6 +290,7 @@ export default {
     },
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
+    source: 'Quelle',
     users: 'Benutzer',
   },
   placeholders: {

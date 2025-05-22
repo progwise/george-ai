@@ -7,7 +7,7 @@ import { LibraryDeleteOrLeaveDialogButton } from '../../../../components/library
 import { LibraryParticipants } from '../../../../components/library/library-participants'
 import { LibrarySelector } from '../../../../components/library/library-selector'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
-import { BackIcon } from '../../../../icons/back-icon'
+import { ArrowLeftIcon } from '../../../../icons/arrow-left-icon'
 import { getUsersQueryOptions } from '../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
@@ -47,7 +47,7 @@ function RouteComponent() {
             className="btn btn-sm tooltip tooltip-left"
             data-tip={t('tooltips.goToOverview')}
           >
-            <BackIcon />
+            <ArrowLeftIcon />
           </button>
         </div>
       </div>

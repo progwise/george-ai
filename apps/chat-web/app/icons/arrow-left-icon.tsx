@@ -2,7 +2,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { IconProps } from './icon-props'
 
-export const BackIcon = ({ className }: IconProps) => {
+export const ArrowLeftIcon = ({ className }: IconProps) => {
   return (
     <div className={twMerge('flex size-4 shrink-0 items-center justify-center', className)}>
       <svg

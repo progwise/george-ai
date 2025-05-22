@@ -284,6 +284,7 @@ export default {
     },
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
+    source: 'Source',
     users: 'Users',
   },
   placeholders: {
