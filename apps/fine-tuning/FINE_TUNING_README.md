@@ -7,16 +7,16 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-## Instal Dependencies
+## Install Dependencies
 
 ```bash
 python3 -m pip install --upgrade pip
 python3 -m pip install mlx-lm datasets
 ```
 
-## Downlaod & Test LLMs from Hugging Face
+## Download & Test LLMs from Hugging Face
 
-downlaod model from Hugging Face and create chat utilities and test it.
+download model from Hugging Face and create chat utilities and test it.
 
 **Qwen 0.5B-Instruct:**
 
