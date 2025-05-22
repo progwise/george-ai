@@ -95,7 +95,7 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
                 const isSelected = selectedIds.has(file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
-                const iconDesign = 'me-3 ms-3 flex-none'
+                const iconDesign = 'me-3 ms-3 flex-none size-6'
 
                 return (
                   <div
@@ -118,7 +118,7 @@ export const FilesTable = ({ files, selectedFiles, setSelectedFiles }: FilesTabl
                       readOnly
                     />
                     {file.iconLink ? (
-                      <img src={file.iconLink} alt="" className={iconDesign + 'size-6 object-contain'} />
+                      <img src={file.iconLink} alt="" className={iconDesign + 'object-contain'} />
                     ) : isFolder ? (
                       <FolderIcon className={iconDesign} />
                     ) : (
