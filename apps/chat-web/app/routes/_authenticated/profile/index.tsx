@@ -125,8 +125,8 @@ function RouteComponent() {
   }
 
   return (
-    <article className="flex w-full flex-col items-center gap-4">
-      {userProfile.userProfile ? (
+    userProfile.userProfile && (
+      <article className="flex w-full flex-col items-center gap-4">
         <UserProfileForm
           userProfile={userProfile.userProfile}
           onSubmit={(formData: FormData) => {
@@ -147,9 +147,7 @@ function RouteComponent() {
             </button>
           }
         />
-      ) : (
-        <div>No user profile</div>
-      )}
-    </article>
+      </article>
+    )
   )
 }
