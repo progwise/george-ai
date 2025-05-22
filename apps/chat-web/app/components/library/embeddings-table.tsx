@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -277,78 +278,89 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
           {/* Desktop Table */}
           <div className="hidden lg:block">
-            <table className="table">
-              <thead className="bg-base-200">
-                <tr>
-                  <th>
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-xs"
-                      checked={selectedFiles.length === data.aiLibraryFiles.length && data.aiLibraryFiles.length > 0}
-                      onChange={handleSelectAll}
-                    />
-                  </th>
-                  <th>#</th>
-                  <th>{t('labels.name')}</th>
-                  <th>Source</th> {/* localize */}
-                  <th>#{t('labels.size')}</th>
-                  <th>#{t('labels.chunks')}</th>
-                  <th>{t('labels.processed')}</th>
-                  <th>{t('labels.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.map((file, index) => (
-                  <tr key={file.id} className="hover:bg-base-200">
-                    <td>
+            <div className="h-80">
+              <table className="table table-fixed">
+                <thead className="bg-base-200">
+                  <tr>
+                    <th className="w-0">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-xs"
-                        checked={selectedFiles.includes(file.id)}
-                        onChange={() => handleSelectFile(file.id)}
+                        checked={selectedFiles.length === data.aiLibraryFiles.length && data.aiLibraryFiles.length > 0}
+                        onChange={handleSelectAll}
                       />
-                    </td>
-                    <td>{index + 1}</td>
-                    <td className="max-w-48 truncate">{file.name}</td>
-                    <td className="max-w-24 truncate">{file.originUri}</td>
-                    <td>{file.size ?? '-'}</td>
-                    <td>{file.chunks ?? '-'}</td>
-                    <td>{dateTimeString(file.processedAt, language) || '-'}</td>
-                    <td className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="btn btn-xs tooltip tooltip-left"
-                        data-tip={t('tooltips.delete')}
-                        onClick={() => dropAllFilesMutation.mutate([file.id])}
-                        disabled={dropAllFilesMutation.isPending}
-                      >
-                        <TrashIcon />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-xs tooltip tooltip-left"
-                        data-tip={t('tooltips.reProcess')}
-                        onClick={() => reProcessAllFilesMutation.mutate([file.id])}
-                        disabled={reProcessAllFilesMutation.isPending}
-                      >
-                        <ReprocessIcon />
-                      </button>
-                      {file.processingErrorMessage && (
-                        <span className="tooltip" data-tip={file.processingErrorMessage}>
-                          <ExclamationIcon />
-                        </span>
-                      )}
-
-                      {file.dropError && (
-                        <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
-                          <ExclamationIcon className="fill-warning" />
-                        </span>
-                      )}
-                    </td>
+                    </th>
+                    <th className="w-0">#</th>
+                    <th>{t('labels.name')}</th>
+                    <th>Source</th> {/* localize */}
+                    <th className="w-1/12">#{t('labels.size')}</th>
+                    <th className="w-1/12">#{t('labels.chunks')}</th>
+                    <th>{t('labels.processed')}</th>
+                    <th>{t('labels.actions')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {currentItems.map((file, index) => (
+                    <tr key={file.id} className="hover:bg-base-200">
+                      <td>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-xs"
+                          checked={selectedFiles.includes(file.id)}
+                          onChange={() => handleSelectFile(file.id)}
+                        />
+                      </td>
+                      <td>{indexOfFirstItem + index + 1}</td>
+                      <td className="truncate">{file.name}</td>
+                      <td className="truncate">
+                        {file.originUri &&
+                          (file.originUri.startsWith('http') ? (
+                            <Link to={file.originUri} className="link" target="_blank">
+                              {file.originUri}
+                            </Link>
+                          ) : (
+                            <span>{file.originUri}</span>
+                          ))}
+                      </td>
+                      <td>{file.size ?? '-'}</td>
+                      <td>{file.chunks ?? '-'}</td>
+                      <td>{dateTimeString(file.processedAt, language) || '-'}</td>
+                      <td className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="btn btn-xs tooltip tooltip-left"
+                          data-tip={t('tooltips.delete')}
+                          onClick={() => dropAllFilesMutation.mutate([file.id])}
+                          disabled={dropAllFilesMutation.isPending}
+                        >
+                          <TrashIcon />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-xs tooltip tooltip-left"
+                          data-tip={t('tooltips.reProcess')}
+                          onClick={() => reProcessAllFilesMutation.mutate([file.id])}
+                          disabled={reProcessAllFilesMutation.isPending}
+                        >
+                          <ReprocessIcon />
+                        </button>
+                        {file.processingErrorMessage && (
+                          <span className="tooltip" data-tip={file.processingErrorMessage}>
+                            <ExclamationIcon />
+                          </span>
+                        )}
+
+                        {file.dropError && (
+                          <span className="lg:tooltip" data-tip={t('libraries.dropFileError')}>
+                            <ExclamationIcon className="fill-warning" />
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {totalPages > 1 && (
               <div className="mt-4 flex justify-center">
