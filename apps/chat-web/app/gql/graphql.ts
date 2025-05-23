@@ -385,7 +385,6 @@ export type Mutation = {
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   createContactRequest: Scalars['Boolean']['output']
   createConversationInvitations?: Maybe<AiConversation>
-  createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
@@ -406,7 +405,6 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
-  removeUserProfile?: Maybe<UserProfile>
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -579,10 +577,6 @@ export type MutationRemoveLibraryParticipantArgs = {
 export type MutationRemoveLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type MutationRemoveUserProfileArgs = {
-  profileId: Scalars['String']['input']
 }
 
 export type MutationResetAssessmentAnswersArgs = {
@@ -1776,15 +1770,6 @@ export type UserProfileQuery = {
     business?: string | null
     position?: string | null
   } | null
-}
-
-export type RemoveUserProfileMutationVariables = Exact<{
-  profileId: Scalars['String']['input']
-}>
-
-export type RemoveUserProfileMutation = {
-  __typename?: 'Mutation'
-  removeUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export type AddAssistantParticipantMutationVariables = Exact<{
@@ -6894,43 +6879,6 @@ export const UserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>
-export const RemoveUserProfileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeUserProfile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'removeUserProfile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'profileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveUserProfileMutation, RemoveUserProfileMutationVariables>
 export const AddAssistantParticipantDocument = {
   kind: 'Document',
   definitions: [
