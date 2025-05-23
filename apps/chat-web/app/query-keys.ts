@@ -13,5 +13,5 @@ export const queryKeys = {
   Users: 'Users',
   ConversationInvitation: 'ConversationInvitation',
   BackendUrl: 'BackendUrl',
-  UserProfileForEdit: 'UserProfileForEdit',
+  UserProfile: 'UserProfile',
 }

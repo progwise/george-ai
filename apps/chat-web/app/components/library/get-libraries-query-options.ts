@@ -32,7 +32,5 @@ const getLibraries = createServerFn({ method: 'GET' }).handler(async () => {
 export const getLibrariesQueryOptions = () =>
   queryOptions({
     queryKey: [queryKeys.AiLibraries],
-    queryFn: async () => {
-      return getLibraries()
-    },
+    queryFn: () => getLibraries(),
   })

@@ -8,15 +8,15 @@ import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
 const assistantDetailsQueryDocument = graphql(`
-  query aiAssistantDetails($id: String!) {
-    aiAssistant(id: $id) {
+  query aiAssistantDetails($assistantId: String!) {
+    aiAssistant(assistantId: $assistantId) {
       ...AssistantForm_Assistant
       ...AssistantSelector_Assistant
       ...AssistantLibraries_Assistant
       ...AssistantBasecaseForm_Assistant
       ...AssistantParticipants_Assistant
     }
-    aiLibraryUsage(assistantId: $id) {
+    aiLibraryUsage(assistantId: $assistantId) {
       ...AssistantLibraries_LibraryUsage
     }
   }
@@ -28,7 +28,7 @@ const getAssistant = createServerFn({ method: 'GET' })
   }))
   .handler(async (ctx) => {
     const result = await backendRequest(assistantDetailsQueryDocument, {
-      id: ctx.data.assistantId,
+      assistantId: ctx.data.assistantId,
     })
     if (!result.aiAssistant) {
       throw notFound()

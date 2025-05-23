@@ -34,8 +34,7 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
       nullable: false,
       select: { participants: { select: { user: true } } },
       resolve: (_query, assistant) => {
-        // Extract users from participants and filter out any null values
-        return assistant.participants.map((participant) => participant.user).filter((user) => !!user)
+        return assistant.participants.map((participant) => participant.user)
       },
     }),
   }),
@@ -55,13 +54,13 @@ builder.queryField('aiAssistant', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAssistant',
     args: {
-      id: t.arg.string({ required: true }),
+      assistantId: t.arg.string({ required: true }),
     },
-    resolve: async (query, _source, { id }, context) => {
+    resolve: async (query, _source, { assistantId }, context) => {
       const user = context.session.user
       const assistant = await prisma.aiAssistant.findUnique({
         ...query,
-        where: { id },
+        where: { id: assistantId },
         include: { participants: { include: { user: true } } },
       })
       if (!assistant) return null
@@ -69,7 +68,7 @@ builder.queryField('aiAssistant', (t) =>
       const isAuthorized =
         user.isAdmin ||
         assistant.ownerId === user.id ||
-        (await prisma.aiAssistantParticipant.findFirst({ where: { assistantId: id, userId: user.id } })) != null
+        (await prisma.aiAssistantParticipant.findFirst({ where: { assistantId, userId: user.id } })) != null
 
       if (!isAuthorized) return null
       return assistant

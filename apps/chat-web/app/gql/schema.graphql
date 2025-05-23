@@ -375,7 +375,6 @@ type Mutation {
   createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
-  createUserProfile: UserProfile
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
@@ -396,7 +395,6 @@ type Mutation {
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  removeUserProfile(profileId: String!): UserProfile
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
   sendConfirmationMail(confirmationUrl: String!): Boolean
@@ -414,13 +412,13 @@ type Mutation {
 
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
-  aiAssistant(id: String!): AiAssistant
+  aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
-  aiLibrary(id: String!): AiLibrary
+  aiLibrary(libraryId: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   user(email: String!): User

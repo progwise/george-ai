@@ -385,7 +385,6 @@ export type Mutation = {
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   createContactRequest: Scalars['Boolean']['output']
   createConversationInvitations?: Maybe<AiConversation>
-  createUserProfile?: Maybe<UserProfile>
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
@@ -406,7 +405,6 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
-  removeUserProfile?: Maybe<UserProfile>
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -581,10 +579,6 @@ export type MutationRemoveLibraryUsageArgs = {
   libraryId: Scalars['String']['input']
 }
 
-export type MutationRemoveUserProfileArgs = {
-  profileId: Scalars['String']['input']
-}
-
 export type MutationResetAssessmentAnswersArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -670,7 +664,7 @@ export type QueryAiActAssessmentArgs = {
 }
 
 export type QueryAiAssistantArgs = {
-  id: Scalars['String']['input']
+  assistantId: Scalars['String']['input']
 }
 
 export type QueryAiConversationArgs = {
@@ -682,7 +676,7 @@ export type QueryAiConversationMessagesArgs = {
 }
 
 export type QueryAiLibraryArgs = {
-  id: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryAiLibraryFilesArgs = {
@@ -1258,7 +1252,7 @@ export type AssistantParticipants_AssistantFragment = {
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
 
 export type AiAssistantDetailsQueryVariables = Exact<{
-  id: Scalars['String']['input']
+  assistantId: Scalars['String']['input']
 }>
 
 export type AiAssistantDetailsQuery = {
@@ -1815,7 +1809,7 @@ export type AiLibraryDetailFragment = {
 }
 
 export type AiLibraryDetailQueryVariables = Exact<{
-  id: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }>
 
 export type AiLibraryDetailQuery = {
@@ -1963,15 +1957,6 @@ export type UserProfileQuery = {
     business?: string | null
     position?: string | null
   } | null
-}
-
-export type RemoveUserProfileMutationVariables = Exact<{
-  profileId: Scalars['String']['input']
-}>
-
-export type RemoveUserProfileMutation = {
-  __typename?: 'Mutation'
-  removeUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export type AddAssistantParticipantMutationVariables = Exact<{
@@ -5936,7 +5921,7 @@ export const AiAssistantDetailsDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -5949,8 +5934,8 @@ export const AiAssistantDetailsDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'assistantId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
               },
             ],
             selectionSet: {
@@ -5971,7 +5956,7 @@ export const AiAssistantDetailsDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'assistantId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'assistantId' } },
               },
             ],
             selectionSet: {
@@ -6735,7 +6720,7 @@ export const CrawlerTableDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
+                name: { kind: 'Name', value: 'libraryId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
@@ -7179,7 +7164,7 @@ export const AiLibraryDetailDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -7192,8 +7177,8 @@ export const AiLibraryDetailDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
             selectionSet: {
@@ -7640,43 +7625,6 @@ export const UserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>
-export const RemoveUserProfileDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'removeUserProfile' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'removeUserProfile' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'profileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'profileId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RemoveUserProfileMutation, RemoveUserProfileMutationVariables>
 export const AddAssistantParticipantDocument = {
   kind: 'Document',
   definitions: [
