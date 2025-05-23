@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute, useLinkProps } from '@tanstack/react-router'
+import { createFileRoute, notFound, useLinkProps } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 
 import { validateForm } from '@george-ai/web-utils'
@@ -23,8 +23,12 @@ const userProfileQueryDocument = graphql(`
   }
 `)
 
-export const getUserProfile = createServerFn({ method: 'GET' }).handler(async () => {
-  return await backendRequest(userProfileQueryDocument)
+const getUserProfile = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userProfile } = await backendRequest(userProfileQueryDocument)
+  if (!userProfile) {
+    throw notFound()
+  }
+  return userProfile
 })
 
 export const Route = createFileRoute('/_authenticated/profile/')({
@@ -48,7 +52,7 @@ function RouteComponent() {
 
   const confirmationLink = useLinkProps({
     to: '/profile/$profileId/confirm',
-    params: { profileId: userProfile.userProfile?.id || 'no_profile_id' },
+    params: { profileId: userProfile.id || 'no_profile_id' },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
@@ -101,7 +105,7 @@ function RouteComponent() {
   }
 
   const handleFormSubmission = (formData: FormData) => {
-    if (userProfile.userProfile?.confirmationDate) {
+    if (userProfile.confirmationDate) {
       handleSaveChanges(formData)
     } else {
       handleSendConfirmationMail(formData)
@@ -125,29 +129,25 @@ function RouteComponent() {
   }
 
   return (
-    userProfile.userProfile && (
-      <article className="flex w-full flex-col items-center gap-4">
-        <UserProfileForm
-          userProfile={userProfile.userProfile}
-          onSubmit={(formData: FormData) => {
-            handleFormSubmit(formData)
-          }}
-          saveButton={
-            <button
-              type="button"
-              className="btn btn-primary btn-sm tooltip"
-              data-tip={
-                !userProfile.userProfile.confirmationDate ? t('tooltips.saveAndSendConfirmationMail') : undefined
-              }
-              onClick={(event) => {
-                handleButtonClick(event)
-              }}
-            >
-              {userProfile.userProfile.confirmationDate ? t('actions.save') : t('actions.sendConfirmationMail')}
-            </button>
-          }
-        />
-      </article>
-    )
+    <article className="flex w-full flex-col items-center gap-4">
+      <UserProfileForm
+        userProfile={userProfile}
+        onSubmit={(formData: FormData) => {
+          handleFormSubmit(formData)
+        }}
+        saveButton={
+          <button
+            type="button"
+            className="btn btn-primary btn-sm tooltip"
+            data-tip={!userProfile.confirmationDate ? t('tooltips.saveAndSendConfirmationMail') : undefined}
+            onClick={(event) => {
+              handleButtonClick(event)
+            }}
+          >
+            {userProfile.confirmationDate ? t('actions.save') : t('actions.sendConfirmationMail')}
+          </button>
+        }
+      />
+    </article>
   )
 }
