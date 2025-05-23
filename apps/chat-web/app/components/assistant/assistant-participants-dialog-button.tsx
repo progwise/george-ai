@@ -29,9 +29,9 @@ interface AssistantParticipantsDialogButtonProps {
 export const AssistantParticipantsDialogButton = ({ assistant, users }: AssistantParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-  const queryClient = useQueryClient()
 
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const queryClient = useQueryClient()
 
   const assignableUsers = useMemo(
     () => users.filter((user) => !assistant.participants.some((participant) => participant.id === user.id)),
@@ -45,7 +45,7 @@ export const AssistantParticipantsDialogButton = ({ assistant, users }: Assistan
       })
     },
     onSettled: async () => {
-      queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
 
       dialogRef.current?.close()
     },

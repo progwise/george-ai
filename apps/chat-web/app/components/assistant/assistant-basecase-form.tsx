@@ -71,15 +71,17 @@ export interface AssistantBaseCaseFormProps {
 }
 
 export const AssistantBasecaseForm = ({ assistant }: AssistantBaseCaseFormProps) => {
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
   const formRef = React.useRef<HTMLFormElement>(null)
-  const queryClient = useQueryClient()
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: FormData) => {
       return await upsertAiBaseCases({ data })
     },
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+    onSettled: async () => {
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
+    },
   })
 
   useEffect(() => {

@@ -11,7 +11,7 @@ export function createRouter() {
     routeTree,
     context: { queryClient },
     defaultPreload: 'intent',
-    defaultErrorComponent: () => <div className="text-center">Something went wrong!</div>,
+    defaultErrorComponent: () => <div className="text-center">Ups, something went wrong!</div>,
     defaultNotFoundComponent: () => <div className="text-center">Not found!</div>,
     defaultPendingComponent: () => <div className="text-center">Loading...</div>,
   })

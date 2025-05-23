@@ -44,7 +44,9 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
         },
       })
     },
-    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
+    onSettled: async () => {
+      await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
+    },
   })
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
