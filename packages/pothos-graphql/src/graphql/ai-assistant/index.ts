@@ -65,14 +65,14 @@ builder.queryField('aiAssistant', (t) =>
         include: { participants: { include: { user: true } } },
       })
       if (!assistant) return null
-      if (
+
+      const isAuthorized =
         user.isAdmin ||
         assistant.ownerId === user.id ||
-        (await prisma.aiAssistantParticipant.count({ where: { assistantId: id, userId: user.id } })) > 0
-      ) {
-        return assistant
-      }
-      return null
+        (await prisma.aiAssistantParticipant.findFirst({ where: { assistantId: id, userId: user.id } })) != null
+
+      if (!isAuthorized) return null
+      return assistant
     },
   }),
 )

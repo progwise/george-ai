@@ -64,14 +64,14 @@ builder.queryField('aiLibrary', (t) =>
         where: { id },
       })
       if (!library) return null
-      if (
+
+      const isAuthorized =
         user.isAdmin ||
         library.ownerId === user.id ||
-        (await prisma.aiLibraryParticipant.count({ where: { libraryId: id, userId: user.id } })) > 0
-      ) {
-        return library
-      }
-      return null
+        (await prisma.aiLibraryParticipant.findFirst({ where: { libraryId: id, userId: user.id } })) != null
+
+      if (!isAuthorized) return null
+      return library
     },
   }),
 )

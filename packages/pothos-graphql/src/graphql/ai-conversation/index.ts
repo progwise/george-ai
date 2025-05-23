@@ -65,19 +65,19 @@ builder.queryField('aiConversation', (t) =>
         where: { id: conversationId },
       })
       if (!conversation) return null
-      if (
+
+      const isAuthorized =
         user.isAdmin ||
         conversation.ownerId === user.id ||
-        (await prisma.aiConversationParticipant.count({
+        (await prisma.aiConversationParticipant.findFirst({
           where: {
             conversationId,
             OR: [{ userId: user.id }, { assistant: { ownerId: user.id } }],
           },
-        })) > 0
-      ) {
-        return conversation
-      }
-      return null
+        })) != null
+
+      if (!isAuthorized) return null
+      return conversation
     },
   }),
 )
