@@ -8,9 +8,10 @@ import { EmbeddingsTable } from '../../../../components/library/embeddings-table
 import { aiLibraryFilesQueryOptions } from '../../../../server-functions/library'
 
 const columnSortSchema = z.object({
-  page: fallback(z.number(), 1).catch(1),
-  column: fallback(z.enum(['index', 'name', 'size', 'chunks', 'processedAt']), 'index').catch('index'),
-  direction: fallback(z.enum(['asc', 'desc']), 'asc').catch('asc'),
+  page: fallback(z.number(), 0),
+  column: fallback(z.enum(['index', 'name', 'size', 'chunks', 'processedAt']), 'index'),
+  direction: fallback(z.enum(['asc', 'desc']), 'asc'),
+  itemsPerPage: fallback(z.number(), 5),
 })
 
 export type ColumnSort = z.infer<typeof columnSortSchema>

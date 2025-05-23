@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -27,8 +28,6 @@ interface EmbeddingsTableProps {
   profile?: UserProfileFragment
 }
 
-const route = getRouteApi('/_authenticated/libraries/$libraryId/')
-
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
@@ -37,25 +36,10 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   const queryClient = useQueryClient()
   const { data, isLoading } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const { page = 1, column, direction } = route.useSearch()
   const navigate = useNavigate()
-  const search = route.useSearch()
 
-  const [itemsPerPage, setItemsPerPage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      return parseInt(params.get('perPage') || '5', 10)
-    }
-    return 5
-  })
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href)
-      url.searchParams.set('perPage', itemsPerPage.toString())
-      window.history.replaceState({}, '', url.toString())
-    }
-  }, [itemsPerPage])
+  const search = useSearch({ from: '/_authenticated/libraries/$libraryId/' })
+  const { column, direction, page, itemsPerPage } = search
 
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
@@ -102,58 +86,18 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   })
 
   const totalPages = Math.ceil(data.aiLibraryFiles.length / itemsPerPage)
-  const indexOfFirstItem = (page - 1) * itemsPerPage
+  const indexOfFirstItem = page * itemsPerPage
   const currentItems = sortedData.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage)
-
-  const goToNextPage = () => {
-    if ((search.page || 1) < totalPages) {
-      navigate({
-        to: '/libraries/$libraryId',
-        params: { libraryId },
-        search: {
-          ...search,
-          page: (search.page || 1) + 1,
-        },
-        replace: true,
-      })
-    }
-  }
-
-  const goToPreviousPage = () => {
-    if ((search.page || 1) > 1) {
-      navigate({
-        to: '/libraries/$libraryId',
-        params: { libraryId },
-        search: {
-          ...search,
-          page: Math.max(1, (search.page || 1) - 1),
-        },
-        replace: true,
-      })
-    }
-  }
-
-  const goToPage = (pageNumber: number) => {
-    navigate({
-      to: '/libraries/$libraryId',
-      params: { libraryId },
-      search: {
-        ...search,
-        page: pageNumber,
-      },
-      replace: true,
-    })
-  }
 
   const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newItemsPerPage = parseInt(e.target.value, 10)
-    setItemsPerPage(newItemsPerPage)
     navigate({
       to: '/libraries/$libraryId',
       params: { libraryId },
       search: {
         ...search,
-        page: 1,
+        itemsPerPage: newItemsPerPage,
+        page: 0,
       },
       replace: true,
     })
@@ -163,17 +107,19 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     navigate({
       to: '/libraries/$libraryId',
       params: { libraryId },
-      search: (prev) => {
-        if (prev.column === col) {
+      search: () => {
+        if (column === col) {
           return {
-            ...prev,
-            direction: prev.direction === 'asc' ? 'desc' : 'asc',
+            ...search,
+            direction: direction === 'asc' ? ('desc' as const) : ('asc' as const),
+            page: 0,
           }
         } else {
           return {
-            ...prev,
+            ...search,
             column: col,
-            direction: 'asc',
+            page: 0,
+            direction: 'asc' as const,
           }
         }
       },
@@ -261,6 +207,9 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
+
+  const isFirstPage = page === 0
+  const isLastPage = page === totalPages - 1
 
   return (
     <>
@@ -523,24 +472,41 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
             {totalPages > 1 && (
               <div className="mt-4 flex justify-center">
                 <div className="join">
-                  <button type="button" className="join-item btn" onClick={goToPreviousPage} disabled={page === 1}>
+                  <Link
+                    className={twMerge('join-item btn', isFirstPage && 'btn-disabled')}
+                    disabled={isFirstPage}
+                    to="/libraries/$libraryId"
+                    params={{ libraryId }}
+                    search={{ ...search, page: page - 1 }}
+                  >
                     «
-                  </button>
+                  </Link>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                    <button
-                      type="button"
+                  {Array.from({ length: totalPages }, (_, i) => i).map((pageNumber) => (
+                    <Link
+                      className="join-item btn"
+                      activeProps={{ className: 'btn-active' }}
+                      to="/libraries/$libraryId"
+                      params={{ libraryId }}
+                      search={{
+                        ...search,
+                        page: pageNumber,
+                      }}
                       key={pageNumber}
-                      className={`join-item btn ${page === pageNumber && 'btn-active'}`}
-                      onClick={() => goToPage(pageNumber)}
                     >
-                      {pageNumber}
-                    </button>
+                      {pageNumber + 1}
+                    </Link>
                   ))}
 
-                  <button type="button" className="join-item btn" onClick={goToNextPage} disabled={page === totalPages}>
+                  <Link
+                    className={twMerge('join-item btn', isLastPage && 'btn-disabled')}
+                    disabled={isLastPage}
+                    to="/libraries/$libraryId"
+                    params={{ libraryId }}
+                    search={{ ...search, page: page + 1 }}
+                  >
                     »
-                  </button>
+                  </Link>
                 </div>
               </div>
             )}
