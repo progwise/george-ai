@@ -1,5 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
@@ -9,6 +8,7 @@ import { AssistantForm_AssistantFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
@@ -70,13 +70,13 @@ export interface AssistantEditFormProps {
 export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): React.ReactElement => {
   const formRef = React.useRef<HTMLFormElement>(null)
   const { t, language } = useTranslation()
-  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
-    onSettled: () => router.invalidate(),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
@@ -92,7 +92,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
         body: file,
       })
     },
-    onSettled: () => router.invalidate(),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const handleUploadIcon = React.useCallback(

@@ -68,3 +68,9 @@ export const getAssistant = createServerFn({ method: 'GET' })
     }
     return result
   })
+
+export const getAssistantQueryOptions = (assistantId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.AiAssistant, assistantId],
+    queryFn: () => getAssistant({ data: { assistantId } }),
+  })

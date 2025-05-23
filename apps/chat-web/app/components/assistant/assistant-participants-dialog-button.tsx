@@ -1,11 +1,11 @@
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
 import { AssistantParticipantsDialogButton_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { addAssistantParticipants } from '../../server-functions/assistant-participations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
@@ -29,7 +29,7 @@ interface AssistantParticipantsDialogButtonProps {
 export const AssistantParticipantsDialogButton = ({ assistant, users }: AssistantParticipantsDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const dialogRef = useRef<HTMLDialogElement>(null)
 
@@ -45,7 +45,7 @@ export const AssistantParticipantsDialogButton = ({ assistant, users }: Assistan
       })
     },
     onSettled: async () => {
-      router.invalidate()
+      queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
 
       dialogRef.current?.close()
     },

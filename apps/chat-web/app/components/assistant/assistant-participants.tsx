@@ -1,11 +1,11 @@
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
 import { AssistantParticipants_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
+import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
 import { LoadingSpinner } from '../loading-spinner'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
@@ -30,7 +30,7 @@ interface AssistantParticipantsProps {
 }
 
 export const AssistantParticipants = ({ assistant, users, userId }: AssistantParticipantsProps) => {
-  const router = useRouter()
+  const queryClient = useQueryClient()
   const { t } = useTranslation()
 
   const isOwner = assistant.ownerId === userId
@@ -44,7 +44,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
         },
       })
     },
-    onSettled: () => router.invalidate(),
+    onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
   const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
