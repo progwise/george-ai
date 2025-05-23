@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -14,6 +14,7 @@ import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { queryKeys } from '../../query-keys'
+import { ColumnSort } from '../../routes/_authenticated/libraries/$libraryId'
 import { aiLibraryFilesQueryOptions, dropAllFiles, reProcessAllFiles } from '../../server-functions/library'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
@@ -26,8 +27,7 @@ interface EmbeddingsTableProps {
   profile?: UserProfileFragment
 }
 
-type SortColumn = 'index' | 'name' | 'size' | 'chunks' | 'processedAt' | null
-type SortDirection = 'asc' | 'desc'
+const route = getRouteApi('/_authenticated/libraries/$libraryId/')
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -37,14 +37,9 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   const queryClient = useQueryClient()
   const { data, isLoading } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
   const dialogRef = useRef<HTMLDialogElement>(null)
-
-  const [currentPage, setCurrentPage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      return parseInt(params.get('page') || '1', 10)
-    }
-    return 1
-  })
+  const { page = 1, column, direction } = route.useSearch()
+  const navigate = useNavigate()
+  const search = route.useSearch()
 
   const [itemsPerPage, setItemsPerPage] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -54,38 +49,13 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     return 5
   })
 
-  const [sortColumn, setSortColumn] = useState<SortColumn>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      return (params.get('sortBy') as SortColumn) || null
-    }
-    return null
-  })
-
-  const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      return (params.get('sortDir') as SortDirection) || 'asc'
-    }
-    return 'asc'
-  })
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href)
       url.searchParams.set('perPage', itemsPerPage.toString())
-
-      if (sortColumn) {
-        url.searchParams.set('sortBy', sortColumn)
-        url.searchParams.set('sortDir', sortDirection)
-      } else {
-        url.searchParams.delete('sortBy')
-        url.searchParams.delete('sortDir')
-      }
-
       window.history.replaceState({}, '', url.toString())
     }
-  }, [itemsPerPage, sortColumn, sortDirection])
+  }, [itemsPerPage])
 
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
@@ -98,11 +68,11 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   }))
 
   const sortedData = [...filesWithIndex].sort((a, b) => {
-    if (!sortColumn) return 0
+    if (!column) return 0
 
     let comparison = 0
 
-    switch (sortColumn) {
+    switch (column) {
       case 'index':
         comparison = a.originalIndex - b.originalIndex
         break
@@ -128,50 +98,93 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
         return 0
     }
 
-    return sortDirection === 'asc' ? comparison : -comparison
+    return direction === 'asc' ? comparison : -comparison
   })
 
   const totalPages = Math.ceil(data.aiLibraryFiles.length / itemsPerPage)
-  const indexOfFirstItem = (currentPage - 1) * itemsPerPage
-  const currentItems = sortedData.slice(indexOfFirstItem, currentPage * itemsPerPage)
+  const indexOfFirstItem = (page - 1) * itemsPerPage
+  const currentItems = sortedData.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage)
 
   const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1)
+    if ((search.page || 1) < totalPages) {
+      navigate({
+        to: '/libraries/$libraryId',
+        params: { libraryId },
+        search: {
+          ...search,
+          page: (search.page || 1) + 1,
+        },
+        replace: true,
+      })
     }
   }
 
   const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1)
+    if ((search.page || 1) > 1) {
+      navigate({
+        to: '/libraries/$libraryId',
+        params: { libraryId },
+        search: {
+          ...search,
+          page: Math.max(1, (search.page || 1) - 1),
+        },
+        replace: true,
+      })
     }
   }
 
   const goToPage = (pageNumber: number) => {
-    setCurrentPage(pageNumber)
+    navigate({
+      to: '/libraries/$libraryId',
+      params: { libraryId },
+      search: {
+        ...search,
+        page: pageNumber,
+      },
+      replace: true,
+    })
   }
 
   const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newItemsPerPage = parseInt(e.target.value, 10)
     setItemsPerPage(newItemsPerPage)
-    setCurrentPage(1)
+    navigate({
+      to: '/libraries/$libraryId',
+      params: { libraryId },
+      search: {
+        ...search,
+        page: 1,
+      },
+      replace: true,
+    })
   }
 
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortColumn(column)
-      setSortDirection('asc')
-    }
-
-    setCurrentPage(1)
+  const handleSort = (col: ColumnSort['column']) => {
+    navigate({
+      to: '/libraries/$libraryId',
+      params: { libraryId },
+      search: (prev) => {
+        if (prev.column === col) {
+          return {
+            ...prev,
+            direction: prev.direction === 'asc' ? 'desc' : 'asc',
+          }
+        } else {
+          return {
+            ...prev,
+            column: col,
+            direction: 'asc',
+          }
+        }
+      },
+      replace: true,
+    })
   }
 
-  const getSortIndicator = (column: SortColumn) => {
-    if (sortColumn !== column) return null
+  const getSortIndicator = (col: ColumnSort['column']) => {
+    if (column !== col) return null
 
-    return sortDirection === 'asc' ? <ChevronBottomIcon /> : <ChevronUpIcon />
+    return direction === 'asc' ? <ChevronBottomIcon /> : <ChevronUpIcon />
   }
 
   useEffect(() => {
@@ -510,12 +523,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
             {totalPages > 1 && (
               <div className="mt-4 flex justify-center">
                 <div className="join">
-                  <button
-                    type="button"
-                    className="join-item btn"
-                    onClick={goToPreviousPage}
-                    disabled={currentPage === 1}
-                  >
+                  <button type="button" className="join-item btn" onClick={goToPreviousPage} disabled={page === 1}>
                     «
                   </button>
 
@@ -523,19 +531,14 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                     <button
                       type="button"
                       key={pageNumber}
-                      className={`join-item btn ${currentPage === pageNumber && 'btn-active'}`}
+                      className={`join-item btn ${page === pageNumber && 'btn-active'}`}
                       onClick={() => goToPage(pageNumber)}
                     >
                       {pageNumber}
                     </button>
                   ))}
 
-                  <button
-                    type="button"
-                    className="join-item btn"
-                    onClick={goToNextPage}
-                    disabled={currentPage === totalPages}
-                  >
+                  <button type="button" className="join-item btn" onClick={goToNextPage} disabled={page === totalPages}>
                     »
                   </button>
                 </div>
