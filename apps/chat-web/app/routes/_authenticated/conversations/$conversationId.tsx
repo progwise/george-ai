@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { getProfileQueryOptions } from '../../../auth/get-profile-query'
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants-query-options'
 import { ConversationForm } from '../../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
@@ -10,7 +11,6 @@ import { DeleteLeaveConversationDialog } from '../../../components/conversation/
 import { getConversationQueryOptions } from '../../../components/conversation/get-conversation-query-options'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
 import { MenuIcon } from '../../../icons/menu-icon'
-import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations/$conversationId')({

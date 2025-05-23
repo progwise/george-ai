@@ -4,9 +4,9 @@ import { useRef } from 'react'
 import { AssistantBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
-import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { leaveAssistantParticipant } from '../../../server-functions/assistant-participations'
 import { DialogForm } from '../../dialog-form'
+import { getAiAssistantsQueryOptions } from '../get-assistants-query-options'
 
 interface AssistantLeaveDialogProps {
   assistant: AssistantBaseFragment

@@ -7,9 +7,9 @@ import { graphql } from '../../../gql'
 import { AssistantBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
-import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
+import { getAiAssistantsQueryOptions } from '../get-assistants-query-options'
 
 const deleteAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {

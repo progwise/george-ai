@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
+import { getAssistantQueryOptions } from '../../components/assistant/get-assistant-query-options'
 import { graphql } from '../../gql'
 import {
   AiLibraryBaseFragment,
@@ -12,7 +13,6 @@ import {
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { BookIcon } from '../../icons/book-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest } from '../../server-functions/backend'
 import { Dropdown } from '../dropdown'
 import { Input } from '../form/input'

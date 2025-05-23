@@ -7,11 +7,12 @@ import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
 import { AssistantParticipants } from '../../../components/assistant/assistant-participants'
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
+import { getAssistantQueryOptions } from '../../../components/assistant/get-assistant-query-options'
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants-query-options'
 import { getLibrariesQueryOptions } from '../../../components/library/get-libraries-query-options'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../icons/back-icon'
-import { getAiAssistantsQueryOptions, getAssistantQueryOptions } from '../../../server-functions/assistant'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
