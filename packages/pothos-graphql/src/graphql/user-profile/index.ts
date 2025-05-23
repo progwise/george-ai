@@ -158,8 +158,6 @@ builder.queryField('userProfile', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',
     resolve: async (query, _source, _args, context) => {
-      console.log('userProfile query - userId:', context.session.user.id)
-
       if (context.session.userProfile) {
         return context.session.userProfile
       }
