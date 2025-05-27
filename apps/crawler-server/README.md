@@ -1,8 +1,8 @@
-# create virtual environment
+# Create Virtual Environment
 
 Inside the apps/crawler-server folder execute.
 
-This crawler server uses crawl4ai. Github https://github.com/unclecode/crawl4ai, Docs: https://docs.crawl4ai.com/
+This crawler server uses crawl4ai. GitHub https://github.com/unclecode/crawl4ai, Docs: https://docs.crawl4ai.com/
 
 The crawler server uses fastApi: https://fastapi.tiangolo.com/
 

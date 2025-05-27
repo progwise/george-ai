@@ -12,7 +12,7 @@ RUN pip install --upgrade pip && \
   pip install --no-cache-dir -r ./requirements.txt && \
   crawl4ai-setup
 
-# Make sure start-dev.sh is executable
+# Make sure start-prod.sh is executable
 RUN chmod +x ./start-prod.sh
 
 # Expose the default FastAPI port

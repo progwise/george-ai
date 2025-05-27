@@ -81,6 +81,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
         await fs.writeFile(getFilePath(file.id), markdown)
         await completeFileUpload(file.id)
         await processFile(file.id)
+        crawledPages.push({ ...crawledPage, url: metaData.url, markdown, metaData: crawledPage.metaData, error: null })
       } catch (error) {
         console.error('Error during file processing', error)
         crawledPages.push({ ...crawledPage, url: metaData.url, error: 'File processing error' })

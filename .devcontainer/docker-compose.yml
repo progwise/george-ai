@@ -99,7 +99,7 @@ services:
     ports:
       - '11245:11245'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:11245/healthcheck']
+      test: ['CMD', 'curl', '-f', 'http://localhost:11245/healthcheck/']
       interval: 30s
       timeout: 10s
       retries: 3
