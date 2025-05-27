@@ -52,10 +52,7 @@ interface IncomingMessage {
 export const ConversationHistory = ({ conversation, userId }: ConversationHistoryProps) => {
   const { data: backend_url } = useQuery({
     queryKey: [queryKeys.BackendUrl],
-    queryFn: async () => {
-      const backendUrl = await getBackendPublicUrl()
-      return backendUrl
-    },
+    queryFn: () => getBackendPublicUrl(),
     staleTime: Infinity,
   })
   const [newMessages, setNewMessages] = useState<IncomingMessage[]>([])

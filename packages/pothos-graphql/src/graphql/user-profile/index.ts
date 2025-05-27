@@ -66,50 +66,6 @@ const UserProfileInput = builder.inputType('UserProfileInput', {
   }),
 })
 
-builder.mutationField('createUserProfile', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'UserProfile',
-    resolve: async (query, _source, _args, context) => {
-      const userId = context.session.user.id
-      const previousRegistration = await prisma.userProfile.findFirst({
-        where: { userId },
-      })
-      if (previousRegistration) {
-        throw new Error('User already had a profile')
-      }
-      const currentUser = await prisma.user.findFirstOrThrow({
-        where: { id: userId },
-      })
-      return prisma.userProfile.create({
-        ...query,
-        data: {
-          userId: currentUser.id,
-          email: currentUser.email,
-          firstName: currentUser.given_name,
-          lastName: currentUser.family_name,
-          freeMessages: 20,
-          freeStorage: 100000,
-        },
-      })
-    },
-  }),
-)
-
-builder.mutationField('removeUserProfile', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'UserProfile',
-    args: {
-      profileId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { profileId }) => {
-      return prisma.userProfile.delete({
-        ...query,
-        where: { id: profileId },
-      })
-    },
-  }),
-)
-
 builder.mutationField('updateUserProfile', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'UserProfile',

@@ -8,7 +8,7 @@ import { confirmInvitation } from '../../../server-functions/conversation-partic
 
 const conversationInvitationQueryOptions = (conversationId?: string, invitationId?: string) => ({
   queryKey: [queryKeys.ConversationInvitation, conversationId, invitationId],
-  queryFn: async () => {
+  queryFn: () => {
     if (!conversationId || !invitationId) {
       return null
     }
