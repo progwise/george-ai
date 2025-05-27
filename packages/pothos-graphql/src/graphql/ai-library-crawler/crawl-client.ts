@@ -1,4 +1,5 @@
-import { openApiClient } from './fetchClient'
+//export const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11245'
+export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'
 
 interface CrawlOptions {
   url: string
@@ -9,28 +10,22 @@ interface CrawlOptions {
 export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
   console.log(`start crawling ${url}`)
 
-  const encodedUrl = encodeURIComponent(url)
-  const result = await openApiClient.GET('/crawl', {
-    params: {
-      query: {
-        url: encodedUrl,
-        maxDepth,
-        maxPages,
+  const encodedUrl = url
+  const response = await fetch(
+    `${CRAWL4AI_BASE_URL}/crawl?url=${encodedUrl}&maxDepth=${maxDepth}&maxPages=${maxPages}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/jsonl',
       },
     },
-  })
-
-  if (result.error) {
-    console.error(`Failed to start crawl ${url}:`, result.error)
+  )
+  if (!response.ok) {
+    console.error(`Failed to start crawl ${url}:`, response.statusText)
     return
   }
 
-  if (result.response.body === null) {
-    console.error(`Failed to start crawl ${url} because there is no body.`)
-    return
-  }
-
-  const reader = result.response.body.getReader()
+  const reader = response.body?.getReader()
   if (!reader) {
     throw new Error('Failed to get response body reader')
   }

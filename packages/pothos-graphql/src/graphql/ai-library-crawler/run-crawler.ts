@@ -1,10 +1,9 @@
 import { promises as fs } from 'fs'
 
-import { crawl } from '@george-ai/crawl4ai-client'
-
 import { completeFileUpload, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { processFile } from '../ai-library-file/process-file'
+import { crawl } from './crawl-client'
 
 interface RunOptions {
   crawlerId: string
@@ -44,16 +43,19 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
     })) {
       if (!crawledPage.metaData) {
         crawledPages.push({ ...crawledPage, url: null, error: 'No metadata' })
+        console.warn('Crawled page has no metadata', crawledPage)
         continue
       }
       const metaData = JSON.parse(crawledPage.metaData)
       if (!crawledPage.markdown) {
         crawledPages.push({ ...crawledPage, url: metaData.url, error: 'No content' })
+        console.warn('Crawled page has no content', crawledPage)
         continue
       }
       const markdown = crawledPage.markdown
       if (!metaData.url) {
         crawledPages.push({ ...crawledPage, url: null, error: 'No url' })
+        console.warn('Crawled page has no URL', crawledPage)
         continue
       }
       const fileUpdateData = {
@@ -61,6 +63,8 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
         mimeType: 'text/markdown',
         libraryId: crawler.libraryId,
       }
+
+      console.log('Processing crawled page', fileUpdateData.name, 'from', metaData.url)
 
       try {
         const file = await prisma.aiLibraryFile.upsert({
