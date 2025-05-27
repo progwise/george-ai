@@ -91,14 +91,15 @@ services:
       - 8180:8080
 
   gai-crawl4ai:
-    #image: unclecode/crawl4ai:0.6.0-r2
-    build: https://github.com/unclecode/crawl4ai.git#next
+    build:
+      context: ../apps/crawler-server
+      dockerfile: Dockerfile
     container_name: gai-crawl4ai
     restart: unless-stopped
     ports:
-      - '11235:11235'
+      - '11245:11245'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:11235/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:11245/health']
       interval: 30s
       timeout: 10s
       retries: 3

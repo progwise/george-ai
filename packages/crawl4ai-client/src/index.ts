@@ -1,3 +1,5 @@
+import { openApiClient } from './fetchClient'
+
 interface CrawlOptions {
   url: string
   maxDepth: number
@@ -8,17 +10,27 @@ export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
   console.log(`start crawling ${url}`)
 
   const encodedUrl = encodeURIComponent(url)
-  const response = await fetch(
-    `http://host.docker.internal:8000/crawl?url=${encodedUrl}&maxDepth=${maxDepth}&maxPages=${maxPages}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/jsonl',
+  const result = await openApiClient.GET('/crawl', {
+    params: {
+      query: {
+        url: encodedUrl,
+        maxDepth,
+        maxPages,
       },
     },
-  )
+  })
 
-  const reader = response.body?.getReader()
+  if (result.error) {
+    console.error(`Failed to start crawl ${url}:`, result.error)
+    return
+  }
+
+  if (result.response.body === null) {
+    console.error(`Failed to start crawl ${url} because there is no body.`)
+    return
+  }
+
+  const reader = result.response.body.getReader()
   if (!reader) {
     throw new Error('Failed to get response body reader')
   }
