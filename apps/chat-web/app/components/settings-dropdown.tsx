@@ -10,6 +10,7 @@ import { ExitIcon } from '../icons/exit-icon'
 import { MenuEllipsisIcon } from '../icons/menu-ellipsis-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
+import SystemIcon from '../icons/system-icon'
 
 interface SettingsDropdownProps {
   user?: Pick<User, 'id' | 'name'>
