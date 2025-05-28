@@ -658,6 +658,7 @@ export type Query = {
   aiLibraries: Array<AiLibrary>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
+  aiLibraryFilesCount?: Maybe<Scalars['Int']['output']>
   aiLibraryUsage: Array<AiLibraryUsage>
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
@@ -686,6 +687,14 @@ export type QueryAiLibraryArgs = {
 }
 
 export type QueryAiLibraryFilesArgs = {
+  itemsPerPage: Scalars['Int']['input']
+  libraryId: Scalars['String']['input']
+  page: Scalars['Int']['input']
+  sortColumn: Scalars['String']['input']
+  sortDirection: Scalars['String']['input']
+}
+
+export type QueryAiLibraryFilesCountArgs = {
   libraryId: Scalars['String']['input']
 }
 
@@ -2750,10 +2759,15 @@ export type ReProcessFileMutation = {
 
 export type EmbeddingsTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
+  sortColumn: Scalars['String']['input']
+  sortDirection: Scalars['String']['input']
+  page: Scalars['Int']['input']
+  itemsPerPage: Scalars['Int']['input']
 }>
 
 export type EmbeddingsTableQuery = {
   __typename?: 'Query'
+  totalCount?: number | null
   aiLibraryFiles?: Array<{
     __typename?: 'AiLibraryFile'
     id: string
@@ -8386,6 +8400,26 @@ export const EmbeddingsTableDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sortColumn' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sortDirection' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'page' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'itemsPerPage' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -8398,6 +8432,26 @@ export const EmbeddingsTableDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'libraryId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sortColumn' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sortColumn' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sortDirection' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sortDirection' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'page' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'page' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'itemsPerPage' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'itemsPerPage' } },
               },
             ],
             selectionSet: {
@@ -8415,6 +8469,18 @@ export const EmbeddingsTableDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
               ],
             },
+          },
+          {
+            kind: 'Field',
+            alias: { kind: 'Name', value: 'totalCount' },
+            name: { kind: 'Name', value: 'aiLibraryFilesCount' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
           },
         ],
       },

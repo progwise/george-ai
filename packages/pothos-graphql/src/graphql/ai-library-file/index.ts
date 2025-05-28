@@ -106,11 +106,51 @@ builder.queryField('aiLibraryFiles', (t) =>
     type: ['AiLibraryFile'],
     args: {
       libraryId: t.arg.string({ required: true }),
+      sortColumn: t.arg.string({ required: true }),
+      sortDirection: t.arg.string({ required: true }),
+      page: t.arg.int({ required: true }),
+      itemsPerPage: t.arg.int({ required: true }),
     },
-    resolve: (_query, _source, { libraryId }) => {
+    resolve: (_query, _source, { libraryId, sortColumn, sortDirection, page, itemsPerPage }) => {
+      const direction = sortDirection === 'desc' ? ('desc' as const) : ('asc' as const)
+
+      const orderBy = (() => {
+        switch (sortColumn) {
+          case 'name':
+            return { name: direction }
+          case 'size':
+            return { size: direction }
+          case 'chunks':
+            return { chunks: direction }
+          case 'processedAt':
+            return { processedAt: direction }
+          case 'index':
+          default:
+            return { name: direction }
+        }
+      })()
+
+      const skip = Math.max(0, (page - 1) * itemsPerPage)
+      const take = itemsPerPage
+
       return prisma.aiLibraryFile.findMany({
         where: { libraryId },
-        orderBy: { name: 'asc' },
+        orderBy,
+        skip,
+        take,
+      })
+    },
+  }),
+)
+
+builder.queryField('aiLibraryFilesCount', (t) =>
+  t.int({
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { libraryId }) => {
+      return prisma.aiLibraryFile.count({
+        where: { libraryId },
       })
     },
   }),

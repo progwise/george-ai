@@ -64,7 +64,15 @@ function RouteComponent() {
     onSettled: () => {
       queryClient.invalidateQueries(getLibrariesQueryOptions())
       queryClient.invalidateQueries(getLibraryQueryOptions(libraryId))
-      navigate({ to: '..' })
+      navigate({
+        to: '..',
+        search: {
+          page: 1,
+          column: 'index',
+          direction: 'asc',
+          itemsPerPage: 5,
+        },
+      })
     },
   })
 

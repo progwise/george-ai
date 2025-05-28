@@ -70,6 +70,7 @@ function RouteComponent() {
           activeOptions={{ exact: true }}
           activeProps={{ className: 'tab-active' }}
           role="tab"
+          search={{ column: 'index', direction: 'asc', page: 1, itemsPerPage: 5 }}
         >
           {t('labels.files')}
         </Link>

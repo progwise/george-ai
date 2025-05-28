@@ -152,6 +152,12 @@ export const AssistantLibraries = ({ assistant, libraries, usages }: AssistantLi
                   to="/libraries/$libraryId"
                   params={{ libraryId: usage.libraryId }}
                   className="link link-hover text-sm"
+                  search={{
+                    page: 1,
+                    column: 'index',
+                    direction: 'asc',
+                    itemsPerPage: 5,
+                  }}
                 >
                   {usage.library.name}
                 </Link>

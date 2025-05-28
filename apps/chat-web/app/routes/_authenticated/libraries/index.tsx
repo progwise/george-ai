@@ -57,12 +57,27 @@ function RouteComponent() {
                     navigate({
                       to: '/libraries/$libraryId',
                       params: { libraryId: library.id },
+                      search: {
+                        page: 1,
+                        column: 'index',
+                        direction: 'asc',
+                        itemsPerPage: 5,
+                      },
                     })
                   }
                 >
                   <td data-label="#">{index + 1}</td>
                   <td data-label="Name">
-                    <Link to={'/libraries/$libraryId'} params={{ libraryId: library.id }}>
+                    <Link
+                      to={'/libraries/$libraryId'}
+                      params={{ libraryId: library.id }}
+                      search={{
+                        page: 1,
+                        column: 'index',
+                        direction: 'asc',
+                        itemsPerPage: 5,
+                      }}
+                    >
                       <span className="font-bold hover:underline">{library.name}</span>
                     </Link>
                   </td>

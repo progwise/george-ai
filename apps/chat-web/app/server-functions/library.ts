@@ -48,12 +48,46 @@ export const reProcessAllFiles = createServerFn({ method: 'POST' })
   })
 
 const getLibraryFiles = createServerFn({ method: 'GET' })
-  .validator(({ libraryId }: { libraryId: string }) => z.string().nonempty().parse(libraryId))
+  .validator(
+    ({
+      libraryId,
+      sortColumn,
+      sortDirection,
+      page,
+      itemsPerPage,
+    }: {
+      libraryId: string
+      sortColumn: 'index' | 'name' | 'size' | 'chunks' | 'processedAt'
+      sortDirection: 'asc' | 'desc'
+      page: number
+      itemsPerPage: number
+    }) => {
+      return {
+        libraryId: z.string().nonempty().parse(libraryId),
+        sortColumn: z.enum(['index', 'name', 'size', 'chunks', 'processedAt']).optional().parse(sortColumn),
+        sortDirection: z.enum(['asc', 'desc']).parse(sortDirection),
+        page: z.number().parse(page),
+        itemsPerPage: z.number().parse(itemsPerPage),
+      }
+    },
+  )
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        query EmbeddingsTable($libraryId: String!) {
-          aiLibraryFiles(libraryId: $libraryId) {
+        query EmbeddingsTable(
+          $libraryId: String!
+          $sortColumn: String!
+          $sortDirection: String!
+          $page: Int!
+          $itemsPerPage: Int!
+        ) {
+          aiLibraryFiles(
+            libraryId: $libraryId
+            sortColumn: $sortColumn
+            sortDirection: $sortDirection
+            page: $page
+            itemsPerPage: $itemsPerPage
+          ) {
             id
             name
             originUri
@@ -65,17 +99,30 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
             processingErrorMessage
             dropError
           }
+          totalCount: aiLibraryFilesCount(libraryId: $libraryId)
         }
       `),
-      { libraryId: ctx.data },
+      {
+        libraryId: ctx.data.libraryId,
+        sortColumn: ctx.data.sortColumn,
+        sortDirection: ctx.data.sortDirection,
+        page: ctx.data.page,
+        itemsPerPage: ctx.data.itemsPerPage,
+      },
     )
   })
 
-export const aiLibraryFilesQueryOptions = (libraryId: string) =>
+export const aiLibraryFilesQueryOptions = (
+  libraryId: string,
+  sortColumn: 'index' | 'name' | 'size' | 'chunks' | 'processedAt',
+  sortDirection: 'asc' | 'desc',
+  page: number,
+  itemsPerPage: number,
+) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraryFiles, libraryId],
+    queryKey: [queryKeys.AiLibraryFiles, libraryId, sortColumn, sortDirection, page, itemsPerPage],
     queryFn: async () => {
-      const result = await getLibraryFiles({ data: { libraryId } })
-      return { aiLibraryFiles: result?.aiLibraryFiles || [] }
+      const result = await getLibraryFiles({ data: { libraryId, sortColumn, sortDirection, page, itemsPerPage } })
+      return { aiLibraryFiles: result.aiLibraryFiles || [], totalCount: result.totalCount || 0 }
     },
   })

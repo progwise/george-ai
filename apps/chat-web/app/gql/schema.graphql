@@ -421,7 +421,14 @@ type Query {
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
   aiLibrary(id: String!): AiLibrary
-  aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
+  aiLibraryFiles(
+    itemsPerPage: Int!
+    libraryId: String!
+    page: Int!
+    sortColumn: String!
+    sortDirection: String!
+  ): [AiLibraryFile!]
+  aiLibraryFilesCount(libraryId: String!): Int
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   user(email: String!): User
   userProfile: UserProfile

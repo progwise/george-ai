@@ -18,6 +18,12 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
         navigate({
           to: '/libraries/$libraryId',
           params: { libraryId: newLibrary!.id },
+          search: {
+            page: 1,
+            column: 'index',
+            direction: 'asc',
+            itemsPerPage: 5,
+          },
         })
       }}
     />

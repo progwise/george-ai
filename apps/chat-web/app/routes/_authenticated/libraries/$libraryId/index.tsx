@@ -8,7 +8,7 @@ import { EmbeddingsTable } from '../../../../components/library/embeddings-table
 import { aiLibraryFilesQueryOptions } from '../../../../server-functions/library'
 
 const columnSortSchema = z.object({
-  page: fallback(z.number(), 0),
+  page: fallback(z.number(), 1),
   column: fallback(z.enum(['index', 'name', 'size', 'chunks', 'processedAt']), 'index'),
   direction: fallback(z.enum(['asc', 'desc']), 'asc'),
   itemsPerPage: fallback(z.number(), 5),
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/')({
   component: RouteComponent,
   loader: async ({ context, params }) => {
     context.queryClient.ensureQueryData(getProfileQueryOptions())
-    context.queryClient.ensureQueryData(aiLibraryFilesQueryOptions(params.libraryId))
+    context.queryClient.invalidateQueries(aiLibraryFilesQueryOptions(params.libraryId, 'index', 'asc', 1, 5))
   },
 })
 

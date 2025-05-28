@@ -34,12 +34,14 @@ const truncateFileName = (name: string, maxLength: number, truncatedLength: numb
 export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) => {
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
-  const { data, isLoading } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
   const dialogRef = useRef<HTMLDialogElement>(null)
   const navigate = useNavigate()
 
   const search = useSearch({ from: '/_authenticated/libraries/$libraryId/' })
   const { column, direction, page, itemsPerPage } = search
+  const { data, isLoading } = useSuspenseQuery(
+    aiLibraryFilesQueryOptions(libraryId, column, direction, page, itemsPerPage),
+  )
 
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
@@ -48,46 +50,10 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
   const filesWithIndex = data.aiLibraryFiles.map((file, index) => ({
     ...file,
-    originalIndex: index + 1,
+    originalIndex: Math.max(0, page - 1) * itemsPerPage + index + 1,
   }))
 
-  const sortedData = [...filesWithIndex].sort((a, b) => {
-    if (!column) return 0
-
-    let comparison = 0
-
-    switch (column) {
-      case 'index':
-        comparison = a.originalIndex - b.originalIndex
-        break
-      case 'name':
-        comparison = a.name.localeCompare(b.name)
-        break
-      case 'size': {
-        const sizeA = a.size ? parseFloat(String(a.size).replace(/[^0-9.]/g, '')) : 0
-        const sizeB = b.size ? parseFloat(String(b.size).replace(/[^0-9.]/g, '')) : 0
-        comparison = sizeA - sizeB
-        break
-      }
-      case 'chunks':
-        comparison = (a.chunks || 0) - (b.chunks || 0)
-        break
-      case 'processedAt': {
-        const dateA = a.processedAt ? new Date(a.processedAt).getTime() : 0
-        const dateB = b.processedAt ? new Date(b.processedAt).getTime() : 0
-        comparison = dateA - dateB
-        break
-      }
-      default:
-        return 0
-    }
-
-    return direction === 'asc' ? comparison : -comparison
-  })
-
-  const totalPages = Math.ceil(data.aiLibraryFiles.length / itemsPerPage)
-  const indexOfFirstItem = page * itemsPerPage
-  const currentItems = sortedData.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage)
+  const totalPages = Math.ceil(data.totalCount / itemsPerPage)
 
   const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newItemsPerPage = parseInt(e.target.value, 10)
@@ -112,13 +78,13 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
           return {
             ...search,
             direction: direction === 'asc' ? ('desc' as const) : ('asc' as const),
-            page: 0,
+            page: 1,
           }
         } else {
           return {
             ...search,
             column: col,
-            page: 0,
+            page: 1,
             direction: 'asc' as const,
           }
         }
@@ -208,8 +174,8 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
-  const isFirstPage = page === 0
-  const isLastPage = page === totalPages - 1
+  const isFirstPage = page === 1
+  const isLastPage = page === totalPages
 
   return (
     <>
@@ -407,7 +373,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentItems.map((file) => (
+                  {filesWithIndex.map((file) => (
                     <tr key={file.id} className="hover:bg-base-200">
                       <td>
                         <input
@@ -482,7 +448,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                     «
                   </Link>
 
-                  {Array.from({ length: totalPages }, (_, i) => i).map((pageNumber) => (
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
                     <Link
                       className="join-item btn"
                       activeProps={{ className: 'btn-active' }}
@@ -494,7 +460,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                       }}
                       key={pageNumber}
                     >
-                      {pageNumber + 1}
+                      {pageNumber}
                     </Link>
                   ))}
 
