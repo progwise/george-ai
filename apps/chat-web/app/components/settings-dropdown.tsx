@@ -22,16 +22,9 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
   const { language, setLanguage } = useLanguage()
   const [theme, setTheme] = useTheme()
 
-  const handleThemeToggle = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
+  const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTheme(event.target.value as 'light' | 'dark' | 'system')
   }
-
-  const handleLanguageToggle = () => {
-    setLanguage(language === 'en' ? 'de' : 'en')
-  }
-
-  const themeText = theme === 'dark' ? t('settings.lightMode') : t('settings.darkMode')
-  const languageText = language === 'en' ? 'Language: German' : 'Sprache: Englisch'
 
   return (
     <div className="dropdown dropdown-end">
@@ -70,28 +63,92 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
 
         {/* Theme-Switcher */}
         <li>
-          <label className="grid-cols-[1fr_min-content]">
-            {themeText}
-            <div className="swap swap-rotate">
-              <input
-                type="checkbox"
-                className="theme-controller"
-                value="dark" /* DaisyUI applies this theme when checked */
-                checked={theme === 'dark'}
-                onChange={handleThemeToggle}
-              />
-              <SunIcon className="swap-on" />
-              <MoonIcon className="swap-off" />
+          <div className="grid w-full grid-cols-[1fr_min-content] items-center">
+            <span className="text-sm">{t('settings.theme')}</span>
+            <div className="bg-base-100 flex items-center gap-2 rounded-lg px-2 py-1 shadow">
+              <label className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="system"
+                  checked={theme === 'system'}
+                  onChange={handleThemeChange}
+                  className="hidden"
+                  aria-label={t('settings.systemMode') ?? 'System'}
+                />
+                <span
+                  title={t('settings.systemMode') ?? 'System'}
+                  className={`btn btn-ghost btn-xs rounded-full p-1 ${theme === 'system' ? 'bg-base-300' : ''}`}
+                  tabIndex={-1}
+                >
+                  <SystemIcon className="size-4" />
+                </span>
+              </label>
+              <label className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="light"
+                  checked={theme === 'light'}
+                  onChange={handleThemeChange}
+                  className="hidden"
+                  aria-label={t('settings.lightMode')}
+                />
+                <span
+                  title={t('settings.lightMode')}
+                  className={`btn btn-ghost btn-xs rounded-full p-1 ${theme === 'light' ? 'bg-base-300' : ''}`}
+                  tabIndex={-1}
+                >
+                  <SunIcon className="size-4" />
+                </span>
+              </label>
+              <label className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="dark"
+                  checked={theme === 'dark'}
+                  onChange={handleThemeChange}
+                  className="hidden"
+                  aria-label={t('settings.darkMode')}
+                />
+                <span
+                  title={t('settings.darkMode')}
+                  className={`btn btn-ghost btn-xs rounded-full p-1 ${theme === 'dark' ? 'bg-base-300' : ''}`}
+                  tabIndex={-1}
+                >
+                  <MoonIcon className="size-4" />
+                </span>
+              </label>
             </div>
-          </label>
+          </div>
         </li>
 
         {/* Language-Switcher */}
         <li>
-          <button onClick={handleLanguageToggle} type="button" className="grid-cols-[1fr_min-content]">
-            {languageText}
-            <span>{language === 'en' ? 'DE' : 'EN'}</span>
-          </button>
+          <div className="grid w-full grid-cols-[1fr_min-content] items-center">
+            <span className="text-sm">{t('settings.language')}</span>
+            <div className="bg-base-100 flex items-center gap-2 rounded-lg px-2 py-1 shadow">
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                aria-label="Switch to English"
+                title="English"
+                className={`btn btn-ghost btn-xs rounded-full px-2 font-bold ${language === 'en' ? 'bg-base-300' : ''}`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('de')}
+                aria-label="Switch to German"
+                title="Deutsch"
+                className={`btn btn-ghost btn-xs rounded-full px-2 font-bold ${language === 'de' ? 'bg-base-300' : ''}`}
+              >
+                DE
+              </button>
+            </div>
+          </div>
         </li>
 
         {/* Sign-Out */}
@@ -103,7 +160,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 {t('actions.signOut')}
                 <button
                   type="button"
-                  className="btn btn-circle btn-btn-ghost btn-sm flex size-4 items-center"
+                  className="btn btn-circle btn-ghost btn-sm flex size-4 items-center"
                   onClick={logout}
                 >
                   <ExitIcon />
