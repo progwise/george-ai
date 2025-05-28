@@ -15,16 +15,18 @@ export const getThemeFromCookie = createServerFn({ method: 'GET' }).handler(
 
 const setThemeCookie = (newTheme: Theme) => (document.cookie = `${THEME_KEY}=${newTheme}; path=/; max-age=31536000`)
 
+const getSystemTheme = () => (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+
 const applyTheme = (theme: Theme) => {
   const html = document.documentElement
+  let newTheme: string
   if (theme === 'system') {
-    // Remove explicit theme, use prefers-color-scheme
-    html.removeAttribute('data-theme')
-    // Optionally, set data-theme to match system for DaisyUI
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    html.setAttribute('data-theme', systemTheme)
+    newTheme = getSystemTheme()
   } else {
-    html.setAttribute('data-theme', theme)
+    newTheme = theme
+  }
+  if (html.getAttribute('data-theme') !== newTheme) {
+    html.setAttribute('data-theme', newTheme)
   }
 }
 
@@ -44,13 +46,12 @@ export const useTheme = () => {
     if (typeof window === 'undefined') return
     const currentTheme = theme ?? FALLBACK_THEME
     applyTheme(currentTheme)
-    if (currentTheme === 'system') {
-      // Listen for system theme changes
-      const mql = window.matchMedia('(prefers-color-scheme: dark)')
-      const handler = () => applyTheme('system')
-      mql.addEventListener('change', handler)
-      return () => mql.removeEventListener('change', handler)
-    }
+    if (currentTheme !== 'system') return
+
+    const mql = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = () => applyTheme('system')
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
   }, [theme])
 
   const setTheme = useCallback(
