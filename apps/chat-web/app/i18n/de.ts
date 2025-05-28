@@ -155,7 +155,7 @@ export default {
     deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
-    messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
+    messageTooShort: 'Nachricht muss mindestens 2 Zeichen lang sein',
     noFreeMessages: 'Keine freien Nachrichten mehr. Aktualisieren Sie Ihr Abonnement.',
     notAllowed: 'Nicht erlaubt',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
