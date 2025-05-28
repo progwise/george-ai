@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-import { twMerge } from 'tailwind-merge'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -20,6 +19,7 @@ import { aiLibraryFilesQueryOptions, dropAllFiles, reProcessAllFiles } from '../
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { EmbeddingsTableItemsPerPageSelector, EmbeddingsTablePagination } from './embeddings-table-pagination'
 import { getLibrariesQueryOptions } from './get-libraries-query-options'
 import { GoogleDriveFiles } from './google-drive-files'
 
@@ -54,20 +54,6 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   }))
 
   const totalPages = Math.ceil(data.totalCount / itemsPerPage)
-
-  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newItemsPerPage = parseInt(e.target.value, 10)
-    navigate({
-      to: '/libraries/$libraryId',
-      params: { libraryId },
-      search: {
-        ...search,
-        itemsPerPage: newItemsPerPage,
-        page: 0,
-      },
-      replace: true,
-    })
-  }
 
   const handleSort = (col: ColumnSort['column']) => {
     navigate({
@@ -174,9 +160,6 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
     reProcessAllFilesMutation.mutate(uploadedFileIds)
   }
 
-  const isFirstPage = page === 1
-  const isLastPage = page === totalPages
-
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
@@ -220,15 +203,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
               {remainingStorage} / {profile?.freeStorage}
             </div>
           </div>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">{t('labels.filesPerPage')}:</legend>
-            <select className="select" value={itemsPerPage} onChange={handleItemsPerPageChange}>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-            </select>
-          </fieldset>
+          <EmbeddingsTableItemsPerPageSelector libraryId={libraryId} />
         </div>
       </nav>
       {googleDriveAccessToken && (
@@ -275,7 +250,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
             </label>
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
-              {data.aiLibraryFiles.map((file, index) => (
+              {filesWithIndex.map((file) => (
                 <div key={file.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
                   <div className="flex justify-between">
                     <label className="flex items-center gap-2">
@@ -286,7 +261,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                         onChange={() => handleSelectFile(file.id)}
                       />
                       <span className="text-sm font-semibold">
-                        {index + 1}. {truncateFileName(file.name, 25, 20)}
+                        {file.originalIndex}. {truncateFileName(file.name, 25, 20)}
                       </span>
                     </label>
                     <div className="flex justify-end gap-2">
@@ -434,49 +409,9 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                 </tbody>
               </table>
             </div>
-
-            {totalPages > 1 && (
-              <div className="mt-4 flex justify-center">
-                <div className="join">
-                  <Link
-                    className={twMerge('join-item btn', isFirstPage && 'btn-disabled')}
-                    disabled={isFirstPage}
-                    to="/libraries/$libraryId"
-                    params={{ libraryId }}
-                    search={{ ...search, page: page - 1 }}
-                  >
-                    «
-                  </Link>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                    <Link
-                      className="join-item btn"
-                      activeProps={{ className: 'btn-active' }}
-                      to="/libraries/$libraryId"
-                      params={{ libraryId }}
-                      search={{
-                        ...search,
-                        page: pageNumber,
-                      }}
-                      key={pageNumber}
-                    >
-                      {pageNumber}
-                    </Link>
-                  ))}
-
-                  <Link
-                    className={twMerge('join-item btn', isLastPage && 'btn-disabled')}
-                    disabled={isLastPage}
-                    to="/libraries/$libraryId"
-                    params={{ libraryId }}
-                    search={{ ...search, page: page + 1 }}
-                  >
-                    »
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
+
+          {totalPages > 1 && <EmbeddingsTablePagination libraryId={libraryId} />}
         </>
       )}
     </>
