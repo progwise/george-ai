@@ -298,6 +298,9 @@ export default {
   settings: {
     darkMode: 'Theme: Dark',
     lightMode: 'Theme: Light',
+    systemMode: 'Theme: System',
+    theme: 'Theme',
+    language: 'Language',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',

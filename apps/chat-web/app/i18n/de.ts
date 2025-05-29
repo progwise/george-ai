@@ -304,6 +304,9 @@ export default {
   settings: {
     darkMode: 'Farbschema: Dunkel',
     lightMode: 'Farbschema: Hell',
+    systemMode: 'Farbschema: System',
+    theme: 'Farbschema',
+    language: 'Sprache',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
