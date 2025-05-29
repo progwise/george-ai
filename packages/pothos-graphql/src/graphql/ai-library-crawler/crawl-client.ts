@@ -1,5 +1,5 @@
-//export const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11245'
-export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'
+export const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11245'
+//export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'
 
 interface CrawlOptions {
   url: string

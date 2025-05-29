@@ -235,8 +235,15 @@ export type AiLibraryCrawler = {
   lastRun?: Maybe<Scalars['DateTime']['output']>
   maxDepth: Scalars['Int']['output']
   maxPages: Scalars['Int']['output']
+  runCount: Scalars['Int']['output']
+  runs: Array<AiLibraryCrawlerRun>
   updatedAt: Scalars['DateTime']['output']
   url: Scalars['String']['output']
+}
+
+export type AiLibraryCrawlerRunsArgs = {
+  skip?: Scalars['Int']['input']
+  take?: Scalars['Int']['input']
 }
 
 export type AiLibraryCrawlerCronJob = {
@@ -277,6 +284,16 @@ export type AiLibraryCrawlerInput = {
   url: Scalars['String']['input']
 }
 
+export type AiLibraryCrawlerRun = {
+  __typename?: 'AiLibraryCrawlerRun'
+  crawler: AiLibraryCrawler
+  crawlerId: Scalars['ID']['output']
+  endedAt?: Maybe<Scalars['DateTime']['output']>
+  id: Scalars['ID']['output']
+  runByUserId?: Maybe<Scalars['ID']['output']>
+  startedAt: Scalars['DateTime']['output']
+}
+
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
@@ -309,6 +326,31 @@ export type AiLibraryInput = {
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
+}
+
+export type AiLibraryUpdate = {
+  __typename?: 'AiLibraryUpdate'
+  crawlerRun?: Maybe<AiLibraryCrawlerRun>
+  crawlerRunId?: Maybe<Scalars['ID']['output']>
+  createdAt: Scalars['DateTime']['output']
+  file?: Maybe<AiLibraryFile>
+  fileId?: Maybe<Scalars['ID']['output']>
+  id: Scalars['ID']['output']
+  library?: Maybe<AiLibrary>
+  libraryId: Scalars['ID']['output']
+  message?: Maybe<Scalars['String']['output']>
+  success: Scalars['Boolean']['output']
+}
+
+/** Query result for AI library updates */
+export type AiLibraryUpdateQueryResult = {
+  __typename?: 'AiLibraryUpdateQueryResult'
+  count: Scalars['Int']['output']
+  crawlerId?: Maybe<Scalars['String']['output']>
+  libraryId: Scalars['String']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+  updates: Array<AiLibraryUpdate>
 }
 
 export type AiLibraryUsage = {
@@ -652,6 +694,7 @@ export type Query = {
   aiLibraries: Array<AiLibrary>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
+  aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
@@ -681,6 +724,13 @@ export type QueryAiLibraryArgs = {
 
 export type QueryAiLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryUpdatesArgs = {
+  crawlerId?: InputMaybe<Scalars['ID']['input']>
+  libraryId: Scalars['ID']['input']
+  skip?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type QueryAiLibraryUsageArgs = {
@@ -1705,6 +1755,46 @@ export type LibraryParticipants_LibraryFragment = {
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+}
+
+export type LibraryUpdatesListQueryVariables = Exact<{
+  libraryId: Scalars['ID']['input']
+  crawlerId?: InputMaybe<Scalars['ID']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+  skip?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type LibraryUpdatesListQuery = {
+  __typename?: 'Query'
+  aiLibraryUpdates: {
+    __typename?: 'AiLibraryUpdateQueryResult'
+    libraryId: string
+    crawlerId?: string | null
+    take: number
+    skip: number
+    count: number
+    updates: Array<{
+      __typename?: 'AiLibraryUpdate'
+      id: string
+      createdAt: string
+      libraryId: string
+      crawlerRunId?: string | null
+      fileId?: string | null
+      success: boolean
+      message?: string | null
+    }>
+  }
+}
+
+export type AiLibraryUpdate_TableItemFragment = {
+  __typename?: 'AiLibraryUpdate'
+  id: string
+  createdAt: string
+  libraryId: string
+  crawlerRunId?: string | null
+  fileId?: string | null
+  success: boolean
+  message?: string | null
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -4202,6 +4292,28 @@ export const LibraryParticipants_LibraryFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<LibraryParticipants_LibraryFragment, unknown>
+export const AiLibraryUpdate_TableItemFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryUpdate_TableItem' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryUpdate' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerRunId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibraryUpdate_TableItemFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -6729,6 +6841,106 @@ export const CreateAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
+export const LibraryUpdatesListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'libraryUpdatesList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryUpdates' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'crawlerId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'updates' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryUpdate_TableItem' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryUpdate_TableItem' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryUpdate' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'crawlerRunId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [

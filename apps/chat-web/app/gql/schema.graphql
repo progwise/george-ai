@@ -214,6 +214,8 @@ type AiLibraryCrawler {
   lastRun: DateTime
   maxDepth: Int!
   maxPages: Int!
+  runCount: Int!
+  runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
   url: String!
 }
@@ -255,6 +257,15 @@ input AiLibraryCrawlerInput {
   url: String!
 }
 
+type AiLibraryCrawlerRun {
+  crawler: AiLibraryCrawler!
+  crawlerId: ID!
+  endedAt: DateTime
+  id: ID!
+  runByUserId: ID
+  startedAt: DateTime!
+}
+
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
@@ -286,6 +297,31 @@ input AiLibraryInput {
   icon: String
   name: String!
   url: String
+}
+
+type AiLibraryUpdate {
+  crawlerRun: AiLibraryCrawlerRun
+  crawlerRunId: ID
+  createdAt: DateTime!
+  file: AiLibraryFile
+  fileId: ID
+  id: ID!
+  library: AiLibrary
+  libraryId: ID!
+  message: String
+  success: Boolean!
+}
+
+"""
+Query result for AI library updates
+"""
+type AiLibraryUpdateQueryResult {
+  count: Int!
+  crawlerId: String
+  libraryId: String!
+  skip: Int!
+  take: Int!
+  updates: [AiLibraryUpdate!]!
 }
 
 type AiLibraryUsage {
@@ -420,6 +456,7 @@ type Query {
   aiLibraries: [AiLibrary!]!
   aiLibrary(id: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
+  aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   user(email: String!): User
   userProfile: UserProfile

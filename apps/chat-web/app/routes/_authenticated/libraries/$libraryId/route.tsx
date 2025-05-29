@@ -93,6 +93,16 @@ function RouteComponent() {
         >
           {t('labels.crawlers')}
         </Link>
+        <Link
+          to="/libraries/$libraryId/updates"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: true }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.updates')}
+        </Link>
       </div>
       <div role="tabpanel" className="p-10">
         <Outlet />

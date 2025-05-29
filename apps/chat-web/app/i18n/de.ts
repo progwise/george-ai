@@ -138,7 +138,7 @@ export default {
     cronJobActive: 'Cronjob aktiv',
     cronJobTime: 'Cronjob-Zeit',
     days: 'Tage',
-    delete: 'Crawler löschen',
+    delete: 'löschen',
     deleteConfirmation:
       'Der Crawler für {crawlerUrl} wird zusammen mit {filesCount} damit gecrawlten Dateien gelöscht.',
     lastRun: 'Letzter Lauf',
@@ -259,6 +259,7 @@ export default {
     thursday: 'Donnerstag',
     tuesday: 'Dienstag',
     updatedAt: 'Geändert',
+    updates: 'Aktualisierungen',
     usedMessages: 'Vorhandene Nachrichten',
     usedStorage: 'Verwendeter Speicher',
     version: 'Version',

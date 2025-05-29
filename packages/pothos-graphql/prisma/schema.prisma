@@ -131,6 +131,8 @@ model AiLibrary {
   files         AiLibraryFile[]
   crawlers      AiLibraryCrawler[]
   participants  AiLibraryParticipant[]
+
+  AiLibraryUpdate AiLibraryUpdate[]
 }
 
 model AiLibraryUsage {
@@ -166,6 +168,7 @@ model AiLibraryFile {
   processingErrorMessage String?
   crawledByCrawlerId     String?
   crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+  AiLibraryUpdate        AiLibraryUpdate[]
 
   @@unique([crawledByCrawlerId, originUri])
 }
@@ -199,6 +202,8 @@ model AiLibraryCrawlerRun {
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
   runBy   User?            @relation(fields: [runByUserId], references: [id])
+
+  AiLibraryUpdate AiLibraryUpdate[]
 }
 
 model AiLibraryCrawlerCronJob {
@@ -219,6 +224,20 @@ model AiLibraryCrawlerCronJob {
   updatedAt DateTime @updatedAt
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
+}
+
+model AiLibraryUpdate {
+  id           String   @id @default(cuid())
+  libraryId    String
+  fileId       String?
+  crawlerRunId String?
+  success      Boolean
+  message      String?
+  createdAt    DateTime @default(now())
+
+  library    AiLibrary            @relation(fields: [libraryId], references: [id], onDelete: Cascade)
+  crawlerRun AiLibraryCrawlerRun? @relation(fields: [crawlerRunId], references: [id], onDelete: Cascade)
+  file       AiLibraryFile?       @relation(fields: [fileId], references: [id], onDelete: Cascade)
 }
 
 model AiLibraryParticipant {
