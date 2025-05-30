@@ -10,8 +10,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
 import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
+import { EditableDiv } from '../editable-div'
 import { IconUpload } from '../form/icon-upload'
-import { Input } from '../form/input'
 import { Select } from '../form/select'
 
 graphql(`
@@ -72,6 +72,9 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
 
+  const [name, setName] = React.useState(assistant.name)
+  const [description, setDescription] = React.useState(assistant.description || '')
+
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
@@ -119,8 +122,25 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
     },
   }
 
+  const handleBlur = React.useCallback(() => {
+    const formData = new FormData()
+    formData.append('id', assistant.id)
+    formData.append('name', name)
+    formData.append('description', description)
+    formData.append('languageModel', assistant.languageModel || '')
+
+    const parseResult = schema.safeParse(Object.fromEntries(formData))
+    if (parseResult.success) {
+      update(formData)
+    } else {
+      console.error('Validation errors:', parseResult.error.errors)
+    }
+  }, [assistant.id, assistant.languageModel, name, description, schema, update])
+
+  const isFormDisabled = updateIsPending || mutateAssistantIconPending || disabled
+
   return (
-    <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
+    <form ref={formRef} onSubmit={(e) => e.preventDefault()}>
       <input type="hidden" name="id" value={assistant.id} />
 
       <IconUpload
@@ -130,26 +150,34 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
         handleUploadIcon={handleUploadIcon}
         imageUrl={assistant.iconUrl}
       />
-      <Input
-        name="name"
-        type="text"
-        label={t('labels.name')}
-        value={assistant.name}
-        className="col-span-2"
-        required
-        {...fieldProps}
-      />
 
-      <Input
-        name="description"
-        type="textarea"
-        label={t('labels.description')}
-        value={assistant.description}
-        placeholder={t('assistants.placeholders.description')}
-        className="col-span-2 min-h-40"
-        required
-        {...fieldProps}
-      />
+      <div className="flex flex-col">
+        <label className="label">
+          <span className="label-text">{t('labels.name')}</span>
+        </label>
+        <EditableDiv
+          className="focus:outline-hidden focus:border-primary border-base-300 bg-base-100 min-h-[42px] overflow-y-auto break-all rounded-md border p-2"
+          disabled={isFormDisabled}
+          value={name}
+          onChange={setName}
+          onBlur={handleBlur}
+          placeholder={t('labels.name')}
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="label">
+          <span className="label-text">{t('labels.description')}</span>
+        </label>
+        <EditableDiv
+          className="focus:outline-hidden focus:border-primary border-base-300 bg-base-100 min-h-40 overflow-y-auto break-all rounded-md border p-2"
+          disabled={isFormDisabled}
+          value={description}
+          onChange={setDescription}
+          onBlur={handleBlur}
+          placeholder={t('assistants.placeholders.description')}
+        />
+      </div>
 
       <Select
         name="languageModel"
