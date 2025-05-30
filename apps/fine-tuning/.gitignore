@@ -3,6 +3,9 @@ split_output
 adapters_*
 finetune-output/
 
+# QA pairs
+jsonl/raw/qa-data.jsonl
+jsonl/george-ai/
 
 # Virtual environment
 venv

@@ -22,7 +22,6 @@ import mlx_lm.lora
 def run_finetune(model_name: str, data_folder: str, adapter_dir: str = "."):
     adapter_path = f"{adapter_dir}/adapters_{model_name.split('/')[-1].replace('.', '').replace('-', '_')}"
 
-    # Simulate CLI args for mlx_lm.lora.main()
     sys.argv = [
         "lora",
         "--model", model_name,

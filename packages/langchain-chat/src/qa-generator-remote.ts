@@ -3,8 +3,8 @@ import { OpenAI } from '@langchain/openai'
 const qaModel = new OpenAI({ modelName: 'gpt-4', temperature: 0.3 })
 
 export interface QAPair {
-  question: string
-  answer: string
+  prompt: string
+  completion: string
   evalCriteria?: string[]
   category?: string
   difficulty?: string
@@ -19,20 +19,27 @@ Chunk: ${chunk}
 Each QA pair should have:
 - A clear question
 - A grounded answer from the chunk
-- (Optional) Evaluation criteria
+- (Optional) Evaluation criteria (as a string array)
 - (Optional) Category and difficulty
 
-Return in JSON format.`
+Output format: JSONL (one JSON object per line, no extra text).
+Each object must use "prompt" for the question and "completion" for the answer.
+Example:
+{"prompt": "...", "completion": "...", "evalCriteria": ["..."], "category": "...", "difficulty": "..."}
+{"prompt": "...", "completion": "...", ...}
+`
 
   const result = await qaModel.invoke(prompt)
-  let parsedResult
-  try {
-    parsedResult = JSON.parse(result)
-    if (!Array.isArray(parsedResult)) {
-      throw new Error('Parsed result is not an array')
-    }
-  } catch {
-    return []
-  }
-  return parsedResult
+  const lines = result.split('\n').filter((line) => line.trim())
+  const qaPairs = lines
+    .map((line) => {
+      const obj = JSON.parse(line)
+      if (obj.prompt && obj.completion) {
+        return obj as QAPair
+      }
+      return null
+    })
+    .filter((item): item is QAPair => item !== null)
+
+  return qaPairs
 }

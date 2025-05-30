@@ -141,15 +141,23 @@ export const embedFile = async (
 
   const splitDocument = await splitter.splitDocuments(fileParts)
 
-  const fineTuningData: { question: string; answer: string }[] = []
+  const fineTuningData: { prompt: string; completion: string }[] = []
 
-  for (let i = 0; i < splitDocument.length; i++) {
-    const chunk = splitDocument[i]
+  type QAPair = { prompt: string; completion: string }
+
+  const qaPromises = splitDocument.map(async (chunk, i) => {
     console.log(`Processing chunk ${i + 1} of ${splitDocument.length}...`)
-    const summary = await summarizeDocument(chunk.pageContent)
-    const qaPairs = await generateQAPairs(chunk.pageContent, summary)
-    fineTuningData.push(...qaPairs)
-  }
+    const fullPageContent = fileParts.map((part) => part.pageContent).join('\n')
+    const summary = await summarizeDocument(fullPageContent)
+    const qaPairs: QAPair[] = await generateQAPairs(chunk.pageContent, summary)
+    return qaPairs.map((qa: QAPair) => ({
+      prompt: qa.prompt,
+      completion: qa.completion,
+    }))
+  })
+
+  const qaResults = await Promise.all(qaPromises)
+  fineTuningData.push(...qaResults.flat())
 
   console.log('Processing complete.\n')
 

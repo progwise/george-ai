@@ -1,6 +1,6 @@
 {
   "base_model": "jphme/em_german_leo_mistral",
-  "dataset_path": "jsonl/george-ai/dataset.jsonl",
+  "dataset_path": "jsonl/raw/qa-data.jsonl",
   "train_ratio": 0.8,
   "valid_ratio": 0.1,
   "test_ratio": 0.1,

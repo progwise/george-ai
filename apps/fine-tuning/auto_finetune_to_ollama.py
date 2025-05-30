@@ -41,6 +41,9 @@ Outputs:
 
 Example:
     python3 auto_finetune_to_ollama.py finetune_ollama_config_mistral.json
+    
+    Example to run the fine-tuned model with Ollama:
+        ollama run ollama_model_name
 """
 
 import os
