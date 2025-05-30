@@ -16,6 +16,8 @@ import 'cronstrue/locales/de'
 
 import { Link } from '@tanstack/react-router'
 
+import WarnIcon from '../../../icons/warn-icon'
+
 interface CrawlerTableProps {
   libraryId: string
 }
@@ -26,7 +28,11 @@ graphql(`
     url
     maxDepth
     maxPages
-    lastRun
+    lastRun {
+      startedAt
+      success
+      errorMessage
+    }
     cronJob {
       cronExpression
     }
@@ -55,6 +61,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
             <th>{t('crawlers.maxPages')}</th>
             <th>{t('crawlers.cronJob')}</th>
             <th>{t('crawlers.lastRun')}</th>
+            <th></th>
             <th>{t('labels.actions')}</th>
           </tr>
         </thead>
@@ -68,7 +75,8 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                 {crawler.cronJob?.cronExpression &&
                   cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })}
               </td>
-              <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
+              <td>{dateTimeStringShort(crawler.lastRun?.startedAt, language)}</td>
+              <td>{crawler.lastRun && !crawler.lastRun.success && <WarnIcon className="text-warning" />}</td>
               <td className="flex gap-2">
                 <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
                 <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />

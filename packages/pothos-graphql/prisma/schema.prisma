@@ -196,6 +196,7 @@ model AiLibraryCrawlerRun {
   startedAt    DateTime  @default(now())
   endedAt      DateTime?
   success      Boolean?
+  errorMessage String?
   pagesCrawled Int?
   runByUserId  String?
   runByCronJob Boolean   @default(false)

@@ -35,7 +35,9 @@ const runCrawler = createServerFn({ method: 'POST' })
         mutation runCrawler($crawlerId: String!) {
           runAiLibraryCrawler(crawlerId: $crawlerId) {
             id
-            lastRun
+            lastRun {
+              startedAt
+            }
           }
         }
       `),

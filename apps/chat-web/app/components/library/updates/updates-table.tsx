@@ -29,7 +29,7 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
         <thead>
           <tr>
             <th></th>
-            <th>Created At</th>
+            <th>Date</th>
             <th>Crawler ID</th>
             <th>File ID</th>
             <th>Success</th>

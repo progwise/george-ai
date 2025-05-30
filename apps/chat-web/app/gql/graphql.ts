@@ -232,7 +232,7 @@ export type AiLibraryCrawler = {
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
-  lastRun?: Maybe<Scalars['DateTime']['output']>
+  lastRun?: Maybe<AiLibraryCrawlerRun>
   maxDepth: Scalars['Int']['output']
   maxPages: Scalars['Int']['output']
   runCount: Scalars['Int']['output']
@@ -289,9 +289,11 @@ export type AiLibraryCrawlerRun = {
   crawler: AiLibraryCrawler
   crawlerId: Scalars['ID']['output']
   endedAt?: Maybe<Scalars['DateTime']['output']>
+  errorMessage?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   runByUserId?: Maybe<Scalars['ID']['output']>
   startedAt: Scalars['DateTime']['output']
+  success?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type AiLibraryFile = {
@@ -1466,9 +1468,14 @@ export type CrawlerTable_LibraryCrawlerFragment = {
   url: string
   maxDepth: number
   maxPages: number
-  lastRun?: string | null
   filesCount: number
   isRunning: boolean
+  lastRun?: {
+    __typename?: 'AiLibraryCrawlerRun'
+    startedAt: string
+    success?: boolean | null
+    errorMessage?: string | null
+  } | null
   cronJob?: {
     __typename?: 'AiLibraryCrawlerCronJob'
     cronExpression?: string | null
@@ -1509,9 +1516,14 @@ export type CrawlerTableQuery = {
       url: string
       maxDepth: number
       maxPages: number
-      lastRun?: string | null
       filesCount: number
       isRunning: boolean
+      lastRun?: {
+        __typename?: 'AiLibraryCrawlerRun'
+        startedAt: string
+        success?: boolean | null
+        errorMessage?: string | null
+      } | null
       cronJob?: {
         __typename?: 'AiLibraryCrawlerCronJob'
         cronExpression?: string | null
@@ -1539,7 +1551,11 @@ export type RunCrawlerMutationVariables = Exact<{
 
 export type RunCrawlerMutation = {
   __typename?: 'Mutation'
-  runAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; lastRun?: string | null } | null
+  runAiLibraryCrawler?: {
+    __typename?: 'AiLibraryCrawler'
+    id: string
+    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
+  } | null
 }
 
 export type UpdateCrawlerButton_CrawlerFragment = {
@@ -4086,7 +4102,18 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'lastRun' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -6166,7 +6193,18 @@ export const CrawlerTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'url' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'lastRun' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+              ],
+            },
+          },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'cronJob' },
@@ -6214,7 +6252,14 @@ export const RunCrawlerDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastRun' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastRun' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
+                  },
+                },
               ],
             },
           },

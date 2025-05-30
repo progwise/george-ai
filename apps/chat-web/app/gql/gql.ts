@@ -52,11 +52,11 @@ type Documents = {
   '\n        mutation createContactRequest($name: String!, $emailOrPhone: String!, $message: String!) {\n          createContactRequest(name: $name, emailOrPhone: $emailOrPhone, message: $message)\n        }\n      ': typeof types.CreateContactRequestDocument
   '\n      query version {\n        version\n      }\n    ': typeof types.VersionDocument
   '\n        mutation createAiLibraryCrawler($libraryId: String!, $data: AiLibraryCrawlerInput!) {\n          createAiLibraryCrawler(libraryId: $libraryId, data: $data) {\n            id\n          }\n        }\n      ': typeof types.CreateAiLibraryCrawlerDocument
-  '\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n': typeof types.CrawlerTable_LibraryCrawlerFragmentDoc
+  '\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun {\n      startedAt\n      success\n      errorMessage\n    }\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n': typeof types.CrawlerTable_LibraryCrawlerFragmentDoc
   '\n        mutation deleteCrawler($id: String!) {\n          deleteAiLibraryCrawler(id: $id) {\n            id\n          }\n        }\n      ': typeof types.DeleteCrawlerDocument
   '\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(id: $libraryId) {\n            crawlers {\n              ...CrawlerTable_LibraryCrawler\n            }\n          }\n        }\n      ': typeof types.CrawlerTableDocument
   '\n  fragment RunCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    isRunning\n  }\n': typeof types.RunCrawlerButton_CrawlerFragmentDoc
-  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun\n          }\n        }\n      ': typeof types.RunCrawlerDocument
+  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ': typeof types.RunCrawlerDocument
   '\n  fragment UpdateCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n': typeof types.UpdateCrawlerButton_CrawlerFragmentDoc
   '\n        mutation updateAiLibraryCrawler($id: String!, $data: AiLibraryCrawlerInput!) {\n          updateAiLibraryCrawler(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAiLibraryCrawlerDocument
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
@@ -186,7 +186,7 @@ const documents: Documents = {
   '\n      query version {\n        version\n      }\n    ': types.VersionDocument,
   '\n        mutation createAiLibraryCrawler($libraryId: String!, $data: AiLibraryCrawlerInput!) {\n          createAiLibraryCrawler(libraryId: $libraryId, data: $data) {\n            id\n          }\n        }\n      ':
     types.CreateAiLibraryCrawlerDocument,
-  '\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n':
+  '\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun {\n      startedAt\n      success\n      errorMessage\n    }\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n':
     types.CrawlerTable_LibraryCrawlerFragmentDoc,
   '\n        mutation deleteCrawler($id: String!) {\n          deleteAiLibraryCrawler(id: $id) {\n            id\n          }\n        }\n      ':
     types.DeleteCrawlerDocument,
@@ -194,7 +194,7 @@ const documents: Documents = {
     types.CrawlerTableDocument,
   '\n  fragment RunCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    isRunning\n  }\n':
     types.RunCrawlerButton_CrawlerFragmentDoc,
-  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun\n          }\n        }\n      ':
+  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ':
     types.RunCrawlerDocument,
   '\n  fragment UpdateCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n':
     types.UpdateCrawlerButton_CrawlerFragmentDoc,
@@ -544,8 +544,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n',
-): (typeof documents)['\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n']
+  source: '\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun {\n      startedAt\n      success\n      errorMessage\n    }\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n',
+): (typeof documents)['\n  fragment CrawlerTable_LibraryCrawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    lastRun {\n      startedAt\n      success\n      errorMessage\n    }\n    cronJob {\n      cronExpression\n    }\n    filesCount\n    ...RunCrawlerButton_Crawler\n    ...UpdateCrawlerButton_Crawler\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -568,8 +568,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun\n          }\n        }\n      ']
+  source: '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

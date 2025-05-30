@@ -211,7 +211,7 @@ type AiLibraryCrawler {
   filesCount: Int!
   id: ID!
   isRunning: Boolean!
-  lastRun: DateTime
+  lastRun: AiLibraryCrawlerRun
   maxDepth: Int!
   maxPages: Int!
   runCount: Int!
@@ -261,9 +261,11 @@ type AiLibraryCrawlerRun {
   crawler: AiLibraryCrawler!
   crawlerId: ID!
   endedAt: DateTime
+  errorMessage: String
   id: ID!
   runByUserId: ID
   startedAt: DateTime!
+  success: Boolean
 }
 
 type AiLibraryFile {

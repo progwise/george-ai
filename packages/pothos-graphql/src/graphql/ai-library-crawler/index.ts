@@ -27,6 +27,8 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
     }),
     startedAt: t.expose('startedAt', { type: 'DateTime', nullable: false }),
     endedAt: t.expose('endedAt', { type: 'DateTime', nullable: true }),
+    success: t.exposeBoolean('success', { nullable: true }),
+    errorMessage: t.exposeString('errorMessage', { nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
   }),
 })
@@ -35,7 +37,17 @@ builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     url: t.exposeString('url', { nullable: false }),
-    lastRun: t.expose('lastRun', { type: 'DateTime' }),
+    lastRun: t.field({
+      type: AiLibraryCrawlerRun,
+      nullable: true,
+      resolve: (crawler) =>
+        prisma.aiLibraryCrawlerRun.findFirst({
+          where: { crawlerId: crawler.id },
+          take: 1,
+          skip: 0,
+          orderBy: { startedAt: 'desc' },
+        }),
+    }),
     maxDepth: t.exposeInt('maxDepth', { nullable: false }),
     maxPages: t.exposeInt('maxPages', { nullable: false }),
 
