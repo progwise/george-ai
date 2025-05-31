@@ -10,7 +10,7 @@
     "iters": 100,
     "fine_tune_type": "lora"
   },
-  "ollama_model_name": "em-german-leo-mistral-george",
+  "ollama_model_name": "em-german-leo-mistral-github",
   "keep_split_data": true,
   "keep_fused_model": true,
   "keep_gguf_files": true,
