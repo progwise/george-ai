@@ -10,7 +10,9 @@ RUN apt-get update \
     libjpeg62-turbo-dev \
     libpango1.0-dev \
     libgif-dev build-essential \
-    g++
+    g++ \
+    python3-pip \
+    python3.11-venv
 
 # Install mob.sh
 RUN curl -sL https://raw.githubusercontent.com/remotemobprogramming/mob/refs/heads/main/install.sh | sh
