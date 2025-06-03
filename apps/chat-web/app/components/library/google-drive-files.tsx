@@ -22,11 +22,11 @@ export interface GoogleDriveFilesProps {
   noFreeUploads: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
 }
-const googleDriveResponseSchema = z.object({
+
+export const googleDriveResponseSchema = z.object({
   files: z.array(
     z.object({
       id: z.string(),
-      kind: z.string(),
       name: z.string(),
       size: z.string().optional(),
       iconLink: z.string().optional(),
@@ -35,7 +35,7 @@ const googleDriveResponseSchema = z.object({
   ),
 })
 
-const getHighResIconUrl = (iconLink: string): string => {
+export const getHighResIconUrl = (iconLink: string): string => {
   if (!iconLink) return ''
 
   const listIconPattern = /\/icon_\d+_([^_]+)_list\.png$/
@@ -155,22 +155,22 @@ export const GoogleDriveFiles = ({
   const rawToken = localStorage.getItem('google_drive_access_token') || '{}'
   const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(rawToken))
 
+  // used as condition for rendering the files table
   const { data: googleDriveFilesData, isLoading: googleDriveFilesIsLoading } = useQuery({
     queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token],
     enabled: !!googleDriveAccessToken?.access_token,
     queryFn: async () => {
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink,mimeType)`,
+        `https://www.googleapis.com/drive/v3/files?fields=files(id,name,size,iconLink,mimeType)`,
         {
           headers: { Authorization: `Bearer ${googleDriveAccessToken.access_token}` },
         },
       )
       const responseJson = googleDriveResponseSchema.parse(await response.json())
-      return responseJson.files.map(({ mimeType, ...file }) => ({
+      return responseJson.files.map(({ ...file }) => ({
         ...file,
         size: file.size ? parseInt(file.size) : 0,
         iconLink: getHighResIconUrl(file.iconLink ?? ''),
-        kind: mimeType,
       }))
     },
   })
@@ -259,7 +259,7 @@ export const GoogleDriveFiles = ({
           )}
         </div>
         {googleDriveFilesData && googleDriveFilesData.length > 0 && (
-          <FilesTable files={googleDriveFilesData} selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
+          <FilesTable selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
         )}
       </div>
     </>

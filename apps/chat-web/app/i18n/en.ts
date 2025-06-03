@@ -162,6 +162,7 @@ export default {
   flowParallel: 'Flow: Parallel',
   flowSequential: 'Flow: Sequential',
   flowWeb: 'Flow: Only Web',
+  googleDriveRootFolder: 'My Drive',
   greeting: 'Hello, I am your travel assistant. How can I help you?',
   hero: {
     badge: 'Introducing George-AI',
