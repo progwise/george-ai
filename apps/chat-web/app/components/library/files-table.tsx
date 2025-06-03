@@ -41,7 +41,7 @@ export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps)
   const selectedIds = useMemo(() => new Set(selectedFiles.map((selectedFile) => selectedFile.id)), [selectedFiles])
   const rawToken = localStorage.getItem('google_drive_access_token') || '{}'
   const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(rawToken))
-  const rootFolder: { id: string | number; name: string } = { id: 0, name: 'root' } // using a number as root folder id ensures that the id is unique
+  const rootFolder: { id: string; name: string } = { id: 'root', name: 'root' }
 
   // changing the query and the path at the same time prevents inconsistency between the displayed files and the breadcrumb navigation
   const [googleDriveFolder, setGoogleDriveFolder] = useState({
@@ -84,7 +84,7 @@ export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps)
     return count === 1 ? t('libraries.selectedSingleFile') : t('libraries.selectedMultipleFiles', { count })
   }
 
-  const openFolder = async (id: string, name: string) => {
+  const openFolder = (id: string, name: string) => {
     const clickedFolder = { id: id, name: name }
     setGoogleDriveFolder({
       fileQuery: () => encodeURIComponent("'" + id + "'" + ' in parents'),
@@ -92,8 +92,8 @@ export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps)
     })
   }
 
-  const goToPreviousFolder = async (id: string | number) => {
-    if (id === 0) {
+  const goToPreviousFolder = (id: string) => {
+    if (id === 'root') {
       setGoogleDriveFolder({
         fileQuery: () => encodeURIComponent("'root' in parents"),
         path: [rootFolder],
@@ -139,7 +139,7 @@ export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps)
                           className="btn btn-ghost rounded-4xl"
                           onClick={() => goToPreviousFolder(folder.id)}
                         >
-                          {folder.id === 0 ? t('googleDriveRootFolder') : folder.name}
+                          {folder.id === 'root' ? t('googleDriveRootFolder') : folder.name}
                         </button>
                       )}
                     </div>
@@ -224,7 +224,7 @@ export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps)
                           className="btn btn-ghost rounded-4xl"
                           onClick={() => goToPreviousFolder(folder.id)}
                         >
-                          {folder.id === 0 ? t('googleDriveRootFolder') : folder.name}
+                          {folder.id === 'root' ? t('googleDriveRootFolder') : folder.name}
                         </button>
                       )}
                     </div>
