@@ -45,42 +45,91 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
     <>
       <AddCrawlerButton libraryId={libraryId} />
 
-      <table className="table">
-        <thead>
-          <tr>
-            <th>{t('crawlers.url')}</th>
-            <th>{t('crawlers.maxDepth')}</th>
-            <th>{t('crawlers.maxPages')}</th>
-            <th>{t('crawlers.cronJob')}</th>
-            <th>{t('crawlers.lastRun')}</th>
-            <th>{t('labels.actions')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {aiLibrary?.crawlers.map((crawler) => (
-            <tr key={crawler.id}>
-              <td>{crawler.url}</td>
-              <td>{crawler.maxDepth}</td>
-              <td>{crawler.maxPages}</td>
-              <td>
-                {crawler.cronJob?.cronExpression &&
-                  cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })}
-              </td>
-              <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
-              <td className="flex gap-2">
-                <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
-                <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
-                <DeleteCrawlerButton
-                  crawlerId={crawler.id}
-                  crawlerUrl={crawler.url}
-                  filesCount={crawler.filesCount}
-                  libraryId={libraryId}
-                />
-              </td>
+      {/* Mobile View */}
+      <div className="block lg:hidden">
+        {!aiLibrary?.crawlers?.length ? (
+          <div className="mt-6 text-center">{t('texts.noCrawlersFound') || 'No crawlers found.'}</div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+            {aiLibrary.crawlers.map((crawler, index) => (
+              <div key={crawler.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span
+                    className="max-w-full truncate break-all text-sm font-semibold sm:max-w-[60%]"
+                    title={crawler.url}
+                  >
+                    {index + 1}. {crawler.url}
+                  </span>
+                  <div className="mt-1 flex flex-shrink-0 flex-row gap-1 sm:mt-0">
+                    <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
+                    <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
+                    <DeleteCrawlerButton
+                      crawlerId={crawler.id}
+                      crawlerUrl={crawler.url}
+                      filesCount={crawler.filesCount}
+                      libraryId={libraryId}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-sm">
+                  <span>{t('crawlers.maxDepth')}:</span>
+                  <span>{crawler.maxDepth}</span>
+                  <span>{t('crawlers.maxPages')}:</span>
+                  <span>{crawler.maxPages}</span>
+                  <span>{t('crawlers.cronJob')}:</span>
+                  <span>
+                    {crawler.cronJob?.cronExpression
+                      ? cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })
+                      : '-'}
+                  </span>
+                  <span>{t('crawlers.lastRun')}:</span>
+                  <span>{dateTimeStringShort(crawler.lastRun, language) || '-'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden lg:block">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>{t('crawlers.url')}</th>
+              <th>{t('crawlers.maxDepth')}</th>
+              <th>{t('crawlers.maxPages')}</th>
+              <th>{t('crawlers.cronJob')}</th>
+              <th>{t('crawlers.lastRun')}</th>
+              <th>{t('labels.actions')}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {aiLibrary?.crawlers.map((crawler) => (
+              <tr key={crawler.id}>
+                <td>{crawler.url}</td>
+                <td>{crawler.maxDepth}</td>
+                <td>{crawler.maxPages}</td>
+                <td>
+                  {crawler.cronJob?.cronExpression &&
+                    cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })}
+                </td>
+                <td>{dateTimeStringShort(crawler.lastRun, language)}</td>
+                <td className="flex gap-2">
+                  <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
+                  <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
+                  <DeleteCrawlerButton
+                    crawlerId={crawler.id}
+                    crawlerUrl={crawler.url}
+                    filesCount={crawler.filesCount}
+                    libraryId={libraryId}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }
