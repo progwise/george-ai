@@ -349,6 +349,7 @@ export type AiLibraryUpdateQueryResult = {
   __typename?: 'AiLibraryUpdateQueryResult'
   count: Scalars['Int']['output']
   crawlerId?: Maybe<Scalars['String']['output']>
+  library: AiLibrary
   libraryId: Scalars['String']['output']
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
@@ -1789,6 +1790,7 @@ export type LibraryUpdatesListQuery = {
     take: number
     skip: number
     count: number
+    library: { __typename?: 'AiLibrary'; name: string }
     updates: Array<{
       __typename?: 'AiLibraryUpdate'
       id: string
@@ -1798,6 +1800,13 @@ export type LibraryUpdatesListQuery = {
       fileId?: string | null
       success: boolean
       message?: string | null
+      crawlerRun?: {
+        __typename?: 'AiLibraryCrawlerRun'
+        id: string
+        crawlerId: string
+        crawler: { __typename?: 'AiLibraryCrawler'; id: string; url: string }
+      } | null
+      file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
     }>
   }
 }
@@ -1811,6 +1820,13 @@ export type AiLibraryUpdate_TableItemFragment = {
   fileId?: string | null
   success: boolean
   message?: string | null
+  crawlerRun?: {
+    __typename?: 'AiLibraryCrawlerRun'
+    id: string
+    crawlerId: string
+    crawler: { __typename?: 'AiLibraryCrawler'; id: string; url: string }
+  } | null
+  file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -4333,7 +4349,40 @@ export const AiLibraryUpdate_TableItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'crawlerRunId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawlerRun' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'crawlerId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'crawler' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'file' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
         ],
@@ -6947,6 +6996,14 @@ export const LibraryUpdatesListDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                  },
+                },
                 { kind: 'Field', name: { kind: 'Name', value: 'crawlerId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
@@ -6978,7 +7035,40 @@ export const LibraryUpdatesListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'crawlerRunId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'crawlerRun' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'crawlerId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'crawler' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'file' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'message' } },
         ],

@@ -1,3 +1,5 @@
+import { Link } from '@tanstack/react-router'
+
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
@@ -10,7 +12,19 @@ graphql(`
     createdAt
     libraryId
     crawlerRunId
+    crawlerRun {
+      id
+      crawlerId
+      crawler {
+        id
+        url
+      }
+    }
     fileId
+    file {
+      id
+      name
+    }
     success
     message
   }
@@ -30,8 +44,8 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
           <tr>
             <th></th>
             <th>Date</th>
-            <th>Crawler ID</th>
-            <th>File ID</th>
+            <th>Crawler</th>
+            <th>File</th>
             <th>Success</th>
             <th>Message</th>
             <th>Actions</th>
@@ -42,8 +56,24 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
             <tr key={update.id} className="hover:bg-base-300">
               <td>{index + (firstItemNumber ?? 1)}</td>
               <td>{dateTimeString(update.createdAt, language)}</td>
-              <td>{update.crawlerRunId || 'N/A'}</td>
-              <td>{update.fileId || 'N/A'}</td>
+              <td>
+                {update?.crawlerRun?.crawler ? (
+                  <Link to="/libraries/$libraryId/crawlers" params={{ libraryId: update.libraryId }}>
+                    {update.crawlerRun.crawler.url}
+                  </Link>
+                ) : (
+                  'N/A'
+                )}
+              </td>
+              <td>
+                {update.file ? (
+                  <Link to="/libraries/$libraryId" params={{ libraryId: update.libraryId }}>
+                    {update.file.name}
+                  </Link>
+                ) : (
+                  'N/A'
+                )}
+              </td>
               <td>{update.success ? 'Yes' : 'No'}</td>
               <td>{update.message}</td>
               <td>

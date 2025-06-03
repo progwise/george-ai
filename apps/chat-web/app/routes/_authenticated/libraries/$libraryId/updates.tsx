@@ -37,7 +37,7 @@ function RouteComponent() {
   return (
     <div>
       <h1 className="mb-2 flex justify-between text-xl font-bold">
-        {aiLibraryUpdates.count} Updates for library {aiLibraryUpdates.libraryId}
+        {aiLibraryUpdates.count} Updates for library {aiLibraryUpdates.library.name}
         <Pagination
           totalItems={aiLibraryUpdates.count}
           itemsPerPage={take}

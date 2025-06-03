@@ -84,7 +84,7 @@ const startCrawling = async (
         continue
       }
       const fileUpdateData = {
-        name: `${metaData.url} - ${metaData.title}`,
+        name: `${metaData.title}`,
         mimeType: 'text/markdown',
         libraryId: crawler.libraryId,
       }

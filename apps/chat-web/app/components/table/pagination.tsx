@@ -29,6 +29,16 @@ export const Pagination = ({
       <button
         type="button"
         className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
+        aria-label="First Page"
+        aria-disabled={isFirstPage}
+        onClick={() => handlePageChange(1)}
+        disabled={isFirstPage}
+      >
+        &lt;&lt;
+      </button>
+      <button
+        type="button"
+        className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
         aria-label="Previous Page"
         aria-disabled={isFirstPage}
         onClick={() => handlePageChange(currentPage - 1)}
@@ -48,6 +58,16 @@ export const Pagination = ({
         onClick={() => handlePageChange(currentPage + 1)}
       >
         &gt;
+      </button>
+      <button
+        type="button"
+        aria-label="Last Page"
+        className={twMerge('join-item btn btn-xs', isLastPage && 'btn-disabled')}
+        aria-disabled={isLastPage}
+        disabled={isLastPage}
+        onClick={() => handlePageChange(totalPages)}
+      >
+        &gt;&gt;
       </button>
     </nav>
   )

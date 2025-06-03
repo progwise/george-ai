@@ -21,6 +21,23 @@ const LibraryUpdateQueryResult = builder
     description: 'Query result for AI library updates',
     fields: (t) => ({
       libraryId: t.exposeString('libraryId', { nullable: false }),
+      library: t.withAuth({ isLoggedIn: true }).prismaField({
+        type: 'AiLibrary',
+        nullable: false,
+        resolve: async (query, root, _args, context) => {
+          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+            where: { id: root.libraryId },
+            select: { ownerId: true, participants: { select: { userId: true } } },
+          })
+          if (
+            libraryUsers.ownerId !== context.session.user.id &&
+            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
+          ) {
+            throw new Error('You do not have access to this library')
+          }
+          return prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
+        },
+      }),
       crawlerId: t.exposeString('crawlerId', { nullable: true }),
       take: t.exposeInt('take', { nullable: false }),
       skip: t.exposeInt('skip', { nullable: false }),

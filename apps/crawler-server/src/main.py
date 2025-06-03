@@ -26,9 +26,11 @@ async def crawl(url: str, max_depth: Union[int, None] = 2, max_pages: Union[int,
     # results = await main(url)
     
     async def crawledFiles():
+        print(f"Starting crawl for URL: {url} with max_depth={max_depth} and max_pages={max_pages}")
         async for result in deepCrawlSingleUrl(url, max_depth, max_pages):
             print(result)
             yield result
+        print(f"Finished crawling URL: {url}")
 
     return StreamingResponse((crawledFiles()), media_type="application/jsonl")
     # You can also return the results if needed 

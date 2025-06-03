@@ -320,6 +320,7 @@ Query result for AI library updates
 type AiLibraryUpdateQueryResult {
   count: Int!
   crawlerId: String
+  library: AiLibrary!
   libraryId: String!
   skip: Int!
   take: Int!

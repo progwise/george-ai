@@ -23,6 +23,9 @@ const getLibraryUpdateItems = createServerFn({ method: 'GET' })
         query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {
           aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {
             libraryId
+            library {
+              name
+            }
             crawlerId
             take
             skip
