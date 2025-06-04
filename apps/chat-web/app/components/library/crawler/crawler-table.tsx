@@ -42,9 +42,10 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
   const { t, language } = useTranslation()
 
   return (
-    <>
-      <AddCrawlerButton libraryId={libraryId} />
-
+    <div className="flex flex-col gap-4">
+      <div className="self-start">
+        <AddCrawlerButton libraryId={libraryId} />
+      </div>
       {/* Mobile View */}
       <div className="block lg:hidden">
         {!aiLibrary?.crawlers?.length ? (
@@ -52,10 +53,15 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
             {aiLibrary.crawlers.map((crawler, index) => (
-              <div key={crawler.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
+              <div
+                key={crawler.id}
+                className={`shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3 ${
+                  index % 2 === 0 ? 'bg-base-100 dark:bg-base-100' : 'bg-base-200 dark:bg-base-200'
+                }`}
+              >
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <span
-                    className="max-w-full truncate break-all text-sm font-semibold sm:max-w-[60%]"
+                    className="max-w-xs truncate break-all text-sm font-semibold sm:max-w-[60%]"
                     title={crawler.url}
                   >
                     {index + 1}. {crawler.url}
@@ -94,8 +100,9 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
       {/* Desktop Table */}
       <div className="hidden lg:block">
         <table className="table">
-          <thead>
+          <thead className="bg-base-200">
             <tr>
+              <th>#</th>
               <th>{t('crawlers.url')}</th>
               <th>{t('crawlers.maxDepth')}</th>
               <th>{t('crawlers.maxPages')}</th>
@@ -105,9 +112,12 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
             </tr>
           </thead>
           <tbody>
-            {aiLibrary?.crawlers.map((crawler) => (
+            {aiLibrary?.crawlers.map((crawler, index) => (
               <tr key={crawler.id}>
-                <td>{crawler.url}</td>
+                <td>{index + 1}</td>
+                <td className="max-w-3xl truncate" title={crawler.url}>
+                  {crawler.url}
+                </td>
                 <td>{crawler.maxDepth}</td>
                 <td>{crawler.maxPages}</td>
                 <td>
@@ -130,6 +140,6 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }

@@ -5,6 +5,7 @@ import { useRef } from 'react'
 import { graphql } from '../../../gql'
 import { UpdateCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { EditIcon } from '../../../icons/edit-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
 import { CrawlerForm, crawlerFormSchema, getCrawlerFormData } from './crawler-form'
@@ -111,7 +112,7 @@ export const UpdateCrawlerButton = ({ libraryId, crawler }: UpdateCrawlerButtonP
         data-tip={t('tooltips.edit')}
         onClick={() => dialogRef.current?.showModal()}
       >
-        {t('actions.edit')}
+        <EditIcon className="size-5" />
       </button>
 
       <DialogForm
