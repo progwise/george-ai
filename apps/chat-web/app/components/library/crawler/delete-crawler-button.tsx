@@ -64,7 +64,7 @@ export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, library
         ref={dialogRef}
         title={t('crawlers.delete')}
         description={
-          <div
+          <span
             // eslint-disable-next-line @eslint-react/dom/no-dangerously-set-innerhtml
             dangerouslySetInnerHTML={{
               __html: t('crawlers.deleteConfirmation', {
