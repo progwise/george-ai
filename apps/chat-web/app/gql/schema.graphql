@@ -142,6 +142,7 @@ input AiBaseCaseInputType {
 type AiConversation {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
+  firstMessage: AiConversationMessage
   humans: [User!]!
   id: ID!
   messages: [AiConversationMessage!]!

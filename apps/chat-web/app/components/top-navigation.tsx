@@ -35,7 +35,7 @@ export default function TopNavigation({ user }: TopNavigationProps) {
     <>
       <header
         className={twMerge(
-          'fixed inset-x-0 top-0 z-50 transition-all',
+          'bg-base-100 fixed inset-x-0 top-0 z-50 transition-all',
           !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
         )}
       >

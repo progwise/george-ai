@@ -118,6 +118,7 @@ export default {
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
     failedToCreateConversation: 'Konversation konnte nicht erstellt werden: {error}',
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
+    historyPlaceholderShort: 'Keine Nachricht',
     humans: 'Benutzer',
     leave: 'Konversation verlassen',
     leaveConfirmation:
@@ -130,6 +131,7 @@ export default {
     removeMultipleConfirmation:
       'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     setLLM: 'Assistent hat kein Sprachmodell',
+    title: 'Konversationen',
     tokenLimitExceeded: 'Tokenlimit überschritten',
   },
   crawlers: {

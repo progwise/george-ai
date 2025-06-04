@@ -59,6 +59,12 @@
     /* fill the checkbox when indeterminated */
     background-color: var(--input-color);
   }
+
+  /* When hovering over an input (e.g. checkbox) in a menu item don't show hover effect of the menu item  */
+  .menu li > *:hover:has(input:hover):not(.menu-active) {
+    @apply bg-inherit;
+    @apply text-inherit;
+  }
 }
 
 @utility container {

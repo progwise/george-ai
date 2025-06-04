@@ -227,14 +227,14 @@ export const ConversationParticipantsDialogButton = ({
     dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
   const submitButtonText = dialogMode === 'new' ? t('actions.create') : t('actions.add')
   const buttonText = dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
-  const buttonClass = dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
+  const buttonClass = dialogMode === 'new' ? 'btn-primary' : 'btn-neutral lg:btn-xs'
   const isPending = isCreating || isAdding || isSendingInvitation
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <button type="button" className={twMerge('btn btn-sm', buttonClass, className)} onClick={handleOpen}>
-        {dialogMode === 'add' && <PlusIcon />}
+      <button type="button" className={twMerge('btn', buttonClass, className)} onClick={handleOpen}>
+        <PlusIcon />
         {buttonText}
       </button>
 

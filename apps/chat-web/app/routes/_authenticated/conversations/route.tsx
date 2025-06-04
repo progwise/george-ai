@@ -1,9 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Outlet, createFileRoute, useParams } from '@tanstack/react-router'
-import { useRef } from 'react'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
+import { DeleteConversationsDialog } from '../../../components/conversation/delete-conversations-dialog'
+import { useTranslation } from '../../../i18n/use-translation-hook'
 import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { getConversationsQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
@@ -22,7 +25,8 @@ export const Route = createFileRoute('/_authenticated/conversations')({
 function RouteComponent() {
   const drawerCheckboxRef = useRef<HTMLInputElement>(null)
   const { user } = Route.useRouteContext()
-  const { conversationId } = useParams({ strict: false })
+  const [selectedConversationIds, setSelectedConversationIds] = useState<string[]>([])
+  const { t } = useTranslation()
 
   const {
     data: { aiAssistants },
@@ -43,7 +47,7 @@ function RouteComponent() {
   return (
     <div
       className={twMerge(
-        'drawer lg:drawer-open grow',
+        'drawer lg:drawer-open -mx-body grow',
         'min-h-[calc(100dvh_-_--spacing(16))]', // full height minus the top bar
       )}
     >
@@ -59,17 +63,39 @@ function RouteComponent() {
         )}
       >
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
-        <div className="bg-base-200 flex h-full w-80 flex-col items-center lg:pt-6">
-          <div className="flex-1 overflow-scroll px-2">
-            <ConversationSelector
-              conversations={aiConversations}
-              selectedConversationId={conversationId}
-              onClick={handleConversationClick}
-              userId={user.id}
-              humans={users}
+
+        <div className="bg-base-100 lg:bg-base-200 *:px-body border-base-300 flex h-full flex-col gap-2 border-r pt-4">
+          <h2 className="mb-2 text-lg font-semibold">{t('conversations.title')}</h2>
+
+          <div className="flex gap-2">
+            <ConversationParticipantsDialogButton
               assistants={aiAssistants}
+              users={users}
+              dialogMode="new"
+              userId={user.id}
+              className="flex-1"
             />
+
+            {selectedConversationIds.length > 0 && (
+              <DeleteConversationsDialog
+                selectedConversationIds={selectedConversationIds}
+                resetSelectedConversationIds={() => setSelectedConversationIds([])}
+              />
+            )}
           </div>
+
+          <ConversationSelector
+            className="min-h-0 flex-1 overflow-y-auto"
+            conversations={aiConversations}
+            onClick={handleConversationClick}
+            onConversationSelect={(conversationId, checked) => {
+              if (checked) {
+                setSelectedConversationIds((prev) => [...prev, conversationId])
+              } else {
+                setSelectedConversationIds((prev) => prev.filter((id) => id !== conversationId))
+              }
+            }}
+          />
         </div>
       </div>
     </div>
