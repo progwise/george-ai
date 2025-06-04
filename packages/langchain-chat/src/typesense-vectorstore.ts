@@ -145,10 +145,11 @@ export const embedFile = async (
 
   type QAPair = { prompt: string; completion: string }
 
+  const fullPageContent = fileParts.map((part) => part.pageContent).join('\n')
+  const summary = await summarizeDocument(fullPageContent)
+
   const qaPromises = splitDocument.map(async (chunk, i) => {
     console.log(`Processing chunk ${i + 1} of ${splitDocument.length}...`)
-    const fullPageContent = fileParts.map((part) => part.pageContent).join('\n')
-    const summary = await summarizeDocument(fullPageContent)
     const qaPairs: QAPair[] = await generateQAPairs(chunk.pageContent, summary)
     return qaPairs.map((qa: QAPair) => ({
       prompt: qa.prompt,

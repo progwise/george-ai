@@ -1,6 +1,6 @@
 import { OpenAI } from '@langchain/openai'
 
-const qaModel = new OpenAI({ modelName: 'gpt-4', temperature: 0.3 })
+const qaModel = new OpenAI({ modelName: 'gpt-4o-mini', temperature: 0.3 })
 
 export interface QAPair {
   prompt: string
