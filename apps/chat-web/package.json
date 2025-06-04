@@ -13,6 +13,7 @@
     "codegen": "graphql-codegen"
   },
   "dependencies": {
+    "@floating-ui/react": "^0.27.9",
     "@george-ai/web-utils": "workspace:*",
     "@headlessui/react": "^2.2.0",
     "@tailwindcss/typography": "^0.5.16",
@@ -36,9 +37,9 @@
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
-    "tailwindcss-animated": "^2.0.0",
     "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.1.4",
+    "tailwindcss-animated": "^2.0.0",
     "unified": "^11.0.5",
     "vinxi": "^0.5.3",
     "zod": "^3.23.8"

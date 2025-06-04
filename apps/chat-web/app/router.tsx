@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
-import { createRouter as createTanStackRouter } from '@tanstack/react-router'
+import { createRouteMask, createRouter as createTanStackRouter } from '@tanstack/react-router'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 
 import { routeTree } from './routeTree.gen'
@@ -14,6 +14,26 @@ export function createRouter() {
     defaultErrorComponent: () => <div>Ups, something went wrong!</div>,
     defaultNotFoundComponent: () => <div>Not found!</div>,
     defaultPendingComponent: () => <div>Loading...</div>,
+    routeMasks: [
+      createRouteMask({
+        routeTree,
+        from: '/conversations/$conversationId/settings',
+        to: '/conversations/$conversationId',
+        params: (prev) => ({ conversationId: prev.conversationId }),
+      }),
+      createRouteMask({
+        routeTree,
+        from: '/conversations/$conversationId/settings/users',
+        to: '/conversations/$conversationId',
+        params: (prev) => ({ conversationId: prev.conversationId }),
+      }),
+      createRouteMask({
+        routeTree,
+        from: '/conversations/$conversationId/leave',
+        to: '/conversations/$conversationId',
+        params: (prev) => ({ conversationId: prev.conversationId }),
+      }),
+    ],
   })
   return routerWithQueryClient(router, queryClient)
 }

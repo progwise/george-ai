@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useMatch } from '@tanstack/react-router'
 import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -32,12 +32,15 @@ export default function TopNavigation({ user, theme }: TopNavigationProps) {
   const [isAtTop, setIsAtTop] = useState(false)
   const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
 
+  const conversationsRoutesMatch = useMatch({ from: '/_authenticated/conversations', shouldThrow: false })
+  const isConversationPageDisplayed = !!conversationsRoutesMatch
+
   return (
     <>
       <header
         className={twMerge(
           'bg-base-100 fixed inset-x-0 top-0 z-50 transition-all',
-          !isAtTop && 'bg-base-100/80 shadow-md backdrop-blur-md',
+          !isAtTop && !isConversationPageDisplayed && 'bg-base-100/80 shadow-md backdrop-blur-md',
         )}
       >
         <nav className="navbar px-body gap-2 text-sm lg:gap-4">
@@ -56,13 +59,13 @@ export default function TopNavigation({ user, theme }: TopNavigationProps) {
 
           <SettingsDropdown user={user} theme={theme} />
 
-          <div className="flex items-center justify-center gap-4">
-            {isReady && !user && (
+          {isReady && !user && (
+            <div className="flex items-center justify-center gap-4">
               <button type="button" className="btn btn-outline btn-sm" onClick={() => login()}>
                 {t('actions.signIn')}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </nav>
       </header>
 

@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge'
 import { useTranslation } from '../i18n/use-translation-hook'
 
 export interface DialogFormProps {
-  ref: RefObject<HTMLDialogElement | null>
+  ref?: RefObject<HTMLDialogElement | null>
   title: string
   description?: React.ReactNode
   onSubmit: (data: FormData) => void
@@ -15,6 +15,8 @@ export interface DialogFormProps {
   submitButtonTooltipText?: string
   className?: string
   buttonOptions?: 'onlyClose' | 'cancelAndConfirm'
+  open?: boolean
+  onClose?: () => void
 }
 
 export const DialogForm = ({
@@ -28,6 +30,8 @@ export const DialogForm = ({
   submitButtonTooltipText,
   className,
   buttonOptions = 'cancelAndConfirm',
+  open,
+  onClose = () => ref?.current?.close(),
 }: DialogFormProps) => {
   const { t } = useTranslation()
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -37,12 +41,12 @@ export const DialogForm = ({
   }
 
   const handleClose = () => {
-    ref.current?.close()
+    onClose()
   }
 
   // using react portals prevents animation issues with the modal
   return createPortal(
-    <dialog className="modal" ref={ref}>
+    <dialog className="modal" ref={ref} open={open}>
       <div className={twMerge('modal-box flex flex-col', className)}>
         <h3 className="text-lg font-bold">{title}</h3>
         {!!description && <p className="py-4">{description}</p>}

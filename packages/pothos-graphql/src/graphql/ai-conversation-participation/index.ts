@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
@@ -124,15 +126,29 @@ builder.mutationField('removeConversationParticipant', (t) =>
 )
 
 builder.mutationField('leaveAiConversation', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiConversationParticipant',
     args: {
-      participantId: t.arg.string({ required: true }),
+      conversationId: t.arg.string({ required: true }),
     },
-    resolve: (_query, _source, { participantId }) => {
-      return prisma.aiConversationParticipant.delete({
-        where: { id: participantId },
+    resolve: async (_query, _source, { conversationId }, { session }) => {
+      const participant = await prisma.aiConversationParticipant.findFirst({
+        select: { id: true, conversation: { select: { ownerId: true } } },
+        where: {
+          userId: session.user.id,
+          conversationId,
+        },
       })
+
+      if (!participant) {
+        return null
+      }
+
+      if (participant.conversation.ownerId === session.user.id) {
+        throw new GraphQLError('Owner cannot leave the conversation. Please delete the conversation instead.')
+      }
+
+      return prisma.aiConversationParticipant.delete({ where: { id: participant.id } })
     },
   }),
 )

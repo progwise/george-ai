@@ -28,6 +28,7 @@ const loginDocument = graphql(`
       family_name
       createdAt
       isAdmin
+      __typename
     }
   }
 `)

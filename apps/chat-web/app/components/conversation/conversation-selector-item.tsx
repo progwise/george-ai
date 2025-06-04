@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 
 import { ConversationSelector_ConversationFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { AssistantAvatar } from './assistant-avatar'
+import { AssistantAvatar } from './avatar/assistant-avatar'
 
 interface ConversationSelectorItemProps {
   conversation: ConversationSelector_ConversationFragment
@@ -33,7 +33,7 @@ export const ConversationSelectorItem = ({
       to="/conversations/$conversationId"
       params={{ conversationId: conversation.id }}
     >
-      {firstAssistant && <AssistantAvatar assistant={firstAssistant} />}
+      {firstAssistant && <AssistantAvatar assistant={firstAssistant} hideLink />}
       <div className="flex min-w-0 flex-1 shrink flex-col">
         <span className="truncate">
           {firstMessageText ?? <span className="italic">{t('conversations.historyPlaceholderShort')}</span>}

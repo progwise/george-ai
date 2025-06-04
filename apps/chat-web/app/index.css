@@ -22,6 +22,8 @@
 @theme {
   /* horizontal spacing on body */
   --spacing-body: --spacing(2);
+
+  --spacing-drawer-width: --spacing(72);
 }
 
 @layer utilities {

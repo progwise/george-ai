@@ -16,9 +16,7 @@ graphql(`
       name
     }
     assistants {
-      id
-      name
-      iconUrl
+      ...AssistantAvatar_AiAssistant
     }
     humans {
       name
@@ -50,7 +48,7 @@ export const ConversationSelector = ({
   )
 
   return (
-    <ul className={twMerge('menu flex-nowrap! w-72 p-0', className)}>
+    <ul className={twMerge('menu flex-nowrap! w-full p-0', className)}>
       {Object.entries(groupedConversations).map(([date, conversations]) => (
         <React.Fragment key={date}>
           <li className="menu-title max-w-full">{date}</li>

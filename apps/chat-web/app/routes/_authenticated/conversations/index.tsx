@@ -1,7 +1,8 @@
 import { useSuspenseQueries } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { Navigate, createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
 
-import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
+import { NewConversationDialog } from '../../../components/conversation/new-conversation-dialog'
 import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 import { getConversationsQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
@@ -19,30 +20,25 @@ export const Route = createFileRoute('/_authenticated/conversations/')({
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
-  const navigate = Route.useNavigate()
 
   const [conversationsQuery, assistantsQuery, usersQuery] = useSuspenseQueries({
     queries: [getConversationsQueryOptions(), getAiAssistantsQueryOptions(), getUsersQueryOptions()],
   })
+  const [newConversationOpen, setNewConversationOpen] = useState(true)
 
   const latestConversation = conversationsQuery.data.aiConversations.at(0)
 
   if (latestConversation) {
-    return navigate({
-      to: '/conversations/$conversationId',
-      params: { conversationId: latestConversation.id },
-      replace: true,
-    })
+    return <Navigate to="/conversations/$conversationId" params={{ conversationId: latestConversation.id }} replace />
   }
 
   return (
-    <ConversationParticipantsDialogButton
-      className="hidden"
+    <NewConversationDialog
+      allAssistants={assistantsQuery.data.aiAssistants}
+      allUsers={usersQuery.data.users}
       userId={user.id}
-      assistants={assistantsQuery.data.aiAssistants}
-      users={usersQuery.data.users}
-      dialogMode="new"
-      isOpen
+      open={newConversationOpen}
+      onClose={() => setNewConversationOpen(false)}
     />
   )
 }

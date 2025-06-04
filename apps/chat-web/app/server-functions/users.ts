@@ -19,6 +19,7 @@ graphql(`
       business
       position
     }
+    __typename
   }
 `)
 

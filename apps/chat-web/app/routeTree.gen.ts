@@ -31,7 +31,11 @@ import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './rout
 import { Route as AuthenticatedLibrariesLibraryIdQueryImport } from './routes/_authenticated/libraries/$libraryId/query'
 import { Route as AuthenticatedLibrariesLibraryIdEditImport } from './routes/_authenticated/libraries/$libraryId/edit'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersImport } from './routes/_authenticated/libraries/$libraryId/crawlers'
+import { Route as AuthenticatedConversationsConversationIdLeaveImport } from './routes/_authenticated/conversations/$conversationId.leave'
+import { Route as AuthenticatedConversationsConversationIdSettingsRouteImport } from './routes/_authenticated/conversations/$conversationId.settings/route'
+import { Route as AuthenticatedConversationsConversationIdSettingsIndexImport } from './routes/_authenticated/conversations/$conversationId.settings/index'
 import { Route as AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId'
+import { Route as AuthenticatedConversationsConversationIdSettingsUsersImport } from './routes/_authenticated/conversations/$conversationId.settings/users'
 
 // Create/Update Routes
 
@@ -168,6 +172,28 @@ const AuthenticatedLibrariesLibraryIdCrawlersRoute =
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
 
+const AuthenticatedConversationsConversationIdLeaveRoute =
+  AuthenticatedConversationsConversationIdLeaveImport.update({
+    id: '/leave',
+    path: '/leave',
+    getParentRoute: () => AuthenticatedConversationsConversationIdRoute,
+  } as any)
+
+const AuthenticatedConversationsConversationIdSettingsRouteRoute =
+  AuthenticatedConversationsConversationIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedConversationsConversationIdRoute,
+  } as any)
+
+const AuthenticatedConversationsConversationIdSettingsIndexRoute =
+  AuthenticatedConversationsConversationIdSettingsIndexImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () =>
+      AuthenticatedConversationsConversationIdSettingsRouteRoute,
+  } as any)
+
 const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute =
   AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport.update(
     {
@@ -176,6 +202,14 @@ const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
       getParentRoute: () => AuthenticatedConversationsRouteRoute,
     } as any,
   )
+
+const AuthenticatedConversationsConversationIdSettingsUsersRoute =
+  AuthenticatedConversationsConversationIdSettingsUsersImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () =>
+      AuthenticatedConversationsConversationIdSettingsRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -279,6 +313,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileIndexImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/conversations/$conversationId/settings': {
+      id: '/_authenticated/conversations/$conversationId/settings'
+      path: '/settings'
+      fullPath: '/conversations/$conversationId/settings'
+      preLoaderRoute: typeof AuthenticatedConversationsConversationIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedConversationsConversationIdImport
+    }
+    '/_authenticated/conversations/$conversationId/leave': {
+      id: '/_authenticated/conversations/$conversationId/leave'
+      path: '/leave'
+      fullPath: '/conversations/$conversationId/leave'
+      preLoaderRoute: typeof AuthenticatedConversationsConversationIdLeaveImport
+      parentRoute: typeof AuthenticatedConversationsConversationIdImport
+    }
     '/_authenticated/libraries/$libraryId/crawlers': {
       id: '/_authenticated/libraries/$libraryId/crawlers'
       path: '/crawlers'
@@ -321,6 +369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdIndexImport
       parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
     }
+    '/_authenticated/conversations/$conversationId/settings/users': {
+      id: '/_authenticated/conversations/$conversationId/settings/users'
+      path: '/users'
+      fullPath: '/conversations/$conversationId/settings/users'
+      preLoaderRoute: typeof AuthenticatedConversationsConversationIdSettingsUsersImport
+      parentRoute: typeof AuthenticatedConversationsConversationIdSettingsRouteImport
+    }
     '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId': {
       id: '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
       path: '/$conversationId/confirm-invitation/$invitationId'
@@ -328,13 +383,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport
       parentRoute: typeof AuthenticatedConversationsRouteImport
     }
+    '/_authenticated/conversations/$conversationId/settings/': {
+      id: '/_authenticated/conversations/$conversationId/settings/'
+      path: '/'
+      fullPath: '/conversations/$conversationId/settings/'
+      preLoaderRoute: typeof AuthenticatedConversationsConversationIdSettingsIndexImport
+      parentRoute: typeof AuthenticatedConversationsConversationIdSettingsRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedConversationsConversationIdSettingsRouteRouteChildren {
+  AuthenticatedConversationsConversationIdSettingsUsersRoute: typeof AuthenticatedConversationsConversationIdSettingsUsersRoute
+  AuthenticatedConversationsConversationIdSettingsIndexRoute: typeof AuthenticatedConversationsConversationIdSettingsIndexRoute
+}
+
+const AuthenticatedConversationsConversationIdSettingsRouteRouteChildren: AuthenticatedConversationsConversationIdSettingsRouteRouteChildren =
+  {
+    AuthenticatedConversationsConversationIdSettingsUsersRoute:
+      AuthenticatedConversationsConversationIdSettingsUsersRoute,
+    AuthenticatedConversationsConversationIdSettingsIndexRoute:
+      AuthenticatedConversationsConversationIdSettingsIndexRoute,
+  }
+
+const AuthenticatedConversationsConversationIdSettingsRouteRouteWithChildren =
+  AuthenticatedConversationsConversationIdSettingsRouteRoute._addFileChildren(
+    AuthenticatedConversationsConversationIdSettingsRouteRouteChildren,
+  )
+
+interface AuthenticatedConversationsConversationIdRouteChildren {
+  AuthenticatedConversationsConversationIdSettingsRouteRoute: typeof AuthenticatedConversationsConversationIdSettingsRouteRouteWithChildren
+  AuthenticatedConversationsConversationIdLeaveRoute: typeof AuthenticatedConversationsConversationIdLeaveRoute
+}
+
+const AuthenticatedConversationsConversationIdRouteChildren: AuthenticatedConversationsConversationIdRouteChildren =
+  {
+    AuthenticatedConversationsConversationIdSettingsRouteRoute:
+      AuthenticatedConversationsConversationIdSettingsRouteRouteWithChildren,
+    AuthenticatedConversationsConversationIdLeaveRoute:
+      AuthenticatedConversationsConversationIdLeaveRoute,
+  }
+
+const AuthenticatedConversationsConversationIdRouteWithChildren =
+  AuthenticatedConversationsConversationIdRoute._addFileChildren(
+    AuthenticatedConversationsConversationIdRouteChildren,
+  )
+
 interface AuthenticatedConversationsRouteRouteChildren {
-  AuthenticatedConversationsConversationIdRoute: typeof AuthenticatedConversationsConversationIdRoute
+  AuthenticatedConversationsConversationIdRoute: typeof AuthenticatedConversationsConversationIdRouteWithChildren
   AuthenticatedConversationsIndexRoute: typeof AuthenticatedConversationsIndexRoute
   AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
@@ -342,7 +440,7 @@ interface AuthenticatedConversationsRouteRouteChildren {
 const AuthenticatedConversationsRouteRouteChildren: AuthenticatedConversationsRouteRouteChildren =
   {
     AuthenticatedConversationsConversationIdRoute:
-      AuthenticatedConversationsConversationIdRoute,
+      AuthenticatedConversationsConversationIdRouteWithChildren,
     AuthenticatedConversationsIndexRoute: AuthenticatedConversationsIndexRoute,
     AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute:
       AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute,
@@ -418,19 +516,23 @@ export interface FileRoutesByFullPath {
   '/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
-  '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
+  '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRouteWithChildren
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/conversations/': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/conversations/$conversationId/settings': typeof AuthenticatedConversationsConversationIdSettingsRouteRouteWithChildren
+  '/conversations/$conversationId/leave': typeof AuthenticatedConversationsConversationIdLeaveRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
+  '/conversations/$conversationId/settings/users': typeof AuthenticatedConversationsConversationIdSettingsUsersRoute
   '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
+  '/conversations/$conversationId/settings/': typeof AuthenticatedConversationsConversationIdSettingsIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -440,19 +542,22 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
-  '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
+  '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRouteWithChildren
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/conversations': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/conversations/$conversationId/leave': typeof AuthenticatedConversationsConversationIdLeaveRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdIndexRoute
+  '/conversations/$conversationId/settings/users': typeof AuthenticatedConversationsConversationIdSettingsUsersRoute
   '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
+  '/conversations/$conversationId/settings': typeof AuthenticatedConversationsConversationIdSettingsIndexRoute
 }
 
 export interface FileRoutesById {
@@ -465,19 +570,23 @@ export interface FileRoutesById {
   '/_authenticated/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
-  '/_authenticated/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
+  '/_authenticated/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRouteWithChildren
   '/_authenticated/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/_authenticated/assistants/': typeof AuthenticatedAssistantsIndexRoute
   '/_authenticated/conversations/': typeof AuthenticatedConversationsIndexRoute
   '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/conversations/$conversationId/settings': typeof AuthenticatedConversationsConversationIdSettingsRouteRouteWithChildren
+  '/_authenticated/conversations/$conversationId/leave': typeof AuthenticatedConversationsConversationIdLeaveRoute
   '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/_authenticated/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/_authenticated/libraries/$libraryId/query': typeof AuthenticatedLibrariesLibraryIdQueryRoute
   '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/_authenticated/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
+  '/_authenticated/conversations/$conversationId/settings/users': typeof AuthenticatedConversationsConversationIdSettingsUsersRoute
   '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
+  '/_authenticated/conversations/$conversationId/settings/': typeof AuthenticatedConversationsConversationIdSettingsIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -497,13 +606,17 @@ export interface FileRouteTypes {
     | '/conversations/'
     | '/libraries'
     | '/profile'
+    | '/conversations/$conversationId/settings'
+    | '/conversations/$conversationId/leave'
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/edit'
     | '/libraries/$libraryId/query'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
     | '/libraries/$libraryId/'
+    | '/conversations/$conversationId/settings/users'
     | '/conversations/$conversationId/confirm-invitation/$invitationId'
+    | '/conversations/$conversationId/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -518,13 +631,16 @@ export interface FileRouteTypes {
     | '/conversations'
     | '/libraries'
     | '/profile'
+    | '/conversations/$conversationId/leave'
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/edit'
     | '/libraries/$libraryId/query'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
     | '/libraries/$libraryId'
+    | '/conversations/$conversationId/settings/users'
     | '/conversations/$conversationId/confirm-invitation/$invitationId'
+    | '/conversations/$conversationId/settings'
   id:
     | '__root__'
     | '/'
@@ -541,13 +657,17 @@ export interface FileRouteTypes {
     | '/_authenticated/conversations/'
     | '/_authenticated/libraries/'
     | '/_authenticated/profile/'
+    | '/_authenticated/conversations/$conversationId/settings'
+    | '/_authenticated/conversations/$conversationId/leave'
     | '/_authenticated/libraries/$libraryId/crawlers'
     | '/_authenticated/libraries/$libraryId/edit'
     | '/_authenticated/libraries/$libraryId/query'
     | '/_authenticated/profile/$profileId/admin-confirm'
     | '/_authenticated/profile/$profileId/confirm'
     | '/_authenticated/libraries/$libraryId/'
+    | '/_authenticated/conversations/$conversationId/settings/users'
     | '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
+    | '/_authenticated/conversations/$conversationId/settings/'
   fileRoutesById: FileRoutesById
 }
 
@@ -635,7 +755,11 @@ export const routeTree = rootRoute
     },
     "/_authenticated/conversations/$conversationId": {
       "filePath": "_authenticated/conversations/$conversationId.tsx",
-      "parent": "/_authenticated/conversations"
+      "parent": "/_authenticated/conversations",
+      "children": [
+        "/_authenticated/conversations/$conversationId/settings",
+        "/_authenticated/conversations/$conversationId/leave"
+      ]
     },
     "/_authenticated/libraries/auth-google": {
       "filePath": "_authenticated/libraries/auth-google.tsx",
@@ -656,6 +780,18 @@ export const routeTree = rootRoute
     "/_authenticated/profile/": {
       "filePath": "_authenticated/profile/index.tsx",
       "parent": "/_authenticated"
+    },
+    "/_authenticated/conversations/$conversationId/settings": {
+      "filePath": "_authenticated/conversations/$conversationId.settings/route.tsx",
+      "parent": "/_authenticated/conversations/$conversationId",
+      "children": [
+        "/_authenticated/conversations/$conversationId/settings/users",
+        "/_authenticated/conversations/$conversationId/settings/"
+      ]
+    },
+    "/_authenticated/conversations/$conversationId/leave": {
+      "filePath": "_authenticated/conversations/$conversationId.leave.tsx",
+      "parent": "/_authenticated/conversations/$conversationId"
     },
     "/_authenticated/libraries/$libraryId/crawlers": {
       "filePath": "_authenticated/libraries/$libraryId/crawlers.tsx",
@@ -681,9 +817,17 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/libraries/$libraryId/index.tsx",
       "parent": "/_authenticated/libraries/$libraryId"
     },
+    "/_authenticated/conversations/$conversationId/settings/users": {
+      "filePath": "_authenticated/conversations/$conversationId.settings/users.tsx",
+      "parent": "/_authenticated/conversations/$conversationId/settings"
+    },
     "/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId": {
       "filePath": "_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId.tsx",
       "parent": "/_authenticated/conversations"
+    },
+    "/_authenticated/conversations/$conversationId/settings/": {
+      "filePath": "_authenticated/conversations/$conversationId.settings/index.tsx",
+      "parent": "/_authenticated/conversations/$conversationId/settings"
     }
   }
 }

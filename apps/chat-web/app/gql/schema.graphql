@@ -386,7 +386,7 @@ type Mutation {
   dropFile(fileId: String!): AiLibraryFile
   dropFiles(libraryId: String!): [AiLibraryFile!]
   hideMessage(messageId: String!): AiConversationMessage
-  leaveAiConversation(participantId: String!): AiConversationParticipant
+  leaveAiConversation(conversationId: String!): AiConversationParticipant
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile

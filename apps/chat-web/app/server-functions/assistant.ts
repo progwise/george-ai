@@ -13,6 +13,8 @@ graphql(`
     description
     iconUrl
     updatedAt
+    languageModel
+    __typename
   }
 `)
 
