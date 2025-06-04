@@ -312,7 +312,7 @@ export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps)
                 return (
                   <div
                     key={file.id}
-                    onClick={() => toggleFile(file)}
+                    onClick={isFolder ? () => openFolder(file.id, file.name) : () => toggleFile(file)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(event) => {
