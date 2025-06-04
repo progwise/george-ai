@@ -10,10 +10,9 @@ export interface QAPair {
   difficulty?: string
 }
 
-export const generateQAPairs = async (chunk: string, summary: string, context = ''): Promise<QAPair[]> => {
+export const generateQAPairs = async (chunk: string, summary: string): Promise<QAPair[]> => {
   const prompt = `Given the following summary and document chunk, generate question-answer pairs.
 Summary: ${summary}
-Context: ${context}
 Chunk: ${chunk}
 
 Each QA pair should have:
