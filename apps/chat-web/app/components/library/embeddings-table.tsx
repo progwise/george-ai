@@ -26,16 +26,6 @@ interface EmbeddingsTableProps {
   profile?: UserProfileFragment
 }
 
-interface AiLibraryFile {
-  id: string
-  name: string
-  size?: number | null
-  chunks?: number | null
-  processedAt?: string | null
-  processingErrorMessage?: string | null
-  dropError?: string | null
-}
-
 const dropAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
@@ -117,9 +107,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
   const remainingStorage = (profile?.freeStorage || 0) - (profile?.usedStorage || 0)
   const [selectedFiles, setSelectedFiles] = useState<string[]>([])
   const { t, language } = useTranslation()
-  const { data, isLoading } = useSuspenseQuery<{ aiLibraryFiles: AiLibraryFile[] }>(
-    aiLibraryFilesQueryOptions(libraryId),
-  )
+  const { data, isLoading } = useSuspenseQuery(aiLibraryFilesQueryOptions(libraryId))
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [googleDriveAccessToken, setGoogleDriveAccessToken] = useState<string | null>(null)
 
@@ -361,7 +349,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                 </tr>
               </thead>
               <tbody>
-                {data?.aiLibraryFiles?.map((file: AiLibraryFile, index: number) => (
+                {data?.aiLibraryFiles?.map((file, index) => (
                   <tr key={file.id} className="hover:bg-base-200">
                     <td>
                       <input
@@ -372,7 +360,11 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                       />
                     </td>
                     <td>{index + 1}</td>
-                    <td>{truncateFileName(file.name, 49, 45)}</td>
+                    <td>
+                      <a href={file.originUri || '#'} target="_blank">
+                        {truncateFileName(file.name, 49, 45)}
+                      </a>
+                    </td>
                     <td>{file.size ?? '-'}</td>
                     <td>{file.chunks ?? '-'}</td>
                     <td>{dateTimeString(file.processedAt, language) || '-'}</td>
