@@ -142,8 +142,8 @@ export default {
     deleteConfirmation:
       'Der Crawler für {crawlerUrl} wird zusammen mit {filesCount} damit gecrawlten Dateien gelöscht.',
     lastRun: 'Letzter Lauf',
-    maxDepth: 'Max Tiefe',
-    maxPages: 'Max Anzahl an Seiten',
+    maxDepth: 'Tiefe',
+    maxPages: 'Seiten',
     run: 'Crawler starten',
     update: 'Crawler aktualisieren',
     url: 'URL',

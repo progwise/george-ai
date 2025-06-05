@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import cronstrue from 'cronstrue'
 
-import { dateTimeStringShort } from '@george-ai/web-utils'
+import { dateTimeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -67,14 +67,13 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                   index % 2 === 0 ? 'bg-base-100 dark:bg-base-100' : 'bg-base-200 dark:bg-base-200'
                 }`}
               >
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <span
-                    className="max-w-xs truncate break-all text-sm font-semibold sm:max-w-[60%]"
-                    title={crawler.url}
-                  >
-                    {index + 1}. {crawler.url}
-                  </span>
-                  <div className="mt-1 flex flex-shrink-0 flex-row gap-1 sm:mt-0">
+                <div className="sm:items-center sm:justify-between">
+                  <div className="mb-2 w-full break-all text-sm font-semibold" title={crawler.url}>
+                    <a href={crawler.url} target="_blank" rel="noopener noreferrer" className="link">
+                      {index + 1}. {crawler.url}
+                    </a>
+                  </div>
+                  <div className="flex justify-center gap-2">
                     <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
                     <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
                     <DeleteCrawlerButton
@@ -104,9 +103,13 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                       ? cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })
                       : '-'}
                   </span>
-                  <span>{t('crawlers.lastRun')}:</span>
-                  <span>{dateTimeStringShort(crawler?.lastRun?.startedAt, language) || '-'}</span>
-                  <span>{crawler.lastRun && !crawler.lastRun.success && <WarnIcon className="text-warning" />}</span>
+                  <span className="flex content-center">
+                    <span>{t('crawlers.lastRun')}:</span>
+                    {crawler.lastRun && !crawler.lastRun.success && (
+                      <WarnIcon className="text-warning" tooltip={crawler.lastRun.errorMessage} />
+                    )}
+                  </span>
+                  <span>{dateTimeString(crawler?.lastRun?.startedAt, language) || '-'} </span>
                 </div>
               </div>
             ))}
@@ -121,31 +124,38 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
             <tr>
               <th>#</th>
               <th>{t('crawlers.url')}</th>
-              <th>{t('crawlers.maxDepth')}</th>
-              <th>{t('crawlers.maxPages')}</th>
+              <th>
+                {t('crawlers.maxDepth')}/{t('crawlers.maxPages')}
+              </th>
               <th>{t('crawlers.cronJob')}</th>
               <th>{t('crawlers.lastRun')}</th>
-              <th></th>
               <th>{t('labels.actions')}</th>
             </tr>
           </thead>
           <tbody>
             {aiLibrary?.crawlers.map((crawler, index) => (
               <tr key={crawler.id}>
-                <td>{index + 1}</td>
-                <td className="max-w-3xl truncate" title={crawler.url}>
-                  {crawler.url}
+                <td className="align-top">{index + 1}</td>
+                <td className="max-w-3xl truncate align-top" title={crawler.url}>
+                  <a href={crawler.url} target="_blank" rel="noopener noreferrer" className="link">
+                    {crawler.url}
+                  </a>
                 </td>
-                <td>{crawler.maxDepth}</td>
-                <td>{crawler.maxPages}</td>
-                <td>
+                <td className="align-top">
+                  {crawler.maxDepth}/{crawler.maxPages}
+                </td>
+                <td className="align-top">
                   {crawler.cronJob?.cronExpression &&
                     cronstrue.toString(crawler.cronJob.cronExpression, { locale: language, verbose: true })}
                 </td>
-                <td>{dateTimeStringShort(crawler?.lastRun?.startedAt, language)}</td>
-                <td>{crawler.lastRun && !crawler.lastRun.success && <WarnIcon className="text-warning" />}</td>
+                <td className="align-top">
+                  {dateTimeString(crawler?.lastRun?.startedAt, language)}{' '}
+                  {crawler.lastRun && !crawler.lastRun.success && (
+                    <WarnIcon className="text-warning inline-block size-3" tooltip={crawler.lastRun.errorMessage} />
+                  )}
+                </td>
 
-                <td className="flex gap-2">
+                <td className="flex gap-2 align-top">
                   <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
                   <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
                   <DeleteCrawlerButton
