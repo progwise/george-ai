@@ -27,10 +27,9 @@ async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int):
 
     async with AsyncWebCrawler() as crawler:
         # Access individual results
-        async for result in await crawler.arun(url, config=config):  # Show first 3 results
+        async for result in await crawler.arun(url, config=config):
             yield "\n---BEGIN CRAWLER RESULT---\n"
             yield json.dumps({"url": result.url, "title": result.metadata.get("title")})
             yield "\n---BEGIN MARKDOWN---\n"
             yield result.markdown
             yield "\n---END CRAWLER RESULT---\n"
-            
