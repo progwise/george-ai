@@ -275,20 +275,30 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
               {data?.aiLibraryFiles.map((file, index) => (
-                <div key={file.id} className="shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3">
+                <div
+                  key={file.id}
+                  className={`shadow-xs border-base-300 flex flex-col gap-2 rounded-md border p-3 ${
+                    index % 2 === 0 ? 'bg-base-100 dark:bg-base-100' : 'bg-base-200 dark:bg-base-200'
+                  }`}
+                >
                   <div className="flex justify-between">
-                    <label className="flex items-center gap-2">
+                    <label className="flex min-w-0 flex-1 items-center gap-2">
                       <input
                         type="checkbox"
                         className="checkbox checkbox-sm"
                         checked={selectedFiles.includes(file.id)}
                         onChange={() => handleSelectFile(file.id)}
                       />
-                      <span className="text-sm font-semibold">
-                        {index + 1}. {truncateFileName(file.name, 25, 20)}
+                      <span
+                        className="inline-block max-w-[calc(100vw-140px)] truncate text-sm font-semibold"
+                        title={file.name}
+                      >
+                        <a href={file.originUri || '#'} target="_blank">
+                          {`${index + 1}. ${truncateFileName(file.name, 49, 45)}`}
+                        </a>
                       </span>
                     </label>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-shrink-0 justify-end gap-2">
                       <button
                         type="button"
                         className="btn btn-xs"
@@ -360,7 +370,7 @@ export const EmbeddingsTable = ({ libraryId, profile }: EmbeddingsTableProps) =>
                       />
                     </td>
                     <td>{index + 1}</td>
-                    <td>
+                    <td className="max-w-2xl truncate" title={file.name}>
                       <a href={file.originUri || '#'} target="_blank">
                         {truncateFileName(file.name, 49, 45)}
                       </a>
