@@ -57,17 +57,18 @@ export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, library
       <DialogForm
         ref={dialogRef}
         title={t('crawlers.delete')}
-        description={
-          <div
-            // eslint-disable-next-line @eslint-react/dom/no-dangerously-set-innerhtml
-            dangerouslySetInnerHTML={{
-              __html: t('crawlers.deleteConfirmation', {
-                crawlerUrl: `<span class="font-bold">${encodeURIComponent(crawlerUrl)}</span>`,
-                filesCount,
-              }),
-            }}
-          />
-        }
+        description={(() => {
+          const placeholder = '{crawlerUrl}'
+          const confirmation = t('crawlers.deleteConfirmation', { crawlerUrl: placeholder, filesCount })
+          const [before, after] = confirmation.split(placeholder)
+          return (
+            <>
+              {before}
+              <span className="font-bold">{crawlerUrl}</span>
+              {after}
+            </>
+          )
+        })()}
         onSubmit={handleSubmit}
         disabledSubmit={isPending}
         submitButtonText={t('actions.delete')}
