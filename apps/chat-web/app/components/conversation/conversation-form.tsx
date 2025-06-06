@@ -242,7 +242,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
       <DialogForm
         ref={errorDialogRef}
         title={t('conversations.errorDetails')}
-        description={<div className="overflow-x-auto break-all">{errorDetails}</div>}
+        description={<span className="overflow-x-auto break-all">{errorDetails}</span>}
         onSubmit={() => errorDialogRef.current?.close()}
         submitButtonText={t('actions.close')}
         buttonOptions="onlyClose"
