@@ -166,6 +166,7 @@ export default {
   flowParallel: 'Ablauf: Parallel',
   flowSequential: 'Ablauf: Sequenziell',
   flowWeb: 'Ablauf: Nur Web',
+  googleDriveRootFolder: 'Meine Ablage',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
   hero: {
     badge: 'Vorstellung George-Ai',
@@ -303,6 +304,9 @@ export default {
   settings: {
     darkMode: 'Farbschema: Dunkel',
     lightMode: 'Farbschema: Hell',
+    systemMode: 'Farbschema: System',
+    theme: 'Farbschema',
+    language: 'Sprache',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',

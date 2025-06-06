@@ -1,9 +1,10 @@
 import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { queryKeys } from '../query-keys'
+import { getClientLanguage } from './get-language'
 import { Language } from './index'
 
 const LANGUAGE_COOKIE_NAME = 'preferred-language'
@@ -34,5 +35,17 @@ export const useLanguage = () => {
     },
     [queryClient],
   )
+
+  // Set cookie and cache to browser language if not set
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cookieSet = document.cookie.includes(`${LANGUAGE_COOKIE_NAME}=`)
+      if (!cookieSet) {
+        const browserLang = getClientLanguage()
+        setLanguage(browserLang)
+      }
+    }
+  }, [setLanguage])
+
   return { language: language ?? FALLBACK_LANGUAGE, setLanguage }
 }

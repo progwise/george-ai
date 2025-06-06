@@ -200,14 +200,14 @@ services:
         #caddy.tls.ca: https://acme-staging-v02.api.letsencrypt.org/directory
 
   gai-crawl4ai:
-    image: unclecode/crawl4ai:0.6.0-r2
-    container_name: gai-crawl4ai
+    image: ghcr.io/progwise/george-ai/crawler:${TAG:-latest}
+    container_name: gai-crawler
     ports:
-      - '11235:11235'
+      - '11245:11245'
     networks:
       - caddy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:11235/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:11245/healthcheck/']
       interval: 30s
       timeout: 10s
       retries: 3

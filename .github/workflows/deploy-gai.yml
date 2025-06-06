@@ -65,6 +65,7 @@ jobs:
             echo "Pulling images for gai TAG: ${{ env.BRANCH_NAME }}"
             docker pull ghcr.io/progwise/george-ai/chat-web:${{env.BRANCH_NAME}}
             docker pull ghcr.io/progwise/george-ai/backend:${{env.BRANCH_NAME}}
+            docker pull ghcr.io/progwise/george-ai/crawler:${{env.BRANCH_NAME}}
             docker stack deploy --with-registry-auth --compose-file /home/swarm/george-ai-stack.yml george-ai
           EOF
       - name: Run prisma migrations

@@ -1,33 +1,31 @@
+import { getHeaders } from '@tanstack/react-start/server'
+
 import { Language } from './index'
 import { getTranslatedValue } from './use-translation-hook'
 
-const getLanguageString = (languages: readonly string[]): Language => {
-  for (const language of languages) {
-    if (language.startsWith('de')) {
-      return 'de'
+const getLanguage = async (): Promise<Language> => {
+  try {
+    const headers = getHeaders()
+    const acceptLanguage = headers['accept-language']
+    if (acceptLanguage) {
+      const lang = acceptLanguage.split(',')[0].split('-')[0]
+      if (lang === 'de') return 'de'
+      if (lang === 'en') return 'en'
     }
-    if (language.startsWith('en')) {
-      return 'en'
-    }
+  } catch {
+    // Ignore if not in server context
   }
-  return 'en'
+  return getClientLanguage()
 }
 
-const getLanguage = async (): Promise<Language> => {
-  if (typeof window !== 'undefined') {
-    const languageString = getLanguageString(window.navigator.languages)
-    return languageString
+// Client-side detection of browser language.
+export const getClientLanguage = (): Language => {
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    const lang = navigator.language.split('-')[0]
+    if (lang === 'de') return 'de'
+    if (lang === 'en') return 'en'
   }
-  try {
-    const vinxiModule = await import('vinxi/http')
-    const headers = vinxiModule.getHeaders()
-    const languages = headers['accept-language']?.split(',')
-    const language = getLanguageString(languages || [])
-    return language
-  } catch (e) {
-    console.log('error', e)
-    throw new Error('Could not determine language')
-  }
+  return 'en'
 }
 
 const translate = (key: string, language: Language) => {
