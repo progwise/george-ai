@@ -7,7 +7,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
 import { leaveLibraryParticipant } from '../../../server-functions/library-participations'
 import { DialogForm } from '../../dialog-form'
-import { getLibrariesQueryOptions } from '../get-libraries-query-options'
+import { getLibrariesQueryOptions } from '../get-libraries'
 
 interface LibraryLeaveDialogProps {
   library: AiLibraryBaseFragment

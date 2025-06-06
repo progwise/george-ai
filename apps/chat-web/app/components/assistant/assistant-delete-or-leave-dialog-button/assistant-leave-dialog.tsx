@@ -6,7 +6,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
 import { leaveAssistantParticipant } from '../../../server-functions/assistant-participations'
 import { DialogForm } from '../../dialog-form'
-import { getAiAssistantsQueryOptions } from '../get-assistants-query-options'
+import { getAiAssistantsQueryOptions } from '../get-assistants'
 
 interface AssistantLeaveDialogProps {
   assistant: AssistantBaseFragment

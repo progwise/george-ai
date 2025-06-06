@@ -4,12 +4,12 @@ import React, { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { getAssistantQueryOptions } from '../../components/assistant/get-assistant-query-options'
 import { graphql } from '../../gql'
 import { AssistantBasecaseForm_AssistantFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
+import { getAssistantQueryOptions } from './get-assistant'
 
 const upsertAiBaseCases = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {

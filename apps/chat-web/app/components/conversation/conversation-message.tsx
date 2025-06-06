@@ -16,7 +16,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { toastError } from '../georgeToaster'
-import { getConversationQueryOptions } from './get-conversation-query-options'
+import { getConversationQueryOptions } from './get-conversation'
 
 const HideMessageDocument = graphql(`
   mutation hideMessage($messageId: String!) {

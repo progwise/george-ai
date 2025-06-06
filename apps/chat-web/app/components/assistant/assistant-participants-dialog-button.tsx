@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
 
-import { getAssistantQueryOptions } from '../../components/assistant/get-assistant-query-options'
 import { graphql } from '../../gql'
 import { AssistantParticipantsDialogButton_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -10,6 +9,7 @@ import { addAssistantParticipants } from '../../server-functions/assistant-parti
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
+import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
   fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {

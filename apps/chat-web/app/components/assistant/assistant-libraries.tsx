@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { getAssistantQueryOptions } from '../../components/assistant/get-assistant-query-options'
 import { graphql } from '../../gql'
 import {
   AiLibraryBaseFragment,
@@ -17,6 +16,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { Dropdown } from '../dropdown'
 import { Input } from '../form/input'
 import { LoadingSpinner } from '../loading-spinner'
+import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
   fragment AssistantLibraries_Assistant on AiAssistant {

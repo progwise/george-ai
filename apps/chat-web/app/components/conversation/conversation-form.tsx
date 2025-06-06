@@ -12,7 +12,7 @@ import { sendMessage } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
-import { getConversationQueryOptions } from './get-conversation-query-options'
+import { getConversationQueryOptions } from './get-conversation'
 
 graphql(`
   fragment ConversationForm_Conversation on AiConversation {

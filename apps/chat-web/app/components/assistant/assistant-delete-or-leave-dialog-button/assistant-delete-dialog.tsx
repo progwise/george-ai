@@ -9,7 +9,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
-import { getAiAssistantsQueryOptions } from '../get-assistants-query-options'
+import { getAiAssistantsQueryOptions } from '../get-assistants'
 
 const deleteAssistant = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {

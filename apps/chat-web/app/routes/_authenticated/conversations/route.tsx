@@ -3,9 +3,9 @@ import { Outlet, createFileRoute, useParams } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants-query-options'
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { ConversationSelector } from '../../../components/conversation/conversation-selector'
-import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations-query-options'
+import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations')({

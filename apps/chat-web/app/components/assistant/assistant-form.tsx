@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import React from 'react'
 import { z } from 'zod'
 
-import { getAssistantQueryOptions } from '../../components/assistant/get-assistant-query-options'
 import { graphql } from '../../gql'
 import { AssistantForm_AssistantFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
@@ -13,6 +12,7 @@ import { backendRequest, getBackendPublicUrl } from '../../server-functions/back
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
+import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
   fragment AssistantForm_Assistant on AiAssistant {

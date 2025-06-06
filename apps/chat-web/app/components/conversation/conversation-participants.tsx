@@ -12,8 +12,8 @@ import { CrossIcon } from '../../icons/cross-icon'
 import { removeConversationParticipant } from '../../server-functions/conversation-participations'
 import { LoadingSpinner } from '../loading-spinner'
 import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
-import { getConversationQueryOptions } from './get-conversation-query-options'
-import { getConversationsQueryOptions } from './get-conversations-query-options'
+import { getConversationQueryOptions } from './get-conversation'
+import { getConversationsQueryOptions } from './get-conversations'
 
 graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {

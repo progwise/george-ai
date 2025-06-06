@@ -20,8 +20,8 @@ import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 import { EmailChipsInput } from './email-chips-input'
 import { validateEmails } from './email-validation'
-import { getConversationQueryOptions } from './get-conversation-query-options'
-import { getConversationsQueryOptions } from './get-conversations-query-options'
+import { getConversationQueryOptions } from './get-conversation'
+import { getConversationsQueryOptions } from './get-conversations'
 
 graphql(`
   fragment ConversationParticipantsDialogButton_Conversation on AiConversation {

@@ -12,7 +12,7 @@ import { TrashIcon } from '../../icons/trash-icon'
 import { deleteConversation, leaveConversation } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
-import { getConversationsQueryOptions } from './get-conversations-query-options'
+import { getConversationsQueryOptions } from './get-conversations'
 
 graphql(`
   fragment ConversationDelete_Conversation on AiConversation {
