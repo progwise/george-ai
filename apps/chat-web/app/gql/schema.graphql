@@ -299,6 +299,25 @@ type AiLibraryUsage {
   usedFor: String
 }
 
+"""
+AI Models available in the system
+"""
+type AiModel {
+  baseUrl: String
+  modelName: String!
+  modelType: String!
+  options: [AiModelOption!]
+  title: String!
+}
+
+"""
+Options for AI Models
+"""
+type AiModelOption {
+  key: String!
+  value: String!
+}
+
 type AssistantParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -421,6 +440,7 @@ type Query {
   aiLibrary(libraryId: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
+  aiModels: [AiModel!]!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!
