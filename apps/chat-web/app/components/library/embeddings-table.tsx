@@ -18,7 +18,7 @@ import { backendRequest } from '../../server-functions/backend'
 import { toastError } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { DesktopFileUpload } from './desktop-file-upload'
-import { getLibrariesQueryOptions } from './get-libraries-query-options'
+import { getLibrariesQueryOptions } from './get-libraries'
 import { GoogleDriveFiles } from './google-drive-files'
 
 interface EmbeddingsTableProps {

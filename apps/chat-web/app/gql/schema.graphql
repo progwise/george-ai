@@ -412,13 +412,13 @@ type Mutation {
 
 type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
-  aiAssistant(id: String!): AiAssistant
+  aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
-  aiLibrary(id: String!): AiLibrary
+  aiLibrary(libraryId: String!): AiLibrary
   aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   user(email: String!): User

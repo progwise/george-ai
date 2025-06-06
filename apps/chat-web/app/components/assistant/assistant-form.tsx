@@ -8,11 +8,11 @@ import { AssistantForm_AssistantFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { availableLanguageModels } from '../../language-models'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
+import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
   fragment AssistantForm_Assistant on AiAssistant {

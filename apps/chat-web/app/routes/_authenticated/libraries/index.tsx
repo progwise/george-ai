@@ -3,7 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { dateStringShort, timeString } from '@george-ai/web-utils'
 
-import { getLibrariesQueryOptions } from '../../../components/library/get-libraries-query-options'
+import { getLibrariesQueryOptions } from '../../../components/library/get-libraries'
 import { LibraryNewDialog } from '../../../components/library/library-new-dialog'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'

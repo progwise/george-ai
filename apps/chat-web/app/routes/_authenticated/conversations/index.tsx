@@ -1,9 +1,9 @@
 import { useSuspenseQueries } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
-import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
-import { getConversationsQueryOptions } from '../../../server-functions/conversations'
+import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations/')({
