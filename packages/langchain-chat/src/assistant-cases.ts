@@ -55,7 +55,11 @@ export const getConditionIsTrue = async (input: {
     question: input.message,
   })
 
-  const model = getModel(input.assistant.languageModel)
+  if (!input.assistant.languageModel) {
+    throw new Error('Assistant language model is not set')
+  }
+
+  const model = await getModel(input.assistant.languageModel)
 
   const isTrueAnswer = await model.invoke(conditionPrompt, {})
 

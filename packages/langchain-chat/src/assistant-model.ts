@@ -4,53 +4,93 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { ChatOllama } from '@langchain/ollama'
 import { ChatOpenAI } from '@langchain/openai'
 
-export type SupportedModel = 'gpt-3' | 'gpt-4' | 'gemini-1.5' | 'ollama-mistral' | 'ollama-llama3.1'
 export type AssistantModel = BaseChatModel<BaseChatModelCallOptions, AIMessageChunk>
 
-const models = new Map<SupportedModel, AssistantModel>([])
+export const getExternalModels = () => {
+  const models = [
+    {
+      modelName: 'gpt-4o-mini',
+      title: 'GPT-4 Mini',
+      type: 'OpenAI',
+      options: [
+        { key: 'temperature', value: '0.7' },
+        { key: 'maxTokens', value: '80000' },
+      ],
+      baseUrl: undefined as string | undefined,
+    },
+    {
+      modelName: 'gemini-1.5-pro',
+      title: 'Gemini 1.5 Pro',
+      type: 'Google',
+      options: [
+        { key: 'temperature', value: '0.0' },
+        { key: 'maxRetries', value: '2' },
+      ],
+      baseUrl: undefined,
+    },
+  ]
 
-export const getModel = (languageModel: SupportedModel): AssistantModel => {
-  if (models.has(languageModel)) {
-    return models.get(languageModel)!
-  }
-
-  const model = getNewModelInstance(languageModel)
-  models.set(languageModel, model)
-  return model
+  return models
 }
 
-const getNewModelInstance = (languageModel: SupportedModel): AssistantModel => {
-  switch (languageModel) {
-    case 'gpt-3':
-      return new ChatOpenAI({
-        modelName: 'gpt-3',
-        temperature: 0.7,
-        maxTokens: 500,
-      })
-    case 'gpt-4':
+export const getOllamalModels = async () => {
+  if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
+    throw new Error('OLLAMA_BASE_URL environment variable is not set')
+  }
+  const ollamaModelsResponse = await fetch(`${process.env.OLLAMA_BASE_URL}/api/tags`)
+  if (!ollamaModelsResponse.ok) {
+    throw new Error('Failed to fetch OLLAMA models')
+  }
+  const ollamaModelsContent = await ollamaModelsResponse.json()
+  const foundModels = ollamaModelsContent.models.map((model: { name: string; model: string }) => ({
+    modelName: model.name,
+    title: model.model,
+    type: 'Ollama',
+    options: [
+      { key: 'temperature', value: '0.7' },
+      { key: 'maxTokens', value: '80000' },
+    ],
+  }))
+  return foundModels as { modelName: string; title: string; type: string; options: { key: string; value: string }[] }[]
+}
+
+export const getModel = async (modelName: string): Promise<AssistantModel> => {
+  const externalModels = getExternalModels()
+  const extermanModel = externalModels.find((model) => model.modelName === modelName)
+  if (extermanModel) {
+    return getModelInstance(extermanModel)
+  }
+
+  const ollamaModels = await getOllamalModels()
+  const ollamaModel = ollamaModels.find((model) => model.modelName === modelName)
+  if (!ollamaModel) {
+    throw new Error(`Model ${modelName} not found in external models or OLLAMA models`)
+  }
+
+  return getModelInstance(ollamaModel)
+}
+
+const getModelInstance = (model: { modelName: string; type: string }): AssistantModel => {
+  if (model.type === 'Ollama') {
+    return new ChatOllama({
+      model: model.modelName,
+      baseUrl: process.env.OLLAMA_BASE_URL,
+    })
+  }
+  switch (model.modelName) {
+    case 'gpt-4o-mini':
       return new ChatOpenAI({
         modelName: 'gpt-4o-mini',
         temperature: 0.7,
         maxTokens: 500,
       })
-    case 'gemini-1.5':
+    case 'gemini-1.5-pro':
       return new ChatGoogleGenerativeAI({
         model: 'gemini-1.5-pro',
         temperature: 0,
         maxRetries: 2,
         // other params...
       })
-    case 'ollama-mistral':
-      return new ChatOllama({
-        baseUrl: process.env.OLLAMA_BASE_URL,
-        model: 'mistral:latest',
-      })
-    case 'ollama-llama3.1':
-      return new ChatOllama({
-        model: 'llama3.1:latest',
-        baseUrl: process.env.OLLAMA_BASE_URL,
-      })
-    default:
-      throw new Error(`Unknown language model: ${languageModel}`)
   }
+  throw new Error(`Unknown language model: ${model.modelName}`)
 }
