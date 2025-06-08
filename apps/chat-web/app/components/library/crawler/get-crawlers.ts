@@ -12,7 +12,7 @@ const getCrawlers = createServerFn({ method: 'GET' })
     return backendRequest(
       graphql(`
         query CrawlerTable($libraryId: String!) {
-          aiLibrary(id: $libraryId) {
+          aiLibrary(libraryId: $libraryId) {
             crawlers {
               ...CrawlerTable_LibraryCrawler
             }

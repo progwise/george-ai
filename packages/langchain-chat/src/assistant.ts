@@ -1,13 +1,12 @@
 import { SystemMessage } from '@langchain/core/messages'
 
-import { SupportedModel } from './assistant-model'
 import { Library } from './library'
 
 export interface Assistant {
   id: string
   name: string
   description: string | null
-  languageModel: SupportedModel
+  languageModel: string | null
   baseCases: Array<{ condition?: string | null; instruction?: string | null }>
 }
 

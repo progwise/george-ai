@@ -3,9 +3,9 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { AssistantCard } from '../../../components/assistant/assistant-card'
 import { AssistantNewDialog } from '../../../components/assistant/assistant-new-dialog'
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
 
 export const Route = createFileRoute('/_authenticated/assistants/')({
   component: RouteComponent,

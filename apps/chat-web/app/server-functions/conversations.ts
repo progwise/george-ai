@@ -1,68 +1,8 @@
-import { queryOptions } from '@tanstack/react-query'
-import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../gql'
-import { queryKeys } from '../query-keys'
 import { backendRequest } from './backend'
-
-graphql(`
-  fragment ConversationBase on AiConversation {
-    id
-    ownerId
-    createdAt
-    updatedAt
-  }
-`)
-
-const ConversationsQueryDocument = graphql(`
-  query getUserConversations {
-    aiConversations {
-      id
-      ...ConversationSelector_Conversation
-    }
-  }
-`)
-
-export const getConversations = createServerFn({ method: 'GET' }).handler(async (ctx) =>
-  backendRequest(ConversationsQueryDocument, ctx.data),
-)
-
-export const getConversationsQueryOptions = () =>
-  queryOptions({
-    queryKey: [queryKeys.Conversations],
-    queryFn: () => getConversations(),
-  })
-
-const ConversationQueryDocument = graphql(`
-  query getConversation($conversationId: String!) {
-    aiConversation(conversationId: $conversationId) {
-      ...ConversationParticipants_Conversation
-      ...ConversationDelete_Conversation
-      ...ConversationHistory_Conversation
-      ...ConversationForm_Conversation
-      ...ConversationParticipantsDialogButton_Conversation
-    }
-  }
-`)
-
-export const getConversation = createServerFn({ method: 'GET' })
-  .validator((data: { conversationId: string }) => z.object({ conversationId: z.string() }).parse(data))
-  .handler(async (ctx) => {
-    const { aiConversation } = await backendRequest(ConversationQueryDocument, ctx.data)
-
-    if (!aiConversation) {
-      throw notFound()
-    }
-
-    return aiConversation
-  })
-
-export const getConversationQueryOptions = (conversationId: string) => ({
-  queryKey: [queryKeys.Conversation, conversationId],
-  queryFn: () => getConversation({ data: { conversationId } }),
-})
 
 const CreateMessageDocument = graphql(`
   mutation sendMessage($data: AiConversationMessageInput!) {

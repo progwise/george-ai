@@ -7,8 +7,8 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { removeLibraryParticipant } from '../../server-functions/library-participations'
 import { LoadingSpinner } from '../loading-spinner'
-import { getLibrariesQueryOptions } from './get-libraries-query-options'
-import { getLibraryQueryOptions } from './get-library-query-options'
+import { getLibrariesQueryOptions } from './get-libraries'
+import { getLibraryQueryOptions } from './get-library'
 import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
 
 graphql(`

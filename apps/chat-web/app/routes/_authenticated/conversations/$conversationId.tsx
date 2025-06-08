@@ -2,15 +2,15 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { getProfileQueryOptions } from '../../../auth/get-profile-query'
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { ConversationForm } from '../../../components/conversation/conversation-form'
 import { ConversationHistory } from '../../../components/conversation/conversation-history'
 import { ConversationParticipants } from '../../../components/conversation/conversation-participants'
 import { ConversationParticipantsDialogButton } from '../../../components/conversation/conversation-participants-dialog-button'
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
+import { getConversationQueryOptions } from '../../../components/conversation/get-conversation'
 import { NewConversationSelector } from '../../../components/conversation/new-conversation-selector'
 import { MenuIcon } from '../../../icons/menu-icon'
-import { getAiAssistantsQueryOptions } from '../../../server-functions/assistant'
-import { getConversationQueryOptions } from '../../../server-functions/conversations'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations/$conversationId')({

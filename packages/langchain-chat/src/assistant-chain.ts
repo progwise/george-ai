@@ -23,7 +23,12 @@ export async function* askAssistantChain(input: {
   assistant: Assistant
   libraries: Library[]
 }) {
-  const model = getModel(input.assistant.languageModel)
+  if (!input.assistant.languageModel) {
+    yield '> No language model configured for this assistant.\n'
+    yield '> Please configure a language model for this assistant to use it.\n'
+    return
+  }
+  const model = await getModel(input.assistant.languageModel)
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = getAssistantBaseMessages({
