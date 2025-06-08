@@ -74,7 +74,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
-  const { data: availableLanguageModels } = useSuspenseQuery(getModelsQueryOptions())
+  const { data: fetchedModelData } = useSuspenseQuery(getModelsQueryOptions())
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
@@ -122,8 +122,8 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
   }
 
   const aiModels = useMemo(
-    () => availableLanguageModels.aiModels.map((model) => ({ id: model.modelName, name: model.title })),
-    [availableLanguageModels],
+    () => fetchedModelData.aiModels.map((model) => ({ id: model.modelName, name: model.title })),
+    [fetchedModelData],
   )
 
   return (
