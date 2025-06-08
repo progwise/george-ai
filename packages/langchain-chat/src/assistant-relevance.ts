@@ -1,7 +1,7 @@
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
-import { SupportedModel, getModel } from './assistant-model'
+import { getModel } from './assistant-model'
 
 const relevancePrompt = ChatPromptTemplate.fromMessages([
   [
@@ -28,7 +28,7 @@ export const getRelevance = async ({
   assistantBaseInformation: BaseMessage[]
   question: string
   chatHistory: BaseMessage[]
-  modelName: SupportedModel
+  modelName: string
 }) => {
   const prompt = await relevancePrompt.invoke({
     question,
@@ -36,7 +36,7 @@ export const getRelevance = async ({
     chat_history: chatHistory,
   })
 
-  const model = getModel(modelName)
+  const model = await getModel(modelName)
 
   const isRelevantAnswer = await model.invoke(prompt, {})
   return isRelevantAnswer.content.toString().toLowerCase().trim() === 'yes'

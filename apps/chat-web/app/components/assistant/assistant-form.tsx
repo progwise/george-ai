@@ -1,17 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { AssistantForm_AssistantFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { availableLanguageModels } from '../../language-models'
 import { backendRequest, getBackendPublicUrl } from '../../server-functions/backend'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
+import { getModelsQueryOptions } from '../model/get-models'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
@@ -74,6 +74,8 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
+  const { data: fetchedModelData } = useSuspenseQuery(getModelsQueryOptions())
+
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
     onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
@@ -119,6 +121,11 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
     },
   }
 
+  const aiModels = useMemo(
+    () => fetchedModelData.aiModels.map((model) => ({ id: model.modelName, name: model.title })),
+    [fetchedModelData],
+  )
+
   return (
     <form ref={formRef} className="grid items-center gap-2" onSubmit={(e) => e.preventDefault()}>
       <input type="hidden" name="id" value={assistant.id} />
@@ -154,8 +161,8 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
       <Select
         name="languageModel"
         label={t('labels.languageModel')}
-        options={availableLanguageModels}
-        value={availableLanguageModels.find((model) => model.id === assistant.languageModel)}
+        options={aiModels}
+        value={aiModels.find((model) => model.id === assistant.languageModel)}
         className="col-span-1"
         placeholder={t('assistants.placeholders.languageModel')}
         {...fieldProps}

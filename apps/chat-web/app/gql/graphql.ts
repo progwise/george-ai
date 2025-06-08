@@ -323,6 +323,23 @@ export type AiLibraryUsage = {
   usedFor?: Maybe<Scalars['String']['output']>
 }
 
+/** AI Models available in the system */
+export type AiModel = {
+  __typename?: 'AiModel'
+  baseUrl?: Maybe<Scalars['String']['output']>
+  modelName: Scalars['String']['output']
+  modelType: Scalars['String']['output']
+  options?: Maybe<Array<AiModelOption>>
+  title: Scalars['String']['output']
+}
+
+/** Options for AI Models */
+export type AiModelOption = {
+  __typename?: 'AiModelOption'
+  key: Scalars['String']['output']
+  value: Scalars['String']['output']
+}
+
 export type AssistantParticipant = AiConversationParticipant & {
   __typename?: 'AssistantParticipant'
   assistant?: Maybe<AiAssistant>
@@ -653,6 +670,7 @@ export type Query = {
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles?: Maybe<Array<AiLibraryFile>>
   aiLibraryUsage: Array<AiLibraryUsage>
+  aiModels: Array<AiModel>
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -1892,6 +1910,13 @@ export type LibraryParticipants_LibraryFragment = {
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+}
+
+export type AiModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiModelsQuery = {
+  __typename?: 'Query'
+  aiModels: Array<{ __typename?: 'AiModel'; modelName: string; title: string }>
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -7475,6 +7500,32 @@ export const CreateAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
+export const AiModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiModelsQuery, AiModelsQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [
