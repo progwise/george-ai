@@ -12,24 +12,44 @@ md_generator = DefaultMarkdownGenerator(
 
 
 async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int):
-    # Configure a 2-level deep crawl
-    config = CrawlerRunConfig(
-        stream=True,
-        markdown_generator=md_generator,
-        deep_crawl_strategy=BFSDeepCrawlStrategy(
-            max_depth=max_depth,
-            max_pages=max_pages, 
-            include_external=False
-        ),
-        scraping_strategy=LXMLWebScrapingStrategy(),
-        verbose=True
-    )
+    try:
+        # Configure the crawl
+        config = CrawlerRunConfig(
+            stream=True,
+            markdown_generator=md_generator,
+            deep_crawl_strategy=BFSDeepCrawlStrategy(
+                max_depth=max_depth,
+                max_pages=max_pages, 
+                include_external=False
+            ),
+            scraping_strategy=LXMLWebScrapingStrategy(),
+            verbose=True,
+        )
 
-    async with AsyncWebCrawler() as crawler:
-        # Access individual results
-        async for result in await crawler.arun(url, config=config):
-            yield "\n---BEGIN CRAWLER RESULT---\n"
-            yield json.dumps({"url": result.url, "title": result.metadata.get("title")})
-            yield "\n---BEGIN MARKDOWN---\n"
-            yield result.markdown
-            yield "\n---END CRAWLER RESULT---\n"
+        async with AsyncWebCrawler() as crawler:
+            # Access individual results
+            arunIterator = await crawler.arun(url, config=config, magic=True)
+            while True:
+                result = await arunIterator.__anext__()
+                try:
+                    print(f"Start Processing crawler result")
+                    yield "\n---BEGIN CRAWLER RESULT---\n"
+                    print(f"Processing URL: {result.url}")
+                    yield json.dumps({"url": result.url, "title": result.metadata.get("title")})
+                    yield "\n---BEGIN MARKDOWN---\n"
+                    print(f"Processing Markdown: {result.url}")
+                    yield result.markdown
+                except Exception as e:
+                    # On any error, yield an error JSON to keep stream alive
+                    print(f"Error processing URL {url}: {str(e)}")
+                    yield "\n---ERROR---\n"
+                    yield json.dumps({"error": str(e)})
+                    yield "\n---END ERROR---\n"
+                finally:
+                    print(f"Finished processing URL")
+                    yield "\n---END CRAWLER RESULT---\n"
+        return
+    except Exception as e:
+        # On any error, yield an error JSON to keep stream alive
+        print(f"Error in deepCrawlSingleUrl: {str(e)}")
+        yield json.dumps({"error": str(e)})

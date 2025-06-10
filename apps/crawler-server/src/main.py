@@ -1,4 +1,4 @@
-from typing import Union
+import json
 
 from fastapi import FastAPI, Query
 
@@ -26,13 +26,16 @@ async def crawl(
     :return: A message indicating the result of the crawl.
     """
     print(f"Received request to crawl URL: {url} with max_depth={max_depth} and max_pages={max_pages}")
-    
-    async def crawledFiles():
-        print(f"Starting crawl for URL: {url} with max_depth={max_depth} and max_pages={max_pages}")
-        async for result in deepCrawlSingleUrl(url, max_depth, max_pages):
-            print(result)
-            yield result
-        print(f"Finished crawling URL: {url}")
+    async def safeCrawledFiles():
+        print(f"Starting safe crawl for URL: {url} with max_depth={max_depth} and max_pages={max_pages}")
+        try:
+            async for chunk in deepCrawlSingleUrl(url, max_depth, max_pages):
+                yield chunk
+            else:
+                print("Crawl completed successfully.")
+        except Exception as e:
+            print(f"Unhandled error during streaming crawl: {e}")
+            yield json.dumps({"error": "Crawl failed: " + str(e)})
 
-    return StreamingResponse((crawledFiles()), media_type="application/jsonl")
+    return StreamingResponse(safeCrawledFiles())
     # You can also return the results if needed

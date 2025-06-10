@@ -14,7 +14,7 @@ chardet==5.2.0
 charset-normalizer==3.4.2
 click==8.1.8
 colorama==0.4.6
-Crawl4AI==0.6.3
+-e git+ssh://git@github.com/progwise/crawl4ai.git@fix/streaming-error-handling#egg=crawl4ai
 cryptography==45.0.2
 cssselect==1.3.0
 distro==1.9.0
