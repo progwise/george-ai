@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 
+import { Listbox } from '../../../../components/listbox'
 import { SearchIcon } from '../../../../icons/search-icon'
 import { queryKeys } from '../../../../query-keys'
 import { getUsers } from '../../../../server-functions/users'
@@ -25,11 +26,45 @@ function UsersList() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated'>(
     'all',
   )
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [sortField, setSortField] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+
+  // Define options for Listbox components
+  const statusOptions = useMemo(
+    () => [
+      { id: 'all', name: 'All Users' },
+      { id: 'confirmed', name: 'Confirmed' },
+      { id: 'unconfirmed', name: 'Unconfirmed' },
+      { id: 'activated', name: 'Activated' },
+      { id: 'unactivated', name: 'Unactivated' },
+    ],
+    [],
+  )
+
+  const pageSizeOptions = useMemo(
+    () => [
+      { id: '10', name: '10' },
+      { id: '25', name: '25' },
+      { id: '50', name: '50' },
+      { id: '100', name: '100' },
+    ],
+    [],
+  )
+
+  // Track selected items for Listbox
+  const selectedStatusOption = useMemo(
+    () => statusOptions.find((option) => option.id === statusFilter) || statusOptions[0],
+    [statusFilter, statusOptions],
+  )
+
+  const selectedPageSizeOption = useMemo(
+    () => pageSizeOptions.find((option) => option.id === pageSize.toString()) || pageSizeOptions[0],
+    [pageSize, pageSizeOptions],
+  )
 
   // Count stats
   const userStats = useMemo(() => {
@@ -103,73 +138,71 @@ function UsersList() {
       <h2 className="mb-4 text-lg font-bold">All Users</h2>
 
       {/* Stats Cards */}
-      <div className="mb-6 grid grid-cols-2 gap-2 md:grid-cols-5">
-        <div className="stat bg-base-200 rounded-box shadow-sm">
+      <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-5">
+        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
           <div className="stat-title text-xs">Total Users</div>
-          <div className="stat-value text-xl">{userStats.total}</div>
+          <div className="stat-value text-base font-bold">{userStats.total}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box shadow-sm">
+        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
           <div className="stat-title text-xs">Confirmed</div>
-          <div className="stat-value text-success text-xl">{userStats.confirmed}</div>
+          <div className="stat-value text-success text-base font-bold">{userStats.confirmed}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box shadow-sm">
+        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
           <div className="stat-title text-xs">Unconfirmed</div>
-          <div className="stat-value text-warning text-xl">{userStats.unconfirmed}</div>
+          <div className="stat-value text-warning text-base font-bold">{userStats.unconfirmed}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box shadow-sm">
+        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
           <div className="stat-title text-xs">Activated</div>
-          <div className="stat-value text-success text-xl">{userStats.activated}</div>
+          <div className="stat-value text-success text-base font-bold">{userStats.activated}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box shadow-sm">
+        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
           <div className="stat-title text-xs">Unactivated</div>
-          <div className="stat-value text-warning text-xl">{userStats.unactivated}</div>
+          <div className="stat-value text-warning text-base font-bold">{userStats.unactivated}</div>
         </div>
       </div>
 
       {/* Search and filters */}
       <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-2 md:flex-1 md:flex-row md:items-center">
-          <div className="relative flex-grow md:w-96 md:min-w-[300px]">
+          <div className="md:min-w-2xs relative flex-grow md:w-96">
             <input
               type="text"
               placeholder="Search users..."
-              className="input input-bordered w-full pl-10"
+              className="bg-base-100 focus:outline-primary w-full rounded-lg border px-2 py-1 pl-8 text-sm focus:outline-2"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <div className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2">
+            <div className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2">
               <SearchIcon className="opacity-70" />
             </div>
           </div>
 
-          <select
-            className="select select-bordered w-full md:w-auto"
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(e.target.value as 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated')
-            }
-          >
-            <option value="all">All Users</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="unconfirmed">Unconfirmed</option>
-            <option value="activated">Activated</option>
-            <option value="unactivated">Unactivated</option>
-          </select>
+          {/* Status filter */}
+          <div className="min-w-52">
+            <Listbox
+              items={statusOptions}
+              selectedItem={selectedStatusOption}
+              onChange={(item) => {
+                if (item) {
+                  setStatusFilter(item.id as 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated')
+                }
+              }}
+            />
+          </div>
         </div>
 
-        {/* Page size selector */}
-        <div>
-          <select
-            className="select select-bordered"
-            value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value))}
+        {/* Page size selector*/}
+        <div className="w-24">
+          <Listbox
+            items={pageSizeOptions}
+            selectedItem={selectedPageSizeOption}
+            onChange={(item) => {
+              if (item) {
+                setPageSize(Number(item.id))
+              }
+            }}
             aria-label="Number of entries per page"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
+          />
         </div>
       </div>
 
