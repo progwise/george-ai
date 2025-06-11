@@ -82,12 +82,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                       filesCount={crawler.filesCount}
                       libraryId={libraryId}
                     />
-                    <Link
-                      to={`/libraries/$libraryId/updates`}
-                      params={{ libraryId }}
-                      search={{ crawlerId: crawler.id }}
-                      className="btn btn-xs"
-                    >
+                    <Link to={`/libraries/$libraryId/updates`} params={{ libraryId }} className="btn btn-xs">
                       Last Updates
                     </Link>
                   </div>
@@ -165,12 +160,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                     libraryId={libraryId}
                   />
 
-                  <Link
-                    to={`/libraries/$libraryId/updates`}
-                    params={{ libraryId }}
-                    search={{ crawlerId: crawler.id }}
-                    className="btn btn-xs"
-                  >
+                  <Link to={`/libraries/$libraryId/updates`} params={{ libraryId }} className="btn btn-xs">
                     Last Updates
                   </Link>
                 </td>

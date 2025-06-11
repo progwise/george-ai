@@ -7,7 +7,7 @@ import { RunCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { aiLibraryFilesQueryOptions } from '../embeddings-table'
+import { aiLibraryFilesQueryOptions } from '../files/get-files'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
 graphql(`
@@ -62,7 +62,7 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
     },
     onSettled: () => {
       queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
-      queryClient.invalidateQueries(aiLibraryFilesQueryOptions(libraryId))
+      queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 200 }))
     },
   })
   const { t } = useTranslation()

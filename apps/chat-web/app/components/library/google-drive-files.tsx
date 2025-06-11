@@ -14,12 +14,11 @@ import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { FilesTable, LibraryFile, LibraryFileSchema } from './files-table'
+import { FilesTable, LibraryFile, LibraryFileSchema } from './google-files-table'
 
 export interface GoogleDriveFilesProps {
-  currentLocationHref: string
   libraryId: string
-  noFreeUploads: boolean
+  disabled: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
 }
 
@@ -144,17 +143,13 @@ const embedFiles = createServerFn({ method: 'GET' })
     }
   })
 
-export const GoogleDriveFiles = ({
-  libraryId,
-  currentLocationHref,
-  noFreeUploads,
-  dialogRef,
-}: GoogleDriveFilesProps) => {
+export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDriveFilesProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
-  const rawToken = localStorage.getItem('google_drive_access_token') || '{}'
+  const rawToken =
+    typeof localStorage === 'undefined' ? '{}' : localStorage?.getItem('google_drive_access_token') || '{}'
   const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(rawToken))
-
+  const currentLocationHref = typeof window !== 'undefined' ? window.location.href : ''
   // used as condition for rendering the files table
   const { data: googleDriveFilesData, isLoading: googleDriveFilesIsLoading } = useQuery({
     queryKey: [queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token],
@@ -211,6 +206,8 @@ export const GoogleDriveFiles = ({
   }, [dialogRef])
 
   const handleSwitchAccount = () => {
+    if (typeof window === 'undefined') return
+    if (typeof localStorage === 'undefined') return
     localStorage.removeItem('google_drive_access_token')
     window.location.href = `/libraries/auth-google?prompt=select_account&redirectAfterAuth=${encodeURIComponent(
       window.location.href,
@@ -249,7 +246,7 @@ export const GoogleDriveFiles = ({
               </button>
               <button
                 type="button"
-                disabled={!selectedFiles.length || embedFilesIsPending || noFreeUploads}
+                disabled={!selectedFiles.length || embedFilesIsPending || disabled}
                 className="btn btn-primary btn-xs"
                 onClick={() => handleEmbedFiles(selectedFiles)}
               >

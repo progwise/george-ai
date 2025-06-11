@@ -294,6 +294,18 @@ input AiLibraryFileInput {
   originUri: String!
 }
 
+"""
+Query result for AI library files
+"""
+type AiLibraryFileQueryResult {
+  count: Int!
+  files: [AiLibraryFile!]!
+  library: AiLibrary!
+  libraryId: String!
+  skip: Int!
+  take: Int!
+}
+
 input AiLibraryInput {
   description: String
   icon: String
@@ -477,7 +489,7 @@ type Query {
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary
-  aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
+  aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!

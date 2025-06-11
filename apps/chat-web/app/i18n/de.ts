@@ -256,6 +256,7 @@ export default {
     reset: 'Zurücksetzen',
     saturday: 'Samstag',
     size: 'Größe',
+    summary: 'Zusammenfassung',
     sunday: 'Sonntag',
     thursday: 'Donnerstag',
     tuesday: 'Dienstag',

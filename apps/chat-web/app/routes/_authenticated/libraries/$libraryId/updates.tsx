@@ -10,7 +10,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/updat
   component: RouteComponent,
   validateSearch: z.object({
     skip: z.coerce.number().default(0),
-    take: z.coerce.number().default(10),
+    take: z.coerce.number().default(20),
   }),
   loaderDeps: ({ search: { skip, take } }) => ({
     skip,
@@ -30,7 +30,6 @@ function RouteComponent() {
   const { skip, take } = Route.useSearch()
   const navigate = Route.useNavigate()
   const { libraryId } = Route.useParams()
-  const { data: crawlers } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
   const {
     data: { aiLibraryUpdates },
   } = useSuspenseQuery(getLibraryUpdateItemsQueryOptions({ libraryId, skip, take }))
