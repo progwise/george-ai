@@ -25,6 +25,11 @@ function UsersList() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated'>(
     'all',
   )
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [sortField, setSortField] = useState<string | null>(null)
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   // Count stats
   const userStats = useMemo(() => {
@@ -74,6 +79,25 @@ function UsersList() {
     })
   }, [data?.users, searchTerm, statusFilter])
 
+  // FilteredUsers to with pagination
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize
+    return filteredUsers.slice(startIndex, startIndex + pageSize)
+  }, [filteredUsers, currentPage, pageSize])
+
+  // Total pages calculation
+  const totalPages = Math.ceil(filteredUsers.length / pageSize)
+
+  // Sorting
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDirection('asc')
+    }
+  }
+
   return (
     <div className="px-2 md:px-4">
       <h2 className="mb-4 text-lg font-bold">All Users</h2>
@@ -103,22 +127,23 @@ function UsersList() {
       </div>
 
       {/* Search and filters */}
-      <div className="mb-4 flex flex-col gap-2 md:flex-row">
-        <div className="relative flex-grow">
-          <input
-            type="text"
-            placeholder="Search users..."
-            className="input input-bordered w-full pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <SearchIcon />
+      <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-2 md:flex-1 md:flex-row md:items-center">
+          <div className="relative flex-grow md:w-96 md:min-w-[300px]">
+            <input
+              type="text"
+              placeholder="Search users..."
+              className="input input-bordered w-full pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2">
+              <SearchIcon className="opacity-70" />
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
+
           <select
-            className="select select-bordered"
+            className="select select-bordered w-full md:w-auto"
             value={statusFilter}
             onChange={(e) =>
               setStatusFilter(e.target.value as 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated')
@@ -131,26 +156,50 @@ function UsersList() {
             <option value="unactivated">Unactivated</option>
           </select>
         </div>
+
+        {/* Page size selector */}
+        <div>
+          <select
+            className="select select-bordered"
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+            aria-label="Number of entries per page"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
       </div>
 
       <div className="mb-2 text-sm">
-        Showing {filteredUsers.length} of {userStats.total} users
+        Showing {filteredUsers.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} to{' '}
+        {Math.min(currentPage * pageSize, filteredUsers.length)} of {filteredUsers.length} users
       </div>
 
       <div className="overflow-x-auto rounded-lg border">
         <table className="table w-full table-auto">
           <thead>
             <tr className="bg-base-200">
-              <th className="p-2 md:p-4">Username</th>
-              <th className="p-2 md:p-4">Email</th>
-              <th className="hidden p-2 sm:table-cell md:p-4">Name</th>
-              <th className="hidden p-2 md:table-cell md:p-4">Created</th>
+              <th className="cursor-pointer p-2 md:p-4" onClick={() => handleSort('username')}>
+                Username {sortField === 'username' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="cursor-pointer p-2 md:p-4" onClick={() => handleSort('email')}>
+                Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="hidden cursor-pointer p-2 sm:table-cell md:p-4" onClick={() => handleSort('name')}>
+                Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="hidden cursor-pointer p-2 md:table-cell md:p-4" onClick={() => handleSort('createdAt')}>
+                Created {sortField === 'createdAt' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
               <th className="hidden p-2 sm:table-cell md:p-4">Status</th>
               <th className="p-2 text-center md:p-4">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
+            {paginatedUsers.map((user) => (
               <tr key={user.id} className="hover:bg-base-100/50 border-b">
                 <td className="p-2 md:p-4">
                   <div className="max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap md:max-w-none">
@@ -194,6 +243,58 @@ function UsersList() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex justify-center">
+          <div className="btn-group">
+            <button type="button" className="btn btn-sm" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+              «
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              ‹
+            </button>
+
+            {/* Page numbers */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Show pages around current page
+              const pageNum = i + 1
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  className={`btn btn-sm ${currentPage === pageNum ? 'btn-active' : ''}`}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              ›
+            </button>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+            >
+              »
+            </button>
+          </div>
+        </div>
+      )}
 
       {filteredUsers.length === 0 && (
         <div className="bg-base-200 mt-4 rounded-lg p-4 text-center">
