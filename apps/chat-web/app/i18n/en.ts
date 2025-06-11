@@ -349,6 +349,7 @@ export default {
     unhide: 'Unhide',
   },
   topNavigation: {
+    admin: 'Administration',
     assistants: 'Assistants',
     chat: 'Chat',
     conversations: 'Conversations',

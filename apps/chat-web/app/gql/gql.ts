@@ -103,7 +103,7 @@ type Documents = {
   '\n  mutation addLibraryParticipant($libraryId: String!, $userIds: [String!]!) {\n    addLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddLibraryParticipantDocument
   '\n  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {\n    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveLibraryParticipantDocument
   '\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n': typeof types.LeaveLibraryParticipantDocument
-  '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    profile {\n      firstName\n      lastName\n      business\n      position\n    }\n  }\n': typeof types.UserFragmentDoc
+  '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n': typeof types.UserFragmentDoc
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': typeof types.UsersDocument
   '\n        mutation sendConfirmationMail($confirmationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ConfirmUserProfileDocument
@@ -111,6 +111,7 @@ type Documents = {
   '\n      query getUserProfile {\n        userProfile {\n          ...UserProfile\n        }\n      }\n    ': typeof types.GetUserProfileDocument
   '\n        mutation updateUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.UpdateUserProfileDocument
   '\n        mutation activateUserProfile($profileId: String!) {\n          activateUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ActivateUserProfileDocument
+  '\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n': typeof types.AdminUserByIdDocument
 }
 const documents: Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n':
@@ -287,7 +288,7 @@ const documents: Documents = {
     types.RemoveLibraryParticipantDocument,
   '\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n':
     types.LeaveLibraryParticipantDocument,
-  '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    profile {\n      firstName\n      lastName\n      business\n      position\n    }\n  }\n':
+  '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n':
     types.UserFragmentDoc,
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': types.UsersDocument,
   '\n        mutation sendConfirmationMail($confirmationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl)\n        }\n      ':
@@ -302,6 +303,8 @@ const documents: Documents = {
     types.UpdateUserProfileDocument,
   '\n        mutation activateUserProfile($profileId: String!) {\n          activateUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ':
     types.ActivateUserProfileDocument,
+  '\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n':
+    types.AdminUserByIdDocument,
 }
 
 /**
@@ -850,8 +853,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    profile {\n      firstName\n      lastName\n      business\n      position\n    }\n  }\n',
-): (typeof documents)['\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    profile {\n      firstName\n      lastName\n      business\n      position\n    }\n  }\n']
+  source: '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n',
+): (typeof documents)['\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -894,6 +897,12 @@ export function graphql(
 export function graphql(
   source: '\n        mutation activateUserProfile($profileId: String!) {\n          activateUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation activateUserProfile($profileId: String!) {\n          activateUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

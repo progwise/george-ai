@@ -356,6 +356,7 @@ export default {
     unhide: 'Einblenden',
   },
   topNavigation: {
+    admin: 'Verwaltung',
     assistants: 'Assistenten',
     chat: 'Chat',
     conversations: 'Konversationen',

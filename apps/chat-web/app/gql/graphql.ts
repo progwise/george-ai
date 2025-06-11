@@ -2835,12 +2835,15 @@ export type UserFragment = {
   name?: string | null
   createdAt: string
   email: string
+  isAdmin: boolean
   profile?: {
     __typename?: 'UserProfile'
     firstName?: string | null
     lastName?: string | null
     business?: string | null
     position?: string | null
+    confirmationDate?: string | null
+    activationDate?: string | null
   } | null
 }
 
@@ -2855,12 +2858,15 @@ export type UsersQuery = {
     name?: string | null
     createdAt: string
     email: string
+    isAdmin: boolean
     profile?: {
       __typename?: 'UserProfile'
       firstName?: string | null
       lastName?: string | null
       business?: string | null
       position?: string | null
+      confirmationDate?: string | null
+      activationDate?: string | null
     } | null
   }>
 }
@@ -2942,6 +2948,42 @@ export type ActivateUserProfileMutationVariables = Exact<{
 export type ActivateUserProfileMutation = {
   __typename?: 'Mutation'
   activateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type AdminUserByIdQueryVariables = Exact<{
+  email: Scalars['String']['input']
+}>
+
+export type AdminUserByIdQuery = {
+  __typename?: 'Query'
+  user?: {
+    __typename?: 'User'
+    id: string
+    username: string
+    name?: string | null
+    createdAt: string
+    email: string
+    isAdmin: boolean
+    profile?: {
+      __typename?: 'UserProfile'
+      firstName?: string | null
+      lastName?: string | null
+      business?: string | null
+      position?: string | null
+      confirmationDate?: string | null
+      activationDate?: string | null
+      id: string
+      userId: string
+      email: string
+      freeMessages: number
+      usedMessages?: number | null
+      freeStorage: number
+      usedStorage?: number | null
+      createdAt: string
+      updatedAt?: string | null
+      expiresAt?: string | null
+    } | null
+  } | null
 }
 
 export const QuestionCard_QuestionFragmentDoc = {
@@ -5023,6 +5065,7 @@ export const UserFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -5033,6 +5076,8 @@ export const UserFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
               ],
             },
           },
@@ -8690,6 +8735,7 @@ export const UsersDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -8700,6 +8746,8 @@ export const UsersDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
               ],
             },
           },
@@ -8911,3 +8959,109 @@ export const ActivateUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<ActivateUserProfileMutation, ActivateUserProfileMutationVariables>
+export const AdminUserByIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'adminUserById' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'user' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'email' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'User' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'profile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UserProfileForm_UserProfile' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'User' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UserProfileForm_UserProfile' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AdminUserByIdQuery, AdminUserByIdQueryVariables>

@@ -13,7 +13,7 @@ import SunIcon from '../icons/sun-icon'
 import SystemIcon from '../icons/system-icon'
 
 interface SettingsDropdownProps {
-  user?: Pick<User, 'id' | 'name'>
+  user?: Pick<User, 'id' | 'name' | 'isAdmin'>
 }
 
 export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
@@ -28,7 +28,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
 
   return (
     <div className="dropdown dropdown-end">
-      {/* menu button */}
+      {/* Menu button */}
       <div tabIndex={0} role="button" className="btn btn-ghost btn-circle list-none">
         {user ? (
           <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
@@ -57,6 +57,23 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                 <span className="truncate">{user.name}</span>
               </Link>
             </li>
+
+            {/* Admin link - only visible to admins */}
+            {user.isAdmin && (
+              <li>
+                <Link
+                  to="/admins/users"
+                  onClick={() => {
+                    if (document.activeElement instanceof HTMLElement) {
+                      document.activeElement.blur()
+                    }
+                  }}
+                >
+                  <span className="truncate">{t('topNavigation.admin')}</span>
+                </Link>
+              </li>
+            )}
+
             <div className="divider m-0" />
           </>
         )}

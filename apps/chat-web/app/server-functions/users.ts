@@ -13,11 +13,14 @@ graphql(`
     name
     createdAt
     email
+    isAdmin
     profile {
       firstName
       lastName
       business
       position
+      confirmationDate
+      activationDate
     }
   }
 `)
@@ -117,19 +120,19 @@ export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
     {
       userId: ctx.data,
     },
-  ),
+  ).then((result) => result.userProfile),
 )
 
 export const sendAdminNotificationMail = createServerFn({ method: 'POST' }).handler(async () => {
   const userProfile = await getUserProfile()
 
-  if (!userProfile?.userProfile) {
+  if (!userProfile) {
     throw new Error('User profile not found')
   }
 
   await activateUserProfile({
     data: {
-      profileId: userProfile.userProfile.id,
+      profileId: userProfile.id,
     },
   })
 
@@ -192,3 +195,35 @@ export const activateUserProfile = createServerFn({ method: 'POST' })
       },
     ),
   )
+export const AdminUserByIdDocument = graphql(`
+  query adminUserById($email: String!) {
+    user(email: $email) {
+      ...User
+      profile {
+        ...UserProfileForm_UserProfile
+      }
+    }
+  }
+`)
+
+export const getUserById = createServerFn({ method: 'GET' })
+  .validator((data: string) => {
+    return z.string().nonempty().parse(data)
+  })
+  .handler(async (ctx) => {
+    // Get all users to find the email for this userId
+    const { users } = await getUsers()
+    const userSummary = users.find((user) => user.id === ctx.data)
+    if (!userSummary) throw new Error('User not found')
+
+    // Fetch the full user details using the email
+    return await backendRequest(AdminUserByIdDocument, {
+      email: userSummary.email,
+    })
+  })
+
+export const getUserByIdQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.UserProfile, userId],
+    queryFn: () => getUserById({ data: userId }),
+  })
