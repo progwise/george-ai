@@ -51,16 +51,26 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
 })
 
 builder.queryField('aiLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
-      id: t.arg.string(),
+      libraryId: t.arg.string(),
     },
-    resolve: (query, _source, { id }) => {
-      return prisma.aiLibrary.findUnique({
+    resolve: async (query, _source, { libraryId }, context) => {
+      const user = context.session.user
+      const library = await prisma.aiLibrary.findUnique({
         ...query,
-        where: { id },
+        where: { id: libraryId },
       })
+      if (!library) return null
+
+      const isAuthorized =
+        user.isAdmin ||
+        library.ownerId === user.id ||
+        (await prisma.aiLibraryParticipant.findFirst({ where: { libraryId, userId: user.id } })) != null
+
+      if (!isAuthorized) return null
+      return library
     },
   }),
 )

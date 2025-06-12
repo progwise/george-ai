@@ -2,7 +2,7 @@
 
 ```bash
 python3 -m venv .venv
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 ## Install Dependencies
@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 import the llama.cpp module:
 
-```python
+```bash
 chmod +x install.sh
 source install.sh
 ```

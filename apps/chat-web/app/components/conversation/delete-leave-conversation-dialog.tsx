@@ -9,13 +9,10 @@ import { ConversationDelete_ConversationFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ExitIcon } from '../../icons/exit-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import {
-  deleteConversation,
-  getConversationsQueryOptions,
-  leaveConversation,
-} from '../../server-functions/conversations'
+import { deleteConversation, leaveConversation } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
+import { getConversationsQueryOptions } from './get-conversations'
 
 graphql(`
   fragment ConversationDelete_Conversation on AiConversation {

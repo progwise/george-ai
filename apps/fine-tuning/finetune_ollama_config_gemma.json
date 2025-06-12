@@ -1,5 +1,5 @@
 {
-  "base_model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "base_model": "google/gemma-3-12b-it",
   "dataset_path": "jsonl/raw/qa-data.jsonl",
   "train_ratio": 0.8,
   "valid_ratio": 0.1,
@@ -10,7 +10,7 @@
     "iters": 100,
     "fine_tune_type": "lora"
   },
-  "ollama_model_name": "qwen2.5-coder-7b-verlag",
+  "ollama_model_name": "gemma-3-12b-verlag",
   "keep_split_data": true,
   "keep_fused_model": true,
   "keep_gguf_files": true,

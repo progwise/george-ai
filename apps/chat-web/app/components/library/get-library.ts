@@ -17,8 +17,8 @@ graphql(`
 `)
 
 const aiLibraryDetailQueryDocument = graphql(`
-  query aiLibraryDetail($id: String!) {
-    aiLibrary(id: $id) {
+  query aiLibraryDetail($libraryId: String!) {
+    aiLibrary(libraryId: $libraryId) {
       ...AiLibraryDetail
       ...LibraryParticipants_Library
     }
@@ -31,7 +31,7 @@ const getLibrary = createServerFn({ method: 'GET' })
   }))
   .handler(async (ctx) => {
     const { aiLibrary } = await backendRequest(aiLibraryDetailQueryDocument, {
-      id: ctx.data.libraryId,
+      libraryId: ctx.data.libraryId,
     })
     if (!aiLibrary) {
       throw notFound()

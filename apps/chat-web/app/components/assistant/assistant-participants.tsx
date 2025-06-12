@@ -5,10 +5,10 @@ import { graphql } from '../../gql'
 import { AssistantParticipants_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
 import { LoadingSpinner } from '../loading-spinner'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
+import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
   fragment AssistantParticipants_Assistant on AiAssistant {

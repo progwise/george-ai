@@ -12,6 +12,17 @@ import { authorizeGraphQlRequest } from './authorizeGraphQlRequest'
 import { conversationMessagesSSE } from './conversation-messages-sse'
 import { dataUploadMiddleware } from './upload'
 
+console.log('Starting GeorgeAI GraphQL server...')
+console.log(`
+  Environment: ${process.env.NODE_ENV || 'development'}
+  GraphQL API Key: ${process.env.GRAPHQL_API_KEY ? '******' : 'not set'}
+  GraphQL Endpoint: ${process.env.GRAPHQL_ENDPOINT || '/graphql'}
+  Server Port: ${process.env.PORT || 3003}
+  Assistant Icon Path: ${process.env.ASSISTANT_ICON_PATH || '/assistant-icon'}
+  Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
+  OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
+  `)
+
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
