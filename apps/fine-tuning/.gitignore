@@ -2,6 +2,7 @@
 split_output
 adapters_*
 finetune-output/
+hf-to-gguf/
 
 # QA pairs
 jsonl/raw/qa-data.jsonl
