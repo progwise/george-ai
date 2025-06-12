@@ -114,7 +114,7 @@ function UsersList() {
     })
   }, [data?.users, searchTerm, statusFilter])
 
-  // FilteredUsers to with pagination
+  // FilteredUsers with pagination
   const paginatedUsers = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize
     return filteredUsers.slice(startIndex, startIndex + pageSize)
@@ -139,25 +139,25 @@ function UsersList() {
 
       {/* Stats Cards */}
       <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-5">
-        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
-          <div className="stat-title text-xs">Total Users</div>
-          <div className="stat-value text-base font-bold">{userStats.total}</div>
+        <div className="rounded-box bg-base-200 flex flex-row items-center justify-between border-0 p-2 shadow-sm">
+          <div className="text-xs">Total Users</div>
+          <div className="text-base font-bold">{userStats.total}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
-          <div className="stat-title text-xs">Confirmed</div>
-          <div className="stat-value text-success text-base font-bold">{userStats.confirmed}</div>
+        <div className="rounded-box bg-base-200 flex flex-row items-center justify-between border-0 p-2 shadow-sm">
+          <div className="text-xs">Confirmed</div>
+          <div className="text-success text-base font-bold">{userStats.confirmed}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
-          <div className="stat-title text-xs">Unconfirmed</div>
-          <div className="stat-value text-warning text-base font-bold">{userStats.unconfirmed}</div>
+        <div className="rounded-box bg-base-200 flex flex-row items-center justify-between border-0 p-2 shadow-sm">
+          <div className="text-xs">Unconfirmed</div>
+          <div className="text-warning text-base font-bold">{userStats.unconfirmed}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
-          <div className="stat-title text-xs">Activated</div>
-          <div className="stat-value text-success text-base font-bold">{userStats.activated}</div>
+        <div className="rounded-box bg-base-200 flex flex-row items-center justify-between border-0 p-2 shadow-sm">
+          <div className="text-xs">Activated</div>
+          <div className="text-success text-base font-bold">{userStats.activated}</div>
         </div>
-        <div className="stat bg-base-200 rounded-box flex flex-row items-center justify-between p-2 shadow-sm">
-          <div className="stat-title text-xs">Unactivated</div>
-          <div className="stat-value text-warning text-base font-bold">{userStats.unactivated}</div>
+        <div className="rounded-box bg-base-200 flex flex-row items-center justify-between border-0 p-2 shadow-sm">
+          <div className="text-xs">Unactivated</div>
+          <div className="text-warning text-base font-bold">{userStats.unactivated}</div>
         </div>
       </div>
 

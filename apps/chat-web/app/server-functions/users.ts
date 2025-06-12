@@ -108,8 +108,8 @@ graphql(`
     expiresAt
   }
 `)
-export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
-  backendRequest(
+export const getUserProfile = createServerFn({ method: 'GET' }).handler(async (ctx) => {
+  const userProfileData = await backendRequest(
     graphql(`
       query getUserProfile {
         userProfile {
@@ -120,8 +120,9 @@ export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
     {
       userId: ctx.data,
     },
-  ).then((result) => result.userProfile),
-)
+  )
+  return userProfileData.userProfile
+})
 
 export const sendAdminNotificationMail = createServerFn({ method: 'POST' }).handler(async () => {
   const userProfile = await getUserProfile()
