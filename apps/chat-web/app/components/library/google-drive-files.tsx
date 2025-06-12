@@ -14,7 +14,7 @@ import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
-import { FilesTable, LibraryFile, LibraryFileSchema } from './google-files-table'
+import { GoogleFilesTable, LibraryFile, LibraryFileSchema } from './google-files-table'
 
 export interface GoogleDriveFilesProps {
   libraryId: string
@@ -256,7 +256,7 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
           )}
         </div>
         {googleDriveFilesData && googleDriveFilesData.length > 0 && (
-          <FilesTable selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
+          <GoogleFilesTable selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
         )}
       </div>
     </>

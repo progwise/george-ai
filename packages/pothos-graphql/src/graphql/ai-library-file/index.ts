@@ -94,6 +94,7 @@ builder.mutationField('prepareFile', (t) =>
 builder.mutationField('processFile', (t) =>
   t.prismaField({
     type: 'AiLibraryFile',
+    nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },
@@ -195,6 +196,7 @@ builder.queryField('aiLibraryFiles', (t) =>
 builder.mutationField('dropFile', (t) =>
   t.prismaField({
     type: 'AiLibraryFile',
+    nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },
@@ -207,6 +209,7 @@ builder.mutationField('dropFile', (t) =>
 builder.mutationField('dropFiles', (t) =>
   t.prismaField({
     type: ['AiLibraryFile'],
+    nullable: { list: false, items: false },
     args: {
       libraryId: t.arg.string({ required: true }),
     },
@@ -233,6 +236,7 @@ builder.mutationField('dropFiles', (t) =>
 builder.mutationField('reProcessFile', (t) =>
   t.prismaField({
     type: 'AiLibraryFile',
+    nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },
@@ -289,6 +293,7 @@ builder.mutationField('reProcessFile', (t) =>
 builder.mutationField('cancelFileUpload', (t) =>
   t.field({
     type: 'Boolean',
+    nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
     },

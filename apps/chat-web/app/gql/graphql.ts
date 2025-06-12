@@ -447,7 +447,7 @@ export type Mutation = {
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
-  cancelFileUpload?: Maybe<Scalars['Boolean']['output']>
+  cancelFileUpload: Scalars['Boolean']['output']
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmConversationInvitation?: Maybe<AiConversation>
@@ -464,16 +464,16 @@ export type Mutation = {
   deleteAiLibrary?: Maybe<AiLibrary>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteMessage?: Maybe<AiConversationMessage>
-  dropFile?: Maybe<AiLibraryFile>
-  dropFiles?: Maybe<Array<AiLibraryFile>>
+  dropFile: AiLibraryFile
+  dropFiles: Array<AiLibraryFile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
   leaveLibraryParticipant?: Maybe<User>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
-  processFile?: Maybe<AiLibraryFile>
-  reProcessFile?: Maybe<AiLibraryFile>
+  processFile: AiLibraryFile
+  reProcessFile: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
@@ -1815,7 +1815,7 @@ export type DropFileMutationVariables = Exact<{
 
 export type DropFileMutation = {
   __typename?: 'Mutation'
-  dropFile?: { __typename?: 'AiLibraryFile'; id: string } | null
+  dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
 }
 
 export type ReProcessFileMutationVariables = Exact<{
@@ -1824,15 +1824,16 @@ export type ReProcessFileMutationVariables = Exact<{
 
 export type ReProcessFileMutation = {
   __typename?: 'Mutation'
-  processFile?: {
+  processFile: {
     __typename?: 'AiLibraryFile'
     id: string
+    name: string
     chunks?: number | null
     size?: number | null
     uploadedAt?: string | null
     processedAt?: string | null
     processingErrorMessage?: string | null
-  } | null
+  }
 }
 
 export type PrepareDesktopFileMutationVariables = Exact<{
@@ -1848,7 +1849,7 @@ export type CancelFileUploadMutationVariables = Exact<{
   fileId: Scalars['String']['input']
 }>
 
-export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload?: boolean | null }
+export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
 
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
@@ -1965,14 +1966,14 @@ export type ProcessFileMutationVariables = Exact<{
 
 export type ProcessFileMutation = {
   __typename?: 'Mutation'
-  processFile?: {
+  processFile: {
     __typename?: 'AiLibraryFile'
     id: string
     chunks?: number | null
     size?: number | null
     uploadedAt?: string | null
     processedAt?: string | null
-  } | null
+  }
 }
 
 export type DropFilesMutationVariables = Exact<{
@@ -1981,7 +1982,7 @@ export type DropFilesMutationVariables = Exact<{
 
 export type DropFilesMutation = {
   __typename?: 'Mutation'
-  dropFiles?: Array<{ __typename?: 'AiLibraryFile'; id: string; libraryId: string }> | null
+  dropFiles: Array<{ __typename?: 'AiLibraryFile'; id: string; libraryId: string }>
 }
 
 export type DeleteAiLibraryMutationVariables = Exact<{
@@ -7229,7 +7230,10 @@ export const DropFileDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
             },
           },
         ],
@@ -7268,6 +7272,7 @@ export const ReProcessFileDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },

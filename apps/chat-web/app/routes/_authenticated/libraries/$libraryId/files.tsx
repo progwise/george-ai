@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { getProfileQueryOptions } from '../../../../auth/get-profile-query'
 import { FilesActionsBar } from '../../../../components/library/files/files-actions-bar'
-import { EmbeddingsTable } from '../../../../components/library/files/files-table'
+import { FilesTable } from '../../../../components/library/files/files-table'
 import { aiLibraryFilesQueryOptions } from '../../../../components/library/files/get-files'
 import { Pagination } from '../../../../components/table/pagination'
 
@@ -39,7 +39,7 @@ function RouteComponent() {
   const {
     data: { aiLibraryFiles },
   } = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take }))
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
+  const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   return (
     <div>
       <h1 className="mb-2 flex justify-between text-xl font-bold">
@@ -58,17 +58,20 @@ function RouteComponent() {
         libraryId={libraryId}
         availableStorage={profile?.freeStorage || 0}
         usedStorage={profile?.usedStorage || 0}
-        selectedFiles={selectedFiles}
-        setSelectedFiles={setSelectedFiles}
-        refreshFiles={() => {
+        selectedFileIds={selectedFileIds}
+        setSelectedFileIds={setSelectedFileIds}
+        tableDataChanged={() => {
           queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
         }}
       />
-      <EmbeddingsTable
+      <FilesTable
         firstItemNumber={skip + 1}
         files={aiLibraryFiles.files}
-        selectedFiles={selectedFiles}
-        setSelectedFiles={setSelectedFiles}
+        selectedFileIds={selectedFileIds}
+        setSelectedFileIds={setSelectedFileIds}
+        tableDataChanged={() => {
+          queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
+        }}
       />
     </div>
   )

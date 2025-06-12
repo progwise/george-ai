@@ -1,9 +1,13 @@
+import { useMutation } from '@tanstack/react-query'
+
 import { dateTimeString } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
 import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
+import { toastError, toastSuccess } from '../../georgeToaster'
+import { dropFiles, reProcessFiles } from './change-files'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -22,24 +26,64 @@ graphql(`
     dropError
   }
 `)
-interface EmbeddingsTableProps {
+interface FilesTableProps {
   files: AiLibraryFile_TableItemFragment[]
   firstItemNumber: number
-  selectedFiles: string[]
-  setSelectedFiles: React.Dispatch<React.SetStateAction<string[]>>
+  selectedFileIds: string[]
+  setSelectedFileIds: React.Dispatch<React.SetStateAction<string[]>>
+  tableDataChanged: () => void
 }
-export const EmbeddingsTable = ({ files, firstItemNumber, selectedFiles, setSelectedFiles }: EmbeddingsTableProps) => {
+export const FilesTable = ({
+  files,
+  firstItemNumber,
+  selectedFileIds,
+  setSelectedFileIds,
+  tableDataChanged,
+}: FilesTableProps) => {
   const { t, language } = useTranslation()
 
+  const { mutate: mutateDropFile } = useMutation({
+    mutationFn: (fileId: string) => dropFiles({ data: [fileId] }),
+    onError: (error: Error) => {
+      console.error('Error dropping file:', error)
+      toastError(t('errors.dropFile', { error: error.message }))
+    },
+    onSuccess: (data) => {
+      setSelectedFileIds((prev) => prev.filter((id) => !files.some((file) => file.id === id)))
+      const fileNames = data.map((file) => (!file.dropFile.name ? file.dropFile.id : file.dropFile.name)).join(', ')
+      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${fileNames}`)
+    },
+    onSettled: () => {
+      tableDataChanged()
+    },
+  })
+
+  const { mutate: mutateReProcessFile } = useMutation({
+    mutationFn: (fileId: string) => reProcessFiles({ data: [fileId] }),
+    onError: (error: Error) => {
+      console.error('Error reprocessing file:', error)
+      toastError(t('errors.reProcessFile', { error: error.message }))
+    },
+    onSuccess: (data) => {
+      const fileNames = data
+        .map((file) => (!file.processFile.name ? file.processFile.id : file.processFile.name))
+        .join(', ')
+      toastSuccess(t('actions.reProcessSuccess', { count: 1 }) + `: ${fileNames}`)
+    },
+    onSettled: () => {
+      tableDataChanged()
+    },
+  })
+
   const handleSelectFile = (fileId: string) => {
-    setSelectedFiles((prev) => (prev.includes(fileId) ? prev.filter((id) => id !== fileId) : [...prev, fileId]))
+    setSelectedFileIds((prev) => (prev.includes(fileId) ? prev.filter((id) => id !== fileId) : [...prev, fileId]))
   }
 
   const handleSelectAll = () => {
-    if (selectedFiles.length === files?.length) {
-      setSelectedFiles([])
+    if (selectedFileIds.length === files?.length) {
+      setSelectedFileIds([])
     } else {
-      setSelectedFiles(files?.map((file) => file.id) || [])
+      setSelectedFileIds(files?.map((file) => file.id) || [])
     }
   }
 
@@ -51,7 +95,7 @@ export const EmbeddingsTable = ({ files, firstItemNumber, selectedFiles, setSele
           <input
             type="checkbox"
             className="checkbox checkbox-sm"
-            checked={selectedFiles.length === files.length && files.length > 0}
+            checked={selectedFileIds.length === files.length && files.length > 0}
             onChange={handleSelectAll}
           />
           <span className="text-sm font-medium">{t('actions.selectAll')}</span>
@@ -70,7 +114,7 @@ export const EmbeddingsTable = ({ files, firstItemNumber, selectedFiles, setSele
                   <input
                     type="checkbox"
                     className="checkbox checkbox-sm"
-                    checked={selectedFiles.includes(file.id)}
+                    checked={selectedFileIds.includes(file.id)}
                     onChange={() => handleSelectFile(file.id)}
                   />
                   <span
@@ -113,7 +157,7 @@ export const EmbeddingsTable = ({ files, firstItemNumber, selectedFiles, setSele
                 <input
                   type="checkbox"
                   className="checkbox checkbox-xs"
-                  checked={selectedFiles.length === files?.length && files.length > 0}
+                  checked={selectedFileIds.length === files?.length && files.length > 0}
                   onChange={handleSelectAll}
                 />
               </th>
@@ -132,7 +176,7 @@ export const EmbeddingsTable = ({ files, firstItemNumber, selectedFiles, setSele
                   <input
                     type="checkbox"
                     className="checkbox checkbox-xs"
-                    checked={selectedFiles.includes(file.id)}
+                    checked={selectedFileIds.includes(file.id)}
                     onChange={() => handleSelectFile(file.id)}
                   />
                 </td>
@@ -148,6 +192,12 @@ export const EmbeddingsTable = ({ files, firstItemNumber, selectedFiles, setSele
                 <td>{file.chunks ?? '-'}</td>
                 <td>{dateTimeString(file.processedAt, language) || '-'}</td>
                 <td className="flex items-center gap-2">
+                  <button type="button" className="btn btn-xs" onClick={() => mutateDropFile(file.id)}>
+                    {t('actions.drop')}
+                  </button>
+                  <button type="button" className="btn btn-xs" onClick={() => mutateReProcessFile(file.id)}>
+                    {t('actions.reProcess')}
+                  </button>
                   {file.processingErrorMessage && (
                     <span className="tooltip" data-tip={file.processingErrorMessage}>
                       <ExclamationIcon />

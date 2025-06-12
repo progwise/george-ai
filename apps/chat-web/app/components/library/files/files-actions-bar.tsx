@@ -10,18 +10,18 @@ interface FilesActionsBarProps {
   libraryId: string
   usedStorage: number
   availableStorage: number
-  refreshFiles: () => void
-  selectedFiles: string[]
-  setSelectedFiles: (fileIds: string[]) => void
+  tableDataChanged: () => void
+  selectedFileIds: string[]
+  setSelectedFileIds: (fileIds: string[]) => void
 }
 
 export const FilesActionsBar = ({
   libraryId,
   usedStorage,
   availableStorage,
-  refreshFiles,
-  selectedFiles,
-  setSelectedFiles,
+  tableDataChanged,
+  selectedFileIds,
+  setSelectedFileIds,
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
   const dropFilesMutation = useMutation({
@@ -32,11 +32,11 @@ export const FilesActionsBar = ({
       toastError('An error occurred while dropping the files. Please try again later.')
     },
     onSuccess: () => {
-      toastSuccess(`${selectedFiles.length} files dropped successfully.`)
+      toastSuccess(`${selectedFileIds.length} files dropped successfully.`)
     },
     onSettled: () => {
-      setSelectedFiles([])
-      refreshFiles()
+      setSelectedFileIds([])
+      tableDataChanged()
     },
   })
 
@@ -45,14 +45,14 @@ export const FilesActionsBar = ({
       await reProcessFiles({ data: fileIds })
     },
     onSettled: () => {
-      setSelectedFiles([])
-      refreshFiles()
+      setSelectedFileIds([])
+      tableDataChanged()
     },
     onError: () => {
       toastError('An error occurred while reprocessing the files. Please try again later.')
     },
     onSuccess: () => {
-      toastSuccess(`${selectedFiles.length} files reprocessed successfully.`)
+      toastSuccess(`${selectedFileIds.length} files reprocessed successfully.`)
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
@@ -73,16 +73,16 @@ export const FilesActionsBar = ({
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => dropFilesMutation.mutate(selectedFiles)}
-          disabled={selectedFiles.length === 0}
+          onClick={() => dropFilesMutation.mutate(selectedFileIds)}
+          disabled={selectedFileIds.length === 0}
         >
           {t('actions.drop')}
         </button>
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => reProcessFilesMutation.mutate(selectedFiles)}
-          disabled={selectedFiles.length === 0}
+          onClick={() => reProcessFilesMutation.mutate(selectedFileIds)}
+          disabled={selectedFileIds.length === 0}
         >
           {t('actions.reProcess')}
         </button>

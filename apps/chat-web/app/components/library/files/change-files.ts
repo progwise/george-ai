@@ -13,6 +13,7 @@ export const dropFiles = createServerFn({ method: 'POST' })
           mutation dropFile($id: String!) {
             dropFile(fileId: $id) {
               id
+              name
             }
           }
         `),
@@ -31,6 +32,7 @@ export const reProcessFiles = createServerFn({ method: 'POST' })
           mutation reProcessFile($id: String!) {
             processFile(fileId: $id) {
               id
+              name
               chunks
               size
               uploadedAt

@@ -434,7 +434,7 @@ type Mutation {
   ): [AiConversationParticipant!]
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  cancelFileUpload(fileId: String!): Boolean
+  cancelFileUpload(fileId: String!): Boolean!
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
@@ -451,16 +451,16 @@ type Mutation {
   deleteAiLibrary(id: String!): AiLibrary
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteMessage(messageId: String!): AiConversationMessage
-  dropFile(fileId: String!): AiLibraryFile
-  dropFiles(libraryId: String!): [AiLibraryFile!]
+  dropFile(fileId: String!): AiLibraryFile!
+  dropFiles(libraryId: String!): [AiLibraryFile!]!
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
   leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
-  processFile(fileId: String!): AiLibraryFile
-  reProcessFile(fileId: String!): AiLibraryFile
+  processFile(fileId: String!): AiLibraryFile!
+  reProcessFile(fileId: String!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
