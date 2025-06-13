@@ -42,15 +42,14 @@ function AdminUserDetail() {
   }
 
   return (
-    <div className="px-2 md:px-4">
-      <div className="mb-4 flex items-center">
+    <>
+      <div className="bg-base-100 sticky top-16 z-10 py-2 shadow-sm">
         <Link to="/admins/users" className="btn btn-ghost btn-sm gap-2">
           <BackIcon />
-          Back to Users
+          {t('actions.backToUsers')}
         </Link>
       </div>
-
       <AdminProfileEditor profile={userData.profile} username={userData.username} email={userData.email} />
-    </div>
+    </>
   )
 }
