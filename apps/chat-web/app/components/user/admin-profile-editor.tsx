@@ -1,6 +1,7 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef } from 'react'
 
+import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { toastError, toastSuccess } from '../../components/georgeToaster'
 import { LoadingSpinner } from '../../components/loading-spinner'
 import { UserProfileForm, updateProfile } from '../../components/user/user-profile-form'
@@ -26,6 +27,7 @@ export function AdminProfileEditor({
 }: AdminProfileEditorProps) {
   const { t } = useTranslation()
   const formRef = useRef<HTMLFormElement | null>(null)
+  const queryClient = useQueryClient()
 
   const updateProfileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -55,6 +57,7 @@ export function AdminProfileEditor({
     },
     onSuccess: () => {
       toastSuccess('User profile activated successfully.')
+      queryClient.invalidateQueries(getProfileQueryOptions())
       onActivationSuccess?.()
     },
     onError: (error) => {

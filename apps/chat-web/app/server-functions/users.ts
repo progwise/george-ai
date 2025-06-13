@@ -196,6 +196,7 @@ export const activateUserProfile = createServerFn({ method: 'POST' })
       },
     ),
   )
+
 export const AdminUserByIdDocument = graphql(`
   query adminUserById($email: String!) {
     user(email: $email) {

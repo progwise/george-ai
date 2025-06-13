@@ -1,26 +1,34 @@
-import { Navigate, createFileRoute, useLoaderData, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
-import { toastError } from '../../../components/georgeToaster'
 import { AdminProfileEditor } from '../../../components/user/admin-profile-editor'
-import { UserProfileForm_UserProfileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { getUserProfile } from '../../../server-functions/users'
+import { getUserById } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/profile/$profileId/admin-confirm')({
   component: RouteComponent,
-  loader: () => getUserProfile(),
+  loader: async ({ params }) => {
+    const { profileId } = params
+    return await getUserById({ data: profileId })
+  },
 })
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
   const navigate = useNavigate()
-  const userProfileData = useLoaderData({ strict: false })
+  const userData = Route.useLoaderData()
   const { t } = useTranslation()
 
-  const userProfile =
-    userProfileData && userProfileData.__typename === 'UserProfile'
-      ? (userProfileData as UserProfileForm_UserProfileFragment)
-      : null
+  if (!userData?.user?.profile) {
+    setTimeout(() => navigate({ to: '/' }), 300)
+    return (
+      <div
+        className="alert alert-error mx-auto max-w-fit cursor-pointer py-2 text-sm"
+        onClick={() => navigate({ to: '/' })}
+      >
+        {t('errors.profileNotFound')}. {t('actions.redirecting')}
+      </div>
+    )
+  }
 
   if (!user.isAdmin) {
     setTimeout(() => navigate({ to: '/' }), 300)
@@ -34,10 +42,7 @@ function RouteComponent() {
     )
   }
 
-  if (!userProfile) {
-    toastError(t('errors.profileNotFound'))
-    return <Navigate to="/" />
-  }
-
-  return <AdminProfileEditor profile={userProfile} />
+  return (
+    <AdminProfileEditor profile={userData.user.profile} username={userData.user.username} email={userData.user.email} />
+  )
 }
