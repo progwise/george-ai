@@ -151,7 +151,7 @@ export default {
     deleteMessage: 'Failed to delete message',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
-    messageTooShort: 'Message must be at least 3 characters.',
+    messageTooShort: 'Message must be at least 2 characters.',
     noFreeMessages: 'No free messages left. Upgrade your subscription.',
     notAllowed: 'Not allowed',
     profileNotFound: 'Profile not found or deleted.',

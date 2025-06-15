@@ -6,6 +6,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { ConversationForm_ConversationFragment, UserFragment, UserProfileFragment } from '../../gql/graphql'
+import { getAssistantSelectionQueryOptions, useAssistantSelection } from '../../hooks/use-assistant-selection'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { sendMessage } from '../../server-functions/conversations'
@@ -29,6 +30,7 @@ interface ConversationFormProps {
   user: UserFragment
   profile?: UserProfileFragment
 }
+
 export const ConversationForm = ({ conversation, user, profile }: ConversationFormProps) => {
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
@@ -38,7 +40,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
   const errorDialogRef = useRef<HTMLDialogElement>(null)
 
   // store the unselected ids, so when an assistant gets added it is automatically selected
-  const [unselectedAssistantIds, setUnselectedAssistantIds] = useState<string[]>([])
+  const { unselectedAssistantIds, handleAssistantToggle } = useAssistantSelection(conversation.id)
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -69,14 +71,6 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
-      if (!data.content || data.content.trim().length < 3) {
-        throw new Error(t('errors.messageTooShort'))
-      }
-
-      if (remainingMessages < 1) {
-        throw new Error(t('errors.noFreeMessages'))
-      }
-
       const result = await sendMessage({
         data: {
           conversationId: conversation.id!,
@@ -89,8 +83,8 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
     onSettled: () => {
       // refetch the conversation to get the new message
       queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
-
       queryClient.invalidateQueries(getProfileQueryOptions())
+      queryClient.invalidateQueries(getAssistantSelectionQueryOptions(conversation.id))
 
       scrollToBottom()
     },
@@ -102,10 +96,6 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
         errorMessage = t('conversations.setLLM')
       } else if (error.message.includes("This model's maximum context length")) {
         errorMessage = t('conversations.tokenLimitExceeded')
-      } else if (error.message === t('errors.messageTooShort')) {
-        errorMessage = t('errors.messageTooShort')
-      } else if (error.message === t('errors.noFreeMessages')) {
-        errorMessage = t('errors.noFreeMessages')
       }
 
       toastError(
@@ -122,6 +112,16 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (message.trim().length < 2) {
+      toastError(t('errors.messageTooShort'))
+      return
+    }
+
+    if (remainingMessages < 1) {
+      toastError(t('errors.noFreeMessages'))
+      return
+    }
+
     mutate({
       content: message,
       recipientAssistantIds: conversation.assistants
@@ -129,16 +129,6 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
         .filter((id) => !unselectedAssistantIds.includes(id)),
     })
     setMessage('')
-  }
-
-  const handleAssistantToggle = (assistantId: string) => {
-    setUnselectedAssistantIds((prev) => {
-      if (prev.includes(assistantId)) {
-        return prev.filter((id) => id !== assistantId)
-      } else {
-        return [...prev, assistantId]
-      }
-    })
   }
 
   const handleSubmitMessage = () => {
