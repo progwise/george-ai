@@ -162,6 +162,8 @@ export default {
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
   },
+  file: 'Datei',
+  folder: 'Ordner',
   flowLocal: 'Ablauf: Nur Lokal',
   flowParallel: 'Ablauf: Parallel',
   flowSequential: 'Ablauf: Sequenziell',
