@@ -18,11 +18,36 @@ export const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', 
   }),
 })
 
+const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    crawlerId: t.exposeID('crawlerId', { nullable: false }),
+    crawler: t.relation('crawler', {
+      nullable: false,
+    }),
+    startedAt: t.expose('startedAt', { type: 'DateTime', nullable: false }),
+    endedAt: t.expose('endedAt', { type: 'DateTime', nullable: true }),
+    success: t.exposeBoolean('success', { nullable: true }),
+    errorMessage: t.exposeString('errorMessage', { nullable: true }),
+    runByUserId: t.exposeID('runByUserId', { nullable: true }),
+  }),
+})
+
 builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     url: t.exposeString('url', { nullable: false }),
-    lastRun: t.expose('lastRun', { type: 'DateTime' }),
+    lastRun: t.field({
+      type: AiLibraryCrawlerRun,
+      nullable: true,
+      resolve: (crawler) =>
+        prisma.aiLibraryCrawlerRun.findFirst({
+          where: { crawlerId: crawler.id },
+          take: 1,
+          skip: 0,
+          orderBy: { startedAt: 'desc' },
+        }),
+    }),
     maxDepth: t.exposeInt('maxDepth', { nullable: false }),
     maxPages: t.exposeInt('maxPages', { nullable: false }),
 
@@ -46,6 +71,22 @@ builder.prismaObject('AiLibraryCrawler', {
     }),
     cronJob: t.relation('cronJob'),
     filesCount: t.relationCount('files', { nullable: false }),
+    runCount: t.relationCount('runs', { nullable: false }),
+    runs: t.field({
+      type: [AiLibraryCrawlerRun],
+      args: {
+        take: t.arg.int({ defaultValue: 10 }),
+        skip: t.arg.int({ defaultValue: 0 }),
+      },
+      nullable: false,
+      resolve: (crawler, args) =>
+        prisma.aiLibraryCrawlerRun.findMany({
+          where: { crawlerId: crawler.id },
+          take: args.take,
+          skip: args.skip,
+          orderBy: { startedAt: 'desc' },
+        }),
+    }),
   }),
 })
 

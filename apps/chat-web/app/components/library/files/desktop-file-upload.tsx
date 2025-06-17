@@ -3,12 +3,12 @@ import { createServerFn } from '@tanstack/react-start'
 import { useRef, useState } from 'react'
 import { z } from 'zod'
 
-import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../constants'
-import { graphql } from '../../gql'
-import { useTranslation } from '../../i18n/use-translation-hook'
-import { backendRequest } from '../../server-functions/backend'
-import { FileUploadProgressList } from './file-upload-progress-list'
-import { LibraryFile, LibraryFileSchema } from './files-table'
+import { BACKEND_PUBLIC_URL, GRAPHQL_API_KEY } from '../../../constants'
+import { graphql } from '../../../gql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
+import { backendRequest } from '../../../server-functions/backend'
+import { FileUploadProgressList } from '../file-upload-progress-list'
+import { LibraryFile, LibraryFileSchema } from '../google-files-table'
 
 export interface DesktopFilesProps {
   libraryId: string
