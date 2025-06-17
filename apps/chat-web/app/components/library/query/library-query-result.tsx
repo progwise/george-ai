@@ -9,7 +9,7 @@ export interface LibraryQueryParams {
     docName: string
     docPath: string
     originUri: string
-    highlights: Array<{ field: string; snippet?: string }>
+    highlights: Array<{ field: string; snippet?: string | null }>
   }>
   searchTerm: string
   hitCount: number
