@@ -1,3 +1,4 @@
+import { canAccessLibrary } from '../ai-library/check-participation'
 import { builder, prisma } from '../builder'
 
 builder.prismaObject('AiLibraryUpdate', {
@@ -25,17 +26,11 @@ const LibraryUpdateQueryResult = builder
         type: 'AiLibrary',
         nullable: false,
         resolve: async (query, root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
+          const library = await prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
+          if (!canAccessLibrary(context, { id: root.libraryId, ownerId: library.ownerId })) {
             throw new Error('You do not have access to this library')
           }
-          return prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
+          return library
         },
       }),
       crawlerId: t.exposeString('crawlerId', { nullable: true }),
@@ -45,14 +40,11 @@ const LibraryUpdateQueryResult = builder
         type: 'Int',
         nullable: false,
         resolve: async (root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+          const library = await prisma.aiLibrary.findFirstOrThrow({
             where: { id: root.libraryId },
             select: { ownerId: true, participants: { select: { userId: true } } },
           })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
+          if (!canAccessLibrary(context, { id: root.libraryId, ownerId: library.ownerId })) {
             throw new Error('You do not have access to this library')
           }
           console.log('Counting AI library updates for library:', root.libraryId, 'and crawler:', root.crawlerId)
@@ -65,17 +57,13 @@ const LibraryUpdateQueryResult = builder
         type: ['AiLibraryUpdate'],
         nullable: false,
         resolve: async (query, root, args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+          const library = await prisma.aiLibrary.findFirstOrThrow({
             where: { id: root.libraryId },
             select: { ownerId: true, participants: { select: { userId: true } } },
           })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
+          if (!canAccessLibrary(context, { id: root.libraryId, ownerId: library.ownerId })) {
             throw new Error('You do not have access to this library')
           }
-          console.log('Fetching AI library updates for library:', query)
           return prisma.aiLibraryUpdate.findMany({
             ...query,
             where: { libraryId: root.libraryId, ...(root.crawlerId && { crawlerRun: { crawlerId: root.crawlerId } }) },
