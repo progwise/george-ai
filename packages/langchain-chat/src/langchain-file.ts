@@ -8,7 +8,13 @@ import { ExcelLoader } from './file-loaders/excel-loader'
 
 // import { PDFLoaderAI } from './pdf-loader-ai'
 
-export const loadFile = async (file: { name: string; id: string; mimeType: string; path: string }) => {
+export const loadFile = async (file: {
+  name: string
+  id: string
+  mimeType: string
+  path: string
+  originUri: string
+}) => {
   let documentLoader
   switch (file.mimeType) {
     case 'application/pdf':
@@ -43,6 +49,8 @@ export const loadFile = async (file: { name: string; id: string; mimeType: strin
       docName: file.name,
       points: 1,
       docId: file.id,
+      docPath: file.path,
+      originUri: file.originUri,
     },
   }))
 }

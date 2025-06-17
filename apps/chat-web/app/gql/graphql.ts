@@ -341,6 +341,33 @@ export type AiLibraryInput = {
   url?: InputMaybe<Scalars['String']['input']>
 }
 
+export type AiLibraryQueryHit = {
+  __typename?: 'AiLibraryQueryHit'
+  docId: Scalars['String']['output']
+  docName: Scalars['String']['output']
+  docPath: Scalars['String']['output']
+  highlights: Array<AiLibraryQueryHitHighlight>
+  id: Scalars['String']['output']
+  originUri: Scalars['String']['output']
+  pageContent: Scalars['String']['output']
+}
+
+export type AiLibraryQueryHitHighlight = {
+  __typename?: 'AiLibraryQueryHitHighlight'
+  field: Scalars['String']['output']
+  snippet?: Maybe<Scalars['String']['output']>
+}
+
+export type AiLibraryQueryResult = {
+  __typename?: 'AiLibraryQueryResult'
+  hitCount: Scalars['Int']['output']
+  hits: Array<AiLibraryQueryHit>
+  libraryId: Scalars['String']['output']
+  query: Scalars['String']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+}
+
 export type AiLibraryUpdate = {
   __typename?: 'AiLibraryUpdate'
   crawlerRun?: Maybe<AiLibraryCrawlerRun>
@@ -728,6 +755,7 @@ export type Query = {
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiModels: Array<AiModel>
+  queryAiLibraryFiles: AiLibraryQueryResult
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -770,6 +798,13 @@ export type QueryAiLibraryUpdatesArgs = {
 export type QueryAiLibraryUsageArgs = {
   assistantId?: InputMaybe<Scalars['String']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryQueryAiLibraryFilesArgs = {
+  libraryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
 }
 
 export type QueryUserArgs = {
@@ -2015,6 +2050,35 @@ export type LibraryParticipants_LibraryFragment = {
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+}
+
+export type QueryLibraryFilesQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}>
+
+export type QueryLibraryFilesQuery = {
+  __typename?: 'Query'
+  queryAiLibraryFiles: {
+    __typename?: 'AiLibraryQueryResult'
+    libraryId: string
+    query: string
+    take: number
+    skip: number
+    hitCount: number
+    hits: Array<{
+      __typename?: 'AiLibraryQueryHit'
+      pageContent: string
+      docName: string
+      docId: string
+      id: string
+      docPath: string
+      originUri: string
+      highlights: Array<{ __typename?: 'AiLibraryQueryHitHighlight'; field: string; snippet?: string | null }>
+    }>
+  }
 }
 
 export type LibraryUpdatesListQueryVariables = Exact<{
@@ -7825,6 +7889,105 @@ export const CreateAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
+export const QueryLibraryFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'queryLibraryFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'query' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'queryAiLibraryFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'query' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'query' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hitCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'hits' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'pageContent' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'docName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'docId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'docPath' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'highlights' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'field' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'snippet' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
 export const LibraryUpdatesListDocument = {
   kind: 'Document',
   definitions: [
