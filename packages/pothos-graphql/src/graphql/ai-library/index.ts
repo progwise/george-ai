@@ -61,13 +61,15 @@ builder.queryField('aiLibrary', (t) =>
       libraryId: t.arg.string(),
     },
     resolve: async (query, _source, { libraryId }, context) => {
-      const library = await prisma.aiLibrary.findUnique({
+      const library = await prisma.aiLibrary.findUniqueOrThrow({
         ...query,
         where: { id: libraryId },
       })
-      if (!library) return null
-
-      if (!canAccessLibrary(context, library)) return null
+      const isAuthorized = canAccessLibrary(context, {
+        id: library.id,
+        ownerId: library.ownerId,
+      })
+      if (!isAuthorized) return null
       return library
     },
   }),

@@ -43,12 +43,12 @@ export const UpdatesTable = ({ updates, firstItemNumber }: UpdatesTableProps) =>
         <thead>
           <tr>
             <th></th>
-            <th>Date</th>
-            <th>Crawler</th>
-            <th>File</th>
-            <th>Success</th>
-            <th>Message</th>
-            <th>Actions</th>
+            <th>{t('updates.date')}</th>
+            <th>{t('updates.crawler')}</th>
+            <th>{t('updates.file')}</th>
+            <th>{t('updates.success')}</th>
+            <th>{t('updates.message')}</th>
+            <th>{t('updates.actions')}</th>
           </tr>
         </thead>
         <tbody>

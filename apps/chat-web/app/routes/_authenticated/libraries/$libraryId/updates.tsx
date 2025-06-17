@@ -35,8 +35,8 @@ function RouteComponent() {
   } = useSuspenseQuery(getLibraryUpdateItemsQueryOptions({ libraryId, skip, take }))
   return (
     <div>
-      <h1 className="mb-2 flex justify-between text-xl font-bold">
-        {aiLibraryUpdates.count} Updates for library {aiLibraryUpdates.library.name}
+      <h1 className="mb-2 flex justify-between font-bold md:text-xl">
+        {aiLibraryUpdates.count} Updates
         <Pagination
           totalItems={aiLibraryUpdates.count}
           itemsPerPage={take}

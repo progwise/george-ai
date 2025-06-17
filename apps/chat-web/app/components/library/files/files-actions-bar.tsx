@@ -29,10 +29,10 @@ export const FilesActionsBar = ({
       await dropFiles({ data: fileIds })
     },
     onError: () => {
-      toastError('An error occurred while dropping the files. Please try again later.')
+      toastError(t('errors.dropFilesError'))
     },
     onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} files dropped successfully.`)
+      toastSuccess(`${selectedFileIds.length} ${t('actions.dropSuccess')}`)
     },
     onSettled: () => {
       setSelectedFileIds([])
@@ -49,10 +49,10 @@ export const FilesActionsBar = ({
       tableDataChanged()
     },
     onError: () => {
-      toastError('An error occurred while reprocessing the files. Please try again later.')
+      toastError(t('errors.reProcessFilesError'))
     },
     onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} files reprocessed successfully.`)
+      toastSuccess(`${selectedFileIds.length} ${t('actions.reProcessSuccess')}`)
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
