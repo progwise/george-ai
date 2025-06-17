@@ -49,6 +49,8 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
 
   const { t, language } = useTranslation()
 
+  console.log('CrawlerTable rendered for libraryId:', aiLibrary?.crawlers.length)
+
   return (
     <div className="flex flex-col gap-4">
       <div className="self-start">
@@ -56,8 +58,8 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
       </div>
       {/* Mobile View */}
       <div className="block lg:hidden">
-        {!aiLibrary?.crawlers?.length ? (
-          <div className="mt-6 text-center">{t('texts.noCrawlersFound') || 'No crawlers found.'}</div>
+        {!aiLibrary?.crawlers || aiLibrary.crawlers.length < 1 ? (
+          <div className="mt-6 text-center">{t('texts.noCrawlersFound')}</div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
             {aiLibrary.crawlers.map((crawler, index) => (
@@ -83,7 +85,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                       libraryId={libraryId}
                     />
                     <Link to={`/libraries/$libraryId/updates`} params={{ libraryId }} className="btn btn-xs">
-                      Last Updates
+                      {t('libraries.lastUpdates')}
                     </Link>
                   </div>
                 </div>
@@ -161,7 +163,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                   />
 
                   <Link to={`/libraries/$libraryId/updates`} params={{ libraryId }} className="btn btn-xs">
-                    Last Updates
+                    {t('libraries.lastUpdates')}
                   </Link>
                 </td>
               </tr>
