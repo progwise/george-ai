@@ -25,7 +25,7 @@ export const Pagination = ({
   }
 
   return (
-    <nav className={`join items-center gap-2 ${className}`}>
+    <nav className={`join items-center gap-0.5 md:gap-2 ${className}`}>
       <button
         type="button"
         className={twMerge('join-item btn btn-xs', isFirstPage && 'btn-disabled')}
@@ -46,8 +46,8 @@ export const Pagination = ({
       >
         &lt;
       </button>
-      <span className="text-xs">
-        {currentPage} / {totalPages}
+      <span className="text-nowrap text-xs">
+        {currentPage}/{totalPages}
       </span>
       <button
         type="button"

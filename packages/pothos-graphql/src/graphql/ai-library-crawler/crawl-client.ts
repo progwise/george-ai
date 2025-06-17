@@ -12,71 +12,84 @@ interface CrawlOptions {
 export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
   console.log(`start crawling ${url}`)
 
-  const encodedUrl = url
-  const response = await fetch(
-    `${CRAWL4AI_BASE_URL}/crawl?url=${encodedUrl}&maxDepth=${maxDepth}&maxPages=${maxPages}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/jsonl',
+  try {
+    const encodedUrl = url
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      console.log(`Crawl request for ${url} timed out after 5 seconds`)
+      controller.abort()
+    }, 5000) // 60 seconds timeout
+    const response = await fetch(
+      `${CRAWL4AI_BASE_URL}/crawl?url=${encodedUrl}&maxDepth=${maxDepth}&maxPages=${maxPages}`,
+      {
+        signal: controller.signal,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/jsonl',
+        },
       },
-    },
-  )
-  if (!response.ok) {
-    console.error(`Failed to start crawl ${url}:`, response.statusText)
-    return
-  }
-
-  const reader = response.body?.getReader()
-  if (!reader) {
-    throw new Error('Failed to get response body reader')
-  }
-
-  let readMode: 'read-metadata' | 'read-markdown' | null = null
-  let currentMetadata: string | null = null
-  let currentMarkdown: string | null = null
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      console.log('Stream finished')
-      break
+    )
+    if (!response.ok) {
+      console.error(`Failed to start crawl ${url}:`, response.statusText)
+      return
     }
 
-    const textValue = new TextDecoder('utf-8').decode(value, { stream: true })
-    const lines = textValue.split('\n').filter((line) => line.trim() !== '')
-    if (lines.length === 0) {
-      console.log('No lines in stream')
-      continue
+    const reader = response.body?.getReader()
+    if (!reader) {
+      throw new Error('Failed to get response body reader')
     }
+    clearTimeout(timeoutId)
 
-    for (const line of lines) {
-      if (line.startsWith('---BEGIN CRAWLER RESULT---')) {
-        readMode = 'read-metadata'
-        currentMetadata = null
-        currentMarkdown = null
-      } else if (line.startsWith('---END CRAWLER RESULT---')) {
-        yield { metaData: currentMetadata, markdown: currentMarkdown }
-        readMode = null
-        currentMetadata = null
-        currentMarkdown = null
-      } else if (line.startsWith('---BEGIN MARKDOWN---')) {
-        readMode = 'read-markdown'
-        currentMarkdown = null
-      } else {
-        if (readMode === 'read-metadata') {
-          if (currentMetadata) {
-            currentMetadata += '\n' + line
-          } else {
-            currentMetadata = line
-          }
-        } else if (readMode === 'read-markdown') {
-          if (currentMarkdown) {
-            currentMarkdown += '\n' + line
-          } else {
-            currentMarkdown = line
+    let readMode: 'read-metadata' | 'read-markdown' | null = null
+    let currentMetadata: string | null = null
+    let currentMarkdown: string | null = null
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) {
+        console.log('Stream finished')
+        break
+      }
+
+      const textValue = new TextDecoder('utf-8').decode(value, { stream: true })
+      const lines = textValue.split('\n').filter((line) => line.trim() !== '')
+      if (lines.length === 0) {
+        console.log('No lines in stream')
+        continue
+      }
+
+      for (const line of lines) {
+        if (line.startsWith('---BEGIN CRAWLER RESULT---')) {
+          readMode = 'read-metadata'
+          currentMetadata = null
+          currentMarkdown = null
+        } else if (line.startsWith('---END CRAWLER RESULT---')) {
+          yield { metaData: currentMetadata, markdown: currentMarkdown }
+          readMode = null
+          currentMetadata = null
+          currentMarkdown = null
+        } else if (line.startsWith('---BEGIN MARKDOWN---')) {
+          readMode = 'read-markdown'
+          currentMarkdown = null
+        } else {
+          if (readMode === 'read-metadata') {
+            if (currentMetadata) {
+              currentMetadata += '\n' + line
+            } else {
+              currentMetadata = line
+            }
+          } else if (readMode === 'read-markdown') {
+            if (currentMarkdown) {
+              currentMarkdown += '\n' + line
+            } else {
+              currentMarkdown = line
+            }
           }
         }
       }
     }
+  } catch (error) {
+    console.error('Error during crawling:', error)
+    yield { url, markdown: null, metaData: null, error: error instanceof Error ? error.message : String(error) }
   }
+  console.log(`finished crawling ${url}`)
 }

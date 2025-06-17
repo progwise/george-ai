@@ -29,6 +29,32 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
     },
   })
 
+  startCrawling(crawler, newRun, userId).catch((error) => {
+    console.error('Error during crawling:', error)
+    prisma.aiLibraryCrawlerRun.update({
+      where: { id: newRun.id },
+      data: {
+        endedAt: new Date(),
+        success: false,
+        errorMessage: error instanceof Error ? error.message : String(error),
+      },
+    })
+    throw error
+  })
+  console.log('Crawler started:', crawler.id, 'Run ID:', newRun.id)
+  return crawler
+}
+const startCrawling = async (
+  crawler: { id: string; url: string; maxDepth: number; maxPages: number; libraryId: string },
+  newRun: { id: string; startedAt: Date },
+  userId?: string,
+) => {
+  console.log('Starting crawling for crawler', crawler.id, 'with URL:', crawler.url)
+  console.log('Crawler run ID:', newRun.id, 'by user:', userId)
+  console.log('Crawler max depth:', crawler.maxDepth, 'max pages:', crawler.maxPages)
+  console.log('Crawler library ID:', crawler.libraryId)
+  console.log('Crawler run started at:', newRun.startedAt)
+
   try {
     const crawledPages: {
       url: string | null
@@ -36,6 +62,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
       metaData: string | null
       error: string | null
     }[] = []
+
     for await (const crawledPage of crawl({
       url: crawler.url,
       maxDepth: crawler.maxDepth,
@@ -59,7 +86,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
         continue
       }
       const fileUpdateData = {
-        name: `${metaData.url} - ${metaData.title}`,
+        name: `${metaData.title}`,
         mimeType: 'text/markdown',
         libraryId: crawler.libraryId,
       }
@@ -86,9 +113,30 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
         await completeFileUpload(file.id)
         await processFile(file.id)
         crawledPages.push({ ...crawledPage, url: metaData.url, markdown, metaData: crawledPage.metaData, error: null })
+        await prisma.aiLibraryUpdate.create({
+          data: {
+            libraryId: crawler.libraryId,
+            crawlerRunId: newRun.id,
+            fileId: file.id,
+            message: `Crawled page from ${metaData.url} with title "${metaData.title}"`,
+            success: true,
+          },
+        })
+        console.log('Successfully processed crawled page', fileUpdateData.name, 'from', metaData.url)
       } catch (error) {
         console.error('Error during file processing', error)
         crawledPages.push({ ...crawledPage, url: metaData.url, error: 'File processing error' })
+        await prisma.aiLibraryUpdate.create({
+          data: {
+            libraryId: crawler.libraryId,
+            crawlerRunId: newRun.id,
+            fileId: null,
+            message: `Failed to process crawled page from ${metaData.url}: ${error instanceof Error ? error.message : String(error)}`,
+            success: false,
+          },
+        })
+        console.warn('Failed to process crawled page', fileUpdateData.name, 'from', metaData.url, error)
+        // Continue to the next page even if this one fails
         continue
       }
     }
@@ -106,26 +154,27 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
       },
     })
 
-    return prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+    console.log('Crawling completed successfully for crawler', crawler.id, 'with run ID:', newRun.id)
+    console.log('Total pages crawled:', crawledPages.length)
+    console.log('Crawling ended at:', endedAt)
+    return prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawler.id } })
   } catch (error) {
-    console.error(
-      'Error during crawling. crawler id: ',
-      crawler.id,
-      ', crawler run id:',
-      newRun.id,
-      ', user id:',
-      userId,
-      ', error:',
-      error,
-    )
+    console.error('Crawling error')
+    console.log('Crawler ID:', crawler.id)
+    console.log('Crawler URL:', crawler.url)
+    console.log('Crawler max depth:', crawler.maxDepth)
+    console.log('Crawler max pages:', crawler.maxPages)
+    console.log('Crawler library ID:', crawler.libraryId)
+    console.log('Crawler run ID:', newRun.id)
+    console.log('Crawler run started at:', newRun.startedAt)
+    console.error('Error details:', error)
     await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
         endedAt: new Date(),
         success: false,
+        errorMessage: error instanceof Error ? `${error.cause}: ${error.message}` : String(error),
       },
     })
-
-    throw error
   }
 }

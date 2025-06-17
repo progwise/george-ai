@@ -1,3 +1,8 @@
+# Dependencies
+
+1. pip install "git+ssh://git@github.com/progwise/crawl4ai.git@fix/streaming-error-handling"
+2. pip install fastApi
+
 # Create Virtual Environment
 
 Execute inside the apps/crawler-server folder execute.
