@@ -313,6 +313,30 @@ input AiLibraryInput {
   url: String
 }
 
+type AiLibraryQueryHit {
+  docId: String!
+  docName: String!
+  docPath: String!
+  highlights: [AiLibraryQueryHitHighlight!]!
+  id: String!
+  originUri: String!
+  pageContent: String!
+}
+
+type AiLibraryQueryHitHighlight {
+  field: String!
+  snippet: String
+}
+
+type AiLibraryQueryResult {
+  hitCount: Int!
+  hits: [AiLibraryQueryHit!]!
+  libraryId: String!
+  query: String!
+  skip: Int!
+  take: Int!
+}
+
 type AiLibraryUpdate {
   crawlerRun: AiLibraryCrawlerRun
   crawlerRunId: ID
@@ -493,6 +517,7 @@ type Query {
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!
+  queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!
