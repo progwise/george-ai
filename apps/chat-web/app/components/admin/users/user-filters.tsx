@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 
+import { debounce } from '@george-ai/web-utils'
+
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SearchIcon } from '../../../icons/search-icon'
 import { Listbox } from '../../listbox'
@@ -56,6 +58,10 @@ export const UserFilters = ({
     [pageSize, pageSizeOptions],
   )
 
+  const handleFilterChange = debounce((newTerm: string) => {
+    onFilterChange(newTerm.trim())
+  }, 1000)
+
   return (
     <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2 md:flex-1 md:flex-row md:items-center">
@@ -64,8 +70,8 @@ export const UserFilters = ({
             type="text"
             placeholder={t('placeholders.searchUsers')}
             className="bg-base-100 focus:outline-primary w-full rounded-lg border px-2 py-1 pl-8 text-sm focus:outline-2"
-            value={filter}
-            onChange={(e) => onFilterChange(e.target.value)}
+            defaultValue={filter}
+            onChange={(e) => handleFilterChange(e.target.value)}
           />
           <div className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2">
             <SearchIcon className="opacity-70" />
