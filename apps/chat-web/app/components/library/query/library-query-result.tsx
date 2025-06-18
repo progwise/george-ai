@@ -41,7 +41,7 @@ export const LibraryQueryResult = ({ hits, offset, searchTerm, hitCount }: Libra
                     {hit.originUri}
                   </a>
                 ) : (
-                  'unknown origin'
+                  'Source not available'
                 )}
               </div>
             </div>
@@ -67,7 +67,7 @@ export const LibraryQueryResult = ({ hits, offset, searchTerm, hitCount }: Libra
               </svg>
             </button>
           </li>
-        ))}{' '}
+        ))}
       </ul>
     </article>
   )
