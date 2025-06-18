@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { graphql } from '../../../../gql'
-import { backendRequest } from '../../../../server-functions/backend'
+import { graphql } from '../../../gql'
+import { backendRequest } from '../../../server-functions/backend'
 
 graphql(`
   fragment ManagedUser on ManagedUser {

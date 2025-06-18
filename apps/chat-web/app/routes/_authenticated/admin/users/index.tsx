@@ -2,12 +2,12 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
+import { getManagedUsersQueryOptions } from '../../../../components/admin/users/get-managed-users'
 import { StatusFilterValues, UserFilters } from '../../../../components/admin/users/user-filters'
 import { UserStats } from '../../../../components/admin/users/user-stats'
 import { UserTable } from '../../../../components/admin/users/user-table'
 import { Pagination } from '../../../../components/table/pagination'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
-import { getManagedUsersQueryOptions } from './get-managed-users'
 
 export const Route = createFileRoute('/_authenticated/admin/users/')({
   component: UsersList,

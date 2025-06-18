@@ -12,7 +12,7 @@ export const authorizeGraphQlRequest = async (request: Request): Promise<Context
     if (decoded?.email) {
       const userInformation = await prisma.user.findUnique({
         where: { email: decoded.email },
-        select: { id: true, username: true, email: true, profile: true },
+        select: { id: true, username: true, email: true, profile: true, isAdmin: true },
       })
       if (!userInformation) {
         return { session: null }
@@ -23,6 +23,7 @@ export const authorizeGraphQlRequest = async (request: Request): Promise<Context
             id: userInformation.id,
             username: userInformation.username,
             email: decoded.email,
+            isAdmin: userInformation.isAdmin ?? false,
           },
           userProfile: userInformation.profile ?? undefined,
           jwt: jwtToken,

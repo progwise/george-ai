@@ -36,7 +36,6 @@ import { Route as AuthenticatedLibrariesLibraryIdQueryImport } from './routes/_a
 import { Route as AuthenticatedLibrariesLibraryIdFilesImport } from './routes/_authenticated/libraries/$libraryId/files'
 import { Route as AuthenticatedLibrariesLibraryIdEditImport } from './routes/_authenticated/libraries/$libraryId/edit'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersImport } from './routes/_authenticated/libraries/$libraryId/crawlers'
-import { Route as AuthenticatedAdminUsersGetManagedUsersImport } from './routes/_authenticated/admin/users/get-managed-users'
 import { Route as AuthenticatedAdminUsersUserIdImport } from './routes/_authenticated/admin/users/$userId'
 import { Route as AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId'
 
@@ -208,13 +207,6 @@ const AuthenticatedLibrariesLibraryIdCrawlersRoute =
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
 
-const AuthenticatedAdminUsersGetManagedUsersRoute =
-  AuthenticatedAdminUsersGetManagedUsersImport.update({
-    id: '/users/get-managed-users',
-    path: '/users/get-managed-users',
-    getParentRoute: () => AuthenticatedAdminRouteRoute,
-  } as any)
-
 const AuthenticatedAdminUsersUserIdRoute =
   AuthenticatedAdminUsersUserIdImport.update({
     id: '/users/$userId',
@@ -354,13 +346,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersUserIdImport
       parentRoute: typeof AuthenticatedAdminRouteImport
     }
-    '/_authenticated/admin/users/get-managed-users': {
-      id: '/_authenticated/admin/users/get-managed-users'
-      path: '/users/get-managed-users'
-      fullPath: '/admin/users/get-managed-users'
-      preLoaderRoute: typeof AuthenticatedAdminUsersGetManagedUsersImport
-      parentRoute: typeof AuthenticatedAdminRouteImport
-    }
     '/_authenticated/libraries/$libraryId/crawlers': {
       id: '/_authenticated/libraries/$libraryId/crawlers'
       path: '/crawlers'
@@ -439,7 +424,6 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
-  AuthenticatedAdminUsersGetManagedUsersRoute: typeof AuthenticatedAdminUsersGetManagedUsersRoute
   AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
 }
 
@@ -447,8 +431,6 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
     AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
-    AuthenticatedAdminUsersGetManagedUsersRoute:
-      AuthenticatedAdminUsersGetManagedUsersRoute,
     AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
   }
 
@@ -559,7 +541,6 @@ export interface FileRoutesByFullPath {
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
-  '/admin/users/get-managed-users': typeof AuthenticatedAdminUsersGetManagedUsersRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesRoute
@@ -587,7 +568,6 @@ export interface FileRoutesByTo {
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
-  '/admin/users/get-managed-users': typeof AuthenticatedAdminUsersGetManagedUsersRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesRoute
@@ -619,7 +599,6 @@ export interface FileRoutesById {
   '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
-  '/_authenticated/admin/users/get-managed-users': typeof AuthenticatedAdminUsersGetManagedUsersRoute
   '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/_authenticated/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/_authenticated/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesRoute
@@ -652,7 +631,6 @@ export interface FileRouteTypes {
     | '/libraries'
     | '/profile'
     | '/admin/users/$userId'
-    | '/admin/users/get-managed-users'
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/edit'
     | '/libraries/$libraryId/files'
@@ -679,7 +657,6 @@ export interface FileRouteTypes {
     | '/libraries'
     | '/profile'
     | '/admin/users/$userId'
-    | '/admin/users/get-managed-users'
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/edit'
     | '/libraries/$libraryId/files'
@@ -709,7 +686,6 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/'
     | '/_authenticated/profile/'
     | '/_authenticated/admin/users/$userId'
-    | '/_authenticated/admin/users/get-managed-users'
     | '/_authenticated/libraries/$libraryId/crawlers'
     | '/_authenticated/libraries/$libraryId/edit'
     | '/_authenticated/libraries/$libraryId/files'
@@ -789,7 +765,6 @@ export const routeTree = rootRoute
       "children": [
         "/_authenticated/admin/",
         "/_authenticated/admin/users/$userId",
-        "/_authenticated/admin/users/get-managed-users",
         "/_authenticated/admin/users/"
       ]
     },
@@ -848,10 +823,6 @@ export const routeTree = rootRoute
     },
     "/_authenticated/admin/users/$userId": {
       "filePath": "_authenticated/admin/users/$userId.tsx",
-      "parent": "/_authenticated/admin"
-    },
-    "/_authenticated/admin/users/get-managed-users": {
-      "filePath": "_authenticated/admin/users/get-managed-users.ts",
       "parent": "/_authenticated/admin"
     },
     "/_authenticated/libraries/$libraryId/crawlers": {
