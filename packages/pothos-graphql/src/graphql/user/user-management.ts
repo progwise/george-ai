@@ -59,34 +59,97 @@ const UserStatistic = builder
     }),
   })
 
-const getUserFilter = (filter?: string) => {
-  if (!filter || filter === '*') {
-    return {}
-  } else {
-    return {
+const getUserFilter = (filter?: string, statusFilter?: string) => {
+  let whereCondition = {}
+  const containsFilter = { contains: filter, mode: 'insensitive' }
+  if (filter && filter !== '*') {
+    whereCondition = {
       OR: [
-        { username: { contains: filter } },
-        { name: { contains: filter } },
-        { email: { contains: filter } },
-        { given_name: { contains: filter } },
-        { family_name: { contains: filter } },
+        { username: { ...containsFilter } },
+        { name: { ...containsFilter } },
+        { email: { ...containsFilter } },
+        { given_name: { ...containsFilter } },
+        { family_name: { ...containsFilter } },
         {
           profile: {
-            OR: [{ business: { contains: filter } }, { position: { contains: filter } }],
+            OR: [{ business: { ...containsFilter } }, { position: { ...containsFilter } }],
           },
         },
       ],
     }
   }
+  if (statusFilter && statusFilter !== 'all') {
+    switch (statusFilter) {
+      case 'confirmed':
+        whereCondition = {
+          ...whereCondition,
+          profile: {
+            confirmationDate: {
+              not: null,
+            },
+          },
+        }
+        break
+      case 'unconfirmed':
+        whereCondition = {
+          AND: [
+            { ...whereCondition },
+            {
+              OR: [
+                { profile: null },
+                {
+                  profile: {
+                    confirmationDate: null,
+                  },
+                },
+              ],
+            },
+          ],
+        }
+        break
+      case 'activated':
+        whereCondition = {
+          ...whereCondition,
+          profile: {
+            activationDate: {
+              not: null,
+            },
+          },
+        }
+        break
+      case 'unactivated':
+        whereCondition = {
+          AND: [
+            { ...whereCondition },
+            {
+              OR: [
+                { profile: null },
+                {
+                  profile: {
+                    activationDate: null,
+                  },
+                },
+              ],
+            },
+          ],
+        }
+        break
+      default:
+        throw new Error(`Unknown status filter: ${statusFilter}`)
+    }
+  }
+  console.log('User filter:', JSON.stringify(whereCondition))
+  return whereCondition
 }
 
 const ManagedUsersResponse = builder
-  .objectRef<{ skip: number; take: number; filter?: string }>('ManagedUsersResponse')
+  .objectRef<{ skip: number; take: number; filter?: string; statusFilter?: string }>('ManagedUsersResponse')
   .implement({
     fields: (t) => ({
       skip: t.exposeInt('skip', { nullable: false }),
       take: t.exposeInt('take', { nullable: false }),
       filter: t.exposeString('filter', { nullable: true }),
+      statusFilter: t.exposeString('statusFilter', { nullable: true }),
       userStatistics: t.withAuth({ isLoggedIn: true }).field({
         type: UserStatistic,
         nullable: false,
@@ -101,22 +164,12 @@ const ManagedUsersResponse = builder
           const [confirmed, activated] = await Promise.all([
             prisma.user.count({
               where: {
-                ...getUserFilter(source.filter),
-                profile: {
-                  confirmationDate: {
-                    not: null,
-                  },
-                },
+                ...getUserFilter(source.filter, 'unconfirmed'),
               },
             }),
             prisma.user.count({
               where: {
-                ...getUserFilter(source.filter),
-                profile: {
-                  activationDate: {
-                    not: null,
-                  },
-                },
+                ...getUserFilter(source.filter, 'unactivated'),
               },
             }),
           ])
@@ -140,7 +193,7 @@ const ManagedUsersResponse = builder
             include: {
               profile: true,
             },
-            where: getUserFilter(source.filter),
+            where: { ...getUserFilter(source.filter, source.statusFilter) },
 
             skip: source.skip,
             take: source.take,
@@ -178,6 +231,7 @@ builder.queryField('managedUsers', (t) =>
       skip: t.arg.int({ defaultValue: 0 }),
       take: t.arg.int({ defaultValue: 100 }),
       filter: t.arg.string({ required: false }),
+      statusFilter: t.arg.string({ required: false }),
     },
     resolve: async (source, args, context) => {
       if (!context.session.user.isAdmin) {
@@ -187,6 +241,7 @@ builder.queryField('managedUsers', (t) =>
         skip: args.skip,
         take: args.take,
         filter: args.filter || undefined,
+        statusFilter: args.statusFilter || undefined,
       }
     },
   }),

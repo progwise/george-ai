@@ -52,7 +52,7 @@ function UsersList() {
 
         {/* Search and filters */}
         <UserFilters
-          filter={search.filter}
+          filter={search.filter || ''}
           onFilterChange={(newTerm) => {
             navigate({ search: { ...search, filter: newTerm, skip: 0 } })
           }}

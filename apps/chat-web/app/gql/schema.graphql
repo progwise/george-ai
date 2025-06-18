@@ -469,6 +469,7 @@ type ManagedUser {
 type ManagedUsersResponse {
   filter: String
   skip: Int!
+  statusFilter: String
   take: Int!
   userStatistics: UserStatistic!
   users: [ManagedUser!]!
@@ -543,7 +544,8 @@ type Query {
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!
-  managedUsers(filter: String, skip: Int! = 0, take: Int! = 100): ManagedUsersResponse!
+  managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
+  queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!

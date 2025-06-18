@@ -40,8 +40,8 @@ const getManagedUsers = createServerFn({
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        query getManagedUsers($skip: Int!, $take: Int!, $filter: String) {
-          managedUsers(skip: $skip, take: $take, filter: $filter) {
+        query getManagedUsers($skip: Int!, $take: Int!, $filter: String, $statusFilter: String) {
+          managedUsers(skip: $skip, take: $take, filter: $filter, statusFilter: $statusFilter) {
             skip
             take
             filter
