@@ -170,12 +170,14 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
     },
   })
 
-  const [selectedFiles, setSelectedFiles] = useState<LibraryFile[]>([])
+  const [checkedFiles, setCheckedFiles] = useState<LibraryFile[]>([])
+  const [checkedFolderIds, setCheckedFolderIds] = useState<string[]>([])
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } = useMutation({
     mutationFn: (data: { libraryId: string; files: LibraryFile[]; access_token: string }) => embedFiles({ data }),
     onSuccess: () => {
       toastSuccess('Files embedded successfully')
-      setSelectedFiles([])
+      setCheckedFiles([])
+      setCheckedFolderIds([])
       queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
       queryClient.invalidateQueries({ queryKey: getProfileQueryOptions() })
     },
@@ -246,17 +248,22 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
               </button>
               <button
                 type="button"
-                disabled={!selectedFiles.length || embedFilesIsPending || disabled}
+                disabled={!checkedFiles.length || embedFilesIsPending || disabled}
                 className="btn btn-primary btn-xs"
-                onClick={() => handleEmbedFiles(selectedFiles)}
+                onClick={() => handleEmbedFiles(checkedFiles)}
               >
-                {getAddFilesLabel(selectedFiles.length)}
+                {getAddFilesLabel(checkedFiles.length)}
               </button>
             </>
           )}
         </div>
         {googleDriveFilesData && googleDriveFilesData.length > 0 && (
-          <GoogleFilesTable selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles} />
+          <GoogleFilesTable
+            checkedFiles={checkedFiles}
+            setCheckedFiles={setCheckedFiles}
+            checkedFolderIds={checkedFolderIds}
+            setCheckedFolderIds={setCheckedFolderIds}
+          />
         )}
       </div>
     </>

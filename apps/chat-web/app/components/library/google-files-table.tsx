@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -23,8 +23,10 @@ export const LibraryFileSchema = z.object({
 export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
 export interface GoogleFilesTableProps {
-  selectedFiles: LibraryFile[]
-  setSelectedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
+  checkedFiles: LibraryFile[]
+  setCheckedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
+  checkedFolderIds: string[]
+  setCheckedFolderIds: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const formatBytes = (bytes: number): string => {
@@ -35,13 +37,31 @@ const formatBytes = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(kilobytes, kilobyteExponent)).toFixed(2)) + ' ' + sizes[kilobyteExponent]
 }
 
-export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFilesTableProps) => {
+export const GoogleFilesTable = ({
+  checkedFiles,
+  setCheckedFiles,
+  checkedFolderIds,
+  setCheckedFolderIds,
+}: GoogleFilesTableProps) => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
-  const selectedIds = useMemo(() => new Set(selectedFiles.map((selectedFile) => selectedFile.id)), [selectedFiles])
+  const checkedFileIds = useMemo(() => new Set(checkedFiles.map((selectedFile) => selectedFile.id)), [checkedFiles])
   const rawToken = localStorage.getItem('google_drive_access_token') || '{}'
   const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(rawToken))
   const rootFolder: { id: string; name: string } = { id: 'root', name: 'root' }
+  const queryClient = useQueryClient()
+
+  const [clickCount, setClickCount] = useState<number>(0)
+  const clickCountRef = useRef(clickCount)
+  const clickDelay = 250
+  const [clickTarget, setClickTarget] = useState<LibraryFile | null>(null)
+  const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [clickTimeStamp, setClickTimeStamp] = useState<number>(0)
+  const [numberOfRecursiveProcesses, setNumberOfRecursiveProcesses] = useState<number>(0)
+
+  const [displayedFiles, setDisplayedFiles] = useState<
+    { size: number; iconLink: string; kind: string; id: string; name: string }[] | null
+  >(null)
 
   // changing the query and the path at the same time prevents inconsistency between the displayed files and the breadcrumb navigation
   const [googleDriveFolder, setGoogleDriveFolder] = useState({
@@ -49,7 +69,7 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
     path: [rootFolder],
   })
 
-  const fetchFiles = async () => {
+  const fetchDisplayedFiles = async () => {
     const fileQuery = googleDriveFolder.fileQuery()
     const response = await fetch(
       `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink,mimeType)&q=${fileQuery}`,
@@ -59,26 +79,145 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
     )
     if (!response.ok) throw new Error('Network error')
     const responseJson = googleDriveResponseSchema.parse(await response.json())
-    return responseJson.files.map(({ mimeType, ...file }) => ({
+    const files = responseJson.files.map(({ mimeType, ...file }) => ({
       ...file,
       size: file.size ? parseInt(file.size) : 0,
       iconLink: getHighResIconUrl(file.iconLink ?? ''),
       kind: mimeType,
     }))
+    setDisplayedFiles(files)
+    return files
   }
 
-  const { data } = useQuery({
+  useQuery({
     queryKey: [googleDriveFolder, queryKeys.GoogleDriveFiles, googleDriveAccessToken.access_token],
-    queryFn: fetchFiles,
+    queryFn: fetchDisplayedFiles,
   })
+
+  const getFolderContent = useCallback(
+    async (query: string | null) => {
+      const data = await queryClient.fetchQuery({
+        queryKey: [query, googleDriveAccessToken, checkedFileIds, checkedFolderIds],
+        queryFn: async () => {
+          let fileQuery = ''
+          if (query === null) {
+            return null
+          } else {
+            fileQuery = query
+          }
+          const response = await fetch(
+            `https://www.googleapis.com/drive/v3/files?fields=files(id,kind,name,size,iconLink,mimeType)&q=${fileQuery}`,
+            {
+              headers: { Authorization: `Bearer ${googleDriveAccessToken.access_token}` },
+            },
+          )
+          if (!response.ok) throw new Error('Network error')
+          const responseJson = googleDriveResponseSchema.parse(await response.json())
+          return responseJson.files.map(({ mimeType, ...file }) => ({
+            ...file,
+            size: file.size ? parseInt(file.size) : 0,
+            iconLink: getHighResIconUrl(file.iconLink ?? ''),
+            kind: mimeType,
+          }))
+        },
+      })
+      return data
+    },
+    [googleDriveAccessToken, queryClient, checkedFileIds, checkedFolderIds],
+  )
 
   const toggleFile = useCallback(
     (file: LibraryFile) => {
-      const isSelected = selectedIds.has(file.id)
-      setSelectedFiles((prev) => (isSelected ? prev.filter((fileItem) => fileItem.id !== file.id) : [...prev, file]))
+      const isChecked = checkedFileIds.has(file.id)
+      setCheckedFiles((prev) => (isChecked ? prev.filter((fileItem) => fileItem.id !== file.id) : [...prev, file]))
     },
-    [selectedIds, setSelectedFiles],
+    [checkedFileIds, setCheckedFiles],
   )
+
+  const unselectFolder = useCallback(
+    async (file: LibraryFile) => {
+      setNumberOfRecursiveProcesses((prev) => prev + 1)
+      const content = await getFolderContent(encodeURIComponent("'" + file.id + "'" + ' in parents'))
+      const files = content?.filter((file) => file.kind !== 'application/vnd.google-apps.folder')
+      files?.forEach((file) => {
+        if (checkedFileIds.has(file.id)) {
+          toggleFile(file)
+        }
+      })
+      const folders = content?.filter((file) => file.kind === 'application/vnd.google-apps.folder')
+      folders?.forEach((folder) => {
+        unselectFolder(folder)
+      })
+      setCheckedFolderIds((prev) => prev.filter((id) => id !== file.id))
+      setNumberOfRecursiveProcesses((prev) => prev - 1)
+    },
+    [getFolderContent, checkedFileIds, toggleFile, setCheckedFolderIds],
+  )
+
+  const selectFolder = useCallback(
+    async (file: LibraryFile) => {
+      setNumberOfRecursiveProcesses((prev) => prev + 1)
+      if (!checkedFolderIds.some((id) => id === file.id)) {
+        const content = await getFolderContent(encodeURIComponent("'" + file.id + "'" + ' in parents'))
+        const files = content?.filter((file) => file.kind !== 'application/vnd.google-apps.folder')
+        files?.forEach((file) => {
+          if (!checkedFileIds.has(file.id)) {
+            toggleFile(file)
+          }
+        })
+        const folders = content?.filter((file) => file.kind === 'application/vnd.google-apps.folder')
+        folders?.forEach((folder) => {
+          selectFolder(folder)
+        })
+        setCheckedFolderIds((prev) => [...prev, file.id])
+      }
+      setNumberOfRecursiveProcesses((prev) => prev - 1)
+    },
+    [checkedFolderIds, getFolderContent, checkedFileIds, toggleFile, setCheckedFolderIds],
+  )
+
+  const toggleFolder = useCallback(
+    async (file: LibraryFile) => {
+      // Checking the number of ongoing function calls ensures that recursive function calls don't distort the results of other recursive function calls
+      if (numberOfRecursiveProcesses === 0) {
+        if (!checkedFolderIds.some((id) => id === file.id)) {
+          selectFolder(file)
+        } else {
+          unselectFolder(file)
+        }
+      }
+    },
+    [checkedFolderIds, unselectFolder, numberOfRecursiveProcesses, selectFolder],
+  )
+
+  useEffect(() => {
+    clickCountRef.current = clickCount
+  }, [clickCount])
+
+  // Ensures that a double click does not tricker the toogleFolder function.
+  // Using a RefObject for the click counter instead of the actual variable prevents the timeout from beeing restarted immediately.
+  useEffect(() => {
+    if (!clickTarget || clickCountRef.current === 0) {
+      return
+    }
+    clickTimeout.current = setTimeout(() => {
+      if (clickCountRef.current === 1) {
+        toggleFolder(clickTarget)
+      }
+      setClickCount(0)
+    }, clickDelay)
+    return () => {
+      if (clickTimeout.current && clickTarget !== null) {
+        clearTimeout(clickTimeout.current)
+      }
+    }
+  }, [clickTarget, clickTimeStamp, toggleFolder])
+
+  const handleClickOnFolder = (file: LibraryFile) => {
+    setClickTarget(file) // handles two clicks as double click only when the same element is clicked again
+    setClickCount((prev) => prev + 1)
+    setClickTimeStamp(Date.now()) // Using a time stamp ensures that the second click triggers the click handling
+  }
 
   const getSelectedFilesLabel = (count: number) => {
     return count === 1 ? t('libraries.selectedSingleFile') : t('libraries.selectedMultipleFiles', { count })
@@ -118,13 +257,13 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
         <div className="border-base-300 bg-base-200 inline-flex h-8 w-auto items-center gap-1 rounded-full border-2 p-2">
           <button
             type="button"
-            onClick={() => setSelectedFiles([])}
+            onClick={() => setCheckedFiles([])}
             className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
-            disabled={selectedFiles.length === 0}
+            disabled={checkedFiles.length === 0}
           >
             <CrossIcon />
           </button>
-          <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(selectedFiles.length)}</span>
+          <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(checkedFiles.length)}</span>
         </div>
         <div className="breadcrumbs flex max-w-xl justify-center text-sm">
           <ul>
@@ -179,13 +318,13 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
           <div className="border-base-300 bg-base-200 order-1 inline-flex h-8 w-auto items-center gap-1 rounded-full border-2 p-2">
             <button
               type="button"
-              onClick={() => setSelectedFiles([])}
+              onClick={() => setCheckedFiles([])}
               className="hover:bg-base-400 bg-base-300 flex items-center justify-center rounded-full focus:outline-none"
-              disabled={selectedFiles.length === 0}
+              disabled={checkedFiles.length === 0}
             >
               <CrossIcon />
             </button>
-            <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(selectedFiles.length)}</span>
+            <span className="text-base-content text-sm font-medium">{getSelectedFilesLabel(checkedFiles.length)}</span>
           </div>
           <div className="border-base-300 bg-base-200 order-2 inline-flex h-8 w-auto items-center rounded-full border-2">
             <button
@@ -241,8 +380,8 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
         <div className="w-full">
           {viewMode === 'list' && (
             <div className="flex flex-col gap-2 p-2">
-              {data?.map((file) => {
-                const isSelected = selectedIds.has(file.id)
+              {displayedFiles?.map((file) => {
+                const isSelected = checkedFileIds.has(file.id) || checkedFolderIds.some((id) => id === file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
                 const iconDesign = 'me-3 ms-3 flex-none size-6 w-auto h-auto'
@@ -258,7 +397,7 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                     }
                   >
                     <div
-                      onClick={() => toggleFile(file)}
+                      onClick={isFolder ? () => handleClickOnFolder(file) : () => toggleFile(file)}
                       role="button"
                       tabIndex={0}
                       className="rounded-box flex-none select-none"
@@ -275,7 +414,8 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                     </div>
                     <div
                       className={contentDesign}
-                      onClick={isFolder ? () => openFolder(file.id, file.name) : undefined}
+                      onClick={isFolder ? () => handleClickOnFolder(file) : () => toggleFile(file)}
+                      onDoubleClick={isFolder ? () => openFolder(file.id, file.name) : undefined}
                     >
                       {file.iconLink ? (
                         <img src={file.iconLink} alt="" className={iconDesign + 'object-contain'} />
@@ -294,7 +434,9 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                         >
                           {file.name}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{isFolder ? 'Folder' : 'File'}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {isFolder ? t('folder') : t('file')}
+                        </div>
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">{formatBytes(sizeValue)}</div>
                     </div>
@@ -305,14 +447,15 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
           )}
           {viewMode === 'grid' && (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
-              {data?.map((file) => {
-                const isSelected = selectedIds.has(file.id)
+              {displayedFiles?.map((file) => {
+                const isSelected = checkedFileIds.has(file.id) || checkedFolderIds.some((id) => id === file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
                 return (
                   <div
                     key={file.id}
-                    onClick={isFolder ? () => openFolder(file.id, file.name) : () => toggleFile(file)}
+                    onClick={isFolder ? () => handleClickOnFolder(file) : () => toggleFile(file)}
+                    onDoubleClick={isFolder ? () => openFolder(file.id, file.name) : undefined}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(event) => {
@@ -328,7 +471,7 @@ export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFile
                     <span className="text-base-content block w-full max-w-full truncate text-center text-sm">
                       {file.name}
                     </span>
-                    <span className="text-base-content mt-1 text-xs">{isFolder ? 'Folder' : 'File'}</span>
+                    <span className="text-base-content mt-1 text-xs">{isFolder ? t('folder') : t('file')}</span>
                     <span className="text-base-content mt-1 hidden text-xs md:block">{formatBytes(sizeValue)}</span>
                   </div>
                 )
