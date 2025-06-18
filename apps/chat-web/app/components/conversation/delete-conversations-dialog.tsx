@@ -51,7 +51,7 @@ export const DeleteConversationsDialog = (props: DeleteConversationsDialogProps)
   const submitButtonText = t('actions.remove')
   const buttonTooltip = t('conversations.removeMultiple')
 
-  const trashIconDesign = props.checkedConversationIds.length < 1 ? 'size-6 text-neutral-content' : 'size-6 text-error'
+  const trashIconDesign = props.checkedConversationIds.length < 1 ? 'size-6 text-neutral-content' : 'size-6'
 
   return (
     <>
