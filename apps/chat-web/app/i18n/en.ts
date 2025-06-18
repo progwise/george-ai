@@ -44,6 +44,11 @@ export default {
     upload: 'Upload',
     uploaded: 'Uploaded',
   },
+  admin: {
+    adminAreaHeadline: 'Administration Area - use with caution',
+    dashboard: 'Dashboard',
+    manageUsers: 'Manage Users',
+  },
   aiAct: {
     applicableHeadline:
       'Based on your answers, we recommend reviewing the following areas in the detailed assessment. You can adjust the selection',

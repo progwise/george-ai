@@ -44,6 +44,11 @@ export default {
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
   },
+  admin: {
+    adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
+    dashboard: 'Dashboard',
+    manageUsers: 'Benutzer verwalten',
+  },
   aiAct: {
     applicableHeadline:
       'Basierend auf Ihren Antworten empfehlen wir, die folgenden Bereiche in der detaillierten Bewertung zu prüfen. Sie können die Auswahl anpassen',

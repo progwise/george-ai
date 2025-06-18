@@ -467,6 +467,34 @@ export type HumanParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+export type ManagedUser = {
+  __typename?: 'ManagedUser'
+  activationDate?: Maybe<Scalars['DateTime']['output']>
+  business?: Maybe<Scalars['String']['output']>
+  confirmationDate?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
+  email: Scalars['String']['output']
+  family_name?: Maybe<Scalars['String']['output']>
+  given_name?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  isAdmin: Scalars['Boolean']['output']
+  lastLogin?: Maybe<Scalars['DateTime']['output']>
+  name?: Maybe<Scalars['String']['output']>
+  position?: Maybe<Scalars['String']['output']>
+  registered?: Maybe<Scalars['Boolean']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  username: Scalars['String']['output']
+}
+
+export type ManagedUsersResponse = {
+  __typename?: 'ManagedUsersResponse'
+  filter?: Maybe<Scalars['String']['output']>
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+  userStatistics: UserStatistic
+  users: Array<ManagedUser>
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   activateUserProfile?: Maybe<UserProfile>
@@ -755,7 +783,7 @@ export type Query = {
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiModels: Array<AiModel>
-  queryAiLibraryFiles: AiLibraryQueryResult
+  managedUsers: ManagedUsersResponse
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -800,11 +828,10 @@ export type QueryAiLibraryUsageArgs = {
   libraryId?: InputMaybe<Scalars['String']['input']>
 }
 
-export type QueryQueryAiLibraryFilesArgs = {
-  libraryId: Scalars['String']['input']
-  query: Scalars['String']['input']
-  skip: Scalars['Int']['input']
-  take: Scalars['Int']['input']
+export type QueryManagedUsersArgs = {
+  filter?: InputMaybe<Scalars['String']['input']>
+  skip?: Scalars['Int']['input']
+  take?: Scalars['Int']['input']
 }
 
 export type QueryUserArgs = {
@@ -869,6 +896,15 @@ export type UserProfileInput = {
   freeStorage?: InputMaybe<Scalars['Int']['input']>
   lastName?: InputMaybe<Scalars['String']['input']>
   position?: InputMaybe<Scalars['String']['input']>
+}
+
+export type UserStatistic = {
+  __typename?: 'UserStatistic'
+  activated: Scalars['Int']['output']
+  confirmed: Scalars['Int']['output']
+  total: Scalars['Int']['output']
+  unactivated: Scalars['Int']['output']
+  unconfirmed: Scalars['Int']['output']
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -2171,6 +2207,67 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type ManagedUserFragment = {
+  __typename?: 'ManagedUser'
+  id: string
+  username: string
+  name?: string | null
+  given_name?: string | null
+  family_name?: string | null
+  lastLogin?: string | null
+  createdAt: string
+  updatedAt?: string | null
+  email: string
+  isAdmin: boolean
+  registered?: boolean | null
+  business?: string | null
+  position?: string | null
+  confirmationDate?: string | null
+  activationDate?: string | null
+}
+
+export type GetManagedUsersQueryVariables = Exact<{
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+  filter?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type GetManagedUsersQuery = {
+  __typename?: 'Query'
+  managedUsers: {
+    __typename?: 'ManagedUsersResponse'
+    skip: number
+    take: number
+    filter?: string | null
+    userStatistics: {
+      __typename?: 'UserStatistic'
+      total: number
+      confirmed: number
+      unconfirmed: number
+      activated: number
+      unactivated: number
+    }
+    users: Array<{
+      __typename?: 'ManagedUser'
+      id: string
+      username: string
+      name?: string | null
+      given_name?: string | null
+      family_name?: string | null
+      lastLogin?: string | null
+      createdAt: string
+      updatedAt?: string | null
+      email: string
+      isAdmin: boolean
+      registered?: boolean | null
+      business?: string | null
+      position?: string | null
+      confirmationDate?: string | null
+      activationDate?: string | null
+    }>
+  }
 }
 
 export type ChangeAiLibraryMutationVariables = Exact<{
@@ -4864,6 +4961,36 @@ export const UserProfileForm_UserProfileFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserProfileForm_UserProfileFragment, unknown>
+export const ManagedUserFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ManagedUser' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ManagedUser' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'registered' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ManagedUserFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8247,6 +8374,114 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetManagedUsersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getManagedUsers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'managedUsers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filter' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'filter' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'userStatistics' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'confirmed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'unconfirmed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'activated' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'unactivated' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'users' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ManagedUser' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ManagedUser' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ManagedUser' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'registered' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedUsersQuery, GetManagedUsersQueryVariables>
 export const ChangeAiLibraryDocument = {
   kind: 'Document',
   definitions: [

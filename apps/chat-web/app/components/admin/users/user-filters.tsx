@@ -4,21 +4,25 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SearchIcon } from '../../../icons/search-icon'
 import { Listbox } from '../../listbox'
 
-export const UserFilters = ({
-  searchTerm,
-  setSearchTerm,
-  statusFilter,
-  setStatusFilter,
-  pageSize,
-  setPageSize,
-}: {
-  searchTerm: string
-  setSearchTerm: (term: string) => void
-  statusFilter: 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated'
-  setStatusFilter: (filter: 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated') => void
+export const StatusFilterValues = ['all', 'confirmed', 'unconfirmed', 'activated', 'unactivated'] as const
+
+interface UserFiltersProps {
+  filter: string
+  onFilterChange: (term: string) => void
+  statusFilter: (typeof StatusFilterValues)[number]
+  onStatusFilterChange: (satusFilter: (typeof StatusFilterValues)[number]) => void
   pageSize: number
-  setPageSize: (size: number) => void
-}) => {
+  onPageSizeChange: (size: number) => void
+}
+
+export const UserFilters = ({
+  filter,
+  onFilterChange,
+  statusFilter,
+  onStatusFilterChange,
+  pageSize,
+  onPageSizeChange,
+}: UserFiltersProps) => {
   const { t } = useTranslation()
 
   const statusOptions = useMemo(
@@ -60,8 +64,8 @@ export const UserFilters = ({
             type="text"
             placeholder={t('placeholders.searchUsers')}
             className="bg-base-100 focus:outline-primary w-full rounded-lg border px-2 py-1 pl-8 text-sm focus:outline-2"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={filter}
+            onChange={(e) => onFilterChange(e.target.value)}
           />
           <div className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2">
             <SearchIcon className="opacity-70" />
@@ -73,7 +77,7 @@ export const UserFilters = ({
             selectedItem={selectedStatusOption}
             onChange={(item) => {
               if (item) {
-                setStatusFilter(item.id as 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated')
+                onStatusFilterChange(item.id as 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated')
               }
             }}
           />
@@ -85,7 +89,7 @@ export const UserFilters = ({
           selectedItem={selectedPageSizeOption}
           onChange={(item) => {
             if (item) {
-              setPageSize(Number(item.id))
+              onPageSizeChange(Number(item.id))
             }
           }}
         />
