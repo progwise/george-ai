@@ -38,7 +38,14 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return
   }
 
-  const filestream = fs.createWriteStream(getFilePath(file.id), {
+  if (!file.name) {
+    httpResponse.status(400).send('Bad Request: File record is incomplete (missing name).')
+    return
+  }
+
+  const tempFilePath = getFilePath(file.id, file.name)
+
+  const filestream = fs.createWriteStream(tempFilePath, {
     flags: 'a',
   })
 
@@ -62,7 +69,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   httpRequest.on('close', async () => {
     if (!httpRequest.complete) {
       console.log('Upload aborted, cleaning up...')
-
+      filestream.close()
       try {
         await cleanupFile(file.id)
       } catch (error) {

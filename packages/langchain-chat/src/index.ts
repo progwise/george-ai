@@ -17,3 +17,15 @@ export const ask = (parameters: { question: string; sessionId: string; retrieval
   )
 
 export * from './typesense-vectorstore'
+export { getPDFContentForQuestion, getPDFContentForQuestionAndLibraries } from './typesense-vectorstore'
+export { getWebContent } from './web-vectorstore'
+export { calculateChunkParams, MAX_CHUNK_SIZE, MIN_CHUNK_SIZE, OVERLAP_RATIO } from './vectorstore-settings'
+export {
+  convertPdfToMarkdown,
+  convertDocxToMarkdown,
+  convertCsvToMarkdown,
+  convertExcelToMarkdown,
+  convertDocumentsToMarkdown,
+  loadFile,
+  type FileLoadParams,
+} from './file-converter'

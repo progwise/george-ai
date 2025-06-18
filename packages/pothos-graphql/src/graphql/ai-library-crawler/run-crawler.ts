@@ -109,7 +109,7 @@ const startCrawling = async (
           update: fileUpdateData,
         })
 
-        await fs.writeFile(getFilePath(file.id), markdown)
+        await fs.writeFile(getFilePath(file.id, file.name), markdown)
         await completeFileUpload(file.id)
         await processFile(file.id)
         crawledPages.push({ ...crawledPage, url: metaData.url, markdown, metaData: crawledPage.metaData, error: null })

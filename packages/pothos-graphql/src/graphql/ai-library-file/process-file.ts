@@ -1,6 +1,6 @@
 import { embedFile } from '@george-ai/langchain-chat'
 
-import { getFilePath } from '../../file-upload'
+import { getFilePath, getProcessedFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 
 export const processFile = async (fileId: string) => {
@@ -19,12 +19,27 @@ export const processFile = async (fileId: string) => {
   })
 
   try {
+    // Determine the file path to use based on whether this is initial processing or re-processing
+    let filePath: string
+    if (file.uploadedAt) {
+      // File has been uploaded and converted - use the markdown file for re-processing
+      filePath = getProcessedFilePath(file.id)
+      console.log(`Re-processing file ${file.id} using converted markdown: ${filePath}`)
+    } else {
+      // Initial processing - use the original uploaded file
+      if (!file.name) {
+        throw new Error(`File record ${fileId} is missing original name for initial processing.`)
+      }
+      filePath = getFilePath(file.id, file.name)
+      console.log(`Initial processing file ${file.id} using original file: ${filePath}`)
+    }
+
     const embeddedFile = await embedFile(file.libraryId, {
       id: file.id,
       name: file.name,
       originUri: file.originUri!,
-      mimeType: file.mimeType,
-      path: getFilePath(file.id),
+      mimeType: file.uploadedAt ? 'text/markdown' : file.mimeType, // Use markdown mimetype for re-processing
+      path: filePath,
     })
 
     return await prisma.aiLibraryFile.update({

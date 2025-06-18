@@ -148,7 +148,7 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
     resolve: async (_parent, { libraryId }) => {
       await dropVectorStore(libraryId)
       const files = await prisma.aiLibraryFile.findMany({
-        select: { id: true },
+        select: { id: true, name: true },
         where: { libraryId },
       })
       await prisma.aiLibraryFile.deleteMany({
@@ -156,7 +156,7 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
       })
 
       const deleteFilePromises = files.map((file) => {
-        const filePath = getFilePath(file.id)
+        const filePath = getFilePath(file.id, file.name)
         return new Promise((resolve) => {
           fs.rm(filePath, (err) => {
             if (err) {
