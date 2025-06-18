@@ -5,6 +5,9 @@ import { dropVectorStore } from '@george-ai/langchain-chat'
 import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+
+import './queryFiles'
+
 import { canAccessLibrary } from './check-participation'
 
 console.log('Setting up: AiLibrary')
@@ -86,13 +89,22 @@ builder.queryField('aiLibraries', (t) =>
 )
 
 builder.mutationField('updateAiLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
-    resolve: async (query, _source, { id, data }) => {
+    resolve: async (query, _source, { id, data }, context) => {
+      const library = await prisma.aiLibrary.findUnique({
+        where: { id },
+      })
+      if (!library) {
+        throw new Error(`Library with id ${id} not found`)
+      }
+      if (!canAccessLibrary(context, library)) {
+        throw new Error(`You do not have permission to update this library`)
+      }
       return prisma.aiLibrary.update({
         ...query,
         where: { id },

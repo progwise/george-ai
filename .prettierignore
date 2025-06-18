@@ -8,3 +8,4 @@ apps/chat-web/app/routeTree.gen.ts
 .posgres-data*
 .typesense-data
 .node_modules
+.venv
