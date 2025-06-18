@@ -21,7 +21,7 @@ function RouteComponent() {
 
   return (
     <div>
-      Welcome, {profile?.userId} to the library {library.name} (ID: {libraryId})!
+      Welcome, {profile?.email} to the library {library.name} (ID: {libraryId})!
     </div>
   )
 }
