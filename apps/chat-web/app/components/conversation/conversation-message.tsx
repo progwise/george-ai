@@ -13,10 +13,10 @@ import { CollapseArrows } from '../../icons/collapse-arrows-icon'
 import { ExpandArrows } from '../../icons/expand-arrows-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { backendRequest } from '../../server-functions/backend'
-import { getConversationQueryOptions } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { FormattedMarkdown } from '../formatted-markdown'
 import { toastError } from '../georgeToaster'
+import { getConversationQueryOptions } from './get-conversation'
 
 const HideMessageDocument = graphql(`
   mutation hideMessage($messageId: String!) {

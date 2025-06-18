@@ -51,16 +51,27 @@ const AiAssistantInput = builder.inputType('AiAssistantInput', {
 })
 
 builder.queryField('aiAssistant', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiAssistant',
     args: {
-      id: t.arg.string({ required: true }),
+      assistantId: t.arg.string({ required: true }),
     },
-    resolve: (query, _source, { id }) => {
-      return prisma.aiAssistant.findUnique({
+    resolve: async (query, _source, { assistantId }, context) => {
+      const user = context.session.user
+      const assistant = await prisma.aiAssistant.findUnique({
         ...query,
-        where: { id },
+        where: { id: assistantId },
+        include: { participants: { include: { user: true } } },
       })
+      if (!assistant) return null
+
+      const isAuthorized =
+        user.isAdmin ||
+        assistant.ownerId === user.id ||
+        (await prisma.aiAssistantParticipant.findFirst({ where: { assistantId, userId: user.id } })) != null
+
+      if (!isAuthorized) return null
+      return assistant
     },
   }),
 )

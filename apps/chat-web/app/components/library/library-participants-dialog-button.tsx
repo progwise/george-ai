@@ -9,8 +9,8 @@ import { addLibraryParticipants } from '../../server-functions/library-participa
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
-import { getLibrariesQueryOptions } from './get-libraries-query-options'
-import { getLibraryQueryOptions } from './get-library-query-options'
+import { getLibrariesQueryOptions } from './get-libraries'
+import { getLibraryQueryOptions } from './get-library'
 
 graphql(`
   fragment LibraryParticipantsDialogButton_Library on AiLibrary {

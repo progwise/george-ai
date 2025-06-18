@@ -7,9 +7,9 @@ import { z } from 'zod'
 import { graphql } from '../../gql'
 import { AssistantBasecaseForm_AssistantFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { getAssistantQueryOptions } from '../../server-functions/assistant'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
+import { getAssistantQueryOptions } from './get-assistant'
 
 const upsertAiBaseCases = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {

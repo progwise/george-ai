@@ -22,7 +22,7 @@ export const LibraryFileSchema = z.object({
 })
 export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
-export interface FilesTableProps {
+export interface GoogleFilesTableProps {
   checkedFiles: LibraryFile[]
   setCheckedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
   checkedFolderIds: string[]
@@ -37,12 +37,12 @@ const formatBytes = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(kilobytes, kilobyteExponent)).toFixed(2)) + ' ' + sizes[kilobyteExponent]
 }
 
-export const FilesTable = ({
+export const GoogleFilesTable = ({
   checkedFiles,
   setCheckedFiles,
   checkedFolderIds,
   setCheckedFolderIds,
-}: FilesTableProps) => {
+}: GoogleFilesTableProps) => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const checkedFileIds = useMemo(() => new Set(checkedFiles.map((selectedFile) => selectedFile.id)), [checkedFiles])

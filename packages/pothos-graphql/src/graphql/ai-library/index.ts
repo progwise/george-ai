@@ -5,6 +5,7 @@ import { dropVectorStore } from '@george-ai/langchain-chat'
 import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+import { canAccessLibrary } from './check-participation'
 
 console.log('Setting up: AiLibrary')
 
@@ -51,16 +52,22 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
 })
 
 builder.queryField('aiLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
-      id: t.arg.string(),
+      libraryId: t.arg.string(),
     },
-    resolve: (query, _source, { id }) => {
-      return prisma.aiLibrary.findUnique({
+    resolve: async (query, _source, { libraryId }, context) => {
+      const library = await prisma.aiLibrary.findUniqueOrThrow({
         ...query,
-        where: { id },
+        where: { id: libraryId },
       })
+      const isAuthorized = canAccessLibrary(context, {
+        id: library.id,
+        ownerId: library.ownerId,
+      })
+      if (!isAuthorized) return null
+      return library
     },
   }),
 )

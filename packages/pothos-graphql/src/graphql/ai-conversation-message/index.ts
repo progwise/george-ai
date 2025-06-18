@@ -1,5 +1,4 @@
 import { askAssistantChain } from '@george-ai/langchain-chat'
-import { SupportedModel } from '@george-ai/langchain-chat/src/assistant-model'
 
 import { callConversationMessagesUpdateSubscriptions } from '../../conversation-messages-subscription'
 import { prisma } from '../../prisma'
@@ -251,7 +250,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
-            languageModel: (assistant.languageModel as SupportedModel) || 'gpt-3',
+            languageModel: assistant.languageModel || 'gpt-4o-mini',
             description:
               assistant.description ||
               'You are a helpful assistant and no prompt was specified. Please state that you need a prompt to work properly.',

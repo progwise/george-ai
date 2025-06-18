@@ -10,7 +10,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
-import { getLibrariesQueryOptions } from './../get-libraries-query-options'
+import { getLibrariesQueryOptions } from '../get-libraries'
 
 const deleteFilesDocument = graphql(`
   mutation dropFiles($libraryId: String!) {

@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { TrashIcon } from '../../../icons/trash-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
@@ -50,24 +51,30 @@ export const DeleteCrawlerButton = ({ crawlerId, crawlerUrl, filesCount, library
 
   return (
     <>
-      <button type="button" className="btn btn-xs" onClick={() => dialogRef.current?.showModal()}>
-        {t('crawlers.delete')}
+      <button
+        type="button"
+        className="btn btn-xs tooltip tooltip-left"
+        data-tip={t('tooltips.delete')}
+        onClick={() => dialogRef.current?.showModal()}
+      >
+        <TrashIcon />
       </button>
 
       <DialogForm
         ref={dialogRef}
         title={t('crawlers.delete')}
-        description={
-          <div
-            // eslint-disable-next-line @eslint-react/dom/no-dangerously-set-innerhtml
-            dangerouslySetInnerHTML={{
-              __html: t('crawlers.deleteConfirmation', {
-                crawlerUrl: `<span class="font-bold">${encodeURIComponent(crawlerUrl)}</span>`,
-                filesCount,
-              }),
-            }}
-          />
-        }
+        description={(() => {
+          const placeholder = '{crawlerUrl}'
+          const confirmation = t('crawlers.deleteConfirmation', { crawlerUrl: placeholder, filesCount })
+          const [before, after] = confirmation.split(placeholder)
+          return (
+            <>
+              {before}
+              <span className="font-bold">{crawlerUrl}</span>
+              {after}
+            </>
+          )
+        })()}
         onSubmit={handleSubmit}
         disabledSubmit={isPending}
         submitButtonText={t('actions.delete')}

@@ -7,15 +7,22 @@ import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
 import { AssistantParticipants } from '../../../components/assistant/assistant-participants'
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
-import { getLibrariesQueryOptions } from '../../../components/library/get-libraries-query-options'
+import { getAssistantQueryOptions } from '../../../components/assistant/get-assistant'
+import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
+import { getLibrariesQueryOptions } from '../../../components/library/get-libraries'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BackIcon } from '../../../icons/back-icon'
-import { getAiAssistantsQueryOptions, getAssistantQueryOptions } from '../../../server-functions/assistant'
 import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/assistants/$assistantId')({
   component: RouteComponent,
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(getAiAssistantsQueryOptions()),
+      context.queryClient.ensureQueryData(getAssistantQueryOptions(params.assistantId)),
+    ])
+  },
   staleTime: 0,
 })
 
@@ -25,7 +32,10 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const ownerId = user.id
   const { assistantId } = Route.useParams()
-  const { data, isLoading } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
+
+  const {
+    data: { aiAssistant, aiLibraryUsage },
+  } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
 
   const { data: usersData } = useSuspenseQuery(getUsersQueryOptions())
   const {
@@ -35,9 +45,7 @@ function RouteComponent() {
     data: { aiAssistants },
   } = useSuspenseQuery(getAiAssistantsQueryOptions())
 
-  const { aiAssistant, aiLibraryUsage } = data
-
-  if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage || isLoading) {
+  if (!aiAssistant || !aiAssistants || !aiLibraries || !aiLibraryUsage) {
     return <LoadingSpinner />
   }
 
