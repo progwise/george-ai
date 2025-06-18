@@ -8,12 +8,6 @@ import { queryKeys } from '../../../../query-keys'
 import { getUserById } from '../../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/admin/users/$userId')({
-  beforeLoad: ({ context }) => {
-    if (!context.user?.isAdmin) {
-      throw notFound()
-    }
-    return {}
-  },
   component: AdminUserDetail,
 })
 
