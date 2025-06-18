@@ -37,7 +37,7 @@ export const GoogleFileUploadButton = ({ libraryId, disabled }: GoogleFileUpload
       <button
         type="button"
         className="btn btn-xs tooltip tooltip-bottom"
-        data-tip={t('tooltips.addGoogleDriveFiles')}
+        data-tip={t('texts.addGoogleDriveFiles')}
         onClick={() => {
           if (googleDriveAccessToken) {
             dialogRef.current?.showModal()
