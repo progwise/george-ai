@@ -37,7 +37,7 @@ export const UserTable = ({ users }: { users: ManagedUserFragment[] }) => {
               <td className="hidden p-2 sm:table-cell md:p-4">
                 <div className="flex items-center gap-2">
                   <div
-                    className="tooltip tooltip-top"
+                    className="tooltip tooltip-left"
                     data-tip={user?.confirmationDate ? t('labels.confirmed') : t('labels.unconfirmed')}
                   >
                     <div
@@ -45,7 +45,7 @@ export const UserTable = ({ users }: { users: ManagedUserFragment[] }) => {
                     ></div>
                   </div>
                   <div
-                    className="tooltip tooltip-top"
+                    className="tooltip tooltip-right"
                     data-tip={user?.activationDate ? t('labels.activated') : t('labels.unactivated')}
                   >
                     <div className={`size-3 rounded-full ${user?.activationDate ? 'bg-success' : 'bg-warning'}`}></div>

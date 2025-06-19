@@ -6,13 +6,14 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SearchIcon } from '../../../icons/search-icon'
 import { Listbox } from '../../listbox'
 
+//Statistics now show global counts with contextual total label for better UX
 export const StatusFilterValues = ['all', 'confirmed', 'unconfirmed', 'activated', 'unactivated'] as const
 
 interface UserFiltersProps {
   filter: string
   onFilterChange: (term: string) => void
   statusFilter: (typeof StatusFilterValues)[number]
-  onStatusFilterChange: (satusFilter: (typeof StatusFilterValues)[number]) => void
+  onStatusFilterChange: (statusFilter: (typeof StatusFilterValues)[number]) => void
   pageSize: number
   onPageSizeChange: (size: number) => void
 }
@@ -28,13 +29,11 @@ export const UserFilters = ({
   const { t } = useTranslation()
 
   const statusOptions = useMemo(
-    () => [
-      { id: 'all', name: t('labels.allUsers') },
-      { id: 'confirmed', name: t('labels.confirmed') },
-      { id: 'unconfirmed', name: t('labels.unconfirmed') },
-      { id: 'activated', name: t('labels.activated') },
-      { id: 'unactivated', name: t('labels.unactivated') },
-    ],
+    () =>
+      StatusFilterValues.map((value) => ({
+        id: value,
+        name: value === 'all' ? t('labels.allUsers') : t(`labels.${value}`),
+      })),
     [t],
   )
 
@@ -83,7 +82,7 @@ export const UserFilters = ({
             selectedItem={selectedStatusOption}
             onChange={(item) => {
               if (item) {
-                onStatusFilterChange(item.id as 'all' | 'confirmed' | 'unconfirmed' | 'activated' | 'unactivated')
+                onStatusFilterChange(item.id)
               }
             }}
           />

@@ -16,32 +16,37 @@ export const Route = createFileRoute('/_authenticated/admin')({
 
 function RouteComponent() {
   const { t } = useTranslation()
+
   return (
     <article className="flex w-full flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-warning text-base font-semibold">{t('admin.adminAreaHeadline')}</h3>
-        <ul className="menu-horizontal bg-base-200 rounded-box menu-sm">
-          <li>
-            <Link
-              to="/admin"
-              className="btn btn-ghost btn-sm"
-              activeProps={{ className: 'btn-active' }}
-              activeOptions={{ exact: true }}
-            >
-              {t('admin.dashboard')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/admin/users"
-              className="btn btn-ghost btn-sm"
-              activeProps={{ className: 'btn-active' }}
-              activeOptions={{ exact: false }}
-            >
-              {t('admin.manageUsers')}
-            </Link>
-          </li>
-        </ul>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-base font-semibold">{t('admin.adminAreaHeadline')}</h3>
+        <nav className="flex gap-2">
+          <Link
+            to="/admin"
+            activeProps={{
+              className: 'btn btn-primary btn-sm',
+            }}
+            inactiveProps={{
+              className: 'btn btn-ghost btn-sm',
+            }}
+            activeOptions={{ exact: true }}
+          >
+            {t('admin.dashboard')}
+          </Link>
+          <Link
+            to="/admin/users"
+            activeProps={{
+              className: 'btn btn-primary btn-sm',
+            }}
+            inactiveProps={{
+              className: 'btn btn-ghost btn-sm',
+            }}
+            activeOptions={{ exact: false }}
+          >
+            {t('admin.manageUsers')}
+          </Link>
+        </nav>
       </div>
       <Outlet />
     </article>

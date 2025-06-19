@@ -157,28 +157,29 @@ const ManagedUsersResponse = builder
           if (!context.session.user.isAdmin) {
             throw new Error('Unauthorized: Only admins can access managed users count')
           }
+
+          // Total with all filters applied (for pagination only)
           const total = await prisma.user.count({
-            where: getUserFilter(source.filter),
+            where: getUserFilter(source.filter, source.statusFilter),
           })
 
-          const [confirmed, activated] = await Promise.all([
+          // Always calculate GLOBAL stats (no filters) for consistent reference
+          const [globalConfirmed, globalActivated, absoluteTotal] = await Promise.all([
             prisma.user.count({
-              where: {
-                ...getUserFilter(source.filter, 'unconfirmed'),
-              },
+              where: { profile: { confirmationDate: { not: null } } },
             }),
             prisma.user.count({
-              where: {
-                ...getUserFilter(source.filter, 'unactivated'),
-              },
+              where: { profile: { activationDate: { not: null } } },
             }),
+            prisma.user.count(), // Total users in database
           ])
+
           return {
-            total,
-            confirmed,
-            unconfirmed: total - confirmed,
-            activated,
-            unactivated: total - activated,
+            total, // Filtered total for pagination
+            confirmed: globalConfirmed, // Global confirmed count
+            unconfirmed: absoluteTotal - globalConfirmed, // Global unconfirmed count
+            activated: globalActivated, // Global activated count
+            unactivated: absoluteTotal - globalActivated, // Global unactivated count
           }
         },
       }),

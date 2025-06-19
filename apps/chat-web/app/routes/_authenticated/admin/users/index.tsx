@@ -48,7 +48,7 @@ function UsersList() {
       <div className="bg-base-100 sticky top-16 z-10 pb-4 pt-2">
         <h2 className="mb-4 text-lg font-bold">{t('labels.allUsers')}</h2>
         {/* Stats Cards */}
-        <UserStats stats={userStatistics} />
+        <UserStats stats={userStatistics} statusFilter={search.statusFilter} />
 
         {/* Search and filters */}
         <UserFilters
@@ -69,19 +69,25 @@ function UsersList() {
         {/* Showing info and pagination */}
         <div className="mb-2 mt-4 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
           <div className="text-sm">
-            {t('texts.showingUsers', {
-              start: users.length > 0 ? search.skip + 1 : 0,
-              end: Math.min(search.skip + search.take, users.length),
-              total: userStatistics.total,
-            })}
+            {userStatistics.total > 0
+              ? t('texts.showingUsers', {
+                  start: search.skip + 1,
+                  end: search.skip + users.length,
+                  total: userStatistics.total,
+                })
+              : t('texts.noUsersFound')}
           </div>
-          {userStatistics.total / search.take > 1 && (
+          {userStatistics.total > search.take && (
             <Pagination
               totalItems={userStatistics.total}
               itemsPerPage={search.take}
               currentPage={search.skip / search.take + 1}
               onPageChange={(page) => {
-                navigate({ search: { ...search, skip: (page - 1) * search.take } })
+                const newSkip = (page - 1) * search.take
+                // Prevent navigation beyond available data
+                if (newSkip < userStatistics.total) {
+                  navigate({ search: { ...search, skip: newSkip } })
+                }
               }}
             />
           )}

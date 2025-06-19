@@ -46,8 +46,14 @@ export default {
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
+    availableFunctions: 'Verfügbare Administrationsfunktionen:',
     dashboard: 'Dashboard',
+    dashboardTitle: 'Admin-Dashboard',
     manageUsers: 'Benutzer verwalten',
+    manageUsersDescription:
+      'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
+    welcomeMessage:
+      'Willkommen im Admin-Dashboard. Verwenden Sie die Navigation, um Benutzer und Einstellungen zu verwalten.',
   },
   aiAct: {
     applicableHeadline:

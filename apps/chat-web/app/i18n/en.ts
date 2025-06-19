@@ -45,9 +45,13 @@ export default {
     uploaded: 'Uploaded',
   },
   admin: {
-    adminAreaHeadline: 'Administration Area - use with caution',
+    adminAreaHeadline: 'Administration Area - Use with caution',
+    availableFunctions: 'Available administrative functions:',
     dashboard: 'Dashboard',
+    dashboardTitle: 'Admin Dashboard',
     manageUsers: 'Manage Users',
+    manageUsersDescription: 'View all users, activate accounts, edit profiles, and delete users as needed.',
+    welcomeMessage: 'Welcome to the admin dashboard. Use the navigation to manage users and settings.',
   },
   aiAct: {
     applicableHeadline:
