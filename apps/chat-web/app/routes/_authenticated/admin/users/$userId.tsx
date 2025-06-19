@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { AdminProfileEditor } from '../../../../components/user/admin-profile-editor'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
