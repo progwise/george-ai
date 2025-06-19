@@ -24,7 +24,10 @@ export const FormattedMarkdown = ({
     <div
       ref={ref}
       id={id}
-      className={twMerge('prose marker:text-base-100 [&_*]:text-base-content contents [&_*]:w-full', className)}
+      className={twMerge(
+        'prose marker:text-base-100 [&_*]:text-base-content contents [&_*]:w-full [&_img]:max-w-xs [&_img]:object-fill',
+        className,
+      )}
     ></div>
   )
 }

@@ -87,7 +87,7 @@ function RouteComponent() {
           to="/libraries/$libraryId/query"
           params={{ libraryId }}
           className="tab"
-          activeOptions={{ exact: true }}
+          activeOptions={{ exact: false }}
           activeProps={{ className: 'tab-active' }}
           role="tab"
         >
