@@ -31,7 +31,7 @@ export const FilesActionsBar = ({
     onError: () => {
       toastError(t('errors.dropFilesError'))
     },
-    onSuccess: () => {
+    onSuccess: (_, selectedFileIds) => {
       toastSuccess(`${selectedFileIds.length} ${t('actions.dropSuccess')}`)
     },
     onSettled: () => {
@@ -49,10 +49,10 @@ export const FilesActionsBar = ({
       tableDataChanged()
     },
     onError: () => {
-      toastError(t('errors.reProcessFilesError'))
+      toastError(t('errors.reprocessFileError'))
     },
-    onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} ${t('actions.reProcessSuccess')}`)
+    onSuccess: (_, selectedFileIds) => {
+      toastSuccess(`${selectedFileIds.length} ${t('actions.reprocessSuccess')}`)
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
@@ -84,7 +84,7 @@ export const FilesActionsBar = ({
           onClick={() => reProcessFilesMutation.mutate(selectedFileIds)}
           disabled={selectedFileIds.length === 0}
         >
-          {t('actions.reProcess')}
+          {t('actions.reprocess')}
         </button>
       </div>
       <div className="text-right text-sm">

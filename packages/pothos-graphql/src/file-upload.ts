@@ -8,7 +8,7 @@ import {
   convertExcelToMarkdown,
   convertPdfToMarkdown,
   dropFileFromVectorstore,
-  loadFile as loadOriginalFile,
+  loadFile,
 } from '@george-ai/langchain-chat'
 
 export const checkFileUpload = async (fileUploadId: string) => {
@@ -79,7 +79,7 @@ export const completeFileUpload = async (fileUploadId: string) => {
         break
 
       default: {
-        const documents = await loadOriginalFile({
+        const documents = await loadFile({
           id: fileRecord.id,
           name: fileRecord.name,
           mimeType: fileRecord.mimeType,
