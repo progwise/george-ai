@@ -62,7 +62,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
             {user.isAdmin && (
               <li>
                 <Link
-                  to="/admins/users"
+                  to="/admin"
                   onClick={() => {
                     if (document.activeElement instanceof HTMLElement) {
                       document.activeElement.blur()

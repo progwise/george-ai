@@ -1,9 +1,9 @@
 import { Link } from '@tanstack/react-router'
 
-import { UserFragment } from '../../../gql/graphql'
+import { ManagedUserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 
-export const UserTable = ({ users }: { users: UserFragment[] }) => {
+export const UserTable = ({ users }: { users: ManagedUserFragment[] }) => {
   const { t } = useTranslation()
 
   return (
@@ -38,24 +38,22 @@ export const UserTable = ({ users }: { users: UserFragment[] }) => {
                 <div className="flex items-center gap-2">
                   <div
                     className="tooltip tooltip-top"
-                    data-tip={user.profile?.confirmationDate ? t('labels.confirmed') : t('labels.unconfirmed')}
+                    data-tip={user?.confirmationDate ? t('labels.confirmed') : t('labels.unconfirmed')}
                   >
                     <div
-                      className={`size-3 rounded-full ${user.profile?.confirmationDate ? 'bg-success' : 'bg-warning'}`}
+                      className={`size-3 rounded-full ${user?.confirmationDate ? 'bg-success' : 'bg-warning'}`}
                     ></div>
                   </div>
                   <div
                     className="tooltip tooltip-top"
-                    data-tip={user.profile?.activationDate ? t('labels.activated') : t('labels.unactivated')}
+                    data-tip={user?.activationDate ? t('labels.activated') : t('labels.unactivated')}
                   >
-                    <div
-                      className={`size-3 rounded-full ${user.profile?.activationDate ? 'bg-success' : 'bg-warning'}`}
-                    ></div>
+                    <div className={`size-3 rounded-full ${user?.activationDate ? 'bg-success' : 'bg-warning'}`}></div>
                   </div>
                 </div>
               </td>
               <td className="p-2 text-center md:p-4">
-                <Link to="/admins/users/$userId" params={{ userId: user.id }} className="btn btn-xs btn-primary">
+                <Link to="/admin/users/$userId" params={{ userId: user.id }} className="btn btn-xs btn-primary">
                   {t('actions.details')}
                 </Link>
               </td>

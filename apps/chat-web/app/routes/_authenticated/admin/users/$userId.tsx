@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, notFound, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { AdminProfileEditor } from '../../../../components/user/admin-profile-editor'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
@@ -7,13 +7,7 @@ import { BackIcon } from '../../../../icons/back-icon'
 import { queryKeys } from '../../../../query-keys'
 import { getUserById } from '../../../../server-functions/users'
 
-export const Route = createFileRoute('/_authenticated/admins/users/$userId')({
-  beforeLoad: ({ context }) => {
-    if (!context.user?.isAdmin) {
-      throw notFound()
-    }
-    return {}
-  },
+export const Route = createFileRoute('/_authenticated/admin/users/$userId')({
   component: AdminUserDetail,
 })
 
@@ -30,11 +24,11 @@ function AdminUserDetail() {
   const userData = data?.user
 
   if (!userData || !userData.profile) {
-    setTimeout(() => navigate({ to: '/admins/users' }), 300)
+    setTimeout(() => navigate({ to: '/admin/users' }), 300)
     return (
       <div
         className="alert alert-error mx-auto max-w-fit cursor-pointer py-2 text-sm"
-        onClick={() => navigate({ to: '/admins/users' })}
+        onClick={() => navigate({ to: '/admin/users' })}
       >
         {t('errors.profileNotFound')}. {t('actions.redirecting')}
       </div>
@@ -44,7 +38,7 @@ function AdminUserDetail() {
   return (
     <>
       <div className="bg-base-100 sticky top-16 z-10 py-2 shadow-sm">
-        <Link to="/admins/users" className="btn btn-ghost btn-sm gap-2">
+        <Link to="/admin/users" className="btn btn-ghost btn-sm gap-2">
           <BackIcon />
           {t('actions.backToUsers')}
         </Link>
