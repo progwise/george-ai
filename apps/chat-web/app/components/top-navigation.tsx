@@ -41,8 +41,8 @@ export default function TopNavigation({ user }: TopNavigationProps) {
       >
         <nav className="navbar px-body gap-2 text-sm lg:gap-4">
           {/* Logo and Brand-Name */}
-          <div className="flex grow items-center gap-2 text-nowrap text-xl font-bold">
-            <Link to="/" className="font=bold flex items-center gap-2 text-nowrap text-xl">
+          <div className="flex grow text-nowrap">
+            <Link to="/" className="flex items-center gap-2 text-nowrap text-xl font-bold">
               <BowlerLogoIcon className="size-10" />
               <h1>George-AI</h1>
             </Link>
