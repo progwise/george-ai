@@ -194,8 +194,8 @@ export const GoogleFilesTable = ({
     clickCountRef.current = clickCount
   }, [clickCount])
 
-  // Ensures that a double click does not tricker the toogleFolder function.
-  // Using a RefObject for the click counter instead of the actual variable prevents the timeout from beeing restarted immediately.
+  // Ensures that a double click does not trigger the toggleFolder function.
+  // Using a RefObject for the click counter instead of the actual variable prevents the timeout from being restarted immediately.
   useEffect(() => {
     if (!clickTarget || clickCountRef.current === 0) {
       return
