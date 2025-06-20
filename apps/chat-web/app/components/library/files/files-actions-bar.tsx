@@ -2,8 +2,9 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { dropFiles, reProcessFiles } from './change-files'
+import { reProcessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { DropFileConfirmationDialog } from './drop-file-confirmation-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 
 interface FilesActionsBarProps {
@@ -24,21 +25,6 @@ export const FilesActionsBar = ({
   setSelectedFileIds,
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
-  const dropFilesMutation = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await dropFiles({ data: fileIds })
-    },
-    onError: () => {
-      toastError(t('errors.dropFilesError'))
-    },
-    onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} ${t('actions.dropSuccess')}`)
-    },
-    onSettled: () => {
-      setSelectedFileIds([])
-      tableDataChanged()
-    },
-  })
 
   const reProcessFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
@@ -70,14 +56,13 @@ export const FilesActionsBar = ({
         />
         <GoogleFileUploadButton libraryId={libraryId} disabled={remainingStorage < 1} />
 
-        <button
-          type="button"
-          className="btn btn-primary btn-xs"
-          onClick={() => dropFilesMutation.mutate(selectedFileIds)}
-          disabled={selectedFileIds.length === 0}
-        >
-          {t('actions.drop')}
-        </button>
+        <DropFileConfirmationDialog
+          disabled={false}
+          tableDataChanged={tableDataChanged}
+          selectedFileIds={selectedFileIds}
+          setSelectedFileIds={setSelectedFileIds}
+        />
+
         <button
           type="button"
           className="btn btn-primary btn-xs"
