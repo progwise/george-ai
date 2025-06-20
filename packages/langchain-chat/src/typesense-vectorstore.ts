@@ -7,7 +7,7 @@ import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { loadFile } from './langchain-file'
-import { generateQAPairs } from './qa-generator-remote'
+import { generateQAPairs } from './qa-generator-openai'
 import { summarizeDocument } from './summarizer'
 import { calculateChunkParams } from './vectorstore-settings'
 
@@ -35,6 +35,8 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
     { name: 'docName', type: 'string' },
     { name: 'docType', type: 'string' },
     { name: 'docId', type: 'string' },
+    { name: 'docPath', type: 'string' },
+    { name: 'originUri', type: 'string' },
   ],
   default_sorting_field: 'points',
 })
@@ -68,7 +70,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
-    metadataColumnNames: ['points', 'docName', 'docType', 'docId'],
+    metadataColumnNames: ['points', 'docName', 'docType', 'docId', 'docPath', 'originUri'],
   },
 
   // Optional search parameters to be passed to Typesense when searching
@@ -175,6 +177,7 @@ export const embedFile = async (
     id: file.id,
     name: file.name,
     originUri: file.originUri,
+    docPath: file.path,
     mimeType: file.mimeType,
     chunks: splitDocument.length,
     size: splitDocument.reduce((acc, part) => acc + part.pageContent.length, 0),
@@ -223,8 +226,65 @@ export const similaritySearch = async (
     .map((hit) => ({
       pageContent: hit?.document.text,
       docName: hit?.document.docName,
+      docPath: hit?.document.docPath,
+      docId: hit?.document.docId,
+      id: hit?.document.id,
+      originUri: hit?.document.originUri,
     }))
   return docs
+}
+
+interface queryVectorStoreOptions {
+  perPage: number
+  page: number
+  filterBy?: string
+  queryBy?: string
+}
+export const queryVectorStore = async (
+  libraryId: string,
+  query: string,
+  { perPage = 20, page = 1, filterBy = '', queryBy = 'docName,text' }: queryVectorStoreOptions,
+): Promise<{
+  hits: {
+    pageContent: string
+    docName: string
+    docId: string
+    id: string
+    docPath: string
+    originUri: string
+    highlights: Array<{ field: string; snippet?: string }>
+  }[]
+  hitCount: number
+}> => {
+  await ensureVectorStore(libraryId)
+  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>({
+    searches: [
+      {
+        collection: getTypesenseSchemaName(libraryId),
+        q: query.length > 0 ? query : '*',
+        per_page: perPage,
+        page: page,
+        filter_by: filterBy,
+        query_by: queryBy,
+      },
+    ],
+  })
+
+  const hits = searchResponse.results
+    .flatMap((result) => result.hits)
+    .map((hit) => ({
+      pageContent: hit?.document.text || '',
+      docName: hit?.document.docName || '',
+      docId: hit?.document.docId || '',
+      id: hit?.document.id || '',
+      docPath: hit?.document.docPath || '',
+      originUri: hit?.document.originUri || '',
+      highlights: hit?.highlights || [],
+    }))
+  return {
+    hits,
+    hitCount: searchResponse.results.map((result) => result.found || 0).reduce((prev, curr) => prev + curr, 0),
+  }
 }
 
 // retrieves content from the vector store similar to the question

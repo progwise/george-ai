@@ -1,19 +1,24 @@
 FROM python:3.11-slim
-
-WORKDIR /app
-
 # Install system dependencies (if needed)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+    curl git openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . .
-RUN pip install --upgrade pip && \
-  pip install --no-cache-dir -r ./requirements.txt && \
-  crawl4ai-setup
+WORKDIR /home/george
 
-# Make sure start-prod.sh is executable
-RUN chmod +x ./start-prod.sh
+COPY requirements.txt .
+COPY src ./src
+COPY start-prod.sh .
+
+RUN python3 -m venv .venv && \
+    . .venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    crawl4ai-setup && \
+    playwright install --with-deps
+
+RUN mkdir -p /home/george/.cache/ms-playwright \
+    && cp -r /root/.cache/ms-playwright/chromium-* /home/george/.cache/ms-playwright/
 
 # Expose the default FastAPI port
 EXPOSE 11245

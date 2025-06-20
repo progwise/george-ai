@@ -22,7 +22,7 @@ export const LibraryFileSchema = z.object({
 })
 export type LibraryFile = z.infer<typeof LibraryFileSchema>
 
-export interface FilesTableProps {
+export interface GoogleFilesTableProps {
   selectedFiles: LibraryFile[]
   setSelectedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
 }
@@ -35,7 +35,7 @@ const formatBytes = (bytes: number): string => {
   return parseFloat((bytes / Math.pow(kilobytes, kilobyteExponent)).toFixed(2)) + ' ' + sizes[kilobyteExponent]
 }
 
-export const FilesTable = ({ selectedFiles, setSelectedFiles }: FilesTableProps) => {
+export const GoogleFilesTable = ({ selectedFiles, setSelectedFiles }: GoogleFilesTableProps) => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const selectedIds = useMemo(() => new Set(selectedFiles.map((selectedFile) => selectedFile.id)), [selectedFiles])

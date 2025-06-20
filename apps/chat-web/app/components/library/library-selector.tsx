@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 
 import { AiLibraryBaseFragment } from '../../gql/graphql'
 import { Listbox } from '../listbox'
@@ -9,6 +9,7 @@ interface LibrarySelectorProps {
 }
 export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorProps) => {
   const navigate = useNavigate()
+  const params = useParams({ strict: false })
 
   return (
     <Listbox
@@ -16,8 +17,9 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
       selectedItem={selectedLibrary}
       onChange={(newLibrary) => {
         navigate({
-          to: '/libraries/$libraryId',
-          params: { libraryId: newLibrary!.id },
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          params: { ...params, libraryId: newLibrary.id },
         })
       }}
     />

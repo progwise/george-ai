@@ -13,11 +13,14 @@ graphql(`
     name
     createdAt
     email
+    isAdmin
     profile {
       firstName
       lastName
       business
       position
+      confirmationDate
+      activationDate
     }
   }
 `)
@@ -42,19 +45,26 @@ export const getUsersQueryOptions = () =>
     queryFn: () => getUsers(),
   })
 
+const profileIdValidator = (data: { profileId: string }) => {
+  return z
+    .object({
+      profileId: z.string().nonempty(),
+    })
+    .parse(data)
+}
+
 export const sendConfirmationMail = createServerFn({ method: 'POST' })
-  .validator((data: { confirmationUrl: string }) => {
-    return z
-      .object({
-        confirmationUrl: z.string().nonempty(),
-      })
-      .parse(data)
-  })
+  .validator(
+    z.object({
+      confirmationUrl: z.string().nonempty(),
+      activationUrl: z.string().nonempty(),
+    }),
+  )
   .handler((ctx) =>
     backendRequest(
       graphql(`
-        mutation sendConfirmationMail($confirmationUrl: String!) {
-          sendConfirmationMail(confirmationUrl: $confirmationUrl)
+        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {
+          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)
         }
       `),
       {
@@ -64,13 +74,7 @@ export const sendConfirmationMail = createServerFn({ method: 'POST' })
   )
 
 export const confirmUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { profileId: string }) => {
-    return z
-      .object({
-        profileId: z.string().nonempty(),
-      })
-      .parse(data)
-  })
+  .validator(profileIdValidator)
   .handler((ctx) =>
     backendRequest(
       graphql(`
@@ -105,8 +109,8 @@ graphql(`
     expiresAt
   }
 `)
-export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
-  backendRequest(
+export const getUserProfile = createServerFn({ method: 'GET' }).handler(async (ctx) => {
+  const userProfileData = await backendRequest(
     graphql(`
       query getUserProfile {
         userProfile {
@@ -117,19 +121,20 @@ export const getUserProfile = createServerFn({ method: 'GET' }).handler((ctx) =>
     {
       userId: ctx.data,
     },
-  ),
-)
+  )
+  return userProfileData.userProfile
+})
 
 export const sendAdminNotificationMail = createServerFn({ method: 'POST' }).handler(async () => {
   const userProfile = await getUserProfile()
 
-  if (!userProfile?.userProfile) {
+  if (!userProfile) {
     throw new Error('User profile not found')
   }
 
   await activateUserProfile({
     data: {
-      profileId: userProfile.userProfile.id,
+      profileId: userProfile.id,
     },
   })
 
@@ -171,13 +176,7 @@ export const updateUserProfile = createServerFn({ method: 'POST' })
   })
 
 export const activateUserProfile = createServerFn({ method: 'POST' })
-  .validator((data: { profileId: string }) => {
-    return z
-      .object({
-        profileId: z.string().nonempty(),
-      })
-      .parse(data)
-  })
+  .validator(profileIdValidator)
   .handler((ctx) =>
     backendRequest(
       graphql(`
@@ -192,3 +191,47 @@ export const activateUserProfile = createServerFn({ method: 'POST' })
       },
     ),
   )
+
+export const AdminUserByIdDocument = graphql(`
+  query adminUserById($email: String!) {
+    user(email: $email) {
+      ...User
+      profile {
+        ...UserProfileForm_UserProfile
+      }
+    }
+  }
+`)
+
+export const getUserById = createServerFn({ method: 'GET' })
+  .validator((data: string) => {
+    return z.string().nonempty().parse(data)
+  })
+  .handler(async (ctx) => {
+    // Get user details by email
+    const getUserByEmail = async (email: string) => {
+      return await backendRequest(AdminUserByIdDocument, { email })
+    }
+
+    // Try to find user in the regular users list (excludes current user)
+    const { users } = await getUsers()
+    const userSummary = users.find((user) => user.id === ctx.data)
+
+    if (userSummary) {
+      return await getUserByEmail(userSummary.email)
+    }
+
+    // If not found, check if user is requesting their own profile
+    const currentUserProfile = await getUserProfile()
+    if (currentUserProfile?.userId === ctx.data) {
+      return await getUserByEmail(currentUserProfile.email)
+    }
+
+    throw new Error('User not found')
+  })
+
+export const getUserByIdQueryOptions = (userId: string) =>
+  queryOptions({
+    queryKey: [queryKeys.UserProfile, userId],
+    queryFn: () => getUserById({ data: userId }),
+  })

@@ -55,6 +55,11 @@ function RouteComponent() {
     params: { profileId: userProfile.id || 'no_profile_id' },
   })
 
+  const activationLink = useLinkProps({
+    to: '/admin/users/$userId',
+    params: { userId: user.id },
+  })
+
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
     mutationFn: async (formData: FormData) => {
       await updateProfile({
@@ -67,6 +72,7 @@ function RouteComponent() {
       return await sendConfirmationMail({
         data: {
           confirmationUrl: `${window.location.origin}${confirmationLink.href}` || 'no_link',
+          activationUrl: `${window.location.origin}${activationLink.href}` || 'no_activation_link',
         },
       })
     },

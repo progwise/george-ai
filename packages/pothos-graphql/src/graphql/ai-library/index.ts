@@ -6,6 +6,10 @@ import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
+import './queryFiles'
+
+import { canAccessLibrary } from './check-participation'
+
 console.log('Setting up: AiLibrary')
 
 export const AiLibrary = builder.prismaObject('AiLibrary', {
@@ -57,18 +61,14 @@ builder.queryField('aiLibrary', (t) =>
       libraryId: t.arg.string(),
     },
     resolve: async (query, _source, { libraryId }, context) => {
-      const user = context.session.user
-      const library = await prisma.aiLibrary.findUnique({
+      const library = await prisma.aiLibrary.findUniqueOrThrow({
         ...query,
         where: { id: libraryId },
       })
-      if (!library) return null
-
-      const isAuthorized =
-        user.isAdmin ||
-        library.ownerId === user.id ||
-        (await prisma.aiLibraryParticipant.findFirst({ where: { libraryId, userId: user.id } })) != null
-
+      const isAuthorized = canAccessLibrary(context, {
+        id: library.id,
+        ownerId: library.ownerId,
+      })
       if (!isAuthorized) return null
       return library
     },
@@ -89,13 +89,22 @@ builder.queryField('aiLibraries', (t) =>
 )
 
 builder.mutationField('updateAiLibrary', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     args: {
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiLibraryInput, required: true }),
     },
-    resolve: async (query, _source, { id, data }) => {
+    resolve: async (query, _source, { id, data }, context) => {
+      const library = await prisma.aiLibrary.findUnique({
+        where: { id },
+      })
+      if (!library) {
+        throw new Error(`Library with id ${id} not found`)
+      }
+      if (!canAccessLibrary(context, library)) {
+        throw new Error(`You do not have permission to update this library`)
+      }
       return prisma.aiLibrary.update({
         ...query,
         where: { id },

@@ -211,9 +211,11 @@ type AiLibraryCrawler {
   filesCount: Int!
   id: ID!
   isRunning: Boolean!
-  lastRun: DateTime
+  lastRun: AiLibraryCrawlerRun
   maxDepth: Int!
   maxPages: Int!
+  runCount: Int!
+  runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
   url: String!
 }
@@ -255,6 +257,17 @@ input AiLibraryCrawlerInput {
   url: String!
 }
 
+type AiLibraryCrawlerRun {
+  crawler: AiLibraryCrawler!
+  crawlerId: ID!
+  endedAt: DateTime
+  errorMessage: String
+  id: ID!
+  runByUserId: ID
+  startedAt: DateTime!
+  success: Boolean
+}
+
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
@@ -281,11 +294,73 @@ input AiLibraryFileInput {
   originUri: String!
 }
 
+"""
+Query result for AI library files
+"""
+type AiLibraryFileQueryResult {
+  count: Int!
+  files: [AiLibraryFile!]!
+  library: AiLibrary!
+  libraryId: String!
+  skip: Int!
+  take: Int!
+}
+
 input AiLibraryInput {
   description: String
   icon: String
   name: String!
   url: String
+}
+
+type AiLibraryQueryHit {
+  docId: String!
+  docName: String!
+  docPath: String!
+  highlights: [AiLibraryQueryHitHighlight!]!
+  id: String!
+  originUri: String!
+  pageContent: String!
+}
+
+type AiLibraryQueryHitHighlight {
+  field: String!
+  snippet: String
+}
+
+type AiLibraryQueryResult {
+  hitCount: Int!
+  hits: [AiLibraryQueryHit!]!
+  libraryId: String!
+  query: String!
+  skip: Int!
+  take: Int!
+}
+
+type AiLibraryUpdate {
+  crawlerRun: AiLibraryCrawlerRun
+  crawlerRunId: ID
+  createdAt: DateTime!
+  file: AiLibraryFile
+  fileId: ID
+  id: ID!
+  library: AiLibrary
+  libraryId: ID!
+  message: String
+  success: Boolean!
+}
+
+"""
+Query result for AI library updates
+"""
+type AiLibraryUpdateQueryResult {
+  count: Int!
+  crawlerId: String
+  library: AiLibrary!
+  libraryId: String!
+  skip: Int!
+  take: Int!
+  updates: [AiLibraryUpdate!]!
 }
 
 type AiLibraryUsage {
@@ -373,6 +448,33 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
+type ManagedUser {
+  activationDate: DateTime
+  business: String
+  confirmationDate: DateTime
+  createdAt: DateTime!
+  email: String!
+  family_name: String
+  given_name: String
+  id: ID!
+  isAdmin: Boolean!
+  lastLogin: DateTime
+  name: String
+  position: String
+  registered: Boolean
+  updatedAt: DateTime
+  username: String!
+}
+
+type ManagedUsersResponse {
+  filter: String
+  skip: Int!
+  statusFilter: String
+  take: Int!
+  userStatistics: UserStatistic!
+  users: [ManagedUser!]!
+}
+
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
@@ -383,7 +485,7 @@ type Mutation {
   ): [AiConversationParticipant!]
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  cancelFileUpload(fileId: String!): Boolean
+  cancelFileUpload(fileId: String!): Boolean!
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
@@ -400,24 +502,26 @@ type Mutation {
   deleteAiLibrary(id: String!): AiLibrary
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteMessage(messageId: String!): AiConversationMessage
-  dropFile(fileId: String!): AiLibraryFile
-  dropFiles(libraryId: String!): [AiLibraryFile!]
+  dropFile(fileId: String!): AiLibraryFile!
+  dropFiles(libraryId: String!): [AiLibraryFile!]!
+  ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
   leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
-  processFile(fileId: String!): AiLibraryFile
-  reProcessFile(fileId: String!): AiLibraryFile
+  processFile(fileId: String!): AiLibraryFile!
+  reProcessFile(fileId: String!): AiLibraryFile!
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
-  sendConfirmationMail(confirmationUrl: String!): Boolean
+  sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
+  toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
@@ -438,9 +542,12 @@ type Query {
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary
-  aiLibraryFiles(libraryId: String!): [AiLibraryFile!]
+  aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
+  aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!
+  managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
+  queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!
@@ -503,4 +610,12 @@ input UserProfileInput {
   freeStorage: Int
   lastName: String
   position: String
+}
+
+type UserStatistic {
+  activated: Int!
+  confirmed: Int!
+  total: Int!
+  unactivated: Int!
+  unconfirmed: Int!
 }

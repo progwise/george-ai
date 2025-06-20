@@ -54,6 +54,16 @@ function RouteComponent() {
 
       <div role="tablist" className="tabs tabs-border w-fit">
         <Link
+          to="/libraries/$libraryId"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: true }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.summary')}
+        </Link>
+        <Link
           to="/libraries/$libraryId/edit"
           params={{ libraryId }}
           className="tab"
@@ -64,10 +74,10 @@ function RouteComponent() {
           {t('actions.edit')}
         </Link>
         <Link
-          to="/libraries/$libraryId"
+          to="/libraries/$libraryId/files"
           params={{ libraryId }}
           className="tab"
-          activeOptions={{ exact: true }}
+          activeOptions={{ exact: false }}
           activeProps={{ className: 'tab-active' }}
           role="tab"
         >
@@ -77,7 +87,7 @@ function RouteComponent() {
           to="/libraries/$libraryId/query"
           params={{ libraryId }}
           className="tab"
-          activeOptions={{ exact: true }}
+          activeOptions={{ exact: false }}
           activeProps={{ className: 'tab-active' }}
           role="tab"
         >
@@ -93,8 +103,18 @@ function RouteComponent() {
         >
           {t('labels.crawlers')}
         </Link>
+        <Link
+          to="/libraries/$libraryId/updates"
+          params={{ libraryId }}
+          className="tab"
+          activeOptions={{ exact: false }}
+          activeProps={{ className: 'tab-active' }}
+          role="tab"
+        >
+          {t('labels.updates')}
+        </Link>
       </div>
-      <div role="tabpanel" className="p-10">
+      <div role="tabpanel" className="md:p-10">
         <Outlet />
       </div>
     </article>
