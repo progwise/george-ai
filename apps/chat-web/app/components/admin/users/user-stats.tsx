@@ -9,19 +9,13 @@ export const UserStats = ({
 }) => {
   const { t } = useTranslation()
 
-  // Calculate total users from global stats (confirmed + unconfirmed)
-  const totalUsers = stats.confirmed + stats.unconfirmed
-
-  // Always show "Total Users" for consistency and clarity
-  const getTotalLabel = () => {
-    return t('labels.totalUsers')
-  }
-
   return (
     <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-5">
       <div className="rounded-box bg-base-200 flex flex-row items-center justify-between border-0 p-2 shadow-sm">
-        <div className="text-xs">{getTotalLabel()}</div>
-        <div className="text-base font-bold">{totalUsers}</div>
+        <div className="text-xs">{t('labels.totalUsers')}</div>
+        <div className="text-base font-bold">
+          {stats.total} / {stats.confirmed + stats.unconfirmed}
+        </div>
       </div>
       <div
         className={`rounded-box bg-base-200 flex flex-row items-center justify-between p-2 shadow-sm ${
