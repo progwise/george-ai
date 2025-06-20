@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
+import { AdminProfileEditor } from '../../../../components/admin/users/admin-profile-editor'
 import { ensureUserProfile } from '../../../../components/admin/users/ensure-user-profile'
 import { toastError, toastSuccess } from '../../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../../components/loading-spinner'
-import { AdminProfileEditor } from '../../../../components/user/admin-profile-editor'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { queryKeys } from '../../../../query-keys'
 import { getUserById } from '../../../../server-functions/users'

@@ -3,7 +3,6 @@ export default {
     add: 'Add',
     activateProfile: 'Activate Profile',
     addNotes: 'Add notes',
-    backToUsers: 'Back to Users',
     cancel: 'Cancel',
     cancelled: 'Cancelled',
     close: 'Close',

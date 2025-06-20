@@ -3,7 +3,6 @@ export default {
     add: 'Hinzufügen',
     activateProfile: 'Profil aktivieren',
     addNotes: 'Notizen hinzufügen',
-    backToUsers: 'Zurück zu Benutzern',
     cancel: 'Abbrechen',
     cancelled: 'Abgebrochen',
     close: 'Schließen',

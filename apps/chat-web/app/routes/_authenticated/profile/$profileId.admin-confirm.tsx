@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
-import { AdminProfileEditor } from '../../../components/user/admin-profile-editor'
+import { AdminProfileEditor } from '../../../components/admin/users/admin-profile-editor'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { getUserById } from '../../../server-functions/users'
 
