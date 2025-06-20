@@ -118,8 +118,9 @@ builder.mutationField('sendConfirmationMail', (t) =>
     type: 'Boolean',
     args: {
       confirmationUrl: t.arg.string({ required: true }),
+      activationUrl: t.arg.string({ required: true }),
     },
-    resolve: async (_parent, { confirmationUrl }, context) => {
+    resolve: async (_parent, { confirmationUrl, activationUrl }, context) => {
       const profile = await prisma.userProfile.findFirst({
         where: { email: context.session.user.email },
       })
@@ -141,7 +142,6 @@ builder.mutationField('sendConfirmationMail', (t) =>
       )
 
       // Send email to the admin
-      const activationUrl = confirmationUrl.replace(profile.id, profile.userId).replace('/confirm', '/admin-confirm')
       await sendMail(
         'info@george-ai.net',
         'Admin Activation Required',

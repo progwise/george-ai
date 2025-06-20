@@ -1,6 +1,8 @@
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
+import './user-management'
+
 console.log('Setting up: User')
 
 builder.prismaObject('User', {

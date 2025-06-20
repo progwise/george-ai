@@ -448,6 +448,33 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
+type ManagedUser {
+  activationDate: DateTime
+  business: String
+  confirmationDate: DateTime
+  createdAt: DateTime!
+  email: String!
+  family_name: String
+  given_name: String
+  id: ID!
+  isAdmin: Boolean!
+  lastLogin: DateTime
+  name: String
+  position: String
+  registered: Boolean
+  updatedAt: DateTime
+  username: String!
+}
+
+type ManagedUsersResponse {
+  filter: String
+  skip: Int!
+  statusFilter: String
+  take: Int!
+  userStatistics: UserStatistic!
+  users: [ManagedUser!]!
+}
+
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
@@ -477,6 +504,7 @@ type Mutation {
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
   dropFiles(libraryId: String!): [AiLibraryFile!]!
+  ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
@@ -491,8 +519,9 @@ type Mutation {
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
-  sendConfirmationMail(confirmationUrl: String!): Boolean
+  sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
+  toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
@@ -517,6 +546,7 @@ type Query {
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!
+  managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   user(email: String!): User
   userProfile: UserProfile
@@ -580,4 +610,12 @@ input UserProfileInput {
   freeStorage: Int
   lastName: String
   position: String
+}
+
+type UserStatistic {
+  activated: Int!
+  confirmed: Int!
+  total: Int!
+  unactivated: Int!
+  unconfirmed: Int!
 }

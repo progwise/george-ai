@@ -225,7 +225,7 @@ export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveB
         </a>
       </div>
       <hr className="col-span-2 my-2" />
-      <div className="col-span-2 flex justify-between">
+      <div className="col-span-2 flex justify-between gap-2">
         {saveButton && <div className="col-span-2 flex justify-end">{saveButton}</div>}
 
         <button
@@ -233,7 +233,7 @@ export const UserProfileForm = ({ isAdmin, userProfile, onSubmit, formRef, saveB
           onClick={() => {
             logout()
           }}
-          className="btn btn-neutral btn-outline btn-sm"
+          className="btn btn-outline btn-secondary btn-sm"
         >
           {t('actions.signOut')}
         </button>
