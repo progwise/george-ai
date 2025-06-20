@@ -522,6 +522,7 @@ export type Mutation = {
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
+  ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
@@ -657,6 +658,10 @@ export type MutationDropFilesArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationEnsureUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
 export type MutationHideMessageArgs = {
   messageId: Scalars['String']['input']
 }
@@ -717,6 +722,7 @@ export type MutationRunAiLibraryCrawlerArgs = {
 }
 
 export type MutationSendConfirmationMailArgs = {
+  activationUrl: Scalars['String']['input']
   confirmationUrl: Scalars['String']['input']
 }
 
@@ -1119,6 +1125,15 @@ export type LoginMutation = {
     createdAt: string
     isAdmin: boolean
   } | null
+}
+
+export type EnsureUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type EnsureUserProfileMutation = {
+  __typename?: 'Mutation'
+  ensureUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
 export type ManagedUserFragment = {
@@ -3205,6 +3220,7 @@ export type UsersQuery = {
 
 export type SendConfirmationMailMutationVariables = Exact<{
   confirmationUrl: Scalars['String']['input']
+  activationUrl: Scalars['String']['input']
 }>
 
 export type SendConfirmationMailMutation = { __typename?: 'Mutation'; sendConfirmationMail?: boolean | null }
@@ -5616,6 +5632,43 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const EnsureUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ensureUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ensureUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EnsureUserProfileMutation, EnsureUserProfileMutationVariables>
 export const GetManagedUsersDocument = {
   kind: 'Document',
   definitions: [
@@ -9654,6 +9707,11 @@ export const SendConfirmationMailDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'activationUrl' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -9666,6 +9724,11 @@ export const SendConfirmationMailDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'confirmationUrl' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'activationUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'activationUrl' } },
               },
             ],
           },

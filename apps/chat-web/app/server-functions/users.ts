@@ -45,14 +45,6 @@ export const getUsersQueryOptions = () =>
     queryFn: () => getUsers(),
   })
 
-const confirmationUrlValidator = (data: { confirmationUrl: string }) => {
-  return z
-    .object({
-      confirmationUrl: z.string().nonempty(),
-    })
-    .parse(data)
-}
-
 const profileIdValidator = (data: { profileId: string }) => {
   return z
     .object({
@@ -62,12 +54,17 @@ const profileIdValidator = (data: { profileId: string }) => {
 }
 
 export const sendConfirmationMail = createServerFn({ method: 'POST' })
-  .validator(confirmationUrlValidator)
+  .validator(
+    z.object({
+      confirmationUrl: z.string().nonempty(),
+      activationUrl: z.string().nonempty(),
+    }),
+  )
   .handler((ctx) =>
     backendRequest(
       graphql(`
-        mutation sendConfirmationMail($confirmationUrl: String!) {
-          sendConfirmationMail(confirmationUrl: $confirmationUrl)
+        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {
+          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)
         }
       `),
       {

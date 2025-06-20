@@ -16,6 +16,7 @@ import * as types from './graphql'
  */
 type Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n': typeof types.LoginDocument
+  '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ': typeof types.EnsureUserProfileDocument
   '\n  fragment ManagedUser on ManagedUser {\n    id\n    username\n    name\n    given_name\n    family_name\n    lastLogin\n    createdAt\n    updatedAt\n    email\n    isAdmin\n    registered\n    business\n    position\n    confirmationDate\n    activationDate\n  }\n': typeof types.ManagedUserFragmentDoc
   '\n        query getManagedUsers($skip: Int!, $take: Int!, $filter: String, $statusFilter: String) {\n          managedUsers(skip: $skip, take: $take, filter: $filter, statusFilter: $statusFilter) {\n            skip\n            take\n            filter\n            userStatistics {\n              total\n              confirmed\n              unconfirmed\n              activated\n              unactivated\n            }\n            users {\n              ...ManagedUser\n            }\n          }\n        }\n      ': typeof types.GetManagedUsersDocument
   '\n  fragment AssistantSurvey_Assessment on AiActAssessment {\n    assistantId\n\n    assistantSurvey {\n      actionsTitle {\n        de\n        en\n      }\n      actions {\n        level\n        description {\n          de\n          en\n        }\n      }\n      questions {\n        id\n        ...QuestionCard_Question\n      }\n      title {\n        de\n        en\n      }\n      percentCompleted\n      hint {\n        de\n        en\n      }\n      riskIndicator {\n        description {\n          de\n          en\n        }\n        level\n      }\n    }\n  }\n': typeof types.AssistantSurvey_AssessmentFragmentDoc
@@ -111,7 +112,7 @@ type Documents = {
   '\n  mutation leaveLibraryParticipant($libraryId: String!) {\n    leaveLibraryParticipant(libraryId: $libraryId) {\n      id\n    }\n  }\n': typeof types.LeaveLibraryParticipantDocument
   '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n': typeof types.UserFragmentDoc
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': typeof types.UsersDocument
-  '\n        mutation sendConfirmationMail($confirmationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
+  '\n        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ConfirmUserProfileDocument
   '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n': typeof types.UserProfileFragmentDoc
   '\n      query getUserProfile {\n        userProfile {\n          ...UserProfile\n        }\n      }\n    ': typeof types.GetUserProfileDocument
@@ -122,6 +123,8 @@ type Documents = {
 const documents: Documents = {
   '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n':
     types.LoginDocument,
+  '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ':
+    types.EnsureUserProfileDocument,
   '\n  fragment ManagedUser on ManagedUser {\n    id\n    username\n    name\n    given_name\n    family_name\n    lastLogin\n    createdAt\n    updatedAt\n    email\n    isAdmin\n    registered\n    business\n    position\n    confirmationDate\n    activationDate\n  }\n':
     types.ManagedUserFragmentDoc,
   '\n        query getManagedUsers($skip: Int!, $take: Int!, $filter: String, $statusFilter: String) {\n          managedUsers(skip: $skip, take: $take, filter: $filter, statusFilter: $statusFilter) {\n            skip\n            take\n            filter\n            userStatistics {\n              total\n              confirmed\n              unconfirmed\n              activated\n              unactivated\n            }\n            users {\n              ...ManagedUser\n            }\n          }\n        }\n      ':
@@ -309,7 +312,7 @@ const documents: Documents = {
   '\n  fragment User on User {\n    id\n    username\n    name\n    createdAt\n    email\n    isAdmin\n    profile {\n      firstName\n      lastName\n      business\n      position\n      confirmationDate\n      activationDate\n    }\n  }\n':
     types.UserFragmentDoc,
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': types.UsersDocument,
-  '\n        mutation sendConfirmationMail($confirmationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl)\n        }\n      ':
+  '\n        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)\n        }\n      ':
     types.SendConfirmationMailDocument,
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ':
     types.ConfirmUserProfileDocument,
@@ -345,6 +348,12 @@ export function graphql(source: string): unknown
 export function graphql(
   source: '\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n',
 ): (typeof documents)['\n  mutation login($jwtToken: String!) {\n    login(jwtToken: $jwtToken) {\n      id\n      username\n      email\n      name\n      given_name\n      family_name\n      createdAt\n      isAdmin\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -919,8 +928,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation sendConfirmationMail($confirmationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl)\n        }\n      ',
-): (typeof documents)['\n        mutation sendConfirmationMail($confirmationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl)\n        }\n      ']
+  source: '\n        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)\n        }\n      ',
+): (typeof documents)['\n        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

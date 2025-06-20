@@ -14,6 +14,7 @@ export default {
     drop: 'Entfernen',
     dropSuccess: 'Datei erfolgreich entfernt',
     edit: 'Bearbeiten',
+    ensureUserProfile: 'User Profil ggf. erzeugen',
     hideNotes: 'Notizen ausblenden',
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue Konversation',
@@ -173,6 +174,7 @@ export default {
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
     noFreeMessages: 'Keine freien Nachrichten mehr. Aktualisieren Sie Ihr Abonnement.',
     notAllowed: 'Nicht erlaubt',
+    profileEnsureFailed: 'Profil konnte nicht sichergestellt werden',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     reprocessFileError: 'Datei konnte nicht erneut verarbeitet werden. Bitte versuchen Sie es später erneut.',
     requiredField: 'Erforderlich',
@@ -319,6 +321,9 @@ export default {
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
     users: 'Benutzer',
+  },
+  notifications: {
+    profileEnsured: 'Profil sichergestellt für Benutzer {userId}',
   },
   placeholders: {
     condition: 'Wenn',

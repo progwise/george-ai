@@ -14,6 +14,7 @@ export default {
     drop: 'Drop',
     dropSuccess: 'Dropped successfully',
     edit: 'Edit',
+    ensureUserProfile: 'Ensure User Profile',
     hideNotes: 'Hide notes',
     increaseLimits: 'Increase limits',
     leave: 'Leave',
@@ -167,6 +168,7 @@ export default {
     messageTooShort: 'Message must be at least 3 characters.',
     noFreeMessages: 'No free messages left. Upgrade your subscription.',
     notAllowed: 'Not allowed',
+    profileEnsureFailed: 'Profil could not be ensured for user {userId}. Error: {error}',
     profileNotFound: 'Profile not found or deleted.',
     reprocessFileError: 'An error occurred while reprocessing the files. Please try again later.',
     requiredField: 'Required',
@@ -311,6 +313,9 @@ export default {
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
     users: 'Users',
+  },
+  notifications: {
+    profileEnsured: 'Profile ensured for user {userId}',
   },
   placeholders: {
     condition: 'if',

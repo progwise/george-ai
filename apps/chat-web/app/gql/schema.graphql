@@ -504,6 +504,7 @@ type Mutation {
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
   dropFiles(libraryId: String!): [AiLibraryFile!]!
+  ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveAssistantParticipant(assistantId: String!): User
@@ -518,7 +519,7 @@ type Mutation {
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
-  sendConfirmationMail(confirmationUrl: String!): Boolean
+  sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
