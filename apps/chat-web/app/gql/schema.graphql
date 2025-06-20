@@ -521,6 +521,7 @@ type Mutation {
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
+  toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary

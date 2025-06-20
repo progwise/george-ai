@@ -33,6 +33,7 @@ export const Route = createFileRoute('/_authenticated/admin/users/')({
 })
 
 function UsersList() {
+  const { user, queryClient } = Route.useRouteContext()
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const {
@@ -94,7 +95,15 @@ function UsersList() {
         </div>
 
         {/* User Table */}
-        <UserTable users={users} />
+        <UserTable
+          users={users}
+          currentUser={user}
+          onChange={() =>
+            queryClient.invalidateQueries(
+              getManagedUsersQueryOptions(search.skip, search.take, search.filter, search.statusFilter),
+            )
+          }
+        />
 
         {userStatistics.total === 0 && (
           <div className="bg-base-200 mt-4 rounded-lg p-4 text-center">

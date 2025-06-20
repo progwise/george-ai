@@ -257,6 +257,7 @@ export default {
     icon: 'Icon',
     instructions: 'Anweisungen',
     invitation: 'Einladung',
+    isAdmin: 'Admin?',
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',
     libraries: 'Bibliotheken',

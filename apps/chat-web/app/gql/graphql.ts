@@ -539,6 +539,7 @@ export type Mutation = {
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
+  toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
@@ -728,6 +729,10 @@ export type MutationSendConfirmationMailArgs = {
 
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
+}
+
+export type MutationToggleAdminStatusArgs = {
+  userId: Scalars['String']['input']
 }
 
 export type MutationUnhideMessageArgs = {
@@ -1196,6 +1201,15 @@ export type GetManagedUsersQuery = {
       activationDate?: string | null
     }>
   }
+}
+
+export type ToggleAdminStatusMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type ToggleAdminStatusMutation = {
+  __typename?: 'Mutation'
+  toggleAdminStatus?: { __typename?: 'User'; id: string; isAdmin: boolean; username: string } | null
 }
 
 export type AssistantSurvey_AssessmentFragment = {
@@ -5787,6 +5801,47 @@ export const GetManagedUsersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetManagedUsersQuery, GetManagedUsersQueryVariables>
+export const ToggleAdminStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'toggleAdminStatus' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'toggleAdminStatus' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ToggleAdminStatusMutation, ToggleAdminStatusMutationVariables>
 export const AiActAssessmentQueryDocument = {
   kind: 'Document',
   definitions: [
