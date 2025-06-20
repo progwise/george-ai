@@ -29,7 +29,7 @@ services:
       - '8108:8108'
     volumes:
       - ../.typesense-data:/typesensedata
-    command: '--data-dir /typesensedata --api-key=xyz --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata'
+    command: '--data-dir /typesensedata --api-key=xyz --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata --healthy-read-lag=2000 --healthy-write-lag=3000'
 
   gai-chatweb-db:
     image: postgres:16

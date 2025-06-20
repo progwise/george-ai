@@ -341,6 +341,33 @@ export type AiLibraryInput = {
   url?: InputMaybe<Scalars['String']['input']>
 }
 
+export type AiLibraryQueryHit = {
+  __typename?: 'AiLibraryQueryHit'
+  docId: Scalars['String']['output']
+  docName: Scalars['String']['output']
+  docPath: Scalars['String']['output']
+  highlights: Array<AiLibraryQueryHitHighlight>
+  id: Scalars['String']['output']
+  originUri: Scalars['String']['output']
+  pageContent: Scalars['String']['output']
+}
+
+export type AiLibraryQueryHitHighlight = {
+  __typename?: 'AiLibraryQueryHitHighlight'
+  field: Scalars['String']['output']
+  snippet?: Maybe<Scalars['String']['output']>
+}
+
+export type AiLibraryQueryResult = {
+  __typename?: 'AiLibraryQueryResult'
+  hitCount: Scalars['Int']['output']
+  hits: Array<AiLibraryQueryHit>
+  libraryId: Scalars['String']['output']
+  query: Scalars['String']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+}
+
 export type AiLibraryUpdate = {
   __typename?: 'AiLibraryUpdate'
   crawlerRun?: Maybe<AiLibraryCrawlerRun>
@@ -440,6 +467,35 @@ export type HumanParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+export type ManagedUser = {
+  __typename?: 'ManagedUser'
+  activationDate?: Maybe<Scalars['DateTime']['output']>
+  business?: Maybe<Scalars['String']['output']>
+  confirmationDate?: Maybe<Scalars['DateTime']['output']>
+  createdAt: Scalars['DateTime']['output']
+  email: Scalars['String']['output']
+  family_name?: Maybe<Scalars['String']['output']>
+  given_name?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  isAdmin: Scalars['Boolean']['output']
+  lastLogin?: Maybe<Scalars['DateTime']['output']>
+  name?: Maybe<Scalars['String']['output']>
+  position?: Maybe<Scalars['String']['output']>
+  registered?: Maybe<Scalars['Boolean']['output']>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+  username: Scalars['String']['output']
+}
+
+export type ManagedUsersResponse = {
+  __typename?: 'ManagedUsersResponse'
+  filter?: Maybe<Scalars['String']['output']>
+  skip: Scalars['Int']['output']
+  statusFilter?: Maybe<Scalars['String']['output']>
+  take: Scalars['Int']['output']
+  userStatistics: UserStatistic
+  users: Array<ManagedUser>
+}
+
 export type Mutation = {
   __typename?: 'Mutation'
   activateUserProfile?: Maybe<UserProfile>
@@ -466,6 +522,7 @@ export type Mutation = {
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
+  ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistantParticipant?: Maybe<User>
@@ -482,6 +539,7 @@ export type Mutation = {
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
+  toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibrary?: Maybe<AiLibrary>
@@ -601,6 +659,10 @@ export type MutationDropFilesArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationEnsureUserProfileArgs = {
+  userId: Scalars['String']['input']
+}
+
 export type MutationHideMessageArgs = {
   messageId: Scalars['String']['input']
 }
@@ -661,11 +723,16 @@ export type MutationRunAiLibraryCrawlerArgs = {
 }
 
 export type MutationSendConfirmationMailArgs = {
+  activationUrl: Scalars['String']['input']
   confirmationUrl: Scalars['String']['input']
 }
 
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
+}
+
+export type MutationToggleAdminStatusArgs = {
+  userId: Scalars['String']['input']
 }
 
 export type MutationUnhideMessageArgs = {
@@ -728,6 +795,8 @@ export type Query = {
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiModels: Array<AiModel>
+  managedUsers: ManagedUsersResponse
+  queryAiLibraryFiles: AiLibraryQueryResult
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -770,6 +839,20 @@ export type QueryAiLibraryUpdatesArgs = {
 export type QueryAiLibraryUsageArgs = {
   assistantId?: InputMaybe<Scalars['String']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryManagedUsersArgs = {
+  filter?: InputMaybe<Scalars['String']['input']>
+  skip?: Scalars['Int']['input']
+  statusFilter?: InputMaybe<Scalars['String']['input']>
+  take?: Scalars['Int']['input']
+}
+
+export type QueryQueryAiLibraryFilesArgs = {
+  libraryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
 }
 
 export type QueryUserArgs = {
@@ -834,6 +917,15 @@ export type UserProfileInput = {
   freeStorage?: InputMaybe<Scalars['Int']['input']>
   lastName?: InputMaybe<Scalars['String']['input']>
   position?: InputMaybe<Scalars['String']['input']>
+}
+
+export type UserStatistic = {
+  __typename?: 'UserStatistic'
+  activated: Scalars['Int']['output']
+  confirmed: Scalars['Int']['output']
+  total: Scalars['Int']['output']
+  unactivated: Scalars['Int']['output']
+  unconfirmed: Scalars['Int']['output']
 }
 
 /** A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations. */
@@ -1038,6 +1130,86 @@ export type LoginMutation = {
     createdAt: string
     isAdmin: boolean
   } | null
+}
+
+export type EnsureUserProfileMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type EnsureUserProfileMutation = {
+  __typename?: 'Mutation'
+  ensureUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type ManagedUserFragment = {
+  __typename?: 'ManagedUser'
+  id: string
+  username: string
+  name?: string | null
+  given_name?: string | null
+  family_name?: string | null
+  lastLogin?: string | null
+  createdAt: string
+  updatedAt?: string | null
+  email: string
+  isAdmin: boolean
+  registered?: boolean | null
+  business?: string | null
+  position?: string | null
+  confirmationDate?: string | null
+  activationDate?: string | null
+}
+
+export type GetManagedUsersQueryVariables = Exact<{
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+  filter?: InputMaybe<Scalars['String']['input']>
+  statusFilter?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type GetManagedUsersQuery = {
+  __typename?: 'Query'
+  managedUsers: {
+    __typename?: 'ManagedUsersResponse'
+    skip: number
+    take: number
+    filter?: string | null
+    userStatistics: {
+      __typename?: 'UserStatistic'
+      total: number
+      confirmed: number
+      unconfirmed: number
+      activated: number
+      unactivated: number
+    }
+    users: Array<{
+      __typename?: 'ManagedUser'
+      id: string
+      username: string
+      name?: string | null
+      given_name?: string | null
+      family_name?: string | null
+      lastLogin?: string | null
+      createdAt: string
+      updatedAt?: string | null
+      email: string
+      isAdmin: boolean
+      registered?: boolean | null
+      business?: string | null
+      position?: string | null
+      confirmationDate?: string | null
+      activationDate?: string | null
+    }>
+  }
+}
+
+export type ToggleAdminStatusMutationVariables = Exact<{
+  userId: Scalars['String']['input']
+}>
+
+export type ToggleAdminStatusMutation = {
+  __typename?: 'Mutation'
+  toggleAdminStatus?: { __typename?: 'User'; id: string; isAdmin: boolean; username: string } | null
 }
 
 export type AssistantSurvey_AssessmentFragment = {
@@ -2015,6 +2187,35 @@ export type LibraryParticipants_LibraryFragment = {
   id: string
   ownerId: string
   participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+}
+
+export type QueryLibraryFilesQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  query: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}>
+
+export type QueryLibraryFilesQuery = {
+  __typename?: 'Query'
+  queryAiLibraryFiles: {
+    __typename?: 'AiLibraryQueryResult'
+    libraryId: string
+    query: string
+    take: number
+    skip: number
+    hitCount: number
+    hits: Array<{
+      __typename?: 'AiLibraryQueryHit'
+      pageContent: string
+      docName: string
+      docId: string
+      id: string
+      docPath: string
+      originUri: string
+      highlights: Array<{ __typename?: 'AiLibraryQueryHitHighlight'; field: string; snippet?: string | null }>
+    }>
+  }
 }
 
 export type LibraryUpdatesListQueryVariables = Exact<{
@@ -2995,12 +3196,15 @@ export type UserFragment = {
   name?: string | null
   createdAt: string
   email: string
+  isAdmin: boolean
   profile?: {
     __typename?: 'UserProfile'
     firstName?: string | null
     lastName?: string | null
     business?: string | null
     position?: string | null
+    confirmationDate?: string | null
+    activationDate?: string | null
   } | null
 }
 
@@ -3015,18 +3219,22 @@ export type UsersQuery = {
     name?: string | null
     createdAt: string
     email: string
+    isAdmin: boolean
     profile?: {
       __typename?: 'UserProfile'
       firstName?: string | null
       lastName?: string | null
       business?: string | null
       position?: string | null
+      confirmationDate?: string | null
+      activationDate?: string | null
     } | null
   }>
 }
 
 export type SendConfirmationMailMutationVariables = Exact<{
   confirmationUrl: Scalars['String']['input']
+  activationUrl: Scalars['String']['input']
 }>
 
 export type SendConfirmationMailMutation = { __typename?: 'Mutation'; sendConfirmationMail?: boolean | null }
@@ -3104,6 +3312,72 @@ export type ActivateUserProfileMutation = {
   activateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
 }
 
+export type AdminUserByIdQueryVariables = Exact<{
+  email: Scalars['String']['input']
+}>
+
+export type AdminUserByIdQuery = {
+  __typename?: 'Query'
+  user?: {
+    __typename?: 'User'
+    id: string
+    username: string
+    name?: string | null
+    createdAt: string
+    email: string
+    isAdmin: boolean
+    profile?: {
+      __typename?: 'UserProfile'
+      firstName?: string | null
+      lastName?: string | null
+      business?: string | null
+      position?: string | null
+      confirmationDate?: string | null
+      activationDate?: string | null
+      id: string
+      userId: string
+      email: string
+      freeMessages: number
+      usedMessages?: number | null
+      freeStorage: number
+      usedStorage?: number | null
+      createdAt: string
+      updatedAt?: string | null
+      expiresAt?: string | null
+    } | null
+  } | null
+}
+
+export const ManagedUserFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ManagedUser' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ManagedUser' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'registered' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ManagedUserFragment, unknown>
 export const QuestionCard_QuestionFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -5274,6 +5548,7 @@ export const UserFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -5284,6 +5559,8 @@ export const UserFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
               ],
             },
           },
@@ -5369,6 +5646,202 @@ export const LoginDocument = {
     },
   ],
 } as unknown as DocumentNode<LoginMutation, LoginMutationVariables>
+export const EnsureUserProfileDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'ensureUserProfile' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'ensureUserProfile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EnsureUserProfileMutation, EnsureUserProfileMutationVariables>
+export const GetManagedUsersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getManagedUsers' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'statusFilter' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'managedUsers' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'filter' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'filter' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'statusFilter' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'statusFilter' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'filter' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'userStatistics' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'confirmed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'unconfirmed' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'activated' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'unactivated' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'users' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ManagedUser' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ManagedUser' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ManagedUser' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'registered' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetManagedUsersQuery, GetManagedUsersQueryVariables>
+export const ToggleAdminStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'toggleAdminStatus' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'toggleAdminStatus' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'userId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'userId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ToggleAdminStatusMutation, ToggleAdminStatusMutationVariables>
 export const AiActAssessmentQueryDocument = {
   kind: 'Document',
   definitions: [
@@ -7825,6 +8298,105 @@ export const CreateAiLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateAiLibraryMutation, CreateAiLibraryMutationVariables>
+export const QueryLibraryFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'queryLibraryFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'query' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'queryAiLibraryFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'query' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'query' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'query' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hitCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'hits' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'pageContent' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'docName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'docId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'docPath' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'highlights' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'field' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'snippet' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
 export const LibraryUpdatesListDocument = {
   kind: 'Document',
   definitions: [
@@ -9156,6 +9728,7 @@ export const UsersDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'profile' },
@@ -9166,6 +9739,8 @@ export const UsersDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'business' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
               ],
             },
           },
@@ -9187,6 +9762,11 @@ export const SendConfirmationMailDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'activationUrl' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -9199,6 +9779,11 @@ export const SendConfirmationMailDocument = {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'confirmationUrl' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'confirmationUrl' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'activationUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'activationUrl' } },
               },
             ],
           },
@@ -9377,3 +9962,109 @@ export const ActivateUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<ActivateUserProfileMutation, ActivateUserProfileMutationVariables>
+export const AdminUserByIdDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'adminUserById' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'user' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'email' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'email' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'User' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'profile' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UserProfileForm_UserProfile' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'User' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'profile' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'UserProfileForm_UserProfile' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'UserProfile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'business' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'position' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AdminUserByIdQuery, AdminUserByIdQueryVariables>

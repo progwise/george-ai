@@ -17,15 +17,18 @@ import { Route as AboutImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedConversationsRouteImport } from './routes/_authenticated/conversations/route'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedProfileIndexImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedLibrariesIndexImport } from './routes/_authenticated/libraries/index'
 import { Route as AuthenticatedConversationsIndexImport } from './routes/_authenticated/conversations/index'
 import { Route as AuthenticatedAssistantsIndexImport } from './routes/_authenticated/assistants/index'
+import { Route as AuthenticatedAdminIndexImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedLibrariesAuthGoogleImport } from './routes/_authenticated/libraries/auth-google'
 import { Route as AuthenticatedConversationsConversationIdImport } from './routes/_authenticated/conversations/$conversationId'
 import { Route as AuthenticatedAssistantsAssistantIdImport } from './routes/_authenticated/assistants/$assistantId'
 import { Route as AuthenticatedLibrariesLibraryIdRouteImport } from './routes/_authenticated/libraries/$libraryId/route'
 import { Route as AuthenticatedLibrariesLibraryIdIndexImport } from './routes/_authenticated/libraries/$libraryId/index'
+import { Route as AuthenticatedAdminUsersIndexImport } from './routes/_authenticated/admin/users/index'
 import { Route as AuthenticatedProfileProfileIdConfirmImport } from './routes/_authenticated/profile/$profileId.confirm'
 import { Route as AuthenticatedProfileProfileIdAdminConfirmImport } from './routes/_authenticated/profile/$profileId.admin-confirm'
 import { Route as AuthenticatedLibrariesLibraryIdUpdatesImport } from './routes/_authenticated/libraries/$libraryId/updates'
@@ -33,6 +36,7 @@ import { Route as AuthenticatedLibrariesLibraryIdQueryImport } from './routes/_a
 import { Route as AuthenticatedLibrariesLibraryIdFilesImport } from './routes/_authenticated/libraries/$libraryId/files'
 import { Route as AuthenticatedLibrariesLibraryIdEditImport } from './routes/_authenticated/libraries/$libraryId/edit'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersImport } from './routes/_authenticated/libraries/$libraryId/crawlers'
+import { Route as AuthenticatedAdminUsersUserIdImport } from './routes/_authenticated/admin/users/$userId'
 import { Route as AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId'
 
 // Create/Update Routes
@@ -73,6 +77,12 @@ const AuthenticatedConversationsRouteRoute =
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+
 const AuthenticatedProfileIndexRoute = AuthenticatedProfileIndexImport.update({
   id: '/profile/',
   path: '/profile/',
@@ -99,6 +109,12 @@ const AuthenticatedAssistantsIndexRoute =
     path: '/assistants/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 
 const AuthenticatedLibrariesAuthGoogleRoute =
   AuthenticatedLibrariesAuthGoogleImport.update({
@@ -133,6 +149,13 @@ const AuthenticatedLibrariesLibraryIdIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
+
+const AuthenticatedAdminUsersIndexRoute =
+  AuthenticatedAdminUsersIndexImport.update({
+    id: '/users/',
+    path: '/users/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
 
 const AuthenticatedProfileProfileIdConfirmRoute =
@@ -184,6 +207,13 @@ const AuthenticatedLibrariesLibraryIdCrawlersRoute =
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
 
+const AuthenticatedAdminUsersUserIdRoute =
+  AuthenticatedAdminUsersUserIdImport.update({
+    id: '/users/$userId',
+    path: '/users/$userId',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+
 const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute =
   AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport.update(
     {
@@ -232,6 +262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteImport
+    }
     '/_authenticated/conversations': {
       id: '/_authenticated/conversations'
       path: '/conversations'
@@ -267,6 +304,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibrariesAuthGoogleImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexImport
+      parentRoute: typeof AuthenticatedAdminRouteImport
+    }
     '/_authenticated/assistants/': {
       id: '/_authenticated/assistants/'
       path: '/assistants'
@@ -294,6 +338,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileIndexImport
       parentRoute: typeof AuthenticatedRouteImport
+    }
+    '/_authenticated/admin/users/$userId': {
+      id: '/_authenticated/admin/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUsersUserIdImport
+      parentRoute: typeof AuthenticatedAdminRouteImport
     }
     '/_authenticated/libraries/$libraryId/crawlers': {
       id: '/_authenticated/libraries/$libraryId/crawlers'
@@ -344,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileProfileIdConfirmImport
       parentRoute: typeof AuthenticatedRouteImport
     }
+    '/_authenticated/admin/users/': {
+      id: '/_authenticated/admin/users/'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIndexImport
+      parentRoute: typeof AuthenticatedAdminRouteImport
+    }
     '/_authenticated/libraries/$libraryId/': {
       id: '/_authenticated/libraries/$libraryId/'
       path: '/'
@@ -362,6 +420,24 @@ declare module '@tanstack/react-router' {
 }
 
 // Create and export the route tree
+
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
+  AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
+    AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
 
 interface AuthenticatedConversationsRouteRouteChildren {
   AuthenticatedConversationsConversationIdRoute: typeof AuthenticatedConversationsConversationIdRoute
@@ -414,6 +490,7 @@ const AuthenticatedLibrariesLibraryIdRouteRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedConversationsRouteRoute: typeof AuthenticatedConversationsRouteRouteWithChildren
   AuthenticatedLibrariesLibraryIdRouteRoute: typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   AuthenticatedAssistantsAssistantIdRoute: typeof AuthenticatedAssistantsAssistantIdRoute
@@ -426,6 +503,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedConversationsRouteRoute:
     AuthenticatedConversationsRouteRouteWithChildren,
   AuthenticatedLibrariesLibraryIdRouteRoute:
@@ -451,15 +529,18 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/conversations/': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesRoute
@@ -467,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
   '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
@@ -480,10 +562,12 @@ export interface FileRoutesByTo {
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
   '/conversations': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesRoute
@@ -491,6 +575,7 @@ export interface FileRoutesByTo {
   '/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdIndexRoute
   '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
@@ -502,15 +587,18 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/_authenticated/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/_authenticated/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/assistants/': typeof AuthenticatedAssistantsIndexRoute
   '/_authenticated/conversations/': typeof AuthenticatedConversationsIndexRoute
   '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
   '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   '/_authenticated/libraries/$libraryId/edit': typeof AuthenticatedLibrariesLibraryIdEditRoute
   '/_authenticated/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesRoute
@@ -518,6 +606,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId/updates': typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   '/_authenticated/profile/$profileId/admin-confirm': typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
+  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
   '/_authenticated/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
   '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
@@ -530,15 +619,18 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/login'
+    | '/admin'
     | '/conversations'
     | '/libraries/$libraryId'
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
+    | '/admin/'
     | '/assistants'
     | '/conversations/'
     | '/libraries'
     | '/profile'
+    | '/admin/users/$userId'
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/edit'
     | '/libraries/$libraryId/files'
@@ -546,6 +638,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/updates'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
+    | '/admin/users'
     | '/libraries/$libraryId/'
     | '/conversations/$conversationId/confirm-invitation/$invitationId'
   fileRoutesByTo: FileRoutesByTo
@@ -558,10 +651,12 @@ export interface FileRouteTypes {
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
+    | '/admin'
     | '/assistants'
     | '/conversations'
     | '/libraries'
     | '/profile'
+    | '/admin/users/$userId'
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/edit'
     | '/libraries/$libraryId/files'
@@ -569,6 +664,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/updates'
     | '/profile/$profileId/admin-confirm'
     | '/profile/$profileId/confirm'
+    | '/admin/users'
     | '/libraries/$libraryId'
     | '/conversations/$conversationId/confirm-invitation/$invitationId'
   id:
@@ -578,15 +674,18 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/login'
+    | '/_authenticated/admin'
     | '/_authenticated/conversations'
     | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/assistants/$assistantId'
     | '/_authenticated/conversations/$conversationId'
     | '/_authenticated/libraries/auth-google'
+    | '/_authenticated/admin/'
     | '/_authenticated/assistants/'
     | '/_authenticated/conversations/'
     | '/_authenticated/libraries/'
     | '/_authenticated/profile/'
+    | '/_authenticated/admin/users/$userId'
     | '/_authenticated/libraries/$libraryId/crawlers'
     | '/_authenticated/libraries/$libraryId/edit'
     | '/_authenticated/libraries/$libraryId/files'
@@ -594,6 +693,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId/updates'
     | '/_authenticated/profile/$profileId/admin-confirm'
     | '/_authenticated/profile/$profileId/confirm'
+    | '/_authenticated/admin/users/'
     | '/_authenticated/libraries/$libraryId/'
     | '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
   fileRoutesById: FileRoutesById
@@ -638,6 +738,7 @@ export const routeTree = rootRoute
     "/_authenticated": {
       "filePath": "_authenticated/route.tsx",
       "children": [
+        "/_authenticated/admin",
         "/_authenticated/conversations",
         "/_authenticated/libraries/$libraryId",
         "/_authenticated/assistants/$assistantId",
@@ -657,6 +758,15 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/_authenticated/admin": {
+      "filePath": "_authenticated/admin/route.tsx",
+      "parent": "/_authenticated",
+      "children": [
+        "/_authenticated/admin/",
+        "/_authenticated/admin/users/$userId",
+        "/_authenticated/admin/users/"
+      ]
     },
     "/_authenticated/conversations": {
       "filePath": "_authenticated/conversations/route.tsx",
@@ -691,6 +801,10 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/libraries/auth-google.tsx",
       "parent": "/_authenticated"
     },
+    "/_authenticated/admin/": {
+      "filePath": "_authenticated/admin/index.tsx",
+      "parent": "/_authenticated/admin"
+    },
     "/_authenticated/assistants/": {
       "filePath": "_authenticated/assistants/index.tsx",
       "parent": "/_authenticated"
@@ -706,6 +820,10 @@ export const routeTree = rootRoute
     "/_authenticated/profile/": {
       "filePath": "_authenticated/profile/index.tsx",
       "parent": "/_authenticated"
+    },
+    "/_authenticated/admin/users/$userId": {
+      "filePath": "_authenticated/admin/users/$userId.tsx",
+      "parent": "/_authenticated/admin"
     },
     "/_authenticated/libraries/$libraryId/crawlers": {
       "filePath": "_authenticated/libraries/$libraryId/crawlers.tsx",
@@ -734,6 +852,10 @@ export const routeTree = rootRoute
     "/_authenticated/profile/$profileId/confirm": {
       "filePath": "_authenticated/profile/$profileId.confirm.tsx",
       "parent": "/_authenticated"
+    },
+    "/_authenticated/admin/users/": {
+      "filePath": "_authenticated/admin/users/index.tsx",
+      "parent": "/_authenticated/admin"
     },
     "/_authenticated/libraries/$libraryId/": {
       "filePath": "_authenticated/libraries/$libraryId/index.tsx",
