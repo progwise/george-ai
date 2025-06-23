@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { reProcessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
-import { DropFileConfirmationDialog } from './drop-file-confirmation-dialog'
+import { DropFileConfirmationDialog } from './drop-files-confirmation-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 
 interface FilesActionsBarProps {
