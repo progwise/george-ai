@@ -145,9 +145,9 @@ export const GoogleFilesTable = ({
         }
       })
       const folders = content?.filter((file) => file.kind === 'application/vnd.google-apps.folder')
-      folders?.forEach((folder) => {
-        unselectFolder(folder)
-      })
+      if (folders) {
+        await Promise.all(folders.map((folder) => unselectFolder(folder)))
+      }
       setCheckedFolderIds((prev) => prev.filter((id) => id !== file.id))
       setNumberOfRecursiveProcesses((prev) => prev - 1)
     },
@@ -166,9 +166,9 @@ export const GoogleFilesTable = ({
           }
         })
         const folders = content?.filter((file) => file.kind === 'application/vnd.google-apps.folder')
-        folders?.forEach((folder) => {
-          selectFolder(folder)
-        })
+        if (folders) {
+          await Promise.all(folders.map((folder) => selectFolder(folder)))
+        }
         setCheckedFolderIds((prev) => [...prev, file.id])
       }
       setNumberOfRecursiveProcesses((prev) => prev - 1)
