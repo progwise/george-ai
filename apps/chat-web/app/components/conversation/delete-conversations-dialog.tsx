@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -51,18 +52,21 @@ export const DeleteConversationsDialog = (props: DeleteConversationsDialogProps)
   const submitButtonText = t('actions.remove')
   const buttonTooltip = t('conversations.removeMultiple')
 
-  const trashIconDesign = props.checkedConversationIds.length < 1 ? 'size-6 text-neutral-content' : 'size-6 text-error'
+  const hasCheckedConversationIds = props.checkedConversationIds.length < 1
 
   return (
     <>
       <button
         type="button"
-        className="btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-right z-60 relative mx-1"
+        className={twMerge(
+          'btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-right z-60 : relative mx-1',
+          hasCheckedConversationIds && 'text-neutral-content',
+        )}
         onClick={handleOpen}
         data-tip={buttonTooltip}
-        disabled={props.checkedConversationIds.length < 1}
+        disabled={hasCheckedConversationIds}
       >
-        <TrashIcon className={trashIconDesign} />
+        <TrashIcon className="size-6" />
       </button>
 
       <LoadingSpinner isLoading={isDeletePending} />

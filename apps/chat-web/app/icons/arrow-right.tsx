@@ -7,8 +7,6 @@ export const ArrowRight = ({ className }: IconProps) => {
     <div className={twMerge('size-4 stroke-2', className)}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="18"
-        height="18"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
