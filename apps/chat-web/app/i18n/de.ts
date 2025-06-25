@@ -302,7 +302,7 @@ export default {
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht.',
-    dropFileConfirmationDialog: 'Dateien entfernen',
+    dropFilesDialog: 'Dateien entfernen',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     googleDrive: 'Google Drive',
@@ -348,8 +348,8 @@ export default {
     allowMultipleParticipants: 'Mehrere Teilnehmer zulassen',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     copiedToClipboard: 'In die Zwischenablage kopiert',
-    dropFileConfirmationDescription:
-      'Hinweis: Das Entfernen von Dateien ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie, dass Sie die ausgewählten Dateien entfernen möchten. ',
+    dropFilesDialogDescription:
+      'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen der ausgewählten Dateien.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
@@ -364,7 +364,7 @@ export default {
     noUsersFound: 'Keine Benutzer gefunden',
     noUsersMatchFilters: 'Keine Benutzer entsprechen den Filtern',
     numberOfConversationsToRemove: ' Konversation(en) werden/wird entfernt.',
-    numberOfFilesSelected: 'Datei(en) werden/wird entfernt.',
+    numberOfFilesChecked: 'Datei(en) werden/wird entfernt.',
     removedProfile: 'Profil entfernt',
     profileConfirmed: 'Profil bestätigt',
     profileFoundFor: 'Benutzerprofil gefunden für',

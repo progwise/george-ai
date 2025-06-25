@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { reProcessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
-import { DropFileConfirmationDialog } from './drop-files-confirmation-dialog'
+import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 
 interface FilesActionsBarProps {
@@ -14,6 +14,8 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   selectedFileIds: string[]
   setSelectedFileIds: (fileIds: string[]) => void
+  checkedFileIds: string[]
+  setCheckedFileIds: (fileIds: string[]) => void
 }
 
 export const FilesActionsBar = ({
@@ -56,11 +58,11 @@ export const FilesActionsBar = ({
         />
         <GoogleFileUploadButton libraryId={libraryId} disabled={remainingStorage < 1} />
 
-        <DropFileConfirmationDialog
+        <DropFilesDialog
           disabled={false}
           tableDataChanged={tableDataChanged}
-          selectedFileIds={selectedFileIds}
-          setSelectedFileIds={setSelectedFileIds}
+          checkedFileIds={selectedFileIds}
+          setCheckedFileIds={setSelectedFileIds}
         />
 
         <button

@@ -295,7 +295,7 @@ export default {
     addSingleFile: 'Add 1 File',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s).',
-    dropFileConfirmationDialog: 'Drop files',
+    dropFilesDialog: 'Drop files',
     dropFileError: 'Failed to delete file',
     dropFileFailure: 'Failed to drop files:',
     googleDrive: 'Google Drive',
@@ -340,8 +340,8 @@ export default {
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
     copiedToClipboard: 'Copied to clipboard',
-    dropFileConfirmationDescription:
-      'Note: Dropping files is permanent and cannot be undone. Please confirm removing the selected files.',
+    dropFilesDialogDescription:
+      'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     dropFileFailure: 'Failed to drop files:',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
@@ -355,7 +355,7 @@ export default {
     noUsersFound: 'No users found',
     noUsersMatchFilters: 'No users match your filters',
     numberOfConversationsToRemove: ' conversation(s) will be removed.',
-    numberOfFilesSelected: 'file(s) will be dropped.',
+    numberOfFilesChecked: 'file(s) will be dropped.',
     removedProfile: 'Profile removed',
     profileConfirmed: 'Profile confirmed',
     profileFoundFor: 'Profile found for',

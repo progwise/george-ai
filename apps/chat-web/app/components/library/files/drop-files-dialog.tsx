@@ -7,18 +7,14 @@ import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { dropFiles } from './change-files'
 
-interface DropFileConfirmationDialogProps {
+interface DropFilesDialogProps {
   disabled: boolean
   tableDataChanged: () => void
-  selectedFileIds: string[]
-  setSelectedFileIds: (fileIds: string[]) => void
+  checkedFileIds: string[]
+  setCheckedFileIds: (fileIds: string[]) => void
 }
 
-export const DropFileConfirmationDialog = ({
-  selectedFileIds,
-  setSelectedFileIds,
-  tableDataChanged,
-}: DropFileConfirmationDialogProps) => {
+export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataChanged }: DropFilesDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
@@ -27,22 +23,19 @@ export const DropFileConfirmationDialog = ({
       await dropFiles({ data: fileIds })
     },
     onSuccess: () => {
-      toastError(t('errors.dropFilesError'))
+      toastSuccess(`${checkedFileIds.length} ${t('actions.dropSuccess')}`)
     },
     onError: () => {
-      toastSuccess(`${selectedFileIds.length} ${t('actions.dropSuccess')}`)
+      toastError(t('errors.dropFilesError'))
     },
     onSettled: () => {
-      setSelectedFileIds([])
+      setCheckedFileIds([])
       tableDataChanged()
+      dialogRef.current?.close()
     },
   })
 
-  const title = t('libraries.dropFileConfirmationDialog')
-  const description = t('texts.dropFileConfirmationDescription')
-  const submitButtonText = t('actions.drop')
-
-  dialogRef.current?.close()
+  const textOfDropButton = t('actions.drop')
 
   return (
     <>
@@ -51,24 +44,26 @@ export const DropFileConfirmationDialog = ({
         className="btn btn-xs btn-primary tooltip tooltip-bottom"
         data-tip={t('tooltips.dropDescription')}
         onClick={() => dialogRef.current?.showModal()}
-        disabled={selectedFileIds.length === 0}
+        disabled={checkedFileIds.length === 0}
       >
-        <span className="hidden sm:inline">{t('actions.drop')}</span>
+        <span className="hidden sm:inline">{textOfDropButton}</span>
       </button>
 
       <LoadingSpinner isLoading={isPending} />
 
       <DialogForm
         ref={dialogRef}
-        title={title}
-        description={description}
-        onSubmit={() => dropFilesMutation.mutate(selectedFileIds)}
-        submitButtonText={submitButtonText}
+        title={t('libraries.dropFilesDialog')}
+        description={t('texts.dropFilesDialogDescription')}
+        onSubmit={() => dropFilesMutation.mutate(checkedFileIds)}
+        submitButtonText={textOfDropButton}
       >
         <div className="w-full">
           <div className="mb-4">
             <>
-              {selectedFileIds.length} {t('texts.numberOfFilesSelected')} <span className="font-medium"></span>
+              <span className="font-medium">
+                {checkedFileIds.length} {t('texts.numberOfFilesChecked')}
+              </span>
             </>
           </div>
         </div>
