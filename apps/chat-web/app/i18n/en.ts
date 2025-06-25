@@ -169,7 +169,7 @@ export default {
     notAllowed: 'Not allowed',
     profileEnsureFailed: 'Profil could not be ensured for user {userId}. Error: {error}',
     profileNotFound: 'Profile not found or deleted.',
-    reprocessFileError: 'An error occurred while reprocessing the files. Please try again later.',
+    reProcessFileError: 'An error occurred while reprocessing the files. Please try again later.',
     requiredField: 'Required',
     unexpectedError: 'An unexpected error occurred',
   },

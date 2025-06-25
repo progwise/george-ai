@@ -12,8 +12,8 @@ interface FilesActionsBarProps {
   usedStorage: number
   availableStorage: number
   tableDataChanged: () => void
-  selectedFileIds: string[]
-  setSelectedFileIds: (fileIds: string[]) => void
+  checkedFileIds: string[]
+  setCheckedFileIds: (fileIds: string[]) => void
 }
 
 export const FilesActionsBar = ({
@@ -21,8 +21,8 @@ export const FilesActionsBar = ({
   usedStorage,
   availableStorage,
   tableDataChanged,
-  selectedFileIds,
-  setSelectedFileIds,
+  checkedFileIds,
+  setCheckedFileIds,
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
 
@@ -31,14 +31,14 @@ export const FilesActionsBar = ({
       await reProcessFiles({ data: fileIds })
     },
     onSettled: () => {
-      setSelectedFileIds([])
+      setCheckedFileIds([])
       tableDataChanged()
     },
     onError: () => {
-      toastError(t('errors.reProcessFilesError'))
+      toastError(t('errors.reProcessFileError'))
     },
     onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} ${t('actions.reProcessSuccess')}`)
+      toastSuccess(`${checkedFileIds.length} ${t('actions.reProcessSuccess')}`)
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
@@ -59,15 +59,15 @@ export const FilesActionsBar = ({
         <DropFilesDialog
           disabled={false}
           tableDataChanged={tableDataChanged}
-          checkedFileIds={selectedFileIds}
-          setCheckedFileIds={setSelectedFileIds}
+          checkedFileIds={checkedFileIds}
+          setCheckedFileIds={setCheckedFileIds}
         />
 
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => reProcessFilesMutation.mutate(selectedFileIds)}
-          disabled={selectedFileIds.length === 0}
+          onClick={() => reProcessFilesMutation.mutate(checkedFileIds)}
+          disabled={checkedFileIds.length === 0}
         >
           {t('actions.reProcess')}
         </button>
