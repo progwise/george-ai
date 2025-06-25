@@ -78,6 +78,11 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
       onClick={handleClick}
       className="btn btn-primary btn-xs"
     >
+      {crawler.isRunning ? (
+        <span className="loading loading-spinner loading-xs"></span>
+      ) : (
+        <span className="i-heroicons-play-solid"></span>
+      )}
       {t('crawlers.run')}
     </button>
   )
