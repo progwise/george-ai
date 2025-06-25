@@ -14,8 +14,6 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   selectedFileIds: string[]
   setSelectedFileIds: (fileIds: string[]) => void
-  checkedFileIds: string[]
-  setCheckedFileIds: (fileIds: string[]) => void
 }
 
 export const FilesActionsBar = ({
