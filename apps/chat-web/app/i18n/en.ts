@@ -366,6 +366,7 @@ export default {
     with: 'with',
   },
   tooltips: {
+    addGoogleDriveFiles: 'Add files from Google Drive',
     addNoParticipantsSelected: 'No participant is selected',
     cannotSendInvitation: 'Create the conversation to send invitations.',
     copyConversationLink: 'Copy link',

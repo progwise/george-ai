@@ -375,6 +375,7 @@ export default {
     with: 'mit',
   },
   tooltips: {
+    addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addNoParticipantsSelected: 'Es ist kein Teilnehmer ausgewählt',
     cannotSendInvitation: 'Erstellen Sie die Konversation, um Einladungen zu senden.',
     copyConversationLink: 'Link kopieren',
