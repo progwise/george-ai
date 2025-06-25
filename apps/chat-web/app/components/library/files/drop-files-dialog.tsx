@@ -60,11 +60,7 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
       >
         <div className="w-full">
           <div className="mb-4">
-            <>
-              <span className="font-medium">
-                {checkedFileIds.length} {t('texts.numberOfFilesChecked')}
-              </span>
-            </>
+            <span className="font-medium">{t('texts.numberOfFilesChecked', { count: checkedFileIds.length })}</span>
           </div>
         </div>
       </DialogForm>

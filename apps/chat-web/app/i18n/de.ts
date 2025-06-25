@@ -364,7 +364,7 @@ export default {
     noUsersFound: 'Keine Benutzer gefunden',
     noUsersMatchFilters: 'Keine Benutzer entsprechen den Filtern',
     numberOfConversationsToRemove: ' Konversation(en) werden/wird entfernt.',
-    numberOfFilesChecked: 'Datei(en) werden/wird entfernt.',
+    numberOfFilesChecked: '{count} Datei(en) werden/wird entfernt.',
     removedProfile: 'Profil entfernt',
     profileConfirmed: 'Profil bestätigt',
     profileFoundFor: 'Benutzerprofil gefunden für',
