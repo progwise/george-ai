@@ -8,6 +8,8 @@ export class PDFLoaderAI {
   constructor(private filePath: string) {}
 
   async load() {
+    console.log(`Loading PDF file with AI from ${this.filePath}`)
+
     const client = new OpenAI()
     const convertedImages = await convertToImages(this.filePath)
 
@@ -20,7 +22,7 @@ export class PDFLoaderAI {
     )
 
     const response = await client.responses.create({
-      model: 'gpt-4o',
+      model: 'o4-mini',
       input: [
         {
           role: 'system',
@@ -39,7 +41,9 @@ export class PDFLoaderAI {
               You should also describe the layout and non-text elements of the images.
               The text you deliver will be used by myself to create a searchable index of the document.
               Please do not include any other information or comments in your response that is not written in the images.
-              The goal is to extract the text word for word and describe the document as it is.`,
+              The goal is to extract the text word for word and describe the document as it is.
+              Please format your response as markdown text, with each page's content separated by a horizontal rule.
+              Do not include any additional explanations or comments.`,
             },
           ],
         },
