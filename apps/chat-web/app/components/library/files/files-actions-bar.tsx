@@ -4,6 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { reProcessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { DropAllFilesConfirmationDialog } from './drop-all-files-confirmation-dialog'
 import { DropFileConfirmationDialog } from './drop-files-confirmation-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 
@@ -61,6 +62,12 @@ export const FilesActionsBar = ({
           tableDataChanged={tableDataChanged}
           selectedFileIds={selectedFileIds}
           setSelectedFileIds={setSelectedFileIds}
+        />
+        <DropAllFilesConfirmationDialog
+          disabled={false}
+          selectedFileIds={selectedFileIds}
+          setSelectedFileIds={setSelectedFileIds}
+          tableDataChanged={tableDataChanged}
         />
 
         <button
