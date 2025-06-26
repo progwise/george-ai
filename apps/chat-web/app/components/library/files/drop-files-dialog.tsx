@@ -41,13 +41,14 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
     <>
       <button
         type="button"
-        className="btn btn-xs btn-primary tooltip tooltip-bottom"
+        className="btn btn-primary btn-xs tooltip tooltip-bottom"
         data-tip={t('tooltips.dropDescription')}
         onClick={() => dialogRef.current?.showModal()}
         disabled={checkedFileIds.length === 0}
       >
-        <span className="hidden sm:inline">{textOfDropButton}</span>
+        {textOfDropButton}
       </button>
+
       <LoadingSpinner isLoading={isPending} />
 
       <DialogForm
