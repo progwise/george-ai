@@ -88,7 +88,8 @@ export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
       }
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? `${error.message}${error.cause ? ' ' + error.cause : ''}` : String(error)
+    const errorMessage =
+      error instanceof Error ? `${error.message}${error.cause ? ' ' + error.cause : ''}` : String(error)
     console.error('Error in crawl client:', errorMessage)
     yield { url, markdown: null, metaData: null, error: errorMessage }
   }
