@@ -11,7 +11,7 @@ export default {
     delete: 'Löschen',
     details: 'Details',
     drop: 'Entfernen',
-    dropSuccess: '{count} Datei/en erfolgreich entfernt',
+    dropSuccess: '{count} Datei(en) erfolgreich entfernt',
     edit: 'Bearbeiten',
     ensureUserProfile: 'User Profil ggf. erzeugen',
     hideNotes: 'Notizen ausblenden',

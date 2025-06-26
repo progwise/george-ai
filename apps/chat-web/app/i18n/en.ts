@@ -355,7 +355,7 @@ export default {
     noUsersFound: 'No users found',
     noUsersMatchFilters: 'No users match your filters',
     numberOfConversationsToRemove: ' conversation(s) will be removed.',
-    numberOfFilesToBeDropped: '{count} file(s) will be dropped.',
+    numberOfFilesToBeDropped: '{count} file(s) were/was successfully dropped.',
     removedProfile: 'Profile removed',
     profileConfirmed: 'Profile confirmed',
     profileFoundFor: 'Profile found for',
