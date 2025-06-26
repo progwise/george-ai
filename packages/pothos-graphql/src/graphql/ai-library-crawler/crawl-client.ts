@@ -31,7 +31,7 @@ export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
     )
     if (!response.ok) {
       console.error(`Failed to start crawl ${url}:`, response.statusText)
-      return
+      throw new Error(`Failed to start crawl ${url}: ${response.statusText}`)
     }
 
     const reader = response.body?.getReader()
@@ -88,8 +88,10 @@ export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
       }
     }
   } catch (error) {
-    console.error('Error during crawling:', error)
-    yield { url, markdown: null, metaData: null, error: error instanceof Error ? error.message : String(error) }
+    const errorMessage =
+      error instanceof Error ? `${error.message}${error.cause ? ' ' + error.cause : ''}` : String(error)
+    console.error('Error in crawl client:', errorMessage)
+    yield { url, markdown: null, metaData: null, error: errorMessage }
   }
   console.log(`finished crawling ${url}`)
 }

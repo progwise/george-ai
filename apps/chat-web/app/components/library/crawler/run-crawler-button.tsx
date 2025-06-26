@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { RunCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { PlayIcon } from '../../../icons/play-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { aiLibraryFilesQueryOptions } from '../files/get-files'
@@ -78,6 +79,7 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
       onClick={handleClick}
       className="btn btn-primary btn-xs"
     >
+      {crawler.isRunning ? <span className="loading loading-spinner loading-xs"></span> : <PlayIcon />}
       {t('crawlers.run')}
     </button>
   )
