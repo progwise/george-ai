@@ -7,7 +7,7 @@ import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { loadFile } from './langchain-file'
-import { generateQAPairs } from './qa-generator-openai'
+import { generateQAPairs } from './qa-generator-google'
 import { summarizeDocument } from './summarizer'
 import { calculateChunkParams } from './vectorstore-settings'
 
