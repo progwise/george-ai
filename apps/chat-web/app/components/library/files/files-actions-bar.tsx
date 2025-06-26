@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { reProcessFiles } from './change-files'
+import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
@@ -28,14 +28,14 @@ export const FilesActionsBar = ({
 
   const reProcessFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
-      await reProcessFiles({ data: fileIds })
+      await reprocessFiles({ data: fileIds })
     },
     onSettled: () => {
       setCheckedFileIds([])
       tableDataChanged()
     },
     onError: () => {
-      toastError(t('errors.reProcessFileError'))
+      toastError(t('errors.reprocessFileError'))
     },
     onSuccess: () => {
       toastSuccess(`${checkedFileIds.length} ${t('actions.reProcessSuccess')}`)

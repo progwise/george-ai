@@ -175,7 +175,7 @@ export default {
     notAllowed: 'Nicht erlaubt',
     profileEnsureFailed: 'Profil konnte nicht sichergestellt werden',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
-    reProcessFileError: 'Datei konnte nicht erneut verarbeitet werden. Bitte versuchen Sie es später erneut.',
+    reprocessFileError: 'Datei konnte nicht erneut verarbeitet werden. Bitte versuchen Sie es später erneut.',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
   },

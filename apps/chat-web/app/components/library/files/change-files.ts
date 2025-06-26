@@ -23,7 +23,7 @@ export const dropFiles = createServerFn({ method: 'POST' })
     return await Promise.all(dropFilePromises)
   })
 
-export const reProcessFiles = createServerFn({ method: 'POST' })
+export const reprocessFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
     const reProcessFilePromises = ctx.data.map((fileId) =>

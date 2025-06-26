@@ -7,7 +7,7 @@ import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { dropFiles, reProcessFiles } from './change-files'
+import { dropFiles, reprocessFiles } from './change-files'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -59,7 +59,7 @@ export const FilesTable = ({
   })
 
   const { mutate: mutateReProcessFile } = useMutation({
-    mutationFn: (fileId: string) => reProcessFiles({ data: [fileId] }),
+    mutationFn: (fileId: string) => reprocessFiles({ data: [fileId] }),
     onError: (error: Error) => {
       console.error('Error reprocessing file:', error)
       toastError(t('errors.reProcessFile', { error: error.message }))
