@@ -58,17 +58,17 @@ export const FilesTable = ({
     },
   })
 
-  const { mutate: mutateReProcessFile } = useMutation({
+  const { mutate: mutateReprocessFile } = useMutation({
     mutationFn: (fileId: string) => reprocessFiles({ data: [fileId] }),
     onError: (error: Error) => {
       console.error('Error reprocessing file:', error)
-      toastError(t('errors.reProcessFile', { error: error.message }))
+      toastError(t('errors.reprocessFile', { error: error.message }))
     },
     onSuccess: (data) => {
       const fileNames = data
         .map((file) => (!file.processFile.name ? file.processFile.id : file.processFile.name))
         .join(', ')
-      toastSuccess(t('actions.reProcessSuccess', { count: 1 }) + `: ${fileNames}`)
+      toastSuccess(t('actions.reprocessSuccess', { count: 1 }) + `: ${fileNames}`)
     },
     onSettled: () => {
       tableDataChanged()
@@ -195,8 +195,8 @@ export const FilesTable = ({
                   <button type="button" className="btn btn-xs" onClick={() => mutateDropFile(file.id)}>
                     {t('actions.drop')}
                   </button>
-                  <button type="button" className="btn btn-xs" onClick={() => mutateReProcessFile(file.id)}>
-                    {t('actions.reProcess')}
+                  <button type="button" className="btn btn-xs" onClick={() => mutateReprocessFile(file.id)}>
+                    {t('actions.reprocess')}
                   </button>
                   {file.processingErrorMessage && (
                     <span className="tooltip" data-tip={file.processingErrorMessage}>

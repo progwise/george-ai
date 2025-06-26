@@ -26,10 +26,10 @@ export const dropFiles = createServerFn({ method: 'POST' })
 export const reprocessFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const reProcessFilePromises = ctx.data.map((fileId) =>
+    const reprocessFilePromises = ctx.data.map((fileId) =>
       backendRequest(
         graphql(`
-          mutation reProcessFile($id: String!) {
+          mutation reprocessFile($id: String!) {
             processFile(fileId: $id) {
               id
               name
@@ -44,5 +44,5 @@ export const reprocessFiles = createServerFn({ method: 'POST' })
         { id: fileId },
       ),
     )
-    return await Promise.all(reProcessFilePromises)
+    return await Promise.all(reprocessFilePromises)
   })

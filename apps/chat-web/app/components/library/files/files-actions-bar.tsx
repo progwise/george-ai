@@ -26,7 +26,7 @@ export const FilesActionsBar = ({
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
 
-  const reProcessFilesMutation = useMutation({
+  const reprocessFilesMutation = useMutation({
     mutationFn: async (fileIds: string[]) => {
       await reprocessFiles({ data: fileIds })
     },
@@ -38,11 +38,11 @@ export const FilesActionsBar = ({
       toastError(t('errors.reprocessFileError'))
     },
     onSuccess: () => {
-      toastSuccess(`${checkedFileIds.length} ${t('actions.reProcessSuccess')}`)
+      toastSuccess(`${checkedFileIds.length} ${t('actions.reprocessSuccess')}`)
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    reProcessFilesMutation.mutate(uploadedFileIds)
+    reprocessFilesMutation.mutate(uploadedFileIds)
   }
 
   const remainingStorage = availableStorage - usedStorage
@@ -66,10 +66,10 @@ export const FilesActionsBar = ({
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => reProcessFilesMutation.mutate(checkedFileIds)}
+          onClick={() => reprocessFilesMutation.mutate(checkedFileIds)}
           disabled={checkedFileIds.length === 0}
         >
-          {t('actions.reProcess')}
+          {t('actions.reprocess')}
         </button>
       </div>
       <div className="text-right text-sm">
