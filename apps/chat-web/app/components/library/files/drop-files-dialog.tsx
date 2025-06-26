@@ -23,7 +23,7 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
       await dropFiles({ data: fileIds })
     },
     onSuccess: () => {
-      toastSuccess(`${checkedFileIds.length} ${t('actions.dropSuccess')}`)
+      toastSuccess(t('actions.dropSuccess', { count: checkedFileIds.length }))
     },
     onError: () => {
       toastError(t('errors.dropFilesError'))
@@ -48,7 +48,6 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
       >
         <span className="hidden sm:inline">{textOfDropButton}</span>
       </button>
-
       <LoadingSpinner isLoading={isPending} />
 
       <DialogForm
@@ -60,7 +59,7 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
       >
         <div className="w-full">
           <div className="mb-4">
-            <span className="font-medium">{t('texts.numberOfFilesChecked', { count: checkedFileIds.length })}</span>
+            <span className="font-medium">{t('texts.numberOfFilesToBeDropped', { count: checkedFileIds.length })}</span>
           </div>
         </div>
       </DialogForm>
