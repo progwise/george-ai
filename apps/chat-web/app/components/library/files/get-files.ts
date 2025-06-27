@@ -46,3 +46,40 @@ export const aiLibraryFilesQueryOptions = (params: { libraryId: string; skip: nu
         data: { libraryId: params.libraryId, skip: params.skip, take: params.take },
       }),
   })
+
+const getLibraryAllFiles = createServerFn({ method: 'GET' })
+  .validator((data: object) =>
+    z
+      .object({
+        libraryId: z.string().nonempty(),
+      })
+      .parse(data),
+  )
+  .handler(async (ctx) => {
+    return await backendRequest(
+      graphql(`
+        query dropAllFiles($libraryId: String!) {
+          aiLibraryAllFiles(libraryId: $libraryId) {
+            libraryId
+            library {
+              name
+            }
+            count
+            files {
+              ...AiLibraryFile_TableItem
+            }
+          }
+        }
+      `),
+      { ...ctx.data },
+    )
+  })
+
+export const aiLibraryAllFilesQueryOptions = (params: { libraryId: string }) =>
+  queryOptions({
+    queryKey: [queryKeys.AiLibraries, params.libraryId, 'files'],
+    queryFn: async () =>
+      getLibraryAllFiles({
+        data: { libraryId: params.libraryId },
+      }),
+  })

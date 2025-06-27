@@ -15,6 +15,7 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   selectedFileIds: string[]
   setSelectedFileIds: (fileIds: string[]) => void
+  allFileIds: string[]
 }
 
 export const FilesActionsBar = ({
@@ -24,6 +25,7 @@ export const FilesActionsBar = ({
   tableDataChanged,
   selectedFileIds,
   setSelectedFileIds,
+  allFileIds,
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
 
@@ -63,11 +65,13 @@ export const FilesActionsBar = ({
           selectedFileIds={selectedFileIds}
           setSelectedFileIds={setSelectedFileIds}
         />
+
         <DropAllFilesConfirmationDialog
           disabled={false}
           selectedFileIds={selectedFileIds}
           setSelectedFileIds={setSelectedFileIds}
           tableDataChanged={tableDataChanged}
+          allFileIds={allFileIds}
         />
 
         <button

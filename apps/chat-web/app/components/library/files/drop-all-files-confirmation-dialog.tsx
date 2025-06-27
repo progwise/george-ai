@@ -1,5 +1,4 @@
-// BRANCH IN PROGRESS
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -7,20 +6,20 @@ import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { dropFiles } from './change-files'
-import { FilesTable } from './files-table'
-import { aiLibraryFilesQueryOptions } from './get-files'
 
 interface DropAllFilesConfirmationDialogProps {
   disabled: boolean
   tableDataChanged: () => void
   selectedFileIds: string[]
   setSelectedFileIds: (fileIds: string[]) => void
+  allFileIds: string[]
 }
 
 export const DropAllFilesConfirmationDialog = ({
   selectedFileIds,
   setSelectedFileIds,
   tableDataChanged,
+  allFileIds,
 }: DropAllFilesConfirmationDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
@@ -36,20 +35,13 @@ export const DropAllFilesConfirmationDialog = ({
       toastSuccess(`${selectedFileIds.length} ${t('actions.dropSuccess')}`)
     },
     onSettled: () => {
+      dialogRef.current?.close()
       setSelectedFileIds([])
       tableDataChanged()
     },
   })
 
-  const title = t('libraries.dropAllFileConfirmationDialog')
-  const description = t('texts.dropAllFileConfirmationDescription')
   const submitButtonText = t('actions.dropAll')
-
-  dialogRef.current?.close()
-
-  const {
-    data: { aiLibraryFiles },
-  } = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take }))
 
   return (
     <>
@@ -59,30 +51,22 @@ export const DropAllFilesConfirmationDialog = ({
         data-tip={t('tooltips.dropAllDescription')}
         onClick={() => dialogRef.current?.showModal()}
       >
-        <span className="hidden sm:inline">{t('actions.dropAll')}</span>
+        {t('actions.dropAll')}
       </button>
 
       <LoadingSpinner isLoading={isPending} />
 
-      <FilesTable
-        firstItemNumber={skip + 1}
-        files={aiLibraryFiles.files}
-        selectedFileIds={selectedFileIds}
-        setSelectedFileIds={setSelectedFileIds}
-        tableDataChanged={() => {}}
-      />
-
       <DialogForm
         ref={dialogRef}
-        title={title}
-        description={description}
-        onSubmit={() => dropAllFilesMutation.mutate(selectedFileIds)}
+        title={t('libraries.dropAllFileConfirmationDialog')}
+        description={t('texts.dropAllFileConfirmationDescription')}
+        onSubmit={() => dropAllFilesMutation.mutate(allFileIds)}
         submitButtonText={submitButtonText}
       >
         <div className="w-full">
           <div className="mb-4">
             <>
-              {selectedFileIds.length} {t('texts.numberOfFilesSelected')} <span className="font-medium"></span>
+              {allFileIds.length} {t('texts.numberOfFilesSelected')}
             </>
           </div>
         </div>
