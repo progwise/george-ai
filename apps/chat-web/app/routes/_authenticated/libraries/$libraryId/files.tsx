@@ -58,8 +58,8 @@ function RouteComponent() {
         libraryId={libraryId}
         availableStorage={profile?.freeStorage || 0}
         usedStorage={profile?.usedStorage || 0}
-        selectedFileIds={selectedFileIds}
-        setSelectedFileIds={setSelectedFileIds}
+        checkedFileIds={selectedFileIds}
+        setCheckedFileIds={setSelectedFileIds}
         tableDataChanged={() => {
           queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
         }}
