@@ -530,11 +530,11 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
-  reprocessFile: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
+  reprocessFile: AiLibraryFile
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -691,10 +691,6 @@ export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
-export type MutationreprocessFileArgs = {
-  fileId: Scalars['String']['input']
-}
-
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
   userId: Scalars['String']['input']
@@ -712,6 +708,10 @@ export type MutationRemoveLibraryParticipantArgs = {
 export type MutationRemoveLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationReprocessFileArgs = {
+  fileId: Scalars['String']['input']
 }
 
 export type MutationResetAssessmentAnswersArgs = {
@@ -1990,11 +1990,11 @@ export type DropFileMutation = {
   dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
 }
 
-export type reprocessFileMutationVariables = Exact<{
+export type ReprocessFileMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type reprocessFileMutation = {
+export type ReprocessFileMutation = {
   __typename?: 'Mutation'
   processFile: {
     __typename?: 'AiLibraryFile'
@@ -7758,7 +7758,7 @@ export const ReprocessFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<reprocessFileMutation, reprocessFileMutationVariables>
+} as unknown as DocumentNode<ReprocessFileMutation, ReprocessFileMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
