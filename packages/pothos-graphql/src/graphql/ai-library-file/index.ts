@@ -231,7 +231,7 @@ builder.mutationField('dropFiles', (t) =>
   }),
 )
 
-builder.mutationField('reProcessFile', (t) =>
+builder.mutationField('reprocessFile', (t) =>
   t.prismaField({
     type: 'AiLibraryFile',
     nullable: false,

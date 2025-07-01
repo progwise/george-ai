@@ -68,6 +68,11 @@ const startCrawling = async (
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
     })) {
+      if (crawledPage.error) {
+        console.warn('Crawling error for page', crawledPage.url, ':', crawledPage.error)
+        crawledPages.push({ ...crawledPage, url: crawledPage.url, error: crawledPage.error })
+        continue
+      }
       if (!crawledPage.metaData) {
         crawledPages.push({ ...crawledPage, url: null, error: 'No metadata' })
         console.warn('Crawled page has no metadata', crawledPage)
@@ -142,11 +147,16 @@ const startCrawling = async (
     }
 
     const endedAt = new Date()
+    const errors = crawledPages
+      .filter((page) => page.error)
+      .map((page) => `${page.url}: ${page.error}`)
+      .join(',\n')
     await prisma.aiLibraryCrawlerRun.update({
       where: { id: newRun.id },
       data: {
         endedAt,
-        success: true,
+        success: errors.length < 1, // If there are no errors, success is true
+        errorMessage: errors || null,
         crawler: {
           update: { lastRun: endedAt },
         },
