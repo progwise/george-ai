@@ -21,7 +21,7 @@ export default {
     redirecting: 'Redirecting...',
     remove: 'Remove',
     removeProfile: 'Remove user profile',
-    reProcess: 'Re-Process',
+    reprocess: 'Re-Process',
     reprocessSuccess: 'Processed successfully {count} files',
     save: 'Save',
     saving: 'Saving...',
