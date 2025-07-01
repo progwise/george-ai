@@ -7,6 +7,7 @@ import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
+import { LoadingSpinner } from '../../loading-spinner'
 import { dropFiles, reprocessFiles } from './change-files'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
@@ -99,6 +100,7 @@ export const FilesTable = ({
 
   return (
     <>
+      <LoadingSpinner isLoading={dropPending || reprocessPending} />
       {/* Mobile View */}
       <div className="block lg:hidden">
         <label className="mb-4 flex gap-2">
@@ -210,13 +212,8 @@ export const FilesTable = ({
                   >
                     {t('actions.drop')}
                   </button>
-                  <button
-                    type="button"
-                    disabled={reprocessPending}
-                    className="btn btn-xs"
-                    onClick={() => mutateReprocessFile(file.id)}
-                  >
-                    {t('actions.reProcess')}
+                  <button type="button" className="btn btn-xs" onClick={() => mutateReprocessFile(file.id)}>
+                    {t('actions.reprocess')}
                   </button>
                   {file.processingErrorMessage && (
                     <span className="tooltip" data-tip={file.processingErrorMessage}>

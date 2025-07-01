@@ -34,7 +34,7 @@ export const GeorgeToaster = () => {
   return (
     <Toaster
       toastOptions={{
-        duration: 20000,
+        duration: 5000,
         error: { ariaProps: { role: 'alert', 'aria-live': 'assertive' } },
         position: 'top-right',
         style: { zIndex: 1000 },

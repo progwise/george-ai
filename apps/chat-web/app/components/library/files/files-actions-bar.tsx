@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
+import { LoadingSpinner } from '../../loading-spinner'
 import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropFilesDialog } from './drop-files-dialog'
@@ -26,7 +27,7 @@ export const FilesActionsBar = ({
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
 
-  const reprocessFilesMutation = useMutation({
+  const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
     mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
     onSettled: () => {
       setCheckedFileIds([])
@@ -58,12 +59,13 @@ export const FilesActionsBar = ({
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    reprocessFilesMutation.mutate(uploadedFileIds)
+    reprocessFilesMutate(uploadedFileIds)
   }
 
   const remainingStorage = availableStorage - usedStorage
   return (
     <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <LoadingSpinner isLoading={reprocessFilesPending} />
       <div className="flex flex-wrap items-center gap-2">
         <DesktopFileUpload
           libraryId={libraryId}
@@ -82,7 +84,7 @@ export const FilesActionsBar = ({
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => reprocessFilesMutation.mutate(checkedFileIds)}
+          onClick={() => reprocessFilesMutate(checkedFileIds)}
           disabled={checkedFileIds.length === 0}
         >
           {t('actions.reprocess')}
