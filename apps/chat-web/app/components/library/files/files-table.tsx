@@ -42,33 +42,43 @@ export const FilesTable = ({
 }: FilesTableProps) => {
   const { t, language } = useTranslation()
 
-  const { mutate: mutateDropFile } = useMutation({
+  const { mutate: mutateDropFile, isPending: dropPending } = useMutation({
     mutationFn: (fileId: string) => dropFiles({ data: [fileId] }),
     onError: (error: Error) => {
-      console.error('Error dropping file:', error)
-      toastError(t('errors.dropFile', { error: error.message }))
+      const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
+      console.error('Error dropping file:', { error: errorMessage })
+      toastError(t('errors.dropFile', { error: errorMessage }))
     },
     onSuccess: (data) => {
-      setSelectedFileIds((prev) => prev.filter((id) => !files.some((file) => file.id === id)))
-      const fileNames = data.map((file) => (!file.dropFile.name ? file.dropFile.id : file.dropFile.name)).join(', ')
-      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${fileNames}`)
+      if (data.length < 1) {
+        toastError(t('errors.dropFileError', { error: 'no Files dropped' }))
+        return
+      }
+      const droppedFile = data[0].dropFile
+      setSelectedFileIds((prev) => prev.filter((id) => id !== droppedFile.id))
+      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${droppedFile.name}`)
     },
     onSettled: () => {
       tableDataChanged()
     },
   })
 
-  const { mutate: mutateReprocessFile } = useMutation({
+  const { mutate: mutateReprocessFile, isPending: reprocessPending } = useMutation({
     mutationFn: (fileId: string) => reprocessFiles({ data: [fileId] }),
     onError: (error: Error) => {
       console.error('Error reprocessing file:', error)
       toastError(t('errors.reprocessFile', { error: error.message }))
     },
     onSuccess: (data) => {
-      const fileNames = data
-        .map((file) => (!file.processFile.name ? file.processFile.id : file.processFile.name))
-        .join(', ')
-      toastSuccess(t('actions.reprocessSuccess', { count: 1 }) + `: ${fileNames}`)
+      if (data.length !== 1) {
+        toastError(t('errors.reprocessFile', { error: 'no Files re-processed' }))
+        return
+      }
+      if (data[0].processFile.processingErrorMessage) {
+        toastError(t('errors.reprocessFile', { error: data[0].processFile.processingErrorMessage }))
+        return
+      }
+      toastSuccess(t('actions.reprocessSuccess', { count: 1 }) + `: ${data[0].processFile.name}`)
     },
     onSettled: () => {
       tableDataChanged()
@@ -192,11 +202,21 @@ export const FilesTable = ({
                 <td>{file.chunks ?? '-'}</td>
                 <td>{dateTimeString(file.processedAt, language) || '-'}</td>
                 <td className="flex items-center gap-2">
-                  <button type="button" className="btn btn-xs" onClick={() => mutateDropFile(file.id)}>
+                  <button
+                    type="button"
+                    disabled={dropPending}
+                    className="btn btn-xs"
+                    onClick={() => mutateDropFile(file.id)}
+                  >
                     {t('actions.drop')}
                   </button>
-                  <button type="button" className="btn btn-xs" onClick={() => mutateReprocessFile(file.id)}>
-                    {t('actions.reprocess')}
+                  <button
+                    type="button"
+                    disabled={reprocessPending}
+                    className="btn btn-xs"
+                    onClick={() => mutateReprocessFile(file.id)}
+                  >
+                    {t('actions.reProcess')}
                   </button>
                   {file.processingErrorMessage && (
                     <span className="tooltip" data-tip={file.processingErrorMessage}>

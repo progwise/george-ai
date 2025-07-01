@@ -27,18 +27,34 @@ export const FilesActionsBar = ({
   const { t } = useTranslation()
 
   const reprocessFilesMutation = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await reprocessFiles({ data: fileIds })
-    },
+    mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
     onSettled: () => {
       setCheckedFileIds([])
       tableDataChanged()
     },
-    onError: () => {
-      toastError(t('errors.reprocessFileError'))
+    onError: (error) => {
+      const errorMessage = error instanceof Error ? error.message : t('errors.reprocessFilesError')
+      toastError(errorMessage)
     },
-    onSuccess: () => {
-      toastSuccess(`${checkedFileIds.length} ${t('actions.reprocessSuccess')}`)
+    onSuccess: (data) => {
+      const errorFiles = data.filter(
+        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
+      )
+      const successFiles = data.filter(
+        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
+      )
+      if (errorFiles.length > 0) {
+        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastError(
+          t('errors.reprocessFilesError', { count: errorFileNames.length, files: errorFileNames.join(', \n') }),
+        )
+      }
+      if (successFiles.length > 0) {
+        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastSuccess(
+          t('actions.reprocessSuccess', { count: successFileNames.length, files: successFileNames.join(', \n') }),
+        )
+      }
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
