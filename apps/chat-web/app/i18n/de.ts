@@ -11,6 +11,7 @@ export default {
     delete: 'Löschen',
     details: 'Details',
     drop: 'Entfernen',
+    dropAll: 'Alle entfernen',
     dropSuccess: '{count} Datei(en) erfolgreich entfernt',
     edit: 'Bearbeiten',
     ensureUserProfile: 'User Profil ggf. erzeugen',
@@ -302,6 +303,7 @@ export default {
     addSingleFile: 'Füge 1 Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht.',
+    dropAllFilesDialog: 'Alle Dateien entfernen',
     dropFilesDialog: 'Dateien entfernen',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
@@ -348,6 +350,8 @@ export default {
     allowMultipleParticipants: 'Mehrere Teilnehmer zulassen',
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     copiedToClipboard: 'In die Zwischenablage kopiert',
+    dropAllFilesDialogDescription:
+      'Sie sind kurz davor, ALLE Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen aller Dateien.',
     dropFilesDialogDescription:
       'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen der ausgewählten Dateien.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
@@ -383,6 +387,7 @@ export default {
     copyInvitationLink: 'Einladungslink kopieren',
     delete: 'Löschen',
     deleteMessage: 'Nachricht löschen',
+    dropAllDescription: 'Entferne alle Dateien',
     dropDescription: 'Entferne ausgewählte Dateien',
     edit: 'Bearbeiten',
     hide: 'Verbergen',

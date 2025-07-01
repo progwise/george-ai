@@ -11,6 +11,7 @@ export default {
     delete: 'Delete',
     details: 'Details',
     drop: 'Drop',
+    dropAll: 'Drop all',
     dropSuccess: '{count} file(s) were/was successfully dropped',
     edit: 'Edit',
     ensureUserProfile: 'Ensure User Profile',
@@ -295,6 +296,7 @@ export default {
     addSingleFile: 'Add 1 File',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s).',
+    dropAllFilesDialog: 'Drop all files',
     dropFilesDialog: 'Drop files',
     dropFileError: 'Failed to delete file',
     dropFileFailure: 'Failed to drop files:',
@@ -340,6 +342,8 @@ export default {
     allowMultipleParticipants: 'Allow multiple participants',
     changeParticipantsAnytime: 'You can change these participants anytime.',
     copiedToClipboard: 'Copied to clipboard',
+    dropAllFilesDialogDescription:
+      'You are about to drop ALL files in this library. This action cannot be reversed. Please confirm dropping all files.',
     dropFilesDialogDescription:
       'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     dropFileFailure: 'Failed to drop files:',
@@ -374,6 +378,7 @@ export default {
     copyInvitationLink: 'Copy invitation link',
     delete: 'Delete',
     deleteMessage: 'Delete message',
+    dropAllDescription: 'Delete all files',
     dropDescription: 'Drop selected files',
     edit: 'Edit',
     hide: 'Hide',

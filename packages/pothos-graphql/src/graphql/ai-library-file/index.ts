@@ -193,6 +193,87 @@ builder.queryField('aiLibraryFiles', (t) =>
   }),
 )
 
+const LibraryAllFilesQueryResult = builder.objectRef<{ libraryId: string }>('AiLibraryAllFilesQueryResult').implement({
+  description: 'Query result for AI library files',
+  fields: (t) => ({
+    libraryId: t.exposeString('libraryId', { nullable: false }),
+    library: t.withAuth({ isLoggedIn: true }).prismaField({
+      type: 'AiLibrary',
+      nullable: false,
+      resolve: async (query, root, _args, context) => {
+        const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+          where: { id: root.libraryId },
+          select: { ownerId: true, participants: { select: { userId: true } } },
+        })
+        if (
+          libraryUsers.ownerId !== context.session.user.id &&
+          !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
+        ) {
+          throw new Error('You do not have access to this library')
+        }
+        return prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
+      },
+    }),
+    count: t.withAuth({ isLoggedIn: true }).field({
+      type: 'Int',
+      nullable: false,
+      resolve: async (root, _args, context) => {
+        const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+          where: { id: root.libraryId },
+          select: { ownerId: true, participants: { select: { userId: true } } },
+        })
+        if (
+          libraryUsers.ownerId !== context.session.user.id &&
+          !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
+        ) {
+          throw new Error('You do not have access to this library')
+        }
+        console.log('Counting AI library files for library:', root.libraryId)
+        return prisma.aiLibraryFile.count({
+          where: { libraryId: root.libraryId },
+        })
+      },
+    }),
+    files: t.withAuth({ isLoggedIn: true }).prismaField({
+      type: ['AiLibraryFile'],
+      nullable: false,
+      resolve: async (query, root, args, context) => {
+        const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
+          where: { id: root.libraryId },
+          select: { ownerId: true, participants: { select: { userId: true } } },
+        })
+        if (
+          libraryUsers.ownerId !== context.session.user.id &&
+          !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
+        ) {
+          throw new Error('You do not have access to this library')
+        }
+        console.log('Fetching AI library files for library:', query)
+        return prisma.aiLibraryFile.findMany({
+          ...query,
+          where: { libraryId: root.libraryId },
+          orderBy: { createdAt: 'desc' },
+        })
+      },
+    }),
+  }),
+})
+
+builder.queryField('aiLibraryAllFiles', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: LibraryAllFilesQueryResult,
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: (_root, args) => {
+      return {
+        libraryId: args.libraryId,
+      }
+    },
+  }),
+)
+
 builder.mutationField('dropFile', (t) =>
   t.prismaField({
     type: 'AiLibraryFile',

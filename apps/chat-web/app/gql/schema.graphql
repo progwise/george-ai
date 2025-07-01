@@ -205,6 +205,16 @@ type AiLibrary {
   url: String
 }
 
+"""
+Query result for AI library files
+"""
+type AiLibraryAllFilesQueryResult {
+  count: Int!
+  files: [AiLibraryFile!]!
+  library: AiLibrary!
+  libraryId: String!
+}
+
 type AiLibraryCrawler {
   createdAt: DateTime!
   cronJob: AiLibraryCrawlerCronJob
@@ -542,6 +552,7 @@ type Query {
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary
+  aiLibraryAllFiles(libraryId: String!): AiLibraryAllFilesQueryResult!
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
