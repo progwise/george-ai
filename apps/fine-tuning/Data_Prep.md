@@ -12,11 +12,55 @@
 | --------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Qwen‑chat, Phi‑instruct, LLaMA‑chat, Gemma (ChatML) | `{"messages":[{"role":"system","content":"..."}…]}` | `{"messages":[{"role":"system","content":"You are helpful."},{"role":"user","content":"What is 2+2?"},{"role":"assistant","content":"4"}]}`|
 
+### Elaboration on Chat Format
+
+- **system**  
+    Sets global instructions, context, or style for the conversation.  
+    *Example:*  
+    ```json
+    {"role": "system", "content": "You are a helpful assistant."}
+    ```
+
+- **user**  
+    Represents input from the end-user.  
+    *Example:*  
+    ```json
+    {"role": "user", "content": "What is 2+2?"}
+    ```
+
+- **assistant**  
+    Contains the expected model reply, demonstrating correct behavior during training.  
+    *Example:*  
+    ```json
+    {"role": "assistant", "content": "4"}
+    ```
+
+A typical chat training example combines these roles in order:
+
+```json
+[
+    {"role": "system", "content": "You are a helpful assistant."},
+    {"role": "user", "content": "What is 2+2?"},
+    {"role": "assistant", "content": "4"}
+]
+```
+
+
+
 ### 3. **Standard Language Modeling**
 
 | Model Task | Supported Format | Example                           |
 | ---------- | ---------------- | --------------------------------- |
 | LM tuning  | `{"text":"..."}` | `{"text":"Once upon a time..."}`  |
+
+**Note:**  
+This format is intended for training models on raw, unlabeled text—without explicit prompts, completions, or labels. It is commonly used for general language modeling tasks, where the objective is for the model to learn the statistical structure of language by predicting the next token in a sequence. This approach is considered *unsupervised*, as the model is exposed only to continuous text (e.g., `"text": "Once upon a time..."`) and learns patterns without direct supervision.
+
+**Why use this format?**  
+- To further pre-train or adapt a model to a specific domain or writing style (e.g., legal documents, scientific literature, or company-specific data).
+- No need for manual labeling or task-specific formatting—simply provide large amounts of relevant text.
+- Useful for improving a model’s fluency, vocabulary, and contextual understanding within a particular domain.
+
 
 ### 4. **Preference / Ranking Data**
 
@@ -99,3 +143,9 @@ CREATE TABLE fine_tune_examples (
   created_at TIMESTAMP DEFAULT NOW()
 );
 ```
+
+## Example of fine-tuning Gemma 3:
+
+https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Gemma3_(4B).ipynb#scrollTo=LjY75GoYUCB8
+
+https://huggingface.co/docs/transformers/en/chat_templating?template=Zephyr
