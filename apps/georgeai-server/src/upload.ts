@@ -68,7 +68,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
   // Cleanup aborted uploads
   httpRequest.on('close', async () => {
     if (!httpRequest.complete) {
-      console.log('Upload aborted, cleaning up...')
+      console.warn('Upload aborted, cleaning up...', file.id, file.name)
       filestream.close()
       try {
         await cleanupFile(file.id)

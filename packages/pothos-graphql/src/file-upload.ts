@@ -45,7 +45,7 @@ export const completeFileUpload = async (fileUploadId: string) => {
   })
 
   if (!fileRecord) {
-    throw new Error(`File record not found for upload: ${fileUploadId}`)
+    throw new Error(`File record not found to finish upload: ${fileUploadId}`)
   }
   if (!fileRecord.name || !fileRecord.mimeType) {
     throw new Error(`File record ${fileUploadId} is missing original name or original mimeType.`)
