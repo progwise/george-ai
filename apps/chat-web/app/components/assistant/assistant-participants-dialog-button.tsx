@@ -61,8 +61,13 @@ export const AssistantParticipantsDialogButton = ({ assistant, users }: Assistan
 
   return (
     <>
-      <button type="button" className="btn btn-neutral btn-sm" onClick={handleOpen}>
-        {t('actions.add')} <PlusIcon />
+      <button
+        type="button"
+        className="btn btn-neutral btn-sm tooltip tooltip-left"
+        onClick={handleOpen}
+        data-tip={t('actions.add')}
+      >
+        <PlusIcon />
       </button>
 
       <LoadingSpinner isLoading={isPending} />

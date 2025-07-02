@@ -470,6 +470,7 @@ export type HumanParticipant = AiConversationParticipant & {
 export type ManagedUser = {
   __typename?: 'ManagedUser'
   activationDate?: Maybe<Scalars['DateTime']['output']>
+  avatarUrl?: Maybe<Scalars['String']['output']>
   business?: Maybe<Scalars['String']['output']>
   confirmationDate?: Maybe<Scalars['DateTime']['output']>
   createdAt: Scalars['DateTime']['output']
@@ -547,6 +548,7 @@ export type Mutation = {
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateMessage?: Maybe<AiConversationMessage>
+  updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
 }
@@ -771,6 +773,10 @@ export type MutationUpdateMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
+export type MutationUpdateUserAvatarArgs = {
+  avatarUrl?: InputMaybe<Scalars['String']['input']>
+}
+
 export type MutationUpdateUserProfileArgs = {
   input: UserProfileInput
   profileId: Scalars['String']['input']
@@ -868,6 +874,7 @@ export enum RetrievalFlow {
 
 export type User = {
   __typename?: 'User'
+  avatarUrl?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   email: Scalars['String']['output']
   family_name?: Maybe<Scalars['String']['output']>
@@ -883,6 +890,7 @@ export type User = {
 }
 
 export type UserInput = {
+  avatarUrl?: InputMaybe<Scalars['String']['input']>
   email: Scalars['String']['input']
   family_name?: InputMaybe<Scalars['String']['input']>
   given_name?: InputMaybe<Scalars['String']['input']>
@@ -1127,6 +1135,7 @@ export type LoginMutation = {
     name?: string | null
     given_name?: string | null
     family_name?: string | null
+    avatarUrl?: string | null
     createdAt: string
     isAdmin: boolean
   } | null
@@ -1158,6 +1167,7 @@ export type ManagedUserFragment = {
   position?: string | null
   confirmationDate?: string | null
   activationDate?: string | null
+  avatarUrl?: string | null
 }
 
 export type GetManagedUsersQueryVariables = Exact<{
@@ -1199,6 +1209,7 @@ export type GetManagedUsersQuery = {
       position?: string | null
       confirmationDate?: string | null
       activationDate?: string | null
+      avatarUrl?: string | null
     }>
   }
 }
@@ -1502,7 +1513,13 @@ export type AssistantParticipants_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+  participants: Array<{
+    __typename?: 'User'
+    id: string
+    name?: string | null
+    username: string
+    avatarUrl?: string | null
+  }>
 }
 
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
@@ -1529,7 +1546,13 @@ export type AiAssistantDetailsQuery = {
       condition?: string | null
       instruction?: string | null
     }>
-    participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+    participants: Array<{
+      __typename?: 'User'
+      id: string
+      name?: string | null
+      username: string
+      avatarUrl?: string | null
+    }>
   } | null
   aiLibraryUsage: Array<{
     __typename?: 'AiLibraryUsage'
@@ -1591,18 +1614,20 @@ export type ConversationHistory_ConversationFragment = {
     hidden?: boolean | null
     sender:
       | {
-          __typename?: 'AssistantParticipant'
+          __typename: 'AssistantParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
         }
       | {
-          __typename?: 'HumanParticipant'
+          __typename: 'HumanParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
         }
   }>
 }
@@ -1660,18 +1685,20 @@ export type ConversationParticipants_ConversationFragment = {
   updatedAt?: string | null
   participants: Array<
     | {
-        __typename?: 'AssistantParticipant'
+        __typename: 'AssistantParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
       }
     | {
-        __typename?: 'HumanParticipant'
+        __typename: 'HumanParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        user?: { __typename?: 'User'; avatarUrl?: string | null } | null
       }
   >
 }
@@ -1709,18 +1736,20 @@ export type ConversationDetailFragment = {
   updatedAt?: string | null
   participants: Array<
     | {
-        __typename?: 'AssistantParticipant'
+        __typename: 'AssistantParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
       }
     | {
-        __typename?: 'HumanParticipant'
+        __typename: 'HumanParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        user?: { __typename?: 'User'; avatarUrl?: string | null } | null
       }
   >
   assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -1734,18 +1763,20 @@ export type ConversationDetailFragment = {
     hidden?: boolean | null
     sender:
       | {
-          __typename?: 'AssistantParticipant'
+          __typename: 'AssistantParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
         }
       | {
-          __typename?: 'HumanParticipant'
+          __typename: 'HumanParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
         }
   }>
 }
@@ -1764,18 +1795,20 @@ export type GetConversationQuery = {
     updatedAt?: string | null
     participants: Array<
       | {
-          __typename?: 'AssistantParticipant'
+          __typename: 'AssistantParticipant'
           id: string
           name?: string | null
           userId?: string | null
           assistantId?: string | null
+          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
         }
       | {
-          __typename?: 'HumanParticipant'
+          __typename: 'HumanParticipant'
           id: string
           name?: string | null
           userId?: string | null
           assistantId?: string | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
         }
     >
     assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -1789,18 +1822,20 @@ export type GetConversationQuery = {
       hidden?: boolean | null
       sender:
         | {
-            __typename?: 'AssistantParticipant'
+            __typename: 'AssistantParticipant'
             id: string
             name?: string | null
             isBot: boolean
             assistantId?: string | null
+            assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
           }
         | {
-            __typename?: 'HumanParticipant'
+            __typename: 'HumanParticipant'
             id: string
             name?: string | null
             isBot: boolean
             assistantId?: string | null
+            user?: { __typename?: 'User'; avatarUrl?: string | null } | null
           }
     }>
   } | null
@@ -2118,7 +2153,13 @@ export type AiLibraryDetailQuery = {
     name: string
     createdAt: string
     updatedAt: string
-    participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+    participants: Array<{
+      __typename?: 'User'
+      id: string
+      name?: string | null
+      username: string
+      avatarUrl?: string | null
+    }>
     owner: { __typename?: 'User'; name?: string | null }
   } | null
 }
@@ -2186,7 +2227,13 @@ export type LibraryParticipants_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+  participants: Array<{
+    __typename?: 'User'
+    id: string
+    name?: string | null
+    username: string
+    avatarUrl?: string | null
+  }>
 }
 
 export type QueryLibraryFilesQueryVariables = Exact<{
@@ -2372,6 +2419,15 @@ export type LeaveAssistantParticipantMutationVariables = Exact<{
 export type LeaveAssistantParticipantMutation = {
   __typename?: 'Mutation'
   leaveAssistantParticipant?: { __typename?: 'User'; id: string } | null
+}
+
+export type UpdateUserAvatarMutationVariables = Exact<{
+  avatarUrl?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type UpdateUserAvatarMutation = {
+  __typename?: 'Mutation'
+  updateUserAvatar?: { __typename?: 'User'; id: string; avatarUrl?: string | null } | null
 }
 
 export type IntrospectionQueryQueryVariables = Exact<{ [key: string]: never }>
@@ -3196,6 +3252,7 @@ export type UserFragment = {
   name?: string | null
   createdAt: string
   email: string
+  avatarUrl?: string | null
   isAdmin: boolean
   profile?: {
     __typename?: 'UserProfile'
@@ -3219,6 +3276,7 @@ export type UsersQuery = {
     name?: string | null
     createdAt: string
     email: string
+    avatarUrl?: string | null
     isAdmin: boolean
     profile?: {
       __typename?: 'UserProfile'
@@ -3325,6 +3383,7 @@ export type AdminUserByIdQuery = {
     name?: string | null
     createdAt: string
     email: string
+    avatarUrl?: string | null
     isAdmin: boolean
     profile?: {
       __typename?: 'UserProfile'
@@ -3373,6 +3432,7 @@ export const ManagedUserFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
         ],
       },
     },
@@ -3984,6 +4044,7 @@ export const AssistantParticipants_AssistantFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -4226,10 +4287,48 @@ export const ConversationParticipants_ConversationFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -4357,10 +4456,48 @@ export const ConversationHistory_ConversationFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'assistant' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -4499,10 +4636,48 @@ export const ConversationDetailFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -4569,10 +4744,48 @@ export const ConversationDetailFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'assistant' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -4917,6 +5130,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -5548,6 +5762,7 @@ export const UserFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
@@ -5636,6 +5851,7 @@ export const LoginDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
               ],
@@ -5796,6 +6012,7 @@ export const GetManagedUsersDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
         ],
       },
     },
@@ -6821,6 +7038,7 @@ export const AiAssistantDetailsDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -7097,10 +7315,48 @@ export const GetConversationDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -7167,10 +7423,48 @@ export const GetConversationDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'assistant' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -8089,6 +8383,7 @@ export const AiLibraryDetailDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -8851,6 +9146,46 @@ export const LeaveAssistantParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<LeaveAssistantParticipantMutation, LeaveAssistantParticipantMutationVariables>
+export const UpdateUserAvatarDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateUserAvatar' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'avatarUrl' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUserAvatar' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'avatarUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'avatarUrl' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateUserAvatarMutation, UpdateUserAvatarMutationVariables>
 export const IntrospectionQueryDocument = {
   kind: 'Document',
   definitions: [
@@ -9728,6 +10063,7 @@ export const UsersDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
@@ -10021,6 +10357,7 @@ export const AdminUserByIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',

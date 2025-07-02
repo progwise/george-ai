@@ -70,7 +70,7 @@ export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
     <>
       <button
         type="button"
-        className="btn btn-ghost btn-sm lg:tooltip lg:tooltip-bottom"
+        className="btn btn-ghost btn-sm tooltip tooltip-left"
         data-tip={t('tooltips.delete')}
         onClick={() => dialogReference.current?.showModal()}
       >

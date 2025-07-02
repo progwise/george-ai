@@ -11,9 +11,10 @@ import { MenuEllipsisIcon } from '../icons/menu-ellipsis-icon'
 import MoonIcon from '../icons/moon-icon'
 import SunIcon from '../icons/sun-icon'
 import SystemIcon from '../icons/system-icon'
+import { UserAvatar } from './user-avatar'
 
 interface SettingsDropdownProps {
-  user?: Pick<User, 'id' | 'name' | 'isAdmin'>
+  user?: Pick<User, 'id' | 'name' | 'isAdmin'> & { avatarUrl?: string | null }
 }
 
 export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
@@ -30,13 +31,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
     <div className="dropdown dropdown-end">
       {/* Menu button */}
       <div tabIndex={0} role="button" className="btn btn-ghost btn-circle list-none">
-        {user ? (
-          <div className="avatar avatar-placeholder bg-base-300 text-base-content btn btn-ghost size-10 rounded-full">
-            <span className="btn btn-circle btn-md text-base">{user.name?.at(0)?.toUpperCase()}</span>
-          </div>
-        ) : (
-          <MenuEllipsisIcon className="size-6" />
-        )}
+        {user ? <UserAvatar user={user} className="size-10" /> : <MenuEllipsisIcon className="size-6" />}
       </div>
 
       <ul tabIndex={0} className="dropdown-content menu rounded-box bg-base-200 min-w-55 mt-2 shadow-sm">

@@ -46,7 +46,7 @@ export const FilesTable = ({
     mutationFn: (fileId: string) => dropFiles({ data: [fileId] }),
     onError: (error: Error) => {
       console.error('Error dropping file:', error)
-      toastError(t('errors.dropFile', { error: error.message }))
+      toastError(t('errors.dropFilesError', { error: error.message }))
     },
     onSuccess: (data) => {
       setSelectedFileIds((prev) => prev.filter((id) => !files.some((file) => file.id === id)))

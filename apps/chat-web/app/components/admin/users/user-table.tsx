@@ -5,6 +5,7 @@ import { ManagedUserFragment, User } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
+import { UserAvatar } from '../../user-avatar'
 import { toggleAdminStatus } from './toggle-admin-status'
 
 export const UserTable = ({
@@ -56,7 +57,12 @@ export const UserTable = ({
                   {user.email}
                 </div>
               </td>
-              <td className="hidden p-2 sm:table-cell md:p-4">{user.name}</td>
+              <td className="hidden p-2 sm:table-cell md:p-4">
+                <div className="flex items-center gap-2">
+                  <UserAvatar user={user as typeof user & { avatarUrl?: string | null }} className="size-8 flex-none" />
+                  <span className="truncate">{user.name}</span>
+                </div>
+              </td>
               <td className="hidden p-2 md:table-cell md:p-4">{user.createdAt?.slice(0, 10)}</td>
               <td className="hidden p-2 sm:table-cell md:p-4">
                 <div className="flex items-center gap-2">

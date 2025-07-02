@@ -4,6 +4,8 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { validateForm } from '@george-ai/web-utils'
 
+import { getUserQueryOptions } from '../../../auth/get-user'
+import { AvatarUpload } from '../../../components/avatar-upload'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { UserProfileForm, getFormSchema, updateProfile } from '../../../components/user/user-profile-form'
@@ -37,7 +39,9 @@ export const Route = createFileRoute('/_authenticated/profile/')({
 
 function RouteComponent() {
   const { t, language } = useTranslation()
-  const { user } = Route.useRouteContext()
+
+  // Fetch the current user data that will be reactive to cache updates
+  const { data: user } = useSuspenseQuery(getUserQueryOptions())
 
   const formSchema = getFormSchema(language)
 
@@ -46,7 +50,7 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfile, user.id],
+    queryKey: [queryKeys.UserProfile, user?.id],
     queryFn: () => getUserProfile(),
   })
 
@@ -57,7 +61,7 @@ function RouteComponent() {
 
   const activationLink = useLinkProps({
     to: '/admin/users/$userId',
-    params: { userId: user.id },
+    params: { userId: user?.id || 'no_user_id' },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
@@ -65,7 +69,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user.isAdmin,
+          isAdmin: user?.isAdmin || false,
         },
       })
 
@@ -100,7 +104,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user.isAdmin,
+          isAdmin: user?.isAdmin || false,
         },
       })
       toastSuccess(t('texts.profileSaved'))
@@ -134,8 +138,14 @@ function RouteComponent() {
     return <LoadingSpinner isLoading={true} />
   }
 
+  if (!user) {
+    return <LoadingSpinner isLoading={true} />
+  }
+
   return (
     <article className="flex w-full flex-col items-center gap-4">
+      <AvatarUpload user={user} className="size-16" />
+
       <UserProfileForm
         userProfile={userProfile}
         onSubmit={(formData: FormData) => {

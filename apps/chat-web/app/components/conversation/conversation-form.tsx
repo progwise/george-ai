@@ -12,6 +12,7 @@ import { sendMessage } from '../../server-functions/conversations'
 import { DialogForm } from '../dialog-form'
 import { EditableDiv } from '../editable-div'
 import { toastError } from '../georgeToaster'
+import { UserAvatar } from '../user-avatar'
 import { getConversationQueryOptions } from './get-conversation'
 
 graphql(`
@@ -176,9 +177,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
             placeholder={t('conversations.promptPlaceholder')}
           />
           <div className="flex items-center justify-between gap-1">
-            <div className="bg-primary text-primary-content flex h-8 w-8 flex-none items-center justify-center rounded-full">
-              {name[0].toUpperCase()}
-            </div>
+            <UserAvatar user={user as UserFragment & { avatarUrl?: string | null }} className="size-8 flex-none" />
 
             <div className="flex grow flex-col">
               <span className="truncate text-sm font-semibold">{name}</span>

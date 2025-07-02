@@ -450,6 +450,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type ManagedUser {
   activationDate: DateTime
+  avatarUrl: String
   business: String
   confirmationDate: DateTime
   createdAt: DateTime!
@@ -529,6 +530,7 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
+  updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
 }
@@ -562,6 +564,7 @@ enum RetrievalFlow {
 }
 
 type User {
+  avatarUrl: String
   createdAt: DateTime!
   email: String!
   family_name: String
@@ -577,6 +580,7 @@ type User {
 }
 
 input UserInput {
+  avatarUrl: String
   email: String!
   family_name: String
   given_name: String

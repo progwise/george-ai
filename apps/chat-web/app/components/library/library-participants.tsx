@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
 import { LibraryParticipants_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
+import { OwnerIcon } from '../../icons/owner-icon'
 import { removeLibraryParticipant } from '../../server-functions/library-participations'
 import { LoadingSpinner } from '../loading-spinner'
+import { ParticipantsViewer } from '../participants-viewer'
+import { UserAvatar } from '../user-avatar'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
 import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
@@ -19,6 +21,7 @@ graphql(`
       id
       name
       username
+      avatarUrl
     }
     ...LibraryParticipantsDialogButton_Library
   }
@@ -35,6 +38,9 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
   const { t } = useTranslation()
 
   const isOwner = library.ownerId === userId
+  const MAX_VISIBLE_PARTICIPANTS = 4
+  const visibleParticipants = library.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
+  const remainingCount = library.participants.length - MAX_VISIBLE_PARTICIPANTS
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
@@ -51,35 +57,73 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
     mutateRemove({ userId, libraryId: library.id })
   }
 
+  const handleRemoveParticipantFromDropdown = (participantId: string) => {
+    mutateRemove({ userId: participantId, libraryId: library.id })
+  }
+
   return (
-    <div className="flex w-full items-center justify-between gap-2 overflow-auto">
+    <div className="flex w-full items-center justify-between gap-2 overflow-visible">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
-      <div className="no-scrollbar flex gap-2 overflow-x-scroll p-1">
-        {library.participants.map((participant) => {
+
+      <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
+        {visibleParticipants.map((participant) => {
           const isParticipantOwner = participant.id === library.ownerId
+          const canRemove = participant.id !== userId && isOwner
+
           return (
-            <div
-              key={participant.id}
-              className={twMerge(
-                'badge badge-lg text-nowrap text-xs',
-                isParticipantOwner ? 'badge-accent' : 'badge-primary',
+            <div key={participant.id} className="relative transition-transform">
+              <span
+                className="tooltip tooltip-bottom cursor-pointer"
+                data-tip={`${participant.name ?? participant.username}${isParticipantOwner ? ` (${t('libraries.owner')})` : ''}`}
+              >
+                <UserAvatar user={participant} className="size-8" />
+              </span>
+
+              {isParticipantOwner && (
+                <div className="tooltip tooltip-bottom absolute -right-0.5 -top-0.5" data-tip={t('libraries.owner')}>
+                  <OwnerIcon className="size-5" />
+                </div>
               )}
-            >
-              {participant.id !== userId && isOwner && (
+
+              {canRemove && (
                 <button
                   type="button"
-                  className="btn btn-circle btn-ghost btn-xs"
+                  className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
+                  data-tip={t('actions.remove')}
                   onClick={(event) => handleRemoveParticipant(event, participant.id)}
                 >
-                  <CrossIcon />
+                  <CrossIcon className="text-error-content size-2" />
                 </button>
               )}
-              <span className="max-w-36 truncate">{participant.name ?? participant.username}</span>
-              {isParticipantOwner && <span className="pl-1 font-bold">({t('libraries.owner')})</span>}
             </div>
           )
         })}
+
+        {/* Remaining participants */}
+        {remainingCount > 0 && (
+          <div className="dropdown dropdown-hover dropdown-end relative transition-transform">
+            <div
+              tabIndex={0}
+              role="button"
+              className="bg-neutral text-neutral-content border-base-content hover:bg-neutral-focus flex size-8 cursor-pointer items-center justify-center rounded-full border"
+            >
+              <span className="text-xs font-medium">+{remainingCount}</span>
+            </div>
+            <div className="dropdown-content relative z-[1] mt-2 w-64">
+              <div className="bg-base-100 rounded-box border-base-300 before:bg-base-100 before:border-base-300 after:bg-base-100 relative z-20 border p-2 shadow-lg before:absolute before:-top-2 before:right-4 before:-z-10 before:h-4 before:w-4 before:rotate-45 before:transform before:border-l before:border-t before:content-[''] after:absolute after:right-2.5 after:top-0 after:z-10 after:h-1 after:w-7 after:content-['']">
+                <ParticipantsViewer
+                  participants={library.participants.slice(MAX_VISIBLE_PARTICIPANTS)}
+                  ownerId={library.ownerId}
+                  userId={userId}
+                  isOwner={isOwner}
+                  onRemoveParticipant={handleRemoveParticipantFromDropdown}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
       {isOwner && <LibraryParticipantsDialogButton library={library} users={users} />}
     </div>
   )

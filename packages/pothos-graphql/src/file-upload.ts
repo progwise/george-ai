@@ -88,3 +88,28 @@ export const updateAssistantIconUrl = async ({ assistantId, iconUrl }: { assista
   })
   return assistant
 }
+
+export const checkUser = async (userId: string) => {
+  const user = await prisma?.user.findUnique({
+    where: { id: userId },
+  })
+  return user
+}
+
+export const getUserAvatarsPath = () => {
+  const path = `${process.env.UPLOADS_PATH}/user-avatars`
+
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path, { recursive: true })
+  }
+
+  return `${path}`
+}
+
+export const updateUserAvatarUrl = async ({ userId, avatarUrl }: { userId: string; avatarUrl: string | null }) => {
+  const user = await prisma?.user.update({
+    where: { id: userId },
+    data: { avatarUrl },
+  })
+  return user
+}
