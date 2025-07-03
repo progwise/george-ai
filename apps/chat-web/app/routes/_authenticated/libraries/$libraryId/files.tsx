@@ -42,9 +42,6 @@ function RouteComponent() {
   const {
     data: { aiLibraryFiles },
   } = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take }))
-  const {
-    data: { aiLibraryAllFiles },
-  } = useSuspenseQuery(aiLibraryAllFilesQueryOptions({ libraryId }))
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
 
   return (
@@ -69,8 +66,8 @@ function RouteComponent() {
         setCheckedFileIds={setSelectedFileIds}
         tableDataChanged={() => {
           queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
+          queryClient.invalidateQueries({ queryKey: aiLibraryAllFilesQueryOptions({ libraryId }).queryKey })
         }}
-        allFileIds={aiLibraryAllFiles.files.map((file) => file.id)}
       />
       <FilesTable
         firstItemNumber={skip + 1}

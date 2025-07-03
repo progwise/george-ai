@@ -378,7 +378,7 @@ export default {
     copyInvitationLink: 'Copy invitation link',
     delete: 'Delete',
     deleteMessage: 'Delete message',
-    dropAllDescription: 'Delete all files',
+    dropAllDescription: 'Drop all files',
     dropDescription: 'Drop selected files',
     edit: 'Edit',
     hide: 'Hide',

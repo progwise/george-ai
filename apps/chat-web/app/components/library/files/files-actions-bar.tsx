@@ -15,7 +15,6 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
-  allFileIds: string[]
 }
 
 export const FilesActionsBar = ({
@@ -25,7 +24,6 @@ export const FilesActionsBar = ({
   tableDataChanged,
   checkedFileIds,
   setCheckedFileIds,
-  allFileIds,
 }: FilesActionsBarProps) => {
   const { t } = useTranslation()
 
@@ -49,6 +47,7 @@ export const FilesActionsBar = ({
   }
 
   const remainingStorage = availableStorage - usedStorage
+
   return (
     <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-2">
@@ -67,10 +66,11 @@ export const FilesActionsBar = ({
         />
 
         <DropAllFilesDialog
+          libraryId={libraryId}
           disabled={false}
           setCheckedFileIds={setCheckedFileIds}
           tableDataChanged={tableDataChanged}
-          allFileIds={allFileIds}
+          allFileIds={[]}
         />
 
         <button

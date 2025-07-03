@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -6,15 +6,17 @@ import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { dropFiles } from './change-files'
+import { aiLibraryAllFilesQueryOptions } from './get-files'
 
 interface DropAllFilesDialogProps {
+  libraryId: string
   disabled: boolean
   tableDataChanged: () => void
   setCheckedFileIds: (fileIds: string[]) => void
   allFileIds: string[]
 }
 
-export const DropAllFilesDialog = ({ setCheckedFileIds, tableDataChanged, allFileIds }: DropAllFilesDialogProps) => {
+export const DropAllFilesDialog = ({ libraryId, setCheckedFileIds, tableDataChanged }: DropAllFilesDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
@@ -29,22 +31,18 @@ export const DropAllFilesDialog = ({ setCheckedFileIds, tableDataChanged, allFil
       toastSuccess(t('actions.dropSuccess', { count: allFileIds.length }))
     },
     onSettled: () => {
-      dialogRef.current?.close()
       setCheckedFileIds([])
       tableDataChanged()
+      dialogRef.current?.close()
     },
   })
 
-  tableDataChanged()
-
   const textOfDropButton = t('actions.dropAll')
 
-  // // check log
-  // console.log(allFileIds.length)
-
-  // const {
-  //   data: { aiLibraryAllFiles },
-  // } = useSuspenseQuery(aiLibraryAllFilesQueryOptions({ libraryId }))
+  const {
+    data: { aiLibraryAllFiles },
+  } = useSuspenseQuery(aiLibraryAllFilesQueryOptions({ libraryId }))
+  const allFileIds = aiLibraryAllFiles.files.map((file) => file.id)
 
   return (
     <>
@@ -58,8 +56,6 @@ export const DropAllFilesDialog = ({ setCheckedFileIds, tableDataChanged, allFil
         {textOfDropButton}
       </button>
 
-      <LoadingSpinner isLoading={isPending} />
-
       <DialogForm
         ref={dialogRef}
         title={t('libraries.dropAllFilesDialog')}
@@ -67,6 +63,8 @@ export const DropAllFilesDialog = ({ setCheckedFileIds, tableDataChanged, allFil
         onSubmit={() => dropAllFilesMutation.mutate(allFileIds)}
         submitButtonText={textOfDropButton}
       >
+        <LoadingSpinner isLoading={isPending} />
+
         <div className="w-full">
           <div className="mb-4">
             <>
