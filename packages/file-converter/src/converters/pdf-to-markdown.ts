@@ -2,6 +2,8 @@ import fs from 'fs'
 import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
+import { PDF_LAYOUT } from '../constants'
+
 //Advanced PDF to Markdown converter that preserves layout and structure
 export async function transformPdfToMarkdown(pdfFilePath: string): Promise<string> {
   const require = createRequire(import.meta.url)
@@ -43,7 +45,7 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
         const y = Math.round(item.transform[5])
         const x = Math.round(item.transform[4])
 
-        let line = lines.find((l) => Math.abs(l.y - y) < 2) // Group items within 2 units vertically
+        let line = lines.find((l) => Math.abs(l.y - y) < PDF_LAYOUT.VERTICAL_LINE_THRESHOLD)
         if (!line) {
           line = { y, items: [] }
           lines.push(line)
@@ -72,9 +74,9 @@ export async function transformPdfToMarkdown(pdfFilePath: string): Promise<strin
 
       for (const item of line.items) {
         // Add spacing if there's a significant gap
-        if (prevX > 0 && item.x - prevX > 20) {
+        if (prevX > 0 && item.x - prevX > PDF_LAYOUT.LARGE_GAP_THRESHOLD) {
           lineText += ' | '
-        } else if (prevX > 0 && item.x - prevX > 5) {
+        } else if (prevX > 0 && item.x - prevX > PDF_LAYOUT.SMALL_GAP_THRESHOLD) {
           lineText += ' '
         }
 

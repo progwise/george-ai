@@ -1,5 +1,5 @@
 import { stopCronJob, upsertCronJob } from '../../cron-jobs'
-import { deleteFileAndRecord } from '../../file-upload'
+import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { builder } from '../builder'
@@ -141,7 +141,7 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
         include: { cronJob: true, files: true },
       })
 
-      await Promise.all(crawler.files.map((file) => deleteFileAndRecord(file.id, file.libraryId)))
+      await Promise.all(crawler.files.map((file) => deleteFile(file.id, file.libraryId)))
       await prisma.aiLibraryCrawler.delete({ where: { id } })
       if (crawler.cronJob) {
         await stopCronJob(crawler.cronJob)

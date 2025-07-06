@@ -43,6 +43,7 @@ export default {
     update: 'Update',
     upload: 'Upload',
     uploaded: 'Uploaded',
+    view: 'View',
   },
   admin: {
     adminAreaHeadline: 'Administration Area - Use with caution',

@@ -2,7 +2,7 @@ import { TextLoader } from 'langchain/document_loaders/fs/text'
 import OpenAI from 'openai'
 import { ResponseInputImage } from 'openai/resources/responses/responses'
 
-import { convertToImages } from './pdf-to-image'
+import { transformPdfToImages } from '@george-ai/file-converter'
 
 export class PDFLoaderAI {
   constructor(private filePath: string) {}
@@ -11,7 +11,7 @@ export class PDFLoaderAI {
     console.log(`Loading PDF file with AI from ${this.filePath}`)
 
     const client = new OpenAI()
-    const convertedImages = await convertToImages(this.filePath)
+    const convertedImages = await transformPdfToImages(this.filePath)
 
     const images = convertedImages.map(
       (image) =>

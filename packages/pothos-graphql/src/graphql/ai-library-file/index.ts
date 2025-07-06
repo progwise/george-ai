@@ -1,7 +1,9 @@
-import { cleanupFile, deleteFileAndRecord } from '../../file-upload'
+import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { processFile } from './process-file'
+
+import './process-file'
+import './read-file'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -16,7 +18,7 @@ async function dropFileById(fileId: string) {
   let dropError: string | null = null
 
   try {
-    await deleteFileAndRecord(file.id, file.libraryId)
+    await deleteFile(file.id, file.libraryId)
     return file
   } catch (error) {
     dropError = error instanceof Error ? error.message : String(error)
@@ -26,10 +28,6 @@ async function dropFileById(fileId: string) {
     })
     return updatedFile
   }
-}
-
-const cancelFileUpload = async (fileId: string) => {
-  await cleanupFile(fileId)
 }
 
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
@@ -86,17 +84,6 @@ builder.mutationField('prepareFile', (t) =>
         data,
       })
     },
-  }),
-)
-
-builder.mutationField('processFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _source, { fileId }) => processFile(fileId),
   }),
 )
 
@@ -231,37 +218,16 @@ builder.mutationField('dropFiles', (t) =>
   }),
 )
 
-builder.mutationField('reprocessFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { fileId }) => {
-      const file = await prisma.aiLibraryFile.findUnique({
-        ...query,
-        where: { id: fileId },
-      })
-      if (!file) {
-        throw new Error(`File not found: ${fileId}`)
-      }
-
-      // Use the same processFile function that handles both initial and re-processing
-      return await processFile(fileId)
-    },
-  }),
-)
-
 builder.mutationField('cancelFileUpload', (t) =>
   t.field({
     type: 'Boolean',
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { fileId }) => {
-      await cancelFileUpload(fileId)
+    resolve: async (_source, { fileId, libraryId }) => {
+      await deleteFile(fileId, libraryId)
       return true
     },
   }),

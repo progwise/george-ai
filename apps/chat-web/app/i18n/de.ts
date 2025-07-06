@@ -43,6 +43,7 @@ export default {
     update: 'Aktualisieren',
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
+    view: 'Ansehen',
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',

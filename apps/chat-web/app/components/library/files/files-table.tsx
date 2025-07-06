@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -15,6 +16,7 @@ const truncateFileName = (name: string, maxLength: number, truncatedLength: numb
 graphql(`
   fragment AiLibraryFile_TableItem on AiLibraryFile {
     id
+    libraryId
     name
     originUri
     mimeType
@@ -192,6 +194,13 @@ export const FilesTable = ({
                 <td>{file.chunks ?? '-'}</td>
                 <td>{dateTimeString(file.processedAt, language) || '-'}</td>
                 <td className="flex items-center gap-2">
+                  <Link
+                    to="/libraries/$libraryId/files/$fileId"
+                    params={{ libraryId: file.libraryId, fileId: file.id }}
+                    className="btn btn-xs"
+                  >
+                    {t('actions.view')}
+                  </Link>
                   <button type="button" className="btn btn-xs" onClick={() => mutateDropFile(file.id)}>
                     {t('actions.drop')}
                   </button>

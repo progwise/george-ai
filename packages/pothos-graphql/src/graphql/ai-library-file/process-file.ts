@@ -1,7 +1,8 @@
 import { embedFile } from '@george-ai/langchain-chat'
 
-import { getFilePath, getProcessedFilePath } from '../../file-upload'
+import { getMarkdownFilePath, getUploadFilePAth } from '../../file-upload'
 import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 export const processFile = async (fileId: string) => {
   const file = await prisma.aiLibraryFile.findUnique({
@@ -23,14 +24,14 @@ export const processFile = async (fileId: string) => {
     let filePath: string
     if (file.uploadedAt) {
       // File has been uploaded and converted - use the markdown file for re-processing
-      filePath = getProcessedFilePath(file.id)
+      filePath = getMarkdownFilePath({ fileId: file.id, libraryId: file.libraryId })
       console.log(`Re-processing file ${file.id} using converted markdown: ${filePath}`)
     } else {
       // Initial processing - use the original uploaded file
       if (!file.name) {
         throw new Error(`File record ${fileId} is missing original name for initial processing.`)
       }
-      filePath = getFilePath(file.id, file.name)
+      filePath = getUploadFilePAth({ fileId: file.id, libraryId: file.libraryId })
       console.log(`Initial processing file ${file.id} using original file: ${filePath}`)
     }
 
@@ -63,3 +64,14 @@ export const processFile = async (fileId: string) => {
     throw error
   }
 }
+
+builder.mutationField('processFile', (t) =>
+  t.prismaField({
+    type: 'AiLibraryFile',
+    nullable: false,
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { fileId }) => processFile(fileId),
+  }),
+)

@@ -2,12 +2,12 @@ import * as fs from 'fs'
 
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
-import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import './queryFiles'
 
+import { getLibraryDir } from '../../file-upload'
 import { canAccessLibrary } from './check-participation'
 
 console.log('Setting up: AiLibrary')
@@ -159,26 +159,14 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
     },
     resolve: async (_parent, { libraryId }) => {
       await dropVectorStore(libraryId)
-      const files = await prisma.aiLibraryFile.findMany({
-        select: { id: true, name: true },
-        where: { libraryId },
-      })
       await prisma.aiLibraryFile.deleteMany({
         where: { libraryId },
       })
 
-      const deleteFilePromises = files.map((file) => {
-        const filePath = getFilePath(file.id, file.name)
-        return new Promise((resolve) => {
-          fs.rm(filePath, (err) => {
-            if (err) {
-              resolve(`Error deleting file: ${filePath}: ${err.message}`)
-            }
-            resolve(`Deleted file: ${filePath}`)
-          })
-        })
-      })
-      await Promise.all(deleteFilePromises)
+      const libraryPath = getLibraryDir(libraryId)
+      if (fs.existsSync(libraryPath)) {
+        fs.rmSync(libraryPath, { recursive: true, force: true })
+      }
       return true
     },
   }),

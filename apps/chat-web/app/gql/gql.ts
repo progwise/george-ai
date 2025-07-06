@@ -73,8 +73,9 @@ type Documents = {
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ': typeof types.DropFileDocument
   '\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ': typeof types.ReprocessFileDocument
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
-  '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
-  '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n': typeof types.AiLibraryFile_TableItemFragmentDoc
+  '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ': typeof types.CancelFileUploadDocument
+  '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n': typeof types.AiLibraryFile_TableItemFragmentDoc
+  '\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)\n          }\n        ': typeof types.GetFileContentDocument
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            count\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': typeof types.AiLibrariesDocument
@@ -237,10 +238,12 @@ const documents: Documents = {
     types.ReprocessFileDocument,
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
     types.PrepareDesktopFileDocument,
-  '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ':
+  '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ':
     types.CancelFileUploadDocument,
-  '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n':
+  '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n':
     types.AiLibraryFile_TableItemFragmentDoc,
+  '\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)\n          }\n        ':
+    types.GetFileContentDocument,
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            count\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ':
     types.EmbeddingsTableDocument,
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n':
@@ -697,14 +700,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ',
-): (typeof documents)['\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ']
+  source: '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ',
+): (typeof documents)['\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n',
-): (typeof documents)['\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n']
+  source: '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n',
+): (typeof documents)['\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)\n          }\n        ',
+): (typeof documents)['\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

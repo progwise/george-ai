@@ -485,7 +485,7 @@ type Mutation {
   ): [AiConversationParticipant!]
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  cancelFileUpload(fileId: String!): Boolean!
+  cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
   chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
@@ -516,7 +516,6 @@ type Mutation {
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
-  reprocessFile(fileId: String!): AiLibraryFile!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
@@ -548,6 +547,7 @@ type Query {
   aiModels: [AiModel!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
+  readFileMarkdown(fileId: String!, libraryId: String!): String!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!

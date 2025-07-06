@@ -17,4 +17,3 @@ export const ask = (parameters: { question: string; sessionId: string; retrieval
   )
 
 export * from './typesense-vectorstore'
-export * from './file-converter'

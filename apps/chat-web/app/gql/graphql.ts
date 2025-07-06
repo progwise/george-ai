@@ -534,7 +534,6 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
-  reprocessFile: AiLibraryFile
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -578,6 +577,7 @@ export type MutationAddLibraryUsageArgs = {
 
 export type MutationCancelFileUploadArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationChatArgs = {
@@ -710,10 +710,6 @@ export type MutationRemoveLibraryUsageArgs = {
   libraryId: Scalars['String']['input']
 }
 
-export type MutationReprocessFileArgs = {
-  fileId: Scalars['String']['input']
-}
-
 export type MutationResetAssessmentAnswersArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -797,6 +793,7 @@ export type Query = {
   aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
+  readFileMarkdown: Scalars['String']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -853,6 +850,11 @@ export type QueryQueryAiLibraryFilesArgs = {
   query: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryReadFileMarkdownArgs = {
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -2019,6 +2021,7 @@ export type PrepareDesktopFileMutation = {
 
 export type CancelFileUploadMutationVariables = Exact<{
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }>
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
@@ -2026,6 +2029,7 @@ export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUplo
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
   id: string
+  libraryId: string
   name: string
   originUri?: string | null
   mimeType: string
@@ -2036,6 +2040,13 @@ export type AiLibraryFile_TableItemFragment = {
   processingErrorMessage?: string | null
   dropError?: string | null
 }
+
+export type GetFileContentQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type GetFileContentQuery = { __typename?: 'Query'; readFileMarkdown: string }
 
 export type EmbeddingsTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -2055,6 +2066,7 @@ export type EmbeddingsTableQuery = {
     files: Array<{
       __typename?: 'AiLibraryFile'
       id: string
+      libraryId: string
       name: string
       originUri?: string | null
       mimeType: string
@@ -4789,6 +4801,7 @@ export const AiLibraryFile_TableItemFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
@@ -7812,6 +7825,11 @@ export const CancelFileUploadDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -7825,6 +7843,11 @@ export const CancelFileUploadDocument = {
                 name: { kind: 'Name', value: 'fileId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
             ],
           },
         ],
@@ -7832,6 +7855,49 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
+export const GetFileContentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileContent' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'readFileMarkdown' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileContentQuery, GetFileContentQueryVariables>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [
@@ -7918,6 +7984,7 @@ export const EmbeddingsTableDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
