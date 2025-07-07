@@ -1,6 +1,4 @@
-import { embedFile } from '@george-ai/langchain-chat'
-
-import { cleanupFile, deleteFileAndRecord, getFilePath } from '../../file-upload'
+import { cleanupFile, deleteFileAndRecord } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 import { processFile } from './process-file'
@@ -22,11 +20,17 @@ async function dropFileById(fileId: string) {
     return file
   } catch (error) {
     dropError = error instanceof Error ? error.message : String(error)
-    const updatedFile = await prisma.aiLibraryFile.update({
-      where: { id: file.id },
-      data: { dropError },
-    })
-    return updatedFile
+    console.error(`Error dropping file ${fileId}:`, dropError)
+    try {
+      // goes possibly wrong if file record was already deleted above
+      await prisma.aiLibraryFile.update({
+        where: { id: file.id },
+        data: { dropError },
+      })
+    } catch (updateError) {
+      console.error(`Error updating file drop error for ${fileId}:`, updateError)
+    }
+    return { ...file, dropError }
   }
 }
 
@@ -229,63 +233,6 @@ builder.mutationField('dropFiles', (t) =>
       console.log(`Dropped files for library ${libraryId}:`, results)
 
       return results
-    },
-  }),
-)
-
-builder.mutationField('reProcessFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { fileId }) => {
-      const file = await prisma.aiLibraryFile.findUnique({
-        ...query,
-        where: { id: fileId },
-      })
-      if (!file) {
-        throw new Error(`File not found: ${fileId}`)
-      }
-
-      await prisma.aiLibraryFile.update({
-        where: { id: fileId },
-        data: {
-          processingStartedAt: new Date(),
-        },
-      })
-
-      try {
-        const embeddedFile = await embedFile(file.libraryId, {
-          id: file.id,
-          name: file.name,
-          originUri: file.originUri!,
-          mimeType: file.mimeType,
-          path: getFilePath(file.id),
-        })
-
-        return await prisma.aiLibraryFile.update({
-          ...query,
-          where: { id: fileId },
-          data: {
-            ...embeddedFile,
-            processedAt: new Date(),
-            processingEndedAt: new Date(),
-            processingErrorAt: null,
-            processingErrorMessage: null,
-          },
-        })
-      } catch (error) {
-        await prisma.aiLibraryFile.update({
-          where: { id: fileId },
-          data: {
-            processingErrorAt: new Date(),
-            processingErrorMessage: (error as Error).message,
-          },
-        })
-        throw error
-      }
     },
   }),
 )

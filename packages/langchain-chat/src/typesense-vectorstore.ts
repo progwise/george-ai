@@ -126,8 +126,11 @@ export const embedFile = async (
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
-  const fileParts = await loadFile(file)
-
+  let fileParts = await loadFile(file)
+  if (fileParts.length === 0 && file.mimeType === 'application/pdf') {
+    fileParts = await loadFile(file, true) // Retry loading if no parts found
+  }
+  console.log(`File ${file.name} loaded with ${fileParts.length} parts.`)
   const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
 
   const splitter = new RecursiveCharacterTextSplitter({

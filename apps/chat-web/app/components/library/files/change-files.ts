@@ -18,18 +18,24 @@ export const dropFiles = createServerFn({ method: 'POST' })
           }
         `),
         { id: fileId },
-      ),
+      ).catch((error) => {
+        console.error(`Error dropping file ${fileId}:`, error)
+      }),
     )
-    return await Promise.all(dropFilePromises)
+    const result = await Promise.all(dropFilePromises).catch((error) => {
+      console.error('Error dropping files:', error)
+      throw new Error('Failed to drop files')
+    })
+    return result.filter((file) => file !== undefined)
   })
 
-export const reProcessFiles = createServerFn({ method: 'POST' })
+export const reprocessFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const reProcessFilePromises = ctx.data.map((fileId) =>
+    const reprocessFilePromises = ctx.data.map((fileId) =>
       backendRequest(
         graphql(`
-          mutation reProcessFile($id: String!) {
+          mutation reprocessFile($id: String!) {
             processFile(fileId: $id) {
               id
               name
@@ -42,7 +48,14 @@ export const reProcessFiles = createServerFn({ method: 'POST' })
           }
         `),
         { id: fileId },
-      ),
+      ).catch((error) => {
+        console.log(`Error re-processing file ${fileId}:`, error)
+      }),
     )
-    return await Promise.all(reProcessFilePromises)
+    const result = await Promise.all(reprocessFilePromises).catch((error) => {
+      console.error('Error re-processing files:', error)
+      throw new Error('Failed to re-process files')
+    })
+
+    return result.filter((file) => file !== undefined)
   })

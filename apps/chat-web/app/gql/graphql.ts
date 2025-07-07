@@ -531,7 +531,6 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
-  reProcessFile: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
@@ -690,10 +689,6 @@ export type MutationPrepareFileArgs = {
 }
 
 export type MutationProcessFileArgs = {
-  fileId: Scalars['String']['input']
-}
-
-export type MutationReProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
@@ -2025,11 +2020,11 @@ export type DropFileMutation = {
   dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
 }
 
-export type ReProcessFileMutationVariables = Exact<{
+export type ReprocessFileMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type ReProcessFileMutation = {
+export type ReprocessFileMutation = {
   __typename?: 'Mutation'
   processFile: {
     __typename?: 'AiLibraryFile'
@@ -8017,13 +8012,13 @@ export const DropFileDocument = {
     },
   ],
 } as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
-export const ReProcessFileDocument = {
+export const ReprocessFileDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'reProcessFile' },
+      name: { kind: 'Name', value: 'reprocessFile' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -8061,7 +8056,7 @@ export const ReProcessFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ReProcessFileMutation, ReProcessFileMutationVariables>
+} as unknown as DocumentNode<ReprocessFileMutation, ReprocessFileMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [

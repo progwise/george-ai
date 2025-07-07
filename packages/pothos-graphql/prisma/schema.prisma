@@ -157,6 +157,7 @@ model AiLibraryFile {
   libraryId              String
   name                   String
   originUri              String?
+  docPath                String?
   mimeType               String
   size                   Int?
   chunks                 Int?
