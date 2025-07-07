@@ -177,8 +177,7 @@ export default {
     profileEnsureFailed: 'Profil konnte nicht sichergestellt werden',
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     reprocessFile: 'Datei konnte nicht erneut verarbeitet werden. Bitte versuchen Sie es später erneut.',
-    reprocessFiles: 'An error occurred while processing {count} files: {files}.',
-
+    reprocessFiles: 'Fehler beim verarbeiten von {count} Dateien: {files}.',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
   },
