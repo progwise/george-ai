@@ -1,7 +1,7 @@
 import { getHeaders } from '@tanstack/react-start/server'
 
 import { Language } from './index'
-import { getTranslatedValue } from './use-translation-hook'
+import { getTranslatedString } from './use-translation-hook'
 
 const getLanguage = async (): Promise<Language> => {
   try {
@@ -29,7 +29,7 @@ export const getClientLanguage = (): Language => {
 }
 
 const translate = (key: string, language: Language) => {
-  return getTranslatedValue(key, language === 'de' ? 'de' : 'en')
+  return getTranslatedString(key, language === 'de' ? 'de' : 'en')
 }
 
 export { translate, getLanguage }

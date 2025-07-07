@@ -534,7 +534,6 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
-  reprocessFile: AiLibraryFile
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -708,10 +707,6 @@ export type MutationRemoveLibraryParticipantArgs = {
 export type MutationRemoveLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type MutationReprocessFileArgs = {
-  fileId: Scalars['String']['input']
 }
 
 export type MutationResetAssessmentAnswersArgs = {
