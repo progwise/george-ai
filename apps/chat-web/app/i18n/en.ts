@@ -96,6 +96,9 @@ export default {
       name: 'Name your assistant',
     },
     removeLibrary: 'Remove library',
+    removeParticipant: 'Remove participant',
+    removeParticipantConfirmation:
+      'You are about to remove {participantName} from this assistant. This cannot be undone. Please confirm.',
     usageLabel: 'Describe the usage of this library',
     usagePlaceholder:
       'This library is used for ... (e.g. to answer questions about the company, to provide information about the product, etc.)',
@@ -141,6 +144,9 @@ export default {
     removeMultiple: 'Remove conversations',
     removeMultipleConfirmation:
       'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone. Please confirm.',
+    removeParticipant: 'Remove participant',
+    removeParticipantConfirmation:
+      'You are about to remove {participantName} from this conversation. This cannot be undone. Please confirm.',
     setLLM: 'Language model not set on assistant',
     tokenLimitExceeded: 'Token limit exceeded',
   },
@@ -317,6 +323,9 @@ export default {
       description: 'Describe your library',
       name: 'Name your library',
     },
+    removeParticipant: 'Remove participant',
+    removeParticipantConfirmation:
+      'You are about to remove {participantName} from this library. This cannot be undone. Please confirm.',
     selectedMultipleFiles: '{count} files selected',
     selectedSingleFile: '1 file selected',
     users: 'Users',

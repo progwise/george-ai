@@ -204,7 +204,7 @@ export type AiConversationParticipant = {
   isAssistant?: Maybe<Scalars['Boolean']['output']>
   isBot: Scalars['Boolean']['output']
   isHuman?: Maybe<Scalars['Boolean']['output']>
-  name?: Maybe<Scalars['String']['output']>
+  name: Scalars['String']['output']
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
 }
@@ -433,7 +433,7 @@ export type AssistantParticipant = AiConversationParticipant & {
   isAssistant?: Maybe<Scalars['Boolean']['output']>
   isBot: Scalars['Boolean']['output']
   isHuman?: Maybe<Scalars['Boolean']['output']>
-  name?: Maybe<Scalars['String']['output']>
+  name: Scalars['String']['output']
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
 }
@@ -462,7 +462,7 @@ export type HumanParticipant = AiConversationParticipant & {
   isAssistant?: Maybe<Scalars['Boolean']['output']>
   isBot: Scalars['Boolean']['output']
   isHuman?: Maybe<Scalars['Boolean']['output']>
-  name?: Maybe<Scalars['String']['output']>
+  name: Scalars['String']['output']
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
 }
@@ -1616,7 +1616,7 @@ export type ConversationHistory_ConversationFragment = {
       | {
           __typename: 'AssistantParticipant'
           id: string
-          name?: string | null
+          name: string
           isBot: boolean
           assistantId?: string | null
           assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
@@ -1624,7 +1624,7 @@ export type ConversationHistory_ConversationFragment = {
       | {
           __typename: 'HumanParticipant'
           id: string
-          name?: string | null
+          name: string
           isBot: boolean
           assistantId?: string | null
           user?: { __typename?: 'User'; avatarUrl?: string | null } | null
@@ -1687,7 +1687,7 @@ export type ConversationParticipants_ConversationFragment = {
     | {
         __typename: 'AssistantParticipant'
         id: string
-        name?: string | null
+        name: string
         userId?: string | null
         assistantId?: string | null
         assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
@@ -1695,10 +1695,10 @@ export type ConversationParticipants_ConversationFragment = {
     | {
         __typename: 'HumanParticipant'
         id: string
-        name?: string | null
+        name: string
         userId?: string | null
         assistantId?: string | null
-        user?: { __typename?: 'User'; avatarUrl?: string | null } | null
+        user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
       }
   >
 }
@@ -1738,7 +1738,7 @@ export type ConversationDetailFragment = {
     | {
         __typename: 'AssistantParticipant'
         id: string
-        name?: string | null
+        name: string
         userId?: string | null
         assistantId?: string | null
         assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
@@ -1746,10 +1746,10 @@ export type ConversationDetailFragment = {
     | {
         __typename: 'HumanParticipant'
         id: string
-        name?: string | null
+        name: string
         userId?: string | null
         assistantId?: string | null
-        user?: { __typename?: 'User'; avatarUrl?: string | null } | null
+        user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
       }
   >
   assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -1765,7 +1765,7 @@ export type ConversationDetailFragment = {
       | {
           __typename: 'AssistantParticipant'
           id: string
-          name?: string | null
+          name: string
           isBot: boolean
           assistantId?: string | null
           assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
@@ -1773,7 +1773,7 @@ export type ConversationDetailFragment = {
       | {
           __typename: 'HumanParticipant'
           id: string
-          name?: string | null
+          name: string
           isBot: boolean
           assistantId?: string | null
           user?: { __typename?: 'User'; avatarUrl?: string | null } | null
@@ -1797,7 +1797,7 @@ export type GetConversationQuery = {
       | {
           __typename: 'AssistantParticipant'
           id: string
-          name?: string | null
+          name: string
           userId?: string | null
           assistantId?: string | null
           assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
@@ -1805,10 +1805,10 @@ export type GetConversationQuery = {
       | {
           __typename: 'HumanParticipant'
           id: string
-          name?: string | null
+          name: string
           userId?: string | null
           assistantId?: string | null
-          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
         }
     >
     assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -1824,7 +1824,7 @@ export type GetConversationQuery = {
         | {
             __typename: 'AssistantParticipant'
             id: string
-            name?: string | null
+            name: string
             isBot: boolean
             assistantId?: string | null
             assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
@@ -1832,7 +1832,7 @@ export type GetConversationQuery = {
         | {
             __typename: 'HumanParticipant'
             id: string
-            name?: string | null
+            name: string
             isBot: boolean
             assistantId?: string | null
             user?: { __typename?: 'User'; avatarUrl?: string | null } | null
@@ -4303,7 +4303,10 @@ export const ConversationParticipants_ConversationFragmentDoc = {
                         name: { kind: 'Name', value: 'user' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
                         },
                       },
                     ],
@@ -4652,7 +4655,10 @@ export const ConversationDetailFragmentDoc = {
                         name: { kind: 'Name', value: 'user' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
                         },
                       },
                     ],
@@ -7331,7 +7337,10 @@ export const GetConversationDocument = {
                         name: { kind: 'Name', value: 'user' },
                         selectionSet: {
                           kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
                         },
                       },
                     ],

@@ -99,6 +99,9 @@ export default {
       name: 'Name Ihres Assistenten',
     },
     removeLibrary: 'Bibliothek entfernen',
+    removeParticipant: 'Teilnehmer entfernen',
+    removeParticipantConfirmation:
+      'Sie sind dabei, {participantName} von diesem Assistenten zu entfernen. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     usageLabel: 'Beschreibung der Verwendung',
     usagePlaceholder:
       'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',
@@ -146,6 +149,9 @@ export default {
     removeMultiple: 'Konversationen entfernen',
     removeMultipleConfirmation:
       'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    removeParticipant: 'Teilnehmer entfernen',
+    removeParticipantConfirmation:
+      'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     setLLM: 'Assistent hat kein Sprachmodell',
     tokenLimitExceeded: 'Tokenlimit überschritten',
   },
@@ -325,6 +331,9 @@ export default {
       description: 'Beschreiben Sie Ihre Bibliothek',
       name: 'Name Ihrer Bibliothek',
     },
+    removeParticipant: 'Teilnehmer entfernen',
+    removeParticipantConfirmation:
+      'Sie sind dabei, {participantName} von dieser Bibliothek zu entfernen. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
     users: 'Benutzer',

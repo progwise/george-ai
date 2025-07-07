@@ -146,6 +146,7 @@ builder.mutationField('sendMessage', (t) =>
         select: {
           id: true,
           name: true,
+          iconUrl: true,
           conversationParticipations: {
             select: { id: true },
             where: { conversationId: data.conversationId },
@@ -224,7 +225,7 @@ builder.mutationField('sendMessage', (t) =>
               name: assistant.name,
               isBot: true,
               assistantId: assistant.id,
-              avatarUrl: null,
+              avatarUrl: assistant.iconUrl,
             },
           },
         })
@@ -278,7 +279,7 @@ builder.mutationField('sendMessage', (t) =>
                 name: assistant.name,
                 isBot: true,
                 assistantId: assistant.id,
-                avatarUrl: null,
+                avatarUrl: assistant.iconUrl,
               },
             },
           })

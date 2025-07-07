@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
 import { LibraryParticipants_LibraryFragment, UserFragment } from '../../gql/graphql'
@@ -6,6 +7,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { OwnerIcon } from '../../icons/owner-icon'
 import { removeLibraryParticipant } from '../../server-functions/library-participations'
+import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
@@ -36,6 +38,8 @@ interface LibraryParticipantsProps {
 export const LibraryParticipants = ({ library, users, userId }: LibraryParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = library.ownerId === userId
   const MAX_VISIBLE_PARTICIPANTS = 4
@@ -49,16 +53,33 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
       await queryClient.invalidateQueries(getLibrariesQueryOptions())
+      setParticipantToRemove(null)
+      dialogRef.current?.close()
     },
   })
 
-  const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
+  const handleRemoveParticipant = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    participantId: string,
+    participantName: string,
+  ) => {
     event.preventDefault()
-    mutateRemove({ userId, libraryId: library.id })
+    setParticipantToRemove({ id: participantId, name: participantName })
+    dialogRef.current?.showModal()
   }
 
   const handleRemoveParticipantFromDropdown = (participantId: string) => {
-    mutateRemove({ userId: participantId, libraryId: library.id })
+    const participant = library.participants.find((participant) => participant.id === participantId)
+    if (participant) {
+      setParticipantToRemove({ id: participantId, name: participant.name ?? participant.username })
+      dialogRef.current?.showModal()
+    }
+  }
+
+  const confirmRemoveParticipant = () => {
+    if (participantToRemove) {
+      mutateRemove({ userId: participantToRemove.id, libraryId: library.id })
+    }
   }
 
   return (
@@ -90,7 +111,9 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) => handleRemoveParticipant(event, participant.id)}
+                  onClick={(event) =>
+                    handleRemoveParticipant(event, participant.id, participant.name ?? participant.username)
+                  }
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>
@@ -125,6 +148,15 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
       </div>
 
       {isOwner && <LibraryParticipantsDialogButton library={library} users={users} />}
+
+      <DialogForm
+        ref={dialogRef}
+        title={t('libraries.removeParticipant')}
+        description={t('libraries.removeParticipantConfirmation', { participantName: participantToRemove?.name || '' })}
+        onSubmit={confirmRemoveParticipant}
+        disabledSubmit={removeParticipantIsPending}
+        submitButtonText={t('actions.remove')}
+      />
     </div>
   )
 }

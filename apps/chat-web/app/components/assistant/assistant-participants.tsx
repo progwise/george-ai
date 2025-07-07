@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
 import { AssistantParticipants_AssistantFragment, UserFragment } from '../../gql/graphql'
@@ -6,6 +7,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { OwnerIcon } from '../../icons/owner-icon'
 import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
+import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
@@ -35,6 +37,8 @@ interface AssistantParticipantsProps {
 export const AssistantParticipants = ({ assistant, users, userId }: AssistantParticipantsProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = assistant.ownerId === userId
   const MAX_VISIBLE_PARTICIPANTS = 4
@@ -52,16 +56,34 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
+      setParticipantToRemove(null)
+      dialogRef.current?.close()
     },
   })
 
-  const handleRemoveParticipant = (event: React.MouseEvent<HTMLButtonElement>, userId: string) => {
+  const handleRemoveParticipant = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    participantId: string,
+    participantName: string,
+  ) => {
     event.preventDefault()
-    mutateRemove({ userId, assistantId: assistant.id })
+    setParticipantToRemove({ id: participantId, name: participantName })
+    dialogRef.current?.showModal()
   }
 
   const handleRemoveParticipantFromDropdown = (participantId: string) => {
-    mutateRemove({ userId: participantId, assistantId: assistant.id })
+    const participant = assistant.participants.find((participant) => participant.id === participantId)
+    if (participant) {
+      const displayName = participant.name ?? participant.username
+      setParticipantToRemove({ id: participantId, name: displayName })
+      dialogRef.current?.showModal()
+    }
+  }
+
+  const confirmRemoveParticipant = () => {
+    if (participantToRemove) {
+      mutateRemove({ userId: participantToRemove.id, assistantId: assistant.id })
+    }
   }
 
   return (
@@ -93,7 +115,9 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) => handleRemoveParticipant(event, participant.id)}
+                  onClick={(event) =>
+                    handleRemoveParticipant(event, participant.id, participant.name ?? participant.username)
+                  }
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>
@@ -128,6 +152,17 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
       </div>
 
       {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} />}
+
+      <DialogForm
+        ref={dialogRef}
+        title={t('assistants.removeParticipant')}
+        description={t('assistants.removeParticipantConfirmation', {
+          participantName: participantToRemove?.name || '',
+        })}
+        onSubmit={confirmRemoveParticipant}
+        disabledSubmit={removeParticipantIsPending}
+        submitButtonText={t('actions.remove')}
+      />
     </div>
   )
 }

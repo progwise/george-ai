@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { UserFragment } from '../gql/graphql'
 import UserIcon from '../icons/user-icon'
 import { addCacheBustingToAvatarUrl } from './avatar-provider'
 
-// Extend UserFragment to include avatarUrl until types are regenerated
-type UserWithAvatar = UserFragment & { avatarUrl?: string | null }
+// User data needed for avatar display
+type AvatarUser = {
+  id?: string
+  username?: string
+  name?: string | null
+  avatarUrl?: string | null
+}
 
 interface UserAvatarProps {
-  user: UserWithAvatar | Pick<UserWithAvatar, 'name' | 'avatarUrl'>
+  user: AvatarUser
   className?: string
   showFallback?: boolean
 }

@@ -8,11 +8,12 @@ import { UserAvatar } from './user-avatar'
 interface ConversationParticipant {
   __typename: 'HumanParticipant' | 'AssistantParticipant'
   id: string
-  name?: string | null
+  name: string
   userId?: string | null
   assistantId?: string | null
   user?: {
     avatarUrl?: string | null
+    username?: string | null
   } | null
   assistant?: {
     iconUrl?: string | null
@@ -46,7 +47,7 @@ export const ConversationParticipantsViewer = ({
 
     const search = userSearch.toLowerCase()
     return participants.filter((participant) => {
-      return participant.name?.toLowerCase().includes(search) || false
+      return participant.name.toLowerCase().includes(search)
     })
   }, [participants, userSearch, isSearchEnabled])
 
@@ -69,7 +70,7 @@ export const ConversationParticipantsViewer = ({
           {displayedParticipants.map((participant) => {
             const isParticipantOwner = participant.userId === ownerId
             const canRemove = participant.userId !== userId && isOwner && onRemoveParticipant
-            const displayName = participant.name || 'Unknown'
+            const displayName = participant.name
 
             return (
               <div
@@ -82,7 +83,7 @@ export const ConversationParticipantsViewer = ({
                       <AssistantIcon
                         assistant={{
                           id: participant.assistantId!,
-                          name: participant.name || 'Unknown Assistant',
+                          name: participant.name,
                           description: null,
                           iconUrl: participant.assistant?.iconUrl || null,
                           updatedAt: participant.assistant?.updatedAt || '',
@@ -96,8 +97,8 @@ export const ConversationParticipantsViewer = ({
                       user={{
                         id: participant.userId || '',
                         avatarUrl: participant.user?.avatarUrl || null,
-                        name: participant.name || '',
-                        username: participant.name || '',
+                        name: participant.name,
+                        username: participant.user?.username || '',
                       }}
                       className="size-6 flex-none"
                     />
