@@ -20,11 +20,17 @@ async function dropFileById(fileId: string) {
     return file
   } catch (error) {
     dropError = error instanceof Error ? error.message : String(error)
-    const updatedFile = await prisma.aiLibraryFile.update({
-      where: { id: file.id },
-      data: { dropError },
-    })
-    return updatedFile
+    console.error(`Error dropping file ${fileId}:`, dropError)
+    try {
+      // goes possibly wrong if file record was already deleted above
+      await prisma.aiLibraryFile.update({
+        where: { id: file.id },
+        data: { dropError },
+      })
+    } catch (updateError) {
+      console.error(`Error updating file drop error for ${fileId}:`, updateError)
+    }
+    return { ...file, dropError }
   }
 }
 

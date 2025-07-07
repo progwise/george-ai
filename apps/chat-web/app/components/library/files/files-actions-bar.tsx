@@ -25,7 +25,7 @@ export const FilesActionsBar = ({
   checkedFileIds,
   setCheckedFileIds,
 }: FilesActionsBarProps) => {
-  const { t } = useTranslation()
+  const { t, tx } = useTranslation()
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
     mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
@@ -34,7 +34,8 @@ export const FilesActionsBar = ({
       tableDataChanged()
     },
     onError: (error) => {
-      const errorMessage = error instanceof Error ? error.message : t('errors.reprocessFilesError')
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {
@@ -47,13 +48,31 @@ export const FilesActionsBar = ({
       if (errorFiles.length > 0) {
         const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
         toastError(
-          t('errors.reprocessFilesError', { count: errorFileNames.length, files: errorFileNames.join(', \n') }),
+          tx('errors.reprocessFiles', {
+            count: errorFileNames.length,
+            files: (
+              <ul>
+                {errorFileNames.map((fileName) => (
+                  <li key={fileName}>{fileName}</li>
+                ))}
+              </ul>
+            ),
+          }),
         )
       }
       if (successFiles.length > 0) {
         const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
         toastSuccess(
-          t('actions.reprocessSuccess', { count: successFileNames.length, files: successFileNames.join(', \n') }),
+          tx('actions.reprocessSuccess', {
+            count: successFileNames.length,
+            files: (
+              <ul>
+                {successFileNames.map((fileName) => (
+                  <li key={fileName}>{fileName}</li>
+                ))}
+              </ul>
+            ),
+          }),
         )
       }
     },
