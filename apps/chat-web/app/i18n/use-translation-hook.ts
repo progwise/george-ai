@@ -23,15 +23,10 @@ const getTranslatedString = (key: string, language: Language, values?: Record<st
     let remainingText = translatedText
 
     availablePlaceholders.forEach((placeholder) => {
-      const valueParts = remainingText.split(`{${placeholder}}`)
-      stringList.push(valueParts[0])
-      if (typeof values[placeholder] === 'string' || typeof values[placeholder] === 'number') {
-        stringList.push(values[placeholder].toString())
-      } else if (typeof values[placeholder] === 'object') {
-        const value = values[placeholder] as string
-        return stringList.push(value)
-      }
-      remainingText = valueParts[1] || ''
+      const [before, after] = remainingText.split(`{${placeholder}}`)
+      stringList.push(before)
+      stringList.push(values[placeholder].toString())
+      remainingText = after || ''
     })
 
     if (remainingText) {
