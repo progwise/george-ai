@@ -38,6 +38,11 @@ export const processFile = async (fileId: string) => {
       },
     })
   } catch (error) {
+    const file = await prisma.aiLibraryFile.findFirst({ where: { id: fileId } })
+    if (!file) {
+      console.warn('File not found:', fileId)
+      throw new Error(`File not found: ${fileId}`)
+    }
     await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {

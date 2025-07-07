@@ -528,6 +528,7 @@ export type Mutation = {
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibrary?: Maybe<AiLibrary>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  deleteAiLibraryUpdate: Array<AiLibraryUpdate>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
@@ -654,6 +655,10 @@ export type MutationDeleteAiLibraryArgs = {
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationDeleteAiLibraryUpdateArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationDeleteMessageArgs = {
@@ -2002,6 +2007,21 @@ export type DropFileMutationVariables = Exact<{
 export type DropFileMutation = {
   __typename?: 'Mutation'
   dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
+}
+
+export type ClearEmbeddedFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type ClearEmbeddedFilesMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
+
+export type DeleteAiLibraryUpdateMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type DeleteAiLibraryUpdateMutation = {
+  __typename?: 'Mutation'
+  deleteAiLibraryUpdate: Array<{ __typename?: 'AiLibraryUpdate'; id: string }>
 }
 
 export type ReprocessFileMutationVariables = Exact<{
@@ -7755,6 +7775,76 @@ export const DropFileDocument = {
     },
   ],
 } as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
+export const ClearEmbeddedFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'clearEmbeddedFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ClearEmbeddedFilesMutation, ClearEmbeddedFilesMutationVariables>
+export const DeleteAiLibraryUpdateDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteAiLibraryUpdate' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibraryUpdate' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAiLibraryUpdateMutation, DeleteAiLibraryUpdateMutationVariables>
 export const ReprocessFileDocument = {
   kind: 'Document',
   definitions: [

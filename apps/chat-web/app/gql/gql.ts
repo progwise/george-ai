@@ -71,6 +71,8 @@ type Documents = {
   '\n  fragment UpdateCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n': typeof types.UpdateCrawlerButton_CrawlerFragmentDoc
   '\n        mutation updateAiLibraryCrawler($id: String!, $data: AiLibraryCrawlerInput!) {\n          updateAiLibraryCrawler(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAiLibraryCrawlerDocument
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ': typeof types.DropFileDocument
+  '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ': typeof types.ClearEmbeddedFilesDocument
+  '\n        mutation deleteAiLibraryUpdate($libraryId: String!) {\n          deleteAiLibraryUpdate(libraryId: $libraryId) {\n            id\n          }\n        }\n      ': typeof types.DeleteAiLibraryUpdateDocument
   '\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ': typeof types.ReprocessFileDocument
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!) {\n          cancelFileUpload(fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
@@ -234,6 +236,10 @@ const documents: Documents = {
     types.UpdateAiLibraryCrawlerDocument,
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ':
     types.DropFileDocument,
+  '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ':
+    types.ClearEmbeddedFilesDocument,
+  '\n        mutation deleteAiLibraryUpdate($libraryId: String!) {\n          deleteAiLibraryUpdate(libraryId: $libraryId) {\n            id\n          }\n        }\n      ':
+    types.DeleteAiLibraryUpdateDocument,
   '\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ':
     types.ReprocessFileDocument,
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
@@ -684,6 +690,18 @@ export function graphql(
 export function graphql(
   source: '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ',
 ): (typeof documents)['\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ',
+): (typeof documents)['\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation deleteAiLibraryUpdate($libraryId: String!) {\n          deleteAiLibraryUpdate(libraryId: $libraryId) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation deleteAiLibraryUpdate($libraryId: String!) {\n          deleteAiLibraryUpdate(libraryId: $libraryId) {\n            id\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
