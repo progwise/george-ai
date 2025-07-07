@@ -52,7 +52,7 @@ export const FilesTable = ({
     },
     onSuccess: (data) => {
       if (data.length < 1) {
-        toastError(t('errors.dropFileError', { error: 'no Files dropped' }))
+        toastError(t('errors.dropFiles', { count: 0, error: 'no Files dropped' }))
         return
       }
       const droppedFile = data[0].dropFile

@@ -161,7 +161,6 @@ export default {
     businessAndPositionRequired: 'Business and Position are required.',
     copyFailed: 'Copy failed',
     deleteMessage: 'Failed to delete message',
-    dropFileError: 'An error occurred while dropping the file.',
     dropFile: 'An error occurred while dropping the file: {error}.',
     dropFiles: 'An error occurred while dropping {count} files. {error}.',
     emailRequired: 'Email address is required',

@@ -168,7 +168,7 @@ export default {
     copyFailed: 'Kopieren fehlgeschlagen',
     deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     dropFile: 'Fehler beim Löschen der Datei: {error}.',
-    dropFilesError: 'Dateien konnten nicht entfernt werden. Bitte versuchen Sie es später erneut.',
+    dropFiles: 'Fehler beim Entfernen von {count} Dateien: {error}.',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
