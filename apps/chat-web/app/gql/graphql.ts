@@ -312,6 +312,7 @@ export type AiLibraryFile = {
   processingErrorMessage?: Maybe<Scalars['String']['output']>
   processingStartedAt?: Maybe<Scalars['DateTime']['output']>
   size?: Maybe<Scalars['Int']['output']>
+  status?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -366,6 +367,15 @@ export type AiLibraryQueryResult = {
   query: Scalars['String']['output']
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
+}
+
+/** Query result for AI library files */
+export type AiLibraryUnprocessedFilesQueryResult = {
+  __typename?: 'AiLibraryUnprocessedFilesQueryResult'
+  count: Scalars['Int']['output']
+  files: Array<AiLibraryFile>
+  library: AiLibrary
+  libraryId: Scalars['String']['output']
 }
 
 export type AiLibraryUpdate = {
@@ -787,6 +797,7 @@ export type Query = {
   aiLibraries: Array<AiLibrary>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles: AiLibraryFileQueryResult
+  aiLibraryUnprocessedFiles: AiLibraryUnprocessedFilesQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiModels: Array<AiModel>
@@ -822,6 +833,10 @@ export type QueryAiLibraryFilesArgs = {
   libraryId: Scalars['String']['input']
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
+}
+
+export type QueryAiLibraryUnprocessedFilesArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryAiLibraryUpdatesArgs = {
@@ -2060,6 +2075,20 @@ export type EmbeddingsTableQuery = {
       processingErrorMessage?: string | null
       dropError?: string | null
     }>
+  }
+}
+
+export type AiLibraryUnprocessedQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type AiLibraryUnprocessedQuery = {
+  __typename?: 'Query'
+  aiLibraryUnprocessedFiles: {
+    __typename?: 'AiLibraryUnprocessedFilesQueryResult'
+    libraryId: string
+    count: number
+    files: Array<{ __typename?: 'AiLibraryFile'; id: string; status?: string | null }>
   }
 }
 
@@ -7927,6 +7956,57 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+export const AiLibraryUnprocessedDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiLibraryUnprocessed' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryUnprocessedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'files' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiLibraryUnprocessedQuery, AiLibraryUnprocessedQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [

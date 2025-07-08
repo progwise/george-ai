@@ -46,3 +46,38 @@ export const aiLibraryFilesQueryOptions = (params: { libraryId: string; skip: nu
         data: { libraryId: params.libraryId, skip: params.skip, take: params.take },
       }),
   })
+
+const getUnprocessedFiles = createServerFn({ method: 'GET' })
+  .validator((data: object) =>
+    z
+      .object({
+        libraryId: z.string().nonempty(),
+      })
+      .parse(data),
+  )
+  .handler(async (ctx) => {
+    return await backendRequest(
+      graphql(`
+        query aiLibraryUnprocessed($libraryId: String!) {
+          aiLibraryUnprocessedFiles(libraryId: $libraryId) {
+            libraryId
+            count
+            files {
+              id
+              status
+            }
+          }
+        }
+      `),
+      { ...ctx.data },
+    )
+  })
+
+export const aiLibraryUnprocessed = (params: { libraryId: string }) =>
+  queryOptions({
+    queryKey: [queryKeys.AiLibraryFiles, params.libraryId, 'files'],
+    queryFn: async () =>
+      getUnprocessedFiles({
+        data: { libraryId: params.libraryId },
+      }),
+  })

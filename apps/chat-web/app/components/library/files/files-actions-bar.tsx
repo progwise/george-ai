@@ -7,6 +7,7 @@ import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
+import { ProcessUnprocessedDialog } from './process-all-unprocessed'
 
 interface FilesActionsBarProps {
   libraryId: string
@@ -108,6 +109,14 @@ export const FilesActionsBar = ({
         >
           {t('actions.reprocess')}
         </button>
+
+        <ProcessUnprocessedDialog
+          libraryId={libraryId}
+          disabled={false}
+          unprocessedFileIds={[]}
+          tableDataChanged={tableDataChanged}
+          setCheckedFileIds={setCheckedFileIds}
+        />
       </div>
       <div className="text-right text-sm">
         <div className="font-semibold">{t('labels.remainingStorage')}</div>

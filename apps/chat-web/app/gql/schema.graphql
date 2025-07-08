@@ -283,6 +283,7 @@ type AiLibraryFile {
   processingErrorMessage: String
   processingStartedAt: DateTime
   size: Int
+  status: String
   updatedAt: DateTime
   uploadedAt: DateTime
 }
@@ -335,6 +336,16 @@ type AiLibraryQueryResult {
   query: String!
   skip: Int!
   take: Int!
+}
+
+"""
+Query result for AI library files
+"""
+type AiLibraryUnprocessedFilesQueryResult {
+  count: Int!
+  files: [AiLibraryFile!]!
+  library: AiLibrary!
+  libraryId: String!
 }
 
 type AiLibraryUpdate {
@@ -542,6 +553,7 @@ type Query {
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
+  aiLibraryUnprocessedFiles(libraryId: String!): AiLibraryUnprocessedFilesQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!
