@@ -18,7 +18,7 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { isPending, ...dropFilesMutation } = useMutation({
+  const { mutate: dropFilesMutate, isPending } = useMutation({
     mutationFn: async (fileIds: string[]) => {
       await dropFiles({ data: fileIds })
     },
@@ -55,7 +55,7 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
         ref={dialogRef}
         title={t('libraries.dropFilesDialog')}
         description={t('texts.dropFilesDialogDescription')}
-        onSubmit={() => dropFilesMutation.mutate(checkedFileIds)}
+        onSubmit={() => dropFilesMutate(checkedFileIds)}
         submitButtonText={textOfDropButton}
       >
         <div className="w-full">

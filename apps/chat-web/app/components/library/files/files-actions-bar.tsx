@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
+import { LoadingSpinner } from '../../loading-spinner'
 import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
@@ -25,31 +26,67 @@ export const FilesActionsBar = ({
   checkedFileIds,
   setCheckedFileIds,
 }: FilesActionsBarProps) => {
-  const { t } = useTranslation()
+  const { t, tx } = useTranslation()
 
-  const reprocessFilesMutation = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await reprocessFiles({ data: fileIds })
-    },
+  const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
+    mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
     onSettled: () => {
       setCheckedFileIds([])
       tableDataChanged()
     },
-    onError: () => {
-      toastError(t('errors.reprocessFileError'))
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
     },
-    onSuccess: () => {
-      toastSuccess(`${checkedFileIds.length} ${t('actions.reprocessSuccess')}`)
+    onSuccess: (data) => {
+      const errorFiles = data.filter(
+        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
+      )
+      const successFiles = data.filter(
+        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
+      )
+      if (errorFiles.length > 0) {
+        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastError(
+          tx('errors.reprocessFiles', {
+            count: errorFileNames.length,
+            files: (
+              <ul>
+                {errorFileNames.map((fileName) => (
+                  <li key={fileName}>{fileName}</li>
+                ))}
+              </ul>
+            ),
+          }),
+        )
+      }
+      if (successFiles.length > 0) {
+        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastSuccess(
+          tx('actions.reprocessSuccess', {
+            count: successFileNames.length,
+            files: (
+              <ul>
+                {successFileNames.map((fileName) => (
+                  <li key={fileName}>{fileName}</li>
+                ))}
+              </ul>
+            ),
+          }),
+        )
+      }
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    reprocessFilesMutation.mutate(uploadedFileIds)
+    reprocessFilesMutate(uploadedFileIds)
   }
 
   const remainingStorage = availableStorage - usedStorage
 
   return (
     <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <LoadingSpinner isLoading={reprocessFilesPending} />
       <div className="flex flex-wrap items-center gap-2">
         <DesktopFileUpload
           libraryId={libraryId}
@@ -76,7 +113,7 @@ export const FilesActionsBar = ({
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => reprocessFilesMutation.mutate(checkedFileIds)}
+          onClick={() => reprocessFilesMutate(checkedFileIds)}
           disabled={checkedFileIds.length === 0}
         >
           {t('actions.reprocess')}

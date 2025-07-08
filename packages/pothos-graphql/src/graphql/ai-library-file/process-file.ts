@@ -8,7 +8,7 @@ export const processFile = async (fileId: string) => {
     where: { id: fileId },
   })
   if (!file) {
-    throw new Error(`File not found: ${fileId}`)
+    throw new Error(`File not found in database: ${fileId}`)
   }
 
   await prisma.aiLibraryFile.update({
@@ -43,13 +43,12 @@ export const processFile = async (fileId: string) => {
       console.warn('File not found:', fileId)
       throw new Error(`File not found: ${fileId}`)
     }
-    await prisma.aiLibraryFile.update({
+    return await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
         processingErrorAt: new Date(),
         processingErrorMessage: (error as Error).message,
       },
     })
-    throw error
   }
 }
