@@ -1,3 +1,7 @@
+import fs from 'node:fs'
+
+import { getUploadFilePath } from '@george-ai/file-management'
+
 import { prisma } from '../../prisma'
 import { processFile } from '../ai-library-file/process-file'
 import { crawl } from './crawl-client'
@@ -111,8 +115,8 @@ const startCrawling = async (
           update: fileUpdateData,
         })
 
-        // await fs.writeFile(getFilePath(file.id, file.name), markdown)
-        // await completeFileUpload(file.id)
+        const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId: crawler.libraryId })
+        fs.writeFileSync(uploadedFilePath, markdown)
         await processFile(file.id)
         crawledPages.push({ ...crawledPage, url: metaData.url, markdown, metaData: crawledPage.metaData, error: null })
         await prisma.aiLibraryUpdate.create({

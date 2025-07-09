@@ -45,13 +45,13 @@ export const LibraryQueryResult = ({ hits, offset, searchTerm, hitCount }: Libra
                 )}
               </div>
             </div>
-            <p className="list-col-wrap text-xs">
+            <div className="list-col-wrap text-xs">
               {(() => {
                 const highlight = hit.highlights.find((h) => h.field === 'text')
                 const text = highlight?.snippet ? `...${highlight?.snippet}...` : hit.pageContent
                 return <FormattedMarkdown markdown={text} className="text-xs font-normal" />
               })()}
-            </p>
+            </div>
             <button type="button" className="btn btn-square btn-ghost">
               <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor">

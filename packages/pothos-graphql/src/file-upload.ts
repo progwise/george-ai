@@ -1,6 +1,7 @@
 import fs from 'fs'
 
 import { transformToMarkdown } from '@george-ai/file-converter'
+import { getFileDir, getMarkdownFilePath, getUploadFilePath } from '@george-ai/file-management'
 import { dropFileFromVectorstore } from '@george-ai/langchain-chat'
 
 import { prisma } from './prisma'
@@ -12,42 +13,6 @@ export const getFileInfo = async (fileId: string) => {
   return fileInfo
 }
 
-export const getUploadsDir = () => {
-  const dir = process.env.UPLOADS_PATH || './uploads'
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
-  }
-  return dir
-}
-
-export const getLibraryDir = (libraryId: string) => {
-  const uploadsDir = getUploadsDir()
-  const libraryDir = `${uploadsDir}/${libraryId}`
-  if (!fs.existsSync(libraryDir)) {
-    fs.mkdirSync(libraryDir, { recursive: true })
-  }
-  return libraryDir
-}
-
-export const getFileDir = ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
-  const libraryDir = getLibraryDir(libraryId)
-  const fileDir = `${libraryDir}/${fileId}`
-  if (!fs.existsSync(fileDir)) {
-    fs.mkdirSync(fileDir, { recursive: true })
-  }
-  return fileDir
-}
-
-export const getUploadFilePAth = ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
-  const fileDir = getFileDir({ fileId, libraryId })
-  return `${fileDir}/upload`
-}
-
-export const getMarkdownFilePath = ({ fileId, libraryId }: { fileId: string; libraryId: string }) => {
-  const fileDir = getFileDir({ fileId, libraryId })
-  return `${fileDir}/converted.md`
-}
-
 export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile }: { removeUploadFile: boolean }) => {
   const fileRecord = await getFileInfo(fileId)
   if (!fileRecord) {
@@ -57,8 +22,8 @@ export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile
     throw new Error(`File record ${fileId} is missing original name or mimeType.`)
   }
 
-  const fileDir = getFileDir({ fileId: fileRecord.id, libraryId: fileRecord.libraryId })
-  const uploadFilePath = getUploadFilePAth({ fileId: fileRecord.id, libraryId: fileRecord.libraryId })
+  const markdownFilePath = getMarkdownFilePath({ fileId: fileRecord.id, libraryId: fileRecord.libraryId })
+  const uploadFilePath = getUploadFilePath({ fileId: fileRecord.id, libraryId: fileRecord.libraryId })
 
   if (!fs.existsSync(uploadFilePath)) {
     throw new Error(`Uploaded file not found: ${uploadFilePath}`)
@@ -70,11 +35,11 @@ export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile
     path: uploadFilePath,
   })
 
-  await fs.promises.writeFile(`${fileDir}/converted.md`, markdownContent, {
+  await fs.promises.writeFile(markdownFilePath, markdownContent, {
     encoding: 'utf-8',
   })
   if (removeUploadFile) {
-    await fs.promises.rm(`${fileDir}/upload`, { force: true })
+    await fs.promises.rm(uploadFilePath, { force: true })
   }
 }
 

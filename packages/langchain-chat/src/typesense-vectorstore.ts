@@ -1,12 +1,13 @@
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { loadFile } from './langchain-file'
-import { calculateChunkParams } from './vectorstore-settings'
+import { getMarkdownFilePath } from '@george-ai/file-management'
+
+import { splitMarkdown } from './split-markdown'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -126,23 +127,57 @@ export const embedFile = async (
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
-  let fileParts = await loadFile(file)
-  if (fileParts.length === 0 && file.mimeType === 'application/pdf') {
-    fileParts = await loadFile(file, true) // Retry loading if no parts found
-  }
-  console.log(`File ${file.name} loaded with ${fileParts.length} parts.`)
-  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
+  // let fileParts = await loadFile(file)
+  // if (fileParts.length === 0 && file.mimeType === 'application/pdf') {
+  //   fileParts = await loadFile(file, true) // Retry loading if no parts found
+  // }
 
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize,
-    chunkOverlap,
-  })
+  const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId })
+  if (!fs.existsSync(markdownPath)) {
+    throw new Error(`Markdown file not found: ${markdownPath}`)
+  }
+  //const fileContent = fs.readFileSync(markdownPath)
+
+  // const splitter = new RecursiveCharacterTextSplitter({
+  //   chunkSize,
+  //   chunkOverlap,
+  // })
 
   await removeFileByName(libraryId, file.name)
 
-  const splitDocument = await splitter.splitDocuments(fileParts)
+  // const fileParts = [
+  //   {
+  //     pageContent: fileContent.toString(),
+  //     metadata: {
+  //       docType: 'markdown',
+  //       docName: file.name,
+  //       points: 1,
+  //       docId: file.id,
+  //       docPath: file.path,
+  //       originUri: file.originUri,
+  //     },
+  //   },
+  // ]
+  // const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
+  // const splitter = new RecursiveCharacterTextSplitter({
+  //   chunkSize, // Adjust chunk size as needed
+  //   chunkOverlap, // Adjust overlap as needed
+  // })
 
-  await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
+  // const splitDocument = await splitter.splitDocuments(fileParts)
+
+  const chunks = splitMarkdown(markdownPath, {
+    metadata: {
+      docType: 'markdown',
+      docName: file.name,
+      points: 1,
+      docId: file.id,
+      docPath: file.path,
+      originUri: file.originUri,
+    },
+  })
+
+  await Typesense.fromDocuments(chunks, embeddings, typesenseVectorStoreConfig)
 
   return {
     id: file.id,
@@ -150,8 +185,8 @@ export const embedFile = async (
     originUri: file.originUri,
     docPath: file.path,
     mimeType: file.mimeType,
-    chunks: splitDocument.length,
-    size: splitDocument.reduce((acc, part) => acc + part.pageContent.length, 0),
+    chunks: chunks.length,
+    size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
   }
 }
 

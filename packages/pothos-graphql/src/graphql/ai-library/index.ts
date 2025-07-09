@@ -7,7 +7,8 @@ import { builder } from '../builder'
 
 import './queryFiles'
 
-import { getLibraryDir } from '../../file-upload'
+import { getLibraryDir } from '@george-ai/file-management'
+
 import { canAccessLibrary } from './check-participation'
 
 console.log('Setting up: AiLibrary')

@@ -1,6 +1,7 @@
 import fs from 'fs'
 
-import { getMarkdownFilePath } from '../../file-upload'
+import { getMarkdownFilePath } from '@george-ai/file-management'
+
 import { builder } from '../builder'
 
 builder.queryField('readFileMarkdown', (t) =>

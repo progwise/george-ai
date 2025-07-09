@@ -1,0 +1,23 @@
+{
+  "name": "@george-ai/file-management",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "packageManager": "pnpm@9.15.4",
+  "author": "progwise.net",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^3.1.1"
+  }
+}

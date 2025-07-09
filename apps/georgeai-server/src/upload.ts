@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-import { convertUploadToMarkdown, getFileDir, getFileInfo } from '@george-ai/pothos-graphql'
+import { convertUploadToMarkdown, getFileDir, getFileInfo, getUploadFilePath } from '@george-ai/pothos-graphql'
 
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
@@ -43,8 +43,7 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return
   }
 
-  const fileDir = getFileDir({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
-  const uploadedFilePath = `${fileDir}/upload`
+  const uploadedFilePath = getUploadFilePath({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
 
   const filestream = fs.createWriteStream(uploadedFilePath, {
     flags: 'a',

@@ -34,12 +34,6 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
       case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
         content = await transformExcelToMarkdown(filePath)
         break
-
-      case 'text/plain':
-      case 'text/markdown':
-      case 'application/json':
-      case 'application/xml':
-      case 'application/javascript':
       case 'text/html':
         content = await transformHtmlToMarkdown(filePath)
         break

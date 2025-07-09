@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.800.0",
     "@george-ai/file-converter": "workspace:*",
+    "@george-ai/file-management": "workspace:*",
     "@langchain/community": "^0.3.16",
     "@langchain/core": "^0.3.42",
     "@langchain/google-genai": "^0.1.11",
