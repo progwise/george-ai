@@ -4,6 +4,7 @@ import { builder } from '../builder'
 
 import './process-file'
 import './read-file'
+import './file-chunks'
 
 console.log('Setting up: AiLibraryFile')
 

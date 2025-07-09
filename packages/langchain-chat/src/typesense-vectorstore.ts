@@ -35,6 +35,10 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
     { name: 'docId', type: 'string' },
     { name: 'docPath', type: 'string' },
     { name: 'originUri', type: 'string' },
+    { name: 'section', type: 'string' },
+    { name: 'headingPath', type: 'string' },
+    { name: 'chunkIndex', type: 'int32' },
+    { name: 'subChunkIndex', type: 'int32' },
   ],
   default_sorting_field: 'points',
 })
@@ -68,7 +72,18 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
-    metadataColumnNames: ['points', 'docName', 'docType', 'docId', 'docPath', 'originUri'],
+    metadataColumnNames: [
+      'points',
+      'docName',
+      'docType',
+      'docId',
+      'docPath',
+      'originUri',
+      'section',
+      'headingPath',
+      'chunkIndex',
+      'subChunkIndex',
+    ],
   },
 
   // Optional search parameters to be passed to Typesense when searching
@@ -136,35 +151,8 @@ export const embedFile = async (
   if (!fs.existsSync(markdownPath)) {
     throw new Error(`Markdown file not found: ${markdownPath}`)
   }
-  //const fileContent = fs.readFileSync(markdownPath)
-
-  // const splitter = new RecursiveCharacterTextSplitter({
-  //   chunkSize,
-  //   chunkOverlap,
-  // })
 
   await removeFileByName(libraryId, file.name)
-
-  // const fileParts = [
-  //   {
-  //     pageContent: fileContent.toString(),
-  //     metadata: {
-  //       docType: 'markdown',
-  //       docName: file.name,
-  //       points: 1,
-  //       docId: file.id,
-  //       docPath: file.path,
-  //       originUri: file.originUri,
-  //     },
-  //   },
-  // ]
-  // const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
-  // const splitter = new RecursiveCharacterTextSplitter({
-  //   chunkSize, // Adjust chunk size as needed
-  //   chunkOverlap, // Adjust overlap as needed
-  // })
-
-  // const splitDocument = await splitter.splitDocuments(fileParts)
 
   const chunks = splitMarkdown(markdownPath, {
     metadata: {
@@ -176,6 +164,8 @@ export const embedFile = async (
       originUri: file.originUri,
     },
   })
+
+  console.log('adding chunks', chunks)
 
   await Typesense.fromDocuments(chunks, embeddings, typesenseVectorStoreConfig)
 
@@ -291,6 +281,30 @@ export const queryVectorStore = async (
     hits,
     hitCount: searchResponse.results.map((result) => result.found || 0).reduce((prev, curr) => prev + curr, 0),
   }
+}
+
+export const getFileChunks = async ({ libraryId, fileId }: { libraryId: string; fileId: string }) => {
+  await ensureVectorStore(libraryId)
+  const collectionName = getTypesenseSchemaName(libraryId)
+  const documents = await vectorTypesenseClient
+    .collections(collectionName)
+    .documents()
+    .search({
+      q: '*',
+      filter_by: `docId:=${fileId}`,
+      sort_by: 'chunkIndex:asc',
+    })
+  if (!documents.hits || documents.hits.length === 0) {
+    return []
+  }
+  return documents.hits.map((hit: DocumentSchema) => ({
+    id: hit.document.id,
+    text: hit.document.text,
+    section: hit.document.section,
+    headingPath: hit.document.headingPath,
+    chunkIndex: hit.document.chunkIndex,
+    subChunkIndex: hit.document.subChunkIndex,
+  }))
 }
 
 // retrieves content from the vector store similar to the question

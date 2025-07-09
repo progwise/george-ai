@@ -37,8 +37,10 @@ import { Route as AuthenticatedLibrariesLibraryIdEditImport } from './routes/_au
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersImport } from './routes/_authenticated/libraries/$libraryId/crawlers'
 import { Route as AuthenticatedAdminUsersUserIdImport } from './routes/_authenticated/admin/users/$userId'
 import { Route as AuthenticatedLibrariesLibraryIdFilesIndexImport } from './routes/_authenticated/libraries/$libraryId/files/index'
-import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId'
 import { Route as AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport } from './routes/_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId'
+import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdRouteImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/route'
+import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdIndexImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/index'
+import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdChunksImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/chunks'
 
 // Create/Update Routes
 
@@ -215,13 +217,6 @@ const AuthenticatedLibrariesLibraryIdFilesIndexRoute =
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
 
-const AuthenticatedLibrariesLibraryIdFilesFileIdRoute =
-  AuthenticatedLibrariesLibraryIdFilesFileIdImport.update({
-    id: '/files/$fileId',
-    path: '/files/$fileId',
-    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
-  } as any)
-
 const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute =
   AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport.update(
     {
@@ -230,6 +225,27 @@ const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
       getParentRoute: () => AuthenticatedConversationsRouteRoute,
     } as any,
   )
+
+const AuthenticatedLibrariesLibraryIdFilesFileIdRouteRoute =
+  AuthenticatedLibrariesLibraryIdFilesFileIdRouteImport.update({
+    id: '/files/$fileId',
+    path: '/files/$fileId',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute =
+  AuthenticatedLibrariesLibraryIdFilesFileIdIndexImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdFilesFileIdRouteRoute,
+  } as any)
+
+const AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute =
+  AuthenticatedLibrariesLibraryIdFilesFileIdChunksImport.update({
+    id: '/chunks',
+    path: '/chunks',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdFilesFileIdRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -410,6 +426,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdIndexImport
       parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
     }
+    '/_authenticated/libraries/$libraryId/files/$fileId': {
+      id: '/_authenticated/libraries/$libraryId/files/$fileId'
+      path: '/files/$fileId'
+      fullPath: '/libraries/$libraryId/files/$fileId'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdRouteImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
     '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId': {
       id: '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
       path: '/$conversationId/confirm-invitation/$invitationId'
@@ -417,19 +440,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport
       parentRoute: typeof AuthenticatedConversationsRouteImport
     }
-    '/_authenticated/libraries/$libraryId/files/$fileId': {
-      id: '/_authenticated/libraries/$libraryId/files/$fileId'
-      path: '/files/$fileId'
-      fullPath: '/libraries/$libraryId/files/$fileId'
-      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdImport
-      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
-    }
     '/_authenticated/libraries/$libraryId/files/': {
       id: '/_authenticated/libraries/$libraryId/files/'
       path: '/files'
       fullPath: '/libraries/$libraryId/files'
       preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesIndexImport
       parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteImport
+    }
+    '/_authenticated/libraries/$libraryId/files/$fileId/chunks': {
+      id: '/_authenticated/libraries/$libraryId/files/$fileId/chunks'
+      path: '/chunks'
+      fullPath: '/libraries/$libraryId/files/$fileId/chunks'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdRouteImport
+    }
+    '/_authenticated/libraries/$libraryId/files/$fileId/': {
+      id: '/_authenticated/libraries/$libraryId/files/$fileId/'
+      path: '/'
+      fullPath: '/libraries/$libraryId/files/$fileId/'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdIndexImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdRouteImport
     }
   }
 }
@@ -474,13 +504,31 @@ const AuthenticatedConversationsRouteRouteWithChildren =
     AuthenticatedConversationsRouteRouteChildren,
   )
 
+interface AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteChildren {
+  AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute
+}
+
+const AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteChildren: AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteChildren =
+  {
+    AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute:
+      AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute,
+    AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute:
+      AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute,
+  }
+
+const AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteWithChildren =
+  AuthenticatedLibrariesLibraryIdFilesFileIdRouteRoute._addFileChildren(
+    AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteChildren,
+  )
+
 interface AuthenticatedLibrariesLibraryIdRouteRouteChildren {
   AuthenticatedLibrariesLibraryIdCrawlersRoute: typeof AuthenticatedLibrariesLibraryIdCrawlersRoute
   AuthenticatedLibrariesLibraryIdEditRoute: typeof AuthenticatedLibrariesLibraryIdEditRoute
   AuthenticatedLibrariesLibraryIdQueryRoute: typeof AuthenticatedLibrariesLibraryIdQueryRoute
   AuthenticatedLibrariesLibraryIdUpdatesRoute: typeof AuthenticatedLibrariesLibraryIdUpdatesRoute
   AuthenticatedLibrariesLibraryIdIndexRoute: typeof AuthenticatedLibrariesLibraryIdIndexRoute
-  AuthenticatedLibrariesLibraryIdFilesFileIdRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdRoute
+  AuthenticatedLibrariesLibraryIdFilesFileIdRouteRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteWithChildren
   AuthenticatedLibrariesLibraryIdFilesIndexRoute: typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
 }
 
@@ -496,8 +544,8 @@ const AuthenticatedLibrariesLibraryIdRouteRouteChildren: AuthenticatedLibrariesL
       AuthenticatedLibrariesLibraryIdUpdatesRoute,
     AuthenticatedLibrariesLibraryIdIndexRoute:
       AuthenticatedLibrariesLibraryIdIndexRoute,
-    AuthenticatedLibrariesLibraryIdFilesFileIdRoute:
-      AuthenticatedLibrariesLibraryIdFilesFileIdRoute,
+    AuthenticatedLibrariesLibraryIdFilesFileIdRouteRoute:
+      AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteWithChildren,
     AuthenticatedLibrariesLibraryIdFilesIndexRoute:
       AuthenticatedLibrariesLibraryIdFilesIndexRoute,
   }
@@ -567,9 +615,11 @@ export interface FileRoutesByFullPath {
   '/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
+  '/libraries/$libraryId/files/$fileId': typeof AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteWithChildren
   '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
-  '/libraries/$libraryId/files/$fileId': typeof AuthenticatedLibrariesLibraryIdFilesFileIdRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
+  '/libraries/$libraryId/files/$fileId/chunks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  '/libraries/$libraryId/files/$fileId/': typeof AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -596,8 +646,9 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdIndexRoute
   '/conversations/$conversationId/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
-  '/libraries/$libraryId/files/$fileId': typeof AuthenticatedLibrariesLibraryIdFilesFileIdRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
+  '/libraries/$libraryId/files/$fileId/chunks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  '/libraries/$libraryId/files/$fileId': typeof AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -627,9 +678,11 @@ export interface FileRoutesById {
   '/_authenticated/profile/$profileId/confirm': typeof AuthenticatedProfileProfileIdConfirmRoute
   '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
   '/_authenticated/libraries/$libraryId/': typeof AuthenticatedLibrariesLibraryIdIndexRoute
+  '/_authenticated/libraries/$libraryId/files/$fileId': typeof AuthenticatedLibrariesLibraryIdFilesFileIdRouteRouteWithChildren
   '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId': typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
-  '/_authenticated/libraries/$libraryId/files/$fileId': typeof AuthenticatedLibrariesLibraryIdFilesFileIdRoute
   '/_authenticated/libraries/$libraryId/files/': typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
+  '/_authenticated/libraries/$libraryId/files/$fileId/chunks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  '/_authenticated/libraries/$libraryId/files/$fileId/': typeof AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -660,9 +713,11 @@ export interface FileRouteTypes {
     | '/profile/$profileId/confirm'
     | '/admin/users'
     | '/libraries/$libraryId/'
-    | '/conversations/$conversationId/confirm-invitation/$invitationId'
     | '/libraries/$libraryId/files/$fileId'
+    | '/conversations/$conversationId/confirm-invitation/$invitationId'
     | '/libraries/$libraryId/files'
+    | '/libraries/$libraryId/files/$fileId/chunks'
+    | '/libraries/$libraryId/files/$fileId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -688,8 +743,9 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/libraries/$libraryId'
     | '/conversations/$conversationId/confirm-invitation/$invitationId'
-    | '/libraries/$libraryId/files/$fileId'
     | '/libraries/$libraryId/files'
+    | '/libraries/$libraryId/files/$fileId/chunks'
+    | '/libraries/$libraryId/files/$fileId'
   id:
     | '__root__'
     | '/'
@@ -717,9 +773,11 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/$profileId/confirm'
     | '/_authenticated/admin/users/'
     | '/_authenticated/libraries/$libraryId/'
-    | '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
     | '/_authenticated/libraries/$libraryId/files/$fileId'
+    | '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
     | '/_authenticated/libraries/$libraryId/files/'
+    | '/_authenticated/libraries/$libraryId/files/$fileId/chunks'
+    | '/_authenticated/libraries/$libraryId/files/$fileId/'
   fileRoutesById: FileRoutesById
 }
 
@@ -882,17 +940,29 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/libraries/$libraryId/index.tsx",
       "parent": "/_authenticated/libraries/$libraryId"
     },
+    "/_authenticated/libraries/$libraryId/files/$fileId": {
+      "filePath": "_authenticated/libraries/$libraryId/files/$fileId/route.tsx",
+      "parent": "/_authenticated/libraries/$libraryId",
+      "children": [
+        "/_authenticated/libraries/$libraryId/files/$fileId/chunks",
+        "/_authenticated/libraries/$libraryId/files/$fileId/"
+      ]
+    },
     "/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId": {
       "filePath": "_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId.tsx",
       "parent": "/_authenticated/conversations"
     },
-    "/_authenticated/libraries/$libraryId/files/$fileId": {
-      "filePath": "_authenticated/libraries/$libraryId/files/$fileId.tsx",
-      "parent": "/_authenticated/libraries/$libraryId"
-    },
     "/_authenticated/libraries/$libraryId/files/": {
       "filePath": "_authenticated/libraries/$libraryId/files/index.tsx",
       "parent": "/_authenticated/libraries/$libraryId"
+    },
+    "/_authenticated/libraries/$libraryId/files/$fileId/chunks": {
+      "filePath": "_authenticated/libraries/$libraryId/files/$fileId/chunks.tsx",
+      "parent": "/_authenticated/libraries/$libraryId/files/$fileId"
+    },
+    "/_authenticated/libraries/$libraryId/files/$fileId/": {
+      "filePath": "_authenticated/libraries/$libraryId/files/$fileId/index.tsx",
+      "parent": "/_authenticated/libraries/$libraryId/files/$fileId"
     }
   }
 }

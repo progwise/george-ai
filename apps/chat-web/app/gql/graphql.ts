@@ -452,6 +452,16 @@ export type ConversationInvitationInput = {
   email: Scalars['String']['input']
 }
 
+export type FileChunk = {
+  __typename?: 'FileChunk'
+  chunkIndex: Scalars['Int']['output']
+  headingPath: Scalars['String']['output']
+  id: Scalars['String']['output']
+  section: Scalars['String']['output']
+  subChunkIndex: Scalars['Int']['output']
+  text: Scalars['String']['output']
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
@@ -793,6 +803,7 @@ export type Query = {
   aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
+  readFileChunks: Array<FileChunk>
   readFileMarkdown: Scalars['String']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
@@ -850,6 +861,11 @@ export type QueryQueryAiLibraryFilesArgs = {
   query: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryReadFileChunksArgs = {
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryReadFileMarkdownArgs = {
@@ -2039,6 +2055,24 @@ export type AiLibraryFile_TableItemFragment = {
   processedAt?: string | null
   processingErrorMessage?: string | null
   dropError?: string | null
+}
+
+export type GetFileChunksQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type GetFileChunksQuery = {
+  __typename?: 'Query'
+  readFileChunks: Array<{
+    __typename?: 'FileChunk'
+    id: string
+    text: string
+    section: string
+    headingPath: string
+    chunkIndex: number
+    subChunkIndex: number
+  }>
 }
 
 export type GetFileContentQueryVariables = Exact<{
@@ -7855,6 +7889,60 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
+export const GetFileChunksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileChunks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'readFileChunks' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'text' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'section' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'headingPath' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunkIndex' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'subChunkIndex' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileChunksQuery, GetFileChunksQueryVariables>
 export const GetFileContentDocument = {
   kind: 'Document',
   definitions: [

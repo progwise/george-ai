@@ -41,6 +41,7 @@ export const splitMarkdown = (
             section: section.heading,
             headingPath: section.headingPath,
             chunkIndex: documents.length,
+            subChunkIndex: 0,
           },
         }),
       )

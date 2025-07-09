@@ -75,6 +75,7 @@ type Documents = {
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ': typeof types.CancelFileUploadDocument
   '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n': typeof types.AiLibraryFile_TableItemFragmentDoc
+  '\n        query getFileChunks($fileId: String!, $libraryId: String!) {\n          readFileChunks(fileId: $fileId, libraryId: $libraryId) {\n            id\n            text\n            section\n            headingPath\n            chunkIndex\n            subChunkIndex\n          }\n        }\n      ': typeof types.GetFileChunksDocument
   '\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)\n          }\n        ': typeof types.GetFileContentDocument
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            count\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
@@ -242,6 +243,8 @@ const documents: Documents = {
     types.CancelFileUploadDocument,
   '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n':
     types.AiLibraryFile_TableItemFragmentDoc,
+  '\n        query getFileChunks($fileId: String!, $libraryId: String!) {\n          readFileChunks(fileId: $fileId, libraryId: $libraryId) {\n            id\n            text\n            section\n            headingPath\n            chunkIndex\n            subChunkIndex\n          }\n        }\n      ':
+    types.GetFileChunksDocument,
   '\n          query getFileContent($fileId: String!, $libraryId: String!) {\n            readFileMarkdown(fileId: $fileId, libraryId: $libraryId)\n          }\n        ':
     types.GetFileContentDocument,
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            count\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ':
@@ -708,6 +711,12 @@ export function graphql(
 export function graphql(
   source: '\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n',
 ): (typeof documents)['\n  fragment AiLibraryFile_TableItem on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    chunks\n    uploadedAt\n    processedAt\n    processingErrorMessage\n    dropError\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query getFileChunks($fileId: String!, $libraryId: String!) {\n          readFileChunks(fileId: $fileId, libraryId: $libraryId) {\n            id\n            text\n            section\n            headingPath\n            chunkIndex\n            subChunkIndex\n          }\n        }\n      ',
+): (typeof documents)['\n        query getFileChunks($fileId: String!, $libraryId: String!) {\n          readFileChunks(fileId: $fileId, libraryId: $libraryId) {\n            id\n            text\n            section\n            headingPath\n            chunkIndex\n            subChunkIndex\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

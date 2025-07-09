@@ -434,6 +434,15 @@ scalar DateTime
 
 scalar Decimal
 
+type FileChunk {
+  chunkIndex: Int!
+  headingPath: String!
+  id: String!
+  section: String!
+  subChunkIndex: Int!
+  text: String!
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -547,6 +556,7 @@ type Query {
   aiModels: [AiModel!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
+  readFileChunks(fileId: String!, libraryId: String!): [FileChunk!]!
   readFileMarkdown(fileId: String!, libraryId: String!): String!
   user(email: String!): User
   userProfile: UserProfile
