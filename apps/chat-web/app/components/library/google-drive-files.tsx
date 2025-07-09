@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { useEffect, useState } from 'react'
@@ -6,7 +6,6 @@ import { z } from 'zod'
 
 import { getMimeTypeFromFileName } from '@george-ai/web-utils'
 
-import { getProfileQueryOptions } from '../../auth/get-profile-query'
 import { graphql } from '../../gql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -20,6 +19,7 @@ export interface GoogleDriveFilesProps {
   libraryId: string
   disabled: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
+  tableDataChanged: () => void
 }
 
 export const googleDriveResponseSchema = z.object({
@@ -143,8 +143,7 @@ const embedFiles = createServerFn({ method: 'GET' })
     }
   })
 
-export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDriveFilesProps) => {
-  const queryClient = useQueryClient()
+export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef, tableDataChanged }: GoogleDriveFilesProps) => {
   const { t } = useTranslation()
   const rawToken =
     typeof localStorage === 'undefined' ? '{}' : localStorage?.getItem('google_drive_access_token') || '{}'
@@ -176,11 +175,11 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
     onSuccess: () => {
       toastSuccess('Files embedded successfully')
       setSelectedFiles([])
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
-      queryClient.invalidateQueries({ queryKey: getProfileQueryOptions() })
+      tableDataChanged()
     },
     onError: (error) => {
       toastError(`Error embedding files: ${error.message}`)
+      tableDataChanged()
     },
   })
 
