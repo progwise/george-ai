@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-import { convertUploadToMarkdown, getFileDir, getFileInfo, getUploadFilePath } from '@george-ai/pothos-graphql'
+import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
+import { convertUploadToMarkdown, getFileInfo } from '@george-ai/pothos-graphql'
 
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {

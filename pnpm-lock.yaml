@@ -183,6 +183,9 @@ importers:
 
   apps/georgeai-server:
     dependencies:
+      '@george-ai/file-management':
+        specifier: workspace:*
+        version: link:../../packages/file-management
       '@george-ai/pothos-graphql':
         specifier: workspace:*
         version: link:../../packages/pothos-graphql

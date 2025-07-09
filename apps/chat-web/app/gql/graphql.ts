@@ -786,7 +786,7 @@ export type Query = {
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
   aiLibraries: Array<AiLibrary>
-  aiLibrary?: Maybe<AiLibrary>
+  aiLibrary: AiLibrary
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
@@ -1901,7 +1901,7 @@ export type CrawlerTableQueryVariables = Exact<{
 
 export type CrawlerTableQuery = {
   __typename?: 'Query'
-  aiLibrary?: {
+  aiLibrary: {
     __typename?: 'AiLibrary'
     crawlers: Array<{
       __typename?: 'AiLibraryCrawler'
@@ -1933,7 +1933,7 @@ export type CrawlerTableQuery = {
         sunday: boolean
       } | null
     }>
-  } | null
+  }
 }
 
 export type RunCrawlerButton_CrawlerFragment = { __typename?: 'AiLibraryCrawler'; id: string; isRunning: boolean }
@@ -2121,7 +2121,7 @@ export type AiLibraryDetailQueryVariables = Exact<{
 
 export type AiLibraryDetailQuery = {
   __typename?: 'Query'
-  aiLibrary?: {
+  aiLibrary: {
     __typename?: 'AiLibrary'
     ownerId: string
     filesCount: number
@@ -2132,7 +2132,7 @@ export type AiLibraryDetailQuery = {
     updatedAt: string
     participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
     owner: { __typename?: 'User'; name?: string | null }
-  } | null
+  }
 }
 
 export type PrepareFileMutationVariables = Exact<{

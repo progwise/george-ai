@@ -540,7 +540,7 @@ type Query {
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
-  aiLibrary(libraryId: String!): AiLibrary
+  aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!

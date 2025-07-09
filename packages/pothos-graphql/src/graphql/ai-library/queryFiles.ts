@@ -2,7 +2,7 @@ import { queryVectorStore } from '@george-ai/langchain-chat'
 
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { canAccessLibrary } from './check-participation'
+import { canAccessLibraryOrThrow } from './check-participation'
 
 const AiLibraryQueryHitHighlight = builder
   .objectRef<{ field: string; snippet?: string }>('AiLibraryQueryHitHighlight')
@@ -89,9 +89,7 @@ builder.queryField('queryAiLibraryFiles', (t) =>
       if (!library) {
         throw new Error(`Library with ID ${libraryId} not found`)
       }
-      if (!canAccessLibrary(context, library)) {
-        throw new Error(`You do not have access to library with ID ${libraryId}`)
-      }
+      canAccessLibraryOrThrow(context, library)
       const searchResults = await queryVectorStore(libraryId, query, {
         page: !skip ? 1 : 1 + skip / take,
         perPage: take || 20,

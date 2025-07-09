@@ -28,7 +28,7 @@ export const processFile = async (fileId: string) => {
   try {
     if (fs.existsSync(uploadFilePath)) {
       // re-generate markdown
-      convertUploadToMarkdown(file.id, { removeUploadFile: false })
+      await convertUploadToMarkdown(file.id, { removeUploadFile: false })
     }
     const embeddedFile = await embedFile(file.libraryId, {
       id: file.id,

@@ -49,8 +49,6 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
 
   const { t, language } = useTranslation()
 
-  console.log('CrawlerTable rendered for libraryId:', aiLibrary?.crawlers.length)
-
   return (
     <div className="flex flex-col gap-4">
       <div className="self-start">
