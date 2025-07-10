@@ -1,4 +1,5 @@
 import json
+import asyncio
 from crawl4ai import AsyncWebCrawler, CacheMode, CrawlerRunConfig
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.content_scraping_strategy import LXMLWebScrapingStrategy
@@ -11,7 +12,7 @@ md_generator = DefaultMarkdownGenerator(
 )
 
 
-async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int):
+async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int, stop_event: asyncio.Event = None):
     try:
         # Configure the crawl
         config = CrawlerRunConfig(
@@ -30,7 +31,17 @@ async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int):
             # Access individual results
             arunIterator = await crawler.arun(url, config=config, magic=True)
             while True:
-                result = await arunIterator.__anext__()
+                # Check if we should stop
+                if stop_event and stop_event.is_set():
+                    print(f"Stop event detected, halting crawl of {url}")
+                    break
+                    
+                try:
+                    result = await arunIterator.__anext__()
+                except StopAsyncIteration:
+                    print("Crawl iterator completed")
+                    break
+                    
                 try:
                     print(f"Start Processing crawler result")
                     yield "\n---BEGIN CRAWLER RESULT---\n"

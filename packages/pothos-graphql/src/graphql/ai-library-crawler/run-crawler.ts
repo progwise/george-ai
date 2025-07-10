@@ -89,6 +89,11 @@ const startCrawling = async (
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
     })) {
+      const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
+      if (crawlerRun.endedAt) {
+        console.warn(`crawler run ${newRun.id} was cancelled at ${crawlerRun.endedAt}`)
+        break
+      }
       if (crawledPage.error) {
         console.warn('Crawling error for page', crawledPage.url, ':', crawledPage.error)
         crawledPages.push({ ...crawledPage, url: crawledPage.url, error: crawledPage.error })

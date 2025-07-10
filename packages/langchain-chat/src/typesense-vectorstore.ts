@@ -2,7 +2,6 @@ import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/ty
 import { OpenAIEmbeddings } from '@langchain/openai'
 import fs from 'fs'
 import { Client } from 'typesense'
-import { CollectionUpdateSchema } from 'typesense/lib/Typesense/Collection'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
