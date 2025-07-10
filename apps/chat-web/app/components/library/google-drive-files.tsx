@@ -175,10 +175,11 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef, tableDataChan
     onSuccess: () => {
       toastSuccess('Files embedded successfully')
       setSelectedFiles([])
-      tableDataChanged()
     },
     onError: (error) => {
       toastError(`Error embedding files: ${error.message}`)
+    },
+    onSettled: () => {
       tableDataChanged()
     },
   })
