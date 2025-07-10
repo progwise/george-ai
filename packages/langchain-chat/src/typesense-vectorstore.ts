@@ -142,11 +142,6 @@ export const embedFile = async (
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
-  // let fileParts = await loadFile(file)
-  // if (fileParts.length === 0 && file.mimeType === 'application/pdf') {
-  //   fileParts = await loadFile(file, true) // Retry loading if no parts found
-  // }
-
   const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId })
   if (!fs.existsSync(markdownPath)) {
     throw new Error(`Markdown file not found: ${markdownPath}`)
@@ -154,18 +149,18 @@ export const embedFile = async (
 
   await removeFileByName(libraryId, file.name)
 
-  const chunks = splitMarkdown(markdownPath, {
+  const chunks = splitMarkdown(markdownPath).map((chunk) => ({
+    pageContent: chunk.pageContent,
     metadata: {
-      docType: 'markdown',
-      docName: file.name,
+      ...chunk.metadata,
       points: 1,
+      docName: file.name,
+      docType: file.mimeType,
       docId: file.id,
-      docPath: file.path,
+      docPath: markdownPath,
       originUri: file.originUri,
     },
-  })
-
-  console.log('adding chunks', chunks)
+  }))
 
   await Typesense.fromDocuments(chunks, embeddings, typesenseVectorStoreConfig)
 
@@ -298,12 +293,12 @@ export const getFileChunks = async ({ libraryId, fileId }: { libraryId: string; 
     return []
   }
   return documents.hits.map((hit: DocumentSchema) => ({
-    id: hit.document.id,
-    text: hit.document.text,
-    section: hit.document.section,
-    headingPath: hit.document.headingPath,
-    chunkIndex: hit.document.chunkIndex,
-    subChunkIndex: hit.document.subChunkIndex,
+    id: hit.document.id || 'no-id',
+    text: hit.document.text || 'no-txt',
+    section: hit.document.section || 'no-section',
+    headingPath: hit.document.headingPath || 'no-path',
+    chunkIndex: hit.document.chunkIndex || 0,
+    subChunkIndex: hit.document.subChunkIndex || 0,
   }))
 }
 

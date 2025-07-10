@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { FormattedMarkdown } from '../../../../../../components/formatted-markdown'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
+import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/chunks')({
   component: RouteComponent,
@@ -11,21 +12,31 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
       context.queryClient.ensureQueryData(
         getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
       ),
+      context.queryClient.ensureQueryData(
+        getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+      ),
     ])
   },
 })
 
 function RouteComponent() {
-  const { data } = useSuspenseQuery(
+  const { fileId, libraryId } = Route.useParams()
+  const {
+    data: { readFileChunks: chunks },
+  } = useSuspenseQuery(
     getFileChunksQueryOptions({
-      fileId: Route.useParams().fileId,
-      libraryId: Route.useParams().libraryId,
+      fileId,
+      libraryId,
     }),
   )
-  const chunks = data.readFileChunks
+  const {
+    data: { aiLibraryFile },
+  } = useSuspenseQuery(getFileInfoQueryOptions({ fileId, libraryId }))
   return (
     <div>
-      <h2 className="mb-4 text-2xl font-bold">{chunks.length} Chunks for file </h2>
+      <h2 className="mb-4 text-2xl font-bold">
+        {chunks.length} Chunks for file &quot;{aiLibraryFile.name}&quot;
+      </h2>
       <div className="flex flex-wrap gap-4">
         {chunks.map((chunk) => (
           <div key={chunk.id} className="card card-border bg-base-200 card-xs shadow-sm">

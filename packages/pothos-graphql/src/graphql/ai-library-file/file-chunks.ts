@@ -15,10 +15,10 @@ const FileChunk = builder
     fields: (t) => ({
       id: t.exposeString('id', { nullable: false }),
       text: t.exposeString('text', { nullable: false }),
-      section: t.exposeString('section', { nullable: true }),
-      headingPath: t.exposeString('headingPath', { nullable: true }),
-      chunkIndex: t.exposeInt('chunkIndex', { nullable: true }),
-      subChunkIndex: t.exposeInt('subChunkIndex', { nullable: true }),
+      section: t.exposeString('section', { nullable: false }),
+      headingPath: t.exposeString('headingPath', { nullable: false }),
+      chunkIndex: t.exposeInt('chunkIndex', { nullable: false }),
+      subChunkIndex: t.exposeInt('subChunkIndex', { nullable: false }),
     }),
   })
 

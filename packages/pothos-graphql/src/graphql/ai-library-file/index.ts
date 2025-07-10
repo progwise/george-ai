@@ -45,6 +45,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     name: t.exposeString('name', { nullable: false }),
     originUri: t.exposeString('originUri', { nullable: true }),
+    docPath: t.exposeString('docPath', { nullable: true }),
     mimeType: t.exposeString('mimeType', { nullable: false }),
     size: t.exposeInt('size', { nullable: true }),
     chunks: t.exposeInt('chunks', { nullable: true }),
@@ -166,6 +167,22 @@ const LibraryFileQueryResult = builder
     }),
   })
 
+builder.queryField('aiLibraryFile', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiLibraryFile',
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _parent, { libraryId, fileId }) => {
+      // TODO: Check access rights
+      const file = await prisma.aiLibraryFile.findFirstOrThrow({ where: { libraryId, id: fileId } })
+      return file
+    },
+  }),
+)
+
 builder.queryField('aiLibraryFiles', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: LibraryFileQueryResult,
@@ -217,9 +234,6 @@ builder.mutationField('dropFiles', (t) =>
         const droppedFile = await dropFileById(file.id)
         results.push(droppedFile)
       }
-
-      console.log(`Dropped files for library ${libraryId}:`, results)
-
       return results
     },
   }),

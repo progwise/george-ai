@@ -154,6 +154,7 @@ export default {
     maxDepth: 'Depth',
     maxPages: 'Pages',
     run: 'Crawl',
+    stop: 'Stop',
     update: 'Update crawler',
     url: 'URL',
     utcHint: 'UTC time',

@@ -160,6 +160,7 @@ export default {
     maxDepth: 'Tiefe',
     maxPages: 'Seiten',
     run: 'Crawler starten',
+    stop: 'Stop',
     update: 'Crawler aktualisieren',
     url: 'URL',
     utcHint: 'UTC-Zeitzone',

@@ -8,7 +8,7 @@ export const canAccessLibraryOrThrow = async (context: LoggedInContext, library:
     user.isAdmin ||
     library.ownerId === user.id ||
     (await prisma.aiLibraryParticipant.findFirst({ where: { libraryId: library.id, userId: user.id } })) != null
-  
+
   if (!isAuthorized) {
     throw new Error(`You do not have permission to access this library`)
   }

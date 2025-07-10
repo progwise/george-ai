@@ -1,18 +1,30 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
+import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId')({
   component: RouteComponent,
+  loader: async ({ context, params }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(
+        getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+      ),
+    ])
+  },
 })
 
 function RouteComponent() {
   const { t } = useTranslation()
   const params = Route.useParams()
   const { queryClient } = Route.useRouteContext()
+
+  const { data: fileInfo } = useSuspenseQuery(
+    getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+  )
 
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
     mutationFn: () => reprocessFiles({ data: [params.fileId] }),
@@ -24,6 +36,9 @@ function RouteComponent() {
   return (
     <>
       <div>
+        <pre>{JSON.stringify(fileInfo, null, 2)}</pre>
+      </div>
+      <div className="flex justify-between">
         <ul className="menu bg-base-200 lg:menu-horizontal rounded-box">
           <li>
             <Link

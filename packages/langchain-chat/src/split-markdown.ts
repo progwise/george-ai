@@ -3,23 +3,17 @@ import fs from 'node:fs'
 
 const MAX_CHUNK_SIZE = 4000 // Maximum characters per chunk for vectorstore
 
+interface ChunkMetadata {
+  section: string
+  headingPath: string
+  chunkIndex: number
+  subChunkIndex: number
+}
 /**
  * This splits a markdown file into multiple chunks based on the semantics of the markdown content.
  * It prioritizes splitting at heading boundaries to maintain context and tracks the heading hierarchy.
  */
-export const splitMarkdown = (
-  markdownFilePath: string,
-  options: {
-    metadata: {
-      docType: 'markdown'
-      docName: string
-      points: 1
-      docId: string
-      docPath: string
-      originUri: string
-    }
-  },
-): Document[] => {
+export const splitMarkdown = (markdownFilePath: string): Document<ChunkMetadata>[] => {
   const content = fs.readFileSync(markdownFilePath, 'utf-8')
 
   // Split content into sections based on headings
@@ -28,7 +22,7 @@ export const splitMarkdown = (
   console.log(`Split markdown ${markdownFilePath} into ${sections.length} sections.`)
 
   // Create documents from sections, respecting MAX_CHUNK_SIZE
-  const documents: Document[] = []
+  const documents: Document<ChunkMetadata>[] = []
 
   for (const section of sections) {
     if (section.content.length <= MAX_CHUNK_SIZE) {
@@ -37,7 +31,6 @@ export const splitMarkdown = (
         new Document({
           pageContent: section.content,
           metadata: {
-            ...options.metadata,
             section: section.heading,
             headingPath: section.headingPath,
             chunkIndex: documents.length,
@@ -53,7 +46,6 @@ export const splitMarkdown = (
           new Document({
             pageContent: chunk,
             metadata: {
-              ...options.metadata,
               section: section.heading,
               headingPath: section.headingPath,
               chunkIndex: documents.length,
@@ -65,6 +57,7 @@ export const splitMarkdown = (
     }
   }
 
+  console.log('documents', documents)
   return documents
 }
 

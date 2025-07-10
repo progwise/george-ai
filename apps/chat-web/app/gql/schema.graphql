@@ -271,6 +271,7 @@ type AiLibraryCrawlerRun {
 type AiLibraryFile {
   chunks: Int
   createdAt: DateTime!
+  docPath: String
   dropError: String
   id: ID!
   libraryId: String!
@@ -508,7 +509,7 @@ type Mutation {
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
-  deleteAiLibrary(id: String!): AiLibrary
+  deleteAiLibrary(id: String!): Boolean
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
@@ -529,6 +530,7 @@ type Mutation {
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
+  stopAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -550,6 +552,7 @@ type Query {
   aiConversations: [AiConversation!]!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
+  aiLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!

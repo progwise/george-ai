@@ -300,6 +300,7 @@ export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
+  docPath?: Maybe<Scalars['String']['output']>
   dropError?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   libraryId: Scalars['String']['output']
@@ -527,7 +528,7 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
-  deleteAiLibrary?: Maybe<AiLibrary>
+  deleteAiLibrary?: Maybe<Scalars['Boolean']['output']>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
@@ -548,6 +549,7 @@ export type Mutation = {
   runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
+  stopAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -737,6 +739,10 @@ export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
 }
 
+export type MutationStopAiLibraryCrawlerArgs = {
+  crawlerId: Scalars['String']['input']
+}
+
 export type MutationToggleAdminStatusArgs = {
   userId: Scalars['String']['input']
 }
@@ -797,6 +803,7 @@ export type Query = {
   aiConversations: Array<AiConversation>
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
+  aiLibraryFile: AiLibraryFile
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
@@ -828,6 +835,11 @@ export type QueryAiConversationMessagesArgs = {
 }
 
 export type QueryAiLibraryArgs = {
+  libraryId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryFileArgs = {
+  fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
 }
 
@@ -1967,6 +1979,19 @@ export type RunCrawlerMutation = {
   } | null
 }
 
+export type StopCrawlerMutationVariables = Exact<{
+  crawlerId: Scalars['String']['input']
+}>
+
+export type StopCrawlerMutation = {
+  __typename?: 'Mutation'
+  stopAiLibraryCrawler?: {
+    __typename?: 'AiLibraryCrawler'
+    id: string
+    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
+  } | null
+}
+
 export type UpdateCrawlerButton_CrawlerFragment = {
   __typename?: 'AiLibraryCrawler'
   id: string
@@ -2081,6 +2106,24 @@ export type GetFileContentQueryVariables = Exact<{
 }>
 
 export type GetFileContentQuery = { __typename?: 'Query'; readFileMarkdown: string }
+
+export type GetFileInfoQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type GetFileInfoQuery = {
+  __typename?: 'Query'
+  aiLibraryFile: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    originUri?: string | null
+    docPath?: string | null
+    mimeType: string
+    size?: number | null
+  }
+}
 
 export type EmbeddingsTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -2207,10 +2250,7 @@ export type DeleteAiLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type DeleteAiLibraryMutation = {
-  __typename?: 'Mutation'
-  deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
-}
+export type DeleteAiLibraryMutation = { __typename?: 'Mutation'; deleteAiLibrary?: boolean | null }
 
 export type CreateAiLibraryMutationVariables = Exact<{
   data: AiLibraryInput
@@ -7671,6 +7711,53 @@ export const RunCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<RunCrawlerMutation, RunCrawlerMutationVariables>
+export const StopCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'stopCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'stopAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastRun' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StopCrawlerMutation, StopCrawlerMutationVariables>
 export const UpdateAiLibraryCrawlerDocument = {
   kind: 'Document',
   definitions: [
@@ -7986,6 +8073,60 @@ export const GetFileContentDocument = {
     },
   ],
 } as unknown as DocumentNode<GetFileContentQuery, GetFileContentQueryVariables>
+export const GetFileInfoDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileInfo' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'docPath' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileInfoQuery, GetFileInfoQueryVariables>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [
@@ -8403,10 +8544,6 @@ export const DeleteAiLibraryDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
           },
         ],
       },

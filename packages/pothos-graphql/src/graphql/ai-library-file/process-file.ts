@@ -34,7 +34,7 @@ export const processFile = async (fileId: string) => {
       id: file.id,
       name: file.name,
       originUri: file.originUri!,
-      mimeType: 'text/markdown', // Use markdown mimetype for re-processing
+      mimeType: file.mimeType, // Use markdown mimetype for re-processing
       path: markdownFilePath,
     })
 
