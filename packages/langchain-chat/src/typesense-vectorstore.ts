@@ -2,6 +2,7 @@ import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/ty
 import { OpenAIEmbeddings } from '@langchain/openai'
 import fs from 'fs'
 import { Client } from 'typesense'
+import { CollectionUpdateSchema } from 'typesense/lib/Typesense/Collection'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
@@ -109,9 +110,18 @@ const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreCo
 
 export const ensureVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
-  const exists = await vectorTypesenseClient.collections(schemaName).exists()
-  if (!exists) {
+  const existingSchema = vectorTypesenseClient.collections(schemaName)
+  if (!(await existingSchema.exists())) {
     await vectorTypesenseClient.collections().create(getTypesenseSchema(libraryId))
+  } else {
+    const existingFieldNames = (await existingSchema.retrieve()).fields.map((field) => field.name)
+    const allFields = getTypesenseSchema(libraryId).fields
+
+    const missingFields = allFields.filter((field) => !existingFieldNames.some((name) => name === field.name))
+    if (missingFields.length < 1) {
+      return
+    }
+    await existingSchema.update({ fields: missingFields.map((field) => ({ ...field, optional: true })) })
   }
 }
 
@@ -288,6 +298,7 @@ export const getFileChunks = async ({ libraryId, fileId }: { libraryId: string; 
       q: '*',
       filter_by: `docId:=${fileId}`,
       sort_by: 'chunkIndex:asc',
+      per_page: 250,
     })
   if (!documents.hits || documents.hits.length === 0) {
     return []
