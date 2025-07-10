@@ -8,8 +8,7 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@kingsword/node-html-markdown": "^1.3.3",
@@ -24,7 +23,6 @@
     "@types/node": "^22.10.7",
     "eslint": "^9.17.0",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.0",
-    "vitest": "^3.1.1"
+    "typescript-eslint": "^8.18.0"
   }
 }

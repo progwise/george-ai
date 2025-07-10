@@ -12,10 +12,9 @@ interface RunOptions {
   runByCronJob?: boolean
 }
 
-export const stopCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions) => {
+export const stopCrawler = async ({ crawlerId }: RunOptions) => {
   const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
 
-  
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { crawlerId, endedAt: null } })
 
   await prisma.aiLibraryCrawlerRun.update({
