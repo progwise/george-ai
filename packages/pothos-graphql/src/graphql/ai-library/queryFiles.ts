@@ -89,7 +89,7 @@ builder.queryField('queryAiLibraryFiles', (t) =>
       if (!library) {
         throw new Error(`Library with ID ${libraryId} not found`)
       }
-      canAccessLibraryOrThrow(context, library)
+      await canAccessLibraryOrThrow(context, library)
       const searchResults = await queryVectorStore(libraryId, query, {
         page: !skip ? 1 : 1 + skip / take,
         perPage: take || 20,

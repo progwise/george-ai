@@ -57,7 +57,6 @@ export const splitMarkdown = (markdownFilePath: string): Document<ChunkMetadata>
     }
   }
 
-  console.log('documents', documents)
   return documents
 }
 

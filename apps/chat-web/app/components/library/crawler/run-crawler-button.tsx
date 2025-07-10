@@ -100,7 +100,7 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
     },
     onSettled: () => {
       queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
-      queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 200 }))
+      queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 20 }))
     },
   })
   const { t } = useTranslation()

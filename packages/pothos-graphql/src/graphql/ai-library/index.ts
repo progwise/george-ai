@@ -67,7 +67,7 @@ builder.queryField('aiLibrary', (t) =>
         ...query,
         where: { id: libraryId },
       })
-      canAccessLibraryOrThrow(context, {
+      await canAccessLibraryOrThrow(context, {
         id: library.id,
         ownerId: library.ownerId,
       })
@@ -171,7 +171,7 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
 
       const libraryPath = getLibraryDir(libraryId)
       if (fs.existsSync(libraryPath)) {
-        fs.rmSync(libraryPath, { recursive: true, force: true })
+        await fs.promises.rm(libraryPath, { recursive: true, force: true })
       }
       return true
     },
