@@ -1,17 +1,31 @@
 import { z } from 'zod'
-import { AiAssistantInput, AiBaseCaseInputType, AiConversationCreateInput, AiConversationMessageInput, AiLibraryCrawlerCronJobInput, AiLibraryCrawlerInput, AiLibraryFileInput, AiLibraryInput, ConversationInvitationInput, RetrievalFlow, UserInput, UserProfileInput } from './graphql'
+
+import {
+  AiAssistantInput,
+  AiBaseCaseInputType,
+  AiConversationCreateInput,
+  AiConversationMessageInput,
+  AiLibraryCrawlerCronJobInput,
+  AiLibraryCrawlerInput,
+  AiLibraryFileInput,
+  AiLibraryInput,
+  ConversationInvitationInput,
+  RetrievalFlow,
+  UserInput,
+  UserProfileInput,
+} from './graphql'
 
 type Properties<T> = Required<{
-  [K in keyof T]: z.ZodType<T[K], any, T[K]>;
-}>;
+  [K in keyof T]: z.ZodType<T[K], any, T[K]>
+}>
 
-type definedNonNullAny = {};
+type definedNonNullAny = {}
 
-export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null;
+export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null
 
-export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v));
+export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow);
+export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -19,7 +33,7 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
     icon: z.string().nullish(),
     languageModel: z.string().nullish(),
     name: z.string(),
-    url: z.string().nullish()
+    url: z.string().nullish(),
   })
 }
 
@@ -28,14 +42,14 @@ export function AiBaseCaseInputTypeSchema(): z.ZodObject<Properties<AiBaseCaseIn
     condition: z.string().nullish(),
     id: z.string().nullish(),
     instruction: z.string().nullish(),
-    sequence: z.number().nullish()
+    sequence: z.number().nullish(),
   })
 }
 
 export function AiConversationCreateInputSchema(): z.ZodObject<Properties<AiConversationCreateInput>> {
   return z.object({
     assistantIds: z.array(z.string()),
-    userIds: z.array(z.string())
+    userIds: z.array(z.string()),
   })
 }
 
@@ -43,7 +57,7 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
   return z.object({
     content: z.string(),
     conversationId: z.string(),
-    recipientAssistantIds: z.array(z.string())
+    recipientAssistantIds: z.array(z.string()),
   })
 }
 
@@ -58,7 +72,7 @@ export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiL
     sunday: z.boolean(),
     thursday: z.boolean(),
     tuesday: z.boolean(),
-    wednesday: z.boolean()
+    wednesday: z.boolean(),
   })
 }
 
@@ -67,7 +81,7 @@ export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryC
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
     maxDepth: z.number(),
     maxPages: z.number(),
-    url: z.string()
+    url: z.string(),
   })
 }
 
@@ -76,7 +90,7 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
     libraryId: z.string(),
     mimeType: z.string(),
     name: z.string(),
-    originUri: z.string()
+    originUri: z.string(),
   })
 }
 
@@ -85,7 +99,7 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     description: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
-    url: z.string().nullish()
+    url: z.string().nullish(),
   })
 }
 
@@ -93,7 +107,7 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
   return z.object({
     allowDifferentEmailAddress: z.boolean(),
     allowMultipleParticipants: z.boolean(),
-    email: z.string()
+    email: z.string(),
   })
 }
 
@@ -102,7 +116,7 @@ export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
     email: z.string(),
     family_name: z.string().nullish(),
     given_name: z.string().nullish(),
-    name: z.string()
+    name: z.string(),
   })
 }
 
@@ -114,6 +128,6 @@ export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInpu
     freeMessages: z.number().nullish(),
     freeStorage: z.number().nullish(),
     lastName: z.string().nullish(),
-    position: z.string().nullish()
+    position: z.string().nullish(),
   })
 }

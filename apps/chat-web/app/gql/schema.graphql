@@ -3,20 +3,26 @@ schema {
   mutation: Mutation
 }
 
-"""AI Act Legal Disclaimer"""
+"""
+AI Act Legal Disclaimer
+"""
 type AIActLegalDisclaimer {
   text: AiActString!
   title: AiActString!
 }
 
-"""AI Act Assessment Query"""
+"""
+AI Act Assessment Query
+"""
 type AiActAssessment {
   assistantId: String!
   assistantSurvey: AiActAssistantSurvey!
   identifyRiskInfo: AiActIdentifyRisksInfo!
 }
 
-"""AI Act Assessment Basic System Info"""
+"""
+AI Act Assessment Basic System Info
+"""
 type AiActAssistantSurvey {
   actions: [AiActRecommendedAction!]!
   actionsTitle: AiActString!
@@ -29,7 +35,9 @@ type AiActAssistantSurvey {
   title: AiActString!
 }
 
-"""AI Act Compliance Area"""
+"""
+AI Act Compliance Area
+"""
 type AiActComplianceArea {
   description: AiActString!
   id: String!
@@ -37,7 +45,9 @@ type AiActComplianceArea {
   title: AiActString!
 }
 
-"""AI Act Identify Risks Info"""
+"""
+AI Act Identify Risks Info
+"""
 type AiActIdentifyRisksInfo {
   complianceAreas: [AiActComplianceArea!]!
   legalDisclaimer: AIActLegalDisclaimer!
@@ -56,7 +66,9 @@ type AiActOptionRisk {
   riskLevel: String
 }
 
-"""AI Act Questions"""
+"""
+AI Act Questions
+"""
 type AiActQuestion {
   hint: AiActString!
   id: String!
@@ -66,13 +78,17 @@ type AiActQuestion {
   value: String
 }
 
-"""AI Act Checklist Action"""
+"""
+AI Act Checklist Action
+"""
 type AiActRecommendedAction {
   description: AiActString!
   level: String!
 }
 
-"""AI Act Risk Indicator"""
+"""
+AI Act Risk Indicator
+"""
 type AiActRiskIndicator {
   description: AiActString!
   factors: [AiActString!]!
@@ -279,7 +295,9 @@ input AiLibraryFileInput {
   originUri: String!
 }
 
-"""Query result for AI library files"""
+"""
+Query result for AI library files
+"""
 type AiLibraryFileQueryResult {
   count: Int!
   files: [AiLibraryFile!]!
@@ -333,7 +351,9 @@ type AiLibraryUpdate {
   success: Boolean!
 }
 
-"""Query result for AI library updates"""
+"""
+Query result for AI library updates
+"""
 type AiLibraryUpdateQueryResult {
   count: Int!
   crawlerId: String
@@ -355,7 +375,9 @@ type AiLibraryUsage {
   usedFor: String
 }
 
-"""AI Models available in the system"""
+"""
+AI Models available in the system
+"""
 type AiModel {
   baseUrl: String
   modelName: String!
@@ -364,7 +386,9 @@ type AiModel {
   title: String!
 }
 
-"""Options for AI Models"""
+"""
+Options for AI Models
+"""
 type AiModelOption {
   key: String!
   value: String!
@@ -474,7 +498,11 @@ type ManagedUsersResponse {
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
   addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
-  addConversationParticipants(assistantIds: [String!], conversationId: String!, userIds: [String!]): [AiConversationParticipant!]
+  addConversationParticipants(
+    assistantIds: [String!]
+    conversationId: String!
+    userIds: [String!]
+  ): [AiConversationParticipant!]
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
