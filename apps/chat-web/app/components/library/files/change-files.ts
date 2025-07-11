@@ -32,14 +32,14 @@ export const dropFiles = createServerFn({ method: 'POST' })
 export const clearEmbeddedFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const dropVectorStore = ctx.data.map((fileId) =>
+    const dropVectorStore = ctx.data.map((libraryId) =>
       backendRequest(
         graphql(`
           mutation clearEmbeddedFiles($libraryId: String!) {
             clearEmbeddedFiles(libraryId: $libraryId)
           }
         `),
-        { libraryId: fileId },
+        { libraryId: libraryId },
       ),
     )
     return await Promise.all(dropVectorStore)

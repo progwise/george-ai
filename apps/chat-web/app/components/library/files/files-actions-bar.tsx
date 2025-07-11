@@ -16,6 +16,7 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
+  totalItems: number
 }
 
 export const FilesActionsBar = ({
@@ -25,6 +26,7 @@ export const FilesActionsBar = ({
   tableDataChanged,
   checkedFileIds,
   setCheckedFileIds,
+  totalItems,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -108,6 +110,7 @@ export const FilesActionsBar = ({
           setCheckedFileIds={setCheckedFileIds}
           tableDataChanged={tableDataChanged}
           allFileIds={[]}
+          totalItems={totalItems}
         />
 
         <button

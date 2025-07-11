@@ -6,10 +6,7 @@ import { z } from 'zod'
 import { getProfileQueryOptions } from '../../../../auth/get-profile-query'
 import { FilesActionsBar } from '../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../components/library/files/files-table'
-import {
-  aiLibraryAllFilesQueryOptions,
-  aiLibraryFilesQueryOptions,
-} from '../../../../components/library/files/get-files'
+import { aiLibraryFilesQueryOptions } from '../../../../components/library/files/get-files'
 import { Pagination } from '../../../../components/table/pagination'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files')({
@@ -66,8 +63,8 @@ function RouteComponent() {
         setCheckedFileIds={setSelectedFileIds}
         tableDataChanged={() => {
           queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
-          queryClient.invalidateQueries({ queryKey: aiLibraryAllFilesQueryOptions({ libraryId }).queryKey })
         }}
+        totalItems={aiLibraryFiles.count}
       />
       <FilesTable
         firstItemNumber={skip + 1}

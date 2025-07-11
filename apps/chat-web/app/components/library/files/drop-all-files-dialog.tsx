@@ -1,4 +1,4 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -6,7 +6,6 @@ import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { clearEmbeddedFiles, deleteAiLibraryUpdate } from './change-files'
-import { aiLibraryAllFilesQueryOptions } from './get-files'
 
 interface DropAllFilesDialogProps {
   libraryId: string
@@ -14,22 +13,28 @@ interface DropAllFilesDialogProps {
   tableDataChanged: () => void
   setCheckedFileIds: (fileIds: string[]) => void
   allFileIds: string[]
+  totalItems: number
 }
 
-export const DropAllFilesDialog = ({ libraryId, setCheckedFileIds, tableDataChanged }: DropAllFilesDialogProps) => {
+export const DropAllFilesDialog = ({
+  libraryId,
+  setCheckedFileIds,
+  tableDataChanged,
+  totalItems,
+}: DropAllFilesDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
   const { isPending, ...dropVectorStore } = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await clearEmbeddedFiles({ data: fileIds })
+    mutationFn: async (libraryId: string) => {
+      await clearEmbeddedFiles({ data: [libraryId] })
       await deleteAiLibraryUpdate({ data: libraryId })
     },
     onError: () => {
       toastError(t('errors.dropFilesError'))
     },
     onSuccess: () => {
-      toastSuccess(t('actions.dropSuccess', { count: allFileIds.length }))
+      toastSuccess(t('actions.dropSuccess', { count: totalItems }))
     },
     onSettled: () => {
       setCheckedFileIds([])
@@ -40,11 +45,6 @@ export const DropAllFilesDialog = ({ libraryId, setCheckedFileIds, tableDataChan
 
   const textOfDropButton = t('actions.dropAll')
 
-  const {
-    data: { aiLibraryAllFiles },
-  } = useSuspenseQuery(aiLibraryAllFilesQueryOptions({ libraryId }))
-  const allFileIds = aiLibraryAllFiles.files.map((file) => file.id)
-
   return (
     <>
       <button
@@ -52,7 +52,7 @@ export const DropAllFilesDialog = ({ libraryId, setCheckedFileIds, tableDataChan
         className="btn btn-xs btn-primary tooltip tooltip-bottom"
         data-tip={t('tooltips.dropAllDescription')}
         onClick={() => dialogRef.current?.showModal()}
-        disabled={allFileIds.length === 0}
+        disabled={totalItems === 0}
       >
         {textOfDropButton}
       </button>
@@ -62,7 +62,7 @@ export const DropAllFilesDialog = ({ libraryId, setCheckedFileIds, tableDataChan
         title={t('libraries.dropAllFilesDialog')}
         description={t('texts.dropAllFilesDialogDescription')}
         onSubmit={() => {
-          dropVectorStore.mutate([libraryId])
+          dropVectorStore.mutate(libraryId)
         }}
         submitButtonText={textOfDropButton}
       >
@@ -71,7 +71,7 @@ export const DropAllFilesDialog = ({ libraryId, setCheckedFileIds, tableDataChan
         <div className="w-full">
           <div className="mb-4">
             <>
-              <span className="font-medium">{t('texts.numberOfFilesToBeDropped', { count: allFileIds.length })}</span>
+              <span className="font-medium">{t('texts.numberOfFilesToBeDropped', { count: totalItems })}</span>
             </>
           </div>
         </div>
