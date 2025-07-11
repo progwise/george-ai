@@ -12,7 +12,7 @@ md_generator = DefaultMarkdownGenerator(
 )
 
 
-async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int, stop_event: asyncio.Event = None):
+async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int, stop_event: asyncio.Event):
     try:
         # Configure the crawl
         config = CrawlerRunConfig(
@@ -43,7 +43,7 @@ async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int, stop_even
                     break
                     
                 try:
-                    print(f"Start Processing crawler result")
+                    print("Start Processing crawler result")
                     yield "\n---BEGIN CRAWLER RESULT---\n"
                     print(f"Processing URL: {result.url}")
                     yield json.dumps({"url": result.url, "title": result.metadata.get("title")})
@@ -57,7 +57,7 @@ async def deepCrawlSingleUrl(url: str, max_depth: int, max_pages: int, stop_even
                     yield json.dumps({"error": str(e)})
                     yield "\n---END ERROR---\n"
                 finally:
-                    print(f"Finished processing URL")
+                    print("Finished processing URL")
                     yield "\n---END CRAWLER RESULT---\n"
         return
     except Exception as e:

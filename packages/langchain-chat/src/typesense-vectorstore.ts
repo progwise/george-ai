@@ -287,7 +287,17 @@ export const queryVectorStore = async (
   }
 }
 
-export const getFileChunks = async ({ libraryId, fileId }: { libraryId: string; fileId: string }) => {
+export const getFileChunks = async ({
+  libraryId,
+  fileId,
+  skip,
+  take,
+}: {
+  libraryId: string
+  fileId: string
+  skip: number
+  take: number
+}) => {
   await ensureVectorStore(libraryId)
   const collectionName = getTypesenseSchemaName(libraryId)
   const documents = await vectorTypesenseClient
@@ -297,19 +307,25 @@ export const getFileChunks = async ({ libraryId, fileId }: { libraryId: string; 
       q: '*',
       filter_by: `docId:=${fileId}`,
       sort_by: 'chunkIndex:asc',
-      per_page: 250,
+      per_page: take,
+      page: 1 + skip / take,
     })
   if (!documents.hits || documents.hits.length === 0) {
-    return []
+    return { count: 0, skip, take, chunks: [] }
   }
-  return documents.hits.map((hit: DocumentSchema) => ({
-    id: hit.document.id || 'no-id',
-    text: hit.document.text || 'no-txt',
-    section: hit.document.section || 'no-section',
-    headingPath: hit.document.headingPath || 'no-path',
-    chunkIndex: hit.document.chunkIndex || 0,
-    subChunkIndex: hit.document.subChunkIndex || 0,
-  }))
+  return {
+    count: documents.found,
+    skip,
+    take,
+    chunks: documents.hits.map((hit: DocumentSchema) => ({
+      id: hit.document.id || 'no-id',
+      text: hit.document.text || 'no-txt',
+      section: hit.document.section || 'no-section',
+      headingPath: hit.document.headingPath || 'no-path',
+      chunkIndex: hit.document.chunkIndex || 0,
+      subChunkIndex: hit.document.subChunkIndex || 0,
+    })),
+  }
 }
 
 // retrieves content from the vector store similar to the question

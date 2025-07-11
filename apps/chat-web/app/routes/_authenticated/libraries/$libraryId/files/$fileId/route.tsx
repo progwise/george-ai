@@ -55,7 +55,7 @@ function RouteComponent() {
             <Link
               className="btn btn-ghost btn-sm"
               activeProps={{ className: 'btn-active' }}
-              activeOptions={{ exact: true }}
+              activeOptions={{ exact: false }}
               to="/libraries/$libraryId/files/$fileId/chunks"
               params={params}
             >
