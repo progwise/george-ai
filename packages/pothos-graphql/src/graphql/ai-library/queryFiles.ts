@@ -1,6 +1,5 @@
 import { queryVectorStore } from '@george-ai/langchain-chat'
 
-import { prisma } from '../../prisma'
 import { builder } from '../builder'
 import { canAccessLibraryOrThrow } from './check-participation'
 
@@ -83,13 +82,7 @@ builder.queryField('queryAiLibraryFiles', (t) =>
       skip: t.arg.int({ required: true }),
     },
     resolve: async (root, { libraryId, query, take, skip }, context) => {
-      const library = await prisma.aiLibrary.findUnique({
-        where: { id: libraryId },
-      })
-      if (!library) {
-        throw new Error(`Library with ID ${libraryId} not found`)
-      }
-      await canAccessLibraryOrThrow(context, library)
+      await canAccessLibraryOrThrow(context, libraryId)
       const searchResults = await queryVectorStore(libraryId, query, {
         page: !skip ? 1 : 1 + skip / take,
         perPage: take || 20,

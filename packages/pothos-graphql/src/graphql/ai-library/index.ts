@@ -67,10 +67,7 @@ builder.queryField('aiLibrary', (t) =>
         ...query,
         where: { id: libraryId },
       })
-      await canAccessLibraryOrThrow(context, {
-        id: library.id,
-        ownerId: library.ownerId,
-      })
+      await canAccessLibraryOrThrow(context, libraryId)
       return library
     },
   }),
@@ -103,7 +100,7 @@ builder.mutationField('updateAiLibrary', (t) =>
       if (!library) {
         throw new Error(`Library with id ${id} not found`)
       }
-      canAccessLibraryOrThrow(context, library)
+      canAccessLibraryOrThrow(context, id)
 
       return prisma.aiLibrary.update({
         ...query,
