@@ -51,8 +51,7 @@ function RouteComponent() {
 
   return (
     <div>
-      <h3 className="mb-4 flex justify-between text-xl font-bold">
-        <span>{aiFileChunks.count} Chunks</span>
+      <h3 className="mb-4 flex gap-4 text-xl font-bold">
         <Pagination
           totalItems={aiFileChunks.count}
           itemsPerPage={takeChunks}
@@ -62,7 +61,12 @@ function RouteComponent() {
             navigate({ search: { skipChunks: (page - 1) * takeChunks, takeChunks } })
           }}
         />
+        <span>
+          Chunk {aiFileChunks.skip + 1} - {Math.min(aiFileChunks.skip + 1 + aiFileChunks.take, aiFileChunks.count)} of{' '}
+          {aiFileChunks.count} Chunks
+        </span>
       </h3>
+      <hr className="text-base-300 mb-4" />
       <div className="flex flex-wrap gap-4">
         {aiFileChunks.chunks.map((chunk) => (
           <div key={chunk.id} className="card card-border bg-base-200 card-xs shadow-sm">

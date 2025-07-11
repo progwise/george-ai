@@ -355,6 +355,10 @@ export default {
     dropFilesDialogDescription:
       'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen der ausgewählten Dateien.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
+    fileCreated: 'erstellt',
+    fileUpdated: 'aktualisiert',
+    fileProcessed: 'verarbeitet',
+    fileProcessingError: 'Verarbeitungsfehler',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',

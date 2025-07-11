@@ -2145,6 +2145,10 @@ export type GetFileInfoQuery = {
     docPath?: string | null
     mimeType: string
     size?: number | null
+    createdAt: string
+    updatedAt?: string | null
+    processedAt?: string | null
+    processingErrorMessage?: string | null
   }
 }
 
@@ -8176,6 +8180,10 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'docPath' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
               ],
             },
           },

@@ -347,6 +347,10 @@ export default {
     dropFilesDialogDescription:
       'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     dropFileFailure: 'Failed to drop files:',
+    fileCreated: 'created',
+    fileUpdated: 'updated',
+    fileProcessed: 'processed',
+    fileProcessingError: 'processing error',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
     newConversation: 'New conversation',

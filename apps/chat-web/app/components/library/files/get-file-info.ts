@@ -24,6 +24,10 @@ const getFileInfo = createServerFn({ method: 'GET' })
             docPath
             mimeType
             size
+            createdAt
+            updatedAt
+            processedAt
+            processingErrorMessage
           }
         }
       `),

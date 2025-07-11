@@ -1,9 +1,12 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
+import { dateTimeString } from '@george-ai/web-utils'
+
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
+import { LoadingSpinner } from '../../../../../../components/loading-spinner'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId')({
@@ -18,7 +21,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const params = Route.useParams()
   const { queryClient } = Route.useRouteContext()
 
@@ -36,10 +39,36 @@ function RouteComponent() {
   return (
     <>
       <div>
-        <pre>{JSON.stringify(fileInfo, null, 2)}</pre>
+        <LoadingSpinner isLoading={reprocessIsPending} />
+        <h2 className="text-2xl font-bold">{fileInfo.aiLibraryFile.name}</h2>
+        <div className="text-sm text-gray-500">
+          <a href={fileInfo.aiLibraryFile.originUri || '#'} target="blank">
+            {fileInfo.aiLibraryFile.originUri}
+          </a>
+          <span className="mx-2">|</span>
+          <span>
+            {t('texts.fileCreated')}: {dateTimeString(fileInfo.aiLibraryFile.createdAt, language)}
+          </span>
+          <span className="mx-2">|</span>
+          <span>
+            {t('texts.fileUpdated')}: {dateTimeString(fileInfo.aiLibraryFile.updatedAt, language)}
+          </span>
+          <span className="mx-2">|</span>
+          <span>
+            {t('texts.fileProcessed')}: {dateTimeString(fileInfo.aiLibraryFile.processedAt, language)}
+          </span>
+          {fileInfo.aiLibraryFile.processingErrorMessage && (
+            <>
+              <span className="mx-2">|</span>
+              <span className="text-red-500">
+                {t('texts.fileProcessingError')}: {fileInfo.aiLibraryFile.processingErrorMessage}
+              </span>
+            </>
+          )}
+        </div>
       </div>
-      <div className="flex justify-between">
-        <ul className="menu bg-base-200 lg:menu-horizontal rounded-box">
+      <div className="flex justify-end">
+        <ul className="menu bg-base-200 menu-horizontal rounded-box gap-2">
           <li>
             <Link
               className="btn btn-ghost btn-sm"
@@ -62,12 +91,10 @@ function RouteComponent() {
               Chunks
             </Link>
           </li>
-        </ul>
-        <ul className="menu bg-base-200 lg:menu-horizontal rounded-box">
           <li>
             <button
               type="button"
-              className="btn btn-primary btn-xs"
+              className="btn btn-primary btn-sm"
               onClick={() => reprocessMutate()}
               disabled={reprocessIsPending}
             >
@@ -76,7 +103,7 @@ function RouteComponent() {
           </li>
         </ul>
       </div>
-      <div role="tabpanel" className="md:p-10">
+      <div role="tabpanel">
         <Outlet />
       </div>
     </>
