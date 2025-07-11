@@ -382,6 +382,7 @@ export default {
     edit: 'Edit',
     hide: 'Hide',
     goToOverview: 'Go to overview',
+    googleDriveUpload: 'Upload from Google Drive',
     leaveConversation: 'Leave conversation',
     remainingMessages: 'Messages left',
     removeProfile: 'Remove profile',

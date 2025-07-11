@@ -391,6 +391,7 @@ export default {
     edit: 'Bearbeiten',
     hide: 'Verbergen',
     goToOverview: 'Zur Übersicht',
+    googleDriveUpload: 'Aus Google Drive hochladen',
     leaveConversation: 'Konversation verlassen',
     remainingMessages: 'Nachrichten übrig',
     removeProfile: 'Benutzerprofil entfernen',
