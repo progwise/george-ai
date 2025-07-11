@@ -262,6 +262,9 @@ importers:
       mammoth:
         specifier: ^1.9.1
         version: 1.9.1
+      openai:
+        specifier: ^4.90.0
+        version: 4.90.0(ws@8.18.2)(zod@3.24.2)
       pdfjs-dist:
         specifier: ^5.1.91
         version: 5.1.91
@@ -13486,7 +13489,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.1))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -15166,7 +15169,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.1)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.1)
 

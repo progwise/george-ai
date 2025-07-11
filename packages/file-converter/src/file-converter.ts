@@ -4,6 +4,7 @@ import { transformCsvToMarkdown } from './converters/csv-to-markdown'
 import { transformDocxToMarkdown } from './converters/docs-to-markdown'
 import { transformExcelToMarkdown } from './converters/excel-to-markdown'
 import { transformHtmlToMarkdown } from './converters/html-to-markdown'
+import { transformPdfToImageToMarkdown } from './converters/pdf-to-images-to-markdown'
 import { transformPdfToMarkdown } from './converters/pdf-to-markdown'
 
 export interface FileLoadParams {
@@ -21,6 +22,10 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
     switch (mimeType) {
       case 'application/pdf':
         content = await transformPdfToMarkdown(filePath)
+        if (!content || content.trim() === '') {
+          console.warn(`loadFile: PDF conversion returned empty content for file ${name}`)
+          content = await transformPdfToImageToMarkdown(filePath)
+        }
         break
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
