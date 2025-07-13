@@ -141,7 +141,7 @@ const startCrawling = async (
         })
 
         const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId: crawler.libraryId })
-        fs.writeFileSync(uploadedFilePath, markdown)
+        await fs.promises.writeFile(uploadedFilePath, markdown)
         await processFile(file.id)
         crawledPages.push({ ...crawledPage, url: metaData.url, markdown, metaData: crawledPage.metaData, error: null })
         await prisma.aiLibraryUpdate.create({
