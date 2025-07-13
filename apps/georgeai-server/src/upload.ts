@@ -61,9 +61,16 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
 
   httpRequest.on('end', () => {
     filestream.close(async () => {
-      await convertUploadToMarkdown(fileInfo.id, { removeUploadFile: false })
-      await markUploadFinished({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
-      httpResponse.end(JSON.stringify({ status: 'success' }))
+      try {
+        await convertUploadToMarkdown(fileInfo.id, { removeUploadFile: false })
+        await markUploadFinished({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
+        httpResponse.end(JSON.stringify({ status: 'success' }))
+      } catch (error) {
+        console.error('Error during file processing:', error)
+        httpResponse.statusCode = 500
+        httpResponse.write(JSON.stringify({ status: 'error', description: 'Error during file processing' }))
+        httpResponse.end()
+      }
     })
   })
 
