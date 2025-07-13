@@ -43,6 +43,7 @@ export default {
     update: 'Aktualisieren',
     upload: 'Hochladen',
     uploaded: 'Hochgeladen',
+    view: 'Ansehen',
   },
   admin: {
     adminAreaHeadline: 'Administrationsbereich - aufgepasst!',
@@ -159,6 +160,7 @@ export default {
     maxDepth: 'Tiefe',
     maxPages: 'Seiten',
     run: 'Crawler starten',
+    stop: 'Stop',
     update: 'Crawler aktualisieren',
     url: 'URL',
     utcHint: 'UTC-Zeitzone',
@@ -353,6 +355,10 @@ export default {
     dropFilesDialogDescription:
       'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen der ausgewählten Dateien.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
+    fileCreated: 'erstellt',
+    fileUpdated: 'aktualisiert',
+    fileProcessed: 'verarbeitet',
+    fileProcessingError: 'Verarbeitungsfehler',
     loginToUseConversations: 'Anmelden, um Konversationen zu nutzen.',
     loginToUseSendMessages: 'Anmelden, um Nachrichten zu senden.',
     newConversation: 'Neue Konversation',

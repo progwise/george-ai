@@ -1,7 +1,10 @@
-import { cleanupFile, deleteFileAndRecord } from '../../file-upload'
+import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { processFile } from './process-file'
+
+import './process-file'
+import './read-file'
+import './file-chunks'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -16,7 +19,7 @@ async function dropFileById(fileId: string) {
   let dropError: string | null = null
 
   try {
-    await deleteFileAndRecord(file.id, file.libraryId)
+    await deleteFile(file.id, file.libraryId)
     return file
   } catch (error) {
     dropError = error instanceof Error ? error.message : String(error)
@@ -34,10 +37,6 @@ async function dropFileById(fileId: string) {
   }
 }
 
-const cancelFileUpload = async (fileId: string) => {
-  await cleanupFile(fileId)
-}
-
 export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
   fields: (t) => ({
@@ -46,6 +45,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     name: t.exposeString('name', { nullable: false }),
     originUri: t.exposeString('originUri', { nullable: true }),
+    docPath: t.exposeString('docPath', { nullable: true }),
     mimeType: t.exposeString('mimeType', { nullable: false }),
     size: t.exposeInt('size', { nullable: true }),
     chunks: t.exposeInt('chunks', { nullable: true }),
@@ -92,17 +92,6 @@ builder.mutationField('prepareFile', (t) =>
         data,
       })
     },
-  }),
-)
-
-builder.mutationField('processFile', (t) =>
-  t.prismaField({
-    type: 'AiLibraryFile',
-    nullable: false,
-    args: {
-      fileId: t.arg.string({ required: true }),
-    },
-    resolve: async (_query, _source, { fileId }) => processFile(fileId),
   }),
 )
 
@@ -178,6 +167,22 @@ const LibraryFileQueryResult = builder
     }),
   })
 
+builder.queryField('aiLibraryFile', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiLibraryFile',
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _parent, { libraryId, fileId }) => {
+      // TODO: Check access rights
+      const file = await prisma.aiLibraryFile.findFirstOrThrow({ where: { libraryId, id: fileId } })
+      return file
+    },
+  }),
+)
+
 builder.queryField('aiLibraryFiles', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: LibraryFileQueryResult,
@@ -229,9 +234,6 @@ builder.mutationField('dropFiles', (t) =>
         const droppedFile = await dropFileById(file.id)
         results.push(droppedFile)
       }
-
-      console.log(`Dropped files for library ${libraryId}:`, results)
-
       return results
     },
   }),
@@ -243,9 +245,10 @@ builder.mutationField('cancelFileUpload', (t) =>
     nullable: false,
     args: {
       fileId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { fileId }) => {
-      await cancelFileUpload(fileId)
+    resolve: async (_source, { fileId, libraryId }) => {
+      await deleteFile(fileId, libraryId)
       return true
     },
   }),

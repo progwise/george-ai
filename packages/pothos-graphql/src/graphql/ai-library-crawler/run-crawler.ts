@@ -1,6 +1,7 @@
-import { promises as fs } from 'fs'
+import fs from 'node:fs'
 
-import { completeFileUpload, getFilePath } from '../../file-upload'
+import { getUploadFilePath } from '@george-ai/file-management'
+
 import { prisma } from '../../prisma'
 import { processFile } from '../ai-library-file/process-file'
 import { crawl } from './crawl-client'
@@ -9,6 +10,26 @@ interface RunOptions {
   crawlerId: string
   userId?: string
   runByCronJob?: boolean
+}
+
+export const stopCrawler = async ({ crawlerId }: RunOptions) => {
+  const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+
+  const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { crawlerId, endedAt: null } })
+
+  await prisma.aiLibraryCrawlerRun.update({
+    where: {
+      crawlerId,
+      id: ongoingRun.id,
+    },
+    data: {
+      success: false,
+      endedAt: new Date(),
+      errorMessage: 'Run stopped by user',
+    },
+  })
+
+  return crawler
 }
 
 export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions) => {
@@ -68,6 +89,11 @@ const startCrawling = async (
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
     })) {
+      const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
+      if (crawlerRun.endedAt) {
+        console.warn(`crawler run ${newRun.id} was cancelled at ${crawlerRun.endedAt}`)
+        break
+      }
       if (crawledPage.error) {
         console.warn('Crawling error for page', crawledPage.url, ':', crawledPage.error)
         crawledPages.push({ ...crawledPage, url: crawledPage.url, error: crawledPage.error })
@@ -114,8 +140,8 @@ const startCrawling = async (
           update: fileUpdateData,
         })
 
-        await fs.writeFile(getFilePath(file.id), markdown)
-        await completeFileUpload(file.id)
+        const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId: crawler.libraryId })
+        fs.writeFileSync(uploadedFilePath, markdown)
         await processFile(file.id)
         crawledPages.push({ ...crawledPage, url: metaData.url, markdown, metaData: crawledPage.metaData, error: null })
         await prisma.aiLibraryUpdate.create({

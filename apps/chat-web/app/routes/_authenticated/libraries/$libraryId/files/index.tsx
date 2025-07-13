@@ -3,13 +3,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { z } from 'zod'
 
-import { getProfileQueryOptions } from '../../../../auth/get-profile-query'
-import { FilesActionsBar } from '../../../../components/library/files/files-actions-bar'
-import { FilesTable } from '../../../../components/library/files/files-table'
-import { aiLibraryFilesQueryOptions } from '../../../../components/library/files/get-files'
-import { Pagination } from '../../../../components/table/pagination'
+import { getProfileQueryOptions } from '../../../../../auth/get-profile-query'
+import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
+import { FilesTable } from '../../../../../components/library/files/files-table'
+import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
+import { Pagination } from '../../../../../components/table/pagination'
 
-export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files')({
+export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/')({
   component: RouteComponent,
   validateSearch: z.object({
     skip: z.coerce.number().default(0),

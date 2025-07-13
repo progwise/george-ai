@@ -43,6 +43,7 @@ export default {
     update: 'Update',
     upload: 'Upload',
     uploaded: 'Uploaded',
+    view: 'View',
   },
   admin: {
     adminAreaHeadline: 'Administration Area - Use with caution',
@@ -153,6 +154,7 @@ export default {
     maxDepth: 'Depth',
     maxPages: 'Pages',
     run: 'Crawl',
+    stop: 'Stop',
     update: 'Update crawler',
     url: 'URL',
     utcHint: 'UTC time',
@@ -345,6 +347,10 @@ export default {
     dropFilesDialogDescription:
       'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     dropFileFailure: 'Failed to drop files:',
+    fileCreated: 'created',
+    fileUpdated: 'updated',
+    fileProcessed: 'processed',
+    fileProcessingError: 'processing error',
     loginToUseConversations: 'Login to use conversations.',
     loginToUseSendMessages: 'Login to send messages.',
     newConversation: 'New conversation',
