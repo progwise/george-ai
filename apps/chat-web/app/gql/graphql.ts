@@ -474,6 +474,17 @@ export type FileChunkQueryResponse = {
   take: Scalars['Int']['output']
 }
 
+/** Google Drive Files Fetch Query */
+export type GoogleDriveFile = {
+  __typename?: 'GoogleDriveFile'
+  iconLink?: Maybe<Scalars['String']['output']>
+  id: Scalars['String']['output']
+  kind: Scalars['String']['output']
+  mimeType: Scalars['String']['output']
+  name: Scalars['String']['output']
+  size?: Maybe<Scalars['String']['output']>
+}
+
 export type HumanParticipant = AiConversationParticipant & {
   __typename?: 'HumanParticipant'
   assistant?: Maybe<AiAssistant>
