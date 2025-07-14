@@ -300,6 +300,7 @@ export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
   createdAt: Scalars['DateTime']['output']
+  docPath?: Maybe<Scalars['String']['output']>
   dropError?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   libraryId: Scalars['String']['output']
@@ -452,15 +453,25 @@ export type ConversationInvitationInput = {
   email: Scalars['String']['input']
 }
 
-/** Google Drive Files Fetch Query */
-export type GoogleDriveFile = {
-  __typename?: 'GoogleDriveFile'
-  iconLink?: Maybe<Scalars['String']['output']>
+export type FileChunk = {
+  __typename?: 'FileChunk'
+  chunkIndex: Scalars['Int']['output']
+  headingPath: Scalars['String']['output']
   id: Scalars['String']['output']
-  kind: Scalars['String']['output']
-  mimeType: Scalars['String']['output']
-  name: Scalars['String']['output']
-  size?: Maybe<Scalars['String']['output']>
+  section: Scalars['String']['output']
+  subChunkIndex: Scalars['Int']['output']
+  text: Scalars['String']['output']
+}
+
+export type FileChunkQueryResponse = {
+  __typename?: 'FileChunkQueryResponse'
+  chunks: Array<FileChunk>
+  count: Scalars['Int']['output']
+  fileId: Scalars['String']['output']
+  fileName?: Maybe<Scalars['String']['output']>
+  libraryId: Scalars['String']['output']
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
 }
 
 export type HumanParticipant = AiConversationParticipant & {
@@ -528,7 +539,7 @@ export type Mutation = {
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
-  deleteAiLibrary?: Maybe<AiLibrary>
+  deleteAiLibrary?: Maybe<Scalars['Boolean']['output']>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
@@ -541,7 +552,6 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
-  reProcessFile: AiLibraryFile
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
@@ -551,6 +561,7 @@ export type Mutation = {
   selectFilesFromGoogleDriveFolders: Array<GoogleDriveFile>
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
+  stopAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -590,6 +601,7 @@ export type MutationAddLibraryUsageArgs = {
 
 export type MutationCancelFileUploadArgs = {
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationChatArgs = {
@@ -703,10 +715,6 @@ export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
-export type MutationReProcessFileArgs = {
-  fileId: Scalars['String']['input']
-}
-
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
   userId: Scalars['String']['input']
@@ -746,6 +754,10 @@ export type MutationSendConfirmationMailArgs = {
 
 export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
+}
+
+export type MutationStopAiLibraryCrawlerArgs = {
+  crawlerId: Scalars['String']['input']
 }
 
 export type MutationToggleAdminStatusArgs = {
@@ -806,14 +818,17 @@ export type Query = {
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
+  aiFileChunks: FileChunkQueryResponse
   aiLibraries: Array<AiLibrary>
-  aiLibrary?: Maybe<AiLibrary>
+  aiLibrary: AiLibrary
+  aiLibraryFile: AiLibraryFile
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
+  readFileMarkdown: Scalars['String']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -836,7 +851,19 @@ export type QueryAiConversationMessagesArgs = {
   conversationId: Scalars['String']['input']
 }
 
+export type QueryAiFileChunksArgs = {
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}
+
 export type QueryAiLibraryArgs = {
+  libraryId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryFileArgs = {
+  fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
 }
 
@@ -870,6 +897,11 @@ export type QueryQueryAiLibraryFilesArgs = {
   query: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryReadFileMarkdownArgs = {
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -1916,7 +1948,7 @@ export type CrawlerTableQueryVariables = Exact<{
 
 export type CrawlerTableQuery = {
   __typename?: 'Query'
-  aiLibrary?: {
+  aiLibrary: {
     __typename?: 'AiLibrary'
     crawlers: Array<{
       __typename?: 'AiLibraryCrawler'
@@ -1948,7 +1980,7 @@ export type CrawlerTableQuery = {
         sunday: boolean
       } | null
     }>
-  } | null
+  }
 }
 
 export type RunCrawlerButton_CrawlerFragment = { __typename?: 'AiLibraryCrawler'; id: string; isRunning: boolean }
@@ -1960,6 +1992,19 @@ export type RunCrawlerMutationVariables = Exact<{
 export type RunCrawlerMutation = {
   __typename?: 'Mutation'
   runAiLibraryCrawler?: {
+    __typename?: 'AiLibraryCrawler'
+    id: string
+    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
+  } | null
+}
+
+export type StopCrawlerMutationVariables = Exact<{
+  crawlerId: Scalars['String']['input']
+}>
+
+export type StopCrawlerMutation = {
+  __typename?: 'Mutation'
+  stopAiLibraryCrawler?: {
     __typename?: 'AiLibraryCrawler'
     id: string
     lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
@@ -2007,11 +2052,11 @@ export type DropFileMutation = {
   dropFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
 }
 
-export type ReProcessFileMutationVariables = Exact<{
+export type ReprocessFileMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type ReProcessFileMutation = {
+export type ReprocessFileMutation = {
   __typename?: 'Mutation'
   processFile: {
     __typename?: 'AiLibraryFile'
@@ -2036,6 +2081,7 @@ export type PrepareDesktopFileMutation = {
 
 export type CancelFileUploadMutationVariables = Exact<{
   fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }>
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
@@ -2043,6 +2089,7 @@ export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUplo
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
   id: string
+  libraryId: string
   name: string
   originUri?: string | null
   mimeType: string
@@ -2052,6 +2099,63 @@ export type AiLibraryFile_TableItemFragment = {
   processedAt?: string | null
   processingErrorMessage?: string | null
   dropError?: string | null
+}
+
+export type GetFileChunksQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}>
+
+export type GetFileChunksQuery = {
+  __typename?: 'Query'
+  aiFileChunks: {
+    __typename?: 'FileChunkQueryResponse'
+    fileId: string
+    fileName?: string | null
+    take: number
+    skip: number
+    count: number
+    chunks: Array<{
+      __typename?: 'FileChunk'
+      id: string
+      text: string
+      section: string
+      headingPath: string
+      chunkIndex: number
+      subChunkIndex: number
+    }>
+  }
+}
+
+export type GetFileContentQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type GetFileContentQuery = { __typename?: 'Query'; readFileMarkdown: string }
+
+export type GetFileInfoQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
+
+export type GetFileInfoQuery = {
+  __typename?: 'Query'
+  aiLibraryFile: {
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    originUri?: string | null
+    docPath?: string | null
+    mimeType: string
+    size?: number | null
+    createdAt: string
+    updatedAt?: string | null
+    processedAt?: string | null
+    processingErrorMessage?: string | null
+  }
 }
 
 export type EmbeddingsTableQueryVariables = Exact<{
@@ -2072,6 +2176,7 @@ export type EmbeddingsTableQuery = {
     files: Array<{
       __typename?: 'AiLibraryFile'
       id: string
+      libraryId: string
       name: string
       originUri?: string | null
       mimeType: string
@@ -2126,7 +2231,7 @@ export type AiLibraryDetailQueryVariables = Exact<{
 
 export type AiLibraryDetailQuery = {
   __typename?: 'Query'
-  aiLibrary?: {
+  aiLibrary: {
     __typename?: 'AiLibrary'
     ownerId: string
     filesCount: number
@@ -2137,7 +2242,7 @@ export type AiLibraryDetailQuery = {
     updatedAt: string
     participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
     owner: { __typename?: 'User'; name?: string | null }
-  } | null
+  }
 }
 
 export type PrepareFileMutationVariables = Exact<{
@@ -2196,10 +2301,7 @@ export type DeleteAiLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
 
-export type DeleteAiLibraryMutation = {
-  __typename?: 'Mutation'
-  deleteAiLibrary?: { __typename?: 'AiLibrary'; id: string } | null
-}
+export type DeleteAiLibraryMutation = { __typename?: 'Mutation'; deleteAiLibrary?: boolean | null }
 
 export type CreateAiLibraryMutationVariables = Exact<{
   data: AiLibraryInput
@@ -4824,6 +4926,7 @@ export const AiLibraryFile_TableItemFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
@@ -7659,6 +7762,53 @@ export const RunCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<RunCrawlerMutation, RunCrawlerMutationVariables>
+export const StopCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'stopCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'stopAiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastRun' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<StopCrawlerMutation, StopCrawlerMutationVariables>
 export const UpdateAiLibraryCrawlerDocument = {
   kind: 'Document',
   definitions: [
@@ -7749,13 +7899,13 @@ export const DropFileDocument = {
     },
   ],
 } as unknown as DocumentNode<DropFileMutation, DropFileMutationVariables>
-export const ReProcessFileDocument = {
+export const ReprocessFileDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'reProcessFile' },
+      name: { kind: 'Name', value: 'reprocessFile' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -7793,7 +7943,7 @@ export const ReProcessFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ReProcessFileMutation, ReProcessFileMutationVariables>
+} as unknown as DocumentNode<ReprocessFileMutation, ReprocessFileMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -7847,6 +7997,11 @@ export const CancelFileUploadDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
       ],
       selectionSet: {
         kind: 'SelectionSet',
@@ -7860,6 +8015,11 @@ export const CancelFileUploadDocument = {
                 name: { kind: 'Name', value: 'fileId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
             ],
           },
         ],
@@ -7867,6 +8027,195 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
+export const GetFileChunksDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileChunks' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiFileChunks' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'chunks' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'text' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'section' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'headingPath' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'chunkIndex' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'subChunkIndex' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileChunksQuery, GetFileChunksQueryVariables>
+export const GetFileContentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileContent' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'readFileMarkdown' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileContentQuery, GetFileContentQueryVariables>
+export const GetFileInfoDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getFileInfo' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryFile' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'docPath' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetFileInfoQuery, GetFileInfoQueryVariables>
 export const EmbeddingsTableDocument = {
   kind: 'Document',
   definitions: [
@@ -7953,6 +8302,7 @@ export const EmbeddingsTableDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
@@ -8340,10 +8690,6 @@ export const DeleteAiLibraryDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
           },
         ],
       },

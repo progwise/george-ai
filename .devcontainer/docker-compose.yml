@@ -92,7 +92,7 @@ services:
 
   gai-crawl4ai:
     build:
-      context: ../apps/crawler-server
+      context: .
       dockerfile: Dockerfile
     container_name: gai-crawl4ai
     restart: unless-stopped
