@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
@@ -9,7 +9,6 @@ import { FileIcon } from '../../icons/file-icon'
 import { FolderIcon } from '../../icons/folder-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
-import { GoogleAccessTokenSchema } from '../data-sources/login-google-server'
 import { googleDriveFilesQueryFn } from './google-drive-folder-content'
 
 const clickDelay = 250
@@ -46,10 +45,7 @@ export const GoogleFilesTable = ({
 }: GoogleFilesTableProps) => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
-  const rawToken = localStorage.getItem('google_drive_access_token') || '{}'
-  const googleDriveAccessToken = GoogleAccessTokenSchema.parse(JSON.parse(rawToken))
   const rootFolder: { id: string; name: string } = { id: 'root', name: 'root' }
-  const queryClient = useQueryClient()
 
   const [clickCount, setClickCount] = useState<number>(0)
   const clickCountRef = useRef(clickCount)
@@ -64,7 +60,7 @@ export const GoogleFilesTable = ({
     { size: number; iconLink: string; kind: string; id: string; name: string }[] | null
   >(null)
 
-  // changing the query and the path at the same time prevents inconsistency between the displayed files and the breadcrumb navigation
+  // Changing the query and the path at the same time prevents inconsistency between the displayed files and the breadcrumb navigation.
   const [googleDriveFolder, setGoogleDriveFolder] = useState({
     fileQuery: () => encodeURIComponent("'root' in parents"),
     path: [rootFolder],
