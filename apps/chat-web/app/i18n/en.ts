@@ -18,6 +18,7 @@ export default {
     increaseLimits: 'Increase limits',
     leave: 'Leave',
     new: 'New conversation',
+    processSuccess: 'Processed successfully {count} file(s).',
     processUnprocessed: 'Process all unprocessed',
     redirecting: 'Redirecting...',
     remove: 'Remove',

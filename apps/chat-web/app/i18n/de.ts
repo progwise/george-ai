@@ -18,6 +18,7 @@ export default {
     increaseLimits: 'Grenzen erhöhen',
     new: 'Neue Konversation',
     leave: 'Verlassen',
+    processSuccess: 'Erfolgreich {count} Datei(en) verarbeitet.',
     processUnprocessed: 'Unverarbeitete Dateien verarbeiten',
     redirecting: 'Umleitung...',
     remove: 'Entfernen',
