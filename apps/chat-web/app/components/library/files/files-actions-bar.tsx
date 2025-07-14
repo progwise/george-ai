@@ -7,6 +7,7 @@ import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
 import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
+import { ProcessUnprocessedDialog } from './process-unprocessed'
 
 interface FilesActionsBarProps {
   libraryId: string
@@ -15,6 +16,7 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
+  unprocessedFileCount: number
 }
 
 export const FilesActionsBar = ({
@@ -24,6 +26,7 @@ export const FilesActionsBar = ({
   tableDataChanged,
   checkedFileIds,
   setCheckedFileIds,
+  unprocessedFileCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -100,6 +103,14 @@ export const FilesActionsBar = ({
           setCheckedFileIds={setCheckedFileIds}
         />
 
+        <ProcessUnprocessedDialog
+          libraryId={libraryId}
+          disabled={false}
+          unprocessedFileIds={[]}
+          tableDataChanged={tableDataChanged}
+          setCheckedFileIds={setCheckedFileIds}
+          unprocessedFileCount={unprocessedFileCount}
+        />
         <button
           type="button"
           className="btn btn-primary btn-xs"
