@@ -50,7 +50,6 @@ export const markUploadFinished = async ({ fileId, libraryId }: { fileId: string
     where: { id: fileId },
     data: {
       uploadedAt: new Date(),
-      mimeType: 'text/markdown',
       size: convertedFileSize,
     },
   })
