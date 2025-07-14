@@ -170,10 +170,8 @@ model AiLibraryFile {
   crawledByCrawlerId     String?
   crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
   AiLibraryUpdate        AiLibraryUpdate[]
-  status                 String            @default("Pending")
 
   @@unique([crawledByCrawlerId, originUri])
-  @@index([status])
 }
 
 model AiLibraryCrawler {

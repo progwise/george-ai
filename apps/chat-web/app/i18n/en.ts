@@ -18,7 +18,7 @@ export default {
     increaseLimits: 'Increase limits',
     leave: 'Leave',
     new: 'New conversation',
-    processUnprocessed: 'Process all',
+    processUnprocessed: 'Process all unprocessed',
     redirecting: 'Redirecting...',
     remove: 'Remove',
     removeProfile: 'Remove user profile',
@@ -356,6 +356,8 @@ export default {
     noAssistantsAvailable: 'No assistants available',
     noCrawlersFound: 'No crawlers found',
     noFilesFound: 'No files found',
+    noUnprocessedFiles:
+      "All files in this library are processed or files are currently being processed. You can try again if your desired files aren't processed soon.",
     noUsersAvailable: 'No users available',
     noUsersFound: 'No users found',
     noUsersMatchFilters: 'No users match your filters',

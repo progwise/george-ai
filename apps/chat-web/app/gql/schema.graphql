@@ -283,7 +283,6 @@ type AiLibraryFile {
   processingErrorMessage: String
   processingStartedAt: DateTime
   size: Int
-  status: String
   updatedAt: DateTime
   uploadedAt: DateTime
 }
@@ -336,16 +335,6 @@ type AiLibraryQueryResult {
   query: String!
   skip: Int!
   take: Int!
-}
-
-"""
-Query result for AI library files
-"""
-type AiLibraryUnprocessedFilesQueryResult {
-  count: Int!
-  files: [AiLibraryFile!]!
-  library: AiLibrary!
-  libraryId: String!
 }
 
 type AiLibraryUpdate {
@@ -523,6 +512,7 @@ type Mutation {
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile!
+  processUnprocessedFiles(libraryId: String!): [String!]
   removeAssistantParticipant(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
@@ -553,12 +543,12 @@ type Query {
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
-  aiLibraryUnprocessedFiles(libraryId: String!): AiLibraryUnprocessedFilesQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiModels: [AiModel!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
+  unprocessedFileCount(libraryId: String!): Int!
   user(email: String!): User
   userProfile: UserProfile
   users: [User!]!

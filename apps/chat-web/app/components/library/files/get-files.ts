@@ -47,7 +47,7 @@ export const aiLibraryFilesQueryOptions = (params: { libraryId: string; skip: nu
       }),
   })
 
-const getUnprocessedFiles = createServerFn({ method: 'GET' })
+const fetchUnprocessedFileCount = createServerFn({ method: 'GET' })
   .validator((data: object) =>
     z
       .object({
@@ -58,26 +58,19 @@ const getUnprocessedFiles = createServerFn({ method: 'GET' })
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        query aiLibraryUnprocessed($libraryId: String!) {
-          aiLibraryUnprocessedFiles(libraryId: $libraryId) {
-            libraryId
-            count
-            files {
-              id
-              status
-            }
-          }
+        query UnprocessedFileCount($libraryId: String!) {
+          unprocessedFileCount(libraryId: $libraryId)
         }
       `),
-      { ...ctx.data },
+      { libraryId: ctx.data.libraryId },
     )
   })
 
-export const aiLibraryUnprocessed = (params: { libraryId: string }) =>
+export const getUnprocessedFileCount = (params: { libraryId: string }) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraryFiles, params.libraryId, 'files'],
-    queryFn: async () =>
-      getUnprocessedFiles({
+    queryKey: ['unprocessedFileCount', params.libraryId],
+    queryFn: () =>
+      fetchUnprocessedFileCount({
         data: { libraryId: params.libraryId },
       }),
   })

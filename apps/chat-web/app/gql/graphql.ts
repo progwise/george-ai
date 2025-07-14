@@ -312,7 +312,6 @@ export type AiLibraryFile = {
   processingErrorMessage?: Maybe<Scalars['String']['output']>
   processingStartedAt?: Maybe<Scalars['DateTime']['output']>
   size?: Maybe<Scalars['Int']['output']>
-  status?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -367,15 +366,6 @@ export type AiLibraryQueryResult = {
   query: Scalars['String']['output']
   skip: Scalars['Int']['output']
   take: Scalars['Int']['output']
-}
-
-/** Query result for AI library files */
-export type AiLibraryUnprocessedFilesQueryResult = {
-  __typename?: 'AiLibraryUnprocessedFilesQueryResult'
-  count: Scalars['Int']['output']
-  files: Array<AiLibraryFile>
-  library: AiLibrary
-  libraryId: Scalars['String']['output']
 }
 
 export type AiLibraryUpdate = {
@@ -540,6 +530,7 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
+  processUnprocessedFiles?: Maybe<Array<Scalars['String']['output']>>
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
@@ -700,6 +691,10 @@ export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
+export type MutationProcessUnprocessedFilesArgs = {
+  libraryId: Scalars['String']['input']
+}
+
 export type MutationRemoveAssistantParticipantArgs = {
   assistantId: Scalars['String']['input']
   userId: Scalars['String']['input']
@@ -797,12 +792,12 @@ export type Query = {
   aiLibraries: Array<AiLibrary>
   aiLibrary?: Maybe<AiLibrary>
   aiLibraryFiles: AiLibraryFileQueryResult
-  aiLibraryUnprocessedFiles: AiLibraryUnprocessedFilesQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
+  unprocessedFileCount: Scalars['Int']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -835,10 +830,6 @@ export type QueryAiLibraryFilesArgs = {
   take?: Scalars['Int']['input']
 }
 
-export type QueryAiLibraryUnprocessedFilesArgs = {
-  libraryId: Scalars['String']['input']
-}
-
 export type QueryAiLibraryUpdatesArgs = {
   crawlerId?: InputMaybe<Scalars['ID']['input']>
   libraryId: Scalars['ID']['input']
@@ -863,6 +854,10 @@ export type QueryQueryAiLibraryFilesArgs = {
   query: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
+}
+
+export type QueryUnprocessedFileCountArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type QueryUserArgs = {
@@ -2018,6 +2013,15 @@ export type ReprocessFileMutation = {
   }
 }
 
+export type ProcessUnprocessedFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type ProcessUnprocessedFilesMutation = {
+  __typename?: 'Mutation'
+  processUnprocessedFiles?: Array<string> | null
+}
+
 export type PrepareDesktopFileMutationVariables = Exact<{
   file: AiLibraryFileInput
 }>
@@ -2078,19 +2082,11 @@ export type EmbeddingsTableQuery = {
   }
 }
 
-export type AiLibraryUnprocessedQueryVariables = Exact<{
+export type UnprocessedFileCountQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type AiLibraryUnprocessedQuery = {
-  __typename?: 'Query'
-  aiLibraryUnprocessedFiles: {
-    __typename?: 'AiLibraryUnprocessedFilesQueryResult'
-    libraryId: string
-    count: number
-    files: Array<{ __typename?: 'AiLibraryFile'; id: string; status?: string | null }>
-  }
-}
+export type UnprocessedFileCountQuery = { __typename?: 'Query'; unprocessedFileCount: number }
 
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
@@ -7783,6 +7779,39 @@ export const ReprocessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ReprocessFileMutation, ReprocessFileMutationVariables>
+export const ProcessUnprocessedFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'processUnprocessedFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'processUnprocessedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ProcessUnprocessedFilesMutation, ProcessUnprocessedFilesMutationVariables>
 export const PrepareDesktopFileDocument = {
   kind: 'Document',
   definitions: [
@@ -7956,13 +7985,13 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
-export const AiLibraryUnprocessedDocument = {
+export const UnprocessedFileCountDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiLibraryUnprocessed' },
+      name: { kind: 'Name', value: 'UnprocessedFileCount' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -7975,7 +8004,7 @@ export const AiLibraryUnprocessedDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibraryUnprocessedFiles' },
+            name: { kind: 'Name', value: 'unprocessedFileCount' },
             arguments: [
               {
                 kind: 'Argument',
@@ -7983,30 +8012,12 @@ export const AiLibraryUnprocessedDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'files' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                    ],
-                  },
-                },
-              ],
-            },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<AiLibraryUnprocessedQuery, AiLibraryUnprocessedQueryVariables>
+} as unknown as DocumentNode<UnprocessedFileCountQuery, UnprocessedFileCountQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [

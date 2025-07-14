@@ -16,6 +16,7 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
+  unprocessedFileCount: number
 }
 
 export const FilesActionsBar = ({
@@ -25,6 +26,7 @@ export const FilesActionsBar = ({
   tableDataChanged,
   checkedFileIds,
   setCheckedFileIds,
+  unprocessedFileCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -116,6 +118,7 @@ export const FilesActionsBar = ({
           unprocessedFileIds={[]}
           tableDataChanged={tableDataChanged}
           setCheckedFileIds={setCheckedFileIds}
+          unprocessedFileCount={unprocessedFileCount}
         />
       </div>
       <div className="text-right text-sm">

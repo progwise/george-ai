@@ -1,8 +1,7 @@
 import { cleanupFile, deleteFileAndRecord } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
-import { FileStatus } from './file-status'
-import { processFile } from './process-file'
+import { countUnprocessedFiles, processFile, processUnprocessedFiles } from './process-file'
 
 console.log('Setting up: AiLibraryFile')
 
@@ -63,7 +62,6 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
       nullable: false,
     }),
     dropError: t.exposeString('dropError', { nullable: true }),
-    status: t.exposeString('status'),
   }),
 })
 
@@ -253,131 +251,27 @@ builder.mutationField('cancelFileUpload', (t) =>
   }),
 )
 
-const LibraryUnprocessedFilesQueryResult = builder
-  .objectRef<{ libraryId: string }>('AiLibraryUnprocessedFilesQueryResult')
-  .implement({
-    description: 'Query result for AI library files',
-    fields: (t) => ({
-      libraryId: t.exposeString('libraryId', { nullable: false }),
-      library: t.withAuth({ isLoggedIn: true }).prismaField({
-        type: 'AiLibrary',
-        nullable: false,
-        resolve: async (query, root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-          return prisma.aiLibrary.findUniqueOrThrow({ where: { id: root.libraryId } })
-        },
-      }),
-      count: t.withAuth({ isLoggedIn: true }).field({
-        type: 'Int',
-        nullable: false,
-        resolve: async (root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-
-          const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
-          const where = {
-            libraryId: root.libraryId,
-            OR: [
-              { status: FileStatus.Pending },
-              { status: FileStatus.Failed },
-              {
-                status: FileStatus.Processing,
-                processingStartedAt: { lt: twoMinutesAgo },
-              },
-            ],
-          }
-          return prisma.aiLibraryFile.count({ where })
-        },
-      }),
-      files: t.withAuth({ isLoggedIn: true }).prismaField({
-        type: ['AiLibraryFile'],
-        nullable: false,
-        resolve: async (query, root, _args, context) => {
-          const libraryUsers = await prisma.aiLibrary.findFirstOrThrow({
-            where: { id: root.libraryId },
-            select: { ownerId: true, participants: { select: { userId: true } } },
-          })
-          if (
-            libraryUsers.ownerId !== context.session.user.id &&
-            !libraryUsers.participants.some((participant) => participant.userId === context.session.user.id)
-          ) {
-            throw new Error('You do not have access to this library')
-          }
-
-          const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
-          const where = {
-            libraryId: root.libraryId,
-            OR: [
-              { status: FileStatus.Pending },
-              { status: FileStatus.Failed },
-              {
-                status: FileStatus.Processing,
-                processingStartedAt: { lt: twoMinutesAgo },
-              },
-            ],
-          }
-
-          console.log('Fetching unprocessed AI library files for library:', root.libraryId)
-          return prisma.aiLibraryFile.findMany({
-            ...query,
-            where,
-            orderBy: { createdAt: 'desc' },
-          })
-        },
-      }),
-    }),
-  })
-
-builder.queryField('aiLibraryUnprocessedFiles', (t) =>
-  t.withAuth({ isLoggedIn: true }).field({
-    type: LibraryUnprocessedFilesQueryResult,
+builder.queryField('unprocessedFileCount', (t) =>
+  t.withAuth({ isLoggedIn: true }).int({
     nullable: false,
     args: {
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (_root, args) => {
-      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
-      const where = {
-        libraryId: args.libraryId,
-        OR: [
-          { status: FileStatus.Pending },
-          { status: FileStatus.Failed },
-          {
-            status: FileStatus.Processing,
-            processingStartedAt: { lt: twoMinutesAgo },
-          },
-        ],
-      }
+      return countUnprocessedFiles(args.libraryId)
+    },
+  }),
+)
 
-      const files = await prisma.aiLibraryFile.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-      })
-
-      const count = await prisma.aiLibraryFile.count({ where })
-
-      return {
-        libraryId: args.libraryId,
-        count,
-        files,
-      }
+builder.mutationField('processUnprocessedFiles', (t) =>
+  t.withAuth({ isLoggedIn: true }).stringList({
+    nullable: true,
+    args: {
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (_root, args) => {
+      await processUnprocessedFiles(args.libraryId)
+      return null
     },
   }),
 )
