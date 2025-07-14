@@ -225,15 +225,6 @@ export type AiLibrary = {
   url?: Maybe<Scalars['String']['output']>
 }
 
-/** Query result for AI library files */
-export type AiLibraryAllFilesQueryResult = {
-  __typename?: 'AiLibraryAllFilesQueryResult'
-  count: Scalars['Int']['output']
-  files: Array<AiLibraryFile>
-  library: AiLibrary
-  libraryId: Scalars['String']['output']
-}
-
 export type AiLibraryCrawler = {
   __typename?: 'AiLibraryCrawler'
   createdAt: Scalars['DateTime']['output']
@@ -528,7 +519,6 @@ export type Mutation = {
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibrary?: Maybe<AiLibrary>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
-  deleteAiLibraryUpdate: Array<AiLibraryUpdate>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
@@ -654,10 +644,6 @@ export type MutationDeleteAiLibraryArgs = {
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
-}
-
-export type MutationDeleteAiLibraryUpdateArgs = {
-  libraryId: Scalars['String']['input']
 }
 
 export type MutationDeleteMessageArgs = {
@@ -800,7 +786,6 @@ export type Query = {
   aiConversations: Array<AiConversation>
   aiLibraries: Array<AiLibrary>
   aiLibrary?: Maybe<AiLibrary>
-  aiLibraryAllFiles: AiLibraryAllFilesQueryResult
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
@@ -830,10 +815,6 @@ export type QueryAiConversationMessagesArgs = {
 }
 
 export type QueryAiLibraryArgs = {
-  libraryId: Scalars['String']['input']
-}
-
-export type QueryAiLibraryAllFilesArgs = {
   libraryId: Scalars['String']['input']
 }
 
@@ -2010,15 +1991,6 @@ export type ClearEmbeddedFilesMutationVariables = Exact<{
 
 export type ClearEmbeddedFilesMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
 
-export type DeleteAiLibraryUpdateMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type DeleteAiLibraryUpdateMutation = {
-  __typename?: 'Mutation'
-  deleteAiLibraryUpdate: Array<{ __typename?: 'AiLibraryUpdate'; id: string }>
-}
-
 export type ReprocessFileMutationVariables = Exact<{
   id: Scalars['String']['input']
 }>
@@ -2079,33 +2051,6 @@ export type EmbeddingsTableQuery = {
     libraryId: string
     take: number
     skip: number
-    count: number
-    library: { __typename?: 'AiLibrary'; name: string }
-    files: Array<{
-      __typename?: 'AiLibraryFile'
-      id: string
-      name: string
-      originUri?: string | null
-      mimeType: string
-      size?: number | null
-      chunks?: number | null
-      uploadedAt?: string | null
-      processedAt?: string | null
-      processingErrorMessage?: string | null
-      dropError?: string | null
-    }>
-  }
-}
-
-export type DropAllFilesQueryVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type DropAllFilesQuery = {
-  __typename?: 'Query'
-  aiLibraryAllFiles: {
-    __typename?: 'AiLibraryAllFilesQueryResult'
-    libraryId: string
     count: number
     library: { __typename?: 'AiLibrary'; name: string }
     files: Array<{
@@ -7803,43 +7748,6 @@ export const ClearEmbeddedFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<ClearEmbeddedFilesMutation, ClearEmbeddedFilesMutationVariables>
-export const DeleteAiLibraryUpdateDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteAiLibraryUpdate' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'deleteAiLibraryUpdate' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DeleteAiLibraryUpdateMutation, DeleteAiLibraryUpdateMutationVariables>
 export const ReprocessFileDocument = {
   kind: 'Document',
   definitions: [
@@ -8058,82 +7966,6 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
-export const DropAllFilesDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'dropAllFiles' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiLibraryAllFiles' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'library' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
-                  },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'count' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'files' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_TableItem' } }],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AiLibraryFile_TableItem' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'chunks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<DropAllFilesQuery, DropAllFilesQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [

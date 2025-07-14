@@ -164,6 +164,7 @@ export default {
     deleteMessage: 'Failed to delete message',
     dropFile: 'An error occurred while dropping the file: {error}.',
     dropFiles: 'An error occurred while dropping {count} files. {error}.',
+    dropFilesError: 'Failed to delete all files',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
     messageTooShort: 'Message must be at least 3 characters.',

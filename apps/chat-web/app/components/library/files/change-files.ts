@@ -45,22 +45,6 @@ export const clearEmbeddedFiles = createServerFn({ method: 'POST' })
     return await Promise.all(dropVectorStore)
   })
 
-export const deleteAiLibraryUpdate = createServerFn({ method: 'POST' })
-  .validator((data: string) => z.string().nonempty().parse(data))
-  .handler(async (ctx) => {
-    const result = await backendRequest(
-      graphql(`
-        mutation deleteAiLibraryUpdate($libraryId: String!) {
-          deleteAiLibraryUpdate(libraryId: $libraryId) {
-            id
-          }
-        }
-      `),
-      { libraryId: ctx.data },
-    )
-    return result
-  })
-
 export const reprocessFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {

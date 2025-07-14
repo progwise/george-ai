@@ -170,6 +170,7 @@ export default {
     deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     dropFile: 'Fehler beim Löschen der Datei: {error}.',
     dropFiles: 'Fehler beim Entfernen von {count} Dateien: {error}.',
+    dropFilesError: 'Das Entfernen aller Dateien ist fehlgeschlagen',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',

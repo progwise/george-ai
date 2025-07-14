@@ -109,7 +109,6 @@ export const FilesActionsBar = ({
           disabled={false}
           setCheckedFileIds={setCheckedFileIds}
           tableDataChanged={tableDataChanged}
-          allFileIds={[]}
           totalItems={totalItems}
         />
 

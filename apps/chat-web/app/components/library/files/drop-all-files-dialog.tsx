@@ -5,14 +5,13 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { clearEmbeddedFiles, deleteAiLibraryUpdate } from './change-files'
+import { clearEmbeddedFiles } from './change-files'
 
 interface DropAllFilesDialogProps {
   libraryId: string
   disabled: boolean
   tableDataChanged: () => void
   setCheckedFileIds: (fileIds: string[]) => void
-  allFileIds: string[]
   totalItems: number
 }
 
@@ -27,8 +26,8 @@ export const DropAllFilesDialog = ({
 
   const { isPending, ...dropVectorStore } = useMutation({
     mutationFn: async (libraryId: string) => {
+      dialogRef.current?.close()
       await clearEmbeddedFiles({ data: [libraryId] })
-      await deleteAiLibraryUpdate({ data: libraryId })
     },
     onError: () => {
       toastError(t('errors.dropFilesError'))
@@ -39,7 +38,6 @@ export const DropAllFilesDialog = ({
     onSettled: () => {
       setCheckedFileIds([])
       tableDataChanged()
-      dialogRef.current?.close()
     },
   })
 
@@ -57,6 +55,8 @@ export const DropAllFilesDialog = ({
         {textOfDropButton}
       </button>
 
+      <LoadingSpinner isLoading={isPending} />
+
       <DialogForm
         ref={dialogRef}
         title={t('libraries.dropAllFilesDialog')}
@@ -66,8 +66,6 @@ export const DropAllFilesDialog = ({
         }}
         submitButtonText={textOfDropButton}
       >
-        <LoadingSpinner isLoading={isPending} />
-
         <div className="w-full">
           <div className="mb-4">
             <>
