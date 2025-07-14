@@ -6,9 +6,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /home/george
 
-COPY requirements.txt .
-COPY src ./src
-COPY start-prod.sh .
+COPY /apps/crawler-server/requirements.txt .
+COPY /apps/crawler-server/src ./src
+COPY /apps/crawler-server/start-prod.sh .
 
 RUN python3 -m venv .venv && \
     . .venv/bin/activate && \
