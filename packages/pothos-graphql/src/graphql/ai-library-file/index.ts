@@ -2,7 +2,6 @@ import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 import { selectRecursively } from './google-drive-fetch'
-import { processFile } from './process-file'
 
 import './process-file'
 import './read-file'
