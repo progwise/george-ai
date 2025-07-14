@@ -3,7 +3,29 @@ import { embedFile } from '@george-ai/langchain-chat'
 import { cleanupFile, deleteFileAndRecord, getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+import { selectRecursively } from './google-drive-fetch'
 import { processFile } from './process-file'
+
+const GoogleDriveFile = builder
+  .objectRef<{
+    id: string
+    kind: string
+    name: string
+    mimeType: string
+    size: string
+    iconLink: string
+  }>('GoogleDriveFile')
+  .implement({
+    description: 'Google Drive Files Fetch Query',
+    fields: (t) => ({
+      id: t.exposeString('id', { nullable: false }),
+      kind: t.exposeString('kind', { nullable: false }),
+      name: t.exposeString('name', { nullable: false }),
+      mimeType: t.exposeString('mimeType', { nullable: false }),
+      size: t.exposeString('size', { nullable: true }),
+      iconLink: t.exposeString('iconLink', { nullable: true }),
+    }),
+  })
 
 console.log('Setting up: AiLibraryFile')
 
@@ -300,6 +322,30 @@ builder.mutationField('cancelFileUpload', (t) =>
     resolve: async (_source, { fileId }) => {
       await cancelFileUpload(fileId)
       return true
+    },
+  }),
+)
+
+builder.mutationField('selectFilesFromGoogleDriveFolders', (t) =>
+  t.field({
+    type: [GoogleDriveFile],
+    nullable: false,
+    args: {
+      fileId: t.arg.string({ required: true }),
+      accessToken: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { fileId, accessToken }) => {
+      console.log('Start fetching files from checked Google Drive folder')
+      const checkedFiles = await selectRecursively(fileId, accessToken)
+      const googleDriveFiles = checkedFiles.map((file) => ({
+        id: file.id,
+        kind: file.kind,
+        name: file.name,
+        mimeType: file.kind,
+        size: file.size,
+        iconLink: file.iconLink,
+      }))
+      return googleDriveFiles
     },
   }),
 )

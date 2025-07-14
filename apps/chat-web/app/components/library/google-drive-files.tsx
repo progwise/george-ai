@@ -14,37 +14,13 @@ import { backendRequest, backendUpload } from '../../server-functions/backend'
 import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sources/login-google-server'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
+import { getHighResIconUrl, googleDriveResponseSchema } from './google-drive-folder-content'
 import { GoogleFilesTable, LibraryFile, LibraryFileSchema } from './google-files-table'
 
 export interface GoogleDriveFilesProps {
   libraryId: string
   disabled: boolean
   dialogRef: React.RefObject<HTMLDialogElement | null>
-}
-
-export const googleDriveResponseSchema = z.object({
-  files: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-      size: z.string().optional(),
-      iconLink: z.string().optional(),
-      mimeType: z.string(),
-    }),
-  ),
-})
-
-export const getHighResIconUrl = (iconLink: string): string => {
-  if (!iconLink) return ''
-
-  const listIconPattern = /\/icon_\d+_([^_]+)_list\.png$/
-  const resolutionPattern = /\/\d+\//
-
-  if (listIconPattern.test(iconLink)) {
-    return iconLink.replace(listIconPattern, '/mediatype/icon_3_$1_x32.png')
-  }
-
-  return resolutionPattern.test(iconLink) ? iconLink.replace(resolutionPattern, '/32/') : iconLink
 }
 
 const PrepareFileDocument = graphql(`
@@ -67,18 +43,49 @@ const ProcessFileDocument = graphql(`
   }
 `)
 
+const SelectFilesFromGoogleDriveFoldersDocument = graphql(`
+  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {
+    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {
+      id
+      kind
+      name
+      mimeType
+      size
+      iconLink
+    }
+  }
+`)
+
 const embedFiles = createServerFn({ method: 'GET' })
-  .validator((data: { libraryId: string; files: Array<LibraryFile>; access_token: string }) =>
+  .validator((data: { libraryId: string; files: Array<LibraryFile>; folderIds: Array<string>; access_token: string }) =>
     z
       .object({
         libraryId: z.string().nonempty(),
         files: z.array(LibraryFileSchema),
+        folderIds: z.array(z.string().nonempty()),
         access_token: z.string().nonempty(),
       })
       .parse(data),
   )
   .handler(async (ctx) => {
-    const processFiles = ctx.data.files.map(async (file) => {
+    // Is it even necessary to check if they are files?
+    const filesToDownload = ctx.data.files.filter((file) => file.kind !== 'application/vnd.google-apps.folder')
+
+    // Using the for in loop ensures that the code outside the loop is not executed before there are results from the backend requests
+    for (const index in ctx.data.folderIds) {
+      const filesFromCheckedFolders = await backendRequest(SelectFilesFromGoogleDriveFoldersDocument, {
+        fileId: ctx.data.folderIds[index],
+        accessToken: ctx.data.access_token,
+      })
+      const filesFromFolders = filesFromCheckedFolders.selectFilesFromGoogleDriveFolders.map(({ ...file }) => ({
+        ...file,
+        size: file.size ? parseInt(file.size) : 0,
+        iconLink: getHighResIconUrl(file.iconLink ?? ''),
+        kind: file.mimeType,
+      }))
+      filesToDownload.push(...filesFromFolders)
+    }
+    const processFiles = filesToDownload.map(async (file) => {
       let isPdfExport = true
       const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
@@ -173,7 +180,8 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
   const [checkedFiles, setCheckedFiles] = useState<LibraryFile[]>([])
   const [checkedFolderIds, setCheckedFolderIds] = useState<string[]>([])
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } = useMutation({
-    mutationFn: (data: { libraryId: string; files: LibraryFile[]; access_token: string }) => embedFiles({ data }),
+    mutationFn: (data: { libraryId: string; files: LibraryFile[]; folderIds: string[]; access_token: string }) =>
+      embedFiles({ data }),
     onSuccess: () => {
       toastSuccess('Files embedded successfully')
       setCheckedFiles([])
@@ -216,16 +224,13 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
     )}`
   }
 
-  const handleEmbedFiles = async (files: LibraryFile[]) => {
+  const handleEmbedFiles = async (files: LibraryFile[], folderIds: string[]) => {
     embedFilesMutation({
       libraryId,
       files,
+      folderIds,
       access_token: googleDriveAccessToken.access_token!,
     })
-  }
-
-  const getAddFilesLabel = (count: number) => {
-    return count === 1 ? t('libraries.addSingleFile') : t('libraries.addMultipleFiles', { count })
   }
 
   return (
@@ -248,18 +253,20 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
               </button>
               <button
                 type="button"
-                disabled={!checkedFiles.length || embedFilesIsPending || disabled}
+                disabled={(!checkedFiles.length && !checkedFolderIds.length) || embedFilesIsPending || disabled}
                 className="btn btn-primary btn-xs"
-                onClick={() => handleEmbedFiles(checkedFiles)}
+                onClick={() => handleEmbedFiles(checkedFiles, checkedFolderIds)}
               >
-                {getAddFilesLabel(checkedFiles.length)}
+                {checkedFiles.length === 1 && checkedFolderIds.length < 1
+                  ? t('libraries.addSingleFile')
+                  : t('libraries.addMultipleFiles')}
               </button>
             </>
           )}
         </div>
         {googleDriveFilesData && googleDriveFilesData.length > 0 && (
           <GoogleFilesTable
-            checkedFiles={checkedFiles}
+            checkedFileIds={checkedFiles.map((file) => file.id)}
             setCheckedFiles={setCheckedFiles}
             checkedFolderIds={checkedFolderIds}
             setCheckedFolderIds={setCheckedFolderIds}

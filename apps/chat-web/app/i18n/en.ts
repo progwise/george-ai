@@ -180,6 +180,7 @@ export default {
   flowSequential: 'Flow: Sequential',
   flowWeb: 'Flow: Only Web',
   googleDriveRootFolder: 'My Drive',
+  googleDriveUnselectFiles: 'Unselect',
   greeting: 'Hello, I am your travel assistant. How can I help you?',
   hero: {
     badge: 'Introducing George-AI',
@@ -289,12 +290,12 @@ export default {
     wednesday: 'Wednesday',
   },
   libraries: {
-    addMultipleFiles: 'Add {count} Files',
+    addMultipleFiles: 'Add Files',
     addNew: 'Create new library',
     addNewButton: 'Create library',
     addNewDescription: 'A library is a collection of files that can be used by assistants.',
     addParticipantsConfirmation: 'You can add participants to this library.',
-    addSingleFile: 'Add 1 File',
+    addSingleFile: 'Add File',
     deleteLibrary: 'Delete {libraryName} library',
     deleteLibraryConfirmation: '{libraryName} will be deleted along with {fileCount} file(s).',
     dropFileError: 'Failed to delete file',

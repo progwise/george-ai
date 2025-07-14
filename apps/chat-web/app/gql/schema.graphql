@@ -434,6 +434,18 @@ scalar DateTime
 
 scalar Decimal
 
+"""
+Google Drive Files Fetch Query
+"""
+type GoogleDriveFile {
+  iconLink: String
+  id: String!
+  kind: String!
+  mimeType: String!
+  name: String!
+  size: String
+}
+
 type HumanParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -519,6 +531,7 @@ type Mutation {
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
+  selectFilesFromGoogleDriveFolders(accessToken: String!, fileId: String!): [GoogleDriveFile!]!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   toggleAdminStatus(userId: String!): User

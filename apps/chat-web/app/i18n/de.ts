@@ -186,6 +186,7 @@ export default {
   flowSequential: 'Ablauf: Sequenziell',
   flowWeb: 'Ablauf: Nur Web',
   googleDriveRootFolder: 'Meine Ablage',
+  googleDriveUnselectFiles: 'Auswahl aufheben',
   greeting: 'Hallo, ich bin Ihr Reiseassistent. Wie kann ich Ihnen helfen?',
   hero: {
     badge: 'Vorstellung George-Ai',
@@ -296,12 +297,12 @@ export default {
     wednesday: 'Mittwoch',
   },
   libraries: {
-    addMultipleFiles: 'Füge {count} Dateien hinzu',
+    addMultipleFiles: 'Füge Dateien hinzu',
     addNew: 'Neue Bibliothek erstellen',
     addNewButton: 'Bibliothek erstellen',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addParticipantsConfirmation: 'Sie können dieser Bibliothek Teilnehmer hinzufügen.',
-    addSingleFile: 'Füge 1 Datei hinzu',
+    addSingleFile: 'Füge Datei hinzu',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryConfirmation: '{libraryName} wird zusammen mit {fileCount} Datei(en) gelöscht.',
     dropFileError: 'Löschen der Datei fehlgeschlagen',
