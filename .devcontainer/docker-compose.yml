@@ -92,8 +92,8 @@ services:
 
   gai-crawl4ai:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: ./apps/crawler-server/Dockerfile
     container_name: gai-crawl4ai
     restart: unless-stopped
     ports:
