@@ -97,13 +97,16 @@ export const ConversationSelector = ({
               <ul>
                 {conversations.map((conversation) => (
                   <li key={conversation.id} className="center grid grid-cols-[1fr_10fr] items-center">
-                    <div>
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-xs"
-                        onChange={() => handleCheckConversation(conversation.id)}
-                      />
-                    </div>
+                    <label className="flex cursor-pointer items-center">
+                      <span>
+                        <input
+                          type="checkbox"
+                          className="checkbox checkbox-xs"
+                          onChange={() => handleCheckConversation(conversation.id)}
+                        />
+                      </span>
+                    </label>
+
                     <Link
                       className="mt-1 block rounded-md"
                       activeProps={{ className: 'menu-active' }}
