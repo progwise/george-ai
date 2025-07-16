@@ -86,7 +86,7 @@ type Documents = {
   '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryDetail\n      ...LibraryParticipants_Library\n    }\n  }\n': typeof types.AiLibraryDetailDocument
   '\n  mutation prepareFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareFileDocument
   '\n  mutation processFile($fileId: String!) {\n    processFile(fileId: $fileId) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n': typeof types.ProcessFileDocument
-  '\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n      size\n      iconLink\n    }\n  }\n': typeof types.SelectFilesFromGoogleDriveFoldersDocument
+  '\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n    }\n  }\n': typeof types.SelectFilesFromGoogleDriveFoldersDocument
   '\n  mutation dropFiles($libraryId: String!) {\n    dropFiles(libraryId: $libraryId) {\n      id\n      libraryId\n    }\n  }\n': typeof types.DropFilesDocument
   '\n  mutation deleteAiLibrary($id: String!) {\n    deleteAiLibrary(id: $id)\n  }\n': typeof types.DeleteAiLibraryDocument
   '\n        mutation createAiLibrary($data: AiLibraryInput!) {\n          createAiLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateAiLibraryDocument
@@ -267,7 +267,7 @@ const documents: Documents = {
     types.PrepareFileDocument,
   '\n  mutation processFile($fileId: String!) {\n    processFile(fileId: $fileId) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n':
     types.ProcessFileDocument,
-  '\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n      size\n      iconLink\n    }\n  }\n':
+  '\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n    }\n  }\n':
     types.SelectFilesFromGoogleDriveFoldersDocument,
   '\n  mutation dropFiles($libraryId: String!) {\n    dropFiles(libraryId: $libraryId) {\n      id\n      libraryId\n    }\n  }\n':
     types.DropFilesDocument,
@@ -789,8 +789,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n      size\n      iconLink\n    }\n  }\n',
-): (typeof documents)['\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n      size\n      iconLink\n    }\n  }\n']
+  source: '\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n    }\n  }\n',
+): (typeof documents)['\n  mutation selectFilesFromGoogleDriveFolders($fileId: String!, $accessToken: String!) {\n    selectFilesFromGoogleDriveFolders(fileId: $fileId, accessToken: $accessToken) {\n      id\n      kind\n      name\n      mimeType\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

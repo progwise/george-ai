@@ -15,7 +15,7 @@ import { GoogleAccessTokenSchema, validateGoogleAccessToken } from '../data-sour
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { getHighResIconUrl, googleDriveResponseSchema } from './google-drive-folder-content'
-import { GoogleFilesTable, LibraryFile, LibraryFileSchema } from './google-files-table'
+import { GoogleFilesTable, LibraryFile } from './google-files-table'
 
 export interface GoogleDriveFilesProps {
   libraryId: string
@@ -50,26 +50,29 @@ const SelectFilesFromGoogleDriveFoldersDocument = graphql(`
       kind
       name
       mimeType
-      size
-      iconLink
     }
   }
 `)
 
+const FileType = z.object({ name: z.string(), kind: z.string(), id: z.string() })
+
 const embedFiles = createServerFn({ method: 'GET' })
-  .validator((data: { libraryId: string; files: Array<LibraryFile>; folderIds: Array<string>; access_token: string }) =>
+  .validator((data: object) =>
     z
       .object({
         libraryId: z.string().nonempty(),
-        files: z.array(LibraryFileSchema),
+        files: z.array(FileType),
         folderIds: z.array(z.string().nonempty()),
         access_token: z.string().nonempty(),
       })
       .parse(data),
   )
   .handler(async (ctx) => {
-    // Is it even necessary to check if they are files?
-    const filesToDownload = ctx.data.files.filter((file) => file.kind !== 'application/vnd.google-apps.folder')
+    const filesFromFolders: {
+      id: string
+      kind: string
+      name: string
+    }[] = []
 
     // Using the for in loop ensures that the code outside the loop is not executed before there are results from the backend requests
     for (const index in ctx.data.folderIds) {
@@ -77,15 +80,21 @@ const embedFiles = createServerFn({ method: 'GET' })
         fileId: ctx.data.folderIds[index],
         accessToken: ctx.data.access_token,
       })
-      const filesFromFolders = filesFromCheckedFolders.selectFilesFromGoogleDriveFolders.map(({ ...file }) => ({
+      const newFiles = filesFromCheckedFolders.selectFilesFromGoogleDriveFolders.map(({ ...file }) => ({
         ...file,
-        size: file.size ? parseInt(file.size) : 0,
-        iconLink: getHighResIconUrl(file.iconLink ?? ''),
         kind: file.mimeType,
       }))
-      filesToDownload.push(...filesFromFolders)
+      filesFromFolders.push(...newFiles)
     }
-    const processFiles = filesToDownload.map(async (file) => {
+    const allFiles = [...ctx.data.files, ...filesFromFolders]
+    // removes duplicates from all checked files
+    const correctedFiles: { name: string; kind: string; id: string }[] = []
+    allFiles.forEach((file) => {
+      if (!correctedFiles.some((item) => item.id === file.id)) {
+        correctedFiles.push(file)
+      }
+    })
+    const processFiles = correctedFiles.map(async (file) => {
       let isPdfExport = true
       const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
@@ -178,14 +187,14 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
   })
 
   const [checkedFiles, setCheckedFiles] = useState<LibraryFile[]>([])
-  const [checkedFolderIds, setCheckedFolderIds] = useState<string[]>([])
+  const [checkedFolders, setCheckedFolders] = useState<{ id: string; path: string[] }[]>([])
   const { mutate: embedFilesMutation, isPending: embedFilesIsPending } = useMutation({
     mutationFn: (data: { libraryId: string; files: LibraryFile[]; folderIds: string[]; access_token: string }) =>
       embedFiles({ data }),
     onSuccess: () => {
       toastSuccess('Files embedded successfully')
       setCheckedFiles([])
-      setCheckedFolderIds([])
+      setCheckedFolders([])
       queryClient.invalidateQueries({ queryKey: [queryKeys.AiLibraryFiles, libraryId] })
       queryClient.invalidateQueries({ queryKey: getProfileQueryOptions() })
     },
@@ -224,11 +233,22 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
     )}`
   }
 
-  const handleEmbedFiles = async (files: LibraryFile[], folderIds: string[]) => {
+  const handleEmbedFiles = async (files: LibraryFile[], folders: { id: string; path: string[] }[]) => {
+    // removes selected folders when in their path there are folders which are also selected
+    let correctedFolderIds: string[] = folders.map((folder) => folder.id)
+    folders.forEach((folder) => {
+      folders.forEach((item) => {
+        folder.path.forEach((id) => {
+          if (id === item.id) {
+            correctedFolderIds = correctedFolderIds.filter((folderId) => folderId !== folder.id)
+          }
+        })
+      })
+    })
     embedFilesMutation({
       libraryId,
       files,
-      folderIds,
+      folderIds: correctedFolderIds,
       access_token: googleDriveAccessToken.access_token!,
     })
   }
@@ -253,11 +273,11 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
               </button>
               <button
                 type="button"
-                disabled={(!checkedFiles.length && !checkedFolderIds.length) || embedFilesIsPending || disabled}
+                disabled={(!checkedFiles.length && !checkedFolders.length) || embedFilesIsPending || disabled}
                 className="btn btn-primary btn-xs"
-                onClick={() => handleEmbedFiles(checkedFiles, checkedFolderIds)}
+                onClick={() => handleEmbedFiles(checkedFiles, checkedFolders)}
               >
-                {checkedFiles.length === 1 && checkedFolderIds.length < 1
+                {checkedFiles.length === 1 && checkedFolders.length < 1
                   ? t('libraries.addSingleFile')
                   : t('libraries.addMultipleFiles')}
               </button>
@@ -268,8 +288,8 @@ export const GoogleDriveFiles = ({ libraryId, disabled, dialogRef }: GoogleDrive
           <GoogleFilesTable
             checkedFileIds={checkedFiles.map((file) => file.id)}
             setCheckedFiles={setCheckedFiles}
-            checkedFolderIds={checkedFolderIds}
-            setCheckedFolderIds={setCheckedFolderIds}
+            checkedFolders={checkedFolders}
+            setCheckedFolders={setCheckedFolders}
           />
         )}
       </div>

@@ -13,8 +13,6 @@ const GoogleDriveFile = builder
     kind: string
     name: string
     mimeType: string
-    size: string
-    iconLink: string
   }>('GoogleDriveFile')
   .implement({
     description: 'Google Drive Files Fetch Query',
@@ -23,8 +21,6 @@ const GoogleDriveFile = builder
       kind: t.exposeString('kind', { nullable: false }),
       name: t.exposeString('name', { nullable: false }),
       mimeType: t.exposeString('mimeType', { nullable: false }),
-      size: t.exposeString('size', { nullable: true }),
-      iconLink: t.exposeString('iconLink', { nullable: true }),
     }),
   })
 
@@ -285,15 +281,12 @@ builder.mutationField('selectFilesFromGoogleDriveFolders', (t) =>
       accessToken: t.arg.string({ required: true }),
     },
     resolve: async (_source, { fileId, accessToken }) => {
-      console.log('Start fetching files from checked Google Drive folder')
       const checkedFiles = await selectRecursively(fileId, accessToken)
       const googleDriveFiles = checkedFiles.map((file) => ({
         id: file.id,
         kind: file.kind,
         name: file.name,
         mimeType: file.kind,
-        size: file.size,
-        iconLink: file.iconLink,
       }))
       return googleDriveFiles
     },

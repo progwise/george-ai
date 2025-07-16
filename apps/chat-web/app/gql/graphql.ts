@@ -477,12 +477,10 @@ export type FileChunkQueryResponse = {
 /** Google Drive Files Fetch Query */
 export type GoogleDriveFile = {
   __typename?: 'GoogleDriveFile'
-  iconLink?: Maybe<Scalars['String']['output']>
   id: Scalars['String']['output']
   kind: Scalars['String']['output']
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
-  size?: Maybe<Scalars['String']['output']>
 }
 
 export type HumanParticipant = AiConversationParticipant & {
@@ -2294,8 +2292,6 @@ export type SelectFilesFromGoogleDriveFoldersMutation = {
     kind: string
     name: string
     mimeType: string
-    size?: string | null
-    iconLink?: string | null
   }>
 }
 
@@ -8621,8 +8617,6 @@ export const SelectFilesFromGoogleDriveFoldersDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'kind' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'iconLink' } },
               ],
             },
           },

@@ -458,12 +458,10 @@ type FileChunkQueryResponse {
 Google Drive Files Fetch Query
 """
 type GoogleDriveFile {
-  iconLink: String
   id: String!
   kind: String!
   mimeType: String!
   name: String!
-  size: String
 }
 
 type HumanParticipant implements AiConversationParticipant {

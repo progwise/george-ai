@@ -9,7 +9,7 @@ import { FileIcon } from '../../icons/file-icon'
 import { FolderIcon } from '../../icons/folder-icon'
 import { GridViewIcon } from '../../icons/grid-view-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
-import { googleDriveFilesQueryFn } from './google-drive-folder-content'
+import { fetchContentOfOpenGoogleDriveFolder } from './google-drive-folder-content'
 
 const clickDelay = 250
 
@@ -25,8 +25,8 @@ export type LibraryFile = z.infer<typeof LibraryFileSchema>
 interface GoogleFilesTableProps {
   checkedFileIds: string[]
   setCheckedFiles: React.Dispatch<React.SetStateAction<LibraryFile[]>>
-  checkedFolderIds: string[]
-  setCheckedFolderIds: React.Dispatch<React.SetStateAction<string[]>>
+  checkedFolders: { id: string; path: string[] }[]
+  setCheckedFolders: React.Dispatch<React.SetStateAction<{ id: string; path: string[] }[]>>
 }
 
 const formatBytes = (bytes: number): string => {
@@ -40,18 +40,16 @@ const formatBytes = (bytes: number): string => {
 export const GoogleFilesTable = ({
   checkedFileIds,
   setCheckedFiles,
-  checkedFolderIds,
-  setCheckedFolderIds,
+  checkedFolders,
+  setCheckedFolders,
 }: GoogleFilesTableProps) => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const rootFolder: { id: string; name: string } = { id: 'root', name: 'root' }
 
   const [clickCount, setClickCount] = useState<number>(0)
-  const clickCountRef = useRef(clickCount)
   const [clickTarget, setClickTarget] = useState<LibraryFile | null>(null)
   const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [clickTimeStamp, setClickTimeStamp] = useState<number>(0)
   const [isBrowsingCheckedFolder, setIsBrowsingCheckedFolder] = useState<boolean>(false)
   const isBrowsingCheckedFolderRef = useRef(isBrowsingCheckedFolder)
   const [idOfCheckedParentFolder, setIdOfCheckedParentFolder] = useState<string | null>(null)
@@ -71,52 +69,55 @@ export const GoogleFilesTable = ({
   // is used for updating the view of the files which are contained in the current folder
   useQuery({
     queryKey: [fileQuery, setDisplayedFiles],
-    queryFn: () => googleDriveFilesQueryFn(fileQuery, setDisplayedFiles),
+    queryFn: () => fetchContentOfOpenGoogleDriveFolder(fileQuery, setDisplayedFiles),
   })
 
   const toggleFile = useCallback(
     (file: LibraryFile) => {
-      setCheckedFiles((prev) => {
-        if (prev.some((item) => item.id === file.id)) {
-          return prev.filter((fileItem) => fileItem.id !== file.id)
-        }
-        return [...prev, file]
-      })
+      if (!isBrowsingCheckedFolder) {
+        setCheckedFiles((prev) => {
+          if (prev.some((item) => item.id === file.id)) {
+            return prev.filter((fileItem) => fileItem.id !== file.id)
+          }
+          return [...prev, file]
+        })
+      }
     },
-    [setCheckedFiles],
+    [setCheckedFiles, isBrowsingCheckedFolder],
   )
 
   const toggleFolder = useCallback(
     async (file: LibraryFile) => {
-      if (!checkedFolderIds.some((id) => id === file.id)) {
-        setCheckedFolderIds((prev) => [...prev, file.id])
-      } else {
-        setCheckedFolderIds((prev) => prev.filter((folder) => folder !== file.id))
-        if (file.id === idOfCheckedParentFolder) {
-          setIdOfCheckedParentFolder(null)
+      if (!isBrowsingCheckedFolder) {
+        if (!checkedFolders.some((folder) => folder.id === file.id)) {
+          // The path of folders is saved in order to enable removing child folders from checked folders
+          setCheckedFolders((prev) => [
+            ...prev,
+            { id: file.id, path: googleDriveFolder.path.map((folder) => folder.id) },
+          ])
+        } else {
+          setCheckedFolders((prev) => prev.filter((folder) => folder.id !== file.id))
+          if (file.id === idOfCheckedParentFolder) {
+            setIdOfCheckedParentFolder(null)
+          }
         }
       }
     },
-    [checkedFolderIds, setCheckedFolderIds, idOfCheckedParentFolder],
+    [checkedFolders, setCheckedFolders, idOfCheckedParentFolder, googleDriveFolder.path, isBrowsingCheckedFolder],
   )
-
-  useEffect(() => {
-    clickCountRef.current = clickCount
-  }, [clickCount])
 
   useEffect(() => {
     isBrowsingCheckedFolderRef.current = isBrowsingCheckedFolder
   }, [isBrowsingCheckedFolder])
 
   // Ensures that a double click does not trigger the toggleFolder function.
-  // Using a RefObject for the click counter instead of the actual variable prevents the timeout from being restarted immediately.
   useEffect(() => {
-    if (!clickTarget || clickCountRef.current === 0) {
+    if (!clickTarget || clickCount === 0) {
       return
     }
-    // The folder will be toggled only if the time period runs out while clickCount has still the value 1.
+    // The folder will be toggled only if the time period runs out while clickCount still has the value 1.
     clickTimeout.current = setTimeout(() => {
-      if (clickCountRef.current === 1) {
+      if (clickCount === 1) {
         toggleFolder(clickTarget)
       }
       setClickCount(0)
@@ -127,14 +128,13 @@ export const GoogleFilesTable = ({
         clearTimeout(clickTimeout.current)
       }
     }
-  }, [clickTarget, clickTimeStamp, toggleFolder])
+  }, [clickTarget, toggleFolder, clickCount])
 
   const handleClickOnFolder = (file: LibraryFile) => {
     setClickTarget(file) // handles two clicks as double click only when the same element is clicked again
     setClickCount((prev) => prev + 1)
-    setClickTimeStamp(Date.now()) // Using a time stamp ensures that the second click triggers the click handling
-    if (checkedFolderIds.some((id) => id === file.id)) {
-      setIdOfCheckedParentFolder(file.id)
+    if (checkedFolders.some((folder) => folder.id === file.id)) {
+      setIdOfCheckedParentFolder(file.id) // is used to keep track of when a selected folder is left
     }
   }
 
@@ -174,10 +174,10 @@ export const GoogleFilesTable = ({
 
   const unselectFilesAndFolders = () => {
     setCheckedFiles([])
-    setCheckedFolderIds([])
+    setCheckedFolders([])
   }
 
-  const isFileOrFolderChecked = checkedFileIds.length > 0 || checkedFolderIds.length > 0
+  const isFileOrFolderChecked = checkedFileIds.length > 0 || checkedFolders.length > 0
 
   return (
     <div>
@@ -319,7 +319,7 @@ export const GoogleFilesTable = ({
             <div className="flex flex-col gap-2 p-2">
               {displayedFiles?.map((file) => {
                 const isChecked =
-                  checkedFileIds.some((id) => id === file.id) || checkedFolderIds.some((id) => id === file.id)
+                  checkedFileIds.some((id) => id === file.id) || checkedFolders.some((folder) => folder.id === file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
                 const iconDesign = 'me-3 ms-3 flex-none size-6 w-auto h-auto'
@@ -334,9 +334,8 @@ export const GoogleFilesTable = ({
                         : 'hover:bg-base-100 border-transparent')
                     }
                   >
-                    {/* directly toggle file without previous check? */}
                     <div
-                      onClick={() => toggleFile(file)}
+                      onClick={() => (isFolder ? toggleFolder(file) : toggleFile(file))}
                       role="button"
                       tabIndex={0}
                       className="rounded-box flex-none select-none"
@@ -344,7 +343,7 @@ export const GoogleFilesTable = ({
                       aria-label={`File ${file.name}, ${isChecked ? 'selected' : 'not selected'}`}
                       title={`${file.name} (${formatBytes(sizeValue)})`}
                     >
-                      {/* A ref object is used here in order to prevent all checkboxes from being checked immediately after opening a checked folder. */}
+                      {/* A ref object is used here in order to delay the change of checked status, since showing the content of an opened folder takes more time. */}
                       <input
                         type="checkbox"
                         className="checkbox checkbox-xs me-3 ms-3 flex-none"
@@ -394,7 +393,7 @@ export const GoogleFilesTable = ({
             <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-4">
               {displayedFiles?.map((file) => {
                 const isSelected =
-                  checkedFileIds.some((id) => id === file.id) || checkedFolderIds.some((id) => id === file.id)
+                  checkedFileIds.some((id) => id === file.id) || checkedFolders.some((folder) => folder.id === file.id)
                 const sizeValue = file.size ?? 0
                 const isFolder = file.kind === 'application/vnd.google-apps.folder'
                 return (
@@ -405,9 +404,15 @@ export const GoogleFilesTable = ({
                     role="button"
                     tabIndex={0}
                     onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') toggleFile(file)
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        if (isFolder) {
+                          toggleFolder(file)
+                        } else {
+                          toggleFile(file)
+                        }
+                      }
                     }}
-                    className={`group relative flex cursor-pointer select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ${
+                    className={`group relative flex cursor-pointer touch-manipulation select-none flex-col items-center justify-center rounded-lg border p-3 focus:outline-none ${
                       isSelected || isBrowsingCheckedFolder
                         ? 'bg-primary/20 border-primary'
                         : 'hover:bg-base-100 border-transparent'

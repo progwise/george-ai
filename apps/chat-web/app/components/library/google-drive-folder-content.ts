@@ -27,7 +27,7 @@ export const getHighResIconUrl = (iconLink: string): string => {
   return resolutionPattern.test(iconLink) ? iconLink.replace(resolutionPattern, '/32/') : iconLink
 }
 
-export const googleDriveFilesQueryFn = async (
+export const fetchContentOfOpenGoogleDriveFolder = async (
   queryString: string | null,
   setterCallbackFn: (files: { size: number; iconLink: string; kind: string; id: string; name: string }[]) => void,
 ) => {
@@ -50,8 +50,7 @@ export const googleDriveFilesQueryFn = async (
     iconLink: getHighResIconUrl(file.iconLink ?? ''),
     kind: mimeType,
   }))
-  if (setterCallbackFn) {
-    setterCallbackFn(files)
-  }
+  setterCallbackFn(files)
+
   return files
 }
