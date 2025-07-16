@@ -34,7 +34,7 @@ export const getCrawlerFormData = (formData: FormData) => {
     ...dataObject,
     cronJob: cronJobActive
       ? {
-          active: true,
+          active: cronJobActive === 'true',
           hour,
           minute,
           monday: cronJobMonday === 'on',
@@ -129,6 +129,16 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
         <div className={twMerge('contents', !crawlerActive && 'disabled')}>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">{t('crawlers.cronJobTime')}</legend>
+            <input
+              type="time"
+              name="cronjob.time"
+              className="input w-full"
+              required={crawlerActive}
+              defaultValue={
+                initialData?.cronJob ? formatTime(initialData.cronJob.hour, initialData.cronJob.minute) : '00:00'
+              }
+            />
+            <p className="label">{t('crawlers.utcHint')}</p>
           </fieldset>
 
           <fieldset className="fieldset flex flex-col flex-wrap gap-2 md:flex-row">
