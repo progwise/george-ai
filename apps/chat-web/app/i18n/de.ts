@@ -152,9 +152,11 @@ export default {
   },
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
+    crawlSettings: 'Crawl-Einstellungen',
     cronJob: 'Cronjob',
     cronJobActive: 'Cronjob aktiv',
     cronJobTime: 'Cronjob-Zeit',
+    cronSchedule: 'Zeitplan',
     days: 'Tage',
     delete: 'löschen',
     deleteConfirmation:
@@ -165,6 +167,7 @@ export default {
     run: 'Crawler starten',
     stop: 'Stop',
     update: 'Crawler aktualisieren',
+    updateCrawler: 'Crawler aktualisieren',
     url: 'URL',
     utcHint: 'UTC-Zeitzone',
   },
