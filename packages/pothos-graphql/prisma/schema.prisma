@@ -205,7 +205,7 @@ model AiLibraryCrawlerRun {
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
   runBy   User?            @relation(fields: [runByUserId], references: [id])
 
-  AiLibraryUpdate AiLibraryUpdate[]
+  updates AiLibraryUpdate[]
 }
 
 model AiLibraryCrawlerCronJob {

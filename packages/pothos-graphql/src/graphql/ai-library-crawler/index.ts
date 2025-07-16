@@ -2,6 +2,7 @@ import { stopCronJob, upsertCronJob } from '../../cron-jobs'
 import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
+import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
 
@@ -30,6 +31,25 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
     success: t.exposeBoolean('success', { nullable: true }),
     errorMessage: t.exposeString('errorMessage', { nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
+    updatesCount: t.relationCount('updates', { nullable: false }),
+    updates: t.prismaField({
+      type: ['AiLibraryUpdate'],
+      nullable: false,
+      args: {
+        take: t.arg.int({ defaultValue: 10 }),
+        skip: t.arg.int({ defaultValue: 0 }),
+      },
+      resolve: async (query, run, args) => {
+        console.log('Fetching updates for crawler run:', run.id, 'with args:', args)
+        return await prisma.aiLibraryUpdate.findMany({
+          ...query,
+          where: { crawlerRunId: run.id },
+          orderBy: { createdAt: 'desc' },
+          take: args.take,
+          skip: args.skip,
+        })
+      },
+    }),
   }),
 })
 
@@ -89,6 +109,40 @@ builder.prismaObject('AiLibraryCrawler', {
     }),
   }),
 })
+
+builder.queryField('aiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    nullable: false,
+    args: {
+      crawlerId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { crawlerId, libraryId }) =>
+      prisma.aiLibraryCrawler.findFirstOrThrow({
+        ...query,
+        where: { id: crawlerId, libraryId },
+      }),
+  }),
+)
+
+builder.queryField('aiLibraryCrawlerRun', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: AiLibraryCrawlerRun,
+    nullable: false,
+    args: {
+      crawlerRunId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { crawlerRunId, libraryId }, context) => {
+      await canAccessLibraryOrThrow(context, libraryId)
+      return await prisma.aiLibraryCrawlerRun.findFirstOrThrow({
+        ...query,
+        where: { id: crawlerRunId, crawler: { libraryId } },
+      })
+    },
+  }),
+)
 
 builder.mutationField('createAiLibraryCrawler', (t) =>
   t.prismaField({
