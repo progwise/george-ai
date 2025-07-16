@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
+import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
@@ -21,6 +22,7 @@ graphql(`
 interface RunCrawlerButtonProps {
   libraryId: string
   crawler: RunCrawlerButton_CrawlerFragment
+  className?: string
 }
 
 const runCrawler = createServerFn({ method: 'POST' })
@@ -71,7 +73,7 @@ const stopCrawler = createServerFn({ method: 'POST' })
     )
   })
 
-export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) => {
+export const RunCrawlerButton = ({ libraryId, crawler, className }: RunCrawlerButtonProps) => {
   const queryClient = useQueryClient()
 
   const runCrawlerMutation = useMutation({
@@ -118,7 +120,7 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
       type="button"
       disabled={runCrawlerMutation.isPending}
       onClick={handleClick}
-      className="btn btn-primary btn-xs"
+      className={twMerge('btn btn-primary btn-xs', className)}
     >
       {crawler.isRunning ? <span className="loading loading-spinner loading-xs"></span> : <PlayIcon />}
       {crawler.isRunning ? t('crawlers.stop') : t('crawlers.run')}

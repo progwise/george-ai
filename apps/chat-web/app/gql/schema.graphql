@@ -266,6 +266,8 @@ type AiLibraryCrawlerRun {
   runByUserId: ID
   startedAt: DateTime!
   success: Boolean
+  updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
+  updatesCount: Int!
 }
 
 type AiLibraryFile {
@@ -563,6 +565,8 @@ type Query {
   aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
+  aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
+  aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
   aiLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!

@@ -153,6 +153,13 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                 <td className="flex gap-2 align-top">
                   <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
                   <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
+                  <Link
+                    to="/libraries/$libraryId/crawlers/$crawlerId"
+                    params={{ libraryId, crawlerId: crawler.id }}
+                    className="btn btn-xs"
+                  >
+                    {t('crawlers.details')}
+                  </Link>
                   <DeleteCrawlerButton
                     crawlerId={crawler.id}
                     crawlerUrl={crawler.url}
