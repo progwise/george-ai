@@ -60,10 +60,10 @@ export const reprocessFiles = createServerFn({ method: 'POST' })
     return result.filter((file) => file !== undefined)
   })
 
-export const clearEmbeddedFiles = createServerFn({ method: 'POST' })
+export const droppingAllFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const dropVectorStore = ctx.data.map((libraryId) =>
+    const clearEmbeddedFiles = ctx.data.map((libraryId) =>
       backendRequest(
         graphql(`
           mutation clearEmbeddedFiles($libraryId: String!) {
@@ -73,5 +73,5 @@ export const clearEmbeddedFiles = createServerFn({ method: 'POST' })
         { libraryId: libraryId },
       ),
     )
-    return await Promise.all(dropVectorStore)
+    return await Promise.all(clearEmbeddedFiles)
   })

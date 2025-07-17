@@ -11,7 +11,7 @@ export default {
     delete: 'Löschen',
     details: 'Details',
     drop: 'Entfernen',
-    dropAll: 'Alle entfernen',
+    dropAllFiles: 'Alle entfernen',
     dropSuccess: '{count} Datei(en) erfolgreich entfernt',
     edit: 'Bearbeiten',
     ensureUserProfile: 'User Profil ggf. erzeugen',
@@ -172,7 +172,7 @@ export default {
     deleteMessage: 'Nachricht konnte nicht gelöscht werden',
     dropFile: 'Fehler beim Löschen der Datei: {error}.',
     dropFiles: 'Fehler beim Entfernen von {count} Dateien: {error}.',
-    dropFilesError: 'Das Entfernen aller Dateien ist fehlgeschlagen',
+    dropAllFilesError: 'Das Entfernen aller Dateien ist fehlgeschlagen',
     emailRequired: 'E-Mail-Adresse erforderlich',
     invalidEmail: 'Ungültige E-Mail-Adresse',
     messageTooShort: 'Nachricht muss mindestens 3 Zeichen lang sein',
@@ -356,7 +356,7 @@ export default {
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     copiedToClipboard: 'In die Zwischenablage kopiert',
     dropAllFilesDialogDescription:
-      'Sie sind kurz davor, ALLE Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen aller Dateien.',
+      'Sie sind kurz davor, alle Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen aller Dateien.',
     dropFilesDialogDescription:
       'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen der ausgewählten Dateien.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',

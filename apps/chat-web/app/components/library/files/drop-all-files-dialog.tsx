@@ -5,7 +5,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { clearEmbeddedFiles } from './change-files'
+import { droppingAllFiles } from './change-files'
 
 interface DropAllFilesDialogProps {
   libraryId: string
@@ -24,13 +24,13 @@ export const DropAllFilesDialog = ({
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { isPending, ...dropVectorStore } = useMutation({
+  const { isPending, mutate } = useMutation({
     mutationFn: async (libraryId: string) => {
       dialogRef.current?.close()
-      await clearEmbeddedFiles({ data: [libraryId] })
+      await droppingAllFiles({ data: [libraryId] })
     },
     onError: () => {
-      toastError(t('errors.dropFilesError'))
+      toastError(t('errors.dropAllFilesError'))
     },
     onSuccess: () => {
       toastSuccess(t('actions.dropSuccess', { count: totalItems }))
@@ -41,7 +41,7 @@ export const DropAllFilesDialog = ({
     },
   })
 
-  const textOfDropButton = t('actions.dropAll')
+  const textOfDropButton = t('actions.dropAllFiles')
 
   return (
     <>
@@ -62,7 +62,7 @@ export const DropAllFilesDialog = ({
         title={t('libraries.dropAllFilesDialog')}
         description={t('texts.dropAllFilesDialogDescription')}
         onSubmit={() => {
-          dropVectorStore.mutate(libraryId)
+          mutate(libraryId)
         }}
         submitButtonText={textOfDropButton}
       >

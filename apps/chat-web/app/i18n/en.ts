@@ -11,7 +11,7 @@ export default {
     delete: 'Delete',
     details: 'Details',
     drop: 'Drop',
-    dropAll: 'Drop all',
+    dropAllFiles: 'Drop all',
     dropSuccess: '{count} file(s) were/was successfully dropped',
     edit: 'Edit',
     ensureUserProfile: 'Ensure User Profile',
@@ -166,7 +166,7 @@ export default {
     deleteMessage: 'Failed to delete message',
     dropFile: 'An error occurred while dropping the file: {error}.',
     dropFiles: 'An error occurred while dropping {count} files. {error}.',
-    dropFilesError: 'Failed to delete all files',
+    dropAllFilesError: 'Failed to drop all files',
     emailRequired: 'Email address is required',
     invalidEmail: 'Invalid email',
     messageTooShort: 'Message must be at least 3 characters.',
@@ -348,7 +348,7 @@ export default {
     changeParticipantsAnytime: 'You can change these participants anytime.',
     copiedToClipboard: 'Copied to clipboard',
     dropAllFilesDialogDescription:
-      'You are about to drop ALL files in this library. This action cannot be reversed. Please confirm dropping all files.',
+      'You are about to drop all files in this library. This action cannot be reversed. Please confirm dropping all files.',
     dropFilesDialogDescription:
       'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     dropFileFailure: 'Failed to drop files:',
