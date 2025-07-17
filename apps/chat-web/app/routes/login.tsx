@@ -1,8 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
+import { useEffect } from 'react'
 import { z } from 'zod'
 
 import { useAuth } from '../auth/auth'
+import { LoadingSpinner } from '../components/loading-spinner'
 import { useTranslation } from '../i18n/use-translation-hook'
 
 const loginSearchSchema = z.object({
@@ -23,36 +25,15 @@ export const Route = createFileRoute('/login')({
 })
 
 function RouteComponent() {
-  const { redirect } = Route.useSearch()
-  const { login } = useAuth()
+  const { login, isReady } = useAuth()
   const { t } = useTranslation()
 
-  let loginText
+  // Automatically trigger login when the component mounts and auth is ready
+  useEffect(() => {
+    if (isReady) {
+      login()
+    }
+  }, [isReady, login])
 
-  switch (true) {
-    case redirect?.startsWith('/conversations') && redirect.includes('/confirm-invitation'):
-      loginText = t('actions.signInToConfirmInvitation')
-      break
-    case redirect?.startsWith('/conversations'):
-      loginText = t('actions.signInForConversations')
-      break
-    case redirect?.startsWith('/assistants'):
-      loginText = t('actions.signInForAssistants')
-      break
-    case redirect?.startsWith('/libraries'):
-      loginText = t('actions.signInForLibraries')
-      break
-    case redirect?.startsWith('/profile'):
-      loginText = t('actions.signInForProfile')
-      break
-    default:
-      loginText = t('actions.signInToContinue')
-      break
-  }
-
-  return (
-    <button type="button" className="btn btn-ghost" onClick={() => login()}>
-      {loginText}
-    </button>
-  )
+  return <LoadingSpinner isLoading={true} message={t('actions.signInToContinue')} />
 }
