@@ -177,7 +177,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
             placeholder={t('conversations.promptPlaceholder')}
           />
           <div className="flex items-center justify-between gap-1">
-            <UserAvatar user={user as UserFragment & { avatarUrl?: string | null }} className="size-8 flex-none" />
+            <UserAvatar user={user} className="size-8 flex-none" />
 
             <div className="flex grow flex-col">
               <span className="truncate text-sm font-semibold">{name}</span>

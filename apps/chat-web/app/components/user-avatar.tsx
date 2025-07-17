@@ -15,10 +15,9 @@ type AvatarUser = {
 interface UserAvatarProps {
   user: AvatarUser
   className?: string
-  showFallback?: boolean
 }
 
-export const UserAvatar = ({ user, className, showFallback = true }: UserAvatarProps) => {
+export const UserAvatar = ({ user, className }: UserAvatarProps) => {
   const [imageError, setImageError] = useState(false)
   const [lastAvatarUrl, setLastAvatarUrl] = useState(user.avatarUrl)
 
@@ -32,7 +31,6 @@ export const UserAvatar = ({ user, className, showFallback = true }: UserAvatarP
   }
 
   const shouldShowImage = displayAvatarUrl && !imageError
-  const shouldShowFallback = showFallback && (!displayAvatarUrl || imageError)
 
   if (shouldShowImage) {
     return (
@@ -49,9 +47,7 @@ export const UserAvatar = ({ user, className, showFallback = true }: UserAvatarP
         </div>
       </div>
     )
-  }
-
-  if (shouldShowFallback) {
+  } else {
     return (
       <div className={twMerge('avatar avatar-placeholder', className)}>
         <div className="bg-base-300 text-base-content border-base-content flex items-center justify-center rounded-full border">
@@ -60,6 +56,4 @@ export const UserAvatar = ({ user, className, showFallback = true }: UserAvatarP
       </div>
     )
   }
-
-  return null
 }

@@ -59,7 +59,7 @@ export const UserTable = ({
               </td>
               <td className="hidden p-2 sm:table-cell md:p-4">
                 <div className="flex items-center gap-2">
-                  <UserAvatar user={user as typeof user & { avatarUrl?: string | null }} className="size-8 flex-none" />
+                  <UserAvatar user={user} className="size-8 flex-none" />
                   <span className="truncate">{user.name}</span>
                 </div>
               </td>

@@ -8,6 +8,7 @@ import { CrossIcon } from '../../icons/cross-icon'
 import { OwnerIcon } from '../../icons/owner-icon'
 import { removeLibraryParticipant } from '../../server-functions/library-participations'
 import { DialogForm } from '../dialog-form'
+import { DropdownContent } from '../dropdown-content'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
@@ -133,15 +134,16 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
               <span className="text-xs font-medium">+{remainingCount}</span>
             </div>
             <div className="dropdown-content relative z-[1] mt-2 w-64">
-              <div className="bg-base-100 rounded-box border-base-300 before:bg-base-100 before:border-base-300 after:bg-base-100 relative z-20 border p-2 shadow-lg before:absolute before:-top-2 before:right-4 before:-z-10 before:h-4 before:w-4 before:rotate-45 before:transform before:border-l before:border-t before:content-[''] after:absolute after:right-2.5 after:top-0 after:z-10 after:h-1 after:w-7 after:content-['']">
+              <DropdownContent>
                 <ParticipantsViewer
-                  participants={library.participants.slice(MAX_VISIBLE_PARTICIPANTS)}
+                  participants={library.participants}
                   ownerId={library.ownerId}
                   userId={userId}
                   isOwner={isOwner}
                   onRemoveParticipant={handleRemoveParticipantFromDropdown}
+                  skipFirst={MAX_VISIBLE_PARTICIPANTS}
                 />
-              </div>
+              </DropdownContent>
             </div>
           </div>
         )}

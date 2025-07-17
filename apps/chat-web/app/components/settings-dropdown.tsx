@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { JSX } from 'react'
 
 import { useAuth } from '../auth/auth'
-import { User } from '../gql/graphql'
 import { useTheme } from '../hooks/use-theme'
 import { useLanguage } from '../i18n/use-language-hook'
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -13,8 +12,16 @@ import SunIcon from '../icons/sun-icon'
 import SystemIcon from '../icons/system-icon'
 import { UserAvatar } from './user-avatar'
 
+interface SettingsDropdownUser {
+  id: string
+  username: string
+  name?: string | null
+  isAdmin: boolean
+  avatarUrl?: string | null
+}
+
 interface SettingsDropdownProps {
-  user?: Pick<User, 'id' | 'name' | 'isAdmin'> & { avatarUrl?: string | null }
+  user?: SettingsDropdownUser
 }
 
 export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
@@ -49,7 +56,7 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
                   }
                 }}
               >
-                <span className="truncate">{user.name}</span>
+                <span className="truncate">{user.name || user.username}</span>
               </Link>
             </li>
 

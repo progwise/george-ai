@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { UserFragment } from '../gql/graphql'
@@ -12,13 +13,13 @@ import { UserAvatar } from './user-avatar'
 
 interface AvatarUploadProps {
   user: { id: string; name?: string | null; avatarUrl?: string | null }
-  onAvatarUpdate?: (avatarUrl: string | null) => void
   className?: string
 }
 
-export const AvatarUpload = ({ user, onAvatarUpdate, className = 'size-12' }: AvatarUploadProps) => {
+export const AvatarUpload = ({ user, className = 'size-12' }: AvatarUploadProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -38,19 +39,17 @@ export const AvatarUpload = ({ user, onAvatarUpdate, className = 'size-12' }: Av
       // We don't need to return the URL since the server handles this
       return null
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log('Avatar upload success!')
       toastSuccess(t('notifications.avatarUploaded'))
 
-      // Call the callback if provided (for local state updates)
-      onAvatarUpdate?.(null)
-
       // Use Promise.all to ensure all invalidations complete
-      Promise.all([
+      await Promise.all([
         queryClient.invalidateQueries({ queryKey: [queryKeys.User] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Users] }),
       ])
+      router.invalidate()
     },
     onError: (error) => {
       toastError(t('errors.avatarUploadFailed') + ': ' + error.message)
@@ -68,7 +67,7 @@ export const AvatarUpload = ({ user, onAvatarUpdate, className = 'size-12' }: Av
         method: 'DELETE',
       })
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toastSuccess(t('notifications.avatarRemoved'))
 
       // Update the user query data immediately
@@ -79,13 +78,12 @@ export const AvatarUpload = ({ user, onAvatarUpdate, className = 'size-12' }: Av
         return oldUser
       })
 
-      onAvatarUpdate?.(null)
-
-      Promise.all([
+      // Invalidate queries and refresh router context
+      await Promise.all([
         queryClient.invalidateQueries({ queryKey: [queryKeys.User] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.UserProfile] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Users] }),
       ])
+      router.invalidate()
     },
     onError: (error) => {
       toastError(t('errors.avatarDeleteFailed') + ': ' + error.message)
@@ -102,9 +100,9 @@ export const AvatarUpload = ({ user, onAvatarUpdate, className = 'size-12' }: Av
       return
     }
 
-    // Validate file size (e.g., 5MB max)
-    const maxSize = 5 * 1024 * 1024
-    if (file.size > maxSize) {
+    // Validate file size (5MB limit)
+    const allowedMaxSize = 5 * 1024 * 1024
+    if (file.size > allowedMaxSize) {
       toastError(t('errors.fileTooLarge'))
       return
     }

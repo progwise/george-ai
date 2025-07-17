@@ -185,7 +185,7 @@ interface AiConversationParticipant {
   isAssistant: Boolean
   isBot: Boolean!
   isHuman: Boolean
-  name: String!
+  name: String
   user: User
   userId: ID
 }
@@ -402,7 +402,7 @@ type AssistantParticipant implements AiConversationParticipant {
   isAssistant: Boolean
   isBot: Boolean!
   isHuman: Boolean
-  name: String!
+  name: String
   user: User
   userId: ID
 }
@@ -443,7 +443,7 @@ type HumanParticipant implements AiConversationParticipant {
   isAssistant: Boolean
   isBot: Boolean!
   isHuman: Boolean
-  name: String!
+  name: String
   user: User
   userId: ID
 }

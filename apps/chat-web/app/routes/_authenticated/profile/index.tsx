@@ -4,7 +4,6 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { validateForm } from '@george-ai/web-utils'
 
-import { getUserQueryOptions } from '../../../auth/get-user'
 import { AvatarUpload } from '../../../components/avatar-upload'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
@@ -40,8 +39,7 @@ export const Route = createFileRoute('/_authenticated/profile/')({
 function RouteComponent() {
   const { t, language } = useTranslation()
 
-  // Fetch the current user data that will be reactive to cache updates
-  const { data: user } = useSuspenseQuery(getUserQueryOptions())
+  const { user } = Route.useRouteContext()
 
   const formSchema = getFormSchema(language)
 
@@ -50,7 +48,7 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfile, user?.id],
+    queryKey: [queryKeys.UserProfile, user.id],
     queryFn: () => getUserProfile(),
   })
 
@@ -61,7 +59,7 @@ function RouteComponent() {
 
   const activationLink = useLinkProps({
     to: '/admin/users/$userId',
-    params: { userId: user?.id || 'no_user_id' },
+    params: { userId: user.id },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({
@@ -69,7 +67,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
 
@@ -104,7 +102,7 @@ function RouteComponent() {
       await updateProfile({
         data: {
           formData,
-          isAdmin: user?.isAdmin || false,
+          isAdmin: user.isAdmin,
         },
       })
       toastSuccess(t('texts.profileSaved'))
@@ -135,10 +133,6 @@ function RouteComponent() {
   const isLoading = userProfileIsLoading || sendConfirmationMailIsPending
 
   if (isLoading) {
-    return <LoadingSpinner isLoading={true} />
-  }
-
-  if (!user) {
     return <LoadingSpinner isLoading={true} />
   }
 

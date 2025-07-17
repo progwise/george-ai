@@ -95,10 +95,7 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
                     }}
                   />
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <UserAvatar
-                      user={user as typeof user & { avatarUrl?: string | null }}
-                      className="size-6 flex-none"
-                    />
+                    <UserAvatar user={user} className="size-6 flex-none" />
                     <span className="truncate text-sm leading-tight" title={formattedUser}>
                       {formattedUser}
                     </span>

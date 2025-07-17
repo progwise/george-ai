@@ -14,6 +14,7 @@ import { removeConversationParticipant } from '../../server-functions/conversati
 import { AssistantIcon } from '../assistant/assistant-icon'
 import { ConversationParticipantsViewer } from '../conversation-participants-viewer'
 import { DialogForm } from '../dialog-form'
+import { DropdownContent } from '../dropdown-content'
 import { LoadingSpinner } from '../loading-spinner'
 import { UserAvatar } from '../user-avatar'
 import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
@@ -107,7 +108,7 @@ export const ConversationParticipants = ({
   const handleRemoveParticipantFromDropdown = (participantId: string) => {
     const participant = conversation.participants.find((participant) => participant.id === participantId)
     if (participant) {
-      setParticipantToRemove({ id: participantId, name: participant.name })
+      setParticipantToRemove({ id: participantId, name: participant.name || 'Unknown' })
       dialogRef.current?.showModal()
     }
   }
@@ -131,14 +132,14 @@ export const ConversationParticipants = ({
             <div key={participant.id} className="relative transition-transform">
               <span
                 className="tooltip tooltip-bottom cursor-pointer"
-                data-tip={`${participant.name}${isParticipantOwner ? ` (${t('conversations.owner')})` : ''}`}
+                data-tip={`${participant.name || 'Unknown'}${isParticipantOwner ? ` (${t('conversations.owner')})` : ''}`}
               >
                 {participant.__typename === 'AssistantParticipant' ? (
                   <div className="size-8 overflow-hidden rounded-full">
                     <AssistantIcon
                       assistant={{
                         id: participant.assistantId!,
-                        name: participant.name,
+                        name: participant.name || 'Assistant',
                         description: null,
                         iconUrl: participant.assistant?.iconUrl || null,
                         updatedAt: participant.assistant?.updatedAt || '',
@@ -153,9 +154,9 @@ export const ConversationParticipants = ({
                       id: participant.userId || '',
                       username:
                         participant.__typename === 'HumanParticipant' && participant.user
-                          ? participant.user.username
-                          : participant.name,
-                      name: participant.name,
+                          ? participant.user.username || ''
+                          : participant.name || '',
+                      name: participant.name || null,
                       avatarUrl:
                         participant.__typename === 'HumanParticipant' && participant.user
                           ? participant.user.avatarUrl
@@ -180,7 +181,7 @@ export const ConversationParticipants = ({
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) => handleRemoveParticipant(event, participant.id, participant.name)}
+                  onClick={(event) => handleRemoveParticipant(event, participant.id, participant.name || 'Unknown')}
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>
@@ -200,15 +201,16 @@ export const ConversationParticipants = ({
               <span className="text-xs font-medium">+{remainingCount}</span>
             </div>
             <div className="dropdown-content relative z-[1] mt-2 w-64">
-              <div className="bg-base-100 rounded-box border-base-300 before:bg-base-100 before:border-base-300 after:bg-base-100 relative z-20 border p-2 shadow-lg before:absolute before:-top-2 before:right-4 before:-z-10 before:h-4 before:w-4 before:rotate-45 before:transform before:border-l before:border-t before:content-[''] after:absolute after:right-2.5 after:top-0 after:z-10 after:h-1 after:w-7 after:content-['']">
+              <DropdownContent>
                 <ConversationParticipantsViewer
-                  participants={conversation.participants.slice(MAX_VISIBLE_PARTICIPANTS)}
+                  participants={conversation.participants}
                   ownerId={conversation.ownerId}
                   userId={userId}
                   isOwner={isOwner}
                   onRemoveParticipant={handleRemoveParticipantFromDropdown}
+                  skipFirst={MAX_VISIBLE_PARTICIPANTS}
                 />
-              </div>
+              </DropdownContent>
             </div>
           </div>
         )}

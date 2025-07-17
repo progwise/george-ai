@@ -18,6 +18,8 @@ interface ParticipantsViewerProps {
   isOwner: boolean
   onRemoveParticipant?: (participantId: string) => void
   className?: string
+  maxVisibleParticipants?: number
+  skipFirst?: number
 }
 
 export const ParticipantsViewer = ({
@@ -27,21 +29,40 @@ export const ParticipantsViewer = ({
   isOwner,
   onRemoveParticipant,
   className,
+  maxVisibleParticipants,
+  skipFirst = 0,
 }: ParticipantsViewerProps) => {
   const { t } = useTranslation()
   const [userSearch, setUserSearch] = useState<string>('')
   const isSearchEnabled = useMemo(() => userSearch.length >= 2, [userSearch])
 
   const displayedParticipants = useMemo(() => {
-    if (!isSearchEnabled) return participants
+    let filteredParticipants = participants
 
-    const search = userSearch.toLowerCase()
-    return participants.filter((participant) => {
-      return (
-        participant.username.toLowerCase().includes(search) || participant.name?.toLowerCase().includes(search) || false
-      )
-    })
-  }, [participants, userSearch, isSearchEnabled])
+    // Skip first N participants if specified
+    if (skipFirst > 0) {
+      filteredParticipants = filteredParticipants.slice(skipFirst)
+    }
+
+    // Apply search filter if enabled
+    if (isSearchEnabled) {
+      const search = userSearch.toLowerCase()
+      filteredParticipants = filteredParticipants.filter((participant) => {
+        return (
+          participant.username.toLowerCase().includes(search) ||
+          participant.name?.toLowerCase().includes(search) ||
+          false
+        )
+      })
+    }
+
+    // Apply max visible participants limit if specified
+    if (maxVisibleParticipants && maxVisibleParticipants > 0) {
+      return filteredParticipants.slice(0, maxVisibleParticipants)
+    }
+
+    return filteredParticipants
+  }, [participants, userSearch, isSearchEnabled, maxVisibleParticipants, skipFirst])
 
   const showNoParticipantsFound = isSearchEnabled && displayedParticipants.length < 1
 

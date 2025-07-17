@@ -1,10 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { useAuth } from '../auth/auth'
-import { getUserQueryOptions } from '../auth/get-user'
 import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
@@ -27,17 +25,11 @@ interface TopNavigationProps {
   user?: UserFragment
 }
 
-export default function TopNavigation({ user: fallbackUser }: TopNavigationProps) {
+export default function TopNavigation({ user }: TopNavigationProps) {
   const { t } = useTranslation()
   const { login, isReady } = useAuth()
   const [isAtTop, setIsAtTop] = useState(false)
   const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
-
-  // Use reactive user query that will automatically update when avatar changes
-  const { data: user } = useQuery({
-    ...getUserQueryOptions(),
-    initialData: fallbackUser,
-  })
 
   return (
     <>
@@ -63,7 +55,7 @@ export default function TopNavigation({ user: fallbackUser }: TopNavigationProps
             <TopNavigationLink to="/libraries">{t('topNavigation.libraries')}</TopNavigationLink>
           </div>
 
-          <SettingsDropdown user={user || undefined} />
+          <SettingsDropdown user={user} />
 
           <div className="flex items-center justify-center gap-4">
             {isReady && !user && (

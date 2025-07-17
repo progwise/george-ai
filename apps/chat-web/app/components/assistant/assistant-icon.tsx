@@ -7,14 +7,9 @@ import BotIcon from '../../icons/bot-icon'
 interface AssistantIconProps {
   assistant: AssistantBaseFragment
   className?: string
-  showFallback?: boolean
 }
 
-export const AssistantIcon = ({
-  assistant,
-  className,
-  showFallback = true,
-}: AssistantIconProps): React.ReactElement | null => {
+export const AssistantIcon = ({ assistant, className }: AssistantIconProps): React.ReactElement => {
   const [imageError, setImageError] = useState(false)
   const [lastIconUrl, setLastIconUrl] = useState(assistant.iconUrl)
 
@@ -24,10 +19,7 @@ export const AssistantIcon = ({
     setLastIconUrl(assistant.iconUrl)
   }
 
-  const shouldShowImage = assistant.iconUrl && !imageError
-  const shouldShowFallback = showFallback && (!assistant.iconUrl || imageError)
-
-  if (shouldShowImage) {
+  if (assistant.iconUrl && !imageError) {
     const iconSrc = assistant.iconUrl + '&updated=' + assistant.updatedAt
 
     return (
@@ -42,9 +34,7 @@ export const AssistantIcon = ({
         </div>
       </div>
     )
-  }
-
-  if (shouldShowFallback) {
+  } else {
     return (
       <div className={twMerge('avatar avatar-placeholder', className)}>
         <div className="bg-secondary text-secondary-content flex h-full w-full items-center justify-center rounded-full">
@@ -53,6 +43,4 @@ export const AssistantIcon = ({
       </div>
     )
   }
-
-  return null
 }

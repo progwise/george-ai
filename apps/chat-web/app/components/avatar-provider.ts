@@ -1,7 +1,7 @@
 // Client-side avatar utility functions for handling OAuth provider avatars
 
 // Known OAuth provider domains for avatar URLs (Google, GitHub, LinkedIn)
-export const OAUTH_PROVIDER_DOMAINS = [
+const OAUTH_PROVIDER_DOMAINS = [
   'googleusercontent.com', // Google
   'avatars.githubusercontent.com', // GitHub
   'media.licdn.com', // LinkedIn

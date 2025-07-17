@@ -8,7 +8,7 @@ import { UserAvatar } from './user-avatar'
 interface ConversationParticipant {
   __typename: 'HumanParticipant' | 'AssistantParticipant'
   id: string
-  name: string
+  name?: string | null
   userId?: string | null
   assistantId?: string | null
   user?: {
@@ -28,6 +28,8 @@ interface ConversationParticipantsViewerProps {
   isOwner: boolean
   onRemoveParticipant?: (participantId: string) => void
   className?: string
+  maxVisibleParticipants?: number
+  skipFirst?: number
 }
 
 export const ConversationParticipantsViewer = ({
@@ -37,19 +39,36 @@ export const ConversationParticipantsViewer = ({
   isOwner,
   onRemoveParticipant,
   className,
+  maxVisibleParticipants,
+  skipFirst = 0,
 }: ConversationParticipantsViewerProps) => {
   const { t } = useTranslation()
   const [userSearch, setUserSearch] = useState<string>('')
   const isSearchEnabled = useMemo(() => userSearch.length >= 2, [userSearch])
 
   const displayedParticipants = useMemo(() => {
-    if (!isSearchEnabled) return participants
+    let filteredParticipants = participants
 
-    const search = userSearch.toLowerCase()
-    return participants.filter((participant) => {
-      return participant.name.toLowerCase().includes(search)
-    })
-  }, [participants, userSearch, isSearchEnabled])
+    // Skip first N participants if specified
+    if (skipFirst > 0) {
+      filteredParticipants = filteredParticipants.slice(skipFirst)
+    }
+
+    // Apply search filter if enabled
+    if (isSearchEnabled) {
+      const search = userSearch.toLowerCase()
+      filteredParticipants = filteredParticipants.filter((participant) => {
+        return participant.name?.toLowerCase().includes(search) || false
+      })
+    }
+
+    // Apply max visible participants limit if specified
+    if (maxVisibleParticipants && maxVisibleParticipants > 0) {
+      return filteredParticipants.slice(0, maxVisibleParticipants)
+    }
+
+    return filteredParticipants
+  }, [participants, userSearch, isSearchEnabled, maxVisibleParticipants, skipFirst])
 
   const showNoParticipantsFound = isSearchEnabled && displayedParticipants.length < 1
 
@@ -70,7 +89,7 @@ export const ConversationParticipantsViewer = ({
           {displayedParticipants.map((participant) => {
             const isParticipantOwner = participant.userId === ownerId
             const canRemove = participant.userId !== userId && isOwner && onRemoveParticipant
-            const displayName = participant.name
+            const displayName = participant.name || 'Unknown'
 
             return (
               <div
@@ -83,7 +102,7 @@ export const ConversationParticipantsViewer = ({
                       <AssistantIcon
                         assistant={{
                           id: participant.assistantId!,
-                          name: participant.name,
+                          name: participant.name || 'Assistant',
                           description: null,
                           iconUrl: participant.assistant?.iconUrl || null,
                           updatedAt: participant.assistant?.updatedAt || '',
@@ -97,7 +116,7 @@ export const ConversationParticipantsViewer = ({
                       user={{
                         id: participant.userId || '',
                         avatarUrl: participant.user?.avatarUrl || null,
-                        name: participant.name,
+                        name: participant.name || null,
                         username: participant.user?.username || '',
                       }}
                       className="size-6 flex-none"
