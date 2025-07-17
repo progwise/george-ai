@@ -2,13 +2,14 @@ import * as fs from 'fs'
 
 import { dropVectorStore } from '@george-ai/langchain-chat'
 
-import { getFilePath } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import './queryFiles'
 
-import { canAccessLibrary } from './check-participation'
+import { getLibraryDir } from '@george-ai/file-management'
+
+import { canAccessLibraryOrThrow } from './check-participation'
 
 console.log('Setting up: AiLibrary')
 
@@ -66,16 +67,13 @@ builder.queryField('aiLibrary', (t) =>
     args: {
       libraryId: t.arg.string(),
     },
+    nullable: false,
     resolve: async (query, _source, { libraryId }, context) => {
       const library = await prisma.aiLibrary.findUniqueOrThrow({
         ...query,
         where: { id: libraryId },
       })
-      const isAuthorized = canAccessLibrary(context, {
-        id: library.id,
-        ownerId: library.ownerId,
-      })
-      if (!isAuthorized) return null
+      await canAccessLibraryOrThrow(context, libraryId)
       return library
     },
   }),
@@ -108,9 +106,8 @@ builder.mutationField('updateAiLibrary', (t) =>
       if (!library) {
         throw new Error(`Library with id ${id} not found`)
       }
-      if (!canAccessLibrary(context, library)) {
-        throw new Error(`You do not have permission to update this library`)
-      }
+      canAccessLibraryOrThrow(context, id)
+
       return prisma.aiLibrary.update({
         ...query,
         where: { id },
@@ -143,16 +140,22 @@ builder.mutationField('createAiLibrary', (t) =>
 )
 
 builder.mutationField('deleteAiLibrary', (t) =>
-  t.prismaField({
-    type: 'AiLibrary',
+  t.field({
+    type: 'Boolean',
     args: {
       id: t.arg.string({ required: true }),
     },
-    resolve: (query, _source, { id }) => {
-      return prisma.aiLibrary.delete({
-        ...query,
-        where: { id },
-      })
+    resolve: async (_source, { id }) => {
+      await prisma.$transaction(
+        [
+          prisma.aiLibraryCrawler.deleteMany({ where: { libraryId: id } }),
+          prisma.aiLibrary.delete({
+            where: { id },
+          }),
+        ],
+        {},
+      )
+      return true
     },
   }),
 )
@@ -165,26 +168,14 @@ builder.mutationField('clearEmbeddedFiles', (t) =>
     },
     resolve: async (_parent, { libraryId }) => {
       await dropVectorStore(libraryId)
-      const files = await prisma.aiLibraryFile.findMany({
-        select: { id: true },
-        where: { libraryId },
-      })
       await prisma.aiLibraryFile.deleteMany({
         where: { libraryId },
       })
 
-      const deleteFilePromises = files.map((file) => {
-        const filePath = getFilePath(file.id)
-        return new Promise((resolve) => {
-          fs.rm(filePath, (err) => {
-            if (err) {
-              resolve(`Error deleting file: ${filePath}: ${err.message}`)
-            }
-            resolve(`Deleted file: ${filePath}`)
-          })
-        })
-      })
-      await Promise.all(deleteFilePromises)
+      const libraryPath = getLibraryDir(libraryId)
+      if (fs.existsSync(libraryPath)) {
+        await fs.promises.rm(libraryPath, { recursive: true, force: true })
+      }
       return true
     },
   }),

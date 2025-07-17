@@ -11,3 +11,4 @@ build
 .pnp.*
 .typesense-data
 .postgres-data*
+CLAUDE.md

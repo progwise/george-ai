@@ -1,7 +1,11 @@
+import fs from 'node:fs'
+
+import { getMarkdownFilePath, getUploadFilePath } from '@george-ai/file-management'
 import { embedFile } from '@george-ai/langchain-chat'
 
-import { getFilePath } from '../../file-upload'
+import { convertUploadToMarkdown } from '../../file-upload'
 import { prisma } from '../../prisma'
+import { builder } from '../builder'
 
 export const processFile = async (fileId: string) => {
   const file = await prisma.aiLibraryFile.findUnique({
@@ -18,13 +22,20 @@ export const processFile = async (fileId: string) => {
     },
   })
 
+  const markdownFilePath = getMarkdownFilePath({ fileId: file.id, libraryId: file.libraryId })
+  const uploadFilePath = getUploadFilePath({ fileId: file.id, libraryId: file.libraryId })
+
   try {
+    if (fs.existsSync(uploadFilePath)) {
+      // re-generate markdown
+      await convertUploadToMarkdown(file.id, { removeUploadFile: false })
+    }
     const embeddedFile = await embedFile(file.libraryId, {
       id: file.id,
       name: file.name,
       originUri: file.originUri!,
-      mimeType: file.mimeType,
-      path: getFilePath(file.id),
+      mimeType: file.mimeType, // Use markdown mimetype for re-processing
+      path: markdownFilePath,
     })
 
     return await prisma.aiLibraryFile.update({
@@ -38,6 +49,7 @@ export const processFile = async (fileId: string) => {
       },
     })
   } catch (error) {
+    console.error(`Error processing file ${fileId}:`, error)
     return await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
@@ -47,3 +59,14 @@ export const processFile = async (fileId: string) => {
     })
   }
 }
+
+builder.mutationField('processFile', (t) =>
+  t.prismaField({
+    type: 'AiLibraryFile',
+    nullable: false,
+    args: {
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_query, _source, { fileId }) => processFile(fileId),
+  }),
+)

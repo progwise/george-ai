@@ -23,9 +23,7 @@ const deleteFilesDocument = graphql(`
 
 const deleteLibraryDocument = graphql(`
   mutation deleteAiLibrary($id: String!) {
-    deleteAiLibrary(id: $id) {
-      id
-    }
+    deleteAiLibrary(id: $id)
   }
 `)
 
@@ -58,7 +56,7 @@ export const LibraryDeleteDialog = ({ library }: LibraryDeleteDialogProps) => {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries(getLibrariesQueryOptions())
-      navigate({ to: '..' })
+      navigate({ to: '/libraries' })
 
       dialogReference.current?.close()
     },

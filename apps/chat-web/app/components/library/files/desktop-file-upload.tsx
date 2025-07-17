@@ -64,21 +64,22 @@ const prepareDesktopFiles = createServerFn({ method: 'POST' })
   })
 
 const cancelFileUpload = createServerFn({ method: 'POST' })
-  .validator((data: { fileId: string }) =>
+  .validator((data: object) =>
     z
       .object({
         fileId: z.string().nonempty(),
+        libraryId: z.string().nonempty(),
       })
       .parse(data),
   )
-  .handler(async (ctx) => {
+  .handler(async ({ data }) => {
     await backendRequest(
       graphql(`
-        mutation cancelFileUpload($fileId: String!) {
-          cancelFileUpload(fileId: $fileId)
+        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {
+          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)
         }
       `),
-      { fileId: ctx.data.fileId },
+      { fileId: data.fileId, libraryId: data.libraryId },
     )
   })
 
@@ -114,7 +115,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
       const fileId = fileIdMap.get(fileName)
       if (fileId) {
         try {
-          await cancelFileUpload({ data: { fileId } })
+          await cancelFileUpload({ data: { fileId, libraryId } })
         } catch (error) {
           console.error(`Error cancelling upload for file ${fileName}:`, error)
         }
@@ -137,7 +138,7 @@ export const DesktopFileUpload = ({ libraryId, onUploadComplete, disabled }: Des
   const handleCancelAllUploads = async () => {
     const cancelPromises = Array.from(fileIdMap.entries()).map(async ([fileName, fileId]) => {
       try {
-        await cancelFileUpload({ data: { fileId } })
+        await cancelFileUpload({ data: { fileId, libraryId } })
       } catch (error) {
         console.error(`Error cancelling upload for file ${fileName}:`, error)
       }
