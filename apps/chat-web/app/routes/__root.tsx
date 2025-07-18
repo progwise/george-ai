@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query'
+import { QueryClient, useQuery } from '@tanstack/react-query'
 import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import React, { Suspense } from 'react'
 
@@ -42,6 +42,7 @@ const TanStackQueryDevtools =
 const RootDocument = () => {
   const { user } = Route.useRouteContext()
   const { language } = useLanguage()
+  const { data: theme } = useQuery(getThemeQueryOptions())
 
   React.useEffect(() => {
     if (typeof window === 'undefined' || !window.document || window.document.location.hostname === 'localhost') {
@@ -59,7 +60,7 @@ const RootDocument = () => {
     s.parentNode?.insertBefore(g, s)
   }, [])
   return (
-    <html lang={language}>
+    <html lang={language} data-theme={theme}>
       <head>
         <HeadContent />
       </head>
