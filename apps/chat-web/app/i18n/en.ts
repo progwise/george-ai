@@ -165,6 +165,7 @@ export default {
     run: 'Crawl',
     runCount: '# Crawls',
     stop: 'Stop',
+    stoppedByUser: 'Stopped by user',
     update: 'Update crawler',
     updateCrawler: 'Update Crawler',
     url: 'URL',

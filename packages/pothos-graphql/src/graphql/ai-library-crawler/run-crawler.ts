@@ -23,9 +23,8 @@ export const stopCrawler = async ({ crawlerId }: RunOptions) => {
       id: ongoingRun.id,
     },
     data: {
-      success: false,
       endedAt: new Date(),
-      errorMessage: 'Run stopped by user',
+      stoppedByUser: new Date(),
     },
   })
 
