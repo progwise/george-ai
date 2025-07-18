@@ -6,6 +6,7 @@ import { dateString, timeString } from '@george-ai/web-utils'
 
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
 import { getCrawlerRunsQueryOptions } from '../../../../../../components/library/crawler/get-crawler-runs'
+import { getCrawlersQueryOptions } from '../../../../../../components/library/crawler/get-crawlers'
 import { RunCrawlerButton } from '../../../../../../components/library/crawler/run-crawler-button'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { CheckIcon } from '../../../../../../icons/check-icon'
@@ -29,16 +30,19 @@ function RouteComponent() {
     data: { aiLibraryCrawler: crawler },
   } = useSuspenseQuery(getCrawlerQueryOptions({ libraryId, crawlerId }))
 
-  const invalidateRelatedQueries = useCallback(() => {
-    queryClient.invalidateQueries(getCrawlerQueryOptions({ libraryId, crawlerId }))
-    queryClient.invalidateQueries(
-      getCrawlerRunsQueryOptions({
-        libraryId,
-        crawlerId,
-        take: search.takeRuns || 10,
-        skip: search.skipRuns || 0,
-      }),
-    )
+  const invalidateRelatedQueries = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId)),
+      queryClient.invalidateQueries(getCrawlerQueryOptions({ libraryId, crawlerId })),
+      queryClient.invalidateQueries(
+        getCrawlerRunsQueryOptions({
+          libraryId,
+          crawlerId,
+          take: search.takeRuns || 10,
+          skip: search.skipRuns || 0,
+        }),
+      ),
+    ])
   }, [queryClient, libraryId, crawlerId, search.takeRuns, search.skipRuns])
   return (
     <div className="flex flex-col gap-4">
@@ -59,14 +63,24 @@ function RouteComponent() {
           </span>
           <span className="mx-2">|</span>
           <span className="">
-            {crawler.lastRun?.success ? (
+            {crawler.lastRun?.success && crawler.lastRun.endedAt ? (
               <span className="text-success flex items-center">
                 {t('texts.success')}
                 <CheckIcon className="inline-block h-4 w-4" />
               </span>
-            ) : (
+            ) : crawler.lastRun?.endedAt ? (
               <span className="text-error flex items-center">
                 <span>{t('texts.failure')}</span>
+                <WarnIcon className="inline-block" />
+              </span>
+            ) : crawler.lastRun ? (
+              <span className="text-info flex items-center">
+                <span>{t('texts.running')}</span>
+                <span className="loading loading-spinner loading-xs"></span>
+              </span>
+            ) : (
+              <span className="text-info flex items-center">
+                <span>{t('crawlers.noRunsTitle')}</span>
                 <WarnIcon className="inline-block" />
               </span>
             )}
@@ -106,16 +120,19 @@ function RouteComponent() {
             <RunCrawlerButton
               crawler={crawler}
               className="btn btn-sm"
-              afterStop={(runId) => {
+              afterStop={async (runId) => {
                 if (!runId) return
-                invalidateRelatedQueries()
+                await invalidateRelatedQueries()
               }}
-              afterStart={(runId) => {
+              afterStart={async (runId) => {
                 if (!runId) return
-                invalidateRelatedQueries()
+                await invalidateRelatedQueries()
                 // Navigate to the latest run details after starting a crawler
                 const newParams = { ...params, crawlerRunId: runId }
-                navigate({ to: '/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId', params: newParams })
+                await navigate({
+                  to: '/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId',
+                  params: newParams,
+                })
               }}
             />
           </li>

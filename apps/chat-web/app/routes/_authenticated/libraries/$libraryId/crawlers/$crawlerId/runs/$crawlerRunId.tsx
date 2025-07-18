@@ -47,7 +47,7 @@ function RouteComponent() {
     if (intervalId.current) {
       clearInterval(intervalId.current)
     }
-    intervalId.current = setInterval(() => {
+    intervalId.current = setInterval(async () => {
       console.log('Refreshing crawler run data')
       queryClient.invalidateQueries(getCrawlerRunQueryOptions({ ...params, ...search }))
     }, 2000)
@@ -73,7 +73,7 @@ function RouteComponent() {
                 <span className="label-text font-medium">End Date</span>
               </label>
               <div className="text-sm">
-                {crawlerRun.endedAt ? dateTimeString(crawlerRun.endedAt, language) : 'Running...'}
+                {crawlerRun.endedAt ? dateTimeString(crawlerRun.endedAt, language) : t('texts.running')}
               </div>
             </div>
             <div>

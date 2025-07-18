@@ -49,11 +49,11 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
   const { t, language } = useTranslation()
   const queryClient = useQueryClient()
 
-  const invalidateRelatedQueries = (crawlerRunId: string | undefined) => {
+  const invalidateRelatedQueries = async (crawlerRunId: string | undefined) => {
     if (!crawlerRunId) {
       return
     }
-    queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
+    await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
   }
 
   return (
@@ -82,6 +82,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                   </div>
                   <div className="flex justify-center gap-2">
                     <RunCrawlerButton
+                      className="btn btn-xs"
                       crawler={crawler}
                       afterStart={invalidateRelatedQueries}
                       afterStop={invalidateRelatedQueries}
@@ -159,6 +160,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
 
                 <td className="flex gap-2 align-top">
                   <RunCrawlerButton
+                    className="btn btn-xs"
                     crawler={crawler}
                     afterStart={invalidateRelatedQueries}
                     afterStop={invalidateRelatedQueries}
