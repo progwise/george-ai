@@ -165,6 +165,9 @@ export default {
     lastRun: 'Letzter Lauf',
     maxDepth: 'Tiefe',
     maxPages: 'Seiten',
+    noRunsDescription:
+      'Sie müssen den Crawler zuerst starten, um Daten über Updates, Dateien und das Verhalten des Crawlers zu erhalten.',
+    noRunsTitle: 'Noch nichts gecrawlt.',
     run: 'Crawler starten',
     runCount: '# Läufe',
     stop: 'Stop',
@@ -399,6 +402,7 @@ export default {
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
     profileSaved: 'Profil gespeichert',
+    running: 'Läuft',
     sentConfirmationMail: 'Bestätigungsmail gesendet',
     showingUsers: 'Zeige {start} bis {end} von {total}',
     success: 'Erfolg',

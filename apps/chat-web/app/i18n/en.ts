@@ -159,6 +159,9 @@ export default {
     lastRun: 'Last Run',
     maxDepth: 'Depth',
     maxPages: 'Pages',
+    noRunsDescription:
+      'You need to start the crawler first to get data about updates, files and behavior of the crawler.',
+    noRunsTitle: 'Nothing crawled yet.',
     run: 'Crawl',
     runCount: '# Crawls',
     stop: 'Stop',
@@ -390,6 +393,7 @@ export default {
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
     profileSaved: 'Profile saved',
+    running: 'Running',
     sentConfirmationMail: 'Confirmation mail sent',
     showingUsers: 'Showing {start} to {end} of {total}',
     success: 'Success',

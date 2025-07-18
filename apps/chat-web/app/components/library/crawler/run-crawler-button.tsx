@@ -19,8 +19,8 @@ graphql(`
 
 interface RunCrawlerButtonProps {
   crawler: RunCrawlerButton_CrawlerFragment
-  afterStart?: (crawlerRunId: string | undefined) => void
-  afterStop?: (crawlerRunId: string | undefined) => void
+  afterStart?: (crawlerRunId: string | undefined) => Promise<void>
+  afterStop?: (crawlerRunId: string | undefined) => Promise<void>
   className?: string
 }
 
@@ -73,8 +73,8 @@ export const RunCrawlerButton = ({ crawler, className, afterStart, afterStop }: 
     onSuccess: () => {
       toastSuccess('Crawler started successfully')
     },
-    onSettled: (data) => {
-      afterStart?.(data)
+    onSettled: async (data) => {
+      await afterStart?.(data)
     },
   })
 
@@ -86,8 +86,8 @@ export const RunCrawlerButton = ({ crawler, className, afterStart, afterStop }: 
     onSuccess: () => {
       toastSuccess('Crawler stopped successfully')
     },
-    onSettled: (data) => {
-      afterStop?.(data)
+    onSettled: async (data) => {
+      await afterStop?.(data)
     },
   })
   const { t } = useTranslation()
@@ -105,7 +105,7 @@ export const RunCrawlerButton = ({ crawler, className, afterStart, afterStop }: 
       type="button"
       disabled={runCrawlerMutation.isPending}
       onClick={handleClick}
-      className={twMerge('btn btn-primary btn-xs', className)}
+      className={twMerge('btn btn-primary', className)}
     >
       {crawler.isRunning ? <span className="loading loading-spinner loading-xs"></span> : <PlayIcon />}
       {crawler.isRunning ? t('crawlers.stop') : t('crawlers.run')}

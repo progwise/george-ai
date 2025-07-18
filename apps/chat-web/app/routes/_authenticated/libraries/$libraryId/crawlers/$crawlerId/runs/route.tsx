@@ -29,7 +29,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  const { language } = useTranslation()
+  const { t, language } = useTranslation()
   const navigate = Route.useNavigate()
   const params = Route.useParams()
   const search = Route.useSearch()
@@ -75,27 +75,31 @@ function RouteComponent() {
             />
           </div>
           <ul className="menu bg-base-200 rounded-box">
-            {crawlerRuns.map((run) => (
-              <li key={run.id} className="">
-                <div className="flex flex-col items-start gap-1">
-                  <Link
-                    to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"
-                    params={{ ...params, crawlerRunId: run.id }}
-                    className="btn btn-btn-ghost h-full w-full"
-                    activeProps={{ className: 'btn-active' }}
-                    activeOptions={{ exact: false }}
-                  >
-                    <div className="flex w-full flex-col gap-1">
-                      <h3 className="font-bold">{dateTimeString(run.startedAt, language)}</h3>
-                      <p className="self-end text-xs font-normal">Duration: {duration(run.startedAt, run.endedAt)}</p>
-                      <p className="self-end text-xs font-normal">
-                        Status: {run.success ? 'Success' : !run.endedAt ? 'running...' : 'failed'}
-                      </p>
-                    </div>
-                  </Link>
-                </div>
-              </li>
-            ))}
+            {crawlerRuns.length < 1 ? (
+              <li className="text-center text-sm text-gray-500">{'No runs found.'}</li>
+            ) : (
+              crawlerRuns.map((run) => (
+                <li key={run.id} className="">
+                  <div className="flex flex-col items-start gap-1">
+                    <Link
+                      to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"
+                      params={{ ...params, crawlerRunId: run.id }}
+                      className="btn btn-btn-ghost h-full w-full"
+                      activeProps={{ className: 'btn-active' }}
+                      activeOptions={{ exact: false }}
+                    >
+                      <div className="flex w-full flex-col gap-1">
+                        <h3 className="font-bold">{dateTimeString(run.startedAt, language)}</h3>
+                        <p className="self-end text-xs font-normal">Duration: {duration(run.startedAt, run.endedAt)}</p>
+                        <p className="self-end text-xs font-normal">
+                          Status: {run.success ? 'Success' : !run.endedAt ? t('texts.running') : t('texts.failure')}
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                </li>
+              ))
+            )}
           </ul>
         </div>
       </div>
