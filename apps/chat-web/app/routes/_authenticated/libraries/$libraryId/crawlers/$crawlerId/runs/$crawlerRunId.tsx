@@ -48,7 +48,6 @@ function RouteComponent() {
       clearInterval(intervalId.current)
     }
     intervalId.current = setInterval(async () => {
-      console.log('Refreshing crawler run data')
       queryClient.invalidateQueries(getCrawlerRunQueryOptions({ ...params, ...search }))
     }, 2000)
   }, [crawlerRun.endedAt, params, queryClient, search])
