@@ -1,4 +1,4 @@
-import { defaultShouldDehydrateMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
@@ -14,14 +14,13 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
   component: RouteComponent,
   validateSearch: z.object({
     skipRuns: z.coerce.number().default(0),
-    takeRuns: z.coerce.number().default(4),
+    takeRuns: z.coerce.number().default(10),
   }),
   loaderDeps: ({ search: { skipRuns, takeRuns } }) => ({
     skip: skipRuns,
     take: takeRuns,
   }),
   loader: async ({ context, params, deps }) => {
-    const { libraryId, crawlerId } = params
     return await Promise.all([
       context.queryClient.ensureQueryData(getCrawlerRunsQueryOptions({ ...params, skip: deps.skip, take: deps.take })),
       context.queryClient.ensureQueryData(getCrawlerQueryOptions(params)),
@@ -30,7 +29,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  const { t, language } = useTranslation()
+  const { language } = useTranslation()
   const navigate = Route.useNavigate()
   const params = Route.useParams()
   const search = Route.useSearch()

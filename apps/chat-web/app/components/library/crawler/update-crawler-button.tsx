@@ -1,14 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
 
 import { graphql } from '../../../gql'
 import { UpdateCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../icons/edit-icon'
-import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
-import { CrawlerForm, crawlerFormSchema, getCrawlerFormData } from './crawler-form'
+import { CrawlerForm } from './crawler-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
 import { updateCrawlerFunction } from './update-crawler'
 

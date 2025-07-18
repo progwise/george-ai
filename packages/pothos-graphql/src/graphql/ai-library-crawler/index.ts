@@ -173,24 +173,30 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 )
 
 builder.mutationField('runAiLibraryCrawler', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryCrawler',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'String',
+    nullable: false,
     args: {
       crawlerId: t.arg.string(),
     },
-    resolve: async (_query, _source, { crawlerId }, context) =>
-      runCrawler({ crawlerId, userId: context.session.user.id }),
+    resolve: async (_source, { crawlerId }, context) => {
+      const run = await runCrawler({ crawlerId, userId: context.session.user.id })
+      return run.id
+    },
   }),
 )
 
 builder.mutationField('stopAiLibraryCrawler', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryCrawler',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'String',
+    nullable: false,
     args: {
       crawlerId: t.arg.string(),
     },
-    resolve: async (_query, _source, { crawlerId }, context) =>
-      stopCrawler({ crawlerId, userId: context.session.user.id }),
+    resolve: async (_source, { crawlerId }, context) => {
+      const run = await stopCrawler({ crawlerId, userId: context.session.user.id })
+      return run.id
+    },
   }),
 )
 

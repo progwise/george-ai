@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
@@ -9,8 +9,6 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { PlayIcon } from '../../../icons/play-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { aiLibraryFilesQueryOptions } from '../files/get-files'
-import { getCrawlersQueryOptions } from './get-crawlers'
 
 graphql(`
   fragment RunCrawlerButton_Crawler on AiLibraryCrawler {
@@ -20,8 +18,9 @@ graphql(`
 `)
 
 interface RunCrawlerButtonProps {
-  libraryId: string
   crawler: RunCrawlerButton_CrawlerFragment
+  afterStart?: (crawlerRunId: string | undefined) => void
+  afterStop?: (crawlerRunId: string | undefined) => void
   className?: string
 }
 
@@ -34,19 +33,15 @@ const runCrawler = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler(async (ctx) => {
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
         mutation runCrawler($crawlerId: String!) {
-          runAiLibraryCrawler(crawlerId: $crawlerId) {
-            id
-            lastRun {
-              startedAt
-            }
-          }
+          runAiLibraryCrawler(crawlerId: $crawlerId)
         }
       `),
       { crawlerId: ctx.data.crawlerId },
     )
+    return result.runAiLibraryCrawler
   })
 
 const stopCrawler = createServerFn({ method: 'POST' })
@@ -58,36 +53,28 @@ const stopCrawler = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler(async (ctx) => {
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
         mutation stopCrawler($crawlerId: String!) {
-          stopAiLibraryCrawler(crawlerId: $crawlerId) {
-            id
-            lastRun {
-              startedAt
-            }
-          }
+          stopAiLibraryCrawler(crawlerId: $crawlerId)
         }
       `),
       { crawlerId: ctx.data.crawlerId },
     )
+    return result.stopAiLibraryCrawler
   })
 
-export const RunCrawlerButton = ({ libraryId, crawler, className }: RunCrawlerButtonProps) => {
-  const queryClient = useQueryClient()
-
+export const RunCrawlerButton = ({ crawler, className, afterStart, afterStop }: RunCrawlerButtonProps) => {
   const runCrawlerMutation = useMutation({
     mutationFn: () => runCrawler({ data: { crawlerId: crawler.id } }),
     onError: (error) => {
       toastError(error.message || 'Failed starting crawler')
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toastSuccess('Crawler started successfully')
-      return data
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
-      queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 200 }))
+    onSettled: (data) => {
+      afterStart?.(data)
     },
   })
 
@@ -96,13 +83,11 @@ export const RunCrawlerButton = ({ libraryId, crawler, className }: RunCrawlerBu
     onError: (error) => {
       toastError(error.message || 'Failed stop crawler')
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toastSuccess('Crawler stopped successfully')
-      return data
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
-      queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 20 }))
+    onSettled: (data) => {
+      afterStop?.(data)
     },
   })
   const { t } = useTranslation()

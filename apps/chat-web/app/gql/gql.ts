@@ -70,8 +70,8 @@ type Documents = {
   '\n        query GetCrawler($libraryId: String!, $crawlerId: String!) {\n          aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {\n            id\n            url\n            isRunning\n            lastRun {\n              id\n              startedAt\n              endedAt\n              success\n              errorMessage\n            }\n            filesCount\n            runCount\n            maxDepth\n            maxPages\n            cronJob {\n              id\n              active\n              hour\n              minute\n              monday\n              tuesday\n              wednesday\n              thursday\n              friday\n              saturday\n              sunday\n            }\n          }\n        }\n      ': typeof types.GetCrawlerDocument
   '\n        query CrawlerTable($libraryId: String!) {\n          aiLibrary(libraryId: $libraryId) {\n            crawlers {\n              ...CrawlerTable_LibraryCrawler\n            }\n          }\n        }\n      ': typeof types.CrawlerTableDocument
   '\n  fragment RunCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    isRunning\n  }\n': typeof types.RunCrawlerButton_CrawlerFragmentDoc
-  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ': typeof types.RunCrawlerDocument
-  '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ': typeof types.StopCrawlerDocument
+  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ': typeof types.RunCrawlerDocument
+  '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ': typeof types.StopCrawlerDocument
   '\n  fragment UpdateCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n': typeof types.UpdateCrawlerButton_CrawlerFragmentDoc
   '\n        mutation updateAiLibraryCrawler($id: String!, $data: AiLibraryCrawlerInput!) {\n          updateAiLibraryCrawler(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAiLibraryCrawlerDocument
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ': typeof types.DropFileDocument
@@ -241,9 +241,9 @@ const documents: Documents = {
     types.CrawlerTableDocument,
   '\n  fragment RunCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    isRunning\n  }\n':
     types.RunCrawlerButton_CrawlerFragmentDoc,
-  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ':
+  '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ':
     types.RunCrawlerDocument,
-  '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ':
+  '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ':
     types.StopCrawlerDocument,
   '\n  fragment UpdateCrawlerButton_Crawler on AiLibraryCrawler {\n    id\n    url\n    maxDepth\n    maxPages\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n':
     types.UpdateCrawlerButton_CrawlerFragmentDoc,
@@ -708,14 +708,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ']
+  source: '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ',
+): (typeof documents)['\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId) {\n            id\n            lastRun {\n              startedAt\n            }\n          }\n        }\n      ']
+  source: '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ',
+): (typeof documents)['\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

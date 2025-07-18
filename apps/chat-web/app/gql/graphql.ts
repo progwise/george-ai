@@ -565,10 +565,10 @@ export type Mutation = {
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   resetAssessmentAnswers: Scalars['DateTime']['output']
-  runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
-  stopAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  stopAiLibraryCrawler: Scalars['String']['output']
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -2111,27 +2111,13 @@ export type RunCrawlerMutationVariables = Exact<{
   crawlerId: Scalars['String']['input']
 }>
 
-export type RunCrawlerMutation = {
-  __typename?: 'Mutation'
-  runAiLibraryCrawler?: {
-    __typename?: 'AiLibraryCrawler'
-    id: string
-    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
-  } | null
-}
+export type RunCrawlerMutation = { __typename?: 'Mutation'; runAiLibraryCrawler: string }
 
 export type StopCrawlerMutationVariables = Exact<{
   crawlerId: Scalars['String']['input']
 }>
 
-export type StopCrawlerMutation = {
-  __typename?: 'Mutation'
-  stopAiLibraryCrawler?: {
-    __typename?: 'AiLibraryCrawler'
-    id: string
-    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
-  } | null
-}
+export type StopCrawlerMutation = { __typename?: 'Mutation'; stopAiLibraryCrawler: string }
 
 export type UpdateCrawlerButton_CrawlerFragment = {
   __typename?: 'AiLibraryCrawler'
@@ -8144,20 +8130,6 @@ export const RunCrawlerDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'lastRun' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
-                  },
-                },
-              ],
-            },
           },
         ],
       },
@@ -8191,20 +8163,6 @@ export const StopCrawlerDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'lastRun' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
-                  },
-                },
-              ],
-            },
           },
         ],
       },
