@@ -63,6 +63,7 @@ function RouteComponent() {
         tableDataChanged={() => {
           queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
         }}
+        totalItems={aiLibraryFiles.count}
       />
       <FilesTable
         firstItemNumber={skip + 1}
