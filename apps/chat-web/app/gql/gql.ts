@@ -73,6 +73,7 @@ type Documents = {
   '\n        mutation updateAiLibraryCrawler($id: String!, $data: AiLibraryCrawlerInput!) {\n          updateAiLibraryCrawler(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAiLibraryCrawlerDocument
   '\n          mutation dropFile($id: String!) {\n            dropFile(fileId: $id) {\n              id\n              name\n            }\n          }\n        ': typeof types.DropFileDocument
   '\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ': typeof types.ReprocessFileDocument
+  '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ': typeof types.ClearEmbeddedFilesDocument
   '\n              mutation processUnprocessedFiles($libraryId: String!) {\n                processUnprocessedFiles(libraryId: $libraryId)\n              }\n            ': typeof types.ProcessUnprocessedFilesDocument
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($fileId: String!, $libraryId: String!) {\n          cancelFileUpload(fileId: $fileId, libraryId: $libraryId)\n        }\n      ': typeof types.CancelFileUploadDocument
@@ -243,6 +244,8 @@ const documents: Documents = {
     types.DropFileDocument,
   '\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ':
     types.ReprocessFileDocument,
+  '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ':
+    types.ClearEmbeddedFilesDocument,
   '\n              mutation processUnprocessedFiles($libraryId: String!) {\n                processUnprocessedFiles(libraryId: $libraryId)\n              }\n            ':
     types.ProcessUnprocessedFilesDocument,
   '\n  mutation prepareDesktopFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n':
@@ -710,6 +713,12 @@ export function graphql(
 export function graphql(
   source: '\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ',
 ): (typeof documents)['\n          mutation reprocessFile($id: String!) {\n            processFile(fileId: $id) {\n              id\n              name\n              chunks\n              size\n              uploadedAt\n              processedAt\n              processingErrorMessage\n            }\n          }\n        ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ',
+): (typeof documents)['\n          mutation clearEmbeddedFiles($libraryId: String!) {\n            clearEmbeddedFiles(libraryId: $libraryId)\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

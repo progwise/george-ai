@@ -2074,6 +2074,12 @@ export type ReprocessFileMutation = {
   }
 }
 
+export type ClearEmbeddedFilesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type ClearEmbeddedFilesMutation = { __typename?: 'Mutation'; clearEmbeddedFiles?: boolean | null }
+
 export type ProcessUnprocessedFilesMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
@@ -7945,6 +7951,39 @@ export const ReprocessFileDocument = {
     },
   ],
 } as unknown as DocumentNode<ReprocessFileMutation, ReprocessFileMutationVariables>
+export const ClearEmbeddedFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'clearEmbeddedFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'clearEmbeddedFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ClearEmbeddedFilesMutation, ClearEmbeddedFilesMutationVariables>
 export const ProcessUnprocessedFilesDocument = {
   kind: 'Document',
   definitions: [
