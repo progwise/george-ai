@@ -72,6 +72,7 @@ function RouteComponent() {
             queryKey: getUnprocessedFileCount({ libraryId }).queryKey,
           })
         }}
+        totalItems={aiLibraryFiles.count}
         unprocessedFileCount={unprocessedFileCount ?? 0}
       />
       <FilesTable
