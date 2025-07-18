@@ -539,10 +539,10 @@ type Mutation {
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   resetAssessmentAnswers(assistantId: String!): DateTime!
-  runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
+  runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
-  stopAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
+  stopAiLibraryCrawler(crawlerId: String!): String!
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant

@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import cronstrue from 'cronstrue'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -48,6 +48,14 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
   } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
 
   const { t, language } = useTranslation()
+  const queryClient = useQueryClient()
+
+  const invalidateRelatedQueries = (crawlerRunId: string | undefined) => {
+    if (!crawlerRunId) {
+      return
+    }
+    queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -74,8 +82,11 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                     </a>
                   </div>
                   <div className="flex justify-center gap-2">
-                    <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
-                    <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
+                    <RunCrawlerButton
+                      crawler={crawler}
+                      afterStart={invalidateRelatedQueries}
+                      afterStop={invalidateRelatedQueries}
+                    />
                     <DeleteCrawlerButton
                       crawlerId={crawler.id}
                       crawlerUrl={crawler.url}
@@ -151,7 +162,11 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                 </td>
 
                 <td className="flex gap-2 align-top">
-                  <RunCrawlerButton libraryId={libraryId} crawler={crawler} />
+                  <RunCrawlerButton
+                    crawler={crawler}
+                    afterStart={invalidateRelatedQueries}
+                    afterStop={invalidateRelatedQueries}
+                  />
                   <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
                   <Link
                     to="/libraries/$libraryId/crawlers/$crawlerId"
