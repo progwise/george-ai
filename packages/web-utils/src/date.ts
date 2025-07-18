@@ -57,7 +57,7 @@ export const duration = (start: string | null | undefined, end: string | null | 
     return 'not started'
   }
   const startDate = new Date(start)
-  const endDate = new Date(end ? end : Date.now())
+  const endDate = new Date(end ?? Date.now())
 
   const diffInSeconds = Math.floor((endDate.getTime() - startDate.getTime()) / 1000)
   const hours = Math.floor(diffInSeconds / 3600)

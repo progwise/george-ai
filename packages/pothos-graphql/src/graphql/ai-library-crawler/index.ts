@@ -40,7 +40,6 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
         skip: t.arg.int({ defaultValue: 0 }),
       },
       resolve: async (query, run, args) => {
-        console.log('Fetching updates for crawler run:', run.id, 'with args:', args)
         return await prisma.aiLibraryUpdate.findMany({
           ...query,
           where: { crawlerRunId: run.id },

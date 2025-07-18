@@ -67,7 +67,6 @@ function RouteComponent() {
               itemsPerPage={search.takeRuns}
               currentPage={Math.floor(search.skipRuns / search.takeRuns) + 1}
               onPageChange={(page) => {
-                console.log('Page changed to:', page)
                 navigate({
                   search: { ...search, skipRuns: (page - 1) * search.takeRuns, takeRuns: search.takeRuns },
                 })

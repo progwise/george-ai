@@ -50,7 +50,6 @@ function RouteComponent() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
-    console.log('Submitting form data:', Object.fromEntries(formData.entries()))
     updateCrawlerMutation({ data: formData })
   }
 
