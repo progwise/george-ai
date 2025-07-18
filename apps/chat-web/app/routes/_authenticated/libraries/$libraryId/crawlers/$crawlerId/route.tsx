@@ -66,14 +66,14 @@ function RouteComponent() {
               </span>
             ) : (
               <span className="text-error flex items-center">
-                <span>{t('texts.error')}</span>
+                <span>{t('texts.failure')}</span>
                 <WarnIcon className="inline-block" />
               </span>
             )}
           </span>
           <span className="mx-2">|</span>
           <span>
-            {t('texts.crawledFiles')}: {crawler.filesCount}
+            {t('texts.files')}: {crawler.filesCount}
           </span>
         </div>
       </div>

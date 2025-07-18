@@ -143,15 +143,15 @@ function RouteComponent() {
                   <colgroup>
                     <col className="w-48" />
                     <col className="w-24" />
+                    <col className="w-72" />
                     <col className="w-auto" />
-                    <col className="w-48" />
                   </colgroup>
                   <thead>
                     <tr>
                       <th>{t('updates.date')}</th>
                       <th>{t('updates.success')}</th>
-                      <th>{t('updates.message')}</th>
                       <th>{t('updates.file')}</th>
+                      <th>{t('updates.message')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -163,7 +163,7 @@ function RouteComponent() {
                             {update.success ? 'Success' : 'Failed'}
                           </span>
                         </td>
-                        <td className="break-words">{update.message}</td>
+
                         <td className="truncate">
                           {update.file ? (
                             <Link
@@ -178,6 +178,7 @@ function RouteComponent() {
                             'N/A'
                           )}
                         </td>
+                        <td className="break-words">{update.message}</td>
                       </tr>
                     ))}
                   </tbody>
