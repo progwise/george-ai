@@ -37,7 +37,6 @@ graphql(`
     }
     filesCount
     ...RunCrawlerButton_Crawler
-    ...UpdateCrawlerButton_Crawler
   }
 `)
 

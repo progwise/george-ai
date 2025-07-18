@@ -74,6 +74,11 @@ function RouteComponent() {
               <div className="text-sm">
                 {crawlerRun.endedAt ? dateTimeString(crawlerRun.endedAt, language) : t('texts.running')}
               </div>
+              {crawlerRun.stoppedByUser && (
+                <div className="text-base-content/60 text-sm">
+                  {t('crawlers.stoppedByUser')}: {dateTimeString(crawlerRun.stoppedByUser, language)}
+                </div>
+              )}
             </div>
             <div>
               <label className="label">

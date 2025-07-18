@@ -265,6 +265,7 @@ type AiLibraryCrawlerRun {
   id: ID!
   runByUserId: ID
   startedAt: DateTime!
+  stoppedByUser: DateTime
   success: Boolean
   updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
   updatesCount: Int!

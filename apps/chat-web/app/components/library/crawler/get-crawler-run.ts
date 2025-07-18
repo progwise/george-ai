@@ -24,6 +24,7 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
             startedAt
             endedAt
             success
+            stoppedByUser
             errorMessage
             runByUserId
             updatesCount

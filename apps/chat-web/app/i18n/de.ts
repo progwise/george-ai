@@ -168,6 +168,7 @@ export default {
     run: 'Crawler starten',
     runCount: '# Läufe',
     stop: 'Stop',
+    stoppedByUser: 'Gestoppt durch Benutzer',
     update: 'Crawler aktualisieren',
     updateCrawler: 'Crawler aktualisieren',
     url: 'URL',

@@ -293,6 +293,7 @@ export type AiLibraryCrawlerRun = {
   id: Scalars['ID']['output']
   runByUserId?: Maybe<Scalars['ID']['output']>
   startedAt: Scalars['DateTime']['output']
+  stoppedByUser?: Maybe<Scalars['DateTime']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
   updates: Array<AiLibraryUpdate>
   updatesCount: Scalars['Int']['output']
@@ -1929,21 +1930,7 @@ export type CrawlerTable_LibraryCrawlerFragment = {
     success?: boolean | null
     errorMessage?: string | null
   } | null
-  cronJob?: {
-    __typename?: 'AiLibraryCrawlerCronJob'
-    cronExpression?: string | null
-    id: string
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
-  } | null
+  cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
 }
 
 export type DeleteCrawlerMutationVariables = Exact<{
@@ -1970,6 +1957,7 @@ export type GetCrawlerRunQuery = {
     startedAt: string
     endedAt?: string | null
     success?: boolean | null
+    stoppedByUser?: string | null
     errorMessage?: string | null
     runByUserId?: string | null
     updatesCount: number
@@ -2076,21 +2064,7 @@ export type CrawlerTableQuery = {
         success?: boolean | null
         errorMessage?: string | null
       } | null
-      cronJob?: {
-        __typename?: 'AiLibraryCrawlerCronJob'
-        cronExpression?: string | null
-        id: string
-        active: boolean
-        hour: number
-        minute: number
-        monday: boolean
-        tuesday: boolean
-        wednesday: boolean
-        thursday: boolean
-        friday: boolean
-        saturday: boolean
-        sunday: boolean
-      } | null
+      cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     }>
   }
 }
@@ -2108,28 +2082,6 @@ export type StopCrawlerMutationVariables = Exact<{
 }>
 
 export type StopCrawlerMutation = { __typename?: 'Mutation'; stopAiLibraryCrawler: string }
-
-export type UpdateCrawlerButton_CrawlerFragment = {
-  __typename?: 'AiLibraryCrawler'
-  id: string
-  url: string
-  maxDepth: number
-  maxPages: number
-  cronJob?: {
-    __typename?: 'AiLibraryCrawlerCronJob'
-    id: string
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
-  } | null
-}
 
 export type UpdateAiLibraryCrawlerMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -4868,45 +4820,6 @@ export const RunCrawlerButton_CrawlerFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
-export const UpdateCrawlerButton_CrawlerFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpdateCrawlerButton_CrawlerFragment, unknown>
 export const CrawlerTable_LibraryCrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -4943,7 +4856,6 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' } },
         ],
       },
     },
@@ -4956,40 +4868,6 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -7718,6 +7596,7 @@ export const GetCrawlerRunDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'endedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'stoppedByUser' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'runByUserId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatesCount' } },
@@ -8001,40 +7880,6 @@ export const CrawlerTableDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'CrawlerTable_LibraryCrawler' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
       selectionSet: {
@@ -8066,7 +7911,6 @@ export const CrawlerTableDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' } },
         ],
       },
     },

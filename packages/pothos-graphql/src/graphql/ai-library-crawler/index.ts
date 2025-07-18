@@ -30,6 +30,7 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
     endedAt: t.expose('endedAt', { type: 'DateTime', nullable: true }),
     success: t.exposeBoolean('success', { nullable: true }),
     errorMessage: t.exposeString('errorMessage', { nullable: true }),
+    stoppedByUser: t.expose('stoppedByUser', { type: 'DateTime', nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
     updatesCount: t.relationCount('updates', { nullable: false }),
     updates: t.prismaField({
