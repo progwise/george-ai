@@ -9,7 +9,6 @@ import { AddCrawlerButton } from './add-crawler-button'
 import { DeleteCrawlerButton } from './delete-crawler-button'
 import { getCrawlersQueryOptions } from './get-crawlers'
 import { RunCrawlerButton } from './run-crawler-button'
-import { UpdateCrawlerButton } from './update-crawler-button'
 
 // Import the German locale
 import 'cronstrue/locales/de'
@@ -93,9 +92,6 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                       filesCount={crawler.filesCount}
                       libraryId={libraryId}
                     />
-                    <Link to={`/libraries/$libraryId/updates`} params={{ libraryId }} className="btn btn-xs">
-                      {t('libraries.lastUpdates')}
-                    </Link>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-1 text-sm">
@@ -167,7 +163,6 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                     afterStart={invalidateRelatedQueries}
                     afterStop={invalidateRelatedQueries}
                   />
-                  <UpdateCrawlerButton libraryId={libraryId} crawler={crawler} />
                   <Link
                     to="/libraries/$libraryId/crawlers/$crawlerId"
                     params={{ libraryId, crawlerId: crawler.id }}
@@ -181,10 +176,6 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                     filesCount={crawler.filesCount}
                     libraryId={libraryId}
                   />
-
-                  <Link to={`/libraries/$libraryId/updates`} params={{ libraryId }} className="btn btn-xs">
-                    {t('libraries.lastUpdates')}
-                  </Link>
                 </td>
               </tr>
             ))}
