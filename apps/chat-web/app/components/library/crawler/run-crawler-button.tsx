@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
@@ -13,15 +13,15 @@ import { toastError, toastSuccess } from '../../georgeToaster'
 graphql(`
   fragment RunCrawlerButton_Crawler on AiLibraryCrawler {
     id
+    libraryId
     isRunning
   }
 `)
 
 interface RunCrawlerButtonProps {
   crawler: RunCrawlerButton_CrawlerFragment
-  afterStart?: (crawlerRunId: string | undefined) => Promise<void>
-  afterStop?: (crawlerRunId: string | undefined) => Promise<void>
   className?: string
+  afterStart?: (crawlerRunId: string) => void
 }
 
 const runCrawler = createServerFn({ method: 'POST' })
@@ -64,17 +64,38 @@ const stopCrawler = createServerFn({ method: 'POST' })
     return result.stopAiLibraryCrawler
   })
 
-export const RunCrawlerButton = ({ crawler, className, afterStart, afterStop }: RunCrawlerButtonProps) => {
+export const RunCrawlerButton = ({ crawler, className, afterStart }: RunCrawlerButtonProps) => {
+  const queryClient = useQueryClient()
+  const invalidateRelatedQueries = async (crawlerRunId?: string) => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['getCrawlerRuns', { libraryId: crawler.libraryId, crawlerId: crawler.id }],
+        exact: false,
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['getCrawler', { libraryId: crawler.libraryId, crawlerId: crawler.id }],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['getCrawlers', { libraryId: crawler.libraryId }],
+      }),
+      crawlerRunId &&
+        queryClient.invalidateQueries({
+          queryKey: ['getCrawlerRun', { libraryId: crawler.libraryId, crawlerRunId }],
+          exact: true, // Ensure we invalidate the specific run query
+        }),
+    ])
+  }
   const runCrawlerMutation = useMutation({
     mutationFn: () => runCrawler({ data: { crawlerId: crawler.id } }),
     onError: (error) => {
       toastError(error.message || 'Failed starting crawler')
     },
-    onSuccess: () => {
+    onSuccess: (crawlerRunId) => {
       toastSuccess('Crawler started successfully')
+      afterStart?.(crawlerRunId)
     },
     onSettled: async (data) => {
-      await afterStart?.(data)
+      invalidateRelatedQueries(data)
     },
   })
 
@@ -87,7 +108,7 @@ export const RunCrawlerButton = ({ crawler, className, afterStart, afterStop }: 
       toastSuccess('Crawler stopped successfully')
     },
     onSettled: async (data) => {
-      await afterStop?.(data)
+      invalidateRelatedQueries(data)
     },
   })
   const { t } = useTranslation()

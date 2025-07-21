@@ -33,7 +33,7 @@ function RouteComponent() {
   const { t, language } = useTranslation()
   const {
     data: { aiLibraryCrawlerRun: crawlerRun },
-  } = useSuspenseQuery({ ...getCrawlerRunQueryOptions({ ...params, ...search }) })
+  } = useSuspenseQuery(getCrawlerRunQueryOptions({ ...params, ...search }))
 
   useEffect(() => {
     if (crawlerRun.endedAt && !intervalId.current) {
@@ -48,7 +48,9 @@ function RouteComponent() {
       clearInterval(intervalId.current)
     }
     intervalId.current = setInterval(async () => {
-      queryClient.invalidateQueries(getCrawlerRunQueryOptions({ ...params, ...search }))
+      queryClient.invalidateQueries({
+        queryKey: ['getCrawlerRun', { libraryId: params.libraryId, crawlerRunId: params.crawlerRunId }],
+      })
     }, 2000)
   }, [crawlerRun.endedAt, params, queryClient, search])
   return (

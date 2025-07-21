@@ -233,6 +233,7 @@ export type AiLibraryCrawler = {
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<AiLibraryCrawlerRun>
+  libraryId: Scalars['String']['output']
   maxDepth: Scalars['Int']['output']
   maxPages: Scalars['Int']['output']
   runCount: Scalars['Int']['output']
@@ -1933,6 +1934,7 @@ export type CrawlerTable_LibraryCrawlerFragment = {
   maxDepth: number
   maxPages: number
   filesCount: number
+  libraryId: string
   isRunning: boolean
   lastRun?: {
     __typename?: 'AiLibraryCrawlerRun'
@@ -2021,6 +2023,7 @@ export type GetCrawlerQuery = {
   aiLibraryCrawler: {
     __typename?: 'AiLibraryCrawler'
     id: string
+    libraryId: string
     url: string
     isRunning: boolean
     filesCount: number
@@ -2067,6 +2070,7 @@ export type CrawlerTableQuery = {
       maxDepth: number
       maxPages: number
       filesCount: number
+      libraryId: string
       isRunning: boolean
       lastRun?: {
         __typename?: 'AiLibraryCrawlerRun'
@@ -2079,7 +2083,12 @@ export type CrawlerTableQuery = {
   }
 }
 
-export type RunCrawlerButton_CrawlerFragment = { __typename?: 'AiLibraryCrawler'; id: string; isRunning: boolean }
+export type RunCrawlerButton_CrawlerFragment = {
+  __typename?: 'AiLibraryCrawler'
+  id: string
+  libraryId: string
+  isRunning: boolean
+}
 
 export type RunCrawlerMutationVariables = Exact<{
   crawlerId: Scalars['String']['input']
@@ -4845,6 +4854,7 @@ export const RunCrawlerButton_CrawlerFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
         ],
       },
@@ -4898,6 +4908,7 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
         ],
       },
@@ -7803,6 +7814,7 @@ export const GetCrawlerDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
                 {
@@ -7905,6 +7917,7 @@ export const CrawlerTableDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
         ],
       },
