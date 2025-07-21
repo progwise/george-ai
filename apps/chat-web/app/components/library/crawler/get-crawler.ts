@@ -19,6 +19,7 @@ const getCrawler = createServerFn({ method: 'GET' })
         query GetCrawler($libraryId: String!, $crawlerId: String!) {
           aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {
             id
+            libraryId
             url
             isRunning
             lastRun {
@@ -53,9 +54,6 @@ const getCrawler = createServerFn({ method: 'GET' })
   })
 
 export const getCrawlerQueryOptions = ({ libraryId, crawlerId }: { libraryId: string; crawlerId: string }) => ({
-  queryKey: ['getCrawler', libraryId, crawlerId],
+  queryKey: ['getCrawler', { libraryId, crawlerId }],
   queryFn: () => getCrawler({ data: { libraryId, crawlerId } }),
-  staleTime: 1000 * 60 * 5, // 5 minutes
-  cacheTime: 1000 * 60 * 10, // 10 minutes
-  retry: false,
 })

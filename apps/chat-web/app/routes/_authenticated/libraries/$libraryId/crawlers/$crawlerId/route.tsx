@@ -1,12 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, Outlet, createFileRoute, useSearch } from '@tanstack/react-router'
-import { useCallback } from 'react'
+import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { dateString, timeString } from '@george-ai/web-utils'
 
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
-import { getCrawlerRunsQueryOptions } from '../../../../../../components/library/crawler/get-crawler-runs'
-import { getCrawlersQueryOptions } from '../../../../../../components/library/crawler/get-crawlers'
 import { RunCrawlerButton } from '../../../../../../components/library/crawler/run-crawler-button'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { CheckIcon } from '../../../../../../icons/check-icon'
@@ -21,29 +18,14 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 
 function RouteComponent() {
   const { t, language } = useTranslation()
-  const { queryClient } = Route.useRouteContext()
   const params = Route.useParams()
-  const search = useSearch({ strict: false })
   const navigate = Route.useNavigate()
+
   const { libraryId, crawlerId } = Route.useParams()
   const {
     data: { aiLibraryCrawler: crawler },
   } = useSuspenseQuery(getCrawlerQueryOptions({ libraryId, crawlerId }))
 
-  const invalidateRelatedQueries = useCallback(async () => {
-    await Promise.all([
-      queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId)),
-      queryClient.invalidateQueries(getCrawlerQueryOptions({ libraryId, crawlerId })),
-      queryClient.invalidateQueries(
-        getCrawlerRunsQueryOptions({
-          libraryId,
-          crawlerId,
-          take: search.takeRuns || 10,
-          skip: search.skipRuns || 0,
-        }),
-      ),
-    ])
-  }, [queryClient, libraryId, crawlerId, search.takeRuns, search.skipRuns])
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -120,18 +102,10 @@ function RouteComponent() {
             <RunCrawlerButton
               crawler={crawler}
               className="btn btn-sm"
-              afterStop={async (runId) => {
-                if (!runId) return
-                await invalidateRelatedQueries()
-              }}
-              afterStart={async (runId) => {
-                if (!runId) return
-                await invalidateRelatedQueries()
-                // Navigate to the latest run details after starting a crawler
-                const newParams = { ...params, crawlerRunId: runId }
-                await navigate({
+              afterStart={(crawlerRunId) => {
+                navigate({
                   to: '/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId',
-                  params: newParams,
+                  params: { crawlerRunId },
                 })
               }}
             />

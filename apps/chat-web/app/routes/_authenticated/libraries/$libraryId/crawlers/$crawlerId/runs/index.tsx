@@ -17,7 +17,6 @@ function RouteComponent() {
   const { t } = useTranslation()
   const params = Route.useParams()
   const navigate = Route.useNavigate()
-  const { queryClient } = Route.useRouteContext()
   const {
     data: { aiLibraryCrawler: crawler },
   } = useSuspenseQuery(getCrawlerQueryOptions(params))
@@ -42,13 +41,10 @@ function RouteComponent() {
           <RunCrawlerButton
             className="btn btn-primary"
             crawler={crawler}
-            afterStart={async (data) => {
-              if (!data) return
-              await queryClient.invalidateQueries(getCrawlerQueryOptions(params))
-
+            afterStart={(crawlerRunId) => {
               navigate({
                 to: '/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId',
-                params: { crawlerRunId: data },
+                params: { crawlerRunId },
               })
             }}
           />

@@ -56,6 +56,7 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
 builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
+    libraryId: t.exposeString('libraryId', { nullable: false }),
     url: t.exposeString('url', { nullable: false }),
     lastRun: t.field({
       type: AiLibraryCrawlerRun,

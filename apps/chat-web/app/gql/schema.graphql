@@ -212,6 +212,7 @@ type AiLibraryCrawler {
   id: ID!
   isRunning: Boolean!
   lastRun: AiLibraryCrawlerRun
+  libraryId: String!
   maxDepth: Int!
   maxPages: Int!
   runCount: Int!

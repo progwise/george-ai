@@ -64,9 +64,6 @@ export const getCrawlerRunQueryOptions = ({
   skipUpdates: number
   takeUpdates: number
 }) => ({
-  queryKey: ['getCrawlerRun', libraryId, crawlerRunId, skipUpdates, takeUpdates],
+  queryKey: ['getCrawlerRun', { libraryId, crawlerRunId }, { skipUpdates, takeUpdates }],
   queryFn: () => getCrawlerRun({ data: { libraryId, crawlerRunId, skipUpdates, takeUpdates } }),
-  staleTime: 1000 * 60 * 5, // 5 minutes
-  cacheTime: 1000 * 60 * 10, // 10 minutes
-  retry: false,
 })

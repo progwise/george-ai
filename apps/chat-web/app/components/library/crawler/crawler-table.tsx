@@ -1,4 +1,4 @@
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import cronstrue from 'cronstrue'
 
 import { dateTimeString } from '@george-ai/web-utils'
@@ -46,14 +46,6 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
   } = useSuspenseQuery(getCrawlersQueryOptions(libraryId))
 
   const { t, language } = useTranslation()
-  const queryClient = useQueryClient()
-
-  const invalidateRelatedQueries = async (crawlerRunId: string | undefined) => {
-    if (!crawlerRunId) {
-      return
-    }
-    await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
-  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -80,12 +72,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                     </a>
                   </div>
                   <div className="flex justify-center gap-2">
-                    <RunCrawlerButton
-                      className="btn btn-xs"
-                      crawler={crawler}
-                      afterStart={invalidateRelatedQueries}
-                      afterStop={invalidateRelatedQueries}
-                    />
+                    <RunCrawlerButton className="btn btn-xs" crawler={crawler} />
                     <DeleteCrawlerButton
                       crawlerId={crawler.id}
                       crawlerUrl={crawler.url}
@@ -158,12 +145,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                 </td>
 
                 <td className="flex gap-2 align-top">
-                  <RunCrawlerButton
-                    className="btn btn-xs"
-                    crawler={crawler}
-                    afterStart={invalidateRelatedQueries}
-                    afterStop={invalidateRelatedQueries}
-                  />
+                  <RunCrawlerButton className="btn btn-xs" crawler={crawler} />
                   <Link
                     to="/libraries/$libraryId/crawlers/$crawlerId"
                     params={{ libraryId, crawlerId: crawler.id }}
