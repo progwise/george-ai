@@ -44,6 +44,8 @@ export const FilesTable = ({
   tableDataChanged,
 }: FilesTableProps) => {
   const { t, language } = useTranslation()
+  const pageFileIds = files?.map((file) => file.id) || []
+  const allSelected = pageFileIds.every((id) => selectedFileIds.includes(id))
 
   const { mutate: mutateDropFile, isPending: dropPending } = useMutation({
     mutationFn: (fileId: string) => dropFiles({ data: [fileId] }),
@@ -93,10 +95,10 @@ export const FilesTable = ({
   }
 
   const handleSelectAll = () => {
-    if (selectedFileIds.length === files?.length) {
-      setSelectedFileIds([])
+    if (allSelected) {
+      setSelectedFileIds((prev) => prev.filter((id) => !pageFileIds.includes(id)))
     } else {
-      setSelectedFileIds(files?.map((file) => file.id) || [])
+      setSelectedFileIds((prev) => Array.from(new Set([...prev, ...pageFileIds])))
     }
   }
 
@@ -106,12 +108,7 @@ export const FilesTable = ({
       {/* Mobile View */}
       <div className="block lg:hidden">
         <label className="mb-4 flex gap-2">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-sm"
-            checked={selectedFileIds.length === files.length && files.length > 0}
-            onChange={handleSelectAll}
-          />
+          <input type="checkbox" className="checkbox checkbox-sm" checked={allSelected} onChange={handleSelectAll} />
           <span className="text-sm font-medium">{t('actions.selectAll')}</span>
         </label>
 
@@ -171,7 +168,7 @@ export const FilesTable = ({
                 <input
                   type="checkbox"
                   className="checkbox checkbox-xs"
-                  checked={selectedFileIds.length === files?.length && files.length > 0}
+                  checked={allSelected}
                   onChange={handleSelectAll}
                 />
               </th>
