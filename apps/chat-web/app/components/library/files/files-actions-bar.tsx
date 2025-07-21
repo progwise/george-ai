@@ -5,6 +5,7 @@ import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 
@@ -15,6 +16,7 @@ interface FilesActionsBarProps {
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
+  totalItems: number
 }
 
 export const FilesActionsBar = ({
@@ -24,6 +26,7 @@ export const FilesActionsBar = ({
   tableDataChanged,
   checkedFileIds,
   setCheckedFileIds,
+  totalItems,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -98,6 +101,14 @@ export const FilesActionsBar = ({
           tableDataChanged={tableDataChanged}
           checkedFileIds={checkedFileIds}
           setCheckedFileIds={setCheckedFileIds}
+        />
+
+        <DropAllFilesDialog
+          libraryId={libraryId}
+          disabled={false}
+          setCheckedFileIds={setCheckedFileIds}
+          tableDataChanged={tableDataChanged}
+          totalItems={totalItems}
         />
 
         <button
