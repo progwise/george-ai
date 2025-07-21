@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 interface PaginationProps {
@@ -23,6 +24,12 @@ export const Pagination = ({
     if (page < 1 || page > totalPages) return
     onPageChange(page)
   }
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      return onPageChange(totalPages)
+    }
+  })
 
   return (
     <nav className={`join items-center gap-0.5 md:gap-2 ${className}`}>
