@@ -39,7 +39,7 @@ function RouteComponent() {
         <p>{t('crawlers.noRunsDescription')}</p>
         <div className="card-actions justify-end">
           <RunCrawlerButton
-            className="btn btn-primary"
+            className="btn-primary"
             crawler={crawler}
             afterStart={(crawlerRunId) => {
               navigate({

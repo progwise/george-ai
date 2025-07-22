@@ -81,7 +81,6 @@ export const RunCrawlerButton = ({ crawler, className, afterStart }: RunCrawlerB
       crawlerRunId &&
         queryClient.invalidateQueries({
           queryKey: ['getCrawlerRun', { libraryId: crawler.libraryId, crawlerRunId }],
-          exact: true, // Ensure we invalidate the specific run query
         }),
     ])
   }

@@ -164,7 +164,8 @@ export default {
     maxPages: 'Seiten',
     noRunsDescription:
       'Sie müssen den Crawler zuerst starten, um Daten über Updates, Dateien und das Verhalten des Crawlers zu erhalten.',
-    noRunsTitle: 'Noch nichts gecrawlt.',
+    noRunsFound: 'Keine Crawlläufe gefunden',
+    noRunsTitle: 'Noch nicht gestartet.',
     run: 'Crawler starten',
     runCount: '# Läufe',
     stop: 'Stop',

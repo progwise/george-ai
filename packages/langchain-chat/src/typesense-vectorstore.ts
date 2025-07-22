@@ -1,5 +1,6 @@
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
-import { OpenAIEmbeddings } from '@langchain/openai'
+// import { OpenAIEmbeddings } from '@langchain/openai'
+import { OllamaEmbeddings } from '@langchain/ollama'
 import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
@@ -100,9 +101,10 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   },
 })
 
-const embeddings = new OpenAIEmbeddings({
-  modelName: 'text-embedding-3-large',
-  dimensions: 3072,
+const embeddings = new OllamaEmbeddings({
+  model: 'mistral:latest',
+  baseUrl: process.env.OLLAMA_API_URL || 'http://localhost:11434',
+  keepAlive: '5m',
 })
 
 const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig('gai-documents'))
