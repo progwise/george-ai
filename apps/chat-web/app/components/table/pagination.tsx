@@ -29,7 +29,7 @@ export const Pagination = ({
     if (currentPage > totalPages) {
       return onPageChange(totalPages)
     }
-  })
+  }, [currentPage, totalPages, onPageChange])
 
   return (
     <nav className={`join items-center gap-0.5 md:gap-2 ${className}`}>
