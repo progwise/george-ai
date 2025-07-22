@@ -43,7 +43,7 @@ function RouteComponent() {
           <LibraryDeleteOrLeaveDialogButton library={aiLibrary} userId={user.id} />
           <button
             type="button"
-            onClick={() => navigate({ to: '..' })}
+            onClick={() => navigate({ to: '/libraries/$libraryId', params: { libraryId } })}
             className="btn btn-sm tooltip tooltip-left"
             data-tip={t('tooltips.goToOverview')}
           >
