@@ -169,6 +169,7 @@ export default {
       'Sie müssen den Crawler zuerst starten, um Daten über Updates, Dateien und das Verhalten des Crawlers zu erhalten.',
     noRunsFound: 'Keine Crawlläufe gefunden',
     noRunsTitle: 'Noch nicht gestartet.',
+    noUpdatesFound: 'Keine Updates gefunden.',
     run: 'Crawler starten',
     runCount: '# Läufe',
     stop: 'Stop',
