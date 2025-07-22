@@ -72,13 +72,20 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                     </a>
                   </div>
                   <div className="flex justify-center gap-2">
-                    <RunCrawlerButton className="btn btn-xs" crawler={crawler} />
+                    <RunCrawlerButton className="btn-xs" crawler={crawler} />
                     <DeleteCrawlerButton
                       crawlerId={crawler.id}
                       crawlerUrl={crawler.url}
                       filesCount={crawler.filesCount}
                       libraryId={libraryId}
                     />
+                    <Link
+                      to="/libraries/$libraryId/crawlers/$crawlerId"
+                      params={{ libraryId, crawlerId: crawler.id }}
+                      className="btn btn-xs"
+                    >
+                      {t('crawlers.details')}
+                    </Link>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-1 text-sm">
@@ -145,7 +152,7 @@ export const CrawlerTable = ({ libraryId }: CrawlerTableProps) => {
                 </td>
 
                 <td className="flex gap-2 align-top">
-                  <RunCrawlerButton className="btn btn-xs" crawler={crawler} />
+                  <RunCrawlerButton className="btn-xs" crawler={crawler} />
                   <Link
                     to="/libraries/$libraryId/crawlers/$crawlerId"
                     params={{ libraryId, crawlerId: crawler.id }}

@@ -36,6 +36,9 @@ function RouteComponent() {
   } = useSuspenseQuery(getCrawlerRunQueryOptions({ ...params, ...search }))
 
   useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: ['getCrawlerRun', { libraryId: params.libraryId, crawlerRunId: params.crawlerRunId }],
+    })
     if (crawlerRun.endedAt && !intervalId.current) {
       return
     }

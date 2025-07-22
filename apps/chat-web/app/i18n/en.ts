@@ -161,6 +161,7 @@ export default {
     maxPages: 'Pages',
     noRunsDescription:
       'You need to start the crawler first to get data about updates, files and behavior of the crawler.',
+    noRunsFound: 'No crawl runs found.',
     noRunsTitle: 'Nothing crawled yet.',
     run: 'Crawl',
     runCount: '# Crawls',

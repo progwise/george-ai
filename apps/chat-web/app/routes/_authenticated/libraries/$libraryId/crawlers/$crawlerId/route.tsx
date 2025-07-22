@@ -101,7 +101,7 @@ function RouteComponent() {
           <li>
             <RunCrawlerButton
               crawler={crawler}
-              className="btn btn-sm"
+              className="btn-sm"
               afterStart={(crawlerRunId) => {
                 navigate({
                   to: '/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId',

@@ -75,7 +75,7 @@ function RouteComponent() {
           </div>
           <ul className="menu bg-base-200 rounded-box">
             {crawlerRuns.length < 1 ? (
-              <li className="text-center text-sm text-gray-500">{'No runs found.'}</li>
+              <li className="text-center text-sm text-gray-500">{t('crawlers.noRunsFound')}</li>
             ) : (
               crawlerRuns.map((run) => (
                 <li key={run.id} className="">
