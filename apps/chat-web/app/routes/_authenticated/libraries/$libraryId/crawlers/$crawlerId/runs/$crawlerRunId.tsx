@@ -36,9 +36,6 @@ function RouteComponent() {
   } = useSuspenseQuery(getCrawlerRunQueryOptions({ ...params, ...search }))
 
   useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: ['getCrawlerRun', { libraryId: params.libraryId, crawlerRunId: params.crawlerRunId }],
-    })
     if (crawlerRun.endedAt && !intervalId.current) {
       return
     }
@@ -53,6 +50,12 @@ function RouteComponent() {
     intervalId.current = setInterval(async () => {
       queryClient.invalidateQueries({
         queryKey: ['getCrawlerRun', { libraryId: params.libraryId, crawlerRunId: params.crawlerRunId }],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['getCrawler', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['getCrawlerRuns', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
       })
     }, 2000)
   }, [crawlerRun.endedAt, params, queryClient, search])
@@ -195,7 +198,7 @@ function RouteComponent() {
               </div>
             </>
           ) : (
-            <div className="text-base-content/60 py-8 text-center">No updates found.</div>
+            <div className="text-base-content/60 py-8 text-center">{t('crawlers.noUpdatesFound')}</div>
           )}
         </div>
       </div>

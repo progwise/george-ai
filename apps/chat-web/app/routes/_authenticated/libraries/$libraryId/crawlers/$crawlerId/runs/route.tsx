@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
-import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { dateTimeString, duration } from '@george-ai/web-utils'
@@ -42,23 +41,13 @@ function RouteComponent() {
     data: { aiLibraryCrawler: crawler },
   } = useSuspenseQuery(getCrawlerQueryOptions(params))
   return (
-    <div
-      className={twMerge(
-        'drawer lg:drawer-open grow gap-4',
-        // 'min-h-[calc(100dvh_-_--spacing(0))]', // full height minus the top bar
-      )}
-    >
+    <div className="drawer lg:drawer-open grow gap-4">
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col">
         <Outlet />
       </div>
 
-      <div
-        className={twMerge(
-          'drawer-side max-lg:z-50',
-          //'lg:h-[calc(100dvh_-_--spacing(100))]', // full height minus the top bar
-        )}
-      >
+      <div className="drawer-side max-lg:z-50">
         <label htmlFor="conversation-drawer" className="drawer-overlay" />
         <div className="bg-base-200 flex flex-col items-center gap-2 pt-4">
           <div className="flex flex-1 flex-col gap-4 overflow-scroll">
