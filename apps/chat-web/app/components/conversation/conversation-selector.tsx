@@ -102,6 +102,7 @@ export const ConversationSelector = ({
                         type="checkbox"
                         className="checkbox checkbox-xs"
                         onChange={() => handleCheckConversation(conversation.id)}
+                        checked={checkedConversationIds.includes(conversation.id)}
                       />
                     </label>
 
