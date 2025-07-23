@@ -27,6 +27,7 @@ const schema = builder.toSchema()
 
 export { schema }
 
+export * from './assistant-icon'
 export * from './file-upload'
 export * from './graphql/context'
 export * from './prisma'

@@ -1,7 +1,7 @@
 export const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11245'
 
 // Uncomment the line below to use the local development server
-// export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'
+//export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'
 
 interface CrawlOptions {
   url: string
@@ -12,13 +12,13 @@ interface CrawlOptions {
 export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
   console.log(`start crawling ${url}`)
 
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
+  let controller: AbortController | undefined
+
   try {
     const encodedUrl = url
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => {
-      console.log(`Crawl request for ${url} timed out after 5 seconds`)
-      controller.abort()
-    }, 5000) // 60 seconds timeout
+    controller = new AbortController()
+
     const response = await fetch(
       `${CRAWL4AI_BASE_URL}/crawl?url=${encodedUrl}&maxDepth=${maxDepth}&maxPages=${maxPages}`,
       {
@@ -31,14 +31,13 @@ export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
     )
     if (!response.ok) {
       console.error(`Failed to start crawl ${url}:`, response.statusText)
-      return
+      throw new Error(`Failed to start crawl ${url}: ${response.statusText}`)
     }
 
-    const reader = response.body?.getReader()
+    reader = response.body?.getReader()
     if (!reader) {
       throw new Error('Failed to get response body reader')
     }
-    clearTimeout(timeoutId)
 
     let readMode: 'read-metadata' | 'read-markdown' | null = null
     let currentMetadata: string | null = null
@@ -88,8 +87,24 @@ export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
       }
     }
   } catch (error) {
-    console.error('Error during crawling:', error)
-    yield { url, markdown: null, metaData: null, error: error instanceof Error ? error.message : String(error) }
+    const errorMessage =
+      error instanceof Error ? `${error.message}${error.cause ? ' ' + error.cause : ''}` : String(error)
+    console.error('Error in crawl client:', errorMessage)
+    yield { url, markdown: null, metaData: null, error: errorMessage }
+  } finally {
+    // Ensure we properly close the connection when the generator is terminated
+    if (reader) {
+      try {
+        await reader.cancel()
+        console.log(`Reader cancelled for ${url}`)
+      } catch (err) {
+        console.error(`Error cancelling reader for ${url}:`, err)
+      }
+    }
+    if (controller && !controller.signal.aborted) {
+      controller.abort()
+      console.log(`Controller aborted for ${url}`)
+    }
   }
   console.log(`finished crawling ${url}`)
 }
