@@ -101,9 +101,11 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   },
 })
 
+console.log(`setting up ollama embeddings to mistral:latest on ${process.env.OLLAMA_BASE_URL}`)
+
 const embeddings = new OllamaEmbeddings({
   model: 'mistral:latest',
-  baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+  baseUrl: process.env.OLLAMA_BASE_URL,
   keepAlive: '5m',
 })
 
@@ -173,7 +175,16 @@ export const embedFile = async (
     },
   }))
 
-  await Typesense.fromDocuments(chunks, embeddings, typesenseVectorStoreConfig)
+  const docVectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
+  const saniatizedVectors = docVectors.map((vec) => {
+    const sanitizedVector = new Array(3072).fill(0)
+    for (let i = 0; i < Math.min(vec.length, sanitizedVector.length); i++) {
+      sanitizedVector[i] = vec[i]
+    }
+    return sanitizedVector
+  })
+  const typesense = new Typesense(embeddings, typesenseVectorStoreConfig)
+  await typesense.addVectors(saniatizedVectors, chunks)
 
   return {
     id: file.id,
