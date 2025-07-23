@@ -95,7 +95,7 @@ export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLe
         onClick={() => dialogRef.current?.showModal()}
         data-tip={buttonTooltip}
       >
-        <Icon className="text-error size-6" />
+        <Icon className="size-6" />
       </button>
 
       <LoadingSpinner isLoading={isPending} />

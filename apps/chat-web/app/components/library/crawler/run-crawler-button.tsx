@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { RunCrawlerButton_CrawlerFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { PlayIcon } from '../../../icons/play-icon'
 import { backendRequest } from '../../../server-functions/backend'
 import { toastError, toastSuccess } from '../../georgeToaster'
 import { aiLibraryFilesQueryOptions } from '../files/get-files'
@@ -46,13 +47,35 @@ const runCrawler = createServerFn({ method: 'POST' })
     )
   })
 
+const stopCrawler = createServerFn({ method: 'POST' })
+  .validator((data: { crawlerId: string }) =>
+    z
+      .object({
+        crawlerId: z.string().nonempty(),
+      })
+      .parse(data),
+  )
+  .handler(async (ctx) => {
+    return await backendRequest(
+      graphql(`
+        mutation stopCrawler($crawlerId: String!) {
+          stopAiLibraryCrawler(crawlerId: $crawlerId) {
+            id
+            lastRun {
+              startedAt
+            }
+          }
+        }
+      `),
+      { crawlerId: ctx.data.crawlerId },
+    )
+  })
+
 export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) => {
   const queryClient = useQueryClient()
 
   const runCrawlerMutation = useMutation({
-    mutationFn: async () => {
-      return await runCrawler({ data: { crawlerId: crawler.id } })
-    },
+    mutationFn: () => runCrawler({ data: { crawlerId: crawler.id } }),
     onError: (error) => {
       toastError(error.message || 'Failed starting crawler')
     },
@@ -65,20 +88,40 @@ export const RunCrawlerButton = ({ libraryId, crawler }: RunCrawlerButtonProps) 
       queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 200 }))
     },
   })
+
+  const stopCrawlerMutation = useMutation({
+    mutationFn: () => stopCrawler({ data: { crawlerId: crawler.id } }),
+    onError: (error) => {
+      toastError(error.message || 'Failed stop crawler')
+    },
+    onSuccess: (data) => {
+      toastSuccess('Crawler stopped successfully')
+      return data
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
+      queryClient.invalidateQueries(aiLibraryFilesQueryOptions({ libraryId, skip: 0, take: 20 }))
+    },
+  })
   const { t } = useTranslation()
 
   const handleClick = () => {
-    runCrawlerMutation.mutate()
+    if (!crawler.isRunning) {
+      runCrawlerMutation.mutate()
+    } else {
+      stopCrawlerMutation.mutate()
+    }
   }
 
   return (
     <button
       type="button"
-      disabled={crawler.isRunning || runCrawlerMutation.isPending}
+      disabled={runCrawlerMutation.isPending}
       onClick={handleClick}
       className="btn btn-primary btn-xs"
     >
-      {t('crawlers.run')}
+      {crawler.isRunning ? <span className="loading loading-spinner loading-xs"></span> : <PlayIcon />}
+      {crawler.isRunning ? t('crawlers.stop') : t('crawlers.run')}
     </button>
   )
 }

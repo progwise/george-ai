@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -7,7 +8,8 @@ import { AiLibraryFile_TableItemFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { dropFiles, reProcessFiles } from './change-files'
+import { LoadingSpinner } from '../../loading-spinner'
+import { dropFiles, reprocessFiles } from './change-files'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
@@ -15,6 +17,7 @@ const truncateFileName = (name: string, maxLength: number, truncatedLength: numb
 graphql(`
   fragment AiLibraryFile_TableItem on AiLibraryFile {
     id
+    libraryId
     name
     originUri
     mimeType
@@ -42,33 +45,43 @@ export const FilesTable = ({
 }: FilesTableProps) => {
   const { t, language } = useTranslation()
 
-  const { mutate: mutateDropFile } = useMutation({
+  const { mutate: mutateDropFile, isPending: dropPending } = useMutation({
     mutationFn: (fileId: string) => dropFiles({ data: [fileId] }),
     onError: (error: Error) => {
-      console.error('Error dropping file:', error)
-      toastError(t('errors.dropFile', { error: error.message }))
+      const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
+      console.error('Error dropping file:', { error: errorMessage })
+      toastError(t('errors.dropFile', { error: errorMessage }))
     },
     onSuccess: (data) => {
-      setSelectedFileIds((prev) => prev.filter((id) => !files.some((file) => file.id === id)))
-      const fileNames = data.map((file) => (!file.dropFile.name ? file.dropFile.id : file.dropFile.name)).join(', ')
-      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${fileNames}`)
+      if (data.length < 1) {
+        toastError(t('errors.dropFiles', { count: 0, error: 'no Files dropped' }))
+        return
+      }
+      const droppedFile = data[0].dropFile
+      setSelectedFileIds((prev) => prev.filter((id) => id !== droppedFile.id))
+      toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${droppedFile.name}`)
     },
     onSettled: () => {
       tableDataChanged()
     },
   })
 
-  const { mutate: mutateReProcessFile } = useMutation({
-    mutationFn: (fileId: string) => reProcessFiles({ data: [fileId] }),
+  const { mutate: mutateReprocessFile, isPending: reprocessPending } = useMutation({
+    mutationFn: (fileId: string) => reprocessFiles({ data: [fileId] }),
     onError: (error: Error) => {
       console.error('Error reprocessing file:', error)
-      toastError(t('errors.reProcessFile', { error: error.message }))
+      toastError(t('errors.reprocessFile', { error: error.message }))
     },
     onSuccess: (data) => {
-      const fileNames = data
-        .map((file) => (!file.processFile.name ? file.processFile.id : file.processFile.name))
-        .join(', ')
-      toastSuccess(t('actions.reProcessSuccess', { count: 1 }) + `: ${fileNames}`)
+      if (data.length !== 1) {
+        toastError(t('errors.reprocessFile', { error: 'no Files re-processed' }))
+        return
+      }
+      if (data[0].processFile.processingErrorMessage) {
+        toastError(t('errors.reprocessFile', { error: data[0].processFile.processingErrorMessage }))
+        return
+      }
+      toastSuccess(t('actions.reprocessSuccess', { count: 1 }) + `: ${data[0].processFile.name}`)
     },
     onSettled: () => {
       tableDataChanged()
@@ -89,6 +102,7 @@ export const FilesTable = ({
 
   return (
     <>
+      <LoadingSpinner isLoading={dropPending || reprocessPending} />
       {/* Mobile View */}
       <div className="block lg:hidden">
         <label className="mb-4 flex gap-2">
@@ -192,11 +206,23 @@ export const FilesTable = ({
                 <td>{file.chunks ?? '-'}</td>
                 <td>{dateTimeString(file.processedAt, language) || '-'}</td>
                 <td className="flex items-center gap-2">
-                  <button type="button" className="btn btn-xs" onClick={() => mutateDropFile(file.id)}>
+                  <Link
+                    to="/libraries/$libraryId/files/$fileId"
+                    params={{ libraryId: file.libraryId, fileId: file.id }}
+                    className="btn btn-xs"
+                  >
+                    {t('actions.view')}
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={dropPending}
+                    className="btn btn-xs"
+                    onClick={() => mutateDropFile(file.id)}
+                  >
                     {t('actions.drop')}
                   </button>
-                  <button type="button" className="btn btn-xs" onClick={() => mutateReProcessFile(file.id)}>
-                    {t('actions.reProcess')}
+                  <button type="button" className="btn btn-xs" onClick={() => mutateReprocessFile(file.id)}>
+                    {t('actions.reprocess')}
                   </button>
                   {file.processingErrorMessage && (
                     <span className="tooltip" data-tip={file.processingErrorMessage}>

@@ -1,15 +1,13 @@
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import { OpenAIEmbeddings } from '@langchain/openai'
-import * as fs from 'fs'
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
+import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
-import { loadFile } from './langchain-file'
-import { generateQAPairs } from './qa-generator-google'
-import { summarizeDocument } from './summarizer'
-import { calculateChunkParams } from './vectorstore-settings'
+import { getMarkdownFilePath } from '@george-ai/file-management'
+
+import { splitMarkdown } from './split-markdown'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -37,6 +35,10 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
     { name: 'docId', type: 'string' },
     { name: 'docPath', type: 'string' },
     { name: 'originUri', type: 'string' },
+    { name: 'section', type: 'string' },
+    { name: 'headingPath', type: 'string' },
+    { name: 'chunkIndex', type: 'int32' },
+    { name: 'subChunkIndex', type: 'int32' },
   ],
   default_sorting_field: 'points',
 })
@@ -70,7 +72,18 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   columnNames: {
     vector: 'vec',
     pageContent: 'text',
-    metadataColumnNames: ['points', 'docName', 'docType', 'docId', 'docPath', 'originUri'],
+    metadataColumnNames: [
+      'points',
+      'docName',
+      'docType',
+      'docId',
+      'docPath',
+      'originUri',
+      'section',
+      'headingPath',
+      'chunkIndex',
+      'subChunkIndex',
+    ],
   },
 
   // Optional search parameters to be passed to Typesense when searching
@@ -96,9 +109,18 @@ const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreCo
 
 export const ensureVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
-  const exists = await vectorTypesenseClient.collections(schemaName).exists()
-  if (!exists) {
+  const existingSchema = vectorTypesenseClient.collections(schemaName)
+  if (!(await existingSchema.exists())) {
     await vectorTypesenseClient.collections().create(getTypesenseSchema(libraryId))
+  } else {
+    const existingFieldNames = (await existingSchema.retrieve()).fields.map((field) => field.name)
+    const allFields = getTypesenseSchema(libraryId).fields
+
+    const missingFields = allFields.filter((field) => !existingFieldNames.some((name) => name === field.name))
+    if (missingFields.length < 1) {
+      return
+    }
+    await existingSchema.update({ fields: missingFields.map((field) => ({ ...field, optional: true })) })
   }
 }
 
@@ -129,49 +151,27 @@ export const embedFile = async (
 
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
 
-  const fileParts = await loadFile(file)
-
-  const { chunkSize, chunkOverlap } = calculateChunkParams(fileParts)
-
-  const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize,
-    chunkOverlap,
-    separators: ['\n\n', '\n', '.', ' ', ''], // from coarse to fine
-  })
+  const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId })
+  if (!fs.existsSync(markdownPath)) {
+    throw new Error(`Markdown file not found: ${markdownPath}`)
+  }
 
   await removeFileByName(libraryId, file.name)
 
-  const splitDocument = await splitter.splitDocuments(fileParts)
+  const chunks = splitMarkdown(markdownPath).map((chunk) => ({
+    pageContent: chunk.pageContent,
+    metadata: {
+      ...chunk.metadata,
+      points: 1,
+      docName: file.name,
+      docType: file.mimeType,
+      docId: file.id,
+      docPath: markdownPath,
+      originUri: file.originUri,
+    },
+  }))
 
-  const fineTuningData: { prompt: string; completion: string }[] = []
-
-  type QAPair = { prompt: string; completion: string }
-
-  const fullPageContent = fileParts.map((part) => part.pageContent).join('\n')
-  const summary = await summarizeDocument(fullPageContent)
-
-  const qaPromises = splitDocument.map(async (chunk, i) => {
-    console.log(`Processing chunk ${i + 1} of ${splitDocument.length}...`)
-    const qaPairs: QAPair[] = await generateQAPairs(chunk.pageContent, summary)
-    return qaPairs.map((qa: QAPair) => ({
-      prompt: qa.prompt,
-      completion: qa.completion,
-    }))
-  })
-
-  const qaResults = await Promise.all(qaPromises)
-  fineTuningData.push(...qaResults.flat())
-
-  console.log('Processing complete.\n')
-
-  const jsonlData = fineTuningData.map((qa) => JSON.stringify(qa)).join('\n')
-  const qaDataDir = '../fine-tuning/jsonl/raw'
-  if (!fs.existsSync(qaDataDir)) {
-    fs.mkdirSync(qaDataDir, { recursive: true })
-  }
-  fs.writeFileSync(`${qaDataDir}/qa-data.jsonl`, jsonlData)
-
-  await Typesense.fromDocuments(splitDocument, embeddings, typesenseVectorStoreConfig)
+  await Typesense.fromDocuments(chunks, embeddings, typesenseVectorStoreConfig)
 
   return {
     id: file.id,
@@ -179,8 +179,8 @@ export const embedFile = async (
     originUri: file.originUri,
     docPath: file.path,
     mimeType: file.mimeType,
-    chunks: splitDocument.length,
-    size: splitDocument.reduce((acc, part) => acc + part.pageContent.length, 0),
+    chunks: chunks.length,
+    size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
   }
 }
 
@@ -284,6 +284,47 @@ export const queryVectorStore = async (
   return {
     hits,
     hitCount: searchResponse.results.map((result) => result.found || 0).reduce((prev, curr) => prev + curr, 0),
+  }
+}
+
+export const getFileChunks = async ({
+  libraryId,
+  fileId,
+  skip,
+  take,
+}: {
+  libraryId: string
+  fileId: string
+  skip: number
+  take: number
+}) => {
+  await ensureVectorStore(libraryId)
+  const collectionName = getTypesenseSchemaName(libraryId)
+  const documents = await vectorTypesenseClient
+    .collections(collectionName)
+    .documents()
+    .search({
+      q: '*',
+      filter_by: `docId:=${fileId}`,
+      sort_by: 'chunkIndex:asc',
+      per_page: take,
+      page: 1 + skip / take,
+    })
+  if (!documents.hits || documents.hits.length === 0) {
+    return { count: 0, skip, take, chunks: [] }
+  }
+  return {
+    count: documents.found,
+    skip,
+    take,
+    chunks: documents.hits.map((hit: DocumentSchema) => ({
+      id: hit.document.id || 'no-id',
+      text: hit.document.text || 'no-txt',
+      section: hit.document.section || 'no-section',
+      headingPath: hit.document.headingPath || 'no-path',
+      chunkIndex: hit.document.chunkIndex || 0,
+      subChunkIndex: hit.document.subChunkIndex || 0,
+    })),
   }
 }
 

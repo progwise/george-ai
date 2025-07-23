@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
 import * as fs from 'fs'
 
-import { checkFileUpload, cleanupFile, completeFileUpload, getFilePath } from '@george-ai/pothos-graphql'
+import { getFileDir, getUploadFilePath } from '@george-ai/file-management'
+import { convertUploadToMarkdown, getFileInfo, markUploadFinished } from '@george-ai/pothos-graphql'
 
 export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: Response) => {
   if (httpRequest.method.toUpperCase() !== 'POST') {
@@ -21,24 +22,31 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
     return
   }
 
-  const file = await checkFileUpload(uploadToken as string)
+  const fileInfo = await getFileInfo(uploadToken as string)
 
-  if (!file) {
-    httpResponse.status(400).send('Bad Request: x-upload-token is invalid')
+  if (!fileInfo) {
+    httpResponse.status(400).send(`Bad Request: file info not found for ${uploadToken}`)
     return
   }
 
-  if (file.uploadedAt) {
+  if (fileInfo.uploadedAt) {
     httpResponse.status(400).send('Bad Request: x-upload-token outdated')
     return
   }
 
-  if (file.createdAt < new Date(Date.now() - 1000 * 60 * 5)) {
+  if (fileInfo.createdAt < new Date(Date.now() - 1000 * 60 * 5)) {
     httpResponse.status(400).send('Bad Request: x-upload-token expired')
     return
   }
 
-  const filestream = fs.createWriteStream(getFilePath(file.id), {
+  if (!fileInfo.name) {
+    httpResponse.status(400).send('Bad Request: File record is incomplete (missing name).')
+    return
+  }
+
+  const uploadedFilePath = getUploadFilePath({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
+
+  const filestream = fs.createWriteStream(uploadedFilePath, {
     flags: 'a',
   })
 
@@ -53,18 +61,28 @@ export const dataUploadMiddleware = async (httpRequest: Request, httpResponse: R
 
   httpRequest.on('end', () => {
     filestream.close(async () => {
-      await completeFileUpload(file.id)
-      httpResponse.end(JSON.stringify({ status: 'success' }))
+      try {
+        await convertUploadToMarkdown(fileInfo.id, { removeUploadFile: false })
+        await markUploadFinished({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
+        httpResponse.end(JSON.stringify({ status: 'success' }))
+      } catch (error) {
+        console.error('Error during file processing:', error)
+        httpResponse.statusCode = 500
+        httpResponse.write(JSON.stringify({ status: 'error', description: 'Error during file processing' }))
+        httpResponse.end()
+      }
     })
   })
 
   // Cleanup aborted uploads
   httpRequest.on('close', async () => {
     if (!httpRequest.complete) {
-      console.log('Upload aborted, cleaning up...')
-
+      console.warn('Upload aborted, cleaning up...', fileInfo.id, fileInfo.name)
+      filestream.close()
+      const fileDir = getFileDir({ fileId: fileInfo.id, libraryId: fileInfo.libraryId })
       try {
-        await cleanupFile(file.id)
+        await fs.promises.rm(fileDir, { recursive: true, force: true })
+        console.log(`Cleanup successful for aborted upload: ${fileInfo.id}`)
       } catch (error) {
         console.error('Error during cleanup after upload abort:', error)
       }

@@ -2,8 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../../georgeToaster'
-import { dropFiles, reProcessFiles } from './change-files'
+import { LoadingSpinner } from '../../loading-spinner'
+import { reprocessFiles } from './change-files'
 import { DesktopFileUpload } from './desktop-file-upload'
+import { DropAllFilesDialog } from './drop-all-files-dialog'
+import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
 
 interface FilesActionsBarProps {
@@ -11,8 +14,9 @@ interface FilesActionsBarProps {
   usedStorage: number
   availableStorage: number
   tableDataChanged: () => void
-  selectedFileIds: string[]
-  setSelectedFileIds: (fileIds: string[]) => void
+  checkedFileIds: string[]
+  setCheckedFileIds: (fileIds: string[]) => void
+  totalItems: number
 }
 
 export const FilesActionsBar = ({
@@ -20,49 +24,71 @@ export const FilesActionsBar = ({
   usedStorage,
   availableStorage,
   tableDataChanged,
-  selectedFileIds,
-  setSelectedFileIds,
+  checkedFileIds,
+  setCheckedFileIds,
+  totalItems,
 }: FilesActionsBarProps) => {
-  const { t } = useTranslation()
-  const dropFilesMutation = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await dropFiles({ data: fileIds })
-    },
-    onError: () => {
-      toastError(t('errors.dropFilesError'))
-    },
-    onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} ${t('actions.dropSuccess')}`)
-    },
-    onSettled: () => {
-      setSelectedFileIds([])
-      tableDataChanged()
-    },
-  })
+  const { t, tx } = useTranslation()
 
-  const reProcessFilesMutation = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await reProcessFiles({ data: fileIds })
-    },
+  const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
+    mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
     onSettled: () => {
-      setSelectedFileIds([])
+      setCheckedFileIds([])
       tableDataChanged()
     },
-    onError: () => {
-      toastError(t('errors.reProcessFilesError'))
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
     },
-    onSuccess: () => {
-      toastSuccess(`${selectedFileIds.length} ${t('actions.reProcessSuccess')}`)
+    onSuccess: (data) => {
+      const errorFiles = data.filter(
+        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
+      )
+      const successFiles = data.filter(
+        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
+      )
+      if (errorFiles.length > 0) {
+        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastError(
+          tx('errors.reprocessFiles', {
+            count: errorFileNames.length,
+            files: (
+              <ul>
+                {errorFileNames.map((fileName) => (
+                  <li key={fileName}>{fileName}</li>
+                ))}
+              </ul>
+            ),
+          }),
+        )
+      }
+      if (successFiles.length > 0) {
+        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastSuccess(
+          tx('actions.reprocessSuccess', {
+            count: successFileNames.length,
+            files: (
+              <ul>
+                {successFileNames.map((fileName) => (
+                  <li key={fileName}>{fileName}</li>
+                ))}
+              </ul>
+            ),
+          }),
+        )
+      }
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {
-    reProcessFilesMutation.mutate(uploadedFileIds)
+    reprocessFilesMutate(uploadedFileIds)
   }
 
   const remainingStorage = availableStorage - usedStorage
 
   return (
     <nav className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <LoadingSpinner isLoading={reprocessFilesPending} />
       <div className="flex flex-wrap items-center gap-2">
         <DesktopFileUpload
           libraryId={libraryId}
@@ -71,21 +97,28 @@ export const FilesActionsBar = ({
         />
         <GoogleFileUploadButton libraryId={libraryId} disabled={remainingStorage < 1} />
 
+        <DropFilesDialog
+          disabled={false}
+          tableDataChanged={tableDataChanged}
+          checkedFileIds={checkedFileIds}
+          setCheckedFileIds={setCheckedFileIds}
+        />
+
+        <DropAllFilesDialog
+          libraryId={libraryId}
+          disabled={false}
+          setCheckedFileIds={setCheckedFileIds}
+          tableDataChanged={tableDataChanged}
+          totalItems={totalItems}
+        />
+
         <button
           type="button"
           className="btn btn-primary btn-xs"
-          onClick={() => dropFilesMutation.mutate(selectedFileIds)}
-          disabled={selectedFileIds.length === 0}
+          onClick={() => reprocessFilesMutate(checkedFileIds)}
+          disabled={checkedFileIds.length === 0}
         >
-          {t('actions.drop')}
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary btn-xs"
-          onClick={() => reProcessFilesMutation.mutate(selectedFileIds)}
-          disabled={selectedFileIds.length === 0}
-        >
-          {t('actions.reProcess')}
+          {t('actions.reprocess')}
         </button>
       </div>
       <div className="text-right text-sm">
