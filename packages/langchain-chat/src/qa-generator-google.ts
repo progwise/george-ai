@@ -9,7 +9,7 @@ export interface QAPair {
 }
 
 export const generateQAPairs = async (chunk: string, summary: string): Promise<QAPair[]> => {
-  const qaModel = await getModel('llama3.2:latest')
+  const qaModel = await getModel('llama3.1:latest')
 
   const prompt = `Given the following summary and document chunk, generate question-answer pairs.
 Summary: ${summary}
@@ -44,6 +44,7 @@ Gemma who?<end_of_turn>
       try {
         const obj = JSON.parse(line)
         if (obj.prompt && obj.completion) {
+          console.log('QA Pair:', obj) // Log each QA pair
           return obj as QAPair
         }
         return null
