@@ -170,7 +170,7 @@ export default {
     runDuration: 'Duration',
     runEndDate: 'End Date',
     runFailed: 'Failed',
-    runInProcess: 'In Progress',
+    runInProgress: 'In Progress',
     runs: 'Crawl Runs',
     runStartDate: 'Start Date',
     runStatus: 'Status',
