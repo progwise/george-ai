@@ -47,12 +47,12 @@ function RouteComponent() {
     if (intervalId.current) {
       clearTimeout(intervalId.current)
     }
-    
+
     // Exponential backoff implementation
     let currentInterval = 2000 // Start with 2 seconds
     const maxInterval = 30000 // Cap at 30 seconds
     const backoffMultiplier = 1.5 // Increase by 50% each time
-    
+
     const scheduleNextRefresh = () => {
       intervalId.current = setTimeout(async () => {
         await queryClient.invalidateQueries({
@@ -64,7 +64,7 @@ function RouteComponent() {
         await queryClient.invalidateQueries({
           queryKey: ['getCrawlerRuns', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
         })
-        
+
         // Only continue polling if the crawler hasn't ended
         if (!crawlerRun.endedAt) {
           currentInterval = Math.min(currentInterval * backoffMultiplier, maxInterval)
@@ -72,9 +72,9 @@ function RouteComponent() {
         }
       }, currentInterval)
     }
-    
+
     scheduleNextRefresh()
-    
+
     return () => {
       if (intervalId.current) {
         clearTimeout(intervalId.current)
