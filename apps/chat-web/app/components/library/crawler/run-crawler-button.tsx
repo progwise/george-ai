@@ -87,10 +87,10 @@ export const RunCrawlerButton = ({ crawler, className, afterStart }: RunCrawlerB
   const runCrawlerMutation = useMutation({
     mutationFn: () => runCrawler({ data: { crawlerId: crawler.id } }),
     onError: (error) => {
-      toastError(error.message || 'Failed starting crawler')
+      toastError(error.message || t('crawlers.startFailed'))
     },
     onSuccess: (crawlerRunId) => {
-      toastSuccess('Crawler started successfully')
+      toastSuccess(t('crawlers.startSuccess'))
       afterStart?.(crawlerRunId)
     },
     onSettled: async (data) => {
@@ -101,10 +101,10 @@ export const RunCrawlerButton = ({ crawler, className, afterStart }: RunCrawlerB
   const stopCrawlerMutation = useMutation({
     mutationFn: () => stopCrawler({ data: { crawlerId: crawler.id } }),
     onError: (error) => {
-      toastError(error.message || 'Failed stop crawler')
+      toastError(error.message || t('crawlers.stopFailed'))
     },
     onSuccess: () => {
-      toastSuccess('Crawler stopped successfully')
+      toastSuccess(t('crawlers.stopSuccess'))
     },
     onSettled: async (data) => {
       invalidateRelatedQueries(data)

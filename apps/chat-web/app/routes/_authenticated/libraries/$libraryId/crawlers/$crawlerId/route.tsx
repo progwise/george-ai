@@ -83,7 +83,7 @@ function RouteComponent() {
               to="/libraries/$libraryId/crawlers/$crawlerId"
               params={params}
             >
-              Schedule
+              {t('crawlers.cronSchedule')}
             </Link>
           </li>
 
@@ -95,7 +95,7 @@ function RouteComponent() {
               to="/libraries/$libraryId/crawlers/$crawlerId/runs"
               params={params}
             >
-              Runs
+              {t('crawlers.runs')}
             </Link>
           </li>
           <li>
