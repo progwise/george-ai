@@ -31,7 +31,7 @@ export default {
     sendConfirmationMail: 'Send confirmation mail',
     sendMessage: 'Send',
     signIn: 'Sign in',
-    signInToContinue: 'Sign in to continue',
+    signInToContinue: 'George-AI is signing in, please wait...',
     signInWithGoogle: 'Sign in with Google',
     signOut: 'Sign out',
     switchGoogleAccount: 'Switch Google Account',
