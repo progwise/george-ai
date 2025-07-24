@@ -78,9 +78,10 @@ function RouteComponent() {
                     >
                       <div className="flex w-full flex-col gap-1">
                         <h3 className="font-bold">{dateTimeString(run.startedAt, language)}</h3>
-                        <p className="self-end text-xs font-normal">Duration: {duration(run.startedAt, run.endedAt)}</p>
+                        <p className="self-end text-xs font-normal">{`${t('crawlers.runDuration')} : ${duration(run.startedAt, run.endedAt)}`}</p>
                         <p className="self-end text-xs font-normal">
-                          Status: {run.success ? 'Success' : !run.endedAt ? t('texts.running') : t('texts.failure')}
+                          {t('crawlers.runStatus')}:{' '}
+                          {run.success ? t('texts.success') : !run.endedAt ? t('texts.running') : t('texts.failure')}
                         </p>
                       </div>
                     </Link>

@@ -61,7 +61,7 @@ function RouteComponent() {
   }, [crawlerRun.endedAt, params, queryClient, search])
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Crawler Run Details</h2>
+      <h2 className="text-2xl font-bold">{t('crawlers.runDetails')}</h2>
 
       {/* Run Details Card */}
       <div className="card bg-base-100 shadow-sm">
@@ -69,7 +69,7 @@ function RouteComponent() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label className="label">
-                <span className="label-text font-medium">Start Date</span>
+                <span className="label-text font-medium">{t('crawlers.runStartDate')}</span>
               </label>
               <div className="text-sm">
                 {crawlerRun.startedAt ? dateTimeString(crawlerRun.startedAt, language) : 'N/A'}
@@ -77,7 +77,7 @@ function RouteComponent() {
             </div>
             <div>
               <label className="label">
-                <span className="label-text font-medium">End Date</span>
+                <span className="label-text font-medium">{t('crawlers.runEndDate')}</span>
               </label>
               <div className="text-sm">
                 {crawlerRun.endedAt ? dateTimeString(crawlerRun.endedAt, language) : t('texts.running')}
@@ -90,7 +90,7 @@ function RouteComponent() {
             </div>
             <div>
               <label className="label">
-                <span className="label-text font-medium">Duration</span>
+                <span className="label-text font-medium">{t('crawlers.runDuration')}</span>
               </label>
               <div className="text-sm">
                 {crawlerRun.startedAt && crawlerRun.endedAt
@@ -100,13 +100,17 @@ function RouteComponent() {
             </div>
             <div>
               <label className="label">
-                <span className="label-text font-medium">Status</span>
+                <span className="label-text font-medium">{t('crawlers.runStatus')}</span>
               </label>
               <div className="text-sm">
                 <span
                   className={`badge ${crawlerRun.success ? 'badge-success' : !crawlerRun.endedAt ? 'badge-info' : 'badge-error'}`}
                 >
-                  {crawlerRun.success ? 'Success' : !crawlerRun.endedAt ? 'Progress...' : 'Failed'}
+                  {crawlerRun.success
+                    ? t('crawlers.runSuccess')
+                    : !crawlerRun.endedAt
+                      ? t('crawlers.runInProgress')
+                      : t('crawlers.runFailed')}
                 </span>
               </div>
             </div>
@@ -172,7 +176,7 @@ function RouteComponent() {
                         <td className="truncate">{dateTimeString(update.createdAt, language)}</td>
                         <td>
                           <span className={`badge ${update.success ? 'badge-success' : 'badge-error'}`}>
-                            {update.success ? 'Success' : 'Failed'}
+                            {update.success ? t('updates.success') : t('updates.failed')}
                           </span>
                         </td>
 
