@@ -23,6 +23,13 @@ export const LibrarySelector = ({ libraries, selectedLibrary }: LibrarySelectorP
         to: '/libraries/$libraryId/files',
         params: { libraryId },
       })
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+    } else if (lastMatch.params['crawlerId']) {
+      await navigate({
+        to: '/libraries/$libraryId/crawlers',
+        params: { libraryId },
+      })
     } else {
       await navigate({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
