@@ -58,6 +58,12 @@ function RouteComponent() {
         queryKey: ['getCrawlerRuns', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
       })
     }, 2000)
+    return () => {
+      if (intervalId.current) {
+        clearInterval(intervalId.current)
+        intervalId.current = null
+      }
+    }
   }, [crawlerRun.endedAt, params, queryClient, search])
   return (
     <div className="space-y-6">
