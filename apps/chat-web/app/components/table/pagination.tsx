@@ -16,7 +16,7 @@ export const Pagination = ({
   onPageChange,
   className = '',
 }: PaginationProps) => {
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const totalPages = totalItems === 0 ? 1 : Math.ceil(totalItems / itemsPerPage)
   const isFirstPage = currentPage === 1
   const isLastPage = currentPage === totalPages
 
@@ -27,7 +27,7 @@ export const Pagination = ({
 
   useEffect(() => {
     if (currentPage > totalPages) {
-      return onPageChange(totalPages)
+      onPageChange(totalPages)
     }
   }, [currentPage, totalPages, onPageChange])
 
