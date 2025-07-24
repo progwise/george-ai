@@ -33,7 +33,7 @@ export default {
     sendConfirmationMail: 'Bestätigungsmail senden',
     sendMessage: 'Senden',
     signIn: 'Anmelden',
-    signInToContinue: 'Melden Sie sich an, um fortzufahren',
+    signInToContinue: 'George-AI meldet sich an, bitte warten...',
     signInWithGoogle: 'Mit Google anmelden',
     signOut: 'Abmelden',
     switchGoogleAccount: 'Google-Konto wechseln',
