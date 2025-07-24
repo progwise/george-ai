@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  const intervalId = useRef(null as ReturnType<typeof setInterval> | null)
+  const intervalId = useRef(null as ReturnType<typeof setTimeout> | null)
   const navigate = Route.useNavigate()
   const params = Route.useParams()
   const search = Route.useSearch()
@@ -40,27 +40,44 @@ function RouteComponent() {
       return
     }
     if (crawlerRun.endedAt && intervalId.current) {
-      clearInterval(intervalId.current)
+      clearTimeout(intervalId.current)
       intervalId.current = null
       return
     }
     if (intervalId.current) {
-      clearInterval(intervalId.current)
+      clearTimeout(intervalId.current)
     }
-    intervalId.current = setInterval(async () => {
-      queryClient.invalidateQueries({
-        queryKey: ['getCrawlerRun', { libraryId: params.libraryId, crawlerRunId: params.crawlerRunId }],
-      })
-      queryClient.invalidateQueries({
-        queryKey: ['getCrawler', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
-      })
-      queryClient.invalidateQueries({
-        queryKey: ['getCrawlerRuns', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
-      })
-    }, 2000)
+    
+    // Exponential backoff implementation
+    let currentInterval = 2000 // Start with 2 seconds
+    const maxInterval = 30000 // Cap at 30 seconds
+    const backoffMultiplier = 1.5 // Increase by 50% each time
+    
+    const scheduleNextRefresh = () => {
+      intervalId.current = setTimeout(async () => {
+        await queryClient.invalidateQueries({
+          queryKey: ['getCrawlerRun', { libraryId: params.libraryId, crawlerRunId: params.crawlerRunId }],
+        })
+        await queryClient.invalidateQueries({
+          queryKey: ['getCrawler', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
+        })
+        await queryClient.invalidateQueries({
+          queryKey: ['getCrawlerRuns', { libraryId: params.libraryId, crawlerId: params.crawlerId }],
+        })
+        
+        // Only continue polling if the crawler hasn't ended
+        if (!crawlerRun.endedAt) {
+          currentInterval = Math.min(currentInterval * backoffMultiplier, maxInterval)
+          scheduleNextRefresh()
+        }
+      }, currentInterval)
+    }
+    
+    scheduleNextRefresh()
+    
     return () => {
       if (intervalId.current) {
-        clearInterval(intervalId.current)
+        clearTimeout(intervalId.current)
         intervalId.current = null
       }
     }
