@@ -55,5 +55,10 @@ Gemma who?<end_of_turn>
     })
     .filter((item: QAPair | null): item is QAPair => item !== null)
 
+  qaPairs.forEach((qa, idx) => {
+    // **** QA Pair Output ****
+    console.info(`\x1b[45m\x1b[37m[QA ${idx + 1}]\x1b[0m`, '\x1b[35m' + JSON.stringify(qa, null, 2) + '\x1b[0m')
+    // ********************************
+  })
   return qaPairs
 }

@@ -1,5 +1,6 @@
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
-import { OpenAIEmbeddings } from '@langchain/openai'
+// import { OpenAIEmbeddings } from '@langchain/openai'
+import { OllamaEmbeddings } from '@langchain/ollama'
 import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
@@ -102,9 +103,12 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   },
 })
 
-const embeddings = new OpenAIEmbeddings({
-  modelName: 'text-embedding-3-large',
-  dimensions: 3072,
+console.log(`setting up ollama embeddings to mistral:latest on ${process.env.OLLAMA_BASE_URL}`)
+
+const embeddings = new OllamaEmbeddings({
+  model: 'mistral:latest',
+  baseUrl: process.env.OLLAMA_BASE_URL,
+  keepAlive: '5m',
 })
 
 const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig('gai-documents'))
@@ -173,7 +177,16 @@ export const embedFile = async (
     },
   }))
 
-  await Typesense.fromDocuments(chunks, embeddings, typesenseVectorStoreConfig)
+  const docVectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
+  const saniatizedVectors = docVectors.map((vec) => {
+    const sanitizedVector = new Array(3072).fill(0)
+    for (let i = 0; i < Math.min(vec.length, sanitizedVector.length); i++) {
+      sanitizedVector[i] = vec[i]
+    }
+    return sanitizedVector
+  })
+  const typesense = new Typesense(embeddings, typesenseVectorStoreConfig)
+  await typesense.addVectors(saniatizedVectors, chunks)
 
   console.log('\n' + '='.repeat(60))
   console.log(`✨ Generating OVERALL DOCUMENT SUMMARY for: \x1b[36m${file.name}\x1b[0m ✨`)
