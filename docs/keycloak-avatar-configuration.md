@@ -14,7 +14,9 @@ For each provider, you need to configure two mappers:
 ### Step 1: Configure Identity Provider
 
 1. Go to **Realm Settings** → **Identity Providers** → **Google**
-2. In **Settings** tab, set **Scopes** to: `openid profile email`
+2. In **Settings** tab, set:
+   - **Scopes** to: `openid profile email`
+   - **Sync Mode** to: `force` (to always update avatar on login)
 3. Click on the **Mappers** tab
 4. Create a new mapper:
    - **Name**: `google-avatar`
@@ -24,7 +26,7 @@ For each provider, you need to configure two mappers:
 
 ### Step 2: Configure Client Scope
 
-1. Go to **Client Scopes** → **profile** (or **Clients** → **[Your Client]** → **Client scopes** → **[client-name]-dedicated**)
+1. Go to **Client Scopes** → **profile**
 2. Click on the **Mappers** tab
 3. Create a new mapper:
    - **Name**: `avatar_url`
@@ -40,7 +42,9 @@ For each provider, you need to configure two mappers:
 ### Step 1: Configure Identity Provider
 
 1. Go to **Realm Settings** → **Identity Providers** → **GitHub**
-2. In **Settings** tab, set **Scopes** to: `user:email read:user`
+2. In **Settings** tab, set:
+   - **Scopes** to: `user:email read:user`
+   - **Sync Mode** to: `force` (to always update avatar on login)
 3. Click on the **Mappers** tab
 4. Create a new mapper:
    - **Name**: `github-avatar`
@@ -50,7 +54,7 @@ For each provider, you need to configure two mappers:
 
 ### Step 2: Configure Client Scope
 
-1. Go to **Client Scopes** → **profile** (or **Clients** → **[Your Client]** → **Client scopes** → **[client-name]-dedicated**)
+1. Go to **Client Scopes** → **profile**
 2. Click on the **Mappers** tab
 3. Create a new mapper:
    - **Name**: `avatar_url`
@@ -66,7 +70,9 @@ For each provider, you need to configure two mappers:
 ### Step 1: Configure Identity Provider
 
 1. Go to **Realm Settings** → **Identity Providers** → **LinkedIn**
-2. In **Settings** tab, set **Scopes** to: `openid profile email`
+2. In **Settings** tab, set:
+   - **Scopes** to: `openid profile email`
+   - **Sync Mode** to: `force` (to always update avatar on login)
 3. Click on the **Mappers** tab
 4. Create a new mapper:
    - **Name**: `linkedin-avatar`
@@ -76,7 +82,7 @@ For each provider, you need to configure two mappers:
 
 ### Step 2: Configure Client Scope
 
-1. Go to **Client Scopes** → **profile** (or **Clients** → **[Your Client]** → **Client scopes** → **[client-name]-dedicated**)
+1. Go to **Client Scopes** → **profile**
 2. Click on the **Mappers** tab
 3. Create a new mapper:
    - **Name**: `avatar_url`
