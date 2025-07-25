@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
-import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const getCrawlers = createServerFn({ method: 'GET' })
@@ -25,7 +24,7 @@ const getCrawlers = createServerFn({ method: 'GET' })
 
 export const getCrawlersQueryOptions = (libraryId: string) =>
   queryOptions({
-    queryKey: [queryKeys.AiLibraries, libraryId, 'crawlers'],
+    queryKey: ['getCrawlers', { libraryId }],
     queryFn: () => getCrawlers({ data: libraryId }),
     refetchInterval: (query) => {
       const lastData = query.state.data

@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { useAuth } from '../auth/auth'
 import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import BowlerLogoIcon from '../icons/bowler-logo-icon'
@@ -27,7 +26,6 @@ interface TopNavigationProps {
 
 export default function TopNavigation({ user }: TopNavigationProps) {
   const { t } = useTranslation()
-  const { login, isReady } = useAuth()
   const [isAtTop, setIsAtTop] = useState(false)
   const handleScroll = useCallback((visible: boolean) => setIsAtTop(visible), [setIsAtTop])
 
@@ -56,14 +54,6 @@ export default function TopNavigation({ user }: TopNavigationProps) {
           </div>
 
           <SettingsDropdown user={user} />
-
-          <div className="flex items-center justify-center gap-4">
-            {isReady && !user && (
-              <button type="button" className="btn btn-outline btn-sm" onClick={() => login()}>
-                {t('actions.signIn')}
-              </button>
-            )}
-          </div>
         </nav>
       </header>
 

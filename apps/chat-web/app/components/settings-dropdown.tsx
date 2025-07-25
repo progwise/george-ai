@@ -80,6 +80,18 @@ export const SettingsDropdown = ({ user }: UserProps): JSX.Element => {
           </>
         )}
 
+        {/* Sign-In for unauthenticated users */}
+        {isReady && !user && (
+          <>
+            <li>
+              <Link to="/login" className="grid-cols-[1fr_min-content]">
+                {t('actions.signIn')}
+              </Link>
+            </li>
+            <div className="divider m-0" />
+          </>
+        )}
+
         {/* Theme-Switcher */}
         <li>
           <div className="grid w-full grid-cols-[1fr_min-content] items-center">

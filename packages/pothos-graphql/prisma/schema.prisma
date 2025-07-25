@@ -193,20 +193,21 @@ model AiLibraryCrawler {
 }
 
 model AiLibraryCrawlerRun {
-  id           String    @id @default(cuid())
-  crawlerId    String
-  startedAt    DateTime  @default(now())
-  endedAt      DateTime?
-  success      Boolean?
-  errorMessage String?
-  pagesCrawled Int?
-  runByUserId  String?
-  runByCronJob Boolean   @default(false)
+  id            String    @id @default(cuid())
+  crawlerId     String
+  startedAt     DateTime  @default(now())
+  endedAt       DateTime?
+  success       Boolean?
+  errorMessage  String?
+  pagesCrawled  Int?
+  runByUserId   String?
+  runByCronJob  Boolean   @default(false)
+  stoppedByUser DateTime?
 
   crawler AiLibraryCrawler @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
   runBy   User?            @relation(fields: [runByUserId], references: [id])
 
-  AiLibraryUpdate AiLibraryUpdate[]
+  updates AiLibraryUpdate[]
 }
 
 model AiLibraryCrawlerCronJob {

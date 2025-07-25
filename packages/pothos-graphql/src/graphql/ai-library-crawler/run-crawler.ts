@@ -13,23 +13,22 @@ interface RunOptions {
 }
 
 export const stopCrawler = async ({ crawlerId }: RunOptions) => {
-  const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+  await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
 
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { crawlerId, endedAt: null } })
 
-  await prisma.aiLibraryCrawlerRun.update({
+  const run = await prisma.aiLibraryCrawlerRun.update({
     where: {
       crawlerId,
       id: ongoingRun.id,
     },
     data: {
-      success: false,
       endedAt: new Date(),
-      errorMessage: 'Run stopped by user',
+      stoppedByUser: new Date(),
     },
   })
 
-  return crawler
+  return run
 }
 
 export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions) => {
@@ -63,7 +62,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
     throw error
   })
   console.log('Crawler started:', crawler.id, 'Run ID:', newRun.id)
-  return crawler
+  return newRun
 }
 const startCrawling = async (
   crawler: { id: string; url: string; maxDepth: number; maxPages: number; libraryId: string },
