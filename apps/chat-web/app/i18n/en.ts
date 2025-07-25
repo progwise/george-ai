@@ -400,7 +400,7 @@ export default {
     numberOfFilesToBeProcessed: '{count} file(s) will be processed',
     removedProfile: 'Profile removed',
     processUnprocessed:
-      "You are about to process all pending files. This action may take some time. Do you want to continue? Please confirm by pressing the 'Confirm' button.",
+      'You are about to process all pending files. This action may take some time. Do you want to continue?',
     profileConfirmed: 'Profile confirmed',
     profileFoundFor: 'Profile found for',
     profileNotFoundFor: 'Profile not found for',
