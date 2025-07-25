@@ -27,7 +27,7 @@ flowchart TD
     D --> E{Training Data Enabled?}
     E -->|No| F[Vector Embedding Only]
     E -->|Yes| G[Training Data Generation]
-
+git
     G --> H{Async Mode?}
     H -->|No| I[Synchronous Processing]
     H -->|Yes| J[Asynchronous Processing]
