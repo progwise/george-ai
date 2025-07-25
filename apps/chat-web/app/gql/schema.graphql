@@ -525,6 +525,7 @@ type Mutation {
   deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibrary(id: String!): Boolean
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
+  deleteAiLibraryUpdates(libraryId: String!): Boolean
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
   dropFiles(libraryId: String!): [AiLibraryFile!]!

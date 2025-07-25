@@ -550,6 +550,7 @@ export type Mutation = {
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibrary?: Maybe<Scalars['Boolean']['output']>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  deleteAiLibraryUpdates?: Maybe<Scalars['Boolean']['output']>
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
@@ -677,6 +678,10 @@ export type MutationDeleteAiLibraryArgs = {
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
   id: Scalars['String']['input']
+}
+
+export type MutationDeleteAiLibraryUpdatesArgs = {
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationDeleteMessageArgs = {
@@ -2401,6 +2406,12 @@ export type QueryLibraryFilesQuery = {
     }>
   }
 }
+
+export type DeleteAiLibraryUpdatesMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+}>
+
+export type DeleteAiLibraryUpdatesMutation = { __typename?: 'Mutation'; deleteAiLibraryUpdates?: boolean | null }
 
 export type LibraryUpdatesListQueryVariables = Exact<{
   libraryId: Scalars['ID']['input']
@@ -9003,6 +9014,39 @@ export const QueryLibraryFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
+export const DeleteAiLibraryUpdatesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteAiLibraryUpdates' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteAiLibraryUpdates' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAiLibraryUpdatesMutation, DeleteAiLibraryUpdatesMutationVariables>
 export const LibraryUpdatesListDocument = {
   kind: 'Document',
   definitions: [
