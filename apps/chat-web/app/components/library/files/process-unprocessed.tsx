@@ -37,14 +37,16 @@ export const ProcessUnprocessedDialog = ({
       return { totalProcessedCount, successfulCount }
     },
     onSuccess: ({ totalProcessedCount, successfulCount }) => {
-      // success, but not all processed successfully
-      if (totalProcessedCount > successfulCount) {
-        toastWarning(t('actions.processSuccess', { count: totalProcessedCount }))
-        toastError(t('errors.reprocessFiles', { count: totalProcessedCount - successfulCount }))
-      }
-      // no new files to process
-      if (successfulCount === 0) {
+      if (totalProcessedCount === 0) {
+        // no new files to process
         toastWarning(t('actions.noNewFilesToProcess'))
+      } else if (successfulCount === 0) {
+        // all failed
+        toastError(t('errors.processUnprocessed'))
+      } else if (totalProcessedCount > successfulCount) {
+        // not all successful
+        toastWarning(t('actions.processSuccess', { count: successfulCount }))
+        toastError(t('errors.reprocessFiles', { count: totalProcessedCount - successfulCount }))
       } else {
         toastSuccess(t('actions.processSuccess', { count: totalProcessedCount }))
       }
