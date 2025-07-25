@@ -23,7 +23,7 @@ export const DeleteAllUpdatesDialog = ({ libraryId, tableDataChanged, totalItems
       await deleteAllUpdates({ data: libraryId })
     },
     onSuccess: () => {
-      toastSuccess(t('libraries.deleteAllUpdatesSuccess'))
+      toastSuccess(t('libraries.deleteAllUpdatesSuccess', { count: totalItems }))
     },
     onError: () => {
       toastError(t('libraries.deleteAllUpdatesFailed'))
