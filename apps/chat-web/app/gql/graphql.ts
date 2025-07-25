@@ -561,7 +561,7 @@ export type Mutation = {
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
-  processUnprocessedFiles?: Maybe<Array<Scalars['String']['output']>>
+  processUnprocessedFiles?: Maybe<Array<Scalars['Int']['output']>>
   removeAssistantParticipant: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
@@ -839,7 +839,8 @@ export type Query = {
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
-  unprocessedFileCount: Scalars['Int']['output']
+  unprocessedFilesCount: Scalars['Int']['output']
+  unprocessedFilesInQueueCount: Scalars['Int']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
   users: Array<User>
@@ -925,7 +926,7 @@ export type QueryReadFileMarkdownArgs = {
   libraryId: Scalars['String']['input']
 }
 
-export type QueryUnprocessedFileCountArgs = {
+export type QueryUnprocessedFilesCountArgs = {
   libraryId: Scalars['String']['input']
 }
 
@@ -2151,7 +2152,7 @@ export type ProcessUnprocessedFilesMutationVariables = Exact<{
 
 export type ProcessUnprocessedFilesMutation = {
   __typename?: 'Mutation'
-  processUnprocessedFiles?: Array<string> | null
+  processUnprocessedFiles?: Array<number> | null
 }
 
 export type PrepareDesktopFileMutationVariables = Exact<{
@@ -2170,11 +2171,15 @@ export type CancelFileUploadMutationVariables = Exact<{
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelFileUpload: boolean }
 
-export type UnprocessedFileCountQueryVariables = Exact<{
+export type UnprocessedFilesInQueueCountQueryVariables = Exact<{ [key: string]: never }>
+
+export type UnprocessedFilesInQueueCountQuery = { __typename?: 'Query'; unprocessedFilesInQueueCount: number }
+
+export type UnprocessedFilesCountQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type UnprocessedFileCountQuery = { __typename?: 'Query'; unprocessedFileCount: number }
+export type UnprocessedFilesCountQuery = { __typename?: 'Query'; unprocessedFilesCount: number }
 
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
@@ -8310,13 +8315,27 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
-export const UnprocessedFileCountDocument = {
+export const UnprocessedFilesInQueueCountDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'unprocessedFileCount' },
+      name: { kind: 'Name', value: 'unprocessedFilesInQueueCount' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'unprocessedFilesInQueueCount' } }],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UnprocessedFilesInQueueCountQuery, UnprocessedFilesInQueueCountQueryVariables>
+export const UnprocessedFilesCountDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'unprocessedFilesCount' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -8329,7 +8348,7 @@ export const UnprocessedFileCountDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'unprocessedFileCount' },
+            name: { kind: 'Name', value: 'unprocessedFilesCount' },
             arguments: [
               {
                 kind: 'Argument',
@@ -8342,7 +8361,7 @@ export const UnprocessedFileCountDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<UnprocessedFileCountQuery, UnprocessedFileCountQueryVariables>
+} as unknown as DocumentNode<UnprocessedFilesCountQuery, UnprocessedFilesCountQueryVariables>
 export const GetFileChunksDocument = {
   kind: 'Document',
   definitions: [

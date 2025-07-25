@@ -5,7 +5,26 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
-const fetchUnprocessedFileCount = createServerFn({ method: 'GET' })
+const fetchUnprocessedFilesInQueueCount = createServerFn({ method: 'GET' })
+  .validator(() => ({}))
+  .handler(async () => {
+    return await backendRequest(
+      graphql(`
+        query unprocessedFilesInQueueCount {
+          unprocessedFilesInQueueCount
+        }
+      `),
+      {},
+    )
+  })
+
+export const countUnprocessedFilesInQueue = () =>
+  queryOptions({
+    queryKey: ['unprocessedFilesInQueueCount'],
+    queryFn: () => fetchUnprocessedFilesInQueueCount(),
+  })
+
+const fetchUnprocessedFilesCount = createServerFn({ method: 'GET' })
   .validator((data: object) =>
     z
       .object({
@@ -16,19 +35,19 @@ const fetchUnprocessedFileCount = createServerFn({ method: 'GET' })
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        query unprocessedFileCount($libraryId: String!) {
-          unprocessedFileCount(libraryId: $libraryId)
+        query unprocessedFilesCount($libraryId: String!) {
+          unprocessedFilesCount(libraryId: $libraryId)
         }
       `),
       { libraryId: ctx.data.libraryId },
     )
   })
 
-export const getUnprocessedFileCount = (params: { libraryId: string }) =>
+export const getUnprocessedFilesCount = (params: { libraryId: string }) =>
   queryOptions({
     queryKey: ['unprocessedFileCount', params.libraryId],
     queryFn: () =>
-      fetchUnprocessedFileCount({
+      fetchUnprocessedFilesCount({
         data: { libraryId: params.libraryId },
       }),
   })

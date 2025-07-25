@@ -4,7 +4,10 @@ import { useState } from 'react'
 import { z } from 'zod'
 
 import { getProfileQueryOptions } from '../../../../../auth/get-profile-query'
-import { getUnprocessedFileCount } from '../../../../../components/library/files/fetch-unprocessed-file-count'
+import {
+  countUnprocessedFilesInQueue,
+  getUnprocessedFilesCount,
+} from '../../../../../components/library/files/fetch-unprocessed-file-count'
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
 import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
@@ -41,8 +44,11 @@ function RouteComponent() {
     data: { aiLibraryFiles },
   } = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take }))
 
-  const { data } = useSuspenseQuery(getUnprocessedFileCount({ libraryId }))
-  const unprocessedFileCount = data?.unprocessedFileCount ?? 0
+  const unprocessedCountQuery = useSuspenseQuery(getUnprocessedFilesCount({ libraryId }))
+  const { unprocessedFilesCount = 0 } = unprocessedCountQuery.data ?? {}
+
+  const queueCountQuery = useSuspenseQuery(countUnprocessedFilesInQueue())
+  const { unprocessedFilesInQueueCount = 0 } = queueCountQuery.data ?? {}
 
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   return (
@@ -70,11 +76,15 @@ function RouteComponent() {
             queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey,
           })
           queryClient.invalidateQueries({
-            queryKey: getUnprocessedFileCount({ libraryId }).queryKey,
+            queryKey: getUnprocessedFilesCount({ libraryId }).queryKey,
+          })
+          queryClient.invalidateQueries({
+            queryKey: countUnprocessedFilesInQueue().queryKey,
           })
         }}
         totalItems={aiLibraryFiles.count}
-        unprocessedFileCount={unprocessedFileCount ?? 0}
+        unprocessedFilesCount={unprocessedFilesCount}
+        unprocessedFilesInQueueCount={unprocessedFilesInQueueCount}
       />
       <FilesTable
         firstItemNumber={skip + 1}
