@@ -277,22 +277,56 @@ Chunk Content: ${chunk.pageContent}
     `Training data generation completed. Generated summaries for ${chunks.length} chunks and ${totalQAPairs} total QA pairs.`,
   )
 
+  // Create efficient hierarchical structure without redundancy
   const trainingDataPath = `${markdownPath.replace('.md', '')}_training_data.jsonl`
-  const trainingDataLines = trainingDataEntries.flatMap((entry) =>
+  const efficientTrainingData = {
+    document: {
+      id: file.id,
+      name: file.name,
+      mimeType: file.mimeType,
+      originUri: file.originUri,
+      docPath: markdownPath,
+      summary: overallDocumentSummary,
+      totalChunks: chunks.length,
+      totalQAPairs,
+      chunks: trainingDataEntries.map((entry) => ({
+        chunkIndex: entry.chunkIndex,
+        section: entry.metadata.section,
+        headingPath: entry.metadata.headingPath,
+        subChunkIndex: entry.metadata.subChunkIndex,
+        summary: entry.chunkSummary,
+        qaPairs: entry.qaPairs.map((qaPair) => ({
+          prompt: qaPair.prompt,
+          completion: qaPair.completion,
+          category: qaPair.category,
+          difficulty: qaPair.difficulty,
+          evalCriteria: qaPair.evalCriteria,
+        })),
+      })),
+    },
+  }
+
+  fs.writeFileSync(trainingDataPath, JSON.stringify(efficientTrainingData, null, 2))
+  console.log(`Training data saved to: ${trainingDataPath}`)
+  
+  // Also create a flat JSONL version for compatibility with fine-tuning frameworks
+  const flatJsonlPath = `${markdownPath.replace('.md', '')}_training_data_flat.jsonl`
+  const flatTrainingLines = trainingDataEntries.flatMap((entry) =>
     entry.qaPairs.map((qaPair) =>
       JSON.stringify({
-        ...qaPair,
+        prompt: qaPair.prompt,
+        completion: qaPair.completion,
+        category: qaPair.category,
+        difficulty: qaPair.difficulty,
+        evalCriteria: qaPair.evalCriteria,
         sourceDocument: file.name,
-        documentSummary: entry.overallDocumentSummary,
+        docId: file.id,
         chunkIndex: entry.chunkIndex,
-        chunkSummary: entry.chunkSummary,
-        metadata: entry.metadata,
       }),
     ),
   )
-
-  fs.writeFileSync(trainingDataPath, trainingDataLines.join('\n'))
-  console.log(`Training data saved to: ${trainingDataPath}`)
+  fs.writeFileSync(flatJsonlPath, flatTrainingLines.join('\n'))
+  console.log(`Flat JSONL training data saved to: ${flatJsonlPath}`)
 
   return {
     id: file.id,
@@ -306,6 +340,7 @@ Chunk Content: ${chunk.pageContent}
     processedChunks,
     totalQAPairs,
     trainingDataPath,
+    flatJsonlPath: `${markdownPath.replace('.md', '')}_training_data_flat.jsonl`,
     trainingDataEntries: trainingDataEntries.length,
   }
 }
@@ -523,6 +558,8 @@ export const exportTrainingData = async (libraryId: string, outputPath?: string)
     docGroups.get(docId).push(hit.document)
   })
 
+  // Create efficient hierarchical structure
+  const trainingDocuments = []
   const allTrainingEntries: string[] = []
 
   for (const [docId, chunks] of docGroups) {
@@ -531,6 +568,9 @@ export const exportTrainingData = async (libraryId: string, outputPath?: string)
     // Get overall document summary by combining all chunks
     const fullDocContent = chunks.map((chunk: DocumentSchema) => chunk.text).join('\n\n')
     const overallSummary = await summarizeDocument(fullDocContent)
+
+    const processedChunks = []
+    let totalQAPairs = 0
 
     // Process each chunk
     for (const chunk of chunks) {
@@ -544,18 +584,34 @@ Chunk Summary: ${chunkSummary}
 Chunk Content: ${chunk.text}
 `
         const qaPairs = await generateQAPairs(contextualPrompt, overallSummary)
+        totalQAPairs += qaPairs.length
 
-        // Add each QA pair as a training entry
+        processedChunks.push({
+          chunkIndex: chunk.chunkIndex,
+          section: chunk.section,
+          headingPath: chunk.headingPath,
+          subChunkIndex: chunk.subChunkIndex,
+          summary: chunkSummary,
+          qaPairs: qaPairs.map((qaPair) => ({
+            prompt: qaPair.prompt,
+            completion: qaPair.completion,
+            category: qaPair.category,
+            difficulty: qaPair.difficulty,
+            evalCriteria: qaPair.evalCriteria,
+          })),
+        })
+
+        // Also create flat entries for compatibility
         qaPairs.forEach((qaPair) => {
           const trainingEntry = {
-            ...qaPair,
+            prompt: qaPair.prompt,
+            completion: qaPair.completion,
+            category: qaPair.category,
+            difficulty: qaPair.difficulty,
+            evalCriteria: qaPair.evalCriteria,
             sourceDocument: chunk.docName,
-            documentSummary: overallSummary,
-            chunkIndex: chunk.chunkIndex,
-            chunkSummary,
-            section: chunk.section,
-            headingPath: chunk.headingPath,
             docId: chunk.docId,
+            chunkIndex: chunk.chunkIndex,
             libraryId,
           }
           allTrainingEntries.push(JSON.stringify(trainingEntry))
@@ -564,16 +620,39 @@ Chunk Content: ${chunk.text}
         console.error(`Error processing chunk in document ${docId}:`, error)
       }
     }
+
+    trainingDocuments.push({
+      id: docId,
+      name: chunks[0]?.docName || 'unknown',
+      summary: overallSummary,
+      totalChunks: chunks.length,
+      totalQAPairs,
+      chunks: processedChunks,
+    })
   }
 
-  // Save consolidated training data
+  // Save hierarchical structure (efficient format)
+  const hierarchicalData = {
+    libraryId,
+    exportDate: new Date().toISOString(),
+    totalDocuments: trainingDocuments.length,
+    totalQAPairs: allTrainingEntries.length,
+    documents: trainingDocuments,
+  }
+
+  const hierarchicalPath = `${finalOutputPath.replace('.jsonl', '_hierarchical.json')}`
+  fs.writeFileSync(hierarchicalPath, JSON.stringify(hierarchicalData, null, 2))
+
+  // Save flat JSONL for fine-tuning compatibility
   fs.writeFileSync(finalOutputPath, allTrainingEntries.join('\n'))
 
-  console.log(`Training data exported: ${allTrainingEntries.length} entries saved to ${finalOutputPath}`)
+  console.log(`Hierarchical training data exported: ${hierarchicalPath}`)
+  console.log(`Flat JSONL training data exported: ${allTrainingEntries.length} entries saved to ${finalOutputPath}`)
 
   return {
     totalEntries: allTrainingEntries.length,
     outputPath: finalOutputPath,
+    hierarchicalPath,
     documentsProcessed: docGroups.size,
   }
 }
