@@ -8,9 +8,7 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
-import { type QAPair, generateQAPairs } from './qa-generator-google'
 import { splitMarkdown } from './split-markdown'
-import { summarizeDocument } from './summarizer'
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -188,112 +186,6 @@ export const embedFile = async (
   const typesense = new Typesense(embeddings, typesenseVectorStoreConfig)
   await typesense.addVectors(saniatizedVectors, chunks)
 
-  console.log('\n' + '='.repeat(60))
-  console.log(`✨ Generating OVERALL DOCUMENT SUMMARY for: \x1b[36m${file.name}\x1b[0m ✨`)
-  console.log('='.repeat(60) + '\n')
-  const fullDocumentContent = chunks.map((chunk) => chunk.pageContent).join('\n\n')
-  const overallDocumentSummary = await summarizeDocument(fullDocumentContent)
-  console.log(`Generated overall document summary: ${overallDocumentSummary.substring(0, 100)}...`)
-
-  console.log(`Processing ${chunks.length} chunks for training data generation...`)
-
-  const trainingDataEntries: Array<{
-    chunkIndex: number
-    chunkContent: string
-    chunkSummary: string
-    overallDocumentSummary: string
-    qaPairs: QAPair[]
-    metadata: {
-      section: string
-      headingPath: string
-      chunkIndex: number
-      subChunkIndex: number
-      points: number
-      docName: string
-      docType: string
-      docId: string
-      docPath: string
-      originUri: string
-    }
-  }> = []
-
-  const processedChunks = await Promise.all(
-    chunks.map(async (chunk, index) => {
-      try {
-        console.log(`Processing chunk ${index + 1}/${chunks.length} for training data`)
-
-        const chunkSummary = await summarizeDocument(chunk.pageContent)
-        console.log(`Generated chunk summary for chunk ${index + 1}: ${chunkSummary.substring(0, 100)}...`)
-
-        const contextualPrompt = `
-Document Summary: ${overallDocumentSummary}
-
-Chunk Summary: ${chunkSummary}
-
-Chunk Content: ${chunk.pageContent}
-`
-        const qaPairs = await generateQAPairs(contextualPrompt, overallDocumentSummary)
-        console.log(`Generated ${qaPairs.length} QA pairs for chunk ${index + 1}`)
-
-        const trainingEntry = {
-          chunkIndex: index,
-          chunkContent: chunk.pageContent,
-          chunkSummary,
-          overallDocumentSummary,
-          qaPairs,
-          metadata: chunk.metadata,
-        }
-
-        trainingDataEntries.push(trainingEntry)
-
-        return {
-          ...chunk,
-          chunkSummary,
-          qaPairs,
-        }
-      } catch (error) {
-        console.error(`Error processing chunk ${index + 1}:`, error)
-        const emptyEntry = {
-          chunkIndex: index,
-          chunkContent: chunk.pageContent,
-          chunkSummary: '',
-          overallDocumentSummary,
-          qaPairs: [] as QAPair[],
-          metadata: chunk.metadata,
-        }
-        trainingDataEntries.push(emptyEntry)
-
-        return {
-          ...chunk,
-          chunkSummary: '',
-          qaPairs: [] as QAPair[],
-        }
-      }
-    }),
-  )
-
-  const totalQAPairs = processedChunks.reduce((acc, chunk) => acc + chunk.qaPairs.length, 0)
-  console.log(
-    `Training data generation completed. Generated summaries for ${chunks.length} chunks and ${totalQAPairs} total QA pairs.`,
-  )
-
-  const trainingDataPath = `${markdownPath.replace('.md', '')}_training_data.jsonl`
-  const trainingDataLines = trainingDataEntries.flatMap((entry) =>
-    entry.qaPairs.map((qaPair) =>
-      JSON.stringify({
-        ...qaPair,
-        sourceDocument: file.name,
-        documentSummary: entry.overallDocumentSummary,
-        chunkIndex: entry.chunkIndex,
-        chunkSummary: entry.chunkSummary,
-        metadata: entry.metadata,
-      }),
-    ),
-  )
-
-  fs.writeFileSync(trainingDataPath, trainingDataLines.join('\n'))
-  console.log(`Training data saved to: ${trainingDataPath}`)
-
   return {
     id: file.id,
     name: file.name,
@@ -302,11 +194,6 @@ Chunk Content: ${chunk.pageContent}
     mimeType: file.mimeType,
     chunks: chunks.length,
     size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
-    overallDocumentSummary,
-    processedChunks,
-    totalQAPairs,
-    trainingDataPath,
-    trainingDataEntries: trainingDataEntries.length,
   }
 }
 
@@ -486,94 +373,4 @@ export const getPDFContentForQuestionAndLibraries = async (
   )
 
   return contents.join('\n\n')
-}
-
-/**
- * Exports all training data from a library into a consolidated JSONL file
- * suitable for LLM fine-tuning
- */
-export const exportTrainingData = async (libraryId: string, outputPath?: string) => {
-  const defaultOutputPath = `/tmp/training_data_${libraryId}_${Date.now()}.jsonl`
-  const finalOutputPath = outputPath || defaultOutputPath
-
-  console.log(`Exporting training data for library: ${libraryId}`)
-
-  await ensureVectorStore(libraryId)
-  const collectionName = getTypesenseSchemaName(libraryId)
-
-  // Get all documents in the library
-  const allDocuments = await vectorTypesenseClient.collections(collectionName).documents().search({
-    q: '*',
-    per_page: 1000, // Adjust as needed
-    sort_by: 'docId:asc,chunkIndex:asc',
-  })
-
-  if (!allDocuments.hits || allDocuments.hits.length === 0) {
-    console.log('No documents found in library')
-    return { totalEntries: 0, outputPath: finalOutputPath }
-  }
-
-  // Group by document and process
-  const docGroups = new Map()
-  allDocuments.hits.forEach((hit: DocumentSchema) => {
-    const docId = hit.document.docId
-    if (!docGroups.has(docId)) {
-      docGroups.set(docId, [])
-    }
-    docGroups.get(docId).push(hit.document)
-  })
-
-  const allTrainingEntries: string[] = []
-
-  for (const [docId, chunks] of docGroups) {
-    console.log(`Processing document ${docId} with ${chunks.length} chunks`)
-
-    // Get overall document summary by combining all chunks
-    const fullDocContent = chunks.map((chunk: DocumentSchema) => chunk.text).join('\n\n')
-    const overallSummary = await summarizeDocument(fullDocContent)
-
-    // Process each chunk
-    for (const chunk of chunks) {
-      try {
-        const chunkSummary = await summarizeDocument(chunk.text || '')
-        const contextualPrompt = `
-Document Summary: ${overallSummary}
-
-Chunk Summary: ${chunkSummary}
-
-Chunk Content: ${chunk.text}
-`
-        const qaPairs = await generateQAPairs(contextualPrompt, overallSummary)
-
-        // Add each QA pair as a training entry
-        qaPairs.forEach((qaPair) => {
-          const trainingEntry = {
-            ...qaPair,
-            sourceDocument: chunk.docName,
-            documentSummary: overallSummary,
-            chunkIndex: chunk.chunkIndex,
-            chunkSummary,
-            section: chunk.section,
-            headingPath: chunk.headingPath,
-            docId: chunk.docId,
-            libraryId,
-          }
-          allTrainingEntries.push(JSON.stringify(trainingEntry))
-        })
-      } catch (error) {
-        console.error(`Error processing chunk in document ${docId}:`, error)
-      }
-    }
-  }
-
-  // Save consolidated training data
-  fs.writeFileSync(finalOutputPath, allTrainingEntries.join('\n'))
-
-  console.log(`Training data exported: ${allTrainingEntries.length} entries saved to ${finalOutputPath}`)
-
-  return {
-    totalEntries: allTrainingEntries.length,
-    outputPath: finalOutputPath,
-    documentsProcessed: docGroups.size,
-  }
 }
