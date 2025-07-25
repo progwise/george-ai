@@ -32,7 +32,6 @@ export const dropFiles = createServerFn({ method: 'POST' })
 export const reprocessFiles = createServerFn({ method: 'POST' })
   .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
   .handler(async (ctx) => {
-    const processingErrors: Array<{ fileId: string; error: string }> = []
     const reprocessFilePromises = ctx.data.map((fileId) =>
       backendRequest(
         graphql(`

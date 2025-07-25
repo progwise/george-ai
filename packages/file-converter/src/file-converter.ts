@@ -18,10 +18,11 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
 
   try {
     switch (mimeType) {
-      case 'application/pdf':
+      case 'application/pdf': {
         const directContent = await transformPdfToMarkdown(filePath)
         const imageContent = await transformPdfToImageToMarkdown(filePath)
         return `# Direct Content\n\n${directContent}\n\n---\n\n# Image Content\n\n${imageContent}`
+      }
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         return await transformDocxToMarkdown(filePath)

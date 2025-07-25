@@ -9,88 +9,88 @@ export interface ModelClassification {
  */
 export const classifyModel = (modelName: string): ModelClassification => {
   const name = modelName.toLowerCase()
-  
+
   // High confidence embedding model patterns
   const strongEmbeddingPatterns = [
-    /^nomic-embed/,      // Nomic embedding models
-    /^mxbai-embed/,      // MixedBread AI embedding models
-    /^bge-/,             // BGE series embedding models
-    /^e5-/,              // E5 series embedding models
-    /text-embedding/,    // OpenAI-style naming
-    /^all-minilm/,       // All-MiniLM embedding models
+    /^nomic-embed/, // Nomic embedding models
+    /^mxbai-embed/, // MixedBread AI embedding models
+    /^bge-/, // BGE series embedding models
+    /^e5-/, // E5 series embedding models
+    /text-embedding/, // OpenAI-style naming
+    /^all-minilm/, // All-MiniLM embedding models
   ]
-  
+
   // Medium confidence embedding model patterns
   const mediumEmbeddingPatterns = [
-    /embed/,             // Contains "embed"
-    /embedding/,         // Contains "embedding"
-    /sentence/,          // Sentence transformers (can be dual-purpose)
-    /paraphrase/,        // Paraphrase models
+    /embed/, // Contains "embed"
+    /embedding/, // Contains "embedding"
+    /sentence/, // Sentence transformers (can be dual-purpose)
+    /paraphrase/, // Paraphrase models
   ]
-  
+
   // High confidence chat model patterns
   const strongChatPatterns = [
-    /^llama/,            // Llama models
-    /^mistral/,          // Mistral models
-    /^codellama/,        // Code Llama models
-    /^qwen/,             // Qwen models
-    /^gemma/,            // Gemma models
-    /^dolphin/,          // Dolphin models
-    /^vicuna/,           // Vicuna models
-    /^alpaca/,           // Alpaca models
-    /^chat/,             // Models with "chat" prefix
-    /^gpt/,              // GPT-style models
-    /instruct/,          // Instruction-tuned models
+    /^llama/, // Llama models
+    /^mistral/, // Mistral models
+    /^codellama/, // Code Llama models
+    /^qwen/, // Qwen models
+    /^gemma/, // Gemma models
+    /^dolphin/, // Dolphin models
+    /^vicuna/, // Vicuna models
+    /^alpaca/, // Alpaca models
+    /^chat/, // Models with "chat" prefix
+    /^gpt/, // GPT-style models
+    /instruct/, // Instruction-tuned models
   ]
-  
+
   // Medium confidence chat model patterns
   const mediumChatPatterns = [
-    /^phi/,              // Phi models (can be dual-purpose)
-    /^tinyllama/,        // TinyLlama models
-    /^neural/,           // Neural models
+    /^phi/, // Phi models (can be dual-purpose)
+    /^tinyllama/, // TinyLlama models
+    /^neural/, // Neural models
   ]
-  
+
   // Check for strong embedding indicators
-  if (strongEmbeddingPatterns.some(pattern => pattern.test(name))) {
+  if (strongEmbeddingPatterns.some((pattern) => pattern.test(name))) {
     return {
       isEmbeddingModel: true,
       isChatModel: false,
-      confidence: 'high'
+      confidence: 'high',
     }
   }
-  
+
   // Check for strong chat indicators
-  if (strongChatPatterns.some(pattern => pattern.test(name))) {
+  if (strongChatPatterns.some((pattern) => pattern.test(name))) {
     return {
       isEmbeddingModel: false,
       isChatModel: true,
-      confidence: 'high'
+      confidence: 'high',
     }
   }
-  
+
   // Check for medium embedding indicators
-  if (mediumEmbeddingPatterns.some(pattern => pattern.test(name))) {
+  if (mediumEmbeddingPatterns.some((pattern) => pattern.test(name))) {
     return {
       isEmbeddingModel: true,
       isChatModel: false,
-      confidence: 'medium'
+      confidence: 'medium',
     }
   }
-  
+
   // Check for medium chat indicators
-  if (mediumChatPatterns.some(pattern => pattern.test(name))) {
+  if (mediumChatPatterns.some((pattern) => pattern.test(name))) {
     return {
       isEmbeddingModel: false,
       isChatModel: true,
-      confidence: 'medium'
+      confidence: 'medium',
     }
   }
-  
+
   // Default: assume chat model with low confidence
   return {
     isEmbeddingModel: false,
     isChatModel: true,
-    confidence: 'low'
+    confidence: 'low',
   }
 }
 

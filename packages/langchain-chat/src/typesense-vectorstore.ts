@@ -1,4 +1,3 @@
-import { ListBucketInventoryConfigurationsOutputFilterSensitiveLog } from '@aws-sdk/client-s3'
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import fs from 'fs'
 import { Client } from 'typesense'

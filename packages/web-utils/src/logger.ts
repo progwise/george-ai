@@ -1,5 +1,5 @@
 let counter = 0
-export const logInfo = (message: string, data?: Record<string, any>) => {
+export const logInfo = (message: string, data?: Record<string, unknown>) => {
   const timestamp = new Date().toISOString()
   console.info(`${counter++}:${timestamp} INFO: ${message}`)
   if (data) {
@@ -7,7 +7,7 @@ export const logInfo = (message: string, data?: Record<string, any>) => {
   }
 }
 
-export const logError = (message: string, error: Error, data?: Record<string, any>) => {
+export const logError = (message: string, error: Error, data?: Record<string, unknown>) => {
   const timestamp = new Date().toISOString()
   console.error(`${counter++}:${timestamp} ERROR: ${message}`)
   console.error('Error:', error.message)
