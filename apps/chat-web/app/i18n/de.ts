@@ -432,7 +432,7 @@ export default {
     numberOfFilesToBeProcessed: '{count} Datei(en) werden/wird verarbeitet',
     removedProfile: 'Profil entfernt',
     processUnprocessed:
-      'Sie sind dabei, alle unverarbeiteten Dateien zu verarbeiten. Dieser Vorgang kann einige Zeit in Anspruch nehmen. Bitte bestätigen Sie das Verarbeiten der Dateien, indem Sie auf die Fläche „Bestätigen" klicken.',
+      'Sie sind dabei, alle unverarbeiteten Dateien zu verarbeiten. Dieser Vorgang kann einige Zeit in Anspruch nehmen. Möchten Sie fortfahren?',
     profileConfirmed: 'Profil bestätigt',
     profileFoundFor: 'Benutzerprofil gefunden für',
     profileNotFoundFor: 'Benutzerprofil nicht gefunden für',
