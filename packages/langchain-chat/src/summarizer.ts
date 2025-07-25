@@ -1,11 +1,14 @@
-import { OpenAI } from '@langchain/openai'
-
-const model = new OpenAI({ modelName: 'gpt-4o-mini', temperature: 0.3 })
+import { getModel } from './assistant-model'
 
 export const summarizeDocument = async (text: string): Promise<string> => {
-  const prompt = `Summarize the following document:
+  const model = await getModel('llama3.1:latest')
+  
+  const prompt = `Summarize the following document in a clear and concise manner:
 
-${text}`
+${text}
+
+Provide a comprehensive summary that captures the main points and key information.`
+  
   const result = await model.invoke(prompt)
-  return result.trim()
+  return result.content.toString().trim()
 }
