@@ -146,7 +146,7 @@ export const embedFile = async (
   await ensureVectorStore(libraryId)
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
   const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId })
-  if (!fs.existsSync(file.path)) {
+  if (!fs.existsSync(markdownPath)) {
     throw new Error(`Markdown file not found: ${markdownPath}`)
   }
   await removeFileByName(libraryId, file.name)
