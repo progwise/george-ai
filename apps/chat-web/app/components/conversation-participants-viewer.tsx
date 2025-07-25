@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useTranslation } from '../i18n/use-translation-hook'
 import { CrossIcon } from '../icons/cross-icon'
@@ -6,7 +7,6 @@ import { AssistantIcon } from './assistant/assistant-icon'
 import { UserAvatar } from './user-avatar'
 
 interface ConversationParticipant {
-  __typename: 'HumanParticipant' | 'AssistantParticipant'
   id: string
   name?: string | null
   userId?: string | null
@@ -73,7 +73,7 @@ export const ConversationParticipantsViewer = ({
   const showNoParticipantsFound = isSearchEnabled && displayedParticipants.length < 1
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`}>
+    <div className={twMerge('flex flex-col gap-2', className)}>
       <input
         type="text"
         onChange={(event) => setUserSearch(event.currentTarget.value)}
@@ -89,7 +89,7 @@ export const ConversationParticipantsViewer = ({
           {displayedParticipants.map((participant) => {
             const isParticipantOwner = participant.userId === ownerId
             const canRemove = participant.userId !== userId && isOwner && onRemoveParticipant
-            const displayName = participant.name || 'Unknown'
+            const displayName = participant.name || t('labels.unknown')
 
             return (
               <div
@@ -97,7 +97,7 @@ export const ConversationParticipantsViewer = ({
                 className="hover:bg-base-200 flex items-center justify-between rounded px-3 py-2"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2">
-                  {participant.__typename === 'AssistantParticipant' ? (
+                  {participant.assistantId ? (
                     <div className="size-6 flex-none overflow-hidden rounded-full">
                       <AssistantIcon
                         assistant={{

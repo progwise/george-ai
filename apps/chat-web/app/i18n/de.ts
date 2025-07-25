@@ -152,7 +152,7 @@ export default {
       'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
-      'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+      'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Alle Nachrichten von diesem Teilnehmer werden ebenfalls entfernt. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     setLLM: 'Assistent hat kein Sprachmodell',
     tokenLimitExceeded: 'Tokenlimit überschritten',
   },
@@ -302,6 +302,7 @@ export default {
     tuesday: 'Dienstag',
     unactivated: 'Nicht aktiviert',
     unconfirmed: 'Nicht bestätigt',
+    unknown: 'Unbekannt',
     updatedAt: 'Geändert',
     updates: 'Aktualisierungen',
     usedMessages: 'Vorhandene Nachrichten',

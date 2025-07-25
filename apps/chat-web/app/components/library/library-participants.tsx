@@ -16,6 +16,8 @@ import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
 import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
 
+const MAX_VISIBLE_PARTICIPANTS = 4
+
 graphql(`
   fragment LibraryParticipants_Library on AiLibrary {
     id
@@ -43,7 +45,6 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = library.ownerId === userId
-  const MAX_VISIBLE_PARTICIPANTS = 4
   const visibleParticipants = library.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
   const remainingCount = library.participants.length - MAX_VISIBLE_PARTICIPANTS
 
@@ -51,7 +52,7 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
       return await removeLibraryParticipant({ data: { userId, libraryId } })
     },
-    onSettled: async () => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
       await queryClient.invalidateQueries(getLibrariesQueryOptions())
       setParticipantToRemove(null)

@@ -125,57 +125,57 @@ builder.mutationField('login', (t) =>
         })
 
         return user
-      } else {
-        // Check if username exists (different email)
-        const existingByUsername = await prisma.user.findUnique({
-          where: { username: preferred_username },
-          select: { avatarUrl: true },
-        })
+      }
 
-        const isNewUser = !existingByUsername
-        const shouldUpdateAvatar = shouldUpdateAvatarFromProvider(
-          existingByUsername?.avatarUrl || null,
-          providerAvatarUrl,
-          isNewUser,
-        )
+      // Check if username exists (different email)
+      const existingByUsername = await prisma.user.findUnique({
+        where: { username: preferred_username },
+        select: { avatarUrl: true },
+      })
 
-        // Get the preferred avatar URL for new user
-        const preferredAvatarUrlForNew = getPreferredAvatarUrl(providerAvatarUrl, null)
+      const isCreatingNewUser = !existingByUsername
+      const shouldUpdateAvatar = shouldUpdateAvatarFromProvider(
+        existingByUsername?.avatarUrl || null,
+        providerAvatarUrl,
+        isCreatingNewUser,
+      )
 
-        // No user exists with this email, safe to create or upsert by username
-        const user = await prisma.user.upsert({
-          ...query,
-          where: { username: preferred_username },
-          update: {
-            lastLogin: new Date(),
-            email,
-            name,
-            given_name,
-            family_name,
-            avatarUrl: shouldUpdateAvatar ? preferredAvatarUrlForNew : existingByUsername?.avatarUrl,
-          },
-          create: {
-            email,
-            name,
-            given_name,
-            family_name,
-            username: preferred_username,
-            avatarUrl: preferredAvatarUrlForNew,
-            profile: {
-              create: {
-                email,
-                firstName: given_name,
-                lastName: family_name,
-                business: name,
-                freeMessages: 20,
-                freeStorage: 100000,
-              },
+      // Get the preferred avatar URL for new user
+      const preferredAvatarUrlForNew = getPreferredAvatarUrl(providerAvatarUrl, null)
+
+      // No user exists with this email, safe to create or upsert by username
+      const user = await prisma.user.upsert({
+        ...query,
+        where: { username: preferred_username },
+        update: {
+          lastLogin: new Date(),
+          email,
+          name,
+          given_name,
+          family_name,
+          avatarUrl: shouldUpdateAvatar ? preferredAvatarUrlForNew : existingByUsername?.avatarUrl,
+        },
+        create: {
+          email,
+          name,
+          given_name,
+          family_name,
+          username: preferred_username,
+          avatarUrl: preferredAvatarUrlForNew,
+          profile: {
+            create: {
+              email,
+              firstName: given_name,
+              lastName: family_name,
+              business: name,
+              freeMessages: 20,
+              freeStorage: 100000,
             },
           },
-        })
+        },
+      })
 
-        return user
-      }
+      return user
     },
   }),
 )

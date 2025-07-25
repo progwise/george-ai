@@ -21,6 +21,8 @@ import { ConversationParticipantsDialogButton } from './conversation-participant
 import { getConversationQueryOptions } from './get-conversation'
 import { getConversationsQueryOptions } from './get-conversations'
 
+const MAX_VISIBLE_PARTICIPANTS = 4
+
 graphql(`
   fragment ConversationParticipants_Conversation on AiConversation {
     ...ConversationBase
@@ -72,7 +74,6 @@ export const ConversationParticipants = ({
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = userId === conversation.ownerId
-  const MAX_VISIBLE_PARTICIPANTS = 4
   const visibleParticipants = conversation.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
   const remainingCount = conversation.participants.length - MAX_VISIBLE_PARTICIPANTS
 
@@ -83,7 +84,7 @@ export const ConversationParticipants = ({
       }
       return await removeConversationParticipant({ data: { participantId } })
     },
-    onSettled: async () => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries(getConversationQueryOptions(conversation.id))
       await queryClient.invalidateQueries(getConversationsQueryOptions())
       setParticipantToRemove(null)

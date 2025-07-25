@@ -147,7 +147,7 @@ export default {
       'You are about to remove the selected conversations. Your own conversations will be deleted. Conversations of others will be left by you. Both cannot be undone. Please confirm.',
     removeParticipant: 'Remove participant',
     removeParticipantConfirmation:
-      'You are about to remove {participantName} from this conversation. This cannot be undone. Please confirm.',
+      'You are about to remove {participantName} from this conversation. All messages from this participant will also be removed. This cannot be undone. Please confirm.',
     setLLM: 'Language model not set on assistant',
     tokenLimitExceeded: 'Token limit exceeded',
   },
@@ -295,6 +295,7 @@ export default {
     tuesday: 'Tuesday',
     unactivated: 'Unactivated',
     unconfirmed: 'Unconfirmed',
+    unknown: 'Unknown',
     updatedAt: 'Updated',
     updates: 'Updates',
     usedMessages: 'Used Messages',

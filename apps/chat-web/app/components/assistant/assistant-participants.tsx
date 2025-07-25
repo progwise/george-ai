@@ -15,6 +15,8 @@ import { UserAvatar } from '../user-avatar'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
 import { getAssistantQueryOptions } from './get-assistant'
 
+const MAX_VISIBLE_PARTICIPANTS = 4
+
 graphql(`
   fragment AssistantParticipants_Assistant on AiAssistant {
     id
@@ -42,7 +44,6 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = assistant.ownerId === userId
-  const MAX_VISIBLE_PARTICIPANTS = 4
   const visibleParticipants = assistant.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
   const remainingCount = assistant.participants.length - MAX_VISIBLE_PARTICIPANTS
 
@@ -94,7 +95,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
       <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
         {visibleParticipants.map((participant) => {
           const isParticipantOwner = participant.id === assistant.ownerId
-          const canRemove = participant.id !== userId && isOwner
+          const canRemoveParticipant = participant.id !== userId && isOwner
 
           return (
             <div key={participant.id} className="relative transition-transform">
@@ -111,7 +112,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
                 </div>
               )}
 
-              {canRemove && (
+              {canRemoveParticipant && (
                 <button
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"

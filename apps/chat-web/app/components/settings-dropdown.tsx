@@ -12,7 +12,7 @@ import SunIcon from '../icons/sun-icon'
 import SystemIcon from '../icons/system-icon'
 import { UserAvatar } from './user-avatar'
 
-interface SettingsDropdownUser {
+interface User {
   id: string
   username: string
   name?: string | null
@@ -20,11 +20,11 @@ interface SettingsDropdownUser {
   avatarUrl?: string | null
 }
 
-interface SettingsDropdownProps {
-  user?: SettingsDropdownUser
+interface UserProps {
+  user?: User
 }
 
-export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
+export const SettingsDropdown = ({ user }: UserProps): JSX.Element => {
   const { t } = useTranslation()
   const { logout, isReady } = useAuth()
   const { language, setLanguage } = useLanguage()
