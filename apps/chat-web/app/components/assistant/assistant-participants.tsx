@@ -56,7 +56,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
         },
       })
     },
-    onSettled: async () => {
+    onSuccess: async () => {
       await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
       setParticipantToRemove(null)
       dialogRef.current?.close()
