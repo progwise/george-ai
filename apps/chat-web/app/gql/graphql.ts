@@ -490,14 +490,6 @@ export type AssistantParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
-export type ChatAnswer = {
-  __typename?: 'ChatAnswer'
-  answer?: Maybe<Scalars['String']['output']>
-  notEnoughInformation?: Maybe<Scalars['Boolean']['output']>
-  sessionId?: Maybe<Scalars['String']['output']>
-  source?: Maybe<Scalars['String']['output']>
-}
-
 export type ConversationInvitationInput = {
   allowDifferentEmailAddress: Scalars['Boolean']['input']
   allowMultipleParticipants: Scalars['Boolean']['input']
@@ -577,7 +569,6 @@ export type Mutation = {
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
   cancelFileUpload: Scalars['Boolean']['output']
-  chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmConversationInvitation?: Maybe<AiConversation>
   confirmUserProfile?: Maybe<UserProfile>
@@ -652,12 +643,6 @@ export type MutationAddLibraryUsageArgs = {
 export type MutationCancelFileUploadArgs = {
   fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type MutationChatArgs = {
-  question: Scalars['String']['input']
-  retrievalFlow?: InputMaybe<RetrievalFlow>
-  sessionId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type MutationClearEmbeddedFilesArgs = {
@@ -964,13 +949,6 @@ export type QueryReadFileMarkdownArgs = {
 
 export type QueryUserArgs = {
   email: Scalars['String']['input']
-}
-
-export enum RetrievalFlow {
-  OnlyLocal = 'OnlyLocal',
-  OnlyWeb = 'OnlyWeb',
-  Parallel = 'Parallel',
-  Sequential = 'Sequential',
 }
 
 export type User = {

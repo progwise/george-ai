@@ -1,39 +1,10 @@
 import { BaseChatModel, BaseChatModelCallOptions } from '@langchain/core/language_models/chat_models'
 import { AIMessageChunk } from '@langchain/core/messages'
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { ChatOllama } from '@langchain/ollama'
-import { ChatOpenAI } from '@langchain/openai'
 
 import { isChatModel } from './model-classifier'
 
 export type AssistantModel = BaseChatModel<BaseChatModelCallOptions, AIMessageChunk>
-
-const getExternalChatModels = () => {
-  const models = [
-    {
-      modelName: 'gpt-4o-mini',
-      title: 'GPT-4 Mini',
-      type: 'OpenAI',
-      options: [
-        { key: 'temperature', value: '0.7' },
-        { key: 'maxTokens', value: '80000' },
-      ],
-      baseUrl: undefined as string | undefined,
-    },
-    {
-      modelName: 'gemini-1.5-pro',
-      title: 'Gemini 1.5 Pro',
-      type: 'Google',
-      options: [
-        { key: 'temperature', value: '0.0' },
-        { key: 'maxRetries', value: '2' },
-      ],
-      baseUrl: undefined,
-    },
-  ]
-
-  return models
-}
 
 const getOllamaChatModels = async () => {
   if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
@@ -43,10 +14,10 @@ const getOllamaChatModels = async () => {
   if (!ollamaModelsResponse.ok) {
     throw new Error('Failed to fetch OLLAMA models')
   }
-  const ollamaModelsContent = await ollamaModelsResponse.json() as {
+  const ollamaModelsContent = (await ollamaModelsResponse.json()) as {
     models: { name: string; model: string }[]
   }
-  
+
   return ollamaModelsContent.models
     .filter((model) => isChatModel(model.name))
     .map((model) => ({
@@ -62,12 +33,6 @@ const getOllamaChatModels = async () => {
 }
 
 export const getModel = async (modelName: string): Promise<AssistantModel> => {
-  const externalModels = getExternalChatModels()
-  const extermanModel = externalModels.find((model) => model.modelName === modelName)
-  if (extermanModel) {
-    return getChatModelInstance(extermanModel)
-  }
-
   const ollamaModels = await getOllamaChatModels()
   const ollamaModel = ollamaModels.find((model) => model.modelName === modelName)
   if (!ollamaModel) {
@@ -84,26 +49,10 @@ const getChatModelInstance = (model: { modelName: string; type: string }): Assis
       baseUrl: process.env.OLLAMA_BASE_URL,
     })
   }
-  switch (model.modelName) {
-    case 'gpt-4o-mini':
-      return new ChatOpenAI({
-        modelName: 'gpt-4o-mini',
-        temperature: 0.7,
-        maxTokens: 500,
-      })
-    case 'gemini-1.5-pro':
-      return new ChatGoogleGenerativeAI({
-        model: 'gemini-1.5-pro',
-        temperature: 0,
-        maxRetries: 2,
-        // other params...
-      })
-  }
   throw new Error(`Unknown language model: ${model.modelName}`)
 }
 
 export const getChatModels = async () => {
-  const externalModels = getExternalChatModels()
   const ollamaModels = await getOllamaChatModels()
-  return [...externalModels, ...ollamaModels]
+  return [...ollamaModels]
 }

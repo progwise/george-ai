@@ -31,11 +31,8 @@ export const FilesActionsBar = ({
   const { t, tx } = useTranslation()
 
   const { mutate: reprocessFilesMutate, isPending: reprocessFilesPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => reprocessFiles({ data: fileIds }),
-    onSettled: () => {
-      setCheckedFileIds([])
-      tableDataChanged()
-    },
+    mutationFn: async (fileIds: string[]) => await reprocessFiles({ data: fileIds }),
+
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
@@ -78,6 +75,10 @@ export const FilesActionsBar = ({
           }),
         )
       }
+    },
+    onSettled: () => {
+      setCheckedFileIds([])
+      tableDataChanged()
     },
   })
   const handleUploadComplete = async (uploadedFileIds: string[]) => {

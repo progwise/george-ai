@@ -15,8 +15,6 @@ export async function transformPdfToImages(pdfFilePath: string): Promise<string[
   const CMAP_PACKED = true
   const STANDARD_FONT_DATA_URL = pdfjsLibFolder + '/standard_fonts/'
 
-  console.log('Converting PDF to images:', pdfFilePath)
-
   try {
     const pdfData = new Uint8Array(fs.readFileSync(pdfFilePath))
 

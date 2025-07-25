@@ -457,13 +457,6 @@ type AssistantParticipant implements AiConversationParticipant {
 
 scalar BigInt
 
-type ChatAnswer {
-  answer: String
-  notEnoughInformation: Boolean
-  sessionId: String
-  source: String
-}
-
 input ConversationInvitationInput {
   allowDifferentEmailAddress: Boolean!
   allowMultipleParticipants: Boolean!
@@ -553,7 +546,6 @@ type Mutation {
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
-  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
@@ -625,13 +617,6 @@ type Query {
   userProfile: UserProfile
   users: [User!]!
   version: String
-}
-
-enum RetrievalFlow {
-  OnlyLocal
-  OnlyWeb
-  Parallel
-  Sequential
 }
 
 type User {

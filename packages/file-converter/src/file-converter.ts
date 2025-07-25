@@ -17,42 +17,30 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
   const { name, mimeType, path: filePath } = params
 
   try {
-    let content: string
-
     switch (mimeType) {
       case 'application/pdf':
-        content = await transformPdfToMarkdown(filePath)
-        if (!content || content.trim() === '') {
-          console.warn(`loadFile: PDF conversion returned empty content for file ${name}`)
-          content = await transformPdfToImageToMarkdown(filePath)
-        }
-        break
+        const directContent = await transformPdfToMarkdown(filePath)
+        const imageContent = await transformPdfToImageToMarkdown(filePath)
+        return `# Direct Content\n\n${directContent}\n\n---\n\n# Image Content\n\n${imageContent}`
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        content = await transformDocxToMarkdown(filePath)
-        break
-
+        return await transformDocxToMarkdown(filePath)
       case 'text/csv':
-        content = await transformCsvToMarkdown(filePath)
-        break
+        return await transformCsvToMarkdown(filePath)
 
       case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        content = await transformExcelToMarkdown(filePath)
-        break
+        return await transformExcelToMarkdown(filePath)
       case 'text/html':
-        content = await transformHtmlToMarkdown(filePath)
-        break
+        return await transformHtmlToMarkdown(filePath)
       default:
         // Try to read as text for any other text-based files
         if (mimeType.startsWith('text/')) {
-          content = await fs.readFile(filePath, 'utf-8')
+          return await fs.readFile(filePath, 'utf-8')
         } else {
           console.warn(`loadFile: No specific loader implemented for mimeType ${mimeType} for file ${name}`)
-          content = 'unsupported file type'
+          return 'unsupported file type'
         }
     }
-
-    return content
   } catch (error) {
     console.error(`Error loading and converting file ${name} from ${filePath}:`, error)
     return `Error loading file: ${(error as Error).message}`

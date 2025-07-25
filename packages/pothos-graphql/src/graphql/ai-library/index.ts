@@ -126,7 +126,7 @@ builder.mutationField('updateAiLibrary', (t) =>
         data: {
           ...libraryData,
           ...(embedding && {
-            Embedding: {
+            embedding: {
               upsert: {
                 create: embedding,
                 update: embedding,
@@ -158,7 +158,7 @@ builder.mutationField('createAiLibrary', (t) =>
             create: [{ userId }],
           },
           ...(embedding && {
-            Embedding: {
+            embedding: {
               create: embedding,
             },
           }),

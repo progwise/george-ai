@@ -1,3 +1,4 @@
+import { ListBucketInventoryConfigurationsOutputFilterSensitiveLog } from '@aws-sdk/client-s3'
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
 import fs from 'fs'
 import { Client } from 'typesense'
@@ -8,6 +9,8 @@ import { getMarkdownFilePath } from '@george-ai/file-management'
 
 import { getEmbeddingsModelInstance } from './embedding-model'
 import { splitMarkdown } from './split-markdown'
+
+const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
 
 const vectorTypesenseClient = new Client({
   nodes: [
@@ -28,7 +31,7 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   name: getTypesenseSchemaName(libraryId),
   fields: [
     { name: 'points', type: 'int32' },
-    { name: 'vec', type: 'float[]', num_dim: 3072 },
+    { name: 'vec', type: 'float[]', num_dim: EMBEDDING_DIMENSIONS },
     { name: 'text', type: 'string' },
     { name: 'docName', type: 'string' },
     { name: 'docType', type: 'string' },
@@ -166,16 +169,30 @@ export const embedFile = async (
   }))
 
   const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
-  const docVectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
-  const saniatizedVectors = docVectors.map((vec) => {
-    const sanitizedVector = new Array(3072).fill(0)
-    for (let i = 0; i < Math.min(vec.length, sanitizedVector.length); i++) {
-      sanitizedVector[i] = vec[i]
+  console.log(`Embedding ${chunks.length} chunks for file ${file.name} with model ${embeddingModelName}`)
+  const vectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
+  const sanitizedVectors = vectors.map((vector) => {
+    const sanitizedVector = new Array<number>(EMBEDDING_DIMENSIONS).fill(0)
+    for (let i = 0; i < Math.min(vector.length, sanitizedVector.length); i++) {
+      sanitizedVector[i] = vector[i]
     }
     return sanitizedVector
   })
-  const typesense = new Typesense(embeddings, typesenseVectorStoreConfig)
-  await typesense.addVectors(saniatizedVectors, chunks)
+
+  vectorTypesenseClient
+    .collections(typesenseVectorStoreConfig.schemaName)
+    .documents()
+    .import(
+      chunks.map((chunk, index) => ({
+        ...chunk.metadata,
+        vec: sanitizedVectors[index],
+        text: chunk.pageContent,
+        points: 1,
+        chunkIndex: index,
+        subChunkIndex: 0,
+      })),
+      { action: 'upsert', dirty_values: 'drop' },
+    )
 
   return {
     id: file.id,
@@ -188,14 +205,14 @@ export const embedFile = async (
   }
 }
 
-export const removeFileById = async (libraryId: string, fileId: string) => {
+const removeFileById = async (libraryId: string, fileId: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docId:=${fileId}` })
 }
 
-export const removeFileByName = async (libraryId: string, fileName: string) => {
+const removeFileByName = async (libraryId: string, fileName: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
@@ -205,10 +222,16 @@ export const removeFileByName = async (libraryId: string, fileName: string) => {
 export const similaritySearch = async (
   question: string,
   library: string,
+  embeddingsModelName: string,
 ): Promise<{ pageContent: string; docName: string }[]> => {
   //TODO: Vector search disabled because of language problems. The finals answer switches to english if enabled.
-  // const questionAsVector = await embeddings.embedQuery(question)
-  // const vectorQuery = `vec:([${questionAsVector.join(',')}])`
+  const embeddings = await getEmbeddingsModelInstance(embeddingsModelName)
+  const questionAsVector = await embeddings.embedQuery(question)
+  const sanitizedVector = new Array(EMBEDDING_DIMENSIONS).fill(0)
+  for (let i = 0; i < Math.min(questionAsVector.length, sanitizedVector.length); i++) {
+    sanitizedVector[i] = questionAsVector[i]
+  }
+  const vectorQuery = `vec:([${sanitizedVector.join(',')}])`
   await ensureVectorStore(library)
   const queryAsString = Array.isArray(question) ? question.join(' ') : question
   const multiSearchParams = {
@@ -217,7 +240,7 @@ export const similaritySearch = async (
         collection: getTypesenseSchemaName(library),
         q: queryAsString,
         query_by: 'text,docName',
-        // vector_query: vectorQuery,
+        vector_query: vectorQuery,
         per_page: 200,
         order_by: '_text_match:desc',
       },
@@ -353,5 +376,9 @@ export const getPDFContentForQuestionAndLibraries = async (
     documents.map((document_) => document_.pageContent).join('\n\n'),
   )
 
-  return contents.join('\n\n')
+  const result = contents.filter((content) => content.length > 0).join('\n\n')
+  console.log(`Found ${contents.length} libraries with content for question "${question}"`)
+  console.log(result.length > 1000 ? `Content is too long to display (${result.length} characters)` : result)
+
+  return result
 }

@@ -1,6 +1,6 @@
 import { OllamaEmbeddings } from '@langchain/ollama'
 
-// import { isEmbeddingModel } from './model-classifier'
+import { isEmbeddingModel } from './model-classifier'
 
 export const getEmbeddingModels = async () => {
   if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
@@ -21,20 +21,18 @@ export const getEmbeddingModels = async () => {
     models: { name: string; model: string }[]
   }
 
-  return (
-    ollamaModelsContent.models
-      //.filter((model) => isEmbeddingModel(model.name))
-      .map((model) => ({
-        modelName: model.name,
-        title: model.model,
-        type: 'Ollama',
-        options: [
-          { key: 'temperature', value: '0.7' },
-          { key: 'maxTokens', value: '80000' },
-        ],
-      }))
-      .sort((a, b) => a.modelName.localeCompare(b.modelName))
-  )
+  return ollamaModelsContent.models
+    .filter((model) => isEmbeddingModel(model.name))
+    .map((model) => ({
+      modelName: model.name,
+      title: model.model,
+      type: 'Ollama',
+      options: [
+        { key: 'temperature', value: '0.7' },
+        { key: 'maxTokens', value: '80000' },
+      ],
+    }))
+    .sort((a, b) => a.modelName.localeCompare(b.modelName))
 }
 
 export const getEmbeddingsModelInstance = async (modelName: string): Promise<OllamaEmbeddings> => {

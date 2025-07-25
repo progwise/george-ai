@@ -150,7 +150,19 @@ builder.mutationField('sendMessage', (t) =>
             select: { id: true },
             where: { conversationId: data.conversationId },
           },
-          usages: { select: { library: true, usedFor: true } },
+          usages: {
+            select: {
+              library: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                  embedding: { select: { model: true } },
+                },
+              },
+              usedFor: true,
+            },
+          },
           languageModel: true,
           description: true,
           baseCases: true,
@@ -260,6 +272,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
+            embeddingModelName: usage.library.embedding?.model || '',
           })),
         })) {
           const content = answerFromAssistant

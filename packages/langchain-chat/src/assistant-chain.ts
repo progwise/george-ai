@@ -64,7 +64,11 @@ export async function* askAssistantChain(input: {
       libraryUsedFor: library.usedFor,
     })
 
-    const vectorStoreResult = await similaritySearch(libraryPromptResult.searchPrompt, library.id)
+    const vectorStoreResult = await similaritySearch(
+      libraryPromptResult.searchPrompt,
+      library.id,
+      library.embeddingModelName,
+    )
 
     const messages = vectorStoreResult.map(
       (result) =>

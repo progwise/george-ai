@@ -11,7 +11,6 @@ import {
   AiLibraryFileInput,
   AiLibraryInput,
   ConversationInvitationInput,
-  RetrievalFlow,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -25,8 +24,6 @@ type definedNonNullAny = {}
 export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
-
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
