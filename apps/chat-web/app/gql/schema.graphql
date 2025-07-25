@@ -212,6 +212,7 @@ type AiLibraryCrawler {
   id: ID!
   isRunning: Boolean!
   lastRun: AiLibraryCrawlerRun
+  libraryId: String!
   maxDepth: Int!
   maxPages: Int!
   runCount: Int!
@@ -265,7 +266,10 @@ type AiLibraryCrawlerRun {
   id: ID!
   runByUserId: ID
   startedAt: DateTime!
+  stoppedByUser: DateTime
   success: Boolean
+  updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
+  updatesCount: Int!
 }
 
 type AiLibraryFile {
@@ -547,11 +551,11 @@ type Mutation {
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   resetAssessmentAnswers(assistantId: String!): DateTime!
-  runAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
+  runAiLibraryCrawler(crawlerId: String!): String!
   selectFilesFromGoogleDriveFolders(accessToken: String!, fileId: String!): [GoogleDriveFile!]!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
-  stopAiLibraryCrawler(crawlerId: String!): AiLibraryCrawler
+  stopAiLibraryCrawler(crawlerId: String!): String!
   toggleAdminStatus(userId: String!): User
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
@@ -574,6 +578,8 @@ type Query {
   aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
+  aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
+  aiLibraryCrawlerRun(crawlerRunId: String!, libraryId: String!): AiLibraryCrawlerRun!
   aiLibraryFile(fileId: String!, libraryId: String!): AiLibraryFile!
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!

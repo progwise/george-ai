@@ -2,6 +2,7 @@ import { stopCronJob, upsertCronJob } from '../../cron-jobs'
 import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
+import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
 
@@ -29,13 +30,33 @@ const AiLibraryCrawlerRun = builder.prismaObject('AiLibraryCrawlerRun', {
     endedAt: t.expose('endedAt', { type: 'DateTime', nullable: true }),
     success: t.exposeBoolean('success', { nullable: true }),
     errorMessage: t.exposeString('errorMessage', { nullable: true }),
+    stoppedByUser: t.expose('stoppedByUser', { type: 'DateTime', nullable: true }),
     runByUserId: t.exposeID('runByUserId', { nullable: true }),
+    updatesCount: t.relationCount('updates', { nullable: false }),
+    updates: t.prismaField({
+      type: ['AiLibraryUpdate'],
+      nullable: false,
+      args: {
+        take: t.arg.int({ defaultValue: 10 }),
+        skip: t.arg.int({ defaultValue: 0 }),
+      },
+      resolve: async (query, run, args) => {
+        return await prisma.aiLibraryUpdate.findMany({
+          ...query,
+          where: { crawlerRunId: run.id },
+          orderBy: { createdAt: 'desc' },
+          take: args.take,
+          skip: args.skip,
+        })
+      },
+    }),
   }),
 })
 
 builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
+    libraryId: t.exposeString('libraryId', { nullable: false }),
     url: t.exposeString('url', { nullable: false }),
     lastRun: t.field({
       type: AiLibraryCrawlerRun,
@@ -90,6 +111,40 @@ builder.prismaObject('AiLibraryCrawler', {
   }),
 })
 
+builder.queryField('aiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    nullable: false,
+    args: {
+      crawlerId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { crawlerId, libraryId }) =>
+      prisma.aiLibraryCrawler.findFirstOrThrow({
+        ...query,
+        where: { id: crawlerId, libraryId },
+      }),
+  }),
+)
+
+builder.queryField('aiLibraryCrawlerRun', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: AiLibraryCrawlerRun,
+    nullable: false,
+    args: {
+      crawlerRunId: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { crawlerRunId, libraryId }, context) => {
+      await canAccessLibraryOrThrow(context, libraryId)
+      return await prisma.aiLibraryCrawlerRun.findFirstOrThrow({
+        ...query,
+        where: { id: crawlerRunId, crawler: { libraryId } },
+      })
+    },
+  }),
+)
+
 builder.mutationField('createAiLibraryCrawler', (t) =>
   t.prismaField({
     type: 'AiLibraryCrawler',
@@ -119,24 +174,30 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 )
 
 builder.mutationField('runAiLibraryCrawler', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryCrawler',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'String',
+    nullable: false,
     args: {
       crawlerId: t.arg.string(),
     },
-    resolve: async (_query, _source, { crawlerId }, context) =>
-      runCrawler({ crawlerId, userId: context.session.user.id }),
+    resolve: async (_source, { crawlerId }, context) => {
+      const run = await runCrawler({ crawlerId, userId: context.session.user.id })
+      return run.id
+    },
   }),
 )
 
 builder.mutationField('stopAiLibraryCrawler', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryCrawler',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'String',
+    nullable: false,
     args: {
       crawlerId: t.arg.string(),
     },
-    resolve: async (_query, _source, { crawlerId }, context) =>
-      stopCrawler({ crawlerId, userId: context.session.user.id }),
+    resolve: async (_source, { crawlerId }, context) => {
+      const run = await stopCrawler({ crawlerId, userId: context.session.user.id })
+      return run.id
+    },
   }),
 )
 

@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { CrawlerTable } from '../../../../components/library/crawler/crawler-table'
+import { CrawlerTable } from '../../../../../components/library/crawler/crawler-table'
 
-export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers')({
+export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/')({
   component: RouteComponent,
 })
 
