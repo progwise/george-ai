@@ -4,6 +4,8 @@ import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { ChatOllama } from '@langchain/ollama'
 import { ChatOpenAI } from '@langchain/openai'
 
+import { isChatModel } from './model-classifier'
+
 export type AssistantModel = BaseChatModel<BaseChatModelCallOptions, AIMessageChunk>
 
 const getExternalChatModels = () => {
@@ -41,17 +43,22 @@ const getOllamaChatModels = async () => {
   if (!ollamaModelsResponse.ok) {
     throw new Error('Failed to fetch OLLAMA models')
   }
-  const ollamaModelsContent = await ollamaModelsResponse.json()
-  const foundModels = ollamaModelsContent.models.map((model: { name: string; model: string }) => ({
-    modelName: model.name,
-    title: model.model,
-    type: 'Ollama',
-    options: [
-      { key: 'temperature', value: '0.7' },
-      { key: 'maxTokens', value: '80000' },
-    ],
-  }))
-  return foundModels as { modelName: string; title: string; type: string; options: { key: string; value: string }[] }[]
+  const ollamaModelsContent = await ollamaModelsResponse.json() as {
+    models: { name: string; model: string }[]
+  }
+  
+  return ollamaModelsContent.models
+    .filter((model) => isChatModel(model.name))
+    .map((model) => ({
+      modelName: model.name,
+      title: model.model,
+      type: 'Ollama',
+      options: [
+        { key: 'temperature', value: '0.7' },
+        { key: 'maxTokens', value: '80000' },
+      ],
+    }))
+    .sort((a, b) => a.modelName.localeCompare(b.modelName))
 }
 
 export const getModel = async (modelName: string): Promise<AssistantModel> => {

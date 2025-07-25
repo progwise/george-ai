@@ -28,6 +28,7 @@ const getEmbeddingModels = createServerFn({ method: 'GET' }).handler(async () =>
         aiEmbeddingModels {
           modelName
           title
+          type
         }
       }
     `),

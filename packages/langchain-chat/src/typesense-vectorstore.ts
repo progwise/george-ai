@@ -100,11 +100,6 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   },
 })
 
-console.log(`setting up ollama embeddings to mistral:latest on ${process.env.OLLAMA_BASE_URL}`)
-
-const embeddings = await getEmbeddingsModelInstance('mistral:latest')
-const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig('gai-documents'))
-
 export const ensureVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
   const existingSchema = vectorTypesenseClient.collections(schemaName)
@@ -137,6 +132,7 @@ export const dropFileFromVectorstore = async (libraryId: string, fileId: string)
 
 export const embedFile = async (
   libraryId: string,
+  embeddingModelName: string,
   file: {
     id: string
     name: string
@@ -169,6 +165,7 @@ export const embedFile = async (
     },
   }))
 
+  const embeddings = await getEmbeddingsModelInstance(embeddingModelName)
   const docVectors = await embeddings.embedDocuments(chunks.map((chunk) => chunk.pageContent))
   const saniatizedVectors = docVectors.map((vec) => {
     const sanitizedVector = new Array(3072).fill(0)
@@ -335,28 +332,18 @@ export const getFileChunks = async ({
   }
 }
 
-// retrieves content from the vector store similar to the question
-export const getPDFContentForQuestion = async (question: string) => {
-  await ensureVectorStore('common')
-  try {
-    const documents = await typesenseVectorStore.similaritySearch(question)
-    const content = documents.map((document_) => document_.pageContent).join('\n\n')
-
-    return content
-  } catch (error) {
-    console.error('Error retrieving PDF content:', error)
-    return ''
-  }
-}
-
 export const getPDFContentForQuestionAndLibraries = async (
   question: string,
-  libraries: { id: string; name: string }[],
+  libraries: { id: string; name: string; embeddingModelName: string }[],
 ) => {
   const ensureStores = libraries.map((library) => ensureVectorStore(library.id))
   await Promise.all(ensureStores)
-
-  const vectorStores = libraries.map((library) => new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id)))
+  const vectorStores = await Promise.all(
+    libraries.map(async (library) => {
+      const embeddings = await getEmbeddingsModelInstance(library.embeddingModelName)
+      return new Typesense(embeddings, getTypesenseVectorStoreConfig(library.id))
+    }),
+  )
 
   const storeSearches = vectorStores.map((store) => store.similaritySearch(question))
   const storeSearchResults = await Promise.all(storeSearches)

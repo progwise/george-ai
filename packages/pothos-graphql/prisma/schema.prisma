@@ -115,6 +115,21 @@ model AiAssistantParticipant {
   @@unique([assistantId, userId])
 }
 
+model AiEmbedding {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  model     String
+  provider  String
+  url       String?
+  headers   String?
+  options   String?
+
+  library     AiLibrary @relation(fields: [aiLibraryId], references: [id])
+  aiLibraryId String    @unique
+}
+
 model AiLibrary {
   id            String                 @id @default(cuid())
   createdAt     DateTime               @default(now())
@@ -127,6 +142,8 @@ model AiLibrary {
   owner         User                   @relation(fields: [ownerId], references: [id])
   ownerId       String
   isPublic      Boolean                @default(true)
+  embeddingId   String?
+  embedding     AiEmbedding?
   usages        AiLibraryUsage[]
   files         AiLibraryFile[]
   crawlers      AiLibraryCrawler[]

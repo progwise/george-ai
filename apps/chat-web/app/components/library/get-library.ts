@@ -13,6 +13,15 @@ graphql(`
     ownerId
     filesCount
     description
+    embedding {
+      id
+      name
+      model
+      provider
+      url
+      headers
+      options
+    }
   }
 `)
 

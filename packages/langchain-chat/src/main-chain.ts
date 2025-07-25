@@ -11,7 +11,7 @@ import {
   searchQueryPrompt,
   webPrompt,
 } from './prompts'
-import { getPDFContentForQuestion } from './typesense-vectorstore'
+import { getPDFContentForQuestionAndLibraries } from './typesense-vectorstore'
 import { getWebContent } from './web-vectorstore'
 
 const outputSchema = z.object({
@@ -136,7 +136,7 @@ const mainChain = RunnableSequence.from([
 
   async (input) => ({
     ...input,
-    context: await getPDFContentForQuestion(input.searchQuery),
+    context: await getPDFContentForQuestionAndLibraries(input.searchQuery, input.libraries),
   }),
 
   branchChain,

@@ -5,6 +5,7 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
+  AiEmbeddingInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
   AiLibraryFileInput,
@@ -61,6 +62,17 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
   })
 }
 
+export function AiEmbeddingInputSchema(): z.ZodObject<Properties<AiEmbeddingInput>> {
+  return z.object({
+    headers: z.string().nullish(),
+    model: z.string(),
+    name: z.string(),
+    options: z.string().nullish(),
+    provider: z.string(),
+    url: z.string().nullish(),
+  })
+}
+
 export function AiLibraryCrawlerCronJobInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCronJobInput>> {
   return z.object({
     active: z.boolean(),
@@ -97,6 +109,7 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
 export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> {
   return z.object({
     description: z.string().nullish(),
+    embedding: z.lazy(() => AiEmbeddingInputSchema().nullish()),
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),

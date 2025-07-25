@@ -4,6 +4,21 @@ import { builder } from '../builder'
 
 console.log('Setting up: AiEmbeddingModels')
 
+builder.prismaObject('AiEmbedding', {
+  name: 'AiEmbedding',
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    name: t.exposeString('name', { nullable: false }),
+    model: t.exposeString('model', { nullable: false }),
+    provider: t.exposeString('provider', { nullable: false }),
+    url: t.exposeString('url', { nullable: true }),
+    headers: t.exposeString('headers', { nullable: true }),
+    options: t.exposeString('options', { nullable: true }),
+    library: t.relation('library', { nullable: false }),
+    aiLibraryId: t.exposeString('aiLibraryId', { nullable: false }),
+  }),
+})
+
 const AiEmbeddingModelOption = builder.objectRef<{ key: string; value: string }>('AiEmbeddingModelOption').implement({
   description: 'Options for AI Embedding Models',
   fields: (t) => ({
@@ -25,7 +40,7 @@ const AiEmbeddingModel = builder
     fields: (t) => ({
       modelName: t.exposeString('modelName', { nullable: false }),
       title: t.exposeString('title', { nullable: false }),
-      modelType: t.exposeString('type', { nullable: false }),
+      type: t.exposeString('type', { nullable: false }),
       baseUrl: t.exposeString('baseUrl', { nullable: true }),
       options: t.field({
         nullable: true,

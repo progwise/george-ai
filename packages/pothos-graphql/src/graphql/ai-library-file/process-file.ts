@@ -9,10 +9,21 @@ import { builder } from '../builder'
 
 export const processFile = async (fileId: string) => {
   const file = await prisma.aiLibraryFile.findUnique({
+    select: {
+      libraryId: true,
+      id: true,
+      name: true,
+      originUri: true,
+      mimeType: true,
+      library: { select: { id: true, name: true, embedding: true } },
+    },
     where: { id: fileId },
   })
   if (!file) {
     throw new Error(`File not found in database: ${fileId}`)
+  }
+  if (!file.library.embedding?.model) {
+    throw new Error(`Embedding model not found for library: ${file.libraryId}`)
   }
 
   await prisma.aiLibraryFile.update({
@@ -30,7 +41,10 @@ export const processFile = async (fileId: string) => {
       // re-generate markdown
       await convertUploadToMarkdown(file.id, { removeUploadFile: false })
     }
-    const embeddedFile = await embedFile(file.libraryId, {
+    if (!fs.existsSync(markdownFilePath)) {
+      throw new Error(`Markdown file does not exist: ${markdownFilePath}`)
+    }
+    const embeddedFile = await embedFile(file.libraryId, file.library.embedding.model, {
       id: file.id,
       name: file.name,
       originUri: file.originUri!,
