@@ -8,6 +8,7 @@ import { DesktopFileUpload } from './desktop-file-upload'
 import { DropAllFilesDialog } from './drop-all-files-dialog'
 import { DropFilesDialog } from './drop-files-dialog'
 import { GoogleFileUploadButton } from './google-file-upload'
+import { ProcessUnprocessedDialog } from './process-unprocessed'
 
 interface FilesActionsBarProps {
   libraryId: string
@@ -17,6 +18,7 @@ interface FilesActionsBarProps {
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
   totalItems: number
+  unprocessedFileCount: number
 }
 
 export const FilesActionsBar = ({
@@ -27,6 +29,7 @@ export const FilesActionsBar = ({
   checkedFileIds,
   setCheckedFileIds,
   totalItems,
+  unprocessedFileCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -120,6 +123,14 @@ export const FilesActionsBar = ({
         >
           {t('actions.reprocess')}
         </button>
+
+        <ProcessUnprocessedDialog
+          libraryId={libraryId}
+          unprocessedFileIds={[]}
+          tableDataChanged={tableDataChanged}
+          setCheckedFileIds={setCheckedFileIds}
+          unprocessedFileCount={unprocessedFileCount}
+        />
       </div>
       <div className="text-right text-sm">
         <div className="font-semibold">{t('labels.remainingStorage')}</div>

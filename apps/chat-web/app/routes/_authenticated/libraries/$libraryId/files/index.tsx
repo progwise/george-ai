@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { z } from 'zod'
 
 import { getProfileQueryOptions } from '../../../../../auth/get-profile-query'
+import { getUnprocessedFileCount } from '../../../../../components/library/files/fetch-unprocessed-file-count'
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
 import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
@@ -39,6 +40,10 @@ function RouteComponent() {
   const {
     data: { aiLibraryFiles },
   } = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take }))
+
+  const { data } = useSuspenseQuery(getUnprocessedFileCount({ libraryId }))
+  const unprocessedFileCount = data?.unprocessedFileCount ?? 0
+
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   return (
     <div>
@@ -61,9 +66,15 @@ function RouteComponent() {
         checkedFileIds={selectedFileIds}
         setCheckedFileIds={setSelectedFileIds}
         tableDataChanged={() => {
-          queryClient.invalidateQueries({ queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey })
+          queryClient.invalidateQueries({
+            queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey,
+          })
+          queryClient.invalidateQueries({
+            queryKey: getUnprocessedFileCount({ libraryId }).queryKey,
+          })
         }}
         totalItems={aiLibraryFiles.count}
+        unprocessedFileCount={unprocessedFileCount ?? 0}
       />
       <FilesTable
         firstItemNumber={skip + 1}
