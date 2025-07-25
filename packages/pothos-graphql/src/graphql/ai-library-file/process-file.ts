@@ -26,6 +26,9 @@ export const processFile = async (fileId: string) => {
     if (!file.library.embeddingModelName) {
       throw new Error(`Embedding model not found for library: ${file.libraryId}`)
     }
+
+    addToQueue(file.libraryId, [file.id])
+
     await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
@@ -55,7 +58,8 @@ export const processFile = async (fileId: string) => {
       mimeType: file.mimeType, // Use markdown mimetype for re-processing
       path: markdownFilePath,
     })
-    return await prisma.aiLibraryFile.update({
+
+    const updatedFile = await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
         ...embeddedFile,
@@ -65,14 +69,18 @@ export const processFile = async (fileId: string) => {
         processingErrorMessage: null,
       },
     })
+    removeIdFromQueue(file.libraryId, [file.id])
+    return updatedFile
   } catch (error) {
-    return await prisma.aiLibraryFile.update({
-      where: { id: fileId },
+    const failedFile = await prisma.aiLibraryFile.update({
+      where: { id: file.id },
       data: {
         processingErrorAt: new Date(),
         processingErrorMessage: (error as Error).message,
       },
     })
+    removeIdFromQueue(file.libraryId, [file.id])
+    return failedFile
   }
 }
 
@@ -87,11 +95,23 @@ builder.mutationField('processFile', (t) =>
   }),
 )
 
-export const processUnprocessedFiles = async (libraryId: string) => {
-  const unprocessedFiles = await getUnprocessedFiles(libraryId)
+const processUnprocessedFiles = async (libraryId: string) => {
+  const newFilesToProcess = await checkNewFilesToProcess(libraryId)
+  cleanUpQueue(libraryId)
+
+  if (newFilesToProcess.length === 0) {
+    console.log('No new files to process.')
+    return
+  }
+
+  addToQueue(
+    libraryId,
+    newFilesToProcess.map((file) => file.id),
+  )
+  let successfulCount = 0
 
   await Promise.allSettled(
-    unprocessedFiles.map(async (file) => {
+    newFilesToProcess.map(async (file) => {
       await prisma.aiLibraryFile.update({
         where: { id: file.id },
         data: {
@@ -124,7 +144,7 @@ export const processUnprocessedFiles = async (libraryId: string) => {
           path: markdownFilePath,
         })
 
-        return await prisma.aiLibraryFile.update({
+        await prisma.aiLibraryFile.update({
           where: { id: file.id },
           data: {
             ...embeddedFile,
@@ -134,19 +154,51 @@ export const processUnprocessedFiles = async (libraryId: string) => {
             processingErrorMessage: null,
           },
         })
+        successfulCount++
+        removeIdFromQueue(libraryId, [file.id])
+        return
       } catch (error) {
-        return await prisma.aiLibraryFile.update({
+        console.error(`Error processing file ${file.id}:`, error)
+        const failedFile = await prisma.aiLibraryFile.update({
           where: { id: file.id },
           data: {
             processingErrorAt: new Date(),
             processingErrorMessage: (error as Error).message,
           },
         })
+        removeIdFromQueue(libraryId, [file.id])
+        return failedFile
       }
     }),
   )
+
+  await cleanUpQueue(libraryId)
+  const totalIds = newFilesToProcess.map((file) => file.id)
+  return { totalProcessedCount: totalIds.length, processedCount: successfulCount }
 }
 
+const processingQueue: Record<string, string[]> = {}
+// Adding new files to queue, prevent overlapping parallel runs
+const addToQueue = (libraryId: string, fileIds: string[]) => {
+  const existing = processingQueue[libraryId] || []
+  processingQueue[libraryId] = Array.from(new Set([...existing, ...fileIds]))
+}
+// remove single Id from queue
+const removeIdFromQueue = (libraryId: string, fileIds: string[]) => {
+  processingQueue[libraryId] = (processingQueue[libraryId] || []).filter((id) => !fileIds.includes(id))
+}
+// cleanup processed Ids and Ids which do not exist anymore (example: dropped files while processing)
+const cleanUpQueue = async (libraryId: string) => {
+  const stillUnprocessedIds = (await getUnprocessedFiles(libraryId)).map((file) => file.id)
+  processingQueue[libraryId] = (processingQueue[libraryId] || []).filter((id) => stillUnprocessedIds.includes(id))
+}
+
+const checkNewFilesToProcess = async (libraryId: string) => {
+  const previousFileIds = processingQueue[libraryId] ?? []
+  const currentUnprocessedFiles = await getUnprocessedFiles(libraryId)
+  const newFiles = currentUnprocessedFiles.filter((file) => !previousFileIds.includes(file.id))
+  return newFiles
+}
 const getUnprocessedFiles = async (libraryId: string) => {
   return prisma.aiLibraryFile.findMany({
     where: {
@@ -164,20 +216,26 @@ const getUnprocessedFiles = async (libraryId: string) => {
   })
 }
 
-export const countUnprocessedFiles = async (libraryId: string) => {
-  //skip files that started processing up to 120 seconds ago
-  const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000)
+builder.queryField('unprocessedFilesInQueueCount', (t) =>
+  t.withAuth({ isLoggedIn: true }).int({
+    nullable: false,
+    resolve: () => {
+      const queue: Record<string, string[]> = processingQueue ?? {}
+      return Object.values(queue).reduce<number>((total, fileIds) => total + (fileIds?.length ?? 0), 0)
+    },
+  }),
+)
 
+const countUnprocessedFiles = async (libraryId: string) => {
   return prisma.aiLibraryFile.count({
     where: {
       libraryId,
       processedAt: null,
-      OR: [{ processingStartedAt: null }, { processingStartedAt: { lt: twoMinutesAgo } }],
     },
   })
 }
 
-builder.queryField('unprocessedFileCount', (t) =>
+builder.queryField('unprocessedFilesCount', (t) =>
   t.withAuth({ isLoggedIn: true }).int({
     nullable: false,
     args: {
@@ -190,14 +248,15 @@ builder.queryField('unprocessedFileCount', (t) =>
 )
 
 builder.mutationField('processUnprocessedFiles', (t) =>
-  t.withAuth({ isLoggedIn: true }).stringList({
-    nullable: true,
+  t.withAuth({ isLoggedIn: true }).intList({
     args: {
       libraryId: t.arg.string({ required: true }),
     },
     resolve: async (_root, args) => {
-      await processUnprocessedFiles(args.libraryId)
-      return null
+      const results = (await processUnprocessedFiles(args.libraryId)) ?? { totalProcessedCount: 0, processedCount: 0 }
+      const totalProcessedCount = results.totalProcessedCount
+      const successfulCount = results.processedCount
+      return [totalProcessedCount, successfulCount]
     },
   }),
 )

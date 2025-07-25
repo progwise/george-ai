@@ -76,7 +76,7 @@ export const processUnprocessedFiles = createServerFn({ method: 'POST' })
     const results = await Promise.all(
       ctx.data.map(async (libraryId) => {
         try {
-          await backendRequest(
+          const processing = await backendRequest(
             graphql(`
               mutation processUnprocessedFiles($libraryId: String!) {
                 processUnprocessedFiles(libraryId: $libraryId)
@@ -84,7 +84,9 @@ export const processUnprocessedFiles = createServerFn({ method: 'POST' })
             `),
             { libraryId },
           )
-          return { libraryId, success: true }
+
+          const [totalProcessedCount = 0, successfulCount = 0] = processing?.processUnprocessedFiles ?? []
+          return { libraryId, totalProcessedCount, successfulCount, success: true }
         } catch (error) {
           console.error(`Failed to process files in library ${libraryId}:`, error)
           return { libraryId, success: false }

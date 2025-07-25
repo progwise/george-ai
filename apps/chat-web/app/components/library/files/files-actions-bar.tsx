@@ -18,7 +18,8 @@ interface FilesActionsBarProps {
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
   totalItems: number
-  unprocessedFileCount: number
+  unprocessedFilesCount: number
+  unprocessedFilesInQueueCount: number
 }
 
 export const FilesActionsBar = ({
@@ -29,7 +30,8 @@ export const FilesActionsBar = ({
   checkedFileIds,
   setCheckedFileIds,
   totalItems,
-  unprocessedFileCount,
+  unprocessedFilesCount,
+  unprocessedFilesInQueueCount,
 }: FilesActionsBarProps) => {
   const { t, tx } = useTranslation()
 
@@ -126,10 +128,10 @@ export const FilesActionsBar = ({
 
         <ProcessUnprocessedDialog
           libraryId={libraryId}
-          unprocessedFileIds={[]}
           tableDataChanged={tableDataChanged}
           setCheckedFileIds={setCheckedFileIds}
-          unprocessedFileCount={unprocessedFileCount}
+          unprocessedFilesCount={unprocessedFilesCount}
+          unprocessedFilesInQueueCount={unprocessedFilesInQueueCount}
         />
       </div>
       <div className="text-right text-sm">

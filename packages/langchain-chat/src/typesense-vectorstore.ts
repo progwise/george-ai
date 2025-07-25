@@ -33,9 +33,7 @@ const vectorTypesenseClient = new Client({
   numRetries: 3,
   connectionTimeoutSeconds: 60,
 })
-
 const getTypesenseSchemaName = (libraryId: string) => `gai-library-${libraryId}`
-
 const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   name: getTypesenseSchemaName(libraryId),
   fields: [
@@ -54,7 +52,6 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   ],
   default_sorting_field: 'points',
 })
-
 /*
 curl --location 'http://localhost:8108/collections' \
 --header 'Content-Type: application/json' \
@@ -72,12 +69,10 @@ curl --location 'http://localhost:8108/collections' \
          "default_sorting_field": "points"
        }'
 */
-
 /*
   curl --location --request DELETE 'http://localhost:8108/collections/gai-documents' \
   --header 'X-TYPESENSE-API-KEY: xyz'
 */
-
 const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
   typesenseClient: vectorTypesenseClient,
   schemaName: getTypesenseSchemaName(libraryId),
@@ -97,7 +92,6 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
       'subChunkIndex',
     ],
   },
-
   // Optional search parameters to be passed to Typesense when searching
   searchParams: {
     q: '*',
@@ -120,7 +114,6 @@ export const ensureVectorStore = async (libraryId: string) => {
   } else {
     const existingFieldNames = (await existingSchema.retrieve()).fields.map((field) => field.name)
     const allFields = getTypesenseSchema(libraryId).fields
-
     const missingFields = allFields.filter((field) => !existingFieldNames.some((name) => name === field.name))
     if (missingFields.length < 1) {
       return
@@ -128,7 +121,6 @@ export const ensureVectorStore = async (libraryId: string) => {
     await existingSchema.update({ fields: missingFields.map((field) => ({ ...field, optional: true })) })
   }
 }
-
 export const dropVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
   const exists = await vectorTypesenseClient.collections(schemaName).exists()
@@ -136,12 +128,10 @@ export const dropVectorStore = async (libraryId: string) => {
     await vectorTypesenseClient.collections(schemaName).delete()
   }
 }
-
 export const dropFileFromVectorstore = async (libraryId: string, fileId: string) => {
   await ensureVectorStore(libraryId)
   await removeFileById(libraryId, fileId)
 }
-
 export const embedFile = async (
   libraryId: string,
   embeddingModelName: string,
@@ -154,16 +144,12 @@ export const embedFile = async (
   },
 ) => {
   await ensureVectorStore(libraryId)
-
   const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
-
   const markdownPath = getMarkdownFilePath({ fileId: file.id, libraryId })
-  if (!fs.existsSync(markdownPath)) {
+  if (!fs.existsSync(file.path)) {
     throw new Error(`Markdown file not found: ${markdownPath}`)
   }
-
   await removeFileByName(libraryId, file.name)
-
   const chunks = splitMarkdown(markdownPath).map((chunk) => ({
     pageContent: chunk.pageContent,
     metadata: {
@@ -227,7 +213,6 @@ const removeFileByName = async (libraryId: string, fileName: string) => {
     .documents()
     .delete({ filter_by: `docName:=\`${fileName}\`` })
 }
-
 export const similaritySearch = async (
   question: string,
   library: string,
@@ -256,7 +241,6 @@ export const similaritySearch = async (
     ],
   }
   const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
-
   const docs = searchResponse.results
     .flatMap((result) => result.hits)
     .map((hit) => ({
@@ -269,7 +253,6 @@ export const similaritySearch = async (
     }))
   return docs
 }
-
 interface queryVectorStoreOptions {
   perPage: number
   page: number
@@ -305,7 +288,6 @@ export const queryVectorStore = async (
       },
     ],
   })
-
   const hits = searchResponse.results
     .flatMap((result) => result.hits)
     .map((hit) => ({
@@ -322,7 +304,6 @@ export const queryVectorStore = async (
     hitCount: searchResponse.results.map((result) => result.found || 0).reduce((prev, curr) => prev + curr, 0),
   }
 }
-
 export const getFileChunks = async ({
   libraryId,
   fileId,
@@ -379,7 +360,6 @@ export const getPDFContentForQuestionAndLibraries = async (
 
   const storeSearches = vectorStores.map((store) => store.similaritySearch(question))
   const storeSearchResults = await Promise.all(storeSearches)
-
   // Todo: Implement returning library name with content
   const contents = storeSearchResults.map((documents) =>
     documents.map((document_) => document_.pageContent).join('\n\n'),

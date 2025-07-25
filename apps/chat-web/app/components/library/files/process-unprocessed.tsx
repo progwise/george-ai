@@ -3,34 +3,51 @@ import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
-import { toastError, toastSuccess } from '../../georgeToaster'
+import { toastError, toastSuccess, toastWarning } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
 import { processUnprocessedFiles } from './change-files'
 
 interface ProcessUnprocessedDialogProps {
   libraryId: string
   tableDataChanged: () => void
-  unprocessedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
-  unprocessedFileCount: number
+  unprocessedFilesCount: number
+  unprocessedFilesInQueueCount: number
 }
 
 export const ProcessUnprocessedDialog = ({
   libraryId,
   setCheckedFileIds,
   tableDataChanged,
-  unprocessedFileCount,
+  unprocessedFilesCount,
+  unprocessedFilesInQueueCount,
 }: ProcessUnprocessedDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { isPending, ...processUnprocessedMutation } = useMutation({
+  const { isPending, mutate } = useMutation({
     mutationFn: async (libraryId: string[]) => {
       dialogRef.current?.close()
-      await processUnprocessedFiles({ data: libraryId })
+      const results = await processUnprocessedFiles({ data: libraryId })
+
+      // extract totalProcessedCount and successfulCount from processUnprocessedFiles
+      const totalProcessedCount = results[0]?.totalProcessedCount ?? 0
+      const successfulCount = results[0]?.successfulCount ?? 0
+
+      return { totalProcessedCount, successfulCount }
     },
-    onSuccess: () => {
-      toastSuccess(t('actions.processSuccess', { count: unprocessedFileCount ?? 0 }))
+    onSuccess: ({ totalProcessedCount, successfulCount }) => {
+      // success, but not all processed successfully
+      if (totalProcessedCount > successfulCount) {
+        toastWarning(t('actions.processSuccess', { count: totalProcessedCount }))
+        toastError(t('errors.reprocessFiles', { count: totalProcessedCount - successfulCount }))
+      }
+      // no new files to process
+      if (successfulCount === 0) {
+        toastWarning(t('actions.noNewFilesToProcess'))
+      } else {
+        toastSuccess(t('actions.processSuccess', { count: totalProcessedCount }))
+      }
     },
     onError: () => {
       toastError(t('errors.processUnprocessed'))
@@ -40,8 +57,6 @@ export const ProcessUnprocessedDialog = ({
       tableDataChanged()
     },
   })
-
-  const textOfDropButton = t('actions.processUnprocessed')
 
   return (
     <>
@@ -54,7 +69,7 @@ export const ProcessUnprocessedDialog = ({
           dialogRef.current?.showModal()
         }}
       >
-        {textOfDropButton}
+        {t('actions.processUnprocessed')}
       </button>
 
       <LoadingSpinner isLoading={isPending} />
@@ -62,16 +77,22 @@ export const ProcessUnprocessedDialog = ({
       <DialogForm
         ref={dialogRef}
         title={t('libraries.processUnprocessed')}
-        description={unprocessedFileCount === 0 ? t('texts.noUnprocessedFiles') : t('texts.processUnprocessed')}
-        onSubmit={() => processUnprocessedMutation.mutate([libraryId])}
-        submitButtonText={textOfDropButton}
-        disabledSubmit={unprocessedFileCount === 0}
+        description={unprocessedFilesCount === 0 ? t('texts.noUnprocessedFiles') : t('texts.processUnprocessed')}
+        onSubmit={() => mutate([libraryId])}
+        disabledSubmit={unprocessedFilesCount === 0}
       >
         <div className="w-full">
-          <div className="mb-4">
-            <span className="font-medium">
-              {unprocessedFileCount === 0 ? '' : t('texts.numberOfFilesToBeProcessed', { count: unprocessedFileCount })}
-            </span>
+          <div className="mb-4 font-medium">
+            <p>
+              {unprocessedFilesCount === 0
+                ? ''
+                : t('texts.numberOfFilesToBeProcessed', { count: unprocessedFilesCount })}
+            </p>
+            <p>
+              {unprocessedFilesInQueueCount === 0
+                ? ''
+                : t('texts.numberOfFilesInQueue', { count: unprocessedFilesInQueueCount })}
+            </p>
           </div>
         </div>
       </DialogForm>
