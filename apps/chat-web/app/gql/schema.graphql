@@ -139,6 +139,25 @@ input AiBaseCaseInputType {
   sequence: Float
 }
 
+"""
+AI Chat Models available in the system
+"""
+type AiChatModel {
+  baseUrl: String
+  modelName: String!
+  modelType: String!
+  options: [AiChatModelOption!]
+  title: String!
+}
+
+"""
+Options for AI Models
+"""
+type AiChatModelOption {
+  key: String!
+  value: String!
+}
+
 type AiConversation {
   assistants: [AiAssistant!]!
   createdAt: DateTime!
@@ -188,6 +207,25 @@ interface AiConversationParticipant {
   name: String
   user: User
   userId: ID
+}
+
+"""
+AI Embedding Models available in the system
+"""
+type AiEmbeddingModel {
+  baseUrl: String
+  modelName: String!
+  modelType: String!
+  options: [AiEmbeddingModelOption!]
+  title: String!
+}
+
+"""
+Options for AI Embedding Models
+"""
+type AiEmbeddingModelOption {
+  key: String!
+  value: String!
 }
 
 type AiLibrary {
@@ -379,25 +417,6 @@ type AiLibraryUsage {
   usedFor: String
 }
 
-"""
-AI Models available in the system
-"""
-type AiModel {
-  baseUrl: String
-  modelName: String!
-  modelType: String!
-  options: [AiModelOption!]
-  title: String!
-}
-
-"""
-Options for AI Models
-"""
-type AiModelOption {
-  key: String!
-  value: String!
-}
-
 type AssistantParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -561,9 +580,11 @@ type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
+  aiChatModels: [AiChatModel!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
+  aiEmbeddingModels: [AiEmbeddingModel!]!
   aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
@@ -573,7 +594,6 @@ type Query {
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
-  aiModels: [AiModel!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   readFileMarkdown(fileId: String!, libraryId: String!): String!

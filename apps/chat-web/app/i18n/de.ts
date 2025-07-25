@@ -271,6 +271,7 @@ export default {
     crawlers: 'Crawler',
     createdAt: 'Erstellt',
     description: 'Beschreibung',
+    details: 'Details',
     email: 'E-Mail',
     expiresAt: 'Läuft ab',
     files: 'Dateien',
@@ -338,7 +339,7 @@ export default {
       'Sie sind dabei, diese Bibliothek zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
     myLibraries: 'Meine Bibliotheken',
     noLibrariesFound: 'Keine Bibliotheken gefunden',
-    nameLibrary: 'Benennen Sie Ihre Bibliothek',
+    nameLibrary: 'Name',
     owner: 'Besitzer',
     placeholders: {
       description: 'Beschreiben Sie Ihre Bibliothek',

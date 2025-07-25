@@ -6,7 +6,7 @@ import { ChatOpenAI } from '@langchain/openai'
 
 export type AssistantModel = BaseChatModel<BaseChatModelCallOptions, AIMessageChunk>
 
-export const getExternalModels = () => {
+const getExternalChatModels = () => {
   const models = [
     {
       modelName: 'gpt-4o-mini',
@@ -33,7 +33,7 @@ export const getExternalModels = () => {
   return models
 }
 
-export const getOllamalModels = async () => {
+const getOllamaChatModels = async () => {
   if (!process.env.OLLAMA_BASE_URL || process.env.OLLAMA_BASE_URL.length < 1) {
     throw new Error('OLLAMA_BASE_URL environment variable is not set')
   }
@@ -55,22 +55,22 @@ export const getOllamalModels = async () => {
 }
 
 export const getModel = async (modelName: string): Promise<AssistantModel> => {
-  const externalModels = getExternalModels()
+  const externalModels = getExternalChatModels()
   const extermanModel = externalModels.find((model) => model.modelName === modelName)
   if (extermanModel) {
-    return getModelInstance(extermanModel)
+    return getChatModelInstance(extermanModel)
   }
 
-  const ollamaModels = await getOllamalModels()
+  const ollamaModels = await getOllamaChatModels()
   const ollamaModel = ollamaModels.find((model) => model.modelName === modelName)
   if (!ollamaModel) {
     throw new Error(`Model ${modelName} not found in external models or OLLAMA models`)
   }
 
-  return getModelInstance(ollamaModel)
+  return getChatModelInstance(ollamaModel)
 }
 
-const getModelInstance = (model: { modelName: string; type: string }): AssistantModel => {
+const getChatModelInstance = (model: { modelName: string; type: string }): AssistantModel => {
   if (model.type === 'Ollama') {
     return new ChatOllama({
       model: model.modelName,
@@ -93,4 +93,10 @@ const getModelInstance = (model: { modelName: string; type: string }): Assistant
       })
   }
   throw new Error(`Unknown language model: ${model.modelName}`)
+}
+
+export const getChatModels = async () => {
+  const externalModels = getExternalChatModels()
+  const ollamaModels = await getOllamaChatModels()
+  return [...externalModels, ...ollamaModels]
 }

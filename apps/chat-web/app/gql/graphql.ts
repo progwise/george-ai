@@ -156,6 +156,23 @@ export type AiBaseCaseInputType = {
   sequence?: InputMaybe<Scalars['Float']['input']>
 }
 
+/** AI Chat Models available in the system */
+export type AiChatModel = {
+  __typename?: 'AiChatModel'
+  baseUrl?: Maybe<Scalars['String']['output']>
+  modelName: Scalars['String']['output']
+  modelType: Scalars['String']['output']
+  options?: Maybe<Array<AiChatModelOption>>
+  title: Scalars['String']['output']
+}
+
+/** Options for AI Models */
+export type AiChatModelOption = {
+  __typename?: 'AiChatModelOption'
+  key: Scalars['String']['output']
+  value: Scalars['String']['output']
+}
+
 export type AiConversation = {
   __typename?: 'AiConversation'
   assistants: Array<AiAssistant>
@@ -207,6 +224,23 @@ export type AiConversationParticipant = {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
+}
+
+/** AI Embedding Models available in the system */
+export type AiEmbeddingModel = {
+  __typename?: 'AiEmbeddingModel'
+  baseUrl?: Maybe<Scalars['String']['output']>
+  modelName: Scalars['String']['output']
+  modelType: Scalars['String']['output']
+  options?: Maybe<Array<AiEmbeddingModelOption>>
+  title: Scalars['String']['output']
+}
+
+/** Options for AI Embedding Models */
+export type AiEmbeddingModelOption = {
+  __typename?: 'AiEmbeddingModelOption'
+  key: Scalars['String']['output']
+  value: Scalars['String']['output']
 }
 
 export type AiLibrary = {
@@ -414,23 +448,6 @@ export type AiLibraryUsage = {
   libraryId: Scalars['ID']['output']
   updatedAt: Scalars['DateTime']['output']
   usedFor?: Maybe<Scalars['String']['output']>
-}
-
-/** AI Models available in the system */
-export type AiModel = {
-  __typename?: 'AiModel'
-  baseUrl?: Maybe<Scalars['String']['output']>
-  modelName: Scalars['String']['output']
-  modelType: Scalars['String']['output']
-  options?: Maybe<Array<AiModelOption>>
-  title: Scalars['String']['output']
-}
-
-/** Options for AI Models */
-export type AiModelOption = {
-  __typename?: 'AiModelOption'
-  key: Scalars['String']['output']
-  value: Scalars['String']['output']
 }
 
 export type AssistantParticipant = AiConversationParticipant & {
@@ -818,9 +835,11 @@ export type Query = {
   aiActAssessment: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
+  aiChatModels: Array<AiChatModel>
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
+  aiEmbeddingModels: Array<AiEmbeddingModel>
   aiFileChunks: FileChunkQueryResponse
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
@@ -830,7 +849,6 @@ export type Query = {
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
-  aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
@@ -2457,11 +2475,18 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
-export type AiModelsQueryVariables = Exact<{ [key: string]: never }>
+export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
-export type AiModelsQuery = {
+export type AiChatModelsQuery = {
   __typename?: 'Query'
-  aiModels: Array<{ __typename?: 'AiModel'; modelName: string; title: string }>
+  aiChatModels: Array<{ __typename?: 'AiChatModel'; modelName: string; title: string }>
+}
+
+export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiEmbeddingModelsQuery = {
+  __typename?: 'Query'
+  aiEmbeddingModels: Array<{ __typename?: 'AiEmbeddingModel'; modelName: string; title: string }>
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -9144,19 +9169,19 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
-export const AiModelsDocument = {
+export const AiChatModelsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiModels' },
+      name: { kind: 'Name', value: 'aiChatModels' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiModels' },
+            name: { kind: 'Name', value: 'aiChatModels' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -9169,7 +9194,33 @@ export const AiModelsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AiModelsQuery, AiModelsQueryVariables>
+} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
+export const AiEmbeddingModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiEmbeddingModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiEmbeddingModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiEmbeddingModelsQuery, AiEmbeddingModelsQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [

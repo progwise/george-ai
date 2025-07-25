@@ -1,6 +1,4 @@
 import { Typesense, TypesenseConfig } from '@langchain/community/vectorstores/typesense'
-// import { OpenAIEmbeddings } from '@langchain/openai'
-import { OllamaEmbeddings } from '@langchain/ollama'
 import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
@@ -8,6 +6,7 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
+import { getEmbeddingsModelInstance } from './embedding-model'
 import { splitMarkdown } from './split-markdown'
 
 const vectorTypesenseClient = new Client({
@@ -103,12 +102,7 @@ const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
 
 console.log(`setting up ollama embeddings to mistral:latest on ${process.env.OLLAMA_BASE_URL}`)
 
-const embeddings = new OllamaEmbeddings({
-  model: 'mistral:latest',
-  baseUrl: process.env.OLLAMA_BASE_URL,
-  keepAlive: '5m',
-})
-
+const embeddings = await getEmbeddingsModelInstance('mistral:latest')
 const typesenseVectorStore = new Typesense(embeddings, getTypesenseVectorStoreConfig('gai-documents'))
 
 export const ensureVectorStore = async (libraryId: string) => {

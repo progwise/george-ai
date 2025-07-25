@@ -11,7 +11,7 @@ import { backendRequest, getBackendPublicUrl } from '../../server-functions/back
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
-import { getModelsQueryOptions } from '../model/get-models'
+import { getChatModelsQueryOptions } from '../model/get-models'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
@@ -74,7 +74,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
-  const { data: fetchedModelData } = useSuspenseQuery(getModelsQueryOptions())
+  const { data: fetchedModelData } = useSuspenseQuery(getChatModelsQueryOptions())
 
   const { mutate: update, isPending: updateIsPending } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
@@ -122,7 +122,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
   }
 
   const aiModels = useMemo(
-    () => fetchedModelData.aiModels.map((model) => ({ id: model.modelName, name: model.title })),
+    () => fetchedModelData.aiChatModels.map((model) => ({ id: model.modelName, name: model.title })),
     [fetchedModelData],
   )
 

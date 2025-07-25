@@ -264,6 +264,7 @@ export default {
     crawlers: 'Crawlers',
     createdAt: 'Created',
     description: 'Description',
+    details: 'Details',
     email: 'Email',
     expiresAt: 'Expires',
     files: 'Files',
@@ -330,7 +331,7 @@ export default {
     leaveConfirmation: 'You are about to leave this library. It cannot be undone. Please confirm.',
     myLibraries: 'My libraries',
     noLibrariesFound: 'No libraries found',
-    nameLibrary: 'Name your library',
+    nameLibrary: 'Name',
     owner: 'Owner',
     placeholders: {
       description: 'Describe your library',

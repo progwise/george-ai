@@ -3,11 +3,11 @@ import { createServerFn } from '@tanstack/react-start'
 import { graphql } from '../../gql'
 import { backendRequest } from '../../server-functions/backend'
 
-const getModels = createServerFn({ method: 'GET' }).handler(async () => {
+const getChatModels = createServerFn({ method: 'GET' }).handler(async () => {
   return backendRequest(
     graphql(`
-      query aiModels {
-        aiModels {
+      query aiChatModels {
+        aiChatModels {
           modelName
           title
         }
@@ -16,7 +16,29 @@ const getModels = createServerFn({ method: 'GET' }).handler(async () => {
   )
 })
 
+export const getChatModelsQueryOptions = () => ({
+  queryKey: ['aiChatModels'],
+  queryFn: () => getChatModels(),
+})
+
+const getEmbeddingModels = createServerFn({ method: 'GET' }).handler(async () => {
+  return backendRequest(
+    graphql(`
+      query aiEmbeddingModels {
+        aiEmbeddingModels {
+          modelName
+          title
+        }
+      }
+    `),
+  )
+})
+
+export const getEmbeddingModelsQueryOptions = () => ({
+  queryKey: ['aiEmbeddingModels'],
+  queryFn: () => getEmbeddingModels(),
+})
 export const getModelsQueryOptions = () => ({
-  queryKey: ['aiModels'],
-  queryFn: () => getModels(),
+  queryKey: ['aiEmbeddingModels'],
+  queryFn: () => getChatModels(),
 })
