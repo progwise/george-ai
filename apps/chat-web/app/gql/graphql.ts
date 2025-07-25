@@ -233,6 +233,7 @@ export type AiLibraryCrawler = {
   id: Scalars['ID']['output']
   isRunning: Scalars['Boolean']['output']
   lastRun?: Maybe<AiLibraryCrawlerRun>
+  libraryId: Scalars['String']['output']
   maxDepth: Scalars['Int']['output']
   maxPages: Scalars['Int']['output']
   runCount: Scalars['Int']['output']
@@ -293,7 +294,15 @@ export type AiLibraryCrawlerRun = {
   id: Scalars['ID']['output']
   runByUserId?: Maybe<Scalars['ID']['output']>
   startedAt: Scalars['DateTime']['output']
+  stoppedByUser?: Maybe<Scalars['DateTime']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
+  updates: Array<AiLibraryUpdate>
+  updatesCount: Scalars['Int']['output']
+}
+
+export type AiLibraryCrawlerRunUpdatesArgs = {
+  skip?: Scalars['Int']['input']
+  take?: Scalars['Int']['input']
 }
 
 export type AiLibraryFile = {
@@ -557,10 +566,10 @@ export type Mutation = {
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   resetAssessmentAnswers: Scalars['DateTime']['output']
-  runAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
-  stopAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  stopAiLibraryCrawler: Scalars['String']['output']
   toggleAdminStatus?: Maybe<User>
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -815,6 +824,8 @@ export type Query = {
   aiFileChunks: FileChunkQueryResponse
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
+  aiLibraryCrawler: AiLibraryCrawler
+  aiLibraryCrawlerRun: AiLibraryCrawlerRun
   aiLibraryFile: AiLibraryFile
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
@@ -853,6 +864,16 @@ export type QueryAiFileChunksArgs = {
 }
 
 export type QueryAiLibraryArgs = {
+  libraryId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryCrawlerArgs = {
+  crawlerId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}
+
+export type QueryAiLibraryCrawlerRunArgs = {
+  crawlerRunId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
 }
 
@@ -1903,6 +1924,7 @@ export type CrawlerTable_LibraryCrawlerFragment = {
   maxDepth: number
   maxPages: number
   filesCount: number
+  libraryId: string
   isRunning: boolean
   lastRun?: {
     __typename?: 'AiLibraryCrawlerRun'
@@ -1910,21 +1932,7 @@ export type CrawlerTable_LibraryCrawlerFragment = {
     success?: boolean | null
     errorMessage?: string | null
   } | null
-  cronJob?: {
-    __typename?: 'AiLibraryCrawlerCronJob'
-    cronExpression?: string | null
-    id: string
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
-  } | null
+  cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
 }
 
 export type DeleteCrawlerMutationVariables = Exact<{
@@ -1934,6 +1942,107 @@ export type DeleteCrawlerMutationVariables = Exact<{
 export type DeleteCrawlerMutation = {
   __typename?: 'Mutation'
   deleteAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
+}
+
+export type GetCrawlerRunQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  crawlerRunId: Scalars['String']['input']
+  skipUpdates: Scalars['Int']['input']
+  takeUpdates: Scalars['Int']['input']
+}>
+
+export type GetCrawlerRunQuery = {
+  __typename?: 'Query'
+  aiLibraryCrawlerRun: {
+    __typename?: 'AiLibraryCrawlerRun'
+    id: string
+    startedAt: string
+    endedAt?: string | null
+    success?: boolean | null
+    stoppedByUser?: string | null
+    errorMessage?: string | null
+    runByUserId?: string | null
+    updatesCount: number
+    updates: Array<{
+      __typename?: 'AiLibraryUpdate'
+      id: string
+      success: boolean
+      createdAt: string
+      message?: string | null
+      file?: {
+        __typename?: 'AiLibraryFile'
+        id: string
+        name: string
+        originUri?: string | null
+        mimeType: string
+        size?: number | null
+      } | null
+    }>
+  }
+}
+
+export type GetCrawlerRunsQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  crawlerId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+}>
+
+export type GetCrawlerRunsQuery = {
+  __typename?: 'Query'
+  aiLibraryCrawler: {
+    __typename?: 'AiLibraryCrawler'
+    id: string
+    runs: Array<{
+      __typename?: 'AiLibraryCrawlerRun'
+      id: string
+      startedAt: string
+      endedAt?: string | null
+      success?: boolean | null
+    }>
+  }
+}
+
+export type GetCrawlerQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  crawlerId: Scalars['String']['input']
+}>
+
+export type GetCrawlerQuery = {
+  __typename?: 'Query'
+  aiLibraryCrawler: {
+    __typename?: 'AiLibraryCrawler'
+    id: string
+    libraryId: string
+    url: string
+    isRunning: boolean
+    filesCount: number
+    runCount: number
+    maxDepth: number
+    maxPages: number
+    lastRun?: {
+      __typename?: 'AiLibraryCrawlerRun'
+      id: string
+      startedAt: string
+      endedAt?: string | null
+      success?: boolean | null
+      errorMessage?: string | null
+    } | null
+    cronJob?: {
+      __typename?: 'AiLibraryCrawlerCronJob'
+      id: string
+      active: boolean
+      hour: number
+      minute: number
+      monday: boolean
+      tuesday: boolean
+      wednesday: boolean
+      thursday: boolean
+      friday: boolean
+      saturday: boolean
+      sunday: boolean
+    } | null
+  }
 }
 
 export type CrawlerTableQueryVariables = Exact<{
@@ -1951,6 +2060,7 @@ export type CrawlerTableQuery = {
       maxDepth: number
       maxPages: number
       filesCount: number
+      libraryId: string
       isRunning: boolean
       lastRun?: {
         __typename?: 'AiLibraryCrawlerRun'
@@ -1958,74 +2068,29 @@ export type CrawlerTableQuery = {
         success?: boolean | null
         errorMessage?: string | null
       } | null
-      cronJob?: {
-        __typename?: 'AiLibraryCrawlerCronJob'
-        cronExpression?: string | null
-        id: string
-        active: boolean
-        hour: number
-        minute: number
-        monday: boolean
-        tuesday: boolean
-        wednesday: boolean
-        thursday: boolean
-        friday: boolean
-        saturday: boolean
-        sunday: boolean
-      } | null
+      cronJob?: { __typename?: 'AiLibraryCrawlerCronJob'; cronExpression?: string | null } | null
     }>
   }
 }
 
-export type RunCrawlerButton_CrawlerFragment = { __typename?: 'AiLibraryCrawler'; id: string; isRunning: boolean }
+export type RunCrawlerButton_CrawlerFragment = {
+  __typename?: 'AiLibraryCrawler'
+  id: string
+  libraryId: string
+  isRunning: boolean
+}
 
 export type RunCrawlerMutationVariables = Exact<{
   crawlerId: Scalars['String']['input']
 }>
 
-export type RunCrawlerMutation = {
-  __typename?: 'Mutation'
-  runAiLibraryCrawler?: {
-    __typename?: 'AiLibraryCrawler'
-    id: string
-    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
-  } | null
-}
+export type RunCrawlerMutation = { __typename?: 'Mutation'; runAiLibraryCrawler: string }
 
 export type StopCrawlerMutationVariables = Exact<{
   crawlerId: Scalars['String']['input']
 }>
 
-export type StopCrawlerMutation = {
-  __typename?: 'Mutation'
-  stopAiLibraryCrawler?: {
-    __typename?: 'AiLibraryCrawler'
-    id: string
-    lastRun?: { __typename?: 'AiLibraryCrawlerRun'; startedAt: string } | null
-  } | null
-}
-
-export type UpdateCrawlerButton_CrawlerFragment = {
-  __typename?: 'AiLibraryCrawler'
-  id: string
-  url: string
-  maxDepth: number
-  maxPages: number
-  cronJob?: {
-    __typename?: 'AiLibraryCrawlerCronJob'
-    id: string
-    active: boolean
-    hour: number
-    minute: number
-    monday: boolean
-    tuesday: boolean
-    wednesday: boolean
-    thursday: boolean
-    friday: boolean
-    saturday: boolean
-    sunday: boolean
-  } | null
-}
+export type StopCrawlerMutation = { __typename?: 'Mutation'; stopAiLibraryCrawler: string }
 
 export type UpdateAiLibraryCrawlerMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -4764,51 +4829,13 @@ export const RunCrawlerButton_CrawlerFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
         ],
       },
     },
   ],
 } as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
-export const UpdateCrawlerButton_CrawlerFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UpdateCrawlerButton_CrawlerFragment, unknown>
 export const CrawlerTable_LibraryCrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -4845,7 +4872,6 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' } },
         ],
       },
     },
@@ -4857,41 +4883,8 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -7566,6 +7559,285 @@ export const DeleteCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteCrawlerMutation, DeleteCrawlerMutationVariables>
+export const GetCrawlerRunDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetCrawlerRun' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerRunId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skipUpdates' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'takeUpdates' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryCrawlerRun' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerRunId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerRunId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'endedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'stoppedByUser' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'runByUserId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatesCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'updates' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'take' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'takeUpdates' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'skip' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'skipUpdates' } },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'file' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetCrawlerRunQuery, GetCrawlerRunQueryVariables>
+export const GetCrawlerRunsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetCrawlerRuns' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'runs' },
+                  arguments: [
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'take' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+                    },
+                    {
+                      kind: 'Argument',
+                      name: { kind: 'Name', value: 'skip' },
+                      value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+                    },
+                  ],
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'endedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetCrawlerRunsQuery, GetCrawlerRunsQueryVariables>
+export const GetCrawlerDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetCrawler' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLibraryCrawler' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'crawlerId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastRun' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'startedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'endedAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'runCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'cronJob' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetCrawlerQuery, GetCrawlerQueryVariables>
 export const CrawlerTableDocument = {
   kind: 'Document',
   definitions: [
@@ -7620,41 +7892,8 @@ export const CrawlerTableDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'cronJob' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -7691,7 +7930,6 @@ export const CrawlerTableDocument = {
           },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'RunCrawlerButton_Crawler' } },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'UpdateCrawlerButton_Crawler' } },
         ],
       },
     },
@@ -7724,20 +7962,6 @@ export const RunCrawlerDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'lastRun' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
-                  },
-                },
-              ],
-            },
           },
         ],
       },
@@ -7771,20 +7995,6 @@ export const StopCrawlerDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'crawlerId' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'lastRun' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'startedAt' } }],
-                  },
-                },
-              ],
-            },
           },
         ],
       },

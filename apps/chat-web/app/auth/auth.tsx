@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     /**
-     * For some reason, the updated cookie is not immidiately available when reloading the page (router.invalidate).
+     * For some reason, the updated cookie is not immediately available when reloading the page (router.invalidate).
      * Because of that, the user is not loaded after successful login.
      * Using a server function to set the cookie and not using document.cookie = ... seams more reliable, same for waiting a bit.
      */
