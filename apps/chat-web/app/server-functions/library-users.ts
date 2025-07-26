@@ -4,15 +4,15 @@ import { z } from 'zod'
 import { graphql } from '../gql'
 import { backendRequest } from './backend'
 
-const AddLibraryParticipantsDocument = graphql(`
-  mutation addLibraryParticipant($libraryId: String!, $userIds: [String!]!) {
-    addLibraryParticipants(libraryId: $libraryId, userIds: $userIds) {
+const AddLibraryUsersDocument = graphql(`
+  mutation addLibraryUsers($libraryId: String!, $userIds: [String!]!) {
+    addLibraryUsers(libraryId: $libraryId, userIds: $userIds) {
       id
     }
   }
 `)
 
-export const addLibraryParticipants = createServerFn({ method: 'POST' })
+export const addLibraryUsers = createServerFn({ method: 'POST' })
   .validator((data: { libraryId: string; userIds: string[] }) =>
     z
       .object({
@@ -22,21 +22,21 @@ export const addLibraryParticipants = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(AddLibraryParticipantsDocument, {
+    backendRequest(AddLibraryUsersDocument, {
       libraryId: ctx.data.libraryId,
       userIds: ctx.data.userIds,
     }),
   )
 
-const RemoveLibraryParticipantDocument = graphql(`
-  mutation removeLibraryParticipant($libraryId: String!, $userId: String!) {
-    removeLibraryParticipant(libraryId: $libraryId, userId: $userId) {
+const RemoveLibraryUserDocument = graphql(`
+  mutation removeLibraryUser($libraryId: String!, $userId: String!) {
+    removeLibraryUser(libraryId: $libraryId, userId: $userId) {
       id
     }
   }
 `)
 
-export const removeLibraryParticipant = createServerFn({ method: 'POST' })
+export const removeLibraryUser = createServerFn({ method: 'POST' })
   .validator((data: { libraryId: string; userId: string }) =>
     z
       .object({
@@ -46,21 +46,21 @@ export const removeLibraryParticipant = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(RemoveLibraryParticipantDocument, {
+    backendRequest(RemoveLibraryUserDocument, {
       libraryId: ctx.data.libraryId,
       userId: ctx.data.userId,
     }),
   )
 
-const LeaveLibraryParticipantDocument = graphql(`
-  mutation leaveLibraryParticipant($libraryId: String!) {
-    leaveLibraryParticipant(libraryId: $libraryId) {
+const LeaveLibraryDocument = graphql(`
+  mutation leaveLibrary($libraryId: String!) {
+    leaveLibrary(libraryId: $libraryId) {
       id
     }
   }
 `)
 
-export const leaveLibraryParticipant = createServerFn({ method: 'POST' })
+export const leaveLibrary = createServerFn({ method: 'POST' })
   .validator((data: { libraryId: string }) =>
     z
       .object({
@@ -69,7 +69,7 @@ export const leaveLibraryParticipant = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(LeaveLibraryParticipantDocument, {
+    backendRequest(LeaveLibraryDocument, {
       libraryId: ctx.data.libraryId,
     }),
   )

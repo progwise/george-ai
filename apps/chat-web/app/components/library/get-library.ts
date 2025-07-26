@@ -20,7 +20,7 @@ const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($libraryId: String!) {
     aiLibrary(libraryId: $libraryId) {
       ...AiLibraryDetail
-      ...LibraryParticipants_Library
+      ...LibraryUsers_Library
     }
   }
 `)

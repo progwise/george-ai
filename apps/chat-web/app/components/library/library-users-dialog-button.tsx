@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
-import { LibraryParticipantsDialogButton_LibraryFragment, UserFragment } from '../../gql/graphql'
+import { LibraryUsersDialogButton_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { addLibraryParticipants } from '../../server-functions/library-participations'
+import { addLibraryUsers } from '../../server-functions/library-users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
@@ -13,21 +13,21 @@ import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
 
 graphql(`
-  fragment LibraryParticipantsDialogButton_Library on AiLibrary {
+  fragment LibraryUsersDialogButton_Library on AiLibrary {
     id
     ownerId
-    participants {
+    users {
       id
     }
   }
 `)
 
-interface LibraryParticipantsDialogFormProps {
-  library: LibraryParticipantsDialogButton_LibraryFragment
+interface LibraryUsersDialogFormProps {
+  library: LibraryUsersDialogButton_LibraryFragment
   users: UserFragment[]
 }
 
-export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParticipantsDialogFormProps) => {
+export const LibraryUsersDialogButton = ({ library, users }: LibraryUsersDialogFormProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
@@ -35,13 +35,13 @@ export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParti
   const queryClient = useQueryClient()
 
   const assignableUsers = useMemo(
-    () => users.filter((user) => !library.participants.some((participant) => participant.id === user.id)),
-    [users, library.participants],
+    () => users.filter((user) => !library.users.some((libraryUser) => libraryUser.id === user.id)),
+    [users, library.users],
   )
 
-  const { mutate: addParticipants, isPending } = useMutation({
+  const { mutate: addUsers, isPending } = useMutation({
     mutationFn: async () => {
-      return await addLibraryParticipants({
+      return await addLibraryUsers({
         data: { libraryId: library.id, userIds: selectedUserIds },
       })
     },
@@ -54,7 +54,7 @@ export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParti
   })
 
   const handleSubmit = () => {
-    addParticipants()
+    addUsers()
   }
 
   const handleOpen = () => {

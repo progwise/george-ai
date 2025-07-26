@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
-import { LibraryParticipants_LibraryFragment, UserFragment } from '../../gql/graphql'
+import { LibraryUsers_LibraryFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { OwnerIcon } from '../../icons/owner-icon'
-import { removeLibraryParticipant } from '../../server-functions/library-participations'
+import { removeLibraryUser } from '../../server-functions/library-users'
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
 import { toastError, toastSuccess } from '../georgeToaster'
@@ -15,48 +15,48 @@ import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
 import { getLibrariesQueryOptions } from './get-libraries'
 import { getLibraryQueryOptions } from './get-library'
-import { LibraryParticipantsDialogButton } from './library-participants-dialog-button'
+import { LibraryUsersDialogButton } from './library-users-dialog-button'
 
-const MAX_VISIBLE_PARTICIPANTS = 4
+const MAX_VISIBLE_USERS = 4
 
 graphql(`
-  fragment LibraryParticipants_Library on AiLibrary {
+  fragment LibraryUsers_Library on AiLibrary {
     id
     ownerId
-    participants {
+    users {
       id
       name
       username
       avatarUrl
     }
-    ...LibraryParticipantsDialogButton_Library
+    ...LibraryUsersDialogButton_Library
   }
 `)
 
-interface LibraryParticipantsProps {
-  library: LibraryParticipants_LibraryFragment
+interface LibraryUsersProps {
+  library: LibraryUsers_LibraryFragment
   users: UserFragment[]
   userId: string
 }
 
-export const LibraryParticipants = ({ library, users, userId }: LibraryParticipantsProps) => {
+export const LibraryUsers = ({ library, users, userId }: LibraryUsersProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
+  const [userToRemove, setUserToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = library.ownerId === userId
-  const visibleParticipants = library.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
-  const remainingCount = library.participants.length - MAX_VISIBLE_PARTICIPANTS
+  const visibleUsers = library.users.slice(0, MAX_VISIBLE_USERS)
+  const remainingCount = library.users.length - MAX_VISIBLE_USERS
 
-  const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
+  const { mutate: mutateRemove, isPending: removeUserIsPending } = useMutation({
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
-      return await removeLibraryParticipant({ data: { userId, libraryId } })
+      return await removeLibraryUser({ data: { userId, libraryId } })
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
       await queryClient.invalidateQueries(getLibrariesQueryOptions())
-      setParticipantToRemove(null)
+      setUserToRemove(null)
       dialogRef.current?.close()
       toastSuccess(t('notifications.participantRemoved'))
     },
@@ -65,49 +65,45 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
     },
   })
 
-  const handleRemoveParticipant = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    participantId: string,
-    participantName: string,
-  ) => {
+  const handleRemoveUser = (event: React.MouseEvent<HTMLButtonElement>, userId: string, userName: string) => {
     event.preventDefault()
-    setParticipantToRemove({ id: participantId, name: participantName })
+    setUserToRemove({ id: userId, name: userName })
     dialogRef.current?.showModal()
   }
 
-  const handleRemoveParticipantFromDropdown = (participantId: string) => {
-    const participant = library.participants.find((participant) => participant.id === participantId)
-    if (participant) {
-      setParticipantToRemove({ id: participantId, name: participant.name ?? participant.username })
+  const handleRemoveUserFromDropdown = (userId: string) => {
+    const user = library.users.find((user) => user.id === userId)
+    if (user) {
+      setUserToRemove({ id: userId, name: user.name ?? user.username })
       dialogRef.current?.showModal()
     }
   }
 
-  const confirmRemoveParticipant = () => {
-    if (participantToRemove) {
-      mutateRemove({ userId: participantToRemove.id, libraryId: library.id })
+  const confirmRemoveUser = () => {
+    if (userToRemove) {
+      mutateRemove({ userId: userToRemove.id, libraryId: library.id })
     }
   }
 
   return (
     <div className="flex w-full items-center justify-between gap-2 overflow-visible">
-      <LoadingSpinner isLoading={removeParticipantIsPending} />
+      <LoadingSpinner isLoading={removeUserIsPending} />
 
       <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
-        {visibleParticipants.map((participant) => {
-          const isParticipantOwner = participant.id === library.ownerId
-          const canRemove = participant.id !== userId && isOwner
+        {visibleUsers.map((user) => {
+          const isUserOwner = user.id === library.ownerId
+          const canRemove = user.id !== userId && isOwner
 
           return (
-            <div key={participant.id} className="relative transition-transform">
+            <div key={user.id} className="relative transition-transform">
               <span
                 className="tooltip tooltip-bottom cursor-pointer"
-                data-tip={`${participant.name ?? participant.username}${isParticipantOwner ? ` (${t('libraries.owner')})` : ''}`}
+                data-tip={`${user.name ?? user.username}${isUserOwner ? ` (${t('libraries.owner')})` : ''}`}
               >
-                <UserAvatar user={participant} className="size-8" />
+                <UserAvatar user={user} className="size-8" />
               </span>
 
-              {isParticipantOwner && (
+              {isUserOwner && (
                 <div className="tooltip tooltip-bottom absolute -right-0.5 -top-0.5" data-tip={t('libraries.owner')}>
                   <OwnerIcon className="size-5" />
                 </div>
@@ -118,9 +114,7 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) =>
-                    handleRemoveParticipant(event, participant.id, participant.name ?? participant.username)
-                  }
+                  onClick={(event) => handleRemoveUser(event, user.id, user.name ?? user.username)}
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>
@@ -129,7 +123,7 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
           )
         })}
 
-        {/* Remaining participants */}
+        {/* Remaining users */}
         {remainingCount > 0 && (
           <div className="dropdown dropdown-hover dropdown-end relative transition-transform">
             <div
@@ -142,12 +136,12 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
             <div className="dropdown-content relative z-[1] mt-2 w-64">
               <DropdownContent>
                 <ParticipantsViewer
-                  participants={library.participants}
+                  participants={library.users}
                   ownerId={library.ownerId}
                   userId={userId}
                   isOwner={isOwner}
-                  onRemoveParticipant={handleRemoveParticipantFromDropdown}
-                  skipFirst={MAX_VISIBLE_PARTICIPANTS}
+                  onRemoveParticipant={handleRemoveUserFromDropdown}
+                  skipFirst={MAX_VISIBLE_USERS}
                 />
               </DropdownContent>
             </div>
@@ -155,14 +149,14 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
         )}
       </div>
 
-      {isOwner && <LibraryParticipantsDialogButton library={library} users={users} />}
+      {isOwner && <LibraryUsersDialogButton library={library} users={users} />}
 
       <DialogForm
         ref={dialogRef}
         title={t('libraries.removeParticipant')}
-        description={t('libraries.removeParticipantConfirmation', { participantName: participantToRemove?.name || '' })}
-        onSubmit={confirmRemoveParticipant}
-        disabledSubmit={removeParticipantIsPending}
+        description={t('libraries.removeParticipantConfirmation', { participantName: userToRemove?.name || '' })}
+        onSubmit={confirmRemoveUser}
+        disabledSubmit={removeUserIsPending}
         submitButtonText={t('actions.remove')}
       />
     </div>

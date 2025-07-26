@@ -220,9 +220,9 @@ export type AiLibrary = {
   name: Scalars['String']['output']
   owner: User
   ownerId: Scalars['String']['output']
-  participants: Array<User>
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
+  users: Array<User>
 }
 
 export type AiLibraryCrawler = {
@@ -533,8 +533,8 @@ export type Mutation = {
   activateUserProfile?: Maybe<UserProfile>
   addAssistantUsers: Array<User>
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
-  addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
+  addLibraryUsers: Array<User>
   cancelFileUpload: Scalars['Boolean']['output']
   chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
@@ -558,14 +558,14 @@ export type Mutation = {
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveAssistant?: Maybe<User>
-  leaveLibraryParticipant?: Maybe<User>
+  leaveLibrary?: Maybe<User>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
   removeAssistantUser: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
-  removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
+  removeLibraryUser: User
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -599,14 +599,14 @@ export type MutationAddConversationParticipantsArgs = {
   userIds?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
-export type MutationAddLibraryParticipantsArgs = {
-  libraryId: Scalars['String']['input']
-  userIds: Array<Scalars['String']['input']>
-}
-
 export type MutationAddLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationAddLibraryUsersArgs = {
+  libraryId: Scalars['String']['input']
+  userIds: Array<Scalars['String']['input']>
 }
 
 export type MutationCancelFileUploadArgs = {
@@ -709,7 +709,7 @@ export type MutationLeaveAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
 
-export type MutationLeaveLibraryParticipantArgs = {
+export type MutationLeaveLibraryArgs = {
   libraryId: Scalars['String']['input']
 }
 
@@ -734,14 +734,14 @@ export type MutationRemoveConversationParticipantArgs = {
   participantId: Scalars['String']['input']
 }
 
-export type MutationRemoveLibraryParticipantArgs = {
-  libraryId: Scalars['String']['input']
-  userId: Scalars['String']['input']
-}
-
 export type MutationRemoveLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationRemoveLibraryUserArgs = {
+  libraryId: Scalars['String']['input']
+  userId: Scalars['String']['input']
 }
 
 export type MutationResetAssessmentAnswersArgs = {
@@ -2328,13 +2328,7 @@ export type AiLibraryDetailQuery = {
     name: string
     createdAt: string
     updatedAt: string
-    participants: Array<{
-      __typename?: 'User'
-      id: string
-      name?: string | null
-      username: string
-      avatarUrl?: string | null
-    }>
+    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
     owner: { __typename?: 'User'; name?: string | null }
   }
 }
@@ -2388,24 +2382,18 @@ export type CreateAiLibraryMutation = {
   createAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
-export type LibraryParticipantsDialogButton_LibraryFragment = {
+export type LibraryUsersDialogButton_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string }>
+  users: Array<{ __typename?: 'User'; id: string }>
 }
 
-export type LibraryParticipants_LibraryFragment = {
+export type LibraryUsers_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{
-    __typename?: 'User'
-    id: string
-    name?: string | null
-    username: string
-    avatarUrl?: string | null
-  }>
+  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
 }
 
 export type QueryLibraryFilesQueryVariables = Exact<{
@@ -3388,33 +3376,33 @@ export type LeaveConversationMutation = {
     | null
 }
 
-export type AddLibraryParticipantMutationVariables = Exact<{
+export type AddLibraryUsersMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
   userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
 }>
 
-export type AddLibraryParticipantMutation = {
+export type AddLibraryUsersMutation = {
   __typename?: 'Mutation'
-  addLibraryParticipants: Array<{ __typename?: 'User'; id: string }>
+  addLibraryUsers: Array<{ __typename?: 'User'; id: string }>
 }
 
-export type RemoveLibraryParticipantMutationVariables = Exact<{
+export type RemoveLibraryUserMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }>
 
-export type RemoveLibraryParticipantMutation = {
+export type RemoveLibraryUserMutation = {
   __typename?: 'Mutation'
-  removeLibraryParticipant: { __typename?: 'User'; id: string }
+  removeLibraryUser: { __typename?: 'User'; id: string }
 }
 
-export type LeaveLibraryParticipantMutationVariables = Exact<{
+export type LeaveLibraryMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type LeaveLibraryParticipantMutation = {
+export type LeaveLibraryMutation = {
   __typename?: 'Mutation'
-  leaveLibraryParticipant?: { __typename?: 'User'; id: string } | null
+  leaveLibrary?: { __typename?: 'User'; id: string } | null
 }
 
 export type UserFragment = {
@@ -5191,12 +5179,12 @@ export const AiLibraryDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryDetailFragment, unknown>
-export const LibraryParticipantsDialogButton_LibraryFragmentDoc = {
+export const LibraryUsersDialogButton_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' },
+      name: { kind: 'Name', value: 'LibraryUsersDialogButton_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -5205,7 +5193,7 @@ export const LibraryParticipantsDialogButton_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -5215,13 +5203,13 @@ export const LibraryParticipantsDialogButton_LibraryFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<LibraryParticipantsDialogButton_LibraryFragment, unknown>
-export const LibraryParticipants_LibraryFragmentDoc = {
+} as unknown as DocumentNode<LibraryUsersDialogButton_LibraryFragment, unknown>
+export const LibraryUsers_LibraryFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipants_Library' },
+      name: { kind: 'Name', value: 'LibraryUsers_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -5230,7 +5218,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -5241,13 +5229,13 @@ export const LibraryParticipants_LibraryFragmentDoc = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryUsersDialogButton_Library' } },
         ],
       },
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' },
+      name: { kind: 'Name', value: 'LibraryUsersDialogButton_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -5256,7 +5244,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -5266,7 +5254,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
       },
     },
   ],
-} as unknown as DocumentNode<LibraryParticipants_LibraryFragment, unknown>
+} as unknown as DocumentNode<LibraryUsers_LibraryFragment, unknown>
 export const AiLibraryUpdate_TableItemFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8909,7 +8897,7 @@ export const AiLibraryDetailDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryDetail' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipants_Library' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryUsers_Library' } },
               ],
             },
           },
@@ -8940,7 +8928,7 @@ export const AiLibraryDetailDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' },
+      name: { kind: 'Name', value: 'LibraryUsersDialogButton_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -8949,7 +8937,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -8974,7 +8962,7 @@ export const AiLibraryDetailDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'LibraryParticipants_Library' },
+      name: { kind: 'Name', value: 'LibraryUsers_Library' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -8983,7 +8971,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -8994,7 +8982,7 @@ export const AiLibraryDetailDocument = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryParticipantsDialogButton_Library' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'LibraryUsersDialogButton_Library' } },
         ],
       },
     },
@@ -10496,13 +10484,13 @@ export const LeaveConversationDocument = {
     },
   ],
 } as unknown as DocumentNode<LeaveConversationMutation, LeaveConversationMutationVariables>
-export const AddLibraryParticipantDocument = {
+export const AddLibraryUsersDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'addLibraryParticipant' },
+      name: { kind: 'Name', value: 'addLibraryUsers' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -10526,7 +10514,7 @@ export const AddLibraryParticipantDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'addLibraryParticipants' },
+            name: { kind: 'Name', value: 'addLibraryUsers' },
             arguments: [
               {
                 kind: 'Argument',
@@ -10548,14 +10536,14 @@ export const AddLibraryParticipantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AddLibraryParticipantMutation, AddLibraryParticipantMutationVariables>
-export const RemoveLibraryParticipantDocument = {
+} as unknown as DocumentNode<AddLibraryUsersMutation, AddLibraryUsersMutationVariables>
+export const RemoveLibraryUserDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'removeLibraryParticipant' },
+      name: { kind: 'Name', value: 'removeLibraryUser' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -10573,7 +10561,7 @@ export const RemoveLibraryParticipantDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'removeLibraryParticipant' },
+            name: { kind: 'Name', value: 'removeLibraryUser' },
             arguments: [
               {
                 kind: 'Argument',
@@ -10595,14 +10583,14 @@ export const RemoveLibraryParticipantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<RemoveLibraryParticipantMutation, RemoveLibraryParticipantMutationVariables>
-export const LeaveLibraryParticipantDocument = {
+} as unknown as DocumentNode<RemoveLibraryUserMutation, RemoveLibraryUserMutationVariables>
+export const LeaveLibraryDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'leaveLibraryParticipant' },
+      name: { kind: 'Name', value: 'leaveLibrary' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -10615,7 +10603,7 @@ export const LeaveLibraryParticipantDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'leaveLibraryParticipant' },
+            name: { kind: 'Name', value: 'leaveLibrary' },
             arguments: [
               {
                 kind: 'Argument',
@@ -10632,7 +10620,7 @@ export const LeaveLibraryParticipantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<LeaveLibraryParticipantMutation, LeaveLibraryParticipantMutationVariables>
+} as unknown as DocumentNode<LeaveLibraryMutation, LeaveLibraryMutationVariables>
 export const UsersDocument = {
   kind: 'Document',
   definitions: [

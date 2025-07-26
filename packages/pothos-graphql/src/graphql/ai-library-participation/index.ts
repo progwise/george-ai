@@ -1,7 +1,7 @@
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
-builder.mutationField('addLibraryParticipants', (t) =>
+builder.mutationField('addLibraryUsers', (t) =>
   t.prismaField({
     type: ['User'],
     nullable: false,
@@ -35,7 +35,7 @@ builder.mutationField('addLibraryParticipants', (t) =>
   }),
 )
 
-builder.mutationField('removeLibraryParticipant', (t) =>
+builder.mutationField('removeLibraryUser', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     nullable: false,
@@ -49,7 +49,7 @@ builder.mutationField('removeLibraryParticipant', (t) =>
       })
 
       if (library.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can remove participants')
+        throw new Error('Only the owner can remove users')
       }
 
       await prisma.aiLibraryParticipant.delete({
@@ -66,7 +66,7 @@ builder.mutationField('removeLibraryParticipant', (t) =>
   }),
 )
 
-builder.mutationField('leaveLibraryParticipant', (t) =>
+builder.mutationField('leaveLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     args: {

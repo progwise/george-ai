@@ -35,13 +35,13 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
-    participants: t.prismaField({
+    users: t.prismaField({
       type: ['User'],
       nullable: false,
       select: { participants: { select: { user: true } } },
       resolve: (_query, library) => {
         const users = library.participants.map((participant) => participant.user)
-        // Sort participants: owner first, then other users
+        // Sort users: owner first, then other users
         return users.sort((a, b) => {
           if (a.id === library.ownerId) return -1
           if (b.id === library.ownerId) return 1
