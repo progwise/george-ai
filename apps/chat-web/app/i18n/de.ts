@@ -76,11 +76,10 @@ export default {
     addParticipantsConfirmation: 'Sie können diesem Assistenten Teilnehmer hinzufügen.',
     delete: 'Assistent löschen',
     deleteButton: 'Löschen',
-    deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen. Bitte bestätigen Sie.',
+    deleteDescription: 'Sie sind dabei, den Assistenten {assistant.name} zu löschen.',
     hasNoIcon: '{assistant.name} hat kein Icon',
     leave: 'Assistenten verlassen',
-    leaveConfirmation:
-      'Sie sind dabei, dieser Assistenten zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    leaveConfirmation: 'Sie sind dabei, dieser Assistenten zu verlassen. Sie kann nicht rückgängig gemacht werden.',
     libraries: 'Verwendete Bibliotheken',
     libraryToAdd: 'Bibliothek hinzufügen',
     myAssistants: 'Meine Assistenten',
@@ -97,7 +96,7 @@ export default {
     removeLibrary: 'Bibliothek entfernen',
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
-      'Sie sind dabei, {participantName} von diesem Assistenten zu entfernen. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+      'Sie sind dabei, {participantName} von diesem Assistenten zu entfernen. Dies kann nicht rückgängig gemacht werden.',
     usageLabel: 'Beschreibung der Verwendung',
     usagePlaceholder:
       'Diese Bibliothek soll nur bei Vollmond verwendet werden. Darin sind alle Informationen über Max Mustermann enthalten.',
@@ -124,11 +123,10 @@ export default {
     addParticipantsConfirmation: 'Sie können der aktuellen Unterhaltung Teilnehmer hinzufügen.',
     askAssistant: '{assistantName} fragen',
     assistants: 'Assistenten',
-    deleteConfirmation:
-      'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden. Bitte bestätigen Sie.',
+    deleteConfirmation: 'Sie sind dabei, diese Konversation zu löschen. Sie kann nicht wiederhergestellt werden.',
     deleteConversation: 'Konversation löschen',
     deleteMessage: 'Nachricht löschen',
-    deleteMessageConfirmation: 'Sie sind dabei, diese Nachricht zu löschen. Bitte bestätigen Sie.',
+    deleteMessageConfirmation: 'Sie sind dabei, diese Nachricht zu löschen.',
     errorDetails: 'Fehlerdetails',
     errorProcessingMessage: 'Fehler beim Verarbeiten der Nachricht',
     failedToAddParticipants: 'Teilnehmer konnten nicht hinzugefügt werden: {error}',
@@ -136,18 +134,17 @@ export default {
     historyPlaceholder: 'Noch keine Nachrichten. Starten Sie die Unterhaltung!',
     humans: 'Benutzer',
     leave: 'Konversation verlassen',
-    leaveConfirmation:
-      'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    leaveConfirmation: 'Sie sind dabei, diese Konversation zu verlassen. Sie kann nicht rückgängig gemacht werden.',
     missingConversationId: 'Konversations-ID fehlt',
     noMessages: 'Sie haben keine kostenlosen Nachrichten mehr. Erstellen Sie Ihr Profil und fordern Sie weitere an ...',
     owner: 'Besitzer',
     promptPlaceholder: 'Stelle irgendeine Frage',
     removeMultiple: 'Konversationen entfernen',
     removeMultipleConfirmation:
-      'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+      'Sie sind dabei, die ausgewählten Konversationen zu entfernen. Ihre Konversationen werden gelöscht. Konversationen von Anderen werden verlassen. Beides kann nicht rückgängig gemacht werden.',
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
-      'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Alle Nachrichten von diesem Teilnehmer werden ebenfalls entfernt. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+      'Sie sind dabei, {participantName} von dieser Konversation zu entfernen. Alle Nachrichten von diesem Teilnehmer werden ebenfalls entfernt. Dies kann nicht rückgängig gemacht werden.',
     setLLM: 'Assistent hat kein Sprachmodell',
     tokenLimitExceeded: 'Tokenlimit überschritten',
   },
@@ -213,6 +210,7 @@ export default {
     profileNotFound: 'Profil nicht gefunden oder gelöscht.',
     reprocessFile: 'Datei konnte nicht erneut verarbeitet werden. Bitte versuchen Sie es später erneut.',
     reprocessFiles: 'Fehler beim verarbeiten von {count} Dateien: {files}.',
+    removeParticipantFailed: 'Fehler beim Entfernen des Teilnehmers: {error}',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
   },
@@ -348,8 +346,7 @@ export default {
     lastUpdate: 'Letzte Aktualisierung',
     lastUpdates: 'Letzte Aktualisierungen',
     leave: 'Bibliothek verlassen',
-    leaveConfirmation:
-      'Sie sind dabei, diese Bibliothek zu verlassen. Sie kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+    leaveConfirmation: 'Sie sind dabei, diese Bibliothek zu verlassen. Sie kann nicht rückgängig gemacht werden.',
     myLibraries: 'Meine Bibliotheken',
     noLibrariesFound: 'Keine Bibliotheken gefunden',
     nameLibrary: 'Benennen Sie Ihre Bibliothek',
@@ -360,7 +357,7 @@ export default {
     },
     removeParticipant: 'Teilnehmer entfernen',
     removeParticipantConfirmation:
-      'Sie sind dabei, {participantName} von dieser Bibliothek zu entfernen. Dies kann nicht rückgängig gemacht werden. Bitte bestätigen Sie.',
+      'Sie sind dabei, {participantName} von dieser Bibliothek zu entfernen. Dies kann nicht rückgängig gemacht werden.',
     selectedMultipleFiles: '{count} Dateien ausgewählt',
     selectedSingleFile: '1 Datei ausgewählt',
     users: 'Benutzer',
@@ -368,6 +365,7 @@ export default {
   notifications: {
     avatarRemoved: 'Avatar entfernt',
     avatarUploaded: 'Avatar erfolgreich hochgeladen',
+    participantRemoved: 'Teilnehmer erfolgreich entfernt',
     profileEnsured: 'Profil sichergestellt für Benutzer {userId}',
   },
   placeholders: {
@@ -393,9 +391,9 @@ export default {
     changeParticipantsAnytime: 'Sie können diese Teilnehmer jederzeit ändern.',
     copiedToClipboard: 'In die Zwischenablage kopiert',
     dropAllFilesDialogDescription:
-      'Sie sind kurz davor, alle Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen aller Dateien.',
+      'Sie sind kurz davor, alle Dateien in dieser Bibliothek zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
     dropFilesDialogDescription:
-      'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden. Bitte bestätigen Sie das Entfernen der ausgewählten Dateien.',
+      'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
     failure: 'Fehler',
     fileCreated: 'erstellt',

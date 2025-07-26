@@ -9,6 +9,7 @@ import { OwnerIcon } from '../../icons/owner-icon'
 import { removeLibraryParticipant } from '../../server-functions/library-participations'
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
+import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
@@ -57,6 +58,10 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
       await queryClient.invalidateQueries(getLibrariesQueryOptions())
       setParticipantToRemove(null)
       dialogRef.current?.close()
+      toastSuccess(t('notifications.participantRemoved'))
+    },
+    onError: (error) => {
+      toastError(t('errors.removeParticipantFailed', { error: error.message }))
     },
   })
 

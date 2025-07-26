@@ -15,6 +15,7 @@ import { AssistantIcon } from '../assistant/assistant-icon'
 import { ConversationParticipantsViewer } from '../conversation-participants-viewer'
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
+import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { UserAvatar } from '../user-avatar'
 import { ConversationParticipantsDialogButton } from './conversation-participants-dialog-button'
@@ -89,6 +90,10 @@ export const ConversationParticipants = ({
       await queryClient.invalidateQueries(getConversationsQueryOptions())
       setParticipantToRemove(null)
       dialogRef.current?.close()
+      toastSuccess(t('notifications.participantRemoved'))
+    },
+    onError: (error) => {
+      toastError(t('errors.removeParticipantFailed', { error: error.message }))
     },
   })
 

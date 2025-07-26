@@ -20,11 +20,11 @@ interface User {
   avatarUrl?: string | null
 }
 
-interface UserProps {
+interface SettingsDropdownProps {
   user?: User
 }
 
-export const SettingsDropdown = ({ user }: UserProps): JSX.Element => {
+export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
   const { t } = useTranslation()
   const { logout, isReady } = useAuth()
   const { language, setLanguage } = useLanguage()

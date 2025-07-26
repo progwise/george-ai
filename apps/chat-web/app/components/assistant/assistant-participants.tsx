@@ -9,11 +9,13 @@ import { OwnerIcon } from '../../icons/owner-icon'
 import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
+import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
 import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
 import { getAssistantQueryOptions } from './get-assistant'
+import { getAiAssistantsQueryOptions } from './get-assistants'
 
 const MAX_VISIBLE_PARTICIPANTS = 4
 
@@ -58,8 +60,13 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
+      await queryClient.invalidateQueries(getAiAssistantsQueryOptions())
       setParticipantToRemove(null)
       dialogRef.current?.close()
+      toastSuccess(t('notifications.participantRemoved'))
+    },
+    onError: (error) => {
+      toastError(t('errors.removeParticipantFailed', { error: error.message }))
     },
   })
 
