@@ -5,7 +5,7 @@ import { useRef } from 'react'
 import { AiLibraryBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
-import { leaveLibraryParticipant } from '../../../server-functions/library-participations'
+import { leaveLibrary } from '../../../server-functions/library-users'
 import { DialogForm } from '../../dialog-form'
 import { getLibrariesQueryOptions } from '../get-libraries'
 
@@ -21,7 +21,7 @@ export const LibraryLeaveDialog = ({ library }: LibraryLeaveDialogProps) => {
 
   const { mutate: leaveLibraryMutate, isPending } = useMutation({
     mutationFn: async () => {
-      return await leaveLibraryParticipant({
+      return await leaveLibrary({
         data: {
           libraryId: library.id,
         },
