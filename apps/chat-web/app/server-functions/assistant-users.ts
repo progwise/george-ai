@@ -4,15 +4,15 @@ import { z } from 'zod'
 import { graphql } from '../gql'
 import { backendRequest } from './backend'
 
-const AddAssistantParticipantsDocument = graphql(`
-  mutation addAssistantParticipant($assistantId: String!, $userIds: [String!]!) {
-    addAssistantParticipants(assistantId: $assistantId, userIds: $userIds) {
+const AddAssistantUsersDocument = graphql(`
+  mutation addAssistantUsers($assistantId: String!, $userIds: [String!]!) {
+    addAssistantUsers(assistantId: $assistantId, userIds: $userIds) {
       id
     }
   }
 `)
 
-export const addAssistantParticipants = createServerFn({ method: 'POST' })
+export const addAssistantUsers = createServerFn({ method: 'POST' })
   .validator((data: { assistantId: string; userIds: string[] }) =>
     z
       .object({
@@ -22,21 +22,21 @@ export const addAssistantParticipants = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(AddAssistantParticipantsDocument, {
+    backendRequest(AddAssistantUsersDocument, {
       assistantId: ctx.data.assistantId,
       userIds: ctx.data.userIds,
     }),
   )
 
-const RemoveAssistantParticipantDocument = graphql(`
-  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {
-    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {
+const RemoveAssistantUserDocument = graphql(`
+  mutation removeAssistantUser($assistantId: String!, $userId: String!) {
+    removeAssistantUser(assistantId: $assistantId, userId: $userId) {
       id
     }
   }
 `)
 
-export const removeAssistantParticipant = createServerFn({ method: 'POST' })
+export const removeAssistantUser = createServerFn({ method: 'POST' })
   .validator((data: { assistantId: string; userId: string }) =>
     z
       .object({
@@ -46,21 +46,21 @@ export const removeAssistantParticipant = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(RemoveAssistantParticipantDocument, {
+    backendRequest(RemoveAssistantUserDocument, {
       assistantId: ctx.data.assistantId,
       userId: ctx.data.userId,
     }),
   )
 
-const LeaveAssistantParticipantDocument = graphql(`
-  mutation leaveAssistantParticipant($assistantId: String!) {
-    leaveAssistantParticipant(assistantId: $assistantId) {
+const LeaveAssistantDocument = graphql(`
+  mutation leaveAssistant($assistantId: String!) {
+    leaveAssistant(assistantId: $assistantId) {
       id
     }
   }
 `)
 
-export const leaveAssistantParticipant = createServerFn({ method: 'POST' })
+export const leaveAssistant = createServerFn({ method: 'POST' })
   .validator((data: { assistantId: string }) =>
     z
       .object({
@@ -69,7 +69,7 @@ export const leaveAssistantParticipant = createServerFn({ method: 'POST' })
       .parse(data),
   )
   .handler((ctx) =>
-    backendRequest(LeaveAssistantParticipantDocument, {
+    backendRequest(LeaveAssistantDocument, {
       assistantId: ctx.data.assistantId,
     }),
   )

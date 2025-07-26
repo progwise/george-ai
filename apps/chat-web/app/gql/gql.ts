@@ -38,10 +38,10 @@ type Documents = {
   '\n        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {\n          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ': typeof types.RemoveLibraryUsageDocument
   '\n          mutation updateLibraryUsage($id: String!, $usedFor: String!) {\n            updateLibraryUsage(id: $id, usedFor: $usedFor) {\n              id\n            }\n          }\n        ': typeof types.UpdateLibraryUsageDocument
   '\n        mutation createAiAssistant($name: String!) {\n          createAiAssistant(name: $name) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateAiAssistantDocument
-  '\n  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n    }\n  }\n': typeof types.AssistantParticipantsDialogButton_AssistantFragmentDoc
-  '\n  fragment AssistantParticipants_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantParticipantsDialogButton_Assistant\n  }\n': typeof types.AssistantParticipants_AssistantFragmentDoc
   '\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantSelector_AssistantFragmentDoc
-  '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantParticipants_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n': typeof types.AiAssistantDetailsDocument
+  '\n  fragment AssistantUsersDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n': typeof types.AssistantUsersDialogButton_AssistantFragmentDoc
+  '\n  fragment AssistantUsers_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantUsersDialogButton_Assistant\n  }\n': typeof types.AssistantUsers_AssistantFragmentDoc
+  '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantUsers_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n': typeof types.AiAssistantDetailsDocument
   '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n': typeof types.AssistantBaseFragmentDoc
   '\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n': typeof types.AiAssistantCardsDocument
   '\n  fragment ConversationForm_Conversation on AiConversation {\n    ...ConversationBase\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationForm_ConversationFragmentDoc
@@ -102,9 +102,9 @@ type Documents = {
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.SaveUserProfileDocument
   '\n  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {\n    updateAiLibrary(id: $id, data: $data) {\n      id\n      name\n    }\n  }\n': typeof types.ChangeAiLibraryDocument
   '\n  query userProfile {\n    userProfile {\n      id\n      confirmationDate\n      ...UserProfileForm_UserProfile\n    }\n  }\n': typeof types.UserProfileDocument
-  '\n  mutation addAssistantParticipant($assistantId: String!, $userIds: [String!]!) {\n    addAssistantParticipants(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddAssistantParticipantDocument
-  '\n  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {\n    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveAssistantParticipantDocument
-  '\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n': typeof types.LeaveAssistantParticipantDocument
+  '\n  mutation addAssistantUsers($assistantId: String!, $userIds: [String!]!) {\n    addAssistantUsers(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n': typeof types.AddAssistantUsersDocument
+  '\n  mutation removeAssistantUser($assistantId: String!, $userId: String!) {\n    removeAssistantUser(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n': typeof types.RemoveAssistantUserDocument
+  '\n  mutation leaveAssistant($assistantId: String!) {\n    leaveAssistant(assistantId: $assistantId) {\n      id\n    }\n  }\n': typeof types.LeaveAssistantDocument
   '\n        mutation updateUserAvatar($avatarUrl: String) {\n          updateUserAvatar(avatarUrl: $avatarUrl) {\n            id\n            avatarUrl\n          }\n        }\n      ': typeof types.UpdateUserAvatarDocument
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n': typeof types.IntrospectionQueryDocument
   '\n  mutation addConversationParticipant($conversationId: String!, $userIds: [String!], $assistantIds: [String!]) {\n    addConversationParticipants(conversationId: $conversationId, userIds: $userIds, assistantIds: $assistantIds) {\n      id\n    }\n  }\n': typeof types.AddConversationParticipantDocument
@@ -176,13 +176,13 @@ const documents: Documents = {
     types.UpdateLibraryUsageDocument,
   '\n        mutation createAiAssistant($name: String!) {\n          createAiAssistant(name: $name) {\n            id\n            name\n          }\n        }\n      ':
     types.CreateAiAssistantDocument,
-  '\n  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n    }\n  }\n':
-    types.AssistantParticipantsDialogButton_AssistantFragmentDoc,
-  '\n  fragment AssistantParticipants_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantParticipantsDialogButton_Assistant\n  }\n':
-    types.AssistantParticipants_AssistantFragmentDoc,
   '\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n':
     types.AssistantSelector_AssistantFragmentDoc,
-  '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantParticipants_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n':
+  '\n  fragment AssistantUsersDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n':
+    types.AssistantUsersDialogButton_AssistantFragmentDoc,
+  '\n  fragment AssistantUsers_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantUsersDialogButton_Assistant\n  }\n':
+    types.AssistantUsers_AssistantFragmentDoc,
+  '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantUsers_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n':
     types.AiAssistantDetailsDocument,
   '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n':
     types.AssistantBaseFragmentDoc,
@@ -301,12 +301,12 @@ const documents: Documents = {
     types.ChangeAiLibraryDocument,
   '\n  query userProfile {\n    userProfile {\n      id\n      confirmationDate\n      ...UserProfileForm_UserProfile\n    }\n  }\n':
     types.UserProfileDocument,
-  '\n  mutation addAssistantParticipant($assistantId: String!, $userIds: [String!]!) {\n    addAssistantParticipants(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n':
-    types.AddAssistantParticipantDocument,
-  '\n  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {\n    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n':
-    types.RemoveAssistantParticipantDocument,
-  '\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n':
-    types.LeaveAssistantParticipantDocument,
+  '\n  mutation addAssistantUsers($assistantId: String!, $userIds: [String!]!) {\n    addAssistantUsers(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n':
+    types.AddAssistantUsersDocument,
+  '\n  mutation removeAssistantUser($assistantId: String!, $userId: String!) {\n    removeAssistantUser(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n':
+    types.RemoveAssistantUserDocument,
+  '\n  mutation leaveAssistant($assistantId: String!) {\n    leaveAssistant(assistantId: $assistantId) {\n      id\n    }\n  }\n':
+    types.LeaveAssistantDocument,
   '\n        mutation updateUserAvatar($avatarUrl: String) {\n          updateUserAvatar(avatarUrl: $avatarUrl) {\n            id\n            avatarUrl\n          }\n        }\n      ':
     types.UpdateUserAvatarDocument,
   '\n  query IntrospectionQuery {\n    __schema {\n      description\n      queryType {\n        name\n      }\n      mutationType {\n        name\n      }\n      subscriptionType {\n        name\n      }\n      types {\n        ...FullType\n      }\n      directives {\n        name\n        description\n        locations\n        args {\n          ...InputValue\n        }\n      }\n    }\n  }\n  fragment FullType on __Type {\n    kind\n    name\n    description\n    fields(includeDeprecated: true) {\n      name\n      description\n      args {\n        ...InputValue\n      }\n      type {\n        ...TypeRef\n      }\n      isDeprecated\n      deprecationReason\n    }\n    inputFields {\n      ...InputValue\n    }\n    interfaces {\n      ...TypeRef\n    }\n    enumValues(includeDeprecated: true) {\n      name\n      description\n      isDeprecated\n      deprecationReason\n    }\n    possibleTypes {\n      ...TypeRef\n    }\n  }\n  fragment InputValue on __InputValue {\n    name\n    description\n    type {\n      ...TypeRef\n    }\n    defaultValue\n  }\n  fragment TypeRef on __Type {\n    kind\n    name\n    ofType {\n      kind\n      name\n      ofType {\n        kind\n        name\n        ofType {\n          kind\n          name\n          ofType {\n            kind\n            name\n            ofType {\n              kind\n              name\n              ofType {\n                kind\n                name\n                ofType {\n                  kind\n                  name\n                  ofType {\n                    kind\n                    name\n                    ofType {\n                      kind\n                      name\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
@@ -510,26 +510,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  fragment AssistantParticipants_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantParticipantsDialogButton_Assistant\n  }\n',
-): (typeof documents)['\n  fragment AssistantParticipants_Assistant on AiAssistant {\n    id\n    ownerId\n    participants {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantParticipantsDialogButton_Assistant\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n',
 ): (typeof documents)['\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantParticipants_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n',
-): (typeof documents)['\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantParticipants_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n']
+  source: '\n  fragment AssistantUsersDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  fragment AssistantUsersDialogButton_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment AssistantUsers_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantUsersDialogButton_Assistant\n  }\n',
+): (typeof documents)['\n  fragment AssistantUsers_Assistant on AiAssistant {\n    id\n    ownerId\n    users {\n      id\n      name\n      username\n      avatarUrl\n    }\n    ...AssistantUsersDialogButton_Assistant\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantUsers_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n',
+): (typeof documents)['\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n      ...AssistantUsers_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -894,20 +894,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation addAssistantParticipant($assistantId: String!, $userIds: [String!]!) {\n    addAssistantParticipants(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation addAssistantParticipant($assistantId: String!, $userIds: [String!]!) {\n    addAssistantParticipants(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n']
+  source: '\n  mutation addAssistantUsers($assistantId: String!, $userIds: [String!]!) {\n    addAssistantUsers(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation addAssistantUsers($assistantId: String!, $userIds: [String!]!) {\n    addAssistantUsers(assistantId: $assistantId, userIds: $userIds) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {\n    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation removeAssistantParticipant($assistantId: String!, $userId: String!) {\n    removeAssistantParticipant(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n']
+  source: '\n  mutation removeAssistantUser($assistantId: String!, $userId: String!) {\n    removeAssistantUser(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation removeAssistantUser($assistantId: String!, $userId: String!) {\n    removeAssistantUser(assistantId: $assistantId, userId: $userId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n',
-): (typeof documents)['\n  mutation leaveAssistantParticipant($assistantId: String!) {\n    leaveAssistantParticipant(assistantId: $assistantId) {\n      id\n    }\n  }\n']
+  source: '\n  mutation leaveAssistant($assistantId: String!) {\n    leaveAssistant(assistantId: $assistantId) {\n      id\n    }\n  }\n',
+): (typeof documents)['\n  mutation leaveAssistant($assistantId: String!) {\n    leaveAssistant(assistantId: $assistantId) {\n      id\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -14,7 +14,7 @@ const assistantDetailsQueryDocument = graphql(`
       ...AssistantSelector_Assistant
       ...AssistantLibraries_Assistant
       ...AssistantBasecaseForm_Assistant
-      ...AssistantParticipants_Assistant
+      ...AssistantUsers_Assistant
     }
     aiLibraryUsage(assistantId: $assistantId) {
       ...AssistantLibraries_LibraryUsage

@@ -2,31 +2,31 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
-import { AssistantParticipantsDialogButton_AssistantFragment, UserFragment } from '../../gql/graphql'
+import { AssistantUsersDialogButton_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
-import { addAssistantParticipants } from '../../server-functions/assistant-participations'
+import { addAssistantUsers } from '../../server-functions/assistant-users'
 import { DialogForm } from '../dialog-form'
 import { LoadingSpinner } from '../loading-spinner'
 import { UsersSelector } from '../users-selector'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
-  fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {
+  fragment AssistantUsersDialogButton_Assistant on AiAssistant {
     id
     ownerId
-    participants {
+    users {
       id
     }
   }
 `)
 
-interface AssistantParticipantsDialogButtonProps {
-  assistant: AssistantParticipantsDialogButton_AssistantFragment
+interface AssistantUsersDialogButtonProps {
+  assistant: AssistantUsersDialogButton_AssistantFragment
   users: UserFragment[]
 }
 
-export const AssistantParticipantsDialogButton = ({ assistant, users }: AssistantParticipantsDialogButtonProps) => {
+export const AssistantUsersDialogButton = ({ assistant, users }: AssistantUsersDialogButtonProps) => {
   const { t } = useTranslation()
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
@@ -34,13 +34,13 @@ export const AssistantParticipantsDialogButton = ({ assistant, users }: Assistan
   const queryClient = useQueryClient()
 
   const assignableUsers = useMemo(
-    () => users.filter((user) => !assistant.participants.some((participant) => participant.id === user.id)),
-    [users, assistant.participants],
+    () => users.filter((user) => !assistant.users.some((assistantUser) => assistantUser.id === user.id)),
+    [users, assistant.users],
   )
 
   const { mutate: addParticipants, isPending } = useMutation({
     mutationFn: async () => {
-      return await addAssistantParticipants({
+      return await addAssistantUsers({
         data: { assistantId: assistant.id, userIds: selectedUserIds },
       })
     },

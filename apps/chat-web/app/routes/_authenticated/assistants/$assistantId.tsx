@@ -5,8 +5,8 @@ import { AiActGuide } from '../../../components/assistant/assistant-ai-act/ai-ac
 import { AssistantBasecaseForm } from '../../../components/assistant/assistant-basecase-form'
 import { AssistantForm } from '../../../components/assistant/assistant-form'
 import { AssistantLibraries } from '../../../components/assistant/assistant-libraries'
-import { AssistantParticipants } from '../../../components/assistant/assistant-participants'
 import { AssistantSelector } from '../../../components/assistant/assistant-selector'
+import { AssistantUsers } from '../../../components/assistant/assistant-users'
 import { getAssistantQueryOptions } from '../../../components/assistant/get-assistant'
 import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
 import { getLibrariesQueryOptions } from '../../../components/library/get-libraries'
@@ -56,7 +56,7 @@ function RouteComponent() {
           <AssistantSelector assistants={aiAssistants} selectedAssistant={aiAssistant!} />
         </div>
         <div className="flex min-w-0 items-center justify-end gap-2">
-          <AssistantParticipants assistant={aiAssistant} users={usersData.users} userId={ownerId} />
+          <AssistantUsers assistant={aiAssistant} users={usersData.users} userId={ownerId} />
           <button
             type="button"
             className="btn btn-sm tooltip tooltip-left"

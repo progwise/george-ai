@@ -109,9 +109,9 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
-  participants: [User!]!
   updatedAt: DateTime
   url: String
+  users: [User!]!
 }
 
 type AiAssistantBaseCase {
@@ -502,7 +502,7 @@ type ManagedUsersResponse {
 
 type Mutation {
   activateUserProfile(profileId: String!): UserProfile
-  addAssistantParticipants(assistantId: String!, userIds: [String!]!): [User!]!
+  addAssistantUsers(assistantId: String!, userIds: [String!]!): [User!]!
   addConversationParticipants(
     assistantIds: [String!]
     conversationId: String!
@@ -532,12 +532,12 @@ type Mutation {
   ensureUserProfile(userId: String!): UserProfile
   hideMessage(messageId: String!): AiConversationMessage
   leaveAiConversation(participantId: String!): AiConversationParticipant
-  leaveAssistantParticipant(assistantId: String!): User
+  leaveAssistant(assistantId: String!): User
   leaveLibraryParticipant(libraryId: String!): User
   login(jwtToken: String!): User
   prepareFile(data: AiLibraryFileInput!): AiLibraryFile
   processFile(fileId: String!): AiLibraryFile!
-  removeAssistantParticipant(assistantId: String!, userId: String!): User!
+  removeAssistantUser(assistantId: String!, userId: String!): User!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage

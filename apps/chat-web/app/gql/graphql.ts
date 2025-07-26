@@ -125,9 +125,9 @@ export type AiAssistant = {
   languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
-  participants: Array<User>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+  users: Array<User>
 }
 
 export type AiAssistantBaseCase = {
@@ -531,7 +531,7 @@ export type ManagedUsersResponse = {
 export type Mutation = {
   __typename?: 'Mutation'
   activateUserProfile?: Maybe<UserProfile>
-  addAssistantParticipants: Array<User>
+  addAssistantUsers: Array<User>
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
@@ -557,12 +557,12 @@ export type Mutation = {
   ensureUserProfile?: Maybe<UserProfile>
   hideMessage?: Maybe<AiConversationMessage>
   leaveAiConversation?: Maybe<AiConversationParticipant>
-  leaveAssistantParticipant?: Maybe<User>
+  leaveAssistant?: Maybe<User>
   leaveLibraryParticipant?: Maybe<User>
   login?: Maybe<User>
   prepareFile?: Maybe<AiLibraryFile>
   processFile: AiLibraryFile
-  removeAssistantParticipant: User
+  removeAssistantUser: User
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
@@ -588,7 +588,7 @@ export type MutationActivateUserProfileArgs = {
   profileId: Scalars['String']['input']
 }
 
-export type MutationAddAssistantParticipantsArgs = {
+export type MutationAddAssistantUsersArgs = {
   assistantId: Scalars['String']['input']
   userIds: Array<Scalars['String']['input']>
 }
@@ -705,7 +705,7 @@ export type MutationLeaveAiConversationArgs = {
   participantId: Scalars['String']['input']
 }
 
-export type MutationLeaveAssistantParticipantArgs = {
+export type MutationLeaveAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
 
@@ -725,7 +725,7 @@ export type MutationProcessFileArgs = {
   fileId: Scalars['String']['input']
 }
 
-export type MutationRemoveAssistantParticipantArgs = {
+export type MutationRemoveAssistantUserArgs = {
   assistantId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }
@@ -1566,27 +1566,21 @@ export type CreateAiAssistantMutation = {
   createAiAssistant?: { __typename?: 'AiAssistant'; id: string; name: string } | null
 }
 
-export type AssistantParticipantsDialogButton_AssistantFragment = {
-  __typename?: 'AiAssistant'
-  id: string
-  ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string }>
-}
-
-export type AssistantParticipants_AssistantFragment = {
-  __typename?: 'AiAssistant'
-  id: string
-  ownerId: string
-  participants: Array<{
-    __typename?: 'User'
-    id: string
-    name?: string | null
-    username: string
-    avatarUrl?: string | null
-  }>
-}
-
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
+
+export type AssistantUsersDialogButton_AssistantFragment = {
+  __typename?: 'AiAssistant'
+  id: string
+  ownerId: string
+  users: Array<{ __typename?: 'User'; id: string }>
+}
+
+export type AssistantUsers_AssistantFragment = {
+  __typename?: 'AiAssistant'
+  id: string
+  ownerId: string
+  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
+}
 
 export type AiAssistantDetailsQueryVariables = Exact<{
   assistantId: Scalars['String']['input']
@@ -1610,13 +1604,7 @@ export type AiAssistantDetailsQuery = {
       condition?: string | null
       instruction?: string | null
     }>
-    participants: Array<{
-      __typename?: 'User'
-      id: string
-      name?: string | null
-      username: string
-      avatarUrl?: string | null
-    }>
+    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
   } | null
   aiLibraryUsage: Array<{
     __typename?: 'AiLibraryUsage'
@@ -2576,33 +2564,33 @@ export type UserProfileQuery = {
   } | null
 }
 
-export type AddAssistantParticipantMutationVariables = Exact<{
+export type AddAssistantUsersMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
   userIds: Array<Scalars['String']['input']> | Scalars['String']['input']
 }>
 
-export type AddAssistantParticipantMutation = {
+export type AddAssistantUsersMutation = {
   __typename?: 'Mutation'
-  addAssistantParticipants: Array<{ __typename?: 'User'; id: string }>
+  addAssistantUsers: Array<{ __typename?: 'User'; id: string }>
 }
 
-export type RemoveAssistantParticipantMutationVariables = Exact<{
+export type RemoveAssistantUserMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
   userId: Scalars['String']['input']
 }>
 
-export type RemoveAssistantParticipantMutation = {
+export type RemoveAssistantUserMutation = {
   __typename?: 'Mutation'
-  removeAssistantParticipant: { __typename?: 'User'; id: string }
+  removeAssistantUser: { __typename?: 'User'; id: string }
 }
 
-export type LeaveAssistantParticipantMutationVariables = Exact<{
+export type LeaveAssistantMutationVariables = Exact<{
   assistantId: Scalars['String']['input']
 }>
 
-export type LeaveAssistantParticipantMutation = {
+export type LeaveAssistantMutation = {
   __typename?: 'Mutation'
-  leaveAssistantParticipant?: { __typename?: 'User'; id: string } | null
+  leaveAssistant?: { __typename?: 'User'; id: string } | null
 }
 
 export type UpdateUserAvatarMutationVariables = Exact<{
@@ -4182,82 +4170,6 @@ export const AssistantLibraries_LibraryUsageFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AssistantLibraries_LibraryUsageFragment, unknown>
-export const AssistantParticipantsDialogButton_AssistantFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AssistantParticipantsDialogButton_AssistantFragment, unknown>
-export const AssistantParticipants_AssistantFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipants_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
-              ],
-            },
-          },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AssistantParticipants_AssistantFragment, unknown>
 export const AssistantSelector_AssistantFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -4275,6 +4187,82 @@ export const AssistantSelector_AssistantFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AssistantSelector_AssistantFragment, unknown>
+export const AssistantUsersDialogButton_AssistantFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantUsersDialogButton_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'users' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AssistantUsersDialogButton_AssistantFragment, unknown>
+export const AssistantUsers_AssistantFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantUsers_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'users' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+              ],
+            },
+          },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantUsersDialogButton_Assistant' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AssistantUsersDialogButton_Assistant' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'users' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AssistantUsers_AssistantFragment, unknown>
 export const AssistantBaseFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -7030,7 +7018,7 @@ export const AiAssistantDetailsDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantSelector_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantLibraries_Assistant' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantBasecaseForm_Assistant' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipants_Assistant' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantUsers_Assistant' } },
               ],
             },
           },
@@ -7056,7 +7044,7 @@ export const AiAssistantDetailsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' },
+      name: { kind: 'Name', value: 'AssistantUsersDialogButton_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -7065,7 +7053,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -7141,7 +7129,7 @@ export const AiAssistantDetailsDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AssistantParticipants_Assistant' },
+      name: { kind: 'Name', value: 'AssistantUsers_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
       selectionSet: {
         kind: 'SelectionSet',
@@ -7150,7 +7138,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -7161,7 +7149,7 @@ export const AiAssistantDetailsDocument = {
               ],
             },
           },
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantParticipantsDialogButton_Assistant' } },
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AssistantUsersDialogButton_Assistant' } },
         ],
       },
     },
@@ -9624,13 +9612,13 @@ export const UserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<UserProfileQuery, UserProfileQueryVariables>
-export const AddAssistantParticipantDocument = {
+export const AddAssistantUsersDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'addAssistantParticipant' },
+      name: { kind: 'Name', value: 'addAssistantUsers' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -9654,7 +9642,7 @@ export const AddAssistantParticipantDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'addAssistantParticipants' },
+            name: { kind: 'Name', value: 'addAssistantUsers' },
             arguments: [
               {
                 kind: 'Argument',
@@ -9676,14 +9664,14 @@ export const AddAssistantParticipantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AddAssistantParticipantMutation, AddAssistantParticipantMutationVariables>
-export const RemoveAssistantParticipantDocument = {
+} as unknown as DocumentNode<AddAssistantUsersMutation, AddAssistantUsersMutationVariables>
+export const RemoveAssistantUserDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'removeAssistantParticipant' },
+      name: { kind: 'Name', value: 'removeAssistantUser' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -9701,7 +9689,7 @@ export const RemoveAssistantParticipantDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'removeAssistantParticipant' },
+            name: { kind: 'Name', value: 'removeAssistantUser' },
             arguments: [
               {
                 kind: 'Argument',
@@ -9723,14 +9711,14 @@ export const RemoveAssistantParticipantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<RemoveAssistantParticipantMutation, RemoveAssistantParticipantMutationVariables>
-export const LeaveAssistantParticipantDocument = {
+} as unknown as DocumentNode<RemoveAssistantUserMutation, RemoveAssistantUserMutationVariables>
+export const LeaveAssistantDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'leaveAssistantParticipant' },
+      name: { kind: 'Name', value: 'leaveAssistant' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -9743,7 +9731,7 @@ export const LeaveAssistantParticipantDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'leaveAssistantParticipant' },
+            name: { kind: 'Name', value: 'leaveAssistant' },
             arguments: [
               {
                 kind: 'Argument',
@@ -9760,7 +9748,7 @@ export const LeaveAssistantParticipantDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<LeaveAssistantParticipantMutation, LeaveAssistantParticipantMutationVariables>
+} as unknown as DocumentNode<LeaveAssistantMutation, LeaveAssistantMutationVariables>
 export const UpdateUserAvatarDocument = {
   kind: 'Document',
   definitions: [

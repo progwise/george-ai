@@ -2,56 +2,56 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
-import { AssistantParticipants_AssistantFragment, UserFragment } from '../../gql/graphql'
+import { AssistantUsers_AssistantFragment, UserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { CrossIcon } from '../../icons/cross-icon'
 import { OwnerIcon } from '../../icons/owner-icon'
-import { removeAssistantParticipant } from '../../server-functions/assistant-participations'
+import { removeAssistantUser } from '../../server-functions/assistant-users'
 import { DialogForm } from '../dialog-form'
 import { DropdownContent } from '../dropdown-content'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 import { ParticipantsViewer } from '../participants-viewer'
 import { UserAvatar } from '../user-avatar'
-import { AssistantParticipantsDialogButton } from './assistant-participants-dialog-button'
+import { AssistantUsersDialogButton } from './assistant-users-dialog-button'
 import { getAssistantQueryOptions } from './get-assistant'
 import { getAiAssistantsQueryOptions } from './get-assistants'
 
-const MAX_VISIBLE_PARTICIPANTS = 4
+const MAX_VISIBLE_USERS = 4
 
 graphql(`
-  fragment AssistantParticipants_Assistant on AiAssistant {
+  fragment AssistantUsers_Assistant on AiAssistant {
     id
     ownerId
-    participants {
+    users {
       id
       name
       username
       avatarUrl
     }
-    ...AssistantParticipantsDialogButton_Assistant
+    ...AssistantUsersDialogButton_Assistant
   }
 `)
 
-interface AssistantParticipantsProps {
-  assistant: AssistantParticipants_AssistantFragment
+interface AssistantUsersProps {
+  assistant: AssistantUsers_AssistantFragment
   users: UserFragment[]
   userId: string
 }
 
-export const AssistantParticipants = ({ assistant, users, userId }: AssistantParticipantsProps) => {
+export const AssistantUsers = ({ assistant, users, userId }: AssistantUsersProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const dialogRef = useRef<HTMLDialogElement>(null)
-  const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
+  const [userToRemove, setUserToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = assistant.ownerId === userId
-  const visibleParticipants = assistant.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
-  const remainingCount = assistant.participants.length - MAX_VISIBLE_PARTICIPANTS
+  const visibleUsers = assistant.users.slice(0, MAX_VISIBLE_USERS)
+  const remainingCount = assistant.users.length - MAX_VISIBLE_USERS
 
-  const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
+  const { mutate: mutateRemove, isPending: removeUserIsPending } = useMutation({
     mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
-      return await removeAssistantParticipant({
+      return await removeAssistantUser({
         data: {
           userId,
           assistantId,
@@ -61,7 +61,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
     onSuccess: async () => {
       await queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id))
       await queryClient.invalidateQueries(getAiAssistantsQueryOptions())
-      setParticipantToRemove(null)
+      setUserToRemove(null)
       dialogRef.current?.close()
       toastSuccess(t('notifications.participantRemoved'))
     },
@@ -70,63 +70,57 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
     },
   })
 
-  const handleRemoveParticipant = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    participantId: string,
-    participantName: string,
-  ) => {
+  const handleRemoveUser = (event: React.MouseEvent<HTMLButtonElement>, userId: string, userName: string) => {
     event.preventDefault()
-    setParticipantToRemove({ id: participantId, name: participantName })
+    setUserToRemove({ id: userId, name: userName })
     dialogRef.current?.showModal()
   }
 
-  const handleRemoveParticipantFromDropdown = (participantId: string) => {
-    const participant = assistant.participants.find((participant) => participant.id === participantId)
-    if (participant) {
-      const displayName = participant.name ?? participant.username
-      setParticipantToRemove({ id: participantId, name: displayName })
+  const handleRemoveUserFromDropdown = (userId: string) => {
+    const user = assistant.users.find((user) => user.id === userId)
+    if (user) {
+      const displayName = user.name ?? user.username
+      setUserToRemove({ id: userId, name: displayName })
       dialogRef.current?.showModal()
     }
   }
 
-  const confirmRemoveParticipant = () => {
-    if (participantToRemove) {
-      mutateRemove({ userId: participantToRemove.id, assistantId: assistant.id })
+  const confirmRemoveUser = () => {
+    if (userToRemove) {
+      mutateRemove({ userId: userToRemove.id, assistantId: assistant.id })
     }
   }
 
   return (
     <div className="flex w-full items-center justify-between gap-2 overflow-visible">
-      <LoadingSpinner isLoading={removeParticipantIsPending} />
+      <LoadingSpinner isLoading={removeUserIsPending} />
 
       <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
-        {visibleParticipants.map((participant) => {
-          const isParticipantOwner = participant.id === assistant.ownerId
-          const canRemoveParticipant = participant.id !== userId && isOwner
+        {visibleUsers.map((user) => {
+          const isUserOwner = user.id === assistant.ownerId
+          const canRemoveUser = user.id !== userId && isOwner
 
           return (
-            <div key={participant.id} className="relative transition-transform">
+            <div key={user.id} className="relative transition-transform">
               <span
                 className="tooltip tooltip-bottom cursor-pointer"
-                data-tip={`${participant.name ?? participant.username}${isParticipantOwner ? ` (${t('assistants.owner')})` : ''}`}
+                data-tip={`${user.name ?? user.username}${isUserOwner ? ` (${t('assistants.owner')})` : ''}`}
               >
-                <UserAvatar user={participant} className="size-8" />
+                <UserAvatar user={user} className="size-8" />
               </span>
 
-              {isParticipantOwner && (
+              {isUserOwner && (
                 <div className="tooltip tooltip-bottom absolute -right-0.5 -top-0.5" data-tip={t('assistants.owner')}>
                   <OwnerIcon className="size-4" />
                 </div>
               )}
 
-              {canRemoveParticipant && (
+              {canRemoveUser && (
                 <button
                   type="button"
                   className="bg-error ring-base-100 tooltip tooltip-bottom absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 transition-transform hover:scale-110"
                   data-tip={t('actions.remove')}
-                  onClick={(event) =>
-                    handleRemoveParticipant(event, participant.id, participant.name ?? participant.username)
-                  }
+                  onClick={(event) => handleRemoveUser(event, user.id, user.name ?? user.username)}
                 >
                   <CrossIcon className="text-error-content size-2" />
                 </button>
@@ -135,7 +129,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
           )
         })}
 
-        {/* Remaining participants */}
+        {/* Remaining users */}
         {remainingCount > 0 && (
           <div className="dropdown dropdown-hover dropdown-end relative transition-transform">
             <div
@@ -148,12 +142,12 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
             <div className="dropdown-content relative z-[1] mt-2 w-64">
               <DropdownContent>
                 <ParticipantsViewer
-                  participants={assistant.participants}
+                  participants={assistant.users}
                   ownerId={assistant.ownerId}
                   userId={userId}
                   isOwner={isOwner}
-                  onRemoveParticipant={handleRemoveParticipantFromDropdown}
-                  skipFirst={MAX_VISIBLE_PARTICIPANTS}
+                  onRemoveParticipant={handleRemoveUserFromDropdown}
+                  skipFirst={MAX_VISIBLE_USERS}
                 />
               </DropdownContent>
             </div>
@@ -161,16 +155,16 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
         )}
       </div>
 
-      {isOwner && <AssistantParticipantsDialogButton assistant={assistant} users={users} />}
+      {isOwner && <AssistantUsersDialogButton assistant={assistant} users={users} />}
 
       <DialogForm
         ref={dialogRef}
         title={t('assistants.removeParticipant')}
         description={t('assistants.removeParticipantConfirmation', {
-          participantName: participantToRemove?.name || '',
+          participantName: userToRemove?.name || '',
         })}
-        onSubmit={confirmRemoveParticipant}
-        disabledSubmit={removeParticipantIsPending}
+        onSubmit={confirmRemoveUser}
+        disabledSubmit={removeUserIsPending}
         submitButtonText={t('actions.remove')}
       />
     </div>

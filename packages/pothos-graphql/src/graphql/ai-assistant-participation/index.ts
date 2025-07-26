@@ -1,7 +1,7 @@
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
-builder.mutationField('addAssistantParticipants', (t) =>
+builder.mutationField('addAssistantUsers', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['User'],
     nullable: false,
@@ -15,7 +15,7 @@ builder.mutationField('addAssistantParticipants', (t) =>
       })
 
       if (assistant.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can add participants')
+        throw new Error('Only the owner can add users')
       }
 
       const existingParticipants = await prisma.aiAssistantParticipant.findMany({
@@ -43,7 +43,7 @@ builder.mutationField('addAssistantParticipants', (t) =>
   }),
 )
 
-builder.mutationField('removeAssistantParticipant', (t) =>
+builder.mutationField('removeAssistantUser', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     nullable: false,
@@ -57,7 +57,7 @@ builder.mutationField('removeAssistantParticipant', (t) =>
       })
 
       if (assistant.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can remove participants')
+        throw new Error('Only the owner can remove users')
       }
 
       await prisma.aiAssistantParticipant.deleteMany({
@@ -74,7 +74,7 @@ builder.mutationField('removeAssistantParticipant', (t) =>
   }),
 )
 
-builder.mutationField('leaveAssistantParticipant', (t) =>
+builder.mutationField('leaveAssistant', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'User',
     args: {

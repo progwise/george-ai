@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { AssistantBaseFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ExitIcon } from '../../../icons/exit-icon'
-import { leaveAssistantParticipant } from '../../../server-functions/assistant-participations'
+import { leaveAssistant } from '../../../server-functions/assistant-users'
 import { DialogForm } from '../../dialog-form'
 import { getAiAssistantsQueryOptions } from '../get-assistants'
 
@@ -19,7 +19,7 @@ export const AssistantLeaveDialog = ({ assistant }: AssistantLeaveDialogProps) =
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      return await leaveAssistantParticipant({
+      return await leaveAssistant({
         data: {
           assistantId: assistant.id,
         },
