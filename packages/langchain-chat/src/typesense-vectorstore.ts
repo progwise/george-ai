@@ -242,7 +242,7 @@ Chunk Content: ${chunk.pageContent}
           const simplifiedPrompt = `Create question-answer pairs from this text:\n\n${chunk.pageContent}\n\nGenerate 2-3 clear questions with accurate answers.`
           const retryQAPairs = await generateQAPairs(simplifiedPrompt, overallDocumentSummary)
           console.log(`Retry generated ${retryQAPairs.length} QA pairs for chunk ${actualChunkIndex}`)
-          
+
           const trainingEntry = {
             chunkIndex: actualChunkIndex,
             chunkContent: chunk.pageContent,
@@ -279,11 +279,11 @@ Chunk Content: ${chunk.pageContent}
       } catch (error) {
         console.error(`Error processing chunk ${actualChunkIndex}:`, error)
         console.error(`Chunk content preview: ${chunk.pageContent.substring(0, 200)}...`)
-        
+
         // Try to generate at least a basic summary and simple QA
         let fallbackSummary = ''
         let fallbackQAPairs: QAPair[] = []
-        
+
         try {
           fallbackSummary = await summarizeDocument(chunk.pageContent)
           const basicPrompt = `What is this text about? ${chunk.pageContent.substring(0, 500)}`
@@ -317,8 +317,8 @@ Chunk Content: ${chunk.pageContent}
     `Training data generation completed. Generated summaries for ${chunks.length} chunks and ${totalQAPairs} total QA pairs.`,
   )
 
-  const trainingDataPath = `${markdownPath.replace('.md', '')}_training_data.jsonl`
-  
+  const trainingDataPath = `${markdownPath.replace('.md', '')}_training_data.json`
+
   // Create hierarchical structure without redundancy
   const hierarchicalTrainingData = {
     document: {
@@ -348,9 +348,46 @@ Chunk Content: ${chunk.pageContent}
     },
   }
 
+  // Save hierarchical structure locally
   fs.writeFileSync(trainingDataPath, JSON.stringify(hierarchicalTrainingData, null, 2))
   console.log(`Training data saved to: ${trainingDataPath}`)
-  console.log(`✅ Successfully processed ${chunks.length} chunks with ${totalQAPairs} total QA pairs`)
+
+  // Also save QA pairs in JSONL format for fine-tuning
+  const fineTuningDir = process.cwd() + '/apps/fine-tuning/jsonl/raw'
+  const fineTuningPath = fineTuningDir + '/qa-data.jsonl'
+
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(fineTuningDir)) {
+    fs.mkdirSync(fineTuningDir, { recursive: true })
+    console.log(`Created fine-tuning directory: ${fineTuningDir}`)
+  }
+
+  // Convert QA pairs to JSONL format for fine-tuning
+  const qaJsonlEntries = trainingDataEntries.flatMap((entry) =>
+    entry.qaPairs.map((qaPair) => ({
+      prompt: qaPair.prompt,
+      completion: qaPair.completion,
+      sourceDocument: file.name,
+      chunkIndex: entry.chunkIndex,
+      section: entry.metadata.section,
+      category: qaPair.category || ['general'],
+      difficulty: qaPair.difficulty || ['medium'],
+    })),
+  )
+
+  // Append to fine-tuning JSONL file (or create if doesn't exist)
+  const jsonlLines = qaJsonlEntries.map((entry) => JSON.stringify(entry)).join('\n')
+  if (fs.existsSync(fineTuningPath)) {
+    fs.appendFileSync(fineTuningPath, '\n' + jsonlLines)
+    console.log(`Appended ${qaJsonlEntries.length} QA pairs to: ${fineTuningPath}`)
+  } else {
+    fs.writeFileSync(fineTuningPath, jsonlLines)
+    console.log(`Created fine-tuning dataset with ${qaJsonlEntries.length} QA pairs: ${fineTuningPath}`)
+  }
+
+  console.log(`Successfully processed ${chunks.length} chunks with ${totalQAPairs} total QA pairs`)
+  console.log(`Training data available at: ${trainingDataPath}`)
+  console.log(`Fine-tuning data available at: ${fineTuningPath}`)
 
   return {
     id: file.id,
@@ -544,6 +581,19 @@ export const getPDFContentForQuestionAndLibraries = async (
   )
 
   return contents.join('\n\n')
+}
+
+/**
+ * Clears the fine-tuning dataset file
+ */
+export const clearFineTuningDataset = () => {
+  const fineTuningPath = process.cwd() + '/apps/fine-tuning/jsonl/raw/qa-data.jsonl'
+  if (fs.existsSync(fineTuningPath)) {
+    fs.unlinkSync(fineTuningPath)
+    console.log(`🗑️ Cleared fine-tuning dataset: ${fineTuningPath}`)
+  } else {
+    console.log(`📝 Fine-tuning dataset doesn't exist: ${fineTuningPath}`)
+  }
 }
 
 /**
