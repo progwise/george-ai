@@ -20,26 +20,9 @@ function RouteComponent() {
 
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
-  const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
-    mutationFn: (data: FormData) => updateLibrary({ data }),
-    onSettled: () => {
-      queryClient.invalidateQueries(getLibrariesQueryOptions())
-      queryClient.invalidateQueries(getLibraryQueryOptions(libraryId))
-    },
-  })
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const form = event.currentTarget
-    const formData = new FormData(form)
-
-    saveLibrary(formData)
-  }
-
   return (
     <>
-      <LoadingSpinner isLoading={saveIsPending} />
-      <LibraryForm library={aiLibrary} handleSubmit={handleSubmit} disabled={saveIsPending} />
+      <LibraryForm library={aiLibrary} />
     </>
   )
 }

@@ -1,136 +1,146 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import React from 'react'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import React, { useCallback, useMemo } from 'react'
 
 import { AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { Input } from '../form/input'
+import { Select } from '../form/select'
+import { toastError } from '../georgeToaster'
+import { LoadingSpinner } from '../loading-spinner'
 import { getEmbeddingModelsQueryOptions } from '../model/get-models'
+import { getLibrariesQueryOptions } from './get-libraries'
+import { getLibraryQueryOptions } from './get-library'
+import { getLibraryUpdateFormSchema, updateLibrary } from './update-library'
 
 export interface LibraryEditFormProps {
   library: AiLibraryDetailFragment
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
-  disabled: boolean
 }
 
-export const LibraryForm = ({ library, handleSubmit, disabled }: LibraryEditFormProps): React.ReactElement => {
-  const { t } = useTranslation()
-  const { data: embeddingModels } = useSuspenseQuery(getEmbeddingModelsQueryOptions())
+export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactElement => {
+  const { t, language } = useTranslation()
+  const queryClient = useQueryClient()
+  const formRef = React.useRef<HTMLFormElement>(null)
+
+  const schema = React.useMemo(() => getLibraryUpdateFormSchema(language), [language])
+
+  const {
+    data: { aiEmbeddingModels },
+  } = useSuspenseQuery(getEmbeddingModelsQueryOptions())
+  const { mutate: saveLibrary, isPending: saveIsPending } = useMutation({
+    mutationFn: (data: FormData) => updateLibrary({ data }),
+    onSettled: () => {
+      queryClient.invalidateQueries(getLibrariesQueryOptions())
+      queryClient.invalidateQueries(getLibraryQueryOptions(library.id))
+    },
+  })
+
+  const fieldProps = {
+    schema,
+    disabled: saveIsPending,
+    onBlur: () => {
+      const formData = new FormData(formRef.current!)
+      const parseResult = schema.safeParse(Object.fromEntries(formData))
+      if (parseResult.success) {
+        saveLibrary(formData)
+      } else {
+        toastError(
+          <>
+            {t('errors.validationFailed')}
+            <ul>
+              {parseResult.error.errors.map((error) => (
+                <li key={error.path.join('.')}>{error.message}</li>
+              ))}
+            </ul>
+          </>,
+        )
+      }
+    },
+  }
+
+  const mappedEmbeddingModels = useMemo(
+    () =>
+      aiEmbeddingModels.map((model) => ({
+        id: model.modelName,
+        name: model.modelName,
+        type: model.type,
+      })),
+    [aiEmbeddingModels],
+  )
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <input type="hidden" name="libraryId" value={library.id || ''} />
+    <form id={library.id} ref={formRef} className="mx-auto max-w-4xl space-y-6">
+      <LoadingSpinner isLoading={saveIsPending} />
+      <input type="hidden" name="id" value={library.id || ''} />
+      <input type="hidden" name="embeddingProvider" value={library.embedding?.provider || 'Ollama'} />
+      {/* Basic Information Card */}
+      <div className="card bg-base-100 shadow-md">
+        <div className="card-body">
+          <h2 className="card-title mb-4 text-xl">{t('labels.basicInformation')}</h2>
 
-        {/* Basic Information Card */}
-        <div className="card bg-base-100 shadow-md">
-          <div className="card-body">
-            <h2 className="card-title mb-4 text-xl">Basic Information</h2>
+          <div className="space-y-4">
+            {/* Library Name */}
+            <Input
+              name="name"
+              type="text"
+              label={t('labels.name')}
+              value={library.name}
+              className="col-span-2"
+              required
+              {...fieldProps}
+            />
 
-            <div className="space-y-4">
-              {/* Library Name */}
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">{t('libraries.nameLibrary')}</span>
-                  <span className="label-text-alt text-error">*</span>
-                </label>
-                <input
-                  key={library.name}
-                  name="name"
-                  type="text"
-                  defaultValue={library.name || ''}
-                  className="input input-bordered focus:input-primary w-full"
-                  placeholder={t('libraries.placeholders.name')}
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Description</span>
-                </label>
-                <textarea
-                  key={library.description}
-                  name="description"
-                  className="textarea textarea-bordered focus:textarea-primary h-24 w-full resize-none"
-                  placeholder={t('libraries.placeholders.description')}
-                  defaultValue={library.description || ''}
-                />
-              </div>
-            </div>
+            <Input
+              name="description"
+              type="textarea"
+              label={t('labels.description')}
+              value={library.description || ''}
+              className="col-span-2"
+              {...fieldProps}
+            />
           </div>
         </div>
+      </div>
 
-        {/* Embedding Model Configuration Card */}
-        <div className="card bg-base-100 shadow-md">
-          <div className="card-body">
-            <h2 className="card-title mb-4 text-xl">Embedding Model Configuration</h2>
+      {/* Embedding Model Configuration Card */}
+      <div className="card bg-base-100 shadow-md">
+        <div className="card-body">
+          <h2 className="card-title mb-4 text-xl">{t('labels.embeddingModelConfiguration')}</h2>
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {/* Model Selection */}
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Model</span>
-                </label>
-                <select
-                  name="embeddingModel"
-                  className="select select-bordered focus:select-primary w-full"
-                  defaultValue={library.embedding?.model || ''}
-                >
-                  <option disabled value="">
-                    Select an embedding model
-                  </option>
-                  {embeddingModels.aiEmbeddingModels?.map((model) => (
-                    <option key={model.modelName} value={model.modelName}>
-                      {model.title} ({model.type})
-                    </option>
-                  ))}
-                </select>
-                <span className="overflow-hidden text-neutral-400">Choose the AI model for document embeddings</span>
-              </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Select
+              name="embeddingModel"
+              label={t('labels.embeddingModel')}
+              options={mappedEmbeddingModels}
+              value={mappedEmbeddingModels.find((model) => model.id === library.embedding?.model)}
+              className="col-span-1"
+              placeholder={t('libraries.placeholders.embeddingModel')}
+              {...fieldProps}
+            />
 
-              {/* URL Configuration */}
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text font-medium">Server URL</span>
-                </label>
-                <input
-                  name="embeddingUrl"
-                  type="url"
-                  className="input input-bordered focus:input-primary w-full"
-                  placeholder="http://ollama.george-ai.net:11434"
-                  defaultValue={library.embedding?.url || ''}
-                />
-                <span className="overflow-hidden text-neutral-400">Leave empty to use default url</span>
-              </div>
+            {/* URL Configuration */}
+            <Input
+              name="embeddingUrl"
+              type="text"
+              label={t('labels.embeddingUrl')}
+              value={library.embedding?.url || ''}
+              className="col-span-1"
+              placeholder={t('libraries.placeholders.embeddingUrl')}
+              {...fieldProps}
+            />
 
-              {/* Options spans full width */}
-              <div className="form-control lg:col-span-2">
-                <label className="label">
-                  <span className="label-text font-medium">Model Options</span>
-                </label>
-                <input
-                  name="embeddingOptions"
-                  type="text"
-                  className="input input-bordered focus:input-primary w-full"
-                  placeholder="temperature=0.7;maxTokens=80000"
-                  defaultValue={library.embedding?.options || ''}
-                />
-                <span className="overflow-hidden text-neutral-400">
-                  Semicolon-separated key=value pairs (e.g., temperature=0.7;maxTokens=80000)
-                </span>
-              </div>
-            </div>
+            {/* Options spans full width */}
+            <Input
+              name="embeddingOptions"
+              type="text"
+              label={t('labels.embeddingOptions')}
+              value={library.embedding?.options || ''}
+              className="col-span-2"
+              placeholder={t('libraries.placeholders.embeddingOptions')}
+              {...fieldProps}
+            />
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end">
-          <button disabled={disabled} type="submit" className="btn btn-primary">
-            {disabled && <span className="loading loading-spinner loading-sm"></span>}
-            {t('actions.save')}
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+    </form>
   )
 }

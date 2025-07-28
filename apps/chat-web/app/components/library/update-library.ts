@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { graphql } from '../../gql'
 import { AiLibraryInputSchema } from '../../gql/validation'
+import { Language, getLanguage, translate } from '../../i18n'
 import { backendRequest } from '../../server-functions/backend'
 
 const updateLibraryDocument = graphql(`
@@ -13,41 +14,42 @@ const updateLibraryDocument = graphql(`
   }
 `)
 
+export const getLibraryUpdateFormSchema = (language: Language) =>
+  z.object({
+    id: z.string().nonempty(),
+    name: z.string().min(1, translate('errors.requiredField', language)),
+    description: z.string().nullish(),
+    embeddingProvider: z.string().nullish(),
+    embeddingModel: z.string().nullish(),
+    embeddingUrl: z.string().nullish(),
+    embeddingOptions: z.string().nullish(),
+  })
+
 export const updateLibrary = createServerFn({ method: 'POST' })
-  .validator((data: FormData) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Invalid form data')
-    }
-
-    const libraryId = z
-      .string()
-      .nonempty()
-      .parse(data.get('libraryId') as string)
-
-    const embeddingModel = data.get('embeddingModel') as string
-    const embeddingUrl = data.get('embeddingUrl') as string
-    const embeddingOptions = data.get('embeddingOptions') as string
-
-    const library = AiLibraryInputSchema().parse({
-      name: data.get('name') as string,
-      description: data.get('description') as string,
-      url: data.get('url') as string,
-      ...(embeddingModel && {
+  .validator(async (data: FormData) => {
+    const o = Object.fromEntries(data)
+    const language = await getLanguage()
+    const schema = getLibraryUpdateFormSchema(language)
+    const parsedData = schema.parse(o)
+    return {
+      id: parsedData.id,
+      input: AiLibraryInputSchema().parse({
+        name: parsedData.name,
+        description: parsedData.description,
         embedding: {
-          name: embeddingModel,
-          model: embeddingModel,
-          provider: 'Ollama', // Default provider based on getEmbeddingModels implementation
-          url: embeddingUrl || null,
-          headers: null,
-          options: embeddingOptions || null,
+          provider: parsedData.embeddingProvider,
+          name: parsedData.embeddingModel,
+          model: parsedData.embeddingModel,
+          url: parsedData.embeddingUrl,
+          options: parsedData.embeddingOptions,
         },
       }),
-    })
-    return { libraryId, library }
+    }
   })
   .handler(async (ctx) => {
+    const data = await ctx.data
     return await backendRequest(updateLibraryDocument, {
-      data: ctx.data.library,
-      id: ctx.data.libraryId,
+      data: data.input,
+      id: data.id,
     })
   })
