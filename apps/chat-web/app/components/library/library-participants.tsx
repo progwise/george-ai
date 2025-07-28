@@ -23,7 +23,7 @@ graphql(`
   fragment LibraryParticipants_Library on AiLibrary {
     id
     ownerId
-    participants {
+    users {
       id
       name
       username
@@ -46,8 +46,8 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = library.ownerId === userId
-  const visibleParticipants = library.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
-  const remainingCount = library.participants.length - MAX_VISIBLE_PARTICIPANTS
+  const visibleParticipants = library.users.slice(0, MAX_VISIBLE_PARTICIPANTS)
+  const remainingCount = library.users.length - MAX_VISIBLE_PARTICIPANTS
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, libraryId }: { userId: string; libraryId: string }) => {
@@ -76,7 +76,7 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
   }
 
   const handleRemoveParticipantFromDropdown = (participantId: string) => {
-    const participant = library.participants.find((participant) => participant.id === participantId)
+    const participant = library.users.find((user) => user.id === participantId)
     if (participant) {
       setParticipantToRemove({ id: participantId, name: participant.name ?? participant.username })
       dialogRef.current?.showModal()
@@ -142,7 +142,7 @@ export const LibraryParticipants = ({ library, users, userId }: LibraryParticipa
             <div className="dropdown-content relative z-[1] mt-2 w-64">
               <DropdownContent>
                 <ParticipantsViewer
-                  participants={library.participants}
+                  participants={library.users}
                   ownerId={library.ownerId}
                   userId={userId}
                   isOwner={isOwner}

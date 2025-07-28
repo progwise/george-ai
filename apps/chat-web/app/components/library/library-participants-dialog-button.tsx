@@ -16,7 +16,7 @@ graphql(`
   fragment LibraryParticipantsDialogButton_Library on AiLibrary {
     id
     ownerId
-    participants {
+    users {
       id
     }
   }
@@ -35,8 +35,8 @@ export const LibraryParticipantsDialogButton = ({ library, users }: LibraryParti
   const queryClient = useQueryClient()
 
   const assignableUsers = useMemo(
-    () => users.filter((user) => !library.participants.some((participant) => participant.id === user.id)),
-    [users, library.participants],
+    () => users.filter((user) => !library.users.some((libraryUser) => libraryUser.id === user.id)),
+    [users, library.users],
   )
 
   const { mutate: addParticipants, isPending } = useMutation({

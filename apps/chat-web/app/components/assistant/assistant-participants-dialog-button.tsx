@@ -15,7 +15,7 @@ graphql(`
   fragment AssistantParticipantsDialogButton_Assistant on AiAssistant {
     id
     ownerId
-    participants {
+    users {
       id
     }
   }
@@ -34,8 +34,8 @@ export const AssistantParticipantsDialogButton = ({ assistant, users }: Assistan
   const queryClient = useQueryClient()
 
   const assignableUsers = useMemo(
-    () => users.filter((user) => !assistant.participants.some((participant) => participant.id === user.id)),
-    [users, assistant.participants],
+    () => users.filter((user) => !assistant.users.some((assistantUser) => assistantUser.id === user.id)),
+    [users, assistant.users],
   )
 
   const { mutate: addParticipants, isPending } = useMutation({

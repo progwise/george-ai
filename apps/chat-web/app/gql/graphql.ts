@@ -125,9 +125,9 @@ export type AiAssistant = {
   languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
-  participants: Array<User>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+  users: Array<User>
 }
 
 export type AiAssistantBaseCase = {
@@ -220,9 +220,9 @@ export type AiLibrary = {
   name: Scalars['String']['output']
   owner: User
   ownerId: Scalars['String']['output']
-  participants: Array<User>
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
+  users: Array<User>
 }
 
 export type AiLibraryCrawler = {
@@ -1570,20 +1570,14 @@ export type AssistantParticipantsDialogButton_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string }>
+  users: Array<{ __typename?: 'User'; id: string }>
 }
 
 export type AssistantParticipants_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
-  participants: Array<{
-    __typename?: 'User'
-    id: string
-    name?: string | null
-    username: string
-    avatarUrl?: string | null
-  }>
+  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
 }
 
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
@@ -1610,13 +1604,7 @@ export type AiAssistantDetailsQuery = {
       condition?: string | null
       instruction?: string | null
     }>
-    participants: Array<{
-      __typename?: 'User'
-      id: string
-      name?: string | null
-      username: string
-      avatarUrl?: string | null
-    }>
+    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
   } | null
   aiLibraryUsage: Array<{
     __typename?: 'AiLibraryUsage'
@@ -2340,13 +2328,7 @@ export type AiLibraryDetailQuery = {
     name: string
     createdAt: string
     updatedAt: string
-    participants: Array<{
-      __typename?: 'User'
-      id: string
-      name?: string | null
-      username: string
-      avatarUrl?: string | null
-    }>
+    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
     owner: { __typename?: 'User'; name?: string | null }
   }
 }
@@ -2404,20 +2386,14 @@ export type LibraryParticipantsDialogButton_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string }>
+  users: Array<{ __typename?: 'User'; id: string }>
 }
 
 export type LibraryParticipants_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{
-    __typename?: 'User'
-    id: string
-    name?: string | null
-    username: string
-    avatarUrl?: string | null
-  }>
+  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
 }
 
 export type QueryLibraryFilesQueryVariables = Exact<{
@@ -4196,7 +4172,7 @@ export const AssistantParticipantsDialogButton_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -4221,7 +4197,7 @@ export const AssistantParticipants_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -4247,7 +4223,7 @@ export const AssistantParticipants_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -5217,7 +5193,7 @@ export const LibraryParticipantsDialogButton_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -5242,7 +5218,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -5268,7 +5244,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -7065,7 +7041,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -7150,7 +7126,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
@@ -8961,7 +8937,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -8995,7 +8971,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [

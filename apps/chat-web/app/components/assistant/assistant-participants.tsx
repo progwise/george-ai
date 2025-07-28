@@ -23,7 +23,7 @@ graphql(`
   fragment AssistantParticipants_Assistant on AiAssistant {
     id
     ownerId
-    participants {
+    users {
       id
       name
       username
@@ -46,8 +46,8 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
   const [participantToRemove, setParticipantToRemove] = useState<{ id: string; name: string } | null>(null)
 
   const isOwner = assistant.ownerId === userId
-  const visibleParticipants = assistant.participants.slice(0, MAX_VISIBLE_PARTICIPANTS)
-  const remainingCount = assistant.participants.length - MAX_VISIBLE_PARTICIPANTS
+  const visibleParticipants = assistant.users.slice(0, MAX_VISIBLE_PARTICIPANTS)
+  const remainingCount = assistant.users.length - MAX_VISIBLE_PARTICIPANTS
 
   const { mutate: mutateRemove, isPending: removeParticipantIsPending } = useMutation({
     mutationFn: async ({ userId, assistantId }: { userId: string; assistantId: string }) => {
@@ -81,7 +81,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
   }
 
   const handleRemoveParticipantFromDropdown = (participantId: string) => {
-    const participant = assistant.participants.find((participant) => participant.id === participantId)
+    const participant = assistant.users.find((user) => user.id === participantId)
     if (participant) {
       const displayName = participant.name ?? participant.username
       setParticipantToRemove({ id: participantId, name: displayName })
@@ -148,7 +148,7 @@ export const AssistantParticipants = ({ assistant, users, userId }: AssistantPar
             <div className="dropdown-content relative z-[1] mt-2 w-64">
               <DropdownContent>
                 <ParticipantsViewer
-                  participants={assistant.participants}
+                  participants={assistant.users}
                   ownerId={assistant.ownerId}
                   userId={userId}
                   isOwner={isOwner}

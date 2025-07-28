@@ -109,9 +109,9 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
-  participants: [User!]!
   updatedAt: DateTime
   url: String
+  users: [User!]!
 }
 
 type AiAssistantBaseCase {
@@ -200,9 +200,9 @@ type AiLibrary {
   name: String!
   owner: User!
   ownerId: String!
-  participants: [User!]!
   updatedAt: DateTime!
   url: String
+  users: [User!]!
 }
 
 type AiLibraryCrawler {

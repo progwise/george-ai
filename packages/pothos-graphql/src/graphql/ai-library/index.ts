@@ -35,7 +35,7 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
-    participants: t.prismaField({
+    users: t.prismaField({
       type: ['User'],
       nullable: false,
       select: { participants: { select: { user: true } } },
