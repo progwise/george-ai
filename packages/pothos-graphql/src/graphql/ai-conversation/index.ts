@@ -8,7 +8,34 @@ builder.prismaObject('AiConversation', {
     id: t.exposeID('id', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: true }),
-    participants: t.relation('participants', { nullable: false }),
+    participants: t.prismaField({
+      type: ['AiConversationParticipant'],
+      nullable: false,
+      resolve: async (query, source) => {
+        const participants = await prisma.aiConversationParticipant.findMany({
+          ...query,
+          where: { conversationId: source.id },
+          include: {
+            user: true,
+            assistant: true,
+          },
+        })
+
+        // Sort: humans first (owner first among humans), then assistants
+        return participants.sort((a, b) => {
+          // Humans first, then assistants
+          const typeComparison = Number(!!b.userId) - Number(!!a.userId)
+          if (typeComparison !== 0) return typeComparison
+
+          // Among humans, owner first
+          if (a.userId && b.userId) {
+            return Number(b.userId === source.ownerId) - Number(a.userId === source.ownerId)
+          }
+
+          return 0
+        })
+      },
+    }),
     messages: t.relation('messages', {
       nullable: false,
       query: () => ({ orderBy: [{ sequenceNumber: 'asc' }] }),

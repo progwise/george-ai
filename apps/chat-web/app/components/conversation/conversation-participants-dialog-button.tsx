@@ -11,6 +11,7 @@ import {
 } from '../../gql/graphql'
 import { useEmailInvitations } from '../../hooks/use-email-invitations'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import ChatBubbleIcon from '../../icons/chat-bubble-icon'
 import { PlusIcon } from '../../icons/plus-icon'
 import { addConversationParticipants } from '../../server-functions/conversation-participations'
 import { createConversation } from '../../server-functions/conversations'
@@ -224,16 +225,27 @@ export const ConversationParticipantsDialogButton = ({
   const description =
     dialogMode === 'new' ? t('texts.newConversationConfirmation') : t('conversations.addParticipantsConfirmation')
   const submitButtonText = dialogMode === 'new' ? t('actions.create') : t('actions.add')
-  const buttonText = dialogMode === 'new' ? t('actions.new') : `${t('actions.add')}`
-  const buttonClass = dialogMode === 'new' ? 'btn-primary mx-1' : 'btn-neutral lg:btn-xs'
+  const buttonText = dialogMode === 'new' ? t('texts.newConversation') : `${t('actions.add')}`
+  const buttonClass = dialogMode === 'new' ? 'btn-primary btn-sm' : 'btn-neutral btn-sm'
   const isPending = isCreating || isAdding || isSendingInvitation
 
   return (
     <>
       <LoadingSpinner isLoading={isPending} />
-      <button type="button" className={twMerge('btn btn-sm', buttonClass, className)} onClick={handleOpen}>
-        {dialogMode === 'add' && <PlusIcon />}
-        {buttonText}
+      <button
+        type="button"
+        className={twMerge('btn', buttonClass, 'tooltip tooltip-left', className)}
+        onClick={handleOpen}
+        data-tip={buttonText}
+      >
+        {dialogMode === 'add' ? (
+          <PlusIcon />
+        ) : (
+          <>
+            <ChatBubbleIcon className="sm:hidden" />
+            <span className="hidden sm:inline">{buttonText}</span>
+          </>
+        )}
       </button>
 
       <DialogForm

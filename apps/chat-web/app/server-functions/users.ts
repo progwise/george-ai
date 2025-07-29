@@ -13,6 +13,7 @@ graphql(`
     name
     createdAt
     email
+    avatarUrl
     isAdmin
     profile {
       firstName
