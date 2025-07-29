@@ -36,7 +36,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
 
   const fieldProps = {
     schema,
-    disabled: saveIsPending,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
       const parseResult = schema.safeParse(Object.fromEntries(formData))

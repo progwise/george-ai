@@ -109,7 +109,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const fieldProps = {
     schema,
-    disabled: updateIsPending || mutateAssistantIconPending || disabled,
+    disabled,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
       const parseResult = schema.safeParse(Object.fromEntries(formData))
