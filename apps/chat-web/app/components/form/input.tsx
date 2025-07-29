@@ -89,6 +89,7 @@ export const Input = <T extends ZodRawShape>({
           disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           aria-invalid={errors.length > 0 ? true : undefined}
         />
       ) : (
@@ -105,6 +106,7 @@ export const Input = <T extends ZodRawShape>({
           disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           aria-invalid={errors.length > 0 ? true : undefined}
         />
       )}
