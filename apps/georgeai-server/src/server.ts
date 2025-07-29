@@ -9,6 +9,7 @@ import { schema } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
 import { authorizeGraphQlRequest } from './authorizeGraphQlRequest'
+import { avatarMiddleware } from './avatarMiddleware'
 import { conversationMessagesSSE } from './conversation-messages-sse'
 import { dataUploadMiddleware } from './upload'
 
@@ -19,6 +20,7 @@ console.log(`
   GraphQL Endpoint: ${process.env.GRAPHQL_ENDPOINT || '/graphql'}
   Server Port: ${process.env.PORT || 3003}
   Assistant Icon Path: ${process.env.ASSISTANT_ICON_PATH || '/assistant-icon'}
+  Avatar Path: ${process.env.AVATAR_PATH || '/avatar'}
   Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
   OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
   `)
@@ -33,6 +35,7 @@ const app = express()
 
 app.use(cors())
 app.use('/assistant-icon', assistantIconMiddleware)
+app.use('/avatar', avatarMiddleware)
 app.use('/upload', dataUploadMiddleware)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 

@@ -109,9 +109,9 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
-  participants: [User!]!
   updatedAt: DateTime
   url: String
+  users: [User!]!
 }
 
 type AiAssistantBaseCase {
@@ -261,9 +261,9 @@ type AiLibrary {
   name: String!
   owner: User!
   ownerId: String!
-  participants: [User!]!
   updatedAt: DateTime!
   url: String
+  users: [User!]!
 }
 
 type AiLibraryCrawler {
@@ -510,6 +510,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type ManagedUser {
   activationDate: DateTime
+  avatarUrl: String
   business: String
   confirmationDate: DateTime
   createdAt: DateTime!
@@ -588,6 +589,7 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
+  updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
 }
@@ -620,6 +622,7 @@ type Query {
 }
 
 type User {
+  avatarUrl: String
   createdAt: DateTime!
   email: String!
   family_name: String
@@ -635,6 +638,7 @@ type User {
 }
 
 input UserInput {
+  avatarUrl: String
   email: String!
   family_name: String
   given_name: String

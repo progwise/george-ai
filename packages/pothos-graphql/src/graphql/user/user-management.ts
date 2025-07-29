@@ -20,6 +20,7 @@ const ManagedUser = builder
     position?: string | null
     confirmationDate?: Date | null
     activationDate?: Date | null
+    avatarUrl?: string | null
   }>('ManagedUser')
   .implement({
     fields: (t) => ({
@@ -38,6 +39,7 @@ const ManagedUser = builder
       position: t.exposeString('position', { nullable: true }),
       confirmationDate: t.expose('confirmationDate', { type: 'DateTime', nullable: true }),
       activationDate: t.expose('activationDate', { type: 'DateTime', nullable: true }),
+      avatarUrl: t.exposeString('avatarUrl', { nullable: true }),
     }),
   })
 
@@ -218,6 +220,7 @@ const ManagedUsersResponse = builder
             position: user.profile?.position || null,
             confirmationDate: user.profile?.confirmationDate || null,
             activationDate: user.profile?.activationDate || null,
+            avatarUrl: user.avatarUrl,
           }))
         },
       }),

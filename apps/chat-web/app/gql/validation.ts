@@ -123,6 +123,7 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
 
 export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
   return z.object({
+    avatarUrl: z.string().nullish(),
     email: z.string(),
     family_name: z.string().nullish(),
     given_name: z.string().nullish(),
