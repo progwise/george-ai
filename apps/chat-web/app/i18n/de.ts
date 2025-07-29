@@ -359,6 +359,7 @@ export default {
     owner: 'Besitzer',
     placeholders: {
       description: 'Beschreiben Sie Ihre Bibliothek',
+      embeddingModel: 'Mit diesem Modell werden Daten in Vektoren umgewandelt',
       embeddingOptions: 'Semikolon-getrennte key=value Paare (z.B. temperature=0.7;maxTokens=80000)',
       embeddingUrl: 'URL für das AI Embeddings Modell - z.B. https://api.openai.com/v1/embeddings',
       name: 'Name Ihrer Bibliothek',

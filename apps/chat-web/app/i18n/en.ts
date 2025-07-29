@@ -355,6 +355,7 @@ export default {
     owner: 'Owner',
     placeholders: {
       description: 'Describe your library',
+      embeddingModel: 'With this model, data is transformed into vectors',
       embeddingOptions: 'Semicolon-separated key=value pairs (e.g. temperature=0.7;maxTokens=80000)',
       embeddingUrl: 'URL for the AI Embeddings Model - e.g. https://api.openai.com/v1/embeddings',
       name: 'Name your library',
