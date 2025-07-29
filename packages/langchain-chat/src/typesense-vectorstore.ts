@@ -9,12 +9,11 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
 import {
-  type QAPair as ChatTemplateQAPair,
-  type ChatTemplateType,
-  createMultiTemplateTrainingData,
-  detectTemplateFromConfig,
-} from './chat-templates'
-import { type QAPair, generateQAPairs } from './qa-generator-google'
+  type ChatTemplateEntry,
+  type QAPair,
+  generateChatTemplateEntries,
+  generateQAPairs,
+} from './qa-generator-google'
 import { splitMarkdown } from './split-markdown'
 import { summarizeDocument } from './summarizer'
 
@@ -209,6 +208,7 @@ export const embedFile = async (
     chunkSummary: string
     overallDocumentSummary: string
     qaPairs: QAPair[]
+    chatTemplateEntries: ChatTemplateEntry[]
     metadata: {
       section: string
       headingPath: string
@@ -242,11 +242,16 @@ Chunk Content: ${chunk.pageContent}
         const qaPairs = await generateQAPairs(contextualPrompt, overallDocumentSummary)
         console.log(`Generated ${qaPairs.length} QA pairs for chunk ${actualChunkIndex}`)
 
+        // Also generate chat template formatted entries for fine-tuning
+        const chatTemplateEntries = await generateChatTemplateEntries(contextualPrompt, overallDocumentSummary)
+        console.log(`Generated ${chatTemplateEntries.length} chat template entries for chunk ${actualChunkIndex}`)
+
         // Ensure we have at least some QA pairs, retry if empty
         if (qaPairs.length === 0) {
           console.warn(`No QA pairs generated for chunk ${actualChunkIndex}, retrying with simplified prompt...`)
           const simplifiedPrompt = `Create question-answer pairs from this text:\n\n${chunk.pageContent}\n\nGenerate 2-3 clear questions with accurate answers.`
           const retryQAPairs = await generateQAPairs(simplifiedPrompt, overallDocumentSummary)
+          const retryChatEntries = await generateChatTemplateEntries(simplifiedPrompt, overallDocumentSummary)
           console.log(`Retry generated ${retryQAPairs.length} QA pairs for chunk ${actualChunkIndex}`)
 
           const trainingEntry = {
@@ -255,6 +260,7 @@ Chunk Content: ${chunk.pageContent}
             chunkSummary,
             overallDocumentSummary,
             qaPairs: retryQAPairs,
+            chatTemplateEntries: retryChatEntries,
             metadata: chunk.metadata,
           }
           trainingDataEntries.push(trainingEntry)
@@ -272,6 +278,7 @@ Chunk Content: ${chunk.pageContent}
           chunkSummary,
           overallDocumentSummary,
           qaPairs,
+          chatTemplateEntries,
           metadata: chunk.metadata,
         }
 
@@ -305,6 +312,7 @@ Chunk Content: ${chunk.pageContent}
           chunkSummary: fallbackSummary,
           overallDocumentSummary,
           qaPairs: fallbackQAPairs,
+          chatTemplateEntries: [], // Empty since fallback failed
           metadata: chunk.metadata,
         }
         trainingDataEntries.push(emptyEntry)
@@ -369,15 +377,30 @@ Chunk Content: ${chunk.pageContent}
   }
 
   // Convert QA pairs to JSONL format for fine-tuning
+  // Check the chat template type from the qa-generator to determine output format
   const qaJsonlEntries = trainingDataEntries.flatMap((entry) =>
-    entry.qaPairs.map((qaPair) => ({
-      prompt: qaPair.prompt,
-      completion: qaPair.completion,
+    entry.qaPairs.map((qaPair) => {
+      // For now, preserve the basic format but add metadata
+      // TODO: The generateQAPairs function should return the chat template formatted data directly
+      return {
+        prompt: qaPair.prompt,
+        completion: qaPair.completion,
+        sourceDocument: file.name,
+        chunkIndex: entry.chunkIndex,
+        section: entry.metadata.section,
+        category: qaPair.category || ['general'],
+        difficulty: qaPair.difficulty || ['medium'],
+      }
+    }),
+  )
+
+  // Convert chat template entries to JSONL format for fine-tuning with proper chat template format
+  const chatTemplateJsonlEntries = trainingDataEntries.flatMap((entry) =>
+    entry.chatTemplateEntries.map((chatEntry) => ({
+      ...chatEntry,
       sourceDocument: file.name,
       chunkIndex: entry.chunkIndex,
       section: entry.metadata.section,
-      category: qaPair.category || ['general'],
-      difficulty: qaPair.difficulty || ['medium'],
     })),
   )
 
@@ -391,57 +414,23 @@ Chunk Content: ${chunk.pageContent}
     console.log(`Created fine-tuning dataset with ${qaJsonlEntries.length} QA pairs: ${fineTuningPath}`)
   }
 
-  // Generate formatted training data for different chat templates
-  const formattedDir = '/workspaces/george-ai/apps/fine-tuning/jsonl/formatted'
-
-  // Auto-detect templates from existing config files
-  const configFiles = [
-    '/workspaces/george-ai/apps/fine-tuning/finetune_ollama_config_gemma.json',
-    '/workspaces/george-ai/apps/fine-tuning/finetune_ollama_config_mistral.json',
-    '/workspaces/george-ai/apps/fine-tuning/finetune_ollama_config_qwen.json',
-  ]
-
-  const detectedTemplates: Set<ChatTemplateType> = new Set(['chatml']) // Always include ChatML as fallback
-
-  configFiles.forEach((configPath) => {
-    if (fs.existsSync(configPath)) {
-      try {
-        const template = detectTemplateFromConfig(configPath)
-        detectedTemplates.add(template)
-        console.log(`Detected template '${template}' from config: ${configPath}`)
-      } catch (error) {
-        console.warn(`Failed to detect template from ${configPath}:`, error)
-      }
-    }
-  })
-
-  // Convert QA pairs to chat template format
-  const chatTemplateQAPairs: ChatTemplateQAPair[] = qaJsonlEntries.map((entry) => ({
-    prompt: entry.prompt,
-    completion: entry.completion,
-    sourceDocument: entry.sourceDocument,
-    chunkIndex: entry.chunkIndex,
-    section: entry.section,
-    category: entry.category,
-    difficulty: entry.difficulty,
-  }))
-
-  // Create formatted training data for detected templates
-  const templateFiles = createMultiTemplateTrainingData(
-    chatTemplateQAPairs,
-    Array.from(detectedTemplates),
-    formattedDir,
-  )
-
-  console.log('Generated chat template training files:')
-  Object.entries(templateFiles).forEach(([template, path]) => {
-    console.log(`  ${template}: ${path}`)
-  })
+  // Save chat template formatted data for fine-tuning
+  const chatTemplateFineTuningPath = '/workspaces/george-ai/apps/fine-tuning/jsonl/raw/qa-data-chat-template.jsonl'
+  const chatTemplateLines = chatTemplateJsonlEntries.map((entry) => JSON.stringify(entry)).join('\n')
+  if (fs.existsSync(chatTemplateFineTuningPath)) {
+    fs.appendFileSync(chatTemplateFineTuningPath, '\n' + chatTemplateLines)
+    console.log(`Appended ${chatTemplateJsonlEntries.length} chat template entries to: ${chatTemplateFineTuningPath}`)
+  } else {
+    fs.writeFileSync(chatTemplateFineTuningPath, chatTemplateLines)
+    console.log(
+      `Created chat template fine-tuning dataset with ${chatTemplateJsonlEntries.length} entries: ${chatTemplateFineTuningPath}`,
+    )
+  }
 
   console.log(`Successfully processed ${chunks.length} chunks with ${totalQAPairs} total QA pairs`)
   console.log(`Training data available at: ${trainingDataPath}`)
-  console.log(`Fine-tuning data available at: ${fineTuningPath}`)
-  console.log(`Formatted training data available in: ${formattedDir}`)
+  console.log(`Basic format fine-tuning data available at: ${fineTuningPath}`)
+  console.log(`Chat template fine-tuning data available at: ${chatTemplateFineTuningPath}`)
 
   return {
     id: file.id,
@@ -456,7 +445,6 @@ Chunk Content: ${chunk.pageContent}
     totalQAPairs,
     trainingDataPath,
     trainingDataEntries: trainingDataEntries.length,
-    formattedTrainingFiles: templateFiles,
   }
 }
 
