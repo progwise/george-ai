@@ -3,7 +3,9 @@ import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 // Convert PDF file to base64 encoded images (one per page)
-export async function transformPdfToImages(pdfFilePath: string): Promise<string[]> {
+export async function transformPdfToImages(
+  pdfFilePath: string,
+): Promise<{ base64Images: string[]; imageFilePaths: string[] }> {
   const require = createRequire(import.meta.url)
 
   const workerPath = require.resolve('pdfjs-dist/legacy/build/pdf.worker.min.mjs')
@@ -17,6 +19,7 @@ export async function transformPdfToImages(pdfFilePath: string): Promise<string[
 
   try {
     const pdfData = new Uint8Array(fs.readFileSync(pdfFilePath))
+    const folderPath = pdfFilePath.substring(0, pdfFilePath.lastIndexOf('/'))
 
     const pdfDocument = await getDocument({
       data: pdfData,
@@ -25,7 +28,8 @@ export async function transformPdfToImages(pdfFilePath: string): Promise<string[
       standardFontDataUrl: STANDARD_FONT_DATA_URL,
     }).promise
 
-    const pagesAsImagesBase64: string[] = []
+    const base64Images: string[] = []
+    const imageFilePaths: string[] = []
 
     for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum)
@@ -43,10 +47,14 @@ export async function transformPdfToImages(pdfFilePath: string): Promise<string[
       await page.render(renderContext).promise
 
       const buffer = canvasAndContext.canvas.toBuffer('image/png')
-      pagesAsImagesBase64.push(buffer.toString('base64'))
+      const imageFilePath = `${folderPath}/page-${pageNum}.png`
+      fs.writeFileSync(imageFilePath, buffer)
+
+      imageFilePaths.push(imageFilePath)
+      base64Images.push(buffer.toString('base64'))
     }
 
-    return pagesAsImagesBase64
+    return { base64Images, imageFilePaths }
   } catch (error) {
     console.error(`Error converting PDF to images: ${pdfFilePath}`, error)
     throw new Error(`Failed to convert PDF to images: ${(error as Error).message}`)
@@ -55,6 +63,6 @@ export async function transformPdfToImages(pdfFilePath: string): Promise<string[
 
 // Convert PDF to images and return as data URLs (for direct use in HTML/Markdown)
 export async function convertPdfToImageDataUrls(pdfFilePath: string): Promise<string[]> {
-  const base64Images = await transformPdfToImages(pdfFilePath)
+  const { base64Images } = await transformPdfToImages(pdfFilePath)
   return base64Images.map((base64) => `data:image/png;base64,${base64}`)
 }
