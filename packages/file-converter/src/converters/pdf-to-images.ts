@@ -2,6 +2,7 @@ import fs from 'fs'
 import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
+const SCALE = 3.0 // Scale for rendering PDF pages (3.0 = 216 DPI)
 // Convert PDF file to base64 encoded images (one per page)
 export async function transformPdfToImages(
   pdfFilePath: string,
@@ -33,7 +34,9 @@ export async function transformPdfToImages(
 
     for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum)
-      const viewport = page.getViewport({ scale: 1.0 })
+      // Increase scale for better resolution (2x = 144 DPI, 3x = 216 DPI, 4x = 288 DPI)
+      const scale = SCALE // This will render at 216 DPI (72 DPI * 3)
+      const viewport = page.getViewport({ scale })
       const canvasFactory = pdfDocument.canvasFactory
 
       // @ts-expect-error - canvasFactory type definition is incomplete
@@ -46,7 +49,13 @@ export async function transformPdfToImages(
 
       await page.render(renderContext).promise
 
-      const buffer = canvasAndContext.canvas.toBuffer('image/png')
+      // Set DPI metadata in PNG (216 DPI = 8503.9 pixels per meter)
+      const dpi = 72 * SCALE // 72 DPI * scale (3.0)
+      const pixelsPerMeter = Math.round(dpi * 39.3701) // Convert DPI to pixels per meter
+
+      const buffer = canvasAndContext.canvas.toBuffer('image/png', {
+        resolution: pixelsPerMeter, // This sets the pHYs chunk in PNG
+      })
       const imageFilePath = `${folderPath}/page-${pageNum}.png`
       fs.writeFileSync(imageFilePath, buffer)
 
