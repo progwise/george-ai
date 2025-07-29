@@ -8,6 +8,12 @@ import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
 
 import { getMarkdownFilePath } from '@george-ai/file-management'
 
+import {
+  type QAPair as ChatTemplateQAPair,
+  type ChatTemplateType,
+  createMultiTemplateTrainingData,
+  detectTemplateFromConfig,
+} from './chat-templates'
 import { type QAPair, generateQAPairs } from './qa-generator-google'
 import { splitMarkdown } from './split-markdown'
 import { summarizeDocument } from './summarizer'
@@ -375,7 +381,7 @@ Chunk Content: ${chunk.pageContent}
     })),
   )
 
-  // Append to fine-tuning JSONL file (or create if doesn't exist)
+  // Save raw QA pairs (for backward compatibility)
   const jsonlLines = qaJsonlEntries.map((entry) => JSON.stringify(entry)).join('\n')
   if (fs.existsSync(fineTuningPath)) {
     fs.appendFileSync(fineTuningPath, '\n' + jsonlLines)
@@ -385,9 +391,57 @@ Chunk Content: ${chunk.pageContent}
     console.log(`Created fine-tuning dataset with ${qaJsonlEntries.length} QA pairs: ${fineTuningPath}`)
   }
 
+  // Generate formatted training data for different chat templates
+  const formattedDir = '/workspaces/george-ai/apps/fine-tuning/jsonl/formatted'
+
+  // Auto-detect templates from existing config files
+  const configFiles = [
+    '/workspaces/george-ai/apps/fine-tuning/finetune_ollama_config_gemma.json',
+    '/workspaces/george-ai/apps/fine-tuning/finetune_ollama_config_mistral.json',
+    '/workspaces/george-ai/apps/fine-tuning/finetune_ollama_config_qwen.json',
+  ]
+
+  const detectedTemplates: Set<ChatTemplateType> = new Set(['chatml']) // Always include ChatML as fallback
+
+  configFiles.forEach((configPath) => {
+    if (fs.existsSync(configPath)) {
+      try {
+        const template = detectTemplateFromConfig(configPath)
+        detectedTemplates.add(template)
+        console.log(`Detected template '${template}' from config: ${configPath}`)
+      } catch (error) {
+        console.warn(`Failed to detect template from ${configPath}:`, error)
+      }
+    }
+  })
+
+  // Convert QA pairs to chat template format
+  const chatTemplateQAPairs: ChatTemplateQAPair[] = qaJsonlEntries.map((entry) => ({
+    prompt: entry.prompt,
+    completion: entry.completion,
+    sourceDocument: entry.sourceDocument,
+    chunkIndex: entry.chunkIndex,
+    section: entry.section,
+    category: entry.category,
+    difficulty: entry.difficulty,
+  }))
+
+  // Create formatted training data for detected templates
+  const templateFiles = createMultiTemplateTrainingData(
+    chatTemplateQAPairs,
+    Array.from(detectedTemplates),
+    formattedDir,
+  )
+
+  console.log('Generated chat template training files:')
+  Object.entries(templateFiles).forEach(([template, path]) => {
+    console.log(`  ${template}: ${path}`)
+  })
+
   console.log(`Successfully processed ${chunks.length} chunks with ${totalQAPairs} total QA pairs`)
   console.log(`Training data available at: ${trainingDataPath}`)
   console.log(`Fine-tuning data available at: ${fineTuningPath}`)
+  console.log(`Formatted training data available in: ${formattedDir}`)
 
   return {
     id: file.id,
@@ -402,6 +456,7 @@ Chunk Content: ${chunk.pageContent}
     totalQAPairs,
     trainingDataPath,
     trainingDataEntries: trainingDataEntries.length,
+    formattedTrainingFiles: templateFiles,
   }
 }
 

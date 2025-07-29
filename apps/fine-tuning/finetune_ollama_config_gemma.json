@@ -1,6 +1,6 @@
 {
   "base_model": "google/gemma-3-12b-it",
-  "dataset_path": "jsonl/raw/qa-data.jsonl",
+  "dataset_path": "jsonl/formatted/qa-data-gemma.jsonl",
   "train_ratio": 0.8,
   "valid_ratio": 0.1,
   "test_ratio": 0.1,
