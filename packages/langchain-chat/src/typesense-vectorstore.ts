@@ -189,7 +189,7 @@ export const embedFile = async (
   await typesense.addVectors(saniatizedVectors, chunks)
 
   console.log('\n' + '='.repeat(60))
-  console.log(`✨ Generating OVERALL DOCUMENT SUMMARY for: \x1b[36m${file.name}\x1b[0m ✨`)
+  console.log(`Generating OVERALL DOCUMENT SUMMARY for: \x1b[36m${file.name}\x1b[0m`)
   console.log('='.repeat(60) + '\n')
   const fullDocumentContent = chunks.map((chunk) => chunk.pageContent).join('\n\n')
   const overallDocumentSummary = await summarizeDocument(fullDocumentContent)
@@ -353,7 +353,7 @@ Chunk Content: ${chunk.pageContent}
   console.log(`Training data saved to: ${trainingDataPath}`)
 
   // Also save QA pairs in JSONL format for fine-tuning
-  const fineTuningDir = process.cwd() + '/apps/fine-tuning/jsonl/raw'
+  const fineTuningDir = '/workspaces/george-ai/apps/fine-tuning/jsonl/raw'
   const fineTuningPath = fineTuningDir + '/qa-data.jsonl'
 
   // Create directory if it doesn't exist
@@ -587,7 +587,7 @@ export const getPDFContentForQuestionAndLibraries = async (
  * Clears the fine-tuning dataset file
  */
 export const clearFineTuningDataset = () => {
-  const fineTuningPath = process.cwd() + '/apps/fine-tuning/jsonl/raw/qa-data.jsonl'
+  const fineTuningPath = '/workspaces/george-ai/apps/fine-tuning/jsonl/raw/qa-data.jsonl'
   if (fs.existsSync(fineTuningPath)) {
     fs.unlinkSync(fineTuningPath)
     console.log(`🗑️ Cleared fine-tuning dataset: ${fineTuningPath}`)
