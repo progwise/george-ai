@@ -76,12 +76,12 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const { data: fetchedModelData } = useSuspenseQuery(getChatModelsQueryOptions())
 
-  const { mutate: update, isPending: updateIsPending } = useMutation({
+  const { mutate: update } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
     onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
-  const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
+  const { mutate: mutateAssistantIcon } = useMutation({
     mutationFn: async (file: File) => {
       const fileExtension = file.name.split('.').pop() || 'png'
       const uploadUrl = (await getBackendPublicUrl()) + `/assistant-icon?assistantId=${assistant.id}`

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { AiLibraryDetailFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
