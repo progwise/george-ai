@@ -67,9 +67,3 @@ export async function transformPdfToImages(
     throw new Error(`Failed to convert PDF to images: ${(error as Error).message}`)
   }
 }
-
-// Convert PDF to images and return as data URLs (for direct use in HTML/Markdown)
-export async function convertPdfToImageDataUrls(pdfFilePath: string): Promise<string[]> {
-  const { base64Images } = await transformPdfToImages(pdfFilePath, 2.5) // Use a scale of 2.5 for better quality
-  return base64Images.map((base64) => `data:image/png;base64,${base64}`)
-}

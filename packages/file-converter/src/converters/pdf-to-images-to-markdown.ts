@@ -1,35 +1,45 @@
-import fs from 'fs'
-import { Ollama } from 'ollama'
-
 import { transformPdfToImages } from './pdf-to-images'
 
-export const transformPdfToImageToMarkdown = async (filePath: string, imageScale: number = 2.5): Promise<string> => {
-  const ollama = new Ollama({
-    host: process.env.OLLAMA_BASE_URL,
-  })
-  const { imageFilePaths } = await transformPdfToImages(filePath, imageScale)
+export const transformPdfToImageToMarkdown = async (filePath: string, imageScale: number = 3.0): Promise<string> => {
+  const { base64Images, imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
   // Process images sequentially to avoid resource exhaustion
   const responses: string[] = []
 
-  for (let index = 0; index < imageFilePaths.length; index++) {
-    const imageFilePath = imageFilePaths[index]
+  for (let index = 0; index < base64Images.length; index++) {
+    const base64Image = base64Images[index]
     try {
-      const imageBuffer = await fs.promises.readFile(imageFilePath)
-      console.log(`Processing image ${index + 1} from PDF: ${imageFilePath}`, imageBuffer.length)
+      // const imageBuffer = await fs.promises.readFile(imageFilePath)
+      console.log(`Processing image ${index + 1} from PDF: ${imageFilePaths[index]}`, base64Image.length)
 
-      const response = await ollama.chat({
-        model: 'qwen2.5vl:latest',
-        stream: false,
-        messages: [
-          {
-            role: 'user',
-            content:
-              'Please describe the image in detail using markdown. Do not include any code blocks, just return plain markdown text.',
-            images: [imageFilePath],
-          },
-        ],
+      // Bypass Ollama client and use direct HTTP request like OpenWebUI
+      const httpResponse = await fetch(`${process.env.OLLAMA_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'qwen2.5vl:latest',
+          stream: false,
+          messages: [
+            {
+              role: 'user',
+              content:
+                'Please describe the image in detail using markdown. Do not include any code blocks, just return plain markdown text.',
+              images: [base64Image], // Clean base64 string without data URL prefix
+            },
+          ],
+        }),
       })
+
+      if (!httpResponse.ok) {
+        const response = await httpResponse.json()
+        throw new Error(
+          `HTTP ${httpResponse.status}: ${httpResponse.statusText} \nResponse: ${JSON.stringify(response)}`,
+        )
+      }
+
+      const response = (await httpResponse.json()) as { message?: { content?: string } }
 
       if (!response || !response.message || !response.message.content) {
         console.error(`No response or content for image ${index + 1}`)
