@@ -8,8 +8,8 @@ const getChatModels = createServerFn({ method: 'GET' }).handler(async () => {
     graphql(`
       query aiChatModels {
         aiChatModels {
-          modelName
-          title
+          name
+          model
         }
       }
     `),
@@ -26,9 +26,8 @@ const getEmbeddingModels = createServerFn({ method: 'GET' }).handler(async () =>
     graphql(`
       query aiEmbeddingModels {
         aiEmbeddingModels {
-          modelName
-          title
-          type
+          name
+          model
         }
       }
     `),

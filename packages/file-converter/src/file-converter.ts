@@ -11,10 +11,13 @@ export interface FileLoadParams {
   name: string
   mimeType: string
   path: string
+  fileProcessingOptions?: string
 }
 
 export async function transformToMarkdown(params: FileLoadParams): Promise<string> {
-  const { name, mimeType, path: filePath } = params
+  const { name, mimeType, path: filePath, fileProcessingOptions } = params
+
+  console.log(`fileProcessingOptions for ${name} not implemented:`, fileProcessingOptions)
 
   try {
     switch (mimeType) {

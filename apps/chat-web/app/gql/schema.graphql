@@ -143,19 +143,8 @@ input AiBaseCaseInputType {
 AI Chat Models available in the system
 """
 type AiChatModel {
-  baseUrl: String
-  modelName: String!
-  modelType: String!
-  options: [AiChatModelOption!]
-  title: String!
-}
-
-"""
-Options for AI Models
-"""
-type AiChatModelOption {
-  key: String!
-  value: String!
+  model: String!
+  name: String!
 }
 
 type AiConversation {
@@ -209,52 +198,20 @@ interface AiConversationParticipant {
   userId: ID
 }
 
-type AiEmbedding {
-  aiLibraryId: String!
-  headers: String
-  id: ID!
-  library: AiLibrary!
-  model: String!
-  name: String!
-  options: String
-  provider: String!
-  url: String
-}
-
-input AiEmbeddingInput {
-  headers: String
-  model: String!
-  name: String!
-  options: String
-  provider: String!
-  url: String
-}
-
 """
 AI Embedding Models available in the system
 """
 type AiEmbeddingModel {
-  baseUrl: String
-  modelName: String!
-  options: [AiEmbeddingModelOption!]
-  title: String!
-  type: String!
-}
-
-"""
-Options for AI Embedding Models
-"""
-type AiEmbeddingModelOption {
-  key: String!
-  value: String!
+  model: String!
+  name: String!
 }
 
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
-  embedding: AiEmbedding
-  embeddingId: String
+  embeddingModelName: String
+  fileProcessingOptions: String
   files: [AiLibraryFile!]!
   filesCount: Int!
   id: ID!
@@ -374,7 +331,8 @@ type AiLibraryFileQueryResult {
 
 input AiLibraryInput {
   description: String
-  embedding: AiEmbeddingInput
+  embeddingModelName: String
+  fileProcessingOptions: String
   icon: String
   name: String!
   url: String

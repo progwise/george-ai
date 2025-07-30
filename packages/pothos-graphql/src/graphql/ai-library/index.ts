@@ -35,8 +35,8 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
       },
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
-    embeddingId: t.exposeString('embeddingId'),
-    embedding: t.relation('embedding', {}),
+    embeddingModelName: t.exposeString('embeddingModelName'),
+    fileProcessingOptions: t.exposeString('fileProcessingOptions'),
     users: t.prismaField({
       type: ['User'],
       nullable: false,
@@ -54,24 +54,14 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
   }),
 })
 
-const AiEmbeddingInput = builder.inputType('AiEmbeddingInput', {
-  fields: (t) => ({
-    name: t.string({ required: true }),
-    model: t.string({ required: true }),
-    provider: t.string({ required: true }),
-    url: t.string({ required: false }),
-    headers: t.string({ required: false }),
-    options: t.string({ required: false }),
-  }),
-})
-
 const AiLibraryInput = builder.inputType('AiLibraryInput', {
   fields: (t) => ({
     name: t.string({ required: true }),
     description: t.string({ required: false }),
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
-    embedding: t.field({ type: AiEmbeddingInput, required: false }),
+    embeddingModelName: t.string({ required: false }),
+    fileProcessingOptions: t.string({ required: false }),
   }),
 })
 
@@ -122,24 +112,10 @@ builder.mutationField('updateAiLibrary', (t) =>
       }
       canAccessLibraryOrThrow(context, id)
 
-      const { embedding, ...libraryData } = data
-
-      console.log(`Updating library: ${library.name} with data:`, JSON.stringify(libraryData, null, 2))
-
       return prisma.aiLibrary.update({
         ...query,
         where: { id },
-        data: {
-          ...libraryData,
-          ...(embedding && {
-            embedding: {
-              upsert: {
-                create: embedding,
-                update: embedding,
-              },
-            },
-          }),
-        },
+        data,
       })
     },
   }),
@@ -153,21 +129,15 @@ builder.mutationField('createAiLibrary', (t) =>
     },
     resolve: (query, _source, { data }, context) => {
       const userId = context.session.user.id
-      const { embedding, ...libraryData } = data
 
       return prisma.aiLibrary.create({
         ...query,
         data: {
-          ...libraryData,
+          ...data,
           ownerId: userId,
           participants: {
             create: [{ userId }],
           },
-          ...(embedding && {
-            embedding: {
-              create: embedding,
-            },
-          }),
         },
       })
     },

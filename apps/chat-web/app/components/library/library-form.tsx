@@ -59,9 +59,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
   const mappedEmbeddingModels = useMemo(
     () =>
       aiEmbeddingModels.map((model) => ({
-        id: model.modelName,
-        name: model.modelName,
-        type: model.type,
+        id: model.model,
+        name: model.name,
       })),
     [aiEmbeddingModels],
   )
@@ -70,7 +69,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
     <form id={library.id} ref={formRef} className="mx-auto max-w-4xl space-y-6">
       <LoadingSpinner isLoading={saveIsPending} />
       <input type="hidden" name="id" value={library.id || ''} />
-      <input type="hidden" name="embeddingProvider" value={library.embedding?.provider || 'Ollama'} />
       {/* Basic Information Card */}
       <div className="card bg-base-100 shadow-md">
         <div className="card-body">
@@ -103,38 +101,27 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
       {/* Embedding Model Configuration Card */}
       <div className="card bg-base-100 shadow-md">
         <div className="card-body">
-          <h2 className="card-title mb-4 text-xl">{t('labels.embeddingModelConfiguration')}</h2>
+          <h2 className="card-title mb-4 text-xl">{t('labels.libraryProcessingOptions')}</h2>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Select
-              name="embeddingModel"
-              label={t('labels.embeddingModel')}
+              name="embeddingModelName"
+              label={t('labels.embeddingModelName')}
               options={mappedEmbeddingModels}
-              value={mappedEmbeddingModels.find((model) => model.id === library.embedding?.model)}
+              value={mappedEmbeddingModels.find((model) => model.id === library.embeddingModelName)}
               className="col-span-1"
-              placeholder={t('libraries.placeholders.embeddingModel')}
+              placeholder={t('libraries.placeholders.embeddingModelName')}
               {...fieldProps}
             />
 
             {/* URL Configuration */}
             <Input
-              name="embeddingUrl"
+              name="fileProcessingOptions"
               type="text"
-              label={t('labels.embeddingUrl')}
-              value={library.embedding?.url || ''}
+              label={t('labels.fileProcessingOptions')}
+              value={library.fileProcessingOptions || ''}
               className="col-span-1"
-              placeholder={t('libraries.placeholders.embeddingUrl')}
-              {...fieldProps}
-            />
-
-            {/* Options spans full width */}
-            <Input
-              name="embeddingOptions"
-              type="text"
-              label={t('labels.embeddingOptions')}
-              value={library.embedding?.options || ''}
-              className="col-span-2"
-              placeholder={t('libraries.placeholders.embeddingOptions')}
+              placeholder={t('libraries.placeholders.fileProcessingOptions')}
               {...fieldProps}
             />
           </div>

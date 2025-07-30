@@ -159,18 +159,8 @@ export type AiBaseCaseInputType = {
 /** AI Chat Models available in the system */
 export type AiChatModel = {
   __typename?: 'AiChatModel'
-  baseUrl?: Maybe<Scalars['String']['output']>
-  modelName: Scalars['String']['output']
-  modelType: Scalars['String']['output']
-  options?: Maybe<Array<AiChatModelOption>>
-  title: Scalars['String']['output']
-}
-
-/** Options for AI Models */
-export type AiChatModelOption = {
-  __typename?: 'AiChatModelOption'
-  key: Scalars['String']['output']
-  value: Scalars['String']['output']
+  model: Scalars['String']['output']
+  name: Scalars['String']['output']
 }
 
 export type AiConversation = {
@@ -226,43 +216,11 @@ export type AiConversationParticipant = {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
-export type AiEmbedding = {
-  __typename?: 'AiEmbedding'
-  aiLibraryId: Scalars['String']['output']
-  headers?: Maybe<Scalars['String']['output']>
-  id: Scalars['ID']['output']
-  library: AiLibrary
-  model: Scalars['String']['output']
-  name: Scalars['String']['output']
-  options?: Maybe<Scalars['String']['output']>
-  provider: Scalars['String']['output']
-  url?: Maybe<Scalars['String']['output']>
-}
-
-export type AiEmbeddingInput = {
-  headers?: InputMaybe<Scalars['String']['input']>
-  model: Scalars['String']['input']
-  name: Scalars['String']['input']
-  options?: InputMaybe<Scalars['String']['input']>
-  provider: Scalars['String']['input']
-  url?: InputMaybe<Scalars['String']['input']>
-}
-
 /** AI Embedding Models available in the system */
 export type AiEmbeddingModel = {
   __typename?: 'AiEmbeddingModel'
-  baseUrl?: Maybe<Scalars['String']['output']>
-  modelName: Scalars['String']['output']
-  options?: Maybe<Array<AiEmbeddingModelOption>>
-  title: Scalars['String']['output']
-  type: Scalars['String']['output']
-}
-
-/** Options for AI Embedding Models */
-export type AiEmbeddingModelOption = {
-  __typename?: 'AiEmbeddingModelOption'
-  key: Scalars['String']['output']
-  value: Scalars['String']['output']
+  model: Scalars['String']['output']
+  name: Scalars['String']['output']
 }
 
 export type AiLibrary = {
@@ -270,8 +228,8 @@ export type AiLibrary = {
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
-  embedding?: Maybe<AiEmbedding>
-  embeddingId?: Maybe<Scalars['String']['output']>
+  embeddingModelName?: Maybe<Scalars['String']['output']>
+  fileProcessingOptions?: Maybe<Scalars['String']['output']>
   files: Array<AiLibraryFile>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
@@ -404,7 +362,8 @@ export type AiLibraryFileQueryResult = {
 
 export type AiLibraryInput = {
   description?: InputMaybe<Scalars['String']['input']>
-  embedding?: InputMaybe<AiEmbeddingInput>
+  embeddingModelName?: InputMaybe<Scalars['String']['input']>
+  fileProcessingOptions?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
@@ -2327,20 +2286,12 @@ export type AiLibraryDetailFragment = {
   ownerId: string
   filesCount: number
   description?: string | null
+  embeddingModelName?: string | null
+  fileProcessingOptions?: string | null
   id: string
   name: string
   createdAt: string
   updatedAt: string
-  embedding?: {
-    __typename?: 'AiEmbedding'
-    id: string
-    name: string
-    model: string
-    provider: string
-    url?: string | null
-    headers?: string | null
-    options?: string | null
-  } | null
   owner: { __typename?: 'User'; name?: string | null }
 }
 
@@ -2355,20 +2306,12 @@ export type AiLibraryDetailQuery = {
     ownerId: string
     filesCount: number
     description?: string | null
+    embeddingModelName?: string | null
+    fileProcessingOptions?: string | null
     id: string
     name: string
     createdAt: string
     updatedAt: string
-    embedding?: {
-      __typename?: 'AiEmbedding'
-      id: string
-      name: string
-      model: string
-      provider: string
-      url?: string | null
-      headers?: string | null
-      options?: string | null
-    } | null
     users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
     owner: { __typename?: 'User'; name?: string | null }
   }
@@ -2478,20 +2421,12 @@ export type ChangeAiLibraryMutation = {
     ownerId: string
     filesCount: number
     description?: string | null
+    embeddingModelName?: string | null
+    fileProcessingOptions?: string | null
     id: string
     name: string
     createdAt: string
     updatedAt: string
-    embedding?: {
-      __typename?: 'AiEmbedding'
-      id: string
-      name: string
-      model: string
-      provider: string
-      url?: string | null
-      headers?: string | null
-      options?: string | null
-    } | null
     owner: { __typename?: 'User'; name?: string | null }
   } | null
 }
@@ -2555,14 +2490,14 @@ export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
 export type AiChatModelsQuery = {
   __typename?: 'Query'
-  aiChatModels: Array<{ __typename?: 'AiChatModel'; modelName: string; title: string }>
+  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
 }
 
 export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
 
 export type AiEmbeddingModelsQuery = {
   __typename?: 'Query'
-  aiEmbeddingModels: Array<{ __typename?: 'AiEmbeddingModel'; modelName: string; title: string; type: string }>
+  aiEmbeddingModels: Array<{ __typename?: 'AiEmbeddingModel'; name: string; model: string }>
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -5220,22 +5155,8 @@ export const AiLibraryDetailFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embedding' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'headers' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'options' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProcessingOptions' } },
         ],
       },
     },
@@ -9041,22 +8962,8 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embedding' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'headers' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'options' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProcessingOptions' } },
         ],
       },
     },
@@ -9461,22 +9368,8 @@ export const ChangeAiLibraryDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embedding' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'headers' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'options' } },
-              ],
-            },
-          },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileProcessingOptions' } },
         ],
       },
     },
@@ -9639,8 +9532,8 @@ export const AiChatModelsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
               ],
             },
           },
@@ -9665,9 +9558,8 @@ export const AiEmbeddingModelsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
               ],
             },
           },

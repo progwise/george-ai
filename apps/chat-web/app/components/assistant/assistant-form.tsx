@@ -122,7 +122,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
   }
 
   const aiModels = useMemo(
-    () => fetchedModelData.aiChatModels.map((model) => ({ id: model.modelName, name: model.title })),
+    () => fetchedModelData.aiChatModels.map((model) => ({ id: model.model, name: model.name })),
     [fetchedModelData],
   )
 

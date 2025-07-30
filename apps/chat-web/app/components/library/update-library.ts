@@ -19,10 +19,8 @@ export const getLibraryUpdateFormSchema = (language: Language) =>
     id: z.string().nonempty(),
     name: z.string().min(1, translate('errors.requiredField', language)),
     description: z.string().nullish(),
-    embeddingProvider: z.string().nullish(),
-    embeddingModel: z.string().nullish(),
-    embeddingUrl: z.string().nullish(),
-    embeddingOptions: z.string().nullish(),
+    embeddingModelName: z.string().nullish(),
+    fileProcessingOptions: z.string().nullish(),
   })
 
 export const updateLibrary = createServerFn({ method: 'POST' })
@@ -36,13 +34,8 @@ export const updateLibrary = createServerFn({ method: 'POST' })
       input: AiLibraryInputSchema().parse({
         name: parsedData.name,
         description: parsedData.description,
-        embedding: {
-          provider: parsedData.embeddingProvider,
-          name: parsedData.embeddingModel,
-          model: parsedData.embeddingModel,
-          url: parsedData.embeddingUrl,
-          options: parsedData.embeddingOptions,
-        },
+        embeddingModelName: parsedData.embeddingModelName,
+        fileProcessingOptions: parsedData.fileProcessingOptions,
       }),
     }
   })

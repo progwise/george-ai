@@ -1,7 +1,6 @@
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-
-import { getModel } from './assistant-model'
+import { ChatOllama } from '@langchain/ollama'
 
 const relevancePrompt = ChatPromptTemplate.fromMessages([
   [
@@ -36,7 +35,10 @@ export const getRelevance = async ({
     chat_history: chatHistory,
   })
 
-  const model = await getModel(modelName)
+  const model = new ChatOllama({
+    model: modelName,
+    baseUrl: process.env.OLLAMA_BASE_URL,
+  })
 
   const isRelevantAnswer = await model.invoke(prompt, {})
   return isRelevantAnswer.content.toString().toLowerCase().trim() === 'yes'

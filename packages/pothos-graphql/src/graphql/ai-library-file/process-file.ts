@@ -15,7 +15,7 @@ export const processFile = async (fileId: string) => {
       name: true,
       originUri: true,
       mimeType: true,
-      library: { select: { id: true, name: true, embedding: true } },
+      library: { select: { id: true, name: true, embeddingModelName: true, fileProcessingOptions: true } },
     },
     where: { id: fileId },
   })
@@ -23,8 +23,12 @@ export const processFile = async (fileId: string) => {
     throw new Error(`File not found in database: ${fileId}`)
   }
   try {
-    if (!file.library.embedding?.model) {
+    if (!file.library.embeddingModelName) {
       throw new Error(`Embedding model not found for library: ${file.libraryId}`)
+    }
+
+    if (!file.library.fileProcessingOptions) {
+      throw new Error(`File processing options not found for library: ${file.libraryId}`)
     }
 
     await prisma.aiLibraryFile.update({
@@ -38,12 +42,15 @@ export const processFile = async (fileId: string) => {
     const uploadFilePath = getUploadFilePath({ fileId: file.id, libraryId: file.libraryId })
     if (fs.existsSync(uploadFilePath)) {
       // re-generate markdown
-      await convertUploadToMarkdown(file.id, { removeUploadFile: false })
+      await convertUploadToMarkdown(file.id, {
+        removeUploadFile: false,
+        fileProcessingOptions: file.library.fileProcessingOptions,
+      })
     }
     if (!fs.existsSync(markdownFilePath)) {
       throw new Error(`Markdown file does not exist: ${markdownFilePath}`)
     }
-    const embeddedFile = await embedFile(file.libraryId, file.library.embedding.model, {
+    const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
       id: file.id,
       name: file.name,
       originUri: file.originUri!,

@@ -85,7 +85,7 @@ type Documents = {
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20) {\n          aiLibraryFiles(libraryId: $libraryId, skip: $skip, take: $take) {\n            libraryId\n            library {\n              name\n            }\n            take\n            skip\n            count\n            files {\n              ...AiLibraryFile_TableItem\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': typeof types.AiLibrariesDocument
-  '\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embedding {\n      id\n      name\n      model\n      provider\n      url\n      headers\n      options\n    }\n  }\n': typeof types.AiLibraryDetailFragmentDoc
+  '\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileProcessingOptions\n  }\n': typeof types.AiLibraryDetailFragmentDoc
   '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryDetail\n      ...LibraryParticipants_Library\n    }\n  }\n': typeof types.AiLibraryDetailDocument
   '\n  mutation prepareFile($file: AiLibraryFileInput!) {\n    prepareFile(data: $file) {\n      id\n    }\n  }\n': typeof types.PrepareFileDocument
   '\n  mutation processFile($fileId: String!) {\n    processFile(fileId: $fileId) {\n      id\n      chunks\n      size\n      uploadedAt\n      processedAt\n    }\n  }\n': typeof types.ProcessFileDocument
@@ -98,8 +98,8 @@ type Documents = {
   '\n  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {\n    updateAiLibrary(id: $id, data: $data) {\n      ...AiLibraryDetail\n    }\n  }\n': typeof types.ChangeAiLibraryDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        url\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
-  '\n      query aiChatModels {\n        aiChatModels {\n          modelName\n          title\n        }\n      }\n    ': typeof types.AiChatModelsDocument
-  '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          modelName\n          title\n          type\n        }\n      }\n    ': typeof types.AiEmbeddingModelsDocument
+  '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ': typeof types.AiChatModelsDocument
+  '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ': typeof types.AiEmbeddingModelsDocument
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.SaveUserProfileDocument
   '\n  query userProfile {\n    userProfile {\n      id\n      confirmationDate\n      ...UserProfileForm_UserProfile\n    }\n  }\n': typeof types.UserProfileDocument
@@ -269,7 +269,7 @@ const documents: Documents = {
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    createdAt\n    updatedAt\n    owner {\n      name\n    }\n  }\n':
     types.AiLibraryBaseFragmentDoc,
   '\n  query aiLibraries {\n    aiLibraries {\n      ...AiLibraryBase\n    }\n  }\n': types.AiLibrariesDocument,
-  '\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embedding {\n      id\n      name\n      model\n      provider\n      url\n      headers\n      options\n    }\n  }\n':
+  '\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileProcessingOptions\n  }\n':
     types.AiLibraryDetailFragmentDoc,
   '\n  query aiLibraryDetail($libraryId: String!) {\n    aiLibrary(libraryId: $libraryId) {\n      ...AiLibraryDetail\n      ...LibraryParticipants_Library\n    }\n  }\n':
     types.AiLibraryDetailDocument,
@@ -294,9 +294,9 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        url\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
-  '\n      query aiChatModels {\n        aiChatModels {\n          modelName\n          title\n        }\n      }\n    ':
+  '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ':
     types.AiChatModelsDocument,
-  '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          modelName\n          title\n          type\n        }\n      }\n    ':
+  '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ':
     types.AiEmbeddingModelsDocument,
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n':
     types.UserProfileForm_UserProfileFragmentDoc,
@@ -795,8 +795,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embedding {\n      id\n      name\n      model\n      provider\n      url\n      headers\n      options\n    }\n  }\n',
-): (typeof documents)['\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embedding {\n      id\n      name\n      model\n      provider\n      url\n      headers\n      options\n    }\n  }\n']
+  source: '\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileProcessingOptions\n  }\n',
+): (typeof documents)['\n  fragment AiLibraryDetail on AiLibrary {\n    ...AiLibraryBase\n    ownerId\n    filesCount\n    description\n    embeddingModelName\n    fileProcessingOptions\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -873,14 +873,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query aiChatModels {\n        aiChatModels {\n          modelName\n          title\n        }\n      }\n    ',
-): (typeof documents)['\n      query aiChatModels {\n        aiChatModels {\n          modelName\n          title\n        }\n      }\n    ']
+  source: '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ',
+): (typeof documents)['\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          modelName\n          title\n          type\n        }\n      }\n    ',
-): (typeof documents)['\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          modelName\n          title\n          type\n        }\n      }\n    ']
+  source: '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ',
+): (typeof documents)['\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

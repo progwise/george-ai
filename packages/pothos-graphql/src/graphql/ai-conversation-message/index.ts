@@ -158,7 +158,8 @@ builder.mutationField('sendMessage', (t) =>
                   id: true,
                   name: true,
                   description: true,
-                  embedding: { select: { model: true } },
+                  embeddingModelName: true,
+                  fileProcessingOptions: true,
                 },
               },
               usedFor: true,
@@ -275,7 +276,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
-            embeddingModelName: usage.library.embedding?.model || '',
+            embeddingModelName: usage.library.embeddingModelName || '',
           })),
         })) {
           const content = answerFromAssistant
