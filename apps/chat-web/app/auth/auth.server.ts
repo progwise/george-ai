@@ -26,6 +26,7 @@ const loginDocument = graphql(`
       name
       given_name
       family_name
+      avatarUrl
       createdAt
       isAdmin
     }

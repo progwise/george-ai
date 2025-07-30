@@ -4,6 +4,7 @@ import { createServerFn } from '@tanstack/react-start'
 
 import { validateForm } from '@george-ai/web-utils'
 
+import { AvatarUpload } from '../../../components/avatar-upload'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
 import { LoadingSpinner } from '../../../components/loading-spinner'
 import { UserProfileForm, getFormSchema, updateProfile } from '../../../components/user/user-profile-form'
@@ -37,6 +38,7 @@ export const Route = createFileRoute('/_authenticated/profile/')({
 
 function RouteComponent() {
   const { t, language } = useTranslation()
+
   const { user } = Route.useRouteContext()
 
   const formSchema = getFormSchema(language)
@@ -136,6 +138,8 @@ function RouteComponent() {
 
   return (
     <article className="flex w-full flex-col items-center gap-4">
+      <AvatarUpload user={user} className="size-16" />
+
       <UserProfileForm
         userProfile={userProfile}
         onSubmit={(formData: FormData) => {
