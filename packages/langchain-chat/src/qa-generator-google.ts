@@ -15,7 +15,7 @@ export interface ChatTemplateEntry {
   difficulty?: string[]
 }
 
-// 🎯 CHAT TEMPLATE SELECTION - Change this to control output format
+// CHAT TEMPLATE SELECTION - Change this to control output format
 function getChatTemplate(): 'gemma' | 'chatml' | 'mistral' | 'llama' | 'qwen' {
   return 'gemma' // Change this value to switch templates
 }
@@ -62,7 +62,7 @@ export const generateQAPairs = async (chunk: string, summary: string): Promise<Q
 
   const config = TEMPLATE_CONFIG[CHAT_TEMPLATE]
 
-  console.log(`🎯 Using chat template: ${CHAT_TEMPLATE.toUpperCase()}`)
+  console.log(`Using chat template: ${CHAT_TEMPLATE.toUpperCase()}`)
 
   const prompt = `Given the following summary and document chunk, generate question-answer pairs.
 Summary: ${summary}
@@ -182,7 +182,7 @@ export const generateChatTemplateEntries = async (chunk: string, summary: string
   const qaModel = await getModel('llama3.1:latest')
   const config = TEMPLATE_CONFIG[CHAT_TEMPLATE]
 
-  console.log(`🎯 Generating ${CHAT_TEMPLATE.toUpperCase()} format training data`)
+  console.log(`Generating ${CHAT_TEMPLATE.toUpperCase()} format training data`)
 
   const prompt = `Given the following summary and document chunk, generate question-answer pairs.
 Summary: ${summary}
