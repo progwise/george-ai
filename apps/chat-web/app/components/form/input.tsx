@@ -73,10 +73,12 @@ export const Input = <T extends ZodRawShape>({
       <legend className="fieldset-legend flex w-full justify-between">
         <span className="group-has-aria-invalid:text-error text-sm">{label}</span>
         <span className="text-error">{errors.join(', ')}</span>
+        {required && <span className="text-error">*</span>}
       </legend>
 
       {type === 'textarea' ? (
         <textarea
+          id={name}
           ref={ref as React.Ref<HTMLTextAreaElement>}
           key={value}
           name={name}
@@ -87,10 +89,12 @@ export const Input = <T extends ZodRawShape>({
           disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           aria-invalid={errors.length > 0 ? true : undefined}
         />
       ) : (
         <input
+          id={name}
           ref={ref as React.Ref<HTMLInputElement>}
           key={value}
           name={name}
@@ -102,6 +106,7 @@ export const Input = <T extends ZodRawShape>({
           disabled={disabled}
           onChange={handleChange}
           onBlur={handleBlur}
+          onFocus={(e) => e.target.select()}
           aria-invalid={errors.length > 0 ? true : undefined}
         />
       )}

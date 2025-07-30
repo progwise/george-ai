@@ -156,6 +156,13 @@ export type AiBaseCaseInputType = {
   sequence?: InputMaybe<Scalars['Float']['input']>
 }
 
+/** AI Chat Models available in the system */
+export type AiChatModel = {
+  __typename?: 'AiChatModel'
+  model: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
 export type AiConversation = {
   __typename?: 'AiConversation'
   assistants: Array<AiAssistant>
@@ -209,11 +216,49 @@ export type AiConversationParticipant = {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+/** AI Embedding Models available in the system */
+export type AiEmbeddingModel = {
+  __typename?: 'AiEmbeddingModel'
+  model: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
+/** File converter option for AI Library */
+export type AiFileConverterOption = {
+  __typename?: 'AiFileConverterOption'
+  description: AiFileConverterOptionText
+  label: AiFileConverterOptionText
+  name: Scalars['String']['output']
+}
+
+/** Text representation of a file converter option */
+export type AiFileConverterOptionText = {
+  __typename?: 'AiFileConverterOptionText'
+  de: Scalars['String']['output']
+  en: Scalars['String']['output']
+}
+
+/** Options for converting files in AI Library */
+export type AiFileConverterOptions = {
+  __typename?: 'AiFileConverterOptions'
+  /** PDF processing options */
+  pdf: AiFileConverterOptionsSection
+}
+
+/** Section of file converter options */
+export type AiFileConverterOptionsSection = {
+  __typename?: 'AiFileConverterOptionsSection'
+  settings: Array<AiFileConverterOption>
+  title: AiFileConverterOptionText
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
+  embeddingModelName?: Maybe<Scalars['String']['output']>
+  fileConverterOptions?: Maybe<Scalars['String']['output']>
   files: Array<AiLibraryFile>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
@@ -346,6 +391,8 @@ export type AiLibraryFileQueryResult = {
 
 export type AiLibraryInput = {
   description?: InputMaybe<Scalars['String']['input']>
+  embeddingModelName?: InputMaybe<Scalars['String']['input']>
+  fileConverterOptions?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
@@ -416,23 +463,6 @@ export type AiLibraryUsage = {
   usedFor?: Maybe<Scalars['String']['output']>
 }
 
-/** AI Models available in the system */
-export type AiModel = {
-  __typename?: 'AiModel'
-  baseUrl?: Maybe<Scalars['String']['output']>
-  modelName: Scalars['String']['output']
-  modelType: Scalars['String']['output']
-  options?: Maybe<Array<AiModelOption>>
-  title: Scalars['String']['output']
-}
-
-/** Options for AI Models */
-export type AiModelOption = {
-  __typename?: 'AiModelOption'
-  key: Scalars['String']['output']
-  value: Scalars['String']['output']
-}
-
 export type AssistantParticipant = AiConversationParticipant & {
   __typename?: 'AssistantParticipant'
   assistant?: Maybe<AiAssistant>
@@ -446,14 +476,6 @@ export type AssistantParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
-}
-
-export type ChatAnswer = {
-  __typename?: 'ChatAnswer'
-  answer?: Maybe<Scalars['String']['output']>
-  notEnoughInformation?: Maybe<Scalars['Boolean']['output']>
-  sessionId?: Maybe<Scalars['String']['output']>
-  source?: Maybe<Scalars['String']['output']>
 }
 
 export type ConversationInvitationInput = {
@@ -536,7 +558,6 @@ export type Mutation = {
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
   cancelFileUpload: Scalars['Boolean']['output']
-  chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmConversationInvitation?: Maybe<AiConversation>
   confirmUserProfile?: Maybe<UserProfile>
@@ -612,12 +633,6 @@ export type MutationAddLibraryUsageArgs = {
 export type MutationCancelFileUploadArgs = {
   fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type MutationChatArgs = {
-  question: Scalars['String']['input']
-  retrievalFlow?: InputMaybe<RetrievalFlow>
-  sessionId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type MutationClearEmbeddedFilesArgs = {
@@ -824,10 +839,13 @@ export type Query = {
   aiActAssessment: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
+  aiChatModels: Array<AiChatModel>
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
+  aiEmbeddingModels: Array<AiEmbeddingModel>
   aiFileChunks: FileChunkQueryResponse
+  aiFileConverterOptions: AiFileConverterOptions
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -836,7 +854,6 @@ export type Query = {
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
-  aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
@@ -927,13 +944,6 @@ export type QueryReadFileMarkdownArgs = {
 
 export type QueryUserArgs = {
   email: Scalars['String']['input']
-}
-
-export enum RetrievalFlow {
-  OnlyLocal = 'OnlyLocal',
-  OnlyWeb = 'OnlyWeb',
-  Parallel = 'Parallel',
-  Sequential = 'Sequential',
 }
 
 export type User = {
@@ -2278,6 +2288,25 @@ export type EmbeddingsTableQuery = {
   }
 }
 
+export type AiFileConverterOptionsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiFileConverterOptionsQuery = {
+  __typename?: 'Query'
+  aiFileConverterOptions: {
+    __typename?: 'AiFileConverterOptions'
+    pdf: {
+      __typename?: 'AiFileConverterOptionsSection'
+      title: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+      settings: Array<{
+        __typename?: 'AiFileConverterOption'
+        name: string
+        label: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+        description: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+      }>
+    }
+  }
+}
+
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -2306,6 +2335,8 @@ export type AiLibraryDetailFragment = {
   ownerId: string
   filesCount: number
   description?: string | null
+  embeddingModelName?: string | null
+  fileConverterOptions?: string | null
   id: string
   name: string
   createdAt: string
@@ -2324,6 +2355,8 @@ export type AiLibraryDetailQuery = {
     ownerId: string
     filesCount: number
     description?: string | null
+    embeddingModelName?: string | null
+    fileConverterOptions?: string | null
     id: string
     name: string
     createdAt: string
@@ -2425,6 +2458,28 @@ export type QueryLibraryFilesQuery = {
   }
 }
 
+export type ChangeAiLibraryMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiLibraryInput
+}>
+
+export type ChangeAiLibraryMutation = {
+  __typename?: 'Mutation'
+  updateAiLibrary?: {
+    __typename?: 'AiLibrary'
+    ownerId: string
+    filesCount: number
+    description?: string | null
+    embeddingModelName?: string | null
+    fileConverterOptions?: string | null
+    id: string
+    name: string
+    createdAt: string
+    updatedAt: string
+    owner: { __typename?: 'User'; name?: string | null }
+  } | null
+}
+
 export type LibraryUpdatesListQueryVariables = Exact<{
   libraryId: Scalars['ID']['input']
   crawlerId?: InputMaybe<Scalars['ID']['input']>
@@ -2480,11 +2535,18 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
-export type AiModelsQueryVariables = Exact<{ [key: string]: never }>
+export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
-export type AiModelsQuery = {
+export type AiChatModelsQuery = {
   __typename?: 'Query'
-  aiModels: Array<{ __typename?: 'AiModel'; modelName: string; title: string }>
+  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
+}
+
+export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiEmbeddingModelsQuery = {
+  __typename?: 'Query'
+  aiEmbeddingModels: Array<{ __typename?: 'AiEmbeddingModel'; name: string; model: string }>
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -2515,16 +2577,6 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
-}
-
-export type ChangeAiLibraryMutationVariables = Exact<{
-  id: Scalars['String']['input']
-  data: AiLibraryInput
-}>
-
-export type ChangeAiLibraryMutation = {
-  __typename?: 'Mutation'
-  updateAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -5152,6 +5204,8 @@ export const AiLibraryDetailFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },
@@ -8821,6 +8875,82 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+export const AiFileConverterOptionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiFileConverterOptions' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiFileConverterOptions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pdf' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'title' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'settings' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'label' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'description' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiFileConverterOptionsQuery, AiFileConverterOptionsQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -8957,6 +9087,8 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },
@@ -9283,6 +9415,91 @@ export const QueryLibraryFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
+export const ChangeAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'changeAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryDetail' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryBase' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'owner' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryDetail' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryBase' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChangeAiLibraryMutation, ChangeAiLibraryMutationVariables>
 export const LibraryUpdatesListDocument = {
   kind: 'Document',
   definitions: [
@@ -9424,24 +9641,24 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
-export const AiModelsDocument = {
+export const AiChatModelsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiModels' },
+      name: { kind: 'Name', value: 'aiChatModels' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiModels' },
+            name: { kind: 'Name', value: 'aiChatModels' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
               ],
             },
           },
@@ -9449,7 +9666,33 @@ export const AiModelsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AiModelsQuery, AiModelsQueryVariables>
+} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
+export const AiEmbeddingModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiEmbeddingModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiEmbeddingModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiEmbeddingModelsQuery, AiEmbeddingModelsQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -9497,56 +9740,6 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
-export const ChangeAiLibraryDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'changeAiLibrary' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateAiLibrary' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ChangeAiLibraryMutation, ChangeAiLibraryMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [

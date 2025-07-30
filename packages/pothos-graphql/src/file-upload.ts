@@ -13,7 +13,10 @@ export const getFileInfo = async (fileId: string) => {
   return fileInfo
 }
 
-export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile }: { removeUploadFile: boolean }) => {
+export const convertUploadToMarkdown = async (
+  fileId: string,
+  { removeUploadFile, fileConverterOptions }: { removeUploadFile: boolean; fileConverterOptions: string },
+) => {
   const fileRecord = await getFileInfo(fileId)
   if (!fileRecord) {
     throw new Error(`File record not found for ID: ${fileId}`)
@@ -33,6 +36,7 @@ export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile
     name: fileRecord.name,
     mimeType: fileRecord.mimeType,
     path: uploadFilePath,
+    fileConverterOptions,
   })
 
   await fs.promises.writeFile(markdownFilePath, markdownContent, {

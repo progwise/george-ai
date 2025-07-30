@@ -1,10 +1,11 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage, trimMessages } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
+import { ChatOllama } from '@langchain/ollama'
 
 import { Assistant, getAssistantBaseMessages } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
 import { getLibraryRelevancePrompt } from './assistant-library'
-import { AssistantModel, getModel } from './assistant-model'
+import { AssistantModel } from './assistant-model'
 import { getSanitizedQuestion } from './assistant-prompt'
 import { getRelevance } from './assistant-relevance'
 import { Library } from './library'
@@ -28,7 +29,10 @@ export async function* askAssistantChain(input: {
     yield '> Please configure a language model for this assistant to use it.\n'
     return
   }
-  const model = await getModel(input.assistant.languageModel)
+  const model = new ChatOllama({
+    model: input.assistant.languageModel,
+    baseUrl: process.env.OLLAMA_BASE_URL,
+  })
   const trimmedHistoryMessages = await getTrimmedHistoryMessages(input.history, model, 1000)
 
   const assistantBaseInformation = getAssistantBaseMessages({
@@ -64,7 +68,11 @@ export async function* askAssistantChain(input: {
       libraryUsedFor: library.usedFor,
     })
 
-    const vectorStoreResult = await similaritySearch(libraryPromptResult.searchPrompt, library.id)
+    const vectorStoreResult = await similaritySearch(
+      libraryPromptResult.searchPrompt,
+      library.id,
+      library.embeddingModelName,
+    )
 
     const messages = vectorStoreResult.map(
       (result) =>

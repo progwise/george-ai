@@ -61,17 +61,7 @@ function RouteComponent() {
           activeProps={{ className: 'tab-active' }}
           role="tab"
         >
-          {t('labels.summary')}
-        </Link>
-        <Link
-          to="/libraries/$libraryId/edit"
-          params={{ libraryId }}
-          className="tab"
-          activeOptions={{ exact: true }}
-          activeProps={{ className: 'tab-active' }}
-          role="tab"
-        >
-          {t('actions.edit')}
+          {t('labels.details')}
         </Link>
         <Link
           to="/libraries/$libraryId/files"

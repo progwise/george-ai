@@ -10,7 +10,6 @@ import {
   AiLibraryFileInput,
   AiLibraryInput,
   ConversationInvitationInput,
-  RetrievalFlow,
   UserInput,
   UserProfileInput,
 } from './graphql'
@@ -24,8 +23,6 @@ type definedNonNullAny = {}
 export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
-
-export const RetrievalFlowSchema = z.nativeEnum(RetrievalFlow)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -97,6 +94,8 @@ export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFile
 export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> {
   return z.object({
     description: z.string().nullish(),
+    embeddingModelName: z.string().nullish(),
+    fileConverterOptions: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),

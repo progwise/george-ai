@@ -1,8 +1,8 @@
 import { BaseMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
+import { ChatOllama } from '@langchain/ollama'
 
 import { Assistant } from './assistant'
-import { getModel } from './assistant-model'
 
 const evaluateConditionPrompt = ChatPromptTemplate.fromMessages([
   [
@@ -59,7 +59,10 @@ export const getConditionIsTrue = async (input: {
     throw new Error('Assistant language model is not set')
   }
 
-  const model = await getModel(input.assistant.languageModel)
+  const model = new ChatOllama({
+    model: input.assistant.languageModel,
+    baseUrl: process.env.OLLAMA_BASE_URL,
+  })
 
   const isTrueAnswer = await model.invoke(conditionPrompt, {})
 

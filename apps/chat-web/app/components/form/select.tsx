@@ -55,9 +55,12 @@ export const Select = <T extends ZodRawShape>({
     onBlur?.(selectedOption)
   }
   return (
-    <label className={twMerge('grid w-full grid-cols-2', className)}>
-      <span className={twMerge('text-base-content/50 text-sm', errors.length > 0 && 'text-error')}>{label}</span>
-      <span className="text-error justify-self-end text-sm">{errors.join(', ')}</span>
+    <fieldset className={twMerge('fieldset group', className)}>
+      <legend className="fieldset-legend flex w-full justify-between">
+        <span className="group-has-aria-invalid:text-error text-sm">{label}</span>
+        <span className="text-error">{errors.join(', ')}</span>
+        {required && <span className="text-error">*</span>}
+      </legend>
       <div className="dropdown col-span-2">
         <input type="hidden" name={name} ref={hiddenIdFieldRef} value={value?.id || ''} />
         <Listbox
@@ -71,6 +74,6 @@ export const Select = <T extends ZodRawShape>({
           placeholder={placeholder}
         />
       </div>
-    </label>
+    </fieldset>
   )
 }

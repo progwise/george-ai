@@ -48,16 +48,10 @@ export const reprocessFiles = createServerFn({ method: 'POST' })
           }
         `),
         { id: fileId },
-      ).catch((error) => {
-        console.log(`Error re-processing file ${fileId}:`, error)
-      }),
+      ),
     )
-    const result = await Promise.all(reprocessFilePromises).catch((error) => {
-      console.error('Error re-processing files:', error)
-      throw new Error('Failed to re-process files')
-    })
 
-    return result.filter((file) => file !== undefined)
+    return await Promise.all(reprocessFilePromises)
   })
 
 export const dropAllFiles = createServerFn({ method: 'POST' })

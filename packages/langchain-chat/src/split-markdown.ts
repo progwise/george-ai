@@ -19,8 +19,6 @@ export const splitMarkdown = (markdownFilePath: string): Document<ChunkMetadata>
   // Split content into sections based on headings
   const sections = splitByHeadings(content)
 
-  console.log(`Split markdown ${markdownFilePath} into ${sections.length} sections.`)
-
   // Create documents from sections, respecting MAX_CHUNK_SIZE
   const documents: Document<ChunkMetadata>[] = []
 
