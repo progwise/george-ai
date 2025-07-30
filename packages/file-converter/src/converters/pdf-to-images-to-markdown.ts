@@ -9,13 +9,17 @@ export const transformPdfToImageToMarkdown = async (filePath: string): Promise<s
   })
   const { imageFilePaths } = await transformPdfToImages(filePath)
 
-  const responses = await Promise.all(
-    imageFilePaths.map(async (imageFilePath, index) => {
-      const image = await fs.promises.readFile(imageFilePath)
-      console.log(`Processing image ${index + 1} from PDF: ${imageFilePath}`, image.length)
+  // Process images sequentially to avoid resource exhaustion
+  const responses: string[] = []
+
+  for (let index = 0; index < imageFilePaths.length; index++) {
+    const imageFilePath = imageFilePaths[index]
+    try {
+      const imageBuffer = await fs.promises.readFile(imageFilePath)
+      console.log(`Processing image ${index + 1} from PDF: ${imageFilePath}`, imageBuffer.length)
+
       const response = await ollama.chat({
         model: 'qwen2.5vl:latest',
-
         stream: false,
         messages: [
           {
@@ -29,14 +33,16 @@ export const transformPdfToImageToMarkdown = async (filePath: string): Promise<s
 
       if (!response || !response.message || !response.message.content) {
         console.error(`No response or content for image ${index + 1}`)
-        return `# Image Content for Page ${index + 1}\n\nNo response for image ${index + 1}`
+        responses.push(`# Image Content for Page ${index + 1}\n\nNo response for image ${index + 1}`)
+      } else {
+        console.log(`Response for image ${index + 1}:`, response.message.content)
+        responses.push(`# Image Content for Page ${index + 1}\n\n${response.message.content}`)
       }
-
-      console.log(`Response for image ${index + 1}:`, response.message.content)
-
-      return `# Image Content for Page ${index + 1}\n\n${response.message.content}`
-    }),
-  )
+    } catch (error) {
+      console.error(`Error processing image ${index + 1}:`, error)
+      responses.push(`# Image Content for Page ${index + 1}\n\nError processing image: ${(error as Error).message}`)
+    }
+  }
 
   const responseMarkdown = responses.join('\n') || 'PDF2Image2Markdown conversion returned no text.'
   console.log(`Rendering PDF response for ${filePath}`, responseMarkdown)
