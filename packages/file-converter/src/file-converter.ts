@@ -6,6 +6,7 @@ import { transformExcelToMarkdown } from './converters/excel-to-markdown'
 import { transformHtmlToMarkdown } from './converters/html-to-markdown'
 import { transformPdfToImageToMarkdown } from './converters/pdf-to-images-to-markdown'
 import { transformPdfToMarkdown } from './converters/pdf-to-markdown'
+import { getFileConverterOptionsList } from './file-converter-options'
 
 export interface FileLoadParams {
   name: string
@@ -16,15 +17,25 @@ export interface FileLoadParams {
 
 export async function transformToMarkdown(params: FileLoadParams): Promise<string> {
   const { name, mimeType, path: filePath, fileConverterOptions } = params
+  const fileConverterOptionsList = getFileConverterOptionsList(fileConverterOptions)
 
-  console.log(`fileConverterOptions for ${name} not implemented:`, fileConverterOptions)
-
+  console.log('transformToMarkdown:', { name, mimeType, filePath, fileConverterOptionsList })
   try {
     switch (mimeType) {
       case 'application/pdf': {
-        const directContent = await transformPdfToMarkdown(filePath)
-        const imageContent = await transformPdfToImageToMarkdown(filePath)
-        return `# Direct Content\n\n${directContent}\n\n---\n\n# Image Content\n\n${imageContent}`
+        if (
+          fileConverterOptionsList.includes('enableImageProcessing') &&
+          fileConverterOptionsList.includes('enableTextExtraction')
+        ) {
+          const directContent = await transformPdfToMarkdown(filePath)
+          const imageContent = await transformPdfToImageToMarkdown(filePath)
+          return `# Direct Content\n\n${directContent}\n\n---\n\n# Image Content\n\n${imageContent}`
+        } else if (fileConverterOptionsList.includes('enableImageProcessing')) {
+          return await transformPdfToImageToMarkdown(filePath)
+        } else if (fileConverterOptionsList.includes('enableTextExtraction')) {
+          return await transformPdfToMarkdown(filePath)
+        }
+        return `# PDF Content\n\nPDF processing options not set for library.`
       }
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':

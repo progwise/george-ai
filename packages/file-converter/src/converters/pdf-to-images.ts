@@ -2,10 +2,10 @@ import fs from 'fs'
 import { createRequire } from 'node:module'
 import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-const SCALE = 3.0 // Scale for rendering PDF pages (3.0 = 216 DPI)
 // Convert PDF file to base64 encoded images (one per page)
 export async function transformPdfToImages(
   pdfFilePath: string,
+  scale: number, // Increase scale for better resolution (2x = 144 DPI, 3x = 216 DPI, 4x = 288 DPI)
 ): Promise<{ base64Images: string[]; imageFilePaths: string[] }> {
   const require = createRequire(import.meta.url)
 
@@ -34,8 +34,6 @@ export async function transformPdfToImages(
 
     for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
       const page = await pdfDocument.getPage(pageNum)
-      // Increase scale for better resolution (2x = 144 DPI, 3x = 216 DPI, 4x = 288 DPI)
-      const scale = SCALE // This will render at 216 DPI (72 DPI * 3)
       const viewport = page.getViewport({ scale })
       const canvasFactory = pdfDocument.canvasFactory
 
@@ -50,7 +48,7 @@ export async function transformPdfToImages(
       await page.render(renderContext).promise
 
       // Set DPI metadata in PNG (216 DPI = 8503.9 pixels per meter)
-      const dpi = 72 * SCALE // 72 DPI * scale (3.0)
+      const dpi = 72 * scale // 72 DPI * scale (3.0)
       const pixelsPerMeter = Math.round(dpi * 39.3701) // Convert DPI to pixels per meter
 
       const buffer = canvasAndContext.canvas.toBuffer('image/png', {
@@ -72,6 +70,6 @@ export async function transformPdfToImages(
 
 // Convert PDF to images and return as data URLs (for direct use in HTML/Markdown)
 export async function convertPdfToImageDataUrls(pdfFilePath: string): Promise<string[]> {
-  const { base64Images } = await transformPdfToImages(pdfFilePath)
+  const { base64Images } = await transformPdfToImages(pdfFilePath, 2.5) // Use a scale of 2.5 for better quality
   return base64Images.map((base64) => `data:image/png;base64,${base64}`)
 }

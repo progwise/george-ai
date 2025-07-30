@@ -58,3 +58,10 @@ export type FileConverterSettingName =
 export const getFileConverterOptions = (): FileConverterOptions => {
   return FILE_CONVERTER_OPTIONS as unknown as FileConverterOptions
 }
+
+export const getFileConverterOptionsList = (fileConverterOptions?: string): FileConverterSettingName[] => {
+  if (!fileConverterOptions || fileConverterOptions.length < 1) return []
+
+  // Split the options by comma and filter out empty strings
+  return fileConverterOptions.split(',').filter((option) => option.trim() !== '') as FileConverterSettingName[]
+}

@@ -27,10 +27,6 @@ export const processFile = async (fileId: string) => {
       throw new Error(`Embedding model not found for library: ${file.libraryId}`)
     }
 
-    if (!file.library.fileConverterOptions) {
-      throw new Error(`File processing options not found for library: ${file.libraryId}`)
-    }
-
     await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
@@ -44,7 +40,7 @@ export const processFile = async (fileId: string) => {
       // re-generate markdown
       await convertUploadToMarkdown(file.id, {
         removeUploadFile: false,
-        fileConverterOptions: file.library.fileConverterOptions,
+        fileConverterOptions: file.library.fileConverterOptions || '',
       })
     }
     if (!fs.existsSync(markdownFilePath)) {

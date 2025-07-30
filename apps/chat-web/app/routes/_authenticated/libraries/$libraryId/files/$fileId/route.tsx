@@ -6,6 +6,7 @@ import { dateTimeString } from '@george-ai/web-utils'
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
+import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { LoadingSpinner } from '../../../../../../components/loading-spinner'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
@@ -34,7 +35,7 @@ function RouteComponent() {
     mutationFn: () => reprocessFiles({ data: [params.fileId] }),
     onError: (error) => {
       const errorMessage =
-        error instanceof Error ? error.message : t('errors.reprocessFiles', { error: 'Unknown error', files: '' })
+        error instanceof Error ? error.message : t('errors.reprocessFile', { error: 'Unknown error', files: '' })
       toastError(errorMessage)
     },
     onSuccess: (data) => {
@@ -64,10 +65,17 @@ function RouteComponent() {
       }
     },
     // Invalidate the file info query to refresh the data after reprocessing
-    onSettled: () =>
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      }),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+    },
   })
   return (
     <>

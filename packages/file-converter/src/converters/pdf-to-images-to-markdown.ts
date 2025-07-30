@@ -3,11 +3,11 @@ import { Ollama } from 'ollama'
 
 import { transformPdfToImages } from './pdf-to-images'
 
-export const transformPdfToImageToMarkdown = async (filePath: string): Promise<string> => {
+export const transformPdfToImageToMarkdown = async (filePath: string, imageScale: number = 2.5): Promise<string> => {
   const ollama = new Ollama({
     host: process.env.OLLAMA_BASE_URL,
   })
-  const { imageFilePaths } = await transformPdfToImages(filePath)
+  const { imageFilePaths } = await transformPdfToImages(filePath, imageScale)
 
   // Process images sequentially to avoid resource exhaustion
   const responses: string[] = []
