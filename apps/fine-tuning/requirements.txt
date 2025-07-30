@@ -1,0 +1,4 @@
+mlx-lm
+transformers
+torch
+sentencepiece
