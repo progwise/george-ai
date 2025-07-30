@@ -223,13 +223,42 @@ export type AiEmbeddingModel = {
   name: Scalars['String']['output']
 }
 
+/** File converter option for AI Library */
+export type AiFileConverterOption = {
+  __typename?: 'AiFileConverterOption'
+  description: AiFileConverterOptionText
+  label: AiFileConverterOptionText
+  name: Scalars['String']['output']
+}
+
+/** Text representation of a file converter option */
+export type AiFileConverterOptionText = {
+  __typename?: 'AiFileConverterOptionText'
+  de: Scalars['String']['output']
+  en: Scalars['String']['output']
+}
+
+/** Options for converting files in AI Library */
+export type AiFileConverterOptions = {
+  __typename?: 'AiFileConverterOptions'
+  /** PDF processing options */
+  pdf: AiFileConverterOptionsSection
+}
+
+/** Section of file converter options */
+export type AiFileConverterOptionsSection = {
+  __typename?: 'AiFileConverterOptionsSection'
+  settings: Array<AiFileConverterOption>
+  title: AiFileConverterOptionText
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
   embeddingModelName?: Maybe<Scalars['String']['output']>
-  fileProcessingOptions?: Maybe<Scalars['String']['output']>
+  fileConverterOptions?: Maybe<Scalars['String']['output']>
   files: Array<AiLibraryFile>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
@@ -363,7 +392,7 @@ export type AiLibraryFileQueryResult = {
 export type AiLibraryInput = {
   description?: InputMaybe<Scalars['String']['input']>
   embeddingModelName?: InputMaybe<Scalars['String']['input']>
-  fileProcessingOptions?: InputMaybe<Scalars['String']['input']>
+  fileConverterOptions?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
@@ -816,6 +845,7 @@ export type Query = {
   aiConversations: Array<AiConversation>
   aiEmbeddingModels: Array<AiEmbeddingModel>
   aiFileChunks: FileChunkQueryResponse
+  aiFileConverterOptions: AiFileConverterOptions
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -2258,6 +2288,25 @@ export type EmbeddingsTableQuery = {
   }
 }
 
+export type AiFileConverterOptionsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiFileConverterOptionsQuery = {
+  __typename?: 'Query'
+  aiFileConverterOptions: {
+    __typename?: 'AiFileConverterOptions'
+    pdf: {
+      __typename?: 'AiFileConverterOptionsSection'
+      title: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+      settings: Array<{
+        __typename?: 'AiFileConverterOption'
+        name: string
+        label: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+        description: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+      }>
+    }
+  }
+}
+
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -2287,7 +2336,7 @@ export type AiLibraryDetailFragment = {
   filesCount: number
   description?: string | null
   embeddingModelName?: string | null
-  fileProcessingOptions?: string | null
+  fileConverterOptions?: string | null
   id: string
   name: string
   createdAt: string
@@ -2307,7 +2356,7 @@ export type AiLibraryDetailQuery = {
     filesCount: number
     description?: string | null
     embeddingModelName?: string | null
-    fileProcessingOptions?: string | null
+    fileConverterOptions?: string | null
     id: string
     name: string
     createdAt: string
@@ -2422,7 +2471,7 @@ export type ChangeAiLibraryMutation = {
     filesCount: number
     description?: string | null
     embeddingModelName?: string | null
-    fileProcessingOptions?: string | null
+    fileConverterOptions?: string | null
     id: string
     name: string
     createdAt: string
@@ -5156,7 +5205,7 @@ export const AiLibraryDetailFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileProcessingOptions' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },
@@ -8826,6 +8875,82 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+export const AiFileConverterOptionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiFileConverterOptions' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiFileConverterOptions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pdf' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'title' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'settings' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'label' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'description' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiFileConverterOptionsQuery, AiFileConverterOptionsQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -8963,7 +9088,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileProcessingOptions' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },
@@ -9369,7 +9494,7 @@ export const ChangeAiLibraryDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileProcessingOptions' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },

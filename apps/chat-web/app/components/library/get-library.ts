@@ -14,7 +14,7 @@ graphql(`
     filesCount
     description
     embeddingModelName
-    fileProcessingOptions
+    fileConverterOptions
   }
 `)
 

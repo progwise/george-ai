@@ -15,7 +15,7 @@ export const processFile = async (fileId: string) => {
       name: true,
       originUri: true,
       mimeType: true,
-      library: { select: { id: true, name: true, embeddingModelName: true, fileProcessingOptions: true } },
+      library: { select: { id: true, name: true, embeddingModelName: true, fileConverterOptions: true } },
     },
     where: { id: fileId },
   })
@@ -27,7 +27,7 @@ export const processFile = async (fileId: string) => {
       throw new Error(`Embedding model not found for library: ${file.libraryId}`)
     }
 
-    if (!file.library.fileProcessingOptions) {
+    if (!file.library.fileConverterOptions) {
       throw new Error(`File processing options not found for library: ${file.libraryId}`)
     }
 
@@ -44,7 +44,7 @@ export const processFile = async (fileId: string) => {
       // re-generate markdown
       await convertUploadToMarkdown(file.id, {
         removeUploadFile: false,
-        fileProcessingOptions: file.library.fileProcessingOptions,
+        fileConverterOptions: file.library.fileConverterOptions,
       })
     }
     if (!fs.existsSync(markdownFilePath)) {

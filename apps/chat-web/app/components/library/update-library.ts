@@ -20,7 +20,7 @@ export const getLibraryUpdateFormSchema = (language: Language) =>
     name: z.string().min(1, translate('errors.requiredField', language)),
     description: z.string().nullish(),
     embeddingModelName: z.string().nullish(),
-    fileProcessingOptions: z.string().nullish(),
+    fileConverterOptions: z.string().nullish(),
   })
 
 export const updateLibrary = createServerFn({ method: 'POST' })
@@ -35,7 +35,7 @@ export const updateLibrary = createServerFn({ method: 'POST' })
         name: parsedData.name,
         description: parsedData.description,
         embeddingModelName: parsedData.embeddingModelName,
-        fileProcessingOptions: parsedData.fileProcessingOptions,
+        fileConverterOptions: parsedData.fileConverterOptions,
       }),
     }
   })

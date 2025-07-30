@@ -117,23 +117,23 @@ model AiAssistantParticipant {
 }
 
 model AiLibrary {
-  id                    String                 @id @default(cuid())
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  name                  String
-  description           String?
-  url                   String?
-  apiToken              String?
-  lastProcessed         DateTime?
-  owner                 User                   @relation(fields: [ownerId], references: [id])
-  ownerId               String
-  isPublic              Boolean                @default(true)
-  embeddingModelName    String?
-  fileProcessingOptions String?
-  usages                AiLibraryUsage[]
-  files                 AiLibraryFile[]
-  crawlers              AiLibraryCrawler[]
-  participants          AiLibraryParticipant[]
+  id                   String                 @id @default(cuid())
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  name                 String
+  description          String?
+  url                  String?
+  apiToken             String?
+  lastProcessed        DateTime?
+  owner                User                   @relation(fields: [ownerId], references: [id])
+  ownerId              String
+  isPublic             Boolean                @default(true)
+  embeddingModelName   String?
+  fileConverterOptions String?
+  usages               AiLibraryUsage[]
+  files                AiLibraryFile[]
+  crawlers             AiLibraryCrawler[]
+  participants         AiLibraryParticipant[]
 
   AiLibraryUpdate AiLibraryUpdate[]
 }

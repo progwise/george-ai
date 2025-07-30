@@ -6,6 +6,7 @@ import { prisma } from '../../prisma'
 import { builder } from '../builder'
 
 import './queryFiles'
+import './file-converter-options'
 
 import { getLibraryDir } from '@george-ai/file-management'
 
@@ -36,7 +37,7 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
     }),
     crawlers: t.relation('crawlers', { nullable: false }),
     embeddingModelName: t.exposeString('embeddingModelName'),
-    fileProcessingOptions: t.exposeString('fileProcessingOptions'),
+    fileConverterOptions: t.exposeString('fileConverterOptions'),
     users: t.prismaField({
       type: ['User'],
       nullable: false,
@@ -61,7 +62,7 @@ const AiLibraryInput = builder.inputType('AiLibraryInput', {
     url: t.string({ required: false }),
     icon: t.string({ required: false }),
     embeddingModelName: t.string({ required: false }),
-    fileProcessingOptions: t.string({ required: false }),
+    fileConverterOptions: t.string({ required: false }),
   }),
 })
 

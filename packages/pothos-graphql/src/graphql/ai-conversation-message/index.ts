@@ -159,7 +159,7 @@ builder.mutationField('sendMessage', (t) =>
                   name: true,
                   description: true,
                   embeddingModelName: true,
-                  fileProcessingOptions: true,
+                  fileConverterOptions: true,
                 },
               },
               usedFor: true,

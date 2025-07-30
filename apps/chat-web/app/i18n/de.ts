@@ -287,9 +287,8 @@ export default {
     email: 'E-Mail',
     embeddingModelName: 'AI Modell für Embeddings',
     expiresAt: 'Läuft ab',
-    fileProcessingOptions: 'Datei-Verarbeitungsoptionen',
-
     files: 'Dateien',
+    fileConverterOptions: 'Datei-Konverteroptionen',
     firstName: 'Vorname',
     freeMessages: 'Anzahl Nachrichten',
     freeStorage: 'Freier Speicher',
@@ -360,7 +359,6 @@ export default {
     placeholders: {
       description: 'Beschreiben Sie Ihre Bibliothek',
       embeddingModelName: 'Mit diesem Modell werden Daten in Vektoren umgewandelt',
-      fileProcessingOptions: 'z.B. removeSourceFileAfterProcessing=true;aiImageRecognition=true',
       name: 'Name Ihrer Bibliothek',
     },
     removeParticipant: 'Teilnehmer entfernen',

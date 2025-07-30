@@ -206,12 +206,47 @@ type AiEmbeddingModel {
   name: String!
 }
 
+"""
+File converter option for AI Library
+"""
+type AiFileConverterOption {
+  description: AiFileConverterOptionText!
+  label: AiFileConverterOptionText!
+  name: String!
+}
+
+"""
+Text representation of a file converter option
+"""
+type AiFileConverterOptionText {
+  de: String!
+  en: String!
+}
+
+"""
+Options for converting files in AI Library
+"""
+type AiFileConverterOptions {
+  """
+  PDF processing options
+  """
+  pdf: AiFileConverterOptionsSection!
+}
+
+"""
+Section of file converter options
+"""
+type AiFileConverterOptionsSection {
+  settings: [AiFileConverterOption!]!
+  title: AiFileConverterOptionText!
+}
+
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
   embeddingModelName: String
-  fileProcessingOptions: String
+  fileConverterOptions: String
   files: [AiLibraryFile!]!
   filesCount: Int!
   id: ID!
@@ -332,7 +367,7 @@ type AiLibraryFileQueryResult {
 input AiLibraryInput {
   description: String
   embeddingModelName: String
-  fileProcessingOptions: String
+  fileConverterOptions: String
   icon: String
   name: String!
   url: String
@@ -562,6 +597,7 @@ type Query {
   aiConversations: [AiConversation!]!
   aiEmbeddingModels: [AiEmbeddingModel!]!
   aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiFileConverterOptions: AiFileConverterOptions!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!

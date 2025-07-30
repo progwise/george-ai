@@ -284,7 +284,7 @@ export default {
     embeddingModelName: 'AI Model for Embeddings',
 
     expiresAt: 'Expires',
-    fileProcessingOptions: 'File Processing Options',
+    fileConverterOptions: 'File Converter Options',
     files: 'Files',
     firstName: 'First Name',
     freeMessages: 'Free Messages',
@@ -356,7 +356,6 @@ export default {
     placeholders: {
       description: 'Describe your library',
       embeddingModelName: 'With this model, data is transformed into vectors',
-      fileProcessingOptions: 'e.g. removeSourceFileAfterProcessing=true;aiImageRecognition=true',
       name: 'Name your library',
     },
     removeParticipant: 'Remove participant',

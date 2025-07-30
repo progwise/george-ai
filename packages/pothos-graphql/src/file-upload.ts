@@ -15,7 +15,7 @@ export const getFileInfo = async (fileId: string) => {
 
 export const convertUploadToMarkdown = async (
   fileId: string,
-  { removeUploadFile, fileProcessingOptions }: { removeUploadFile: boolean; fileProcessingOptions: string },
+  { removeUploadFile, fileConverterOptions }: { removeUploadFile: boolean; fileConverterOptions: string },
 ) => {
   const fileRecord = await getFileInfo(fileId)
   if (!fileRecord) {
@@ -36,7 +36,7 @@ export const convertUploadToMarkdown = async (
     name: fileRecord.name,
     mimeType: fileRecord.mimeType,
     path: uploadFilePath,
-    fileProcessingOptions,
+    fileConverterOptions,
   })
 
   await fs.promises.writeFile(markdownFilePath, markdownContent, {

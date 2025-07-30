@@ -95,7 +95,7 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
   return z.object({
     description: z.string().nullish(),
     embeddingModelName: z.string().nullish(),
-    fileProcessingOptions: z.string().nullish(),
+    fileConverterOptions: z.string().nullish(),
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
