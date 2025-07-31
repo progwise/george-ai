@@ -54,7 +54,8 @@ describe('updateAiLibraryCrawler mutation', () => {
     await prisma.aiLibraryCrawler.create({
       data: {
         id: 'crawler-id',
-        url: 'https://progwise.net',
+        uri: 'https://progwise.net',
+        uriType: 'http',
         maxDepth: 0,
         maxPages: 0,
         libraryId,
@@ -84,7 +85,8 @@ describe('updateAiLibraryCrawler mutation', () => {
       await prisma.aiLibraryCrawler.create({
         data: {
           id: 'crawler-id',
-          url: 'https://progwise.net',
+          uri: 'https://progwise.net',
+          uriType: 'http',
           maxDepth: 0,
           maxPages: 0,
           libraryId,
@@ -167,7 +169,8 @@ describe('updateAiLibraryCrawler mutation', () => {
       await prisma.aiLibraryCrawler.create({
         data: {
           id: 'crawler-id',
-          url: 'https://progwise.net',
+          uri: 'https://progwise.net',
+          uriType: 'http',
           maxDepth: 0,
           maxPages: 0,
           libraryId,
@@ -235,7 +238,8 @@ describe('updateAiLibraryCrawler mutation', () => {
       await prisma.aiLibraryCrawler.create({
         data: {
           id: 'crawler-id',
-          url: 'https://progwise.net',
+          uri: 'https://progwise.net',
+          uriType: 'http',
           maxDepth: 0,
           maxPages: 0,
           libraryId,

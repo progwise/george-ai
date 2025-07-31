@@ -1,22 +1,20 @@
+import { CrawlOptions } from './crawler-options'
+
 export const CRAWL4AI_BASE_URL = 'http://gai-crawl4ai:11245'
 
 // Uncomment the line below to use the local development server
 //export const CRAWL4AI_BASE_URL = 'http://host.docker.internal:8000'
 
-interface CrawlOptions {
-  url: string
-  maxDepth: number
-  maxPages: number
-}
-
-export async function* crawl({ url, maxDepth, maxPages }: CrawlOptions) {
-  console.log(`start crawling ${url}`)
+export async function* crawlHttp({ uri, maxDepth, maxPages }: CrawlOptions) {
+  console.log(`start http crawling ${uri}`)
 
   let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
   let controller: AbortController | undefined
 
+  const url = new URL(uri)
+  const encodedUrl = uri
+
   try {
-    const encodedUrl = url
     controller = new AbortController()
 
     const response = await fetch(

@@ -85,32 +85,39 @@ export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormPr
 
   return (
     <div className={twMerge('grid grid-cols-1 gap-8 lg:grid-cols-2', className)}>
-      <div className="">
+      <Input
+        name="url"
+        value={initialData?.url ?? 'https://'}
+        label={t('crawlers.url')}
+        schema={crawlerFormSchema}
+        disabled={isPending}
+        className="col-span-1 lg:col-span-2"
+      />
+      <Input
+        name="url"
+        value={initialData?.url ?? 'https://'}
+        label={t('crawlers.url')}
+        schema={crawlerFormSchema}
+        disabled={isPending}
+        className="col-span-1 lg:col-span-2"
+      />
+      <div className="flex flex-row gap-2">
         <Input
-          name="url"
-          value={initialData?.url ?? 'https://'}
-          label={t('crawlers.url')}
+          name="maxDepth"
+          type="number"
+          value={initialData?.maxDepth ?? 2}
+          label={t('crawlers.maxDepth')}
           schema={crawlerFormSchema}
           disabled={isPending}
         />
-        <div className="flex flex-row gap-2">
-          <Input
-            name="maxDepth"
-            type="number"
-            value={initialData?.maxDepth ?? 2}
-            label={t('crawlers.maxDepth')}
-            schema={crawlerFormSchema}
-            disabled={isPending}
-          />
-          <Input
-            name="maxPages"
-            type="number"
-            value={initialData?.maxPages ?? 10}
-            label={t('crawlers.maxPages')}
-            schema={crawlerFormSchema}
-            disabled={isPending}
-          />
-        </div>
+        <Input
+          name="maxPages"
+          type="number"
+          value={initialData?.maxPages ?? 10}
+          label={t('crawlers.maxPages')}
+          schema={crawlerFormSchema}
+          disabled={isPending}
+        />
       </div>
       <div className="flex flex-col gap-2">
         <fieldset className="fieldset">

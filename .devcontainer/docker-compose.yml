@@ -104,3 +104,16 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  gai-smb-test:
+    build:
+      context: ../apps/smb-test-server
+      dockerfile: Dockerfile
+    container_name: gai-smb-test
+    hostname: gai-smb-test
+    ports:
+      - '10445:445' # SMB over TCP
+      - '10139:139' # NetBIOS session service
+      - '10137:137/udp' # NetBIOS name service
+      - '10138:138/udp' # NetBIOS datagram service
+    restart: unless-stopped

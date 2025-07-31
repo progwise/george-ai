@@ -4,7 +4,7 @@ import { getUploadFilePath } from '@george-ai/file-management'
 
 import { prisma } from '../../prisma'
 import { processFile } from '../ai-library-file/process-file'
-import { crawl } from './crawl-client'
+import { crawlHttp } from './crawl-http'
 
 interface RunOptions {
   crawlerId: string
@@ -65,15 +65,17 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
   return newRun
 }
 const startCrawling = async (
-  crawler: { id: string; url: string; maxDepth: number; maxPages: number; libraryId: string },
+  crawler: { id: string; uri: string; uriType: string; maxDepth: number; maxPages: number; libraryId: string },
   newRun: { id: string; startedAt: Date },
   userId?: string,
 ) => {
-  console.log('Starting crawling for crawler', crawler.id, 'with URL:', crawler.url)
+  console.log('Starting crawling for crawler', crawler.id, 'with URI:', crawler.uriType, crawler.uri)
   console.log('Crawler run ID:', newRun.id, 'by user:', userId)
   console.log('Crawler max depth:', crawler.maxDepth, 'max pages:', crawler.maxPages)
   console.log('Crawler library ID:', crawler.libraryId)
   console.log('Crawler run started at:', newRun.startedAt)
+
+  const crawl = crawler.uriType === 'http' ? (crawler.uriType === 'smb' ? crawlSmb : crawlHttp) : null
 
   try {
     const crawledPages: {
@@ -84,7 +86,7 @@ const startCrawling = async (
     }[] = []
 
     for await (const crawledPage of crawl({
-      url: crawler.url,
+      url: crawler.uri,
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
     })) {

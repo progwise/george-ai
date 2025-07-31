@@ -12,3 +12,4 @@ build
 .typesense-data
 .postgres-data*
 CLAUDE.md
+.claude

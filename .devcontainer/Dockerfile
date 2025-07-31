@@ -12,7 +12,8 @@ RUN apt-get update \
     libgif-dev build-essential \
     g++ \
     python3-pip \
-    python3.11-venv
+    python3.11-venv \
+    smbclient
 
 # Install mob.sh
 RUN curl -sL https://raw.githubusercontent.com/remotemobprogramming/mob/refs/heads/main/install.sh | sh
