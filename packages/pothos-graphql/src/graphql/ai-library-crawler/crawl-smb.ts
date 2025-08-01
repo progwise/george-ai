@@ -128,7 +128,9 @@ async function discoverFilesAndDirectories(
     console.log(`Found ${files.length} files in ${currentUri}`)
     
     for (const file of files) {
-      const fileUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${file.name}`
+      // Encode the filename to handle spaces and special characters
+      const encodedFileName = encodeURIComponent(file.name)
+      const fileUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${encodedFileName}`
       if (!processedUris.has(fileUri)) {
         // Only process text-like files (you can extend this list)
         if (isTextFile(file.name)) {
@@ -152,7 +154,9 @@ async function discoverFilesAndDirectories(
       console.log(`Found ${directories.length} directories in ${currentUri}`)
       
       for (const dir of directories) {
-        const dirUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${dir.name}`
+        // Encode the directory name to handle spaces and special characters
+        const encodedDirName = encodeURIComponent(dir.name)
+        const dirUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${encodedDirName}`
         await discoverFilesAndDirectories(dirUri, currentDepth + 1, queue, processedUris, maxDepth)
       }
     }

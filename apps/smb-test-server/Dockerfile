@@ -16,6 +16,9 @@ RUN /bin/sh ./setup-testdata.sh && \
     chmod -R 755 /shares && \
     chown root:root /
 
+# Some additional test files added
+COPY test-files /shares/documents
+
 # Run samba setup (this must happen after the base image sets up samba)
 RUN /bin/sh ./setup-samba.sh
 

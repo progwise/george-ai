@@ -33,10 +33,13 @@ class SMBClient {
       throw new Error(`Invalid SMB URI: server name is required in ${uri}`)
     }
 
+    // Decode the path to handle URI-encoded spaces and special characters
+    const decodedPath = path ? decodeURIComponent(path) : '/'
+
     return {
       server: serverName,
       share,
-      path: path || '/',
+      path: decodedPath,
     }
   }
 
@@ -48,7 +51,23 @@ class SMBClient {
       }
 
       exec(command, { env }, (error, stdout, stderr) => {
+        // If we have an error but also have useful stdout, we might still be able to proceed
         if (error) {
+          // Check if this is a known recoverable error with useful output
+          const errorMessage = error.message
+          const hasUsefulOutput = stdout && stdout.trim().length > 0
+          const isRecoverableError = 
+            stderr?.includes('is_bad_finfo_name') ||
+            errorMessage.includes('NT_STATUS_INVALID_NETWORK_RESPONSE') ||
+            stderr?.includes('NT_STATUS_INVALID_NETWORK_RESPONSE')
+          
+          if (hasUsefulOutput && isRecoverableError) {
+            // Log the error but continue with the output we got
+            console.warn(`SMB command completed with warning: ${errorMessage}`)
+            resolve(stdout)
+            return
+          }
+          
           reject(new Error(`SMB command execution failed: ${error.message}`))
           return
         }
@@ -58,7 +77,9 @@ class SMBClient {
           !stderr.includes('WARNING') &&
           !stderr.includes('NOTE') &&
           !stderr.includes('getting file') &&
-          !stderr.includes('KiloBytes/sec')
+          !stderr.includes('KiloBytes/sec') &&
+          !stderr.includes('is_bad_finfo_name') &&
+          !stderr.includes('NT_STATUS_INVALID_NETWORK_RESPONSE')
         ) {
           reject(new Error(`SMB command failed: ${stderr}`))
           return
@@ -75,17 +96,34 @@ class SMBClient {
 
     for (const line of lines) {
       const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('.') || trimmed.includes('blocks available')) {
+      if (!trimmed || trimmed.includes('blocks available')) {
         continue
       }
 
-      const parts = trimmed.split(/\s+/)
-      if (parts.length >= 4) {
-        const name = parts[0]
-        const isDirectory = parts[1] === 'D'
-        const size = parseInt(parts[2]) || 0
+      // SMB output uses fixed column positions. The file type (D/A/N) appears to be around column 36-40
+      // Look for D/A/N in that region, then work backwards to find the filename
+      let name = ''
+      let type = ''
+      let sizeStr = ''
+      let dateStr = ''
+      
+      // Find D/A/N followed by whitespace and digits
+      const typePatternMatch = trimmed.match(/\s([ADN])\s+(\d+)\s+(.+)$/)
+      if (typePatternMatch) {
+        const typeIndex = trimmed.indexOf(typePatternMatch[0])
+        name = trimmed.substring(0, typeIndex).trim()
+        type = typePatternMatch[1]
+        sizeStr = typePatternMatch[2]
+        dateStr = typePatternMatch[3]
+        
+        // Skip . and .. directories
+        if (name === '.' || name === '..') {
+          continue
+        }
+        
+        const isDirectory = type === 'D'
+        const size = parseInt(sizeStr) || 0
 
-        const dateStr = parts.slice(3, 6).join(' ')
         let modifiedTime: Date
         try {
           modifiedTime = new Date(dateStr)
@@ -109,7 +147,16 @@ class SMBClient {
     const { server, share, path } = this.parseUri(uri)
     let lsPath = path === '/' ? '' : path.startsWith('/') ? path.substring(1) : path
     lsPath = lsPath.endsWith('/') ? lsPath.slice(0, -1) : lsPath
-    const command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c "ls ${lsPath}"`
+    
+    let command: string
+    if (lsPath === '') {
+      // For root directory, use ls without any path
+      command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c 'ls'`
+    } else {
+      // For subdirectories, use /* to list contents instead of the directory itself
+      const escapedPath = lsPath.replace(/'/g, "'\\''")
+      command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c 'ls "${escapedPath}/*"'`
+    }
 
     const output = await this.executeSmbCommand(command)
     return this.parseSmbOutput(output).filter((file) => !file.isDirectory)
@@ -119,7 +166,16 @@ class SMBClient {
     const { server, share, path } = this.parseUri(uri)
     let lsPath = path === '/' ? '' : path.startsWith('/') ? path.substring(1) : path
     lsPath = lsPath.endsWith('/') ? lsPath.slice(0, -1) : lsPath
-    const command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c "ls ${lsPath}"`
+    
+    let command: string
+    if (lsPath === '') {
+      // For root directory, use ls without any path
+      command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c 'ls'`
+    } else {
+      // For subdirectories, use /* to list contents instead of the directory itself
+      const escapedPath = lsPath.replace(/'/g, "'\\''")
+      command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c 'ls "${escapedPath}/*"'`
+    }
 
     const output = await this.executeSmbCommand(command)
     return this.parseSmbOutput(output).filter((file) => file.isDirectory)
@@ -128,8 +184,9 @@ class SMBClient {
   async readFile(uri: string): Promise<string> {
     const { server, share, path } = this.parseUri(uri)
     const filePath = path.startsWith('/') ? path.substring(1) : path
-    const command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c "get ${filePath} -"`
-
+    const escapedPath = filePath.replace(/'/g, "'\\''")
+    const command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c 'get "${escapedPath}" -'`
+    
     return await this.executeSmbCommand(command)
   }
 }
