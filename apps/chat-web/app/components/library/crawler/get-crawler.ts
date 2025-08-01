@@ -20,7 +20,8 @@ const getCrawler = createServerFn({ method: 'GET' })
           aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {
             id
             libraryId
-            url
+            uri
+            uriType
             isRunning
             lastRun {
               id

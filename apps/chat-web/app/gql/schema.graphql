@@ -271,7 +271,8 @@ type AiLibraryCrawler {
   runCount: Int!
   runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
-  url: String!
+  uri: String!
+  uriType: AiLibraryCrawlerUriType!
 }
 
 type AiLibraryCrawlerCronJob {
@@ -308,7 +309,8 @@ input AiLibraryCrawlerInput {
   cronJob: AiLibraryCrawlerCronJobInput
   maxDepth: Int!
   maxPages: Int!
-  url: String!
+  uri: String!
+  uriType: AiLibraryCrawlerUriType!
 }
 
 type AiLibraryCrawlerRun {
@@ -323,6 +325,11 @@ type AiLibraryCrawlerRun {
   success: Boolean
   updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
   updatesCount: Int!
+}
+
+enum AiLibraryCrawlerUriType {
+  http
+  smb
 }
 
 type AiLibraryFile {

@@ -4,23 +4,26 @@ import { useRef } from 'react'
 import { z } from 'zod'
 
 import { graphql } from '../../../gql'
+import { getLanguage } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
-import { CrawlerForm, crawlerFormSchema, getCrawlerFormData } from './crawler-form'
+import { toastError, toastSuccess } from '../../georgeToaster'
+import { CrawlerForm, getCrawlerFormData, getCrawlerFormSchema } from './crawler-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
 
 const addCrawlerFunction = createServerFn({ method: 'POST' })
-  .validator(({ libraryId, formData }: { libraryId: string; formData: FormData }) => {
+  .validator(async ({ libraryId, formData }: { libraryId: string; formData: FormData }) => {
+    const language = await getLanguage()
     return z
       .object({
         libraryId: z.string().nonempty(),
-        formData: crawlerFormSchema,
+        formData: getCrawlerFormSchema(language),
       })
       .parse({ libraryId, formData: getCrawlerFormData(formData) })
   })
-  .handler((ctx) => {
-    const { libraryId, formData } = ctx.data
+  .handler(async (ctx) => {
+    const { libraryId, formData } = await ctx.data
     return backendRequest(
       graphql(`
         mutation createAiLibraryCrawler($libraryId: String!, $data: AiLibraryCrawlerInput!) {
@@ -44,7 +47,11 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
 
   const addCrawlerMutation = useMutation({
     mutationFn: addCrawlerFunction,
+    onError: (error) => {
+      toastError(`${t('crawlers.toastCreateError')}: ${error.message}`)
+    },
     onSuccess: async () => {
+      toastSuccess(t('crawlers.toastCreateSuccess'))
       await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
       dialogRef.current?.close()
     },
@@ -68,7 +75,9 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
         disabledSubmit={isPending}
         submitButtonText={t('actions.create')}
       >
-        <CrawlerForm isPending={isPending} />
+        <div className="mt-4">
+          <CrawlerForm />
+        </div>
       </DialogForm>
     </>
   )

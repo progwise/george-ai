@@ -1,20 +1,47 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
+import { translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 
-export const crawlerFormSchema = z.object({
-  id: z.string().optional(),
-  url: z.string().url(),
-  maxDepth: z.coerce.number().min(0),
-  maxPages: z.coerce.number().min(1),
-  cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
-})
+// URI validation patterns
+export const HTTP_URI_PATTERN = /^https?:\/\/.+/
+export const SMB_URI_PATTERN = /^\/\/[^/]+\/[^/]+/
+
+// Base schema for Input component validation
+export const getCrawlerFormBaseSchema = (language: 'en' | 'de') =>
+  z.object({
+    id: z.string().optional(),
+    uri: z.string().min(1),
+    uriType: z.union([z.literal('http'), z.literal('smb')]),
+    maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
+    maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
+    cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
+  })
+
+// Full schema with refinements for form submission validation
+export const getCrawlerFormSchema = (language: 'en' | 'de') =>
+  getCrawlerFormBaseSchema(language).refine(
+    (data) => {
+      if (data.uriType === 'http') {
+        return HTTP_URI_PATTERN.test(data.uri)
+      } else if (data.uriType === 'smb') {
+        return SMB_URI_PATTERN.test(data.uri)
+      }
+      return false
+    },
+    {
+      message: translate('crawlers.errors.invalidUri', language),
+      path: ['uri'],
+    },
+  )
 
 export const getCrawlerFormData = (formData: FormData) => {
+  const formDataObject = Object.fromEntries(formData)
+  console.log('formData', formDataObject)
   const {
     'cronjob.active': cronJobActive,
     'cronjob.time': cronJobTime,
@@ -26,9 +53,9 @@ export const getCrawlerFormData = (formData: FormData) => {
     'cronjob.saturday': cronJobSaturday,
     'cronjob.sunday': cronJobSunday,
     ...dataObject
-  } = Object.fromEntries(formData)
+  } = formDataObject
 
-  const [hour, minute] = cronJobTime.toString().split(':').map(Number)
+  const [hour, minute] = cronJobTime ? cronJobTime.toString().split(':').map(Number) : [0, 0]
 
   return {
     ...dataObject,
@@ -51,10 +78,11 @@ export const getCrawlerFormData = (formData: FormData) => {
 
 export interface CrawlerFormData {
   id?: string
-  url: string
+  uri: string
+  uriType: string
   maxDepth: number
   maxPages: number
-  cronJob?: {
+  cronJob: {
     active: boolean
     hour: number
     minute: number
@@ -68,162 +96,152 @@ export interface CrawlerFormData {
   } | null
 }
 
-interface CrawlerFormProps {
-  initialData?: CrawlerFormData
-  isPending: boolean
-  className?: string
-}
+export const CrawlerForm = () => {
+  const { t, language } = useTranslation()
+  const [scheduleActive, setScheduleActive] = useState(false)
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb'>('http')
 
-export const CrawlerForm = ({ initialData, isPending, className }: CrawlerFormProps) => {
-  const { t } = useTranslation()
-  const [crawlerActive, setCrawlerActive] = useState(initialData ? !!initialData.cronJob?.active : true)
+  const cronWeekdayFields = useMemo(
+    () => ({
+      type: 'checkbox',
+      className: 'checkbox checkbox-sm',
+      defaultChecked: true,
+      disabled: !scheduleActive,
+    }),
+    [scheduleActive],
+  )
 
-  // Format time for the time input (HH:MM)
-  const formatTime = (hour: number = 0, minute: number = 0) => {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-  }
+  // Create dynamic schema based on selected URI type
+  const crawlerFormSchema = useMemo(() => {
+    const baseSchema = getCrawlerFormBaseSchema(language)
+
+    // Override the uri validation based on selected type
+    return z.object({
+      ...baseSchema.shape,
+      uri:
+        selectedUriType === 'http'
+          ? z.string().regex(HTTP_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
+          : z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
+    })
+  }, [language, selectedUriType])
 
   return (
-    <div className={twMerge('grid grid-cols-1 gap-8 lg:grid-cols-2', className)}>
+    <div>
+      <div className="flex justify-end gap-4">
+        <label className="flex gap-2 text-sm">
+          <input
+            type="radio"
+            name="uriType"
+            value="http"
+            className="radio radio-sm"
+            defaultChecked
+            onChange={() => setSelectedUriType('http')}
+            required
+          />
+          <span>{t('crawlers.uriTypeHtml')}</span>
+        </label>
+        <label className="flex gap-2 text-sm">
+          <input
+            type="radio"
+            name="uriType"
+            value="smb"
+            className="radio radio-sm"
+            onChange={() => setSelectedUriType('smb')}
+          />
+          <span>{t('crawlers.uriTypeSmb')}</span>
+        </label>
+      </div>
       <Input
-        name="url"
-        value={initialData?.url ?? 'https://'}
-        label={t('crawlers.url')}
+        name="uri"
+        placeholder={t('crawlers.placeholders.uri')}
+        label={t('crawlers.uri')}
         schema={crawlerFormSchema}
-        disabled={isPending}
-        className="col-span-1 lg:col-span-2"
+        className=""
+        required={true}
       />
-      <Input
-        name="url"
-        value={initialData?.url ?? 'https://'}
-        label={t('crawlers.url')}
-        schema={crawlerFormSchema}
-        disabled={isPending}
-        className="col-span-1 lg:col-span-2"
-      />
-      <div className="flex flex-row gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <Input
           name="maxDepth"
           type="number"
-          value={initialData?.maxDepth ?? 2}
+          placeholder={t('crawlers.placeholders.maxDepth')}
           label={t('crawlers.maxDepth')}
           schema={crawlerFormSchema}
-          disabled={isPending}
+          required={true}
         />
         <Input
           name="maxPages"
           type="number"
-          value={initialData?.maxPages ?? 10}
+          placeholder={t('crawlers.placeholders.maxPages')}
           label={t('crawlers.maxPages')}
           schema={crawlerFormSchema}
-          disabled={isPending}
+          required={true}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <fieldset className="fieldset">
+        <fieldset className="fieldset flex">
           <label className="label text-base-content mt-4 font-semibold">
             <input
               name="cronjob.active"
-              defaultChecked={crawlerActive}
+              defaultChecked={false}
               type="checkbox"
               className="checkbox checkbox-sm"
-              onChange={(event) => setCrawlerActive(event.currentTarget.checked)}
+              onChange={(event) => setScheduleActive(event.currentTarget.checked)}
             />
             {t('crawlers.cronJobActive')}
           </label>
-        </fieldset>
-
-        <div className={twMerge('contents', !crawlerActive && 'disabled')}>
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">{t('crawlers.cronJobTime')}</legend>
+          <label className="label text-base-content mt-4 font-semibold">
+            {t('crawlers.cronJobTime')}
             <input
               type="time"
               name="cronjob.time"
-              className="input w-full"
-              required={crawlerActive}
-              defaultValue={
-                initialData?.cronJob ? formatTime(initialData.cronJob.hour, initialData.cronJob.minute) : '00:00'
-              }
+              className="input pr-10"
+              required={scheduleActive}
+              defaultValue="00:00"
+              disabled={!scheduleActive}
             />
-            <p className="label">{t('crawlers.utcHint')}</p>
-          </fieldset>
-
-          <fieldset className="fieldset flex flex-col flex-wrap gap-2 md:flex-row">
+            {t('crawlers.utcHint')}
+          </label>
+        </fieldset>
+        <div className={twMerge('', !scheduleActive && 'disabled')}>
+          <fieldset className="fieldset flex flex-row flex-wrap gap-2">
             <legend className="fieldset-legend">{t('crawlers.days')}</legend>
 
             <label className="label">
-              <input
-                name="cronjob.monday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.monday ?? true}
-              />
+              <input name="cronjob.monday" {...cronWeekdayFields} />
               {t('labels.monday')}
             </label>
 
             <label className="label">
-              <input
-                name="cronjob.tuesday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.tuesday ?? true}
-              />
+              <input name="cronjob.tuesday" {...cronWeekdayFields} />
               {t('labels.tuesday')}
             </label>
 
             <label className="label">
-              <input
-                name="cronjob.wednesday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.wednesday ?? true}
-              />
+              <input name="cronjob.wednesday" {...cronWeekdayFields} />
               {t('labels.wednesday')}
             </label>
 
             <label className="label">
-              <input
-                name="cronjob.thursday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.thursday ?? true}
-              />
+              <input name="cronjob.thursday" {...cronWeekdayFields} />
               {t('labels.thursday')}
             </label>
 
             <label className="label">
-              <input
-                name="cronjob.friday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.friday ?? true}
-              />
+              <input name="cronjob.friday" {...cronWeekdayFields} />
               {t('labels.friday')}
             </label>
 
             <label className="label">
-              <input
-                name="cronjob.saturday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.saturday ?? true}
-              />
+              <input name="cronjob.saturday" {...cronWeekdayFields} />
               {t('labels.saturday')}
             </label>
 
             <label className="label">
-              <input
-                name="cronjob.sunday"
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                defaultChecked={initialData?.cronJob?.sunday ?? true}
-              />
+              <input name="cronjob.sunday" {...cronWeekdayFields} />
               {t('labels.sunday')}
             </label>
           </fieldset>
         </div>
-
-        {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
       </div>
     </div>
   )

@@ -1,25 +1,23 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { formatTime } from '@george-ai/web-utils'
 
 import { Input } from '../../../../../../components/form/input'
+import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
+import {
+  HTTP_URI_PATTERN,
+  SMB_URI_PATTERN,
+  getCrawlerFormBaseSchema,
+} from '../../../../../../components/library/crawler/crawler-form'
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
 import { getCrawlersQueryOptions } from '../../../../../../components/library/crawler/get-crawlers'
 import { updateCrawlerFunction } from '../../../../../../components/library/crawler/update-crawler'
-import { AiLibraryCrawlerCronJobInputSchema } from '../../../../../../gql/validation'
+import { translate } from '../../../../../../i18n'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
-
-const crawlerFormSchema = z.object({
-  id: z.string().optional(),
-  url: z.string().url(),
-  maxDepth: z.coerce.number().min(0),
-  maxPages: z.coerce.number().min(1),
-  cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
-})
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/$crawlerId/')({
   component: RouteComponent,
@@ -29,7 +27,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 })
 
 function RouteComponent() {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const params = Route.useParams()
   const { queryClient } = Route.useRouteContext()
 
@@ -38,6 +36,12 @@ function RouteComponent() {
   } = useSuspenseQuery(getCrawlerQueryOptions(params))
   const { mutate: updateCrawlerMutation, isPending } = useMutation({
     mutationFn: updateCrawlerFunction,
+    onError: (error) => {
+      toastError(`${t('crawlers.toastUpdateError')}: ${error.message}`)
+    },
+    onSuccess: () => {
+      toastSuccess(t('crawlers.toastUpdateSuccess'))
+    },
     onSettled: async () => {
       await Promise.all([
         queryClient.invalidateQueries(getCrawlerQueryOptions(params)),
@@ -45,7 +49,21 @@ function RouteComponent() {
       ])
     },
   })
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb'>(crawler.uriType)
   const [crawlerActive, setCrawlerActive] = useState(!!crawler.cronJob?.active)
+
+  const crawlerFormSchema = useMemo(() => {
+    const baseSchema = getCrawlerFormBaseSchema(language)
+
+    // Override the uri validation based on selected type
+    return z.object({
+      ...baseSchema.shape,
+      uri:
+        selectedUriType === 'http'
+          ? z.string().regex(HTTP_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
+          : z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
+    })
+  }, [language, selectedUriType])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -62,13 +80,41 @@ function RouteComponent() {
             <div className="card-body">
               <h3 className="card-title mb-4 text-lg">{t('crawlers.crawlSettings')}</h3>
 
+              <div className="flex justify-end gap-4">
+                <label className="flex gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="uriType"
+                    value="http"
+                    className="radio radio-sm"
+                    defaultChecked
+                    onChange={() => setSelectedUriType('http')}
+                    required
+                    checked={selectedUriType === 'http'}
+                  />
+                  <span>{t('crawlers.uriTypeHtml')}</span>
+                </label>
+                <label className="flex gap-2 text-sm">
+                  <input
+                    type="radio"
+                    name="uriType"
+                    value="smb"
+                    className="radio radio-sm"
+                    onChange={() => setSelectedUriType('smb')}
+                    checked={selectedUriType === 'smb'}
+                  />
+                  <span>{t('crawlers.uriTypeSmb')}</span>
+                </label>
+              </div>
+
               <Input
-                name="url"
-                value={crawler?.url ?? 'https://'}
-                label={t('crawlers.url')}
+                name="uri"
+                value={crawler.uri ?? 'https://'}
+                label={t('crawlers.uri')}
                 schema={crawlerFormSchema}
                 disabled={isPending}
                 className="mb-4"
+                validateOnSchemaChange={true}
               />
 
               <div className="grid grid-cols-2 gap-4">

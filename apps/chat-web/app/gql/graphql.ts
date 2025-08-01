@@ -284,7 +284,8 @@ export type AiLibraryCrawler = {
   runCount: Scalars['Int']['output']
   runs: Array<AiLibraryCrawlerRun>
   updatedAt: Scalars['DateTime']['output']
-  url: Scalars['String']['output']
+  uri: Scalars['String']['output']
+  uriType: AiLibraryCrawlerUriType
 }
 
 export type AiLibraryCrawlerRunsArgs = {
@@ -327,7 +328,8 @@ export type AiLibraryCrawlerInput = {
   cronJob?: InputMaybe<AiLibraryCrawlerCronJobInput>
   maxDepth: Scalars['Int']['input']
   maxPages: Scalars['Int']['input']
-  url: Scalars['String']['input']
+  uri: Scalars['String']['input']
+  uriType: AiLibraryCrawlerUriType
 }
 
 export type AiLibraryCrawlerRun = {
@@ -348,6 +350,11 @@ export type AiLibraryCrawlerRun = {
 export type AiLibraryCrawlerRunUpdatesArgs = {
   skip?: Scalars['Int']['input']
   take?: Scalars['Int']['input']
+}
+
+export enum AiLibraryCrawlerUriType {
+  Http = 'http',
+  Smb = 'smb',
 }
 
 export type AiLibraryFile = {
@@ -1953,7 +1960,8 @@ export type CreateAiLibraryCrawlerMutation = {
 export type CrawlerTable_LibraryCrawlerFragment = {
   __typename?: 'AiLibraryCrawler'
   id: string
-  url: string
+  uri: string
+  uriType: AiLibraryCrawlerUriType
   maxDepth: number
   maxPages: number
   filesCount: number
@@ -2047,7 +2055,8 @@ export type GetCrawlerQuery = {
     __typename?: 'AiLibraryCrawler'
     id: string
     libraryId: string
-    url: string
+    uri: string
+    uriType: AiLibraryCrawlerUriType
     isRunning: boolean
     filesCount: number
     runCount: number
@@ -2089,7 +2098,8 @@ export type CrawlerTableQuery = {
     crawlers: Array<{
       __typename?: 'AiLibraryCrawler'
       id: string
-      url: string
+      uri: string
+      uriType: AiLibraryCrawlerUriType
       maxDepth: number
       maxPages: number
       filesCount: number
@@ -2510,7 +2520,7 @@ export type LibraryUpdatesListQuery = {
         __typename?: 'AiLibraryCrawlerRun'
         id: string
         crawlerId: string
-        crawler: { __typename?: 'AiLibraryCrawler'; id: string; url: string }
+        crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType }
       } | null
       file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
     }>
@@ -2530,7 +2540,7 @@ export type AiLibraryUpdate_TableItemFragment = {
     __typename?: 'AiLibraryCrawlerRun'
     id: string
     crawlerId: string
-    crawler: { __typename?: 'AiLibraryCrawler'; id: string; url: string }
+    crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: AiLibraryCrawlerUriType }
   } | null
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
@@ -5094,7 +5104,8 @@ export const CrawlerTable_LibraryCrawlerFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
           {
@@ -5338,7 +5349,8 @@ export const AiLibraryUpdate_TableItemFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
                     ],
                   },
                 },
@@ -8123,7 +8135,8 @@ export const GetCrawlerDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
                 {
                   kind: 'Field',
@@ -8238,7 +8251,8 @@ export const CrawlerTableDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
           { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
           {
@@ -9615,7 +9629,8 @@ export const LibraryUpdatesListDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
                     ],
                   },
                 },

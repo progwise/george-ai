@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { ZodRawShape, z } from 'zod'
 
@@ -16,6 +16,7 @@ interface InputProps<T extends ZodRawShape> {
   onChange?: (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => void
   className?: string
+  validateOnSchemaChange?: boolean // Allow validation on schema change even if not touched
 }
 
 export const Input = <T extends ZodRawShape>({
@@ -32,10 +33,14 @@ export const Input = <T extends ZodRawShape>({
   onChange,
   onBlur,
   className,
+  validateOnSchemaChange = false,
 }: InputProps<T>) => {
   const [errors, setErrors] = useState<string[]>([])
+  const [hasBeenTouched, setHasBeenTouched] = useState(false)
   const renderedType = type === 'date' ? 'text' : type
   const renderedValue = value ? value : valueNotSet
+  const internalRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const isFirstRenderRef = useRef(true)
 
   const validate = useCallback(
     (newValue: string) => {
@@ -53,6 +58,7 @@ export const Input = <T extends ZodRawShape>({
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+      setHasBeenTouched(true)
       validate(event.target.value)
       onChange?.(event)
     },
@@ -61,12 +67,29 @@ export const Input = <T extends ZodRawShape>({
 
   const handleBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>) => {
+      setHasBeenTouched(true)
       if (event.target.value === renderedValue) return
       validate(event.target.value)
       onBlur?.(event)
     },
     [renderedValue, validate, onBlur],
   )
+
+  // Validate when schema changes (but not on initial load)
+  useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false
+      return
+    }
+    
+    if (schema && internalRef.current && (hasBeenTouched || validateOnSchemaChange)) {
+      // Defer validation to avoid direct setState in useEffect
+      const timeoutId = setTimeout(() => {
+        validate(internalRef.current?.value || '')
+      }, 0)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [schema, validate, hasBeenTouched, validateOnSchemaChange])
 
   return (
     <fieldset className={twMerge('fieldset group', className)}>
@@ -79,7 +102,13 @@ export const Input = <T extends ZodRawShape>({
       {type === 'textarea' ? (
         <textarea
           id={name}
-          ref={ref as React.Ref<HTMLTextAreaElement>}
+          ref={(el) => {
+            internalRef.current = el
+            if (ref) {
+              if (typeof ref === 'function') ref(el)
+              else ref.current = el
+            }
+          }}
           key={value}
           name={name}
           defaultValue={renderedValue || ''}
@@ -95,7 +124,13 @@ export const Input = <T extends ZodRawShape>({
       ) : (
         <input
           id={name}
-          ref={ref as React.Ref<HTMLInputElement>}
+          ref={(el) => {
+            internalRef.current = el
+            if (ref) {
+              if (typeof ref === 'function') ref(el)
+              else ref.current = el
+            }
+          }}
           key={value}
           name={name}
           type={renderedType || 'text'}

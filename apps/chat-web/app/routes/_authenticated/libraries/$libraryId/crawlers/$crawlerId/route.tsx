@@ -30,8 +30,8 @@ function RouteComponent() {
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-2xl font-bold">
-          <a href={crawler.url || '#'} target="blank">
-            {crawler.url}
+          <a href={crawler.uri || '#'} target="blank">
+            {crawler.uri}
           </a>
         </h2>
         <div className="flex items-center text-sm text-gray-500">

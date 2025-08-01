@@ -7,6 +7,7 @@ import {
   AiConversationMessageInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
+  AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
   ConversationInvitationInput,
@@ -23,6 +24,8 @@ type definedNonNullAny = {}
 export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== undefined && v !== null
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
+
+export const AiLibraryCrawlerUriTypeSchema = z.nativeEnum(AiLibraryCrawlerUriType)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -78,7 +81,8 @@ export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryC
     cronJob: z.lazy(() => AiLibraryCrawlerCronJobInputSchema().nullish()),
     maxDepth: z.number(),
     maxPages: z.number(),
-    url: z.string(),
+    uri: z.string(),
+    uriType: AiLibraryCrawlerUriTypeSchema,
   })
 }
 
