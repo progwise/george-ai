@@ -2,14 +2,12 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
+import { HTTP_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
+
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
-
-// URI validation patterns
-export const HTTP_URI_PATTERN = /^https?:\/\/.+/
-export const SMB_URI_PATTERN = /^\/\/[^/]+\/[^/]+/
 
 // Base schema for Input component validation
 export const getCrawlerFormBaseSchema = (language: 'en' | 'de') =>

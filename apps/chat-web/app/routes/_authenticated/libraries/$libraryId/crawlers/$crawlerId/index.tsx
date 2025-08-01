@@ -4,15 +4,11 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { formatTime } from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SMB_URI_PATTERN, formatTime } from '@george-ai/web-utils'
 
 import { Input } from '../../../../../../components/form/input'
 import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
-import {
-  HTTP_URI_PATTERN,
-  SMB_URI_PATTERN,
-  getCrawlerFormBaseSchema,
-} from '../../../../../../components/library/crawler/crawler-form'
+import { getCrawlerFormBaseSchema } from '../../../../../../components/library/crawler/crawler-form'
 import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/get-crawler'
 import { getCrawlersQueryOptions } from '../../../../../../components/library/crawler/get-crawlers'
 import { updateCrawlerFunction } from '../../../../../../components/library/crawler/update-crawler'
