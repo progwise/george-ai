@@ -5,6 +5,7 @@ import { getUploadFilePath } from '@george-ai/file-management'
 import { prisma } from '../../prisma'
 import { processFile } from '../ai-library-file/process-file'
 import { crawlHttp } from './crawl-http'
+import { crawlSmb } from './crawl-smb'
 
 interface RunOptions {
   crawlerId: string
@@ -75,7 +76,11 @@ const startCrawling = async (
   console.log('Crawler library ID:', crawler.libraryId)
   console.log('Crawler run started at:', newRun.startedAt)
 
-  const crawl = crawler.uriType === 'http' ? (crawler.uriType === 'smb' ? crawlSmb : crawlHttp) : null
+  const crawl = crawler.uriType === 'http' ? crawlHttp : crawler.uriType === 'smb' ? crawlSmb : null
+
+  if (!crawl) {
+    throw new Error(`Crawler for type ${crawler.uriType} not implemented`)
+  }
 
   try {
     const crawledPages: {
@@ -86,7 +91,7 @@ const startCrawling = async (
     }[] = []
 
     for await (const crawledPage of crawl({
-      url: crawler.uri,
+      uri: crawler.uri,
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
     })) {
@@ -96,8 +101,8 @@ const startCrawling = async (
         break
       }
       if (crawledPage.error) {
-        console.warn('Crawling error for page', crawledPage.url, ':', crawledPage.error)
-        crawledPages.push({ ...crawledPage, url: crawledPage.url, error: crawledPage.error })
+        console.warn('Crawling error for page', crawledPage.uri, ':', crawledPage.error)
+        crawledPages.push({ ...crawledPage, url: crawledPage.uri, error: crawledPage.error })
         continue
       }
       if (!crawledPage.metaData) {
@@ -196,7 +201,7 @@ const startCrawling = async (
   } catch (error) {
     console.error('Crawling error')
     console.log('Crawler ID:', crawler.id)
-    console.log('Crawler URL:', crawler.url)
+    console.log('Crawler URL:', crawler.uri)
     console.log('Crawler max depth:', crawler.maxDepth)
     console.log('Crawler max pages:', crawler.maxPages)
     console.log('Crawler library ID:', crawler.libraryId)

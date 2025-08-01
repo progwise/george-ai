@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import { stopCronJob, upsertCronJob } from '../../cron-jobs'
 import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
@@ -6,14 +8,15 @@ import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
 
-import './update-ai-library-crawler'
-
 console.log('Setting up: AiLibraryCrawler')
 
-export const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
+const AiLibraryCrawlerUriType = builder.enumType('AiLibraryCrawlerUriType', { values: ['http', 'smb'] as const })
+
+const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
   fields: (t) => ({
     uri: t.string({ required: true }),
-    uriType: t.string({ required: true }),
+    //uriType: t.string({ required: true }),
+    uriType: t.field({ type: AiLibraryCrawlerUriType }),
     maxDepth: t.int({ required: true }),
     maxPages: t.int({ required: true }),
     cronJob: t.field({ type: AiLibraryCrawlerCronJobInput, required: false }),
@@ -59,7 +62,20 @@ builder.prismaObject('AiLibraryCrawler', {
     id: t.exposeID('id', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
     uri: t.exposeString('uri', { nullable: false }),
-    uriType: t.exposeString('uriType', { nullable: false }),
+    uriType: t.field({
+      type: AiLibraryCrawlerUriType,
+      nullable: false,
+      resolve: (crawler) => {
+        switch (crawler.uriType) {
+          case 'http':
+            return 'http'
+          case 'smb':
+            return 'smb'
+          default:
+            throw new GraphQLError(`Unknown AiLibraryCrawlerUriType ${crawler.uriType}`)
+        }
+      },
+    }),
     lastRun: t.field({
       type: AiLibraryCrawlerRun,
       nullable: true,
@@ -164,6 +180,44 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
           libraryId,
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
+      })
+
+      if (crawler.cronJob) {
+        await upsertCronJob(crawler.cronJob)
+      }
+
+      return crawler
+    },
+  }),
+)
+
+builder.mutationField('updateAiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    args: {
+      id: t.arg.string({ required: true }),
+      data: t.arg({ type: AiLibraryCrawlerInput }),
+    },
+    resolve: async (_query, _source, { id, data }) => {
+      const { cronJob, ...input } = data
+      const existingCrawler = await prisma.aiLibraryCrawler.findUnique({
+        where: { id },
+        include: { cronJob: true },
+      })
+
+      if (!existingCrawler) {
+        throw new GraphQLError(`Crawler not found`)
+      }
+
+      const crawler = await prisma.aiLibraryCrawler.update({
+        where: { id },
+        data: {
+          ...input,
+          cronJob: existingCrawler.cronJob
+            ? { update: cronJob ?? { active: false } }
+            : { create: cronJob ?? undefined },
+        },
+        include: { cronJob: true },
       })
 
       if (crawler.cronJob) {

@@ -17,7 +17,7 @@ const mutation = graphql(`
   mutation updateAiLibraryCrawler($cronJob: AiLibraryCrawlerCronJobInput) {
     updateAiLibraryCrawler(
       id: "crawler-id"
-      data: { maxDepth: 1, maxPages: 1, url: "https://example.com", cronJob: $cronJob }
+      data: { maxDepth: 1, maxPages: 1, uri: "https://example.com", uriType: http, cronJob: $cronJob }
     ) {
       id
     }
@@ -70,7 +70,8 @@ describe('updateAiLibraryCrawler mutation', () => {
 
     expect(updatedCrawler).toEqual({
       id: 'crawler-id',
-      url: 'https://example.com',
+      uri: 'https://example.com',
+      uriType: 'http',
       maxDepth: 1,
       maxPages: 1,
       libraryId: 'library-id',

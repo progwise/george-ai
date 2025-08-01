@@ -88,7 +88,7 @@ export async function* crawlHttp({ uri, maxDepth, maxPages }: CrawlOptions) {
     const errorMessage =
       error instanceof Error ? `${error.message}${error.cause ? ' ' + error.cause : ''}` : String(error)
     console.error('Error in crawl client:', errorMessage)
-    yield { url, markdown: null, metaData: null, error: errorMessage }
+    yield { uri, markdown: null, metaData: null, error: errorMessage }
   } finally {
     // Ensure we properly close the connection when the generator is terminated
     if (reader) {
