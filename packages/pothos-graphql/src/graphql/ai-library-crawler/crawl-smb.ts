@@ -8,8 +8,8 @@ import { CrawlOptions } from './crawler-options'
 
 // Hard-coded credentials for now (TODO: make this configurable)
 const SMB_CREDENTIALS = {
-  username: 'testuser',
-  password: 'testpass123',
+  username: 'testuser1',
+  password: 'password123',
 }
 
 interface SmbFileToProcess {
@@ -31,8 +31,13 @@ export async function* crawlSmb({ uri, maxDepth, maxPages }: CrawlOptions) {
   const processedUris = new Set<string>()
 
   try {
+    console.log(`SMB URI converted to: ${smbUri}`)
+    console.log(`Using credentials: ${SMB_CREDENTIALS.username}`)
+    
     // Start by listing files and directories at the root level
     await discoverFilesAndDirectories(smbUri, 0, queue, processedUris, maxDepth)
+    
+    console.log(`Discovery complete. Found ${queue.length} files to process`)
 
     // Process files in the queue
     while (queue.length > 0 && processedPages < maxPages) {
@@ -118,7 +123,10 @@ async function discoverFilesAndDirectories(
 
   try {
     // List files in current directory
+    console.log(`Listing files in: ${currentUri}`)
     const files = await listFiles(currentUri, SMB_CREDENTIALS)
+    console.log(`Found ${files.length} files in ${currentUri}`)
+    
     for (const file of files) {
       const fileUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${file.name}`
       if (!processedUris.has(fileUri)) {
@@ -139,7 +147,10 @@ async function discoverFilesAndDirectories(
 
     // If we haven't reached max depth, explore subdirectories
     if (currentDepth < maxDepth) {
+      console.log(`Listing directories in: ${currentUri}`)
       const directories = await listDirectories(currentUri, SMB_CREDENTIALS)
+      console.log(`Found ${directories.length} directories in ${currentUri}`)
+      
       for (const dir of directories) {
         const dirUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${dir.name}`
         await discoverFilesAndDirectories(dirUri, currentDepth + 1, queue, processedUris, maxDepth)
