@@ -81,7 +81,7 @@ export const Input = <T extends ZodRawShape>({
       isFirstRenderRef.current = false
       return
     }
-    
+
     if (schema && internalRef.current && (hasBeenTouched || validateOnSchemaChange)) {
       // Defer validation to avoid direct setState in useEffect
       const timeoutId = setTimeout(() => {
