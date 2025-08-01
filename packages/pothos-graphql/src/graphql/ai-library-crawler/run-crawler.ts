@@ -94,6 +94,7 @@ const startCrawling = async (
       uri: crawler.uri,
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
+      crawlerId: crawler.id,
     })) {
       const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
       if (crawlerRun.endedAt) {

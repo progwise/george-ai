@@ -1,16 +1,9 @@
-import { transformToMarkdown } from '@george-ai/file-converter'
-import { listDirectories, listFiles, readFile } from '@george-ai/smb-client'
 import fs from 'node:fs'
 import path from 'node:path'
-import os from 'node:os'
+
+import { transformToMarkdown } from '@george-ai/file-converter'
 
 import { CrawlOptions } from './crawler-options'
-
-// Hard-coded credentials for now (TODO: make this configurable)
-const SMB_CREDENTIALS = {
-  username: 'testuser1',
-  password: 'password123',
-}
 
 interface SmbFileToProcess {
   uri: string
@@ -20,23 +13,39 @@ interface SmbFileToProcess {
   depth: number
 }
 
-export async function* crawlSmb({ uri, maxDepth, maxPages }: CrawlOptions) {
-  console.log(`start smb crawling ${uri} and maxDepth: ${maxDepth} and maxPages ${maxPages}`)
+function parseUri(uri: string): { server: string; share: string; path: string } {
+  const cleanUri = uri.replace(/^smb:/, '')
+  const match = cleanUri.match(/^\/\/([^/]+)\/([^/]+)(?:\/(.*))?$/)
 
-  // Convert //host/share/path format to smb://host/share/path
-  const smbUri = uri.startsWith('//') ? `smb:${uri}` : uri
+  if (!match) {
+    throw new Error(`Invalid SMB URI format: ${uri}`)
+  }
+
+  return {
+    server: match[1],
+    share: match[2],
+    path: match[3] || '',
+  }
+}
+
+function uriToMountedPath(uri: string, crawlerId: string): string {
+  const mountPoint = path.join('/mnt/george-ai-smb', crawlerId)
+  const { path: smbPath } = parseUri(uri)
+  return path.join(mountPoint, smbPath)
+}
+
+export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOptions) {
+  console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
+  console.log(`Using mount for crawler: ${crawlerId}`)
 
   let processedPages = 0
   const queue: SmbFileToProcess[] = []
   const processedUris = new Set<string>()
 
   try {
-    console.log(`SMB URI converted to: ${smbUri}`)
-    console.log(`Using credentials: ${SMB_CREDENTIALS.username}`)
-    
-    // Start by listing files and directories at the root level
-    await discoverFilesAndDirectories(smbUri, 0, queue, processedUris, maxDepth)
-    
+    // Start by discovering files and directories at the specified URI
+    await discoverMountedFilesAndDirectories(uri, 0, queue, processedUris, maxDepth, crawlerId)
+
     console.log(`Discovery complete. Found ${queue.length} files to process`)
 
     // Process files in the queue
@@ -46,51 +55,32 @@ export async function* crawlSmb({ uri, maxDepth, maxPages }: CrawlOptions) {
 
       try {
         console.log(`Processing SMB file: ${fileToProcess.uri}`)
-        
-        // Read file content
-        const content = await readFile(fileToProcess.uri, SMB_CREDENTIALS)
-        
-        // Create temporary file for processing
-        const tempDir = os.tmpdir()
-        const tempFileName = `smb_crawl_${Date.now()}_${path.basename(fileToProcess.name)}`
-        const tempFilePath = path.join(tempDir, tempFileName)
-        
-        // Write content to temporary file
-        await fs.promises.writeFile(tempFilePath, content)
-        
-        try {
-          // Determine MIME type from file extension
-          const mimeType = getMimeTypeFromExtension(fileToProcess.name)
-          
-          // Convert to markdown using file converter
-          const markdown = await transformToMarkdown({
-            name: fileToProcess.name,
-            mimeType,
-            path: tempFilePath,
-          })
-          
-          // Create metadata
-          const metaData = JSON.stringify({
-            url: fileToProcess.uri,
-            title: fileToProcess.name,
-            size: fileToProcess.size,
-            modifiedTime: fileToProcess.modifiedTime.toISOString(),
-            type: 'file',
-            source: 'smb',
-            mimeType,
-          })
 
-          yield { metaData, markdown }
-          
-        } finally {
-          // Clean up temporary file
-          try {
-            await fs.promises.unlink(tempFilePath)
-          } catch (unlinkError) {
-            console.warn(`Failed to delete temporary file ${tempFilePath}:`, unlinkError)
-          }
-        }
-        
+        // Convert URI to mounted filesystem path
+        const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
+
+        // Determine MIME type from file extension
+        const mimeType = getMimeTypeFromExtension(fileToProcess.name)
+
+        // Convert to markdown using file converter directly on mounted file
+        const markdown = await transformToMarkdown({
+          name: fileToProcess.name,
+          mimeType,
+          path: mountedFilePath, // Direct access to mounted file - no copying!
+        })
+
+        // Create metadata
+        const metaData = JSON.stringify({
+          url: fileToProcess.uri,
+          title: fileToProcess.name,
+          size: fileToProcess.size,
+          modifiedTime: fileToProcess.modifiedTime.toISOString(),
+          type: 'file',
+          source: 'smb',
+          mimeType,
+        })
+
+        yield { metaData, markdown }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         console.error(`Error processing SMB file ${fileToProcess.uri}:`, errorMessage)
@@ -99,20 +89,20 @@ export async function* crawlSmb({ uri, maxDepth, maxPages }: CrawlOptions) {
     }
 
     console.log(`Finished SMB crawling. Processed ${processedPages} files.`)
-    
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('Error in SMB crawler:', errorMessage)
-    yield { uri: smbUri, markdown: null, metaData: null, error: errorMessage }
+    yield { uri, markdown: null, metaData: null, error: errorMessage }
   }
 }
 
-async function discoverFilesAndDirectories(
+async function discoverMountedFilesAndDirectories(
   currentUri: string,
   currentDepth: number,
   queue: SmbFileToProcess[],
   processedUris: Set<string>,
-  maxDepth: number
+  maxDepth: number,
+  crawlerId: string,
 ): Promise<void> {
   if (currentDepth > maxDepth || processedUris.has(currentUri)) {
     return
@@ -122,45 +112,57 @@ async function discoverFilesAndDirectories(
   console.log(`Discovering files in: ${currentUri} (depth: ${currentDepth})`)
 
   try {
-    // List files in current directory
-    console.log(`Listing files in: ${currentUri}`)
-    const files = await listFiles(currentUri, SMB_CREDENTIALS)
-    console.log(`Found ${files.length} files in ${currentUri}`)
-    
-    for (const file of files) {
-      // Encode the filename to handle spaces and special characters
-      const encodedFileName = encodeURIComponent(file.name)
-      const fileUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${encodedFileName}`
-      if (!processedUris.has(fileUri)) {
-        // Only process text-like files (you can extend this list)
-        if (isTextFile(file.name)) {
-          queue.push({
-            uri: fileUri,
-            name: file.name,
-            size: file.size,
-            modifiedTime: file.modifiedTime,
-            depth: currentDepth,
-          })
-        } else {
-          console.log(`Skipping non-text file: ${fileUri}`)
-        }
-      }
+    // Convert URI to mounted filesystem path
+    const mountedPath = uriToMountedPath(currentUri, crawlerId)
+
+    // Check if the path exists
+    try {
+      await fs.promises.access(mountedPath)
+    } catch (error) {
+      console.error(`SMB mount not found at ${mountedPath}.`, error)
+      throw new Error(
+        `SMB mount not found at ${mountedPath}. Ensure crawler has been updated with SMB credentials to create the mount.`,
+      )
     }
 
-    // If we haven't reached max depth, explore subdirectories
-    if (currentDepth < maxDepth) {
-      console.log(`Listing directories in: ${currentUri}`)
-      const directories = await listDirectories(currentUri, SMB_CREDENTIALS)
-      console.log(`Found ${directories.length} directories in ${currentUri}`)
-      
-      for (const dir of directories) {
-        // Encode the directory name to handle spaces and special characters
-        const encodedDirName = encodeURIComponent(dir.name)
-        const dirUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${encodedDirName}`
-        await discoverFilesAndDirectories(dirUri, currentDepth + 1, queue, processedUris, maxDepth)
+    // List directory contents using fs
+    console.log(`Listing files in mounted path: ${mountedPath}`)
+    const entries = await fs.promises.readdir(mountedPath, { withFileTypes: true })
+    console.log(`Found ${entries.length} entries in ${mountedPath}`)
+
+    for (const entry of entries) {
+      const entryUri = `${currentUri.endsWith('/') ? currentUri : currentUri + '/'}${entry.name}`
+      const entryPath = path.join(mountedPath, entry.name)
+
+      if (entry.isFile() && !processedUris.has(entryUri)) {
+        // Only process text-like files
+        if (isTextFile(entry.name)) {
+          try {
+            const stats = await fs.promises.stat(entryPath)
+            queue.push({
+              uri: entryUri,
+              name: entry.name,
+              size: stats.size,
+              modifiedTime: stats.mtime,
+              depth: currentDepth,
+            })
+          } catch (error) {
+            console.warn(`Failed to stat file ${entryPath}:`, error)
+          }
+        } else {
+          console.log(`Skipping non-text file: ${entryUri}`)
+        }
+      } else if (entry.isDirectory() && currentDepth < maxDepth) {
+        // Recursively explore subdirectories
+        await discoverMountedFilesAndDirectories(entryUri, currentDepth + 1, queue, processedUris, maxDepth, crawlerId)
       }
     }
   } catch (error) {
+    // Re-throw mount errors so they propagate to the main function
+    if (error instanceof Error && error.message.includes('SMB mount not found')) {
+      throw error
+    }
+    
     console.error(`Error listing directory ${currentUri}:`, error)
     // Continue with other directories even if this one fails
   }
@@ -168,22 +170,67 @@ async function discoverFilesAndDirectories(
 
 function isTextFile(filename: string): boolean {
   const textExtensions = [
-    '.txt', '.md', '.markdown', '.json', '.xml', '.html', '.htm', '.css', '.js', '.ts', 
-    '.py', '.java', '.c', '.cpp', '.h', '.hpp', '.cs', '.php', '.rb', '.go', '.rs',
-    '.sql', '.csv', '.tsv', '.log', '.ini', '.cfg', '.conf', '.yaml', '.yml', '.toml',
-    '.sh', '.bat', '.ps1', '.dockerfile', '.gitignore', '.gitattributes', '.editorconfig',
-    '.env', '.properties', '.gradle', '.pom', '.sbt', '.build', '.make', '.cmake',
+    '.txt',
+    '.md',
+    '.markdown',
+    '.json',
+    '.xml',
+    '.html',
+    '.htm',
+    '.css',
+    '.js',
+    '.ts',
+    '.py',
+    '.java',
+    '.c',
+    '.cpp',
+    '.h',
+    '.hpp',
+    '.cs',
+    '.php',
+    '.rb',
+    '.go',
+    '.rs',
+    '.sql',
+    '.csv',
+    '.tsv',
+    '.log',
+    '.ini',
+    '.cfg',
+    '.conf',
+    '.yaml',
+    '.yml',
+    '.toml',
+    '.sh',
+    '.bat',
+    '.ps1',
+    '.dockerfile',
+    '.gitignore',
+    '.gitattributes',
+    '.editorconfig',
+    '.env',
+    '.properties',
+    '.gradle',
+    '.pom',
+    '.sbt',
+    '.build',
+    '.make',
+    '.cmake',
     // Add file converter supported formats
-    '.pdf', '.docx', '.doc', '.xlsx', '.xls',
+    '.pdf',
+    '.docx',
+    '.doc',
+    '.xlsx',
+    '.xls',
   ]
-  
+
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
   return textExtensions.includes(extension) || !filename.includes('.')
 }
 
 function getMimeTypeFromExtension(filename: string): string {
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-  
+
   const mimeTypeMap: Record<string, string> = {
     // Text files
     '.txt': 'text/plain',
@@ -200,14 +247,14 @@ function getMimeTypeFromExtension(filename: string): string {
     '.yml': 'application/x-yaml',
     '.csv': 'text/csv',
     '.tsv': 'text/tab-separated-values',
-    
+
     // Office documents
     '.pdf': 'application/pdf',
     '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     '.doc': 'application/msword',
     '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     '.xls': 'application/vnd.ms-excel',
-    
+
     // Code files
     '.py': 'text/x-python',
     '.java': 'text/x-java-source',
@@ -221,7 +268,7 @@ function getMimeTypeFromExtension(filename: string): string {
     '.go': 'text/x-go',
     '.rs': 'text/x-rust',
     '.sql': 'application/sql',
-    
+
     // Config files
     '.ini': 'text/plain',
     '.cfg': 'text/plain',
@@ -229,12 +276,12 @@ function getMimeTypeFromExtension(filename: string): string {
     '.env': 'text/plain',
     '.properties': 'text/plain',
     '.log': 'text/plain',
-    
+
     // Scripts
     '.sh': 'application/x-sh',
     '.bat': 'application/x-msdos-program',
     '.ps1': 'application/x-powershell',
   }
-  
+
   return mimeTypeMap[extension] || 'text/plain'
 }
