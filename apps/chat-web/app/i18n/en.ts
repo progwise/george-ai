@@ -362,7 +362,7 @@ export default {
       embeddingModelName: 'With this model, data is transformed into vectors',
       name: 'Name your library',
     },
-    processUnprocessed: 'Process all unprocessed and failed files',
+    processUnprocessed: 'Process all unprocessed files',
     removeParticipant: 'Remove participant',
     removeParticipantConfirmation:
       'You are about to remove {participantName} from this library. This cannot be undone.',
