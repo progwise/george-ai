@@ -5,31 +5,32 @@ A Docker-based SMB (Samba) test server for development and testing purposes. Thi
 ## Quick Start
 
 **Test basic connectivity:**
+
 ```bash
 smbclient -L //gai-smb-test -p 445 -U testuser1
 ```
 
-*Note: The SMB server auto-starts when working in devcontainer.*
+_Note: The SMB server auto-starts when working in devcontainer._
 
 ## Server Configuration
 
 ### Available Shares
 
-| Share Name   | Path              | Access Level        | Description                          |
-|-------------|-------------------|---------------------|--------------------------------------|
-| `public`    | `/shares/public`  | Read-only           | Company-wide announcements, policies |
-| `documents` | `/shares/documents` | Read/Write        | General documents, reports           |
-| `private`   | `/shares/private` | Admin only          | Confidential files                   |
-| `engineering` | `/shares/engineering` | Read/Write      | Engineering department files         |
-| `marketing` | `/shares/marketing` | Read/Write        | Marketing department files           |
+| Share Name    | Path                  | Access Level | Description                          |
+| ------------- | --------------------- | ------------ | ------------------------------------ |
+| `public`      | `/shares/public`      | Read-only    | Company-wide announcements, policies |
+| `documents`   | `/shares/documents`   | Read/Write   | General documents, reports           |
+| `private`     | `/shares/private`     | Admin only   | Confidential files                   |
+| `engineering` | `/shares/engineering` | Read/Write   | Engineering department files         |
+| `marketing`   | `/shares/marketing`   | Read/Write   | Marketing department files           |
 
 ### Test Users
 
-| Username   | Password     | Groups          | Access Level                    |
-|------------|-------------|-----------------|--------------------------------|
-| `testuser1` | `password123` | readers, writers | Read/Write to most shares     |
-| `testuser2` | `password456` | readers, writers | Read/Write to most shares     |
-| `readonly`  | `readonly123` | readers         | Read-only access              |
+| Username    | Password      | Groups                   | Access Level              |
+| ----------- | ------------- | ------------------------ | ------------------------- |
+| `testuser1` | `password123` | readers, writers         | Read/Write to most shares |
+| `testuser2` | `password456` | readers, writers         | Read/Write to most shares |
+| `readonly`  | `readonly123` | readers                  | Read-only access          |
 | `admin`     | `admin123`    | readers, writers, admins | Full access to all shares |
 
 ## Testing Commands
@@ -51,6 +52,7 @@ Expected output should show all available shares: `public`, `documents`, `privat
 ### 2. Connect to Specific Shares
 
 #### Connect to Public Share (Read-only)
+
 ```bash
 # Interactive connection
 smbclient //gai-smb-test/public -p 445 -U testuser1
@@ -60,11 +62,13 @@ smbclient //gai-smb-test/public -p 445 -U testuser1%password123
 ```
 
 #### Connect to Documents Share (Read/Write)
+
 ```bash
 smbclient //gai-smb-test/documents -p 445 -U testuser1%password123
 ```
 
 #### Connect to Engineering Share
+
 ```bash
 smbclient //gai-smb-test/engineering -p 445 -U testuser1%password123
 ```
@@ -99,6 +103,7 @@ quit
 ### 4. Test Different Access Levels
 
 #### Test Read-only Access
+
 ```bash
 # Connect as readonly user to documents share
 smbclient //gai-smb-test/documents -p 445 -U readonly%readonly123
@@ -108,12 +113,14 @@ smbclient //gai-smb-test/documents -p 445 -U readonly%readonly123
 ```
 
 #### Test Admin Access to Private Share
+
 ```bash
 # Only admin can access private share
 smbclient //gai-smb-test/private -p 445 -U admin%admin123
 ```
 
 #### Test Failed Access
+
 ```bash
 # This should fail - readonly user cannot access private share
 smbclient //gai-smb-test/private -p 445 -U readonly%readonly123
@@ -206,19 +213,22 @@ smbclient //gai-smb-test/engineering -p 445 -U testuser1%password123 -c "get cod
 ### Common Issues
 
 1. **Connection Refused**
+
    ```bash
    # Check if container is running
    docker ps | grep smb
-   
+
    # Check container logs
    docker logs smb-test-server
    ```
 
 2. **Authentication Failed**
+
    - Verify username/password combinations from the table above
    - Ensure you're using the correct port (10445)
 
 3. **Permission Denied**
+
    - Check if the user has access to the specific share
    - Verify user group membership in the configuration
 
@@ -254,13 +264,14 @@ Use these URIs to test the SMB crawler:
 
 ```
 //gai-smb-test/public
-//gai-smb-test/documents  
+//gai-smb-test/documents
 //gai-smb-test/documents/projects
 //gai-smb-test/engineering/code
 //gai-smb-test/marketing/campaigns
 ```
 
 Example crawler configuration:
+
 - **URI:** `//gai-smb-test/documents`
 - **Max Depth:** `3`
 - **Max Pages:** `50`

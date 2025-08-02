@@ -56,18 +56,18 @@ class SMBClient {
           // Check if this is a known recoverable error with useful output
           const errorMessage = error.message
           const hasUsefulOutput = stdout && stdout.trim().length > 0
-          const isRecoverableError = 
+          const isRecoverableError =
             stderr?.includes('is_bad_finfo_name') ||
             errorMessage.includes('NT_STATUS_INVALID_NETWORK_RESPONSE') ||
             stderr?.includes('NT_STATUS_INVALID_NETWORK_RESPONSE')
-          
+
           if (hasUsefulOutput && isRecoverableError) {
             // Log the error but continue with the output we got
             console.warn(`SMB command completed with warning: ${errorMessage}`)
             resolve(stdout)
             return
           }
-          
+
           reject(new Error(`SMB command execution failed: ${error.message}`))
           return
         }
@@ -106,7 +106,7 @@ class SMBClient {
       let type = ''
       let sizeStr = ''
       let dateStr = ''
-      
+
       // Find D/A/N followed by whitespace and digits
       const typePatternMatch = trimmed.match(/\s([ADN])\s+(\d+)\s+(.+)$/)
       if (typePatternMatch) {
@@ -115,12 +115,12 @@ class SMBClient {
         type = typePatternMatch[1]
         sizeStr = typePatternMatch[2]
         dateStr = typePatternMatch[3]
-        
+
         // Skip . and .. directories
         if (name === '.' || name === '..') {
           continue
         }
-        
+
         const isDirectory = type === 'D'
         const size = parseInt(sizeStr) || 0
 
@@ -147,7 +147,7 @@ class SMBClient {
     const { server, share, path } = this.parseUri(uri)
     let lsPath = path === '/' ? '' : path.startsWith('/') ? path.substring(1) : path
     lsPath = lsPath.endsWith('/') ? lsPath.slice(0, -1) : lsPath
-    
+
     let command: string
     if (lsPath === '') {
       // For root directory, use ls without any path
@@ -166,7 +166,7 @@ class SMBClient {
     const { server, share, path } = this.parseUri(uri)
     let lsPath = path === '/' ? '' : path.startsWith('/') ? path.substring(1) : path
     lsPath = lsPath.endsWith('/') ? lsPath.slice(0, -1) : lsPath
-    
+
     let command: string
     if (lsPath === '') {
       // For root directory, use ls without any path
@@ -186,7 +186,7 @@ class SMBClient {
     const filePath = path.startsWith('/') ? path.substring(1) : path
     const escapedPath = filePath.replace(/'/g, "'\\''")
     const command = `smbclient //${server}/${share} -U "${this.options.username}%${this.options.password}" -c 'get "${escapedPath}" -'`
-    
+
     return await this.executeSmbCommand(command)
   }
 }
