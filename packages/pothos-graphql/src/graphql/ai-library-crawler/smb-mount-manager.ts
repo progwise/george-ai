@@ -70,13 +70,13 @@ async function ensureDirectoryExists(dirPath: string, mode?: number): Promise<vo
 async function storeCredentials(crawlerId: string, username: string, password: string): Promise<string> {
   // Ensure credentials directory exists with restricted permissions
   await ensureDirectoryExists(CREDENTIALS_DIR, 0o700)
-  
+
   const credFile = getCredentialsFile(crawlerId)
   const content = `username=${username}\npassword=${password}\n`
-  
+
   // Write credentials file with owner-only permissions
   await fs.promises.writeFile(credFile, content, { mode: 0o600 })
-  
+
   return credFile
 }
 
@@ -157,7 +157,7 @@ export const ensureCrawlerSmbShareMount = async (params: {
     } catch (cleanupError) {
       console.warn('Failed to cleanup mount point after failed mount:', cleanupError)
     }
-    
+
     await removeCredentials(crawlerId)
 
     throw new Error(`Failed to mount SMB share: ${error instanceof Error ? error.message : String(error)}`)
@@ -184,7 +184,7 @@ export const updateCrawlerSmbMount = async (params: {
     if (await isMounted(mountPoint)) {
       console.log(`Unmounting existing SMB share at ${mountPoint}`)
       await execAsync(`sudo umount ${mountPoint}`)
-      
+
       // Wait for unmount to complete
       let retries = 5
       while (retries > 0 && (await isMounted(mountPoint))) {
