@@ -372,9 +372,6 @@ importers:
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../langchain-chat
-      '@george-ai/smb-client':
-        specifier: workspace:*
-        version: link:../smb-client
       '@pothos/core':
         specifier: ^4.3.0
         version: 4.6.2(graphql@16.10.0)
@@ -13512,7 +13509,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9)
+      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.1))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -15192,7 +15189,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9):
+  retry-axios@2.6.0(axios@1.7.9(debug@4.4.1)):
     dependencies:
       axios: 1.7.9(debug@4.4.1)
 
