@@ -16,6 +16,9 @@ RUN apt-get update \
         g++ \
         sqlite3 \
         libsqlite3-dev \
+        cifs-utils \
+        smbclient \
+        curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g corepack@0.31.0 && \

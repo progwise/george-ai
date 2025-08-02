@@ -5,6 +5,7 @@ import {
   AiBaseCaseInputType,
   AiConversationCreateInput,
   AiConversationMessageInput,
+  AiLibraryCrawlerCredentialsInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
   AiLibraryCrawlerUriType,
@@ -58,6 +59,13 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
     content: z.string(),
     conversationId: z.string(),
     recipientAssistantIds: z.array(z.string()),
+  })
+}
+
+export function AiLibraryCrawlerCredentialsInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCredentialsInput>> {
+  return z.object({
+    password: z.string(),
+    username: z.string(),
   })
 }
 

@@ -4,6 +4,7 @@ import path from 'node:path'
 import { transformToMarkdown } from '@george-ai/file-converter'
 
 import { CrawlOptions } from './crawler-options'
+import { uriToMountedPath } from './smb-mount-manager'
 
 interface SmbFileToProcess {
   uri: string
@@ -11,27 +12,6 @@ interface SmbFileToProcess {
   size: number
   modifiedTime: Date
   depth: number
-}
-
-function parseUri(uri: string): { server: string; share: string; path: string } {
-  const cleanUri = uri.replace(/^smb:/, '')
-  const match = cleanUri.match(/^\/\/([^/]+)\/([^/]+)(?:\/(.*))?$/)
-
-  if (!match) {
-    throw new Error(`Invalid SMB URI format: ${uri}`)
-  }
-
-  return {
-    server: match[1],
-    share: match[2],
-    path: match[3] || '',
-  }
-}
-
-function uriToMountedPath(uri: string, crawlerId: string): string {
-  const mountPoint = path.join('/mnt/george-ai-smb', crawlerId)
-  const { path: smbPath } = parseUri(uri)
-  return path.join(mountPoint, smbPath)
 }
 
 export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOptions) {
@@ -162,7 +142,7 @@ async function discoverMountedFilesAndDirectories(
     if (error instanceof Error && error.message.includes('SMB mount not found')) {
       throw error
     }
-    
+
     console.error(`Error listing directory ${currentUri}:`, error)
     // Continue with other directories even if this one fails
   }

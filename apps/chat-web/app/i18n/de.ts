@@ -151,6 +151,9 @@ export default {
   crawlers: {
     addNew: 'Neuen Crawler erstellen',
     crawlSettings: 'Crawl-Einstellungen',
+    credentialsDialogTitle: 'Anmeldeinformation',
+    credentialsPassword: 'Passwort',
+    credentialsUsername: 'Benutzername',
     cronJob: 'Cronjob',
     cronJobActive: 'Cronjob aktiv',
     cronJobTime: 'um',
@@ -177,6 +180,8 @@ export default {
       maxDepth: 'Tiefe eingeben, z.B. 5',
       maxPages: 'z.B. 1000 - kann groß sein',
       uri: 'https://vwx.yz oder //smbhost.local/share',
+      username: 'Benutzername',
+      password: 'Passwort',
     },
     run: 'Crawler starten',
     runCount: '# Läufe',
@@ -206,6 +211,8 @@ export default {
     uriTypeHtml: 'Http Server',
     uriTypeSmb: 'Dateifreigabe',
     utcHint: 'UTC-Zeitzone',
+    validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
+    validationPasswordRequired: 'Passwort braucht mindestens 2 Zeichen.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',

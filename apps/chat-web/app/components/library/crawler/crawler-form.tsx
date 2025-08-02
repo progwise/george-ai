@@ -5,23 +5,32 @@ import { z } from 'zod'
 import { HTTP_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
 
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
-import { translate } from '../../../i18n'
+import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { Input } from '../../form/input'
 
+export const getCrawlerCredentialsSchema = (language: Language) => {
+  return z.object({
+    username: z.string().min(2, translate('crawlers.validationUsernameRequired', language)),
+    password: z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
+  })
+}
 // Base schema for Input component validation
-export const getCrawlerFormBaseSchema = (language: 'en' | 'de') =>
+export const getCrawlerFormBaseSchema = (language: Language) =>
   z.object({
     id: z.string().optional(),
+    libraryId: z.string().optional(),
     uri: z.string().min(1),
     uriType: z.union([z.literal('http'), z.literal('smb')]),
     maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
     maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
+    username: z.string().optional(),
+    password: z.string().optional(),
   })
 
 // Full schema with refinements for form submission validation
-export const getCrawlerFormSchema = (language: 'en' | 'de') =>
+export const getCrawlerFormSchema = (language: Language) =>
   getCrawlerFormBaseSchema(language).refine(
     (data) => {
       if (data.uriType === 'http') {
@@ -94,7 +103,11 @@ export interface CrawlerFormData {
   } | null
 }
 
-export const CrawlerForm = () => {
+interface CrawlerFormProps {
+  libraryId: string
+}
+
+export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(false)
   const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb'>('http')
@@ -123,10 +136,13 @@ export const CrawlerForm = () => {
     })
   }, [language, selectedUriType])
 
+  const credentialsSchema = useMemo(() => getCrawlerCredentialsSchema(language), [language])
+
   return (
     <div>
+      <input type="hidden" name="libraryId" value={libraryId} />
       <div className="flex justify-end gap-4">
-        <label className="flex gap-2 text-sm">
+        <label className="flex gap-2 text-xs">
           <input
             type="radio"
             name="uriType"
@@ -138,7 +154,7 @@ export const CrawlerForm = () => {
           />
           <span>{t('crawlers.uriTypeHtml')}</span>
         </label>
-        <label className="flex gap-2 text-sm">
+        <label className="flex gap-2 text-xs">
           <input
             type="radio"
             name="uriType"
@@ -173,6 +189,25 @@ export const CrawlerForm = () => {
           label={t('crawlers.maxPages')}
           schema={crawlerFormSchema}
           required={true}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          disabled={selectedUriType !== 'smb'}
+          name="username"
+          label={t('crawlers.credentialsUsername')}
+          placeholder={t('crawlers.placeholders.username')}
+          schema={credentialsSchema}
+          required
+        />
+        <Input
+          disabled={selectedUriType !== 'smb'}
+          name="password"
+          type="password"
+          label={t('crawlers.credentialsPassword')}
+          placeholder={t('crawlers.placeholders.password')}
+          schema={credentialsSchema}
+          required
         />
       </div>
       <div className="flex flex-col gap-2">

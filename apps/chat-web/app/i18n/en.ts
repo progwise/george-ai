@@ -149,6 +149,9 @@ export default {
   crawlers: {
     addNew: 'Create new crawler',
     crawlSettings: 'Crawl Settings',
+    credentialsDialogTitle: 'Credentials',
+    credentialsPassword: 'Password',
+    credentialsUsername: 'Username',
     cronJob: 'Cron job',
     cronJobActive: 'Cron job active',
     cronJobTime: 'at',
@@ -174,6 +177,8 @@ export default {
       maxDepth: 'Enter the crawl depth, e.g. 5',
       maxPages: 'e.g. 1000 - it can be big',
       uri: 'https://vwx.yz or //smbhost.local/share',
+      username: 'Username to access the choosen URI',
+      password: 'Password to access the choosen URI',
     },
     run: 'Crawl',
     runCount: '# Crawls',
@@ -203,6 +208,8 @@ export default {
     uriTypeHtml: 'Http Server',
     uriTypeSmb: 'File Share',
     utcHint: 'UTC time',
+    validationUsernameRequired: 'Username must be > 2 characters.',
+    validationPasswordRequired: 'Password must be > 2 characters.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar deletion failed',

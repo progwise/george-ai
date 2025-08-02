@@ -13,6 +13,7 @@ RUN apt-get update \
     g++ \
     python3-pip \
     python3.11-venv \
+    cifs-utils \
     smbclient \
     curl \
     gpg

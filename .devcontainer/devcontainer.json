@@ -23,7 +23,25 @@
         "remote.autoForwardPorts": true,
         "[prisma]": {
           "editor.defaultFormatter": "Prisma.prisma"
-        }
+        },
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/.uploads/**": true,
+          "**/.postgres-data-chatweb/**": true,
+          "**/.postgres-data-keycloak/**": true,
+          "**/.typesense-data/**": true
+        },
+        "tailwindCSS.files.exclude": [
+          "**/.git/**",
+          "**/node_modules/**",
+          "**/.hg/**",
+          "**/.svn/**",
+          "**/.uploads/**",
+          "**/.smb-mounts/**",
+          "**/.turbo/**",
+          "**/.typesense-data/**",
+          "**/.postgres-data-*/**"
+        ]
       }
     }
   },

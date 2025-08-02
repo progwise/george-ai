@@ -275,6 +275,11 @@ type AiLibraryCrawler {
   uriType: AiLibraryCrawlerUriType!
 }
 
+input AiLibraryCrawlerCredentialsInput {
+  password: String!
+  username: String!
+}
+
 type AiLibraryCrawlerCronJob {
   active: Boolean!
   createdAt: DateTime!
@@ -553,7 +558,11 @@ type Mutation {
   createAiAssistant(name: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!): AiLibrary
-  createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
+  createAiLibraryCrawler(
+    credentials: AiLibraryCrawlerCredentialsInput
+    data: AiLibraryCrawlerInput!
+    libraryId: String!
+  ): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   deleteAiAssistant(assistantId: String!): AiAssistant
@@ -585,7 +594,11 @@ type Mutation {
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
-  updateAiLibraryCrawler(data: AiLibraryCrawlerInput!, id: String!): AiLibraryCrawler
+  updateAiLibraryCrawler(
+    credentials: AiLibraryCrawlerCredentialsInput
+    data: AiLibraryCrawlerInput!
+    id: String!
+  ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
