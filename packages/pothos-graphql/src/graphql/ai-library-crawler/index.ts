@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql'
+
 import { stopCronJob, upsertCronJob } from '../../cron-jobs'
 import { deleteFile } from '../../file-upload'
 import { prisma } from '../../prisma'
@@ -5,14 +7,22 @@ import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
-
-import './update-ai-library-crawler'
+import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount, updateCrawlerSmbMount } from './smb-mount-manager'
 
 console.log('Setting up: AiLibraryCrawler')
 
-export const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
+const AiLibraryCrawlerUriType = builder.enumType('AiLibraryCrawlerUriType', { values: ['http', 'smb'] as const })
+
+const AiLibraryCrawlerCredentialsInput = builder.inputType('AiLibraryCrawlerCredentialsInput', {
   fields: (t) => ({
-    url: t.string({ required: true }),
+    username: t.string({ required: true }),
+    password: t.string({ required: true }),
+  }),
+})
+const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
+  fields: (t) => ({
+    uri: t.string({ required: true }),
+    uriType: t.field({ type: AiLibraryCrawlerUriType }),
     maxDepth: t.int({ required: true }),
     maxPages: t.int({ required: true }),
     cronJob: t.field({ type: AiLibraryCrawlerCronJobInput, required: false }),
@@ -57,7 +67,21 @@ builder.prismaObject('AiLibraryCrawler', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
-    url: t.exposeString('url', { nullable: false }),
+    uri: t.exposeString('uri', { nullable: false }),
+    uriType: t.field({
+      type: AiLibraryCrawlerUriType,
+      nullable: false,
+      resolve: (crawler) => {
+        switch (crawler.uriType) {
+          case 'http':
+            return 'http'
+          case 'smb':
+            return 'smb'
+          default:
+            throw new GraphQLError(`Unknown AiLibraryCrawlerUriType ${crawler.uriType}`)
+        }
+      },
+    }),
     lastRun: t.field({
       type: AiLibraryCrawlerRun,
       nullable: true,
@@ -150,9 +174,10 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
     type: 'AiLibraryCrawler',
     args: {
       libraryId: t.arg.string({ required: true }),
-      data: t.arg({ type: AiLibraryCrawlerInput }),
+      data: t.arg({ type: AiLibraryCrawlerInput, required: true }),
+      credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
     },
-    resolve: async (_query, _source, { libraryId, data }) => {
+    resolve: async (_query, _source, { libraryId, data, credentials }) => {
       const { cronJob, ...input } = data
 
       const crawler = await prisma.aiLibraryCrawler.create({
@@ -162,6 +187,74 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
           libraryId,
           cronJob: cronJob ? { create: cronJob } : undefined,
         },
+      })
+
+      if (data.uriType === 'http') {
+        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
+      } else if (data.uriType === 'smb') {
+        if (!credentials) {
+          throw new GraphQLError('Must provide credentials for uri type SMB')
+        }
+        await ensureCrawlerSmbShareMount({
+          crawlerId: crawler.id,
+          uri: data.uri,
+          username: credentials.username,
+          password: credentials.password,
+        })
+      }
+
+      if (crawler.cronJob) {
+        await upsertCronJob(crawler.cronJob)
+      }
+
+      return crawler
+    },
+  }),
+)
+
+builder.mutationField('updateAiLibraryCrawler', (t) =>
+  t.prismaField({
+    type: 'AiLibraryCrawler',
+    args: {
+      id: t.arg.string({ required: true }),
+      data: t.arg({ type: AiLibraryCrawlerInput, required: true }),
+      credentials: t.arg({ type: AiLibraryCrawlerCredentialsInput, required: false }),
+    },
+    resolve: async (_query, _source, { id, data, credentials }) => {
+      const { cronJob, ...input } = data
+      const existingCrawler = await prisma.aiLibraryCrawler.findUnique({
+        where: { id },
+        include: { cronJob: true },
+      })
+
+      if (!existingCrawler) {
+        throw new GraphQLError(`Crawler not found`)
+      }
+
+      if (data.uriType === 'http') {
+        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
+      } else if (data.uriType === 'smb') {
+        if (!credentials) {
+          throw new GraphQLError('Must provide credentials for uri type SMB')
+        }
+        // Update SMB mount with new credentials
+        await updateCrawlerSmbMount({
+          crawlerId: id,
+          uri: data.uri,
+          username: credentials.username,
+          password: credentials.password,
+        })
+      }
+
+      const crawler = await prisma.aiLibraryCrawler.update({
+        where: { id },
+        data: {
+          ...input,
+          cronJob: existingCrawler.cronJob
+            ? { update: cronJob ?? { active: false } }
+            : { create: cronJob ?? undefined },
+        },
+        include: { cronJob: true },
       })
 
       if (crawler.cronJob) {
@@ -218,6 +311,8 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
       if (crawler.cronJob) {
         await stopCronJob(crawler.cronJob)
       }
+
+      await ensureCrawlerSmbShareUnmount({ crawlerId: id })
 
       return crawler
     },

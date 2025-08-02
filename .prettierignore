@@ -9,3 +9,5 @@ apps/chat-web/app/routeTree.gen.ts
 .typesense-data
 .node_modules
 .venv
+.smb-mounts
+.smb-credentials
