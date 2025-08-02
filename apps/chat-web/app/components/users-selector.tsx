@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 
 import { UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
+import { UserAvatar } from './user-avatar'
 
 interface UsersSelectorProps {
   users: UserFragment[]
@@ -93,9 +94,12 @@ export const UsersSelector = ({ users, selectedUserIds, setSelectedUserIds, clas
                       }
                     }}
                   />
-                  <span className="truncate text-sm leading-tight" title={formattedUser}>
-                    {formattedUser}
-                  </span>
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <UserAvatar user={user} className="size-6 flex-none" />
+                    <span className="truncate text-sm leading-tight" title={formattedUser}>
+                      {formattedUser}
+                    </span>
+                  </div>
                 </label>
               )
             })}

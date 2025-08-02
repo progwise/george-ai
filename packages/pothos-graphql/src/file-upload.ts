@@ -13,7 +13,10 @@ export const getFileInfo = async (fileId: string) => {
   return fileInfo
 }
 
-export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile }: { removeUploadFile: boolean }) => {
+export const convertUploadToMarkdown = async (
+  fileId: string,
+  { removeUploadFile, fileConverterOptions }: { removeUploadFile: boolean; fileConverterOptions: string },
+) => {
   const fileRecord = await getFileInfo(fileId)
   if (!fileRecord) {
     throw new Error(`File record not found for ID: ${fileId}`)
@@ -33,6 +36,7 @@ export const convertUploadToMarkdown = async (fileId: string, { removeUploadFile
     name: fileRecord.name,
     mimeType: fileRecord.mimeType,
     path: uploadFilePath,
+    fileConverterOptions,
   })
 
   await fs.promises.writeFile(markdownFilePath, markdownContent, {
@@ -67,4 +71,29 @@ export const deleteFile = async (fileId: string, libraryId: string) => {
   await prisma.aiLibraryFile.delete({
     where: { id: fileId },
   })
+}
+
+export const checkUser = async (userId: string) => {
+  const user = await prisma?.user.findUnique({
+    where: { id: userId },
+  })
+  return user
+}
+
+export const getUserAvatarsPath = () => {
+  const path = `${process.env.UPLOADS_PATH}/user-avatars`
+
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path, { recursive: true })
+  }
+
+  return `${path}`
+}
+
+export const updateUserAvatarUrl = async ({ userId, avatarUrl }: { userId: string; avatarUrl: string | null }) => {
+  const user = await prisma?.user.update({
+    where: { id: userId },
+    data: { avatarUrl },
+  })
+  return user
 }

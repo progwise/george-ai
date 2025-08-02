@@ -121,8 +121,6 @@ const startCrawling = async (
         libraryId: crawler.libraryId,
       }
 
-      console.log('Processing crawled page', fileUpdateData.name, 'from', metaData.url)
-
       try {
         const file = await prisma.aiLibraryFile.upsert({
           where: {

@@ -9,28 +9,44 @@ import { builder } from '../builder'
 
 export const processFile = async (fileId: string) => {
   const file = await prisma.aiLibraryFile.findUnique({
+    select: {
+      libraryId: true,
+      id: true,
+      name: true,
+      originUri: true,
+      mimeType: true,
+      library: { select: { id: true, name: true, embeddingModelName: true, fileConverterOptions: true } },
+    },
     where: { id: fileId },
   })
   if (!file) {
     throw new Error(`File not found in database: ${fileId}`)
   }
-
-  await prisma.aiLibraryFile.update({
-    where: { id: fileId },
-    data: {
-      processingStartedAt: new Date(),
-    },
-  })
-
-  const markdownFilePath = getMarkdownFilePath({ fileId: file.id, libraryId: file.libraryId })
-  const uploadFilePath = getUploadFilePath({ fileId: file.id, libraryId: file.libraryId })
-
   try {
+    if (!file.library.embeddingModelName) {
+      throw new Error(`Embedding model not found for library: ${file.libraryId}`)
+    }
+
+    await prisma.aiLibraryFile.update({
+      where: { id: fileId },
+      data: {
+        processingStartedAt: new Date(),
+      },
+    })
+
+    const markdownFilePath = getMarkdownFilePath({ fileId: file.id, libraryId: file.libraryId })
+    const uploadFilePath = getUploadFilePath({ fileId: file.id, libraryId: file.libraryId })
     if (fs.existsSync(uploadFilePath)) {
       // re-generate markdown
-      await convertUploadToMarkdown(file.id, { removeUploadFile: false })
+      await convertUploadToMarkdown(file.id, {
+        removeUploadFile: false,
+        fileConverterOptions: file.library.fileConverterOptions || '',
+      })
     }
-    const embeddedFile = await embedFile(file.libraryId, {
+    if (!fs.existsSync(markdownFilePath)) {
+      throw new Error(`Markdown file does not exist: ${markdownFilePath}`)
+    }
+    const embeddedFile = await embedFile(file.libraryId, file.library.embeddingModelName, {
       id: file.id,
       name: file.name,
       originUri: file.originUri!,
@@ -49,7 +65,6 @@ export const processFile = async (fileId: string) => {
       },
     })
   } catch (error) {
-    console.error(`Error processing file ${fileId}:`, error)
     return await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
@@ -67,6 +82,6 @@ builder.mutationField('processFile', (t) =>
     args: {
       fileId: t.arg.string({ required: true }),
     },
-    resolve: async (_query, _source, { fileId }) => processFile(fileId),
+    resolve: (_query, _source, { fileId }) => processFile(fileId),
   }),
 )

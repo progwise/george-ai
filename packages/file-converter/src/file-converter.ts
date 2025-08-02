@@ -6,53 +6,56 @@ import { transformExcelToMarkdown } from './converters/excel-to-markdown'
 import { transformHtmlToMarkdown } from './converters/html-to-markdown'
 import { transformPdfToImageToMarkdown } from './converters/pdf-to-images-to-markdown'
 import { transformPdfToMarkdown } from './converters/pdf-to-markdown'
+import { getFileConverterOptionsList } from './file-converter-options'
 
 export interface FileLoadParams {
   name: string
   mimeType: string
   path: string
+  fileConverterOptions?: string
 }
 
 export async function transformToMarkdown(params: FileLoadParams): Promise<string> {
-  const { name, mimeType, path: filePath } = params
+  const { name, mimeType, path: filePath, fileConverterOptions } = params
+  const fileConverterOptionsList = getFileConverterOptionsList(fileConverterOptions)
 
+  console.log('transformToMarkdown:', { name, mimeType, filePath, fileConverterOptionsList })
   try {
-    let content: string
-
     switch (mimeType) {
-      case 'application/pdf':
-        content = await transformPdfToMarkdown(filePath)
-        if (!content || content.trim() === '') {
-          console.warn(`loadFile: PDF conversion returned empty content for file ${name}`)
-          content = await transformPdfToImageToMarkdown(filePath)
+      case 'application/pdf': {
+        if (
+          fileConverterOptionsList.includes('enableImageProcessing') &&
+          fileConverterOptionsList.includes('enableTextExtraction')
+        ) {
+          const directContent = await transformPdfToMarkdown(filePath)
+          const imageContent = await transformPdfToImageToMarkdown(filePath)
+          return `# Direct Content\n\n${directContent}\n\n---\n\n# Image Content\n\n${imageContent}`
+        } else if (fileConverterOptionsList.includes('enableImageProcessing')) {
+          return await transformPdfToImageToMarkdown(filePath)
+        } else if (fileConverterOptionsList.includes('enableTextExtraction')) {
+          return await transformPdfToMarkdown(filePath)
         }
-        break
+        return `# PDF Content\n\nPDF processing options not set for library.`
+      }
 
       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        content = await transformDocxToMarkdown(filePath)
-        break
-
+        return await transformDocxToMarkdown(filePath)
       case 'text/csv':
-        content = await transformCsvToMarkdown(filePath)
-        break
+        return await transformCsvToMarkdown(filePath)
 
       case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-        content = await transformExcelToMarkdown(filePath)
-        break
+        return await transformExcelToMarkdown(filePath)
       case 'text/html':
-        content = await transformHtmlToMarkdown(filePath)
-        break
+        return await transformHtmlToMarkdown(filePath)
       default:
         // Try to read as text for any other text-based files
         if (mimeType.startsWith('text/')) {
-          content = await fs.readFile(filePath, 'utf-8')
+          return await fs.readFile(filePath, 'utf-8')
         } else {
           console.warn(`loadFile: No specific loader implemented for mimeType ${mimeType} for file ${name}`)
-          content = 'unsupported file type'
+          return 'unsupported file type'
         }
     }
-
-    return content
   } catch (error) {
     console.error(`Error loading and converting file ${name} from ${filePath}:`, error)
     return `Error loading file: ${(error as Error).message}`

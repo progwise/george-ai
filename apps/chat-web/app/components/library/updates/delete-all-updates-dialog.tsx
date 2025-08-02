@@ -42,7 +42,7 @@ export const DeleteAllUpdatesDialog = ({ libraryId, tableDataChanged, totalItems
         onClick={() => dialogRef.current?.showModal()}
         disabled={totalItems === 0}
       >
-        {t('actions.clearAllUpdates')}
+        {t('actions.deleteAllUpdates')}
       </button>
 
       <LoadingSpinner isLoading={isPending} />

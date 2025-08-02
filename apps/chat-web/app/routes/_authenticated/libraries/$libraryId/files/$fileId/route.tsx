@@ -3,8 +3,10 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
+import { toastError, toastSuccess } from '../../../../../../components/georgeToaster'
 import { reprocessFiles } from '../../../../../../components/library/files/change-files'
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
+import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
 import { LoadingSpinner } from '../../../../../../components/loading-spinner'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
@@ -31,10 +33,49 @@ function RouteComponent() {
 
   const { mutate: reprocessMutate, isPending: reprocessIsPending } = useMutation({
     mutationFn: () => reprocessFiles({ data: [params.fileId] }),
-    onSettled: () =>
+    onError: (error) => {
+      const errorMessage =
+        error instanceof Error ? error.message : t('errors.reprocessFile', { error: 'Unknown error', files: '' })
+      toastError(errorMessage)
+    },
+    onSuccess: (data) => {
+      const errorFiles = data.filter(
+        (file) => file.processFile.processingErrorMessage && file.processFile.processingErrorMessage.length > 0,
+      )
+      const successFiles = data.filter(
+        (file) => !file.processFile.processingErrorMessage || file.processFile.processingErrorMessage.length === 0,
+      )
+      if (errorFiles.length > 0) {
+        const errorFileNames = errorFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastError(
+          t('errors.reprocessFiles', {
+            count: errorFileNames.length,
+            files: errorFileNames.join(', '),
+          }),
+        )
+      }
+      if (successFiles.length > 0) {
+        const successFileNames = successFiles.map((file) => file.processFile.name || file.processFile.id)
+        toastSuccess(
+          t('actions.reprocessSuccess', {
+            count: successFileNames.length,
+            files: successFileNames.join(', '),
+          }),
+        )
+      }
+    },
+    // Invalidate the file info query to refresh the data after reprocessing
+    onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: getFileChunksQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
-      }),
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileInfoQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+    },
   })
   return (
     <>
@@ -59,7 +100,6 @@ function RouteComponent() {
           </span>
           {fileInfo.aiLibraryFile.processingErrorMessage && (
             <>
-              <span className="mx-2">|</span>
               <span className="text-red-500">
                 {t('texts.fileProcessingError')}: {fileInfo.aiLibraryFile.processingErrorMessage}
               </span>

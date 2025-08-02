@@ -125,9 +125,9 @@ export type AiAssistant = {
   languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
   ownerId: Scalars['ID']['output']
-  participants: Array<User>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
+  users: Array<User>
 }
 
 export type AiAssistantBaseCase = {
@@ -154,6 +154,13 @@ export type AiBaseCaseInputType = {
   id?: InputMaybe<Scalars['String']['input']>
   instruction?: InputMaybe<Scalars['String']['input']>
   sequence?: InputMaybe<Scalars['Float']['input']>
+}
+
+/** AI Chat Models available in the system */
+export type AiChatModel = {
+  __typename?: 'AiChatModel'
+  model: Scalars['String']['output']
+  name: Scalars['String']['output']
 }
 
 export type AiConversation = {
@@ -209,20 +216,58 @@ export type AiConversationParticipant = {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+/** AI Embedding Models available in the system */
+export type AiEmbeddingModel = {
+  __typename?: 'AiEmbeddingModel'
+  model: Scalars['String']['output']
+  name: Scalars['String']['output']
+}
+
+/** File converter option for AI Library */
+export type AiFileConverterOption = {
+  __typename?: 'AiFileConverterOption'
+  description: AiFileConverterOptionText
+  label: AiFileConverterOptionText
+  name: Scalars['String']['output']
+}
+
+/** Text representation of a file converter option */
+export type AiFileConverterOptionText = {
+  __typename?: 'AiFileConverterOptionText'
+  de: Scalars['String']['output']
+  en: Scalars['String']['output']
+}
+
+/** Options for converting files in AI Library */
+export type AiFileConverterOptions = {
+  __typename?: 'AiFileConverterOptions'
+  /** PDF processing options */
+  pdf: AiFileConverterOptionsSection
+}
+
+/** Section of file converter options */
+export type AiFileConverterOptionsSection = {
+  __typename?: 'AiFileConverterOptionsSection'
+  settings: Array<AiFileConverterOption>
+  title: AiFileConverterOptionText
+}
+
 export type AiLibrary = {
   __typename?: 'AiLibrary'
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
+  embeddingModelName?: Maybe<Scalars['String']['output']>
+  fileConverterOptions?: Maybe<Scalars['String']['output']>
   files: Array<AiLibraryFile>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
   owner: User
   ownerId: Scalars['String']['output']
-  participants: Array<User>
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
+  users: Array<User>
 }
 
 export type AiLibraryCrawler = {
@@ -346,6 +391,8 @@ export type AiLibraryFileQueryResult = {
 
 export type AiLibraryInput = {
   description?: InputMaybe<Scalars['String']['input']>
+  embeddingModelName?: InputMaybe<Scalars['String']['input']>
+  fileConverterOptions?: InputMaybe<Scalars['String']['input']>
   icon?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
   url?: InputMaybe<Scalars['String']['input']>
@@ -416,23 +463,6 @@ export type AiLibraryUsage = {
   usedFor?: Maybe<Scalars['String']['output']>
 }
 
-/** AI Models available in the system */
-export type AiModel = {
-  __typename?: 'AiModel'
-  baseUrl?: Maybe<Scalars['String']['output']>
-  modelName: Scalars['String']['output']
-  modelType: Scalars['String']['output']
-  options?: Maybe<Array<AiModelOption>>
-  title: Scalars['String']['output']
-}
-
-/** Options for AI Models */
-export type AiModelOption = {
-  __typename?: 'AiModelOption'
-  key: Scalars['String']['output']
-  value: Scalars['String']['output']
-}
-
 export type AssistantParticipant = AiConversationParticipant & {
   __typename?: 'AssistantParticipant'
   assistant?: Maybe<AiAssistant>
@@ -446,14 +476,6 @@ export type AssistantParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
-}
-
-export type ChatAnswer = {
-  __typename?: 'ChatAnswer'
-  answer?: Maybe<Scalars['String']['output']>
-  notEnoughInformation?: Maybe<Scalars['Boolean']['output']>
-  sessionId?: Maybe<Scalars['String']['output']>
-  source?: Maybe<Scalars['String']['output']>
 }
 
 export type ConversationInvitationInput = {
@@ -501,6 +523,7 @@ export type HumanParticipant = AiConversationParticipant & {
 export type ManagedUser = {
   __typename?: 'ManagedUser'
   activationDate?: Maybe<Scalars['DateTime']['output']>
+  avatarUrl?: Maybe<Scalars['String']['output']>
   business?: Maybe<Scalars['String']['output']>
   confirmationDate?: Maybe<Scalars['DateTime']['output']>
   createdAt: Scalars['DateTime']['output']
@@ -535,7 +558,6 @@ export type Mutation = {
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
   cancelFileUpload: Scalars['Boolean']['output']
-  chat?: Maybe<ChatAnswer>
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmConversationInvitation?: Maybe<AiConversation>
   confirmUserProfile?: Maybe<UserProfile>
@@ -579,6 +601,7 @@ export type Mutation = {
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateMessage?: Maybe<AiConversationMessage>
+  updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
 }
@@ -611,12 +634,6 @@ export type MutationAddLibraryUsageArgs = {
 export type MutationCancelFileUploadArgs = {
   fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type MutationChatArgs = {
-  question: Scalars['String']['input']
-  retrievalFlow?: InputMaybe<RetrievalFlow>
-  sessionId?: InputMaybe<Scalars['String']['input']>
 }
 
 export type MutationClearEmbeddedFilesArgs = {
@@ -808,6 +825,10 @@ export type MutationUpdateMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
+export type MutationUpdateUserAvatarArgs = {
+  avatarUrl?: InputMaybe<Scalars['String']['input']>
+}
+
 export type MutationUpdateUserProfileArgs = {
   input: UserProfileInput
   profileId: Scalars['String']['input']
@@ -823,10 +844,13 @@ export type Query = {
   aiActAssessment: AiActAssessment
   aiAssistant?: Maybe<AiAssistant>
   aiAssistants: Array<AiAssistant>
+  aiChatModels: Array<AiChatModel>
   aiConversation?: Maybe<AiConversation>
   aiConversationMessages?: Maybe<Array<AiConversationMessage>>
   aiConversations: Array<AiConversation>
+  aiEmbeddingModels: Array<AiEmbeddingModel>
   aiFileChunks: FileChunkQueryResponse
+  aiFileConverterOptions: AiFileConverterOptions
   aiLibraries: Array<AiLibrary>
   aiLibrary: AiLibrary
   aiLibraryCrawler: AiLibraryCrawler
@@ -835,7 +859,6 @@ export type Query = {
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
-  aiModels: Array<AiModel>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
@@ -928,15 +951,9 @@ export type QueryUserArgs = {
   email: Scalars['String']['input']
 }
 
-export enum RetrievalFlow {
-  OnlyLocal = 'OnlyLocal',
-  OnlyWeb = 'OnlyWeb',
-  Parallel = 'Parallel',
-  Sequential = 'Sequential',
-}
-
 export type User = {
   __typename?: 'User'
+  avatarUrl?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   email: Scalars['String']['output']
   family_name?: Maybe<Scalars['String']['output']>
@@ -952,6 +969,7 @@ export type User = {
 }
 
 export type UserInput = {
+  avatarUrl?: InputMaybe<Scalars['String']['input']>
   email: Scalars['String']['input']
   family_name?: InputMaybe<Scalars['String']['input']>
   given_name?: InputMaybe<Scalars['String']['input']>
@@ -1196,6 +1214,7 @@ export type LoginMutation = {
     name?: string | null
     given_name?: string | null
     family_name?: string | null
+    avatarUrl?: string | null
     createdAt: string
     isAdmin: boolean
   } | null
@@ -1227,6 +1246,7 @@ export type ManagedUserFragment = {
   position?: string | null
   confirmationDate?: string | null
   activationDate?: string | null
+  avatarUrl?: string | null
 }
 
 export type GetManagedUsersQueryVariables = Exact<{
@@ -1268,6 +1288,7 @@ export type GetManagedUsersQuery = {
       position?: string | null
       confirmationDate?: string | null
       activationDate?: string | null
+      avatarUrl?: string | null
     }>
   }
 }
@@ -1564,14 +1585,14 @@ export type AssistantParticipantsDialogButton_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string }>
+  users: Array<{ __typename?: 'User'; id: string }>
 }
 
 export type AssistantParticipants_AssistantFragment = {
   __typename?: 'AiAssistant'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
 }
 
 export type AssistantSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
@@ -1598,7 +1619,7 @@ export type AiAssistantDetailsQuery = {
       condition?: string | null
       instruction?: string | null
     }>
-    participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
   } | null
   aiLibraryUsage: Array<{
     __typename?: 'AiLibraryUsage'
@@ -1660,18 +1681,20 @@ export type ConversationHistory_ConversationFragment = {
     hidden?: boolean | null
     sender:
       | {
-          __typename?: 'AssistantParticipant'
+          __typename: 'AssistantParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
         }
       | {
-          __typename?: 'HumanParticipant'
+          __typename: 'HumanParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
         }
   }>
 }
@@ -1729,18 +1752,20 @@ export type ConversationParticipants_ConversationFragment = {
   updatedAt?: string | null
   participants: Array<
     | {
-        __typename?: 'AssistantParticipant'
+        __typename: 'AssistantParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
       }
     | {
-        __typename?: 'HumanParticipant'
+        __typename: 'HumanParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
       }
   >
 }
@@ -1778,18 +1803,20 @@ export type ConversationDetailFragment = {
   updatedAt?: string | null
   participants: Array<
     | {
-        __typename?: 'AssistantParticipant'
+        __typename: 'AssistantParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
       }
     | {
-        __typename?: 'HumanParticipant'
+        __typename: 'HumanParticipant'
         id: string
         name?: string | null
         userId?: string | null
         assistantId?: string | null
+        user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
       }
   >
   assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -1803,18 +1830,20 @@ export type ConversationDetailFragment = {
     hidden?: boolean | null
     sender:
       | {
-          __typename?: 'AssistantParticipant'
+          __typename: 'AssistantParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
         }
       | {
-          __typename?: 'HumanParticipant'
+          __typename: 'HumanParticipant'
           id: string
           name?: string | null
           isBot: boolean
           assistantId?: string | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null } | null
         }
   }>
 }
@@ -1833,18 +1862,20 @@ export type GetConversationQuery = {
     updatedAt?: string | null
     participants: Array<
       | {
-          __typename?: 'AssistantParticipant'
+          __typename: 'AssistantParticipant'
           id: string
           name?: string | null
           userId?: string | null
           assistantId?: string | null
+          assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
         }
       | {
-          __typename?: 'HumanParticipant'
+          __typename: 'HumanParticipant'
           id: string
           name?: string | null
           userId?: string | null
           assistantId?: string | null
+          user?: { __typename?: 'User'; avatarUrl?: string | null; username: string } | null
         }
     >
     assistants: Array<{ __typename?: 'AiAssistant'; name: string; id: string }>
@@ -1858,18 +1889,20 @@ export type GetConversationQuery = {
       hidden?: boolean | null
       sender:
         | {
-            __typename?: 'AssistantParticipant'
+            __typename: 'AssistantParticipant'
             id: string
             name?: string | null
             isBot: boolean
             assistantId?: string | null
+            assistant?: { __typename?: 'AiAssistant'; iconUrl?: string | null; updatedAt?: string | null } | null
           }
         | {
-            __typename?: 'HumanParticipant'
+            __typename: 'HumanParticipant'
             id: string
             name?: string | null
             isBot: boolean
             assistantId?: string | null
+            user?: { __typename?: 'User'; avatarUrl?: string | null } | null
           }
     }>
   } | null
@@ -2260,6 +2293,25 @@ export type EmbeddingsTableQuery = {
   }
 }
 
+export type AiFileConverterOptionsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiFileConverterOptionsQuery = {
+  __typename?: 'Query'
+  aiFileConverterOptions: {
+    __typename?: 'AiFileConverterOptions'
+    pdf: {
+      __typename?: 'AiFileConverterOptionsSection'
+      title: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+      settings: Array<{
+        __typename?: 'AiFileConverterOption'
+        name: string
+        label: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+        description: { __typename?: 'AiFileConverterOptionText'; de: string; en: string }
+      }>
+    }
+  }
+}
+
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -2288,6 +2340,8 @@ export type AiLibraryDetailFragment = {
   ownerId: string
   filesCount: number
   description?: string | null
+  embeddingModelName?: string | null
+  fileConverterOptions?: string | null
   id: string
   name: string
   createdAt: string
@@ -2306,11 +2360,13 @@ export type AiLibraryDetailQuery = {
     ownerId: string
     filesCount: number
     description?: string | null
+    embeddingModelName?: string | null
+    fileConverterOptions?: string | null
     id: string
     name: string
     createdAt: string
     updatedAt: string
-    participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+    users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
     owner: { __typename?: 'User'; name?: string | null }
   }
 }
@@ -2368,14 +2424,14 @@ export type LibraryParticipantsDialogButton_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string }>
+  users: Array<{ __typename?: 'User'; id: string }>
 }
 
 export type LibraryParticipants_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   ownerId: string
-  participants: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string }>
+  users: Array<{ __typename?: 'User'; id: string; name?: string | null; username: string; avatarUrl?: string | null }>
 }
 
 export type QueryLibraryFilesQueryVariables = Exact<{
@@ -2405,6 +2461,28 @@ export type QueryLibraryFilesQuery = {
       highlights: Array<{ __typename?: 'AiLibraryQueryHitHighlight'; field: string; snippet?: string | null }>
     }>
   }
+}
+
+export type ChangeAiLibraryMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiLibraryInput
+}>
+
+export type ChangeAiLibraryMutation = {
+  __typename?: 'Mutation'
+  updateAiLibrary?: {
+    __typename?: 'AiLibrary'
+    ownerId: string
+    filesCount: number
+    description?: string | null
+    embeddingModelName?: string | null
+    fileConverterOptions?: string | null
+    id: string
+    name: string
+    createdAt: string
+    updatedAt: string
+    owner: { __typename?: 'User'; name?: string | null }
+  } | null
 }
 
 export type DeleteAiLibraryUpdatesMutationVariables = Exact<{
@@ -2468,11 +2546,18 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
-export type AiModelsQueryVariables = Exact<{ [key: string]: never }>
+export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
-export type AiModelsQuery = {
+export type AiChatModelsQuery = {
   __typename?: 'Query'
-  aiModels: Array<{ __typename?: 'AiModel'; modelName: string; title: string }>
+  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
+}
+
+export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiEmbeddingModelsQuery = {
+  __typename?: 'Query'
+  aiEmbeddingModels: Array<{ __typename?: 'AiEmbeddingModel'; name: string; model: string }>
 }
 
 export type UserProfileForm_UserProfileFragment = {
@@ -2503,16 +2588,6 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
-}
-
-export type ChangeAiLibraryMutationVariables = Exact<{
-  id: Scalars['String']['input']
-  data: AiLibraryInput
-}>
-
-export type ChangeAiLibraryMutation = {
-  __typename?: 'Mutation'
-  updateAiLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -2567,6 +2642,15 @@ export type LeaveAssistantParticipantMutationVariables = Exact<{
 export type LeaveAssistantParticipantMutation = {
   __typename?: 'Mutation'
   leaveAssistantParticipant?: { __typename?: 'User'; id: string } | null
+}
+
+export type UpdateUserAvatarMutationVariables = Exact<{
+  avatarUrl?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type UpdateUserAvatarMutation = {
+  __typename?: 'Mutation'
+  updateUserAvatar?: { __typename?: 'User'; id: string; avatarUrl?: string | null } | null
 }
 
 export type IntrospectionQueryQueryVariables = Exact<{ [key: string]: never }>
@@ -3391,6 +3475,7 @@ export type UserFragment = {
   name?: string | null
   createdAt: string
   email: string
+  avatarUrl?: string | null
   isAdmin: boolean
   profile?: {
     __typename?: 'UserProfile'
@@ -3414,6 +3499,7 @@ export type UsersQuery = {
     name?: string | null
     createdAt: string
     email: string
+    avatarUrl?: string | null
     isAdmin: boolean
     profile?: {
       __typename?: 'UserProfile'
@@ -3520,6 +3606,7 @@ export type AdminUserByIdQuery = {
     name?: string | null
     createdAt: string
     email: string
+    avatarUrl?: string | null
     isAdmin: boolean
     profile?: {
       __typename?: 'UserProfile'
@@ -3568,6 +3655,7 @@ export const ManagedUserFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
         ],
       },
     },
@@ -4147,7 +4235,7 @@ export const AssistantParticipantsDialogButton_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -4172,13 +4260,14 @@ export const AssistantParticipants_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -4197,7 +4286,7 @@ export const AssistantParticipants_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -4421,10 +4510,51 @@ export const ConversationParticipants_ConversationFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -4552,10 +4682,48 @@ export const ConversationHistory_ConversationFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'assistant' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -4694,10 +4862,51 @@ export const ConversationDetailFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -4764,10 +4973,48 @@ export const ConversationDetailFragmentDoc = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'assistant' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -4968,6 +5215,8 @@ export const AiLibraryDetailFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },
@@ -5009,7 +5258,7 @@ export const LibraryParticipantsDialogButton_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -5034,13 +5283,14 @@ export const LibraryParticipants_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -5059,7 +5309,7 @@ export const LibraryParticipants_LibraryFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -5672,6 +5922,7 @@ export const UserFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
@@ -5760,6 +6011,7 @@ export const LoginDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
               ],
@@ -5920,6 +6172,7 @@ export const GetManagedUsersDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
           { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
         ],
       },
     },
@@ -6853,7 +7106,7 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -6938,13 +7191,14 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -7221,10 +7475,51 @@ export const GetConversationDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'user' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'InlineFragment',
+                  typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'assistant' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -7291,10 +7586,48 @@ export const GetConversationDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'isBot' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'assistantId' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'HumanParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'user' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [{ kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } }],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AssistantParticipant' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'assistant' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -8553,6 +8886,82 @@ export const EmbeddingsTableDocument = {
     },
   ],
 } as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+export const AiFileConverterOptionsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiFileConverterOptions' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiFileConverterOptions' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'pdf' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'title' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'settings' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'label' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'description' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'de' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'en' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiFileConverterOptionsQuery, AiFileConverterOptionsQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -8669,7 +9078,7 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
@@ -8689,6 +9098,8 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
         ],
       },
     },
@@ -8703,13 +9114,14 @@ export const AiLibraryDetailDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'participants' },
+            name: { kind: 'Name', value: 'users' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -9014,6 +9426,91 @@ export const QueryLibraryFilesDocument = {
     },
   ],
 } as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
+export const ChangeAiLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'changeAiLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateAiLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryDetail' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryBase' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'owner' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryDetail' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibrary' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryBase' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'description' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ChangeAiLibraryMutation, ChangeAiLibraryMutationVariables>
 export const DeleteAiLibraryUpdatesDocument = {
   kind: 'Document',
   definitions: [
@@ -9188,24 +9685,24 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
-export const AiModelsDocument = {
+export const AiChatModelsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'aiModels' },
+      name: { kind: 'Name', value: 'aiChatModels' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'aiModels' },
+            name: { kind: 'Name', value: 'aiChatModels' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
               ],
             },
           },
@@ -9213,7 +9710,33 @@ export const AiModelsDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<AiModelsQuery, AiModelsQueryVariables>
+} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
+export const AiEmbeddingModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiEmbeddingModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiEmbeddingModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiEmbeddingModelsQuery, AiEmbeddingModelsQueryVariables>
 export const SaveUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -9261,56 +9784,6 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
-export const ChangeAiLibraryDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'changeAiLibrary' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryInput' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'updateAiLibrary' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ChangeAiLibraryMutation, ChangeAiLibraryMutationVariables>
 export const UserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -9501,6 +9974,46 @@ export const LeaveAssistantParticipantDocument = {
     },
   ],
 } as unknown as DocumentNode<LeaveAssistantParticipantMutation, LeaveAssistantParticipantMutationVariables>
+export const UpdateUserAvatarDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateUserAvatar' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'avatarUrl' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateUserAvatar' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'avatarUrl' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'avatarUrl' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateUserAvatarMutation, UpdateUserAvatarMutationVariables>
 export const IntrospectionQueryDocument = {
   kind: 'Document',
   definitions: [
@@ -10378,6 +10891,7 @@ export const UsersDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',
@@ -10671,6 +11185,7 @@ export const AdminUserByIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
           {
             kind: 'Field',

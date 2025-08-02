@@ -109,9 +109,9 @@ type AiAssistant {
   languageModel: String
   name: String!
   ownerId: ID!
-  participants: [User!]!
   updatedAt: DateTime
   url: String
+  users: [User!]!
 }
 
 type AiAssistantBaseCase {
@@ -137,6 +137,14 @@ input AiBaseCaseInputType {
   id: String
   instruction: String
   sequence: Float
+}
+
+"""
+AI Chat Models available in the system
+"""
+type AiChatModel {
+  model: String!
+  name: String!
 }
 
 type AiConversation {
@@ -190,19 +198,64 @@ interface AiConversationParticipant {
   userId: ID
 }
 
+"""
+AI Embedding Models available in the system
+"""
+type AiEmbeddingModel {
+  model: String!
+  name: String!
+}
+
+"""
+File converter option for AI Library
+"""
+type AiFileConverterOption {
+  description: AiFileConverterOptionText!
+  label: AiFileConverterOptionText!
+  name: String!
+}
+
+"""
+Text representation of a file converter option
+"""
+type AiFileConverterOptionText {
+  de: String!
+  en: String!
+}
+
+"""
+Options for converting files in AI Library
+"""
+type AiFileConverterOptions {
+  """
+  PDF processing options
+  """
+  pdf: AiFileConverterOptionsSection!
+}
+
+"""
+Section of file converter options
+"""
+type AiFileConverterOptionsSection {
+  settings: [AiFileConverterOption!]!
+  title: AiFileConverterOptionText!
+}
+
 type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
+  embeddingModelName: String
+  fileConverterOptions: String
   files: [AiLibraryFile!]!
   filesCount: Int!
   id: ID!
   name: String!
   owner: User!
   ownerId: String!
-  participants: [User!]!
   updatedAt: DateTime!
   url: String
+  users: [User!]!
 }
 
 type AiLibraryCrawler {
@@ -313,6 +366,8 @@ type AiLibraryFileQueryResult {
 
 input AiLibraryInput {
   description: String
+  embeddingModelName: String
+  fileConverterOptions: String
   icon: String
   name: String!
   url: String
@@ -379,25 +434,6 @@ type AiLibraryUsage {
   usedFor: String
 }
 
-"""
-AI Models available in the system
-"""
-type AiModel {
-  baseUrl: String
-  modelName: String!
-  modelType: String!
-  options: [AiModelOption!]
-  title: String!
-}
-
-"""
-Options for AI Models
-"""
-type AiModelOption {
-  key: String!
-  value: String!
-}
-
 type AssistantParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -413,13 +449,6 @@ type AssistantParticipant implements AiConversationParticipant {
 }
 
 scalar BigInt
-
-type ChatAnswer {
-  answer: String
-  notEnoughInformation: Boolean
-  sessionId: String
-  source: String
-}
 
 input ConversationInvitationInput {
   allowDifferentEmailAddress: Boolean!
@@ -474,6 +503,7 @@ type HumanParticipant implements AiConversationParticipant {
 
 type ManagedUser {
   activationDate: DateTime
+  avatarUrl: String
   business: String
   confirmationDate: DateTime
   createdAt: DateTime!
@@ -510,7 +540,6 @@ type Mutation {
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
-  chat(question: String!, retrievalFlow: RetrievalFlow, sessionId: String): ChatAnswer
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
@@ -554,6 +583,7 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
+  updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
 }
@@ -562,10 +592,13 @@ type Query {
   aiActAssessment(assistantId: String!): AiActAssessment!
   aiAssistant(assistantId: String!): AiAssistant
   aiAssistants: [AiAssistant!]!
+  aiChatModels: [AiChatModel!]!
   aiConversation(conversationId: String!): AiConversation
   aiConversationMessages(conversationId: String!): [AiConversationMessage!]
   aiConversations: [AiConversation!]!
+  aiEmbeddingModels: [AiEmbeddingModel!]!
   aiFileChunks(fileId: String!, libraryId: String!, skip: Int!, take: Int!): FileChunkQueryResponse!
+  aiFileConverterOptions: AiFileConverterOptions!
   aiLibraries: [AiLibrary!]!
   aiLibrary(libraryId: String!): AiLibrary!
   aiLibraryCrawler(crawlerId: String!, libraryId: String!): AiLibraryCrawler!
@@ -574,7 +607,6 @@ type Query {
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
-  aiModels: [AiModel!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   readFileMarkdown(fileId: String!, libraryId: String!): String!
@@ -584,14 +616,8 @@ type Query {
   version: String
 }
 
-enum RetrievalFlow {
-  OnlyLocal
-  OnlyWeb
-  Parallel
-  Sequential
-}
-
 type User {
+  avatarUrl: String
   createdAt: DateTime!
   email: String!
   family_name: String
@@ -607,6 +633,7 @@ type User {
 }
 
 input UserInput {
+  avatarUrl: String
   email: String!
   family_name: String
   given_name: String

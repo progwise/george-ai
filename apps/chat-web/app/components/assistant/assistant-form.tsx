@@ -11,7 +11,7 @@ import { backendRequest, getBackendPublicUrl } from '../../server-functions/back
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
 import { Select } from '../form/select'
-import { getModelsQueryOptions } from '../model/get-models'
+import { getChatModelsQueryOptions } from '../model/get-models'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
@@ -74,14 +74,14 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const schema = React.useMemo(() => getFormSchema(language), [language])
 
-  const { data: fetchedModelData } = useSuspenseQuery(getModelsQueryOptions())
+  const { data: fetchedModelData } = useSuspenseQuery(getChatModelsQueryOptions())
 
-  const { mutate: update, isPending: updateIsPending } = useMutation({
+  const { mutate: update } = useMutation({
     mutationFn: (data: FormData) => updateAssistant({ data }),
     onSettled: () => queryClient.invalidateQueries(getAssistantQueryOptions(assistant.id)),
   })
 
-  const { mutate: mutateAssistantIcon, isPending: mutateAssistantIconPending } = useMutation({
+  const { mutate: mutateAssistantIcon } = useMutation({
     mutationFn: async (file: File) => {
       const fileExtension = file.name.split('.').pop() || 'png'
       const uploadUrl = (await getBackendPublicUrl()) + `/assistant-icon?assistantId=${assistant.id}`
@@ -109,7 +109,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
 
   const fieldProps = {
     schema,
-    disabled: updateIsPending || mutateAssistantIconPending || disabled,
+    disabled,
     onBlur: () => {
       const formData = new FormData(formRef.current!)
       const parseResult = schema.safeParse(Object.fromEntries(formData))
@@ -122,7 +122,7 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
   }
 
   const aiModels = useMemo(
-    () => fetchedModelData.aiModels.map((model) => ({ id: model.modelName, name: model.title })),
+    () => fetchedModelData.aiChatModels.map((model) => ({ id: model.model, name: model.name })),
     [fetchedModelData],
   )
 

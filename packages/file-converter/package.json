@@ -15,7 +15,7 @@
     "canvas": "^3.1.0",
     "csv-parse": "^5.6.0",
     "mammoth": "^1.9.1",
-    "openai": "^4.90.0",
+    "ollama": "^0.5.16",
     "pdfjs-dist": "^5.1.91",
     "read-excel-file": "^5.8.7"
   },

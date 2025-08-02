@@ -33,7 +33,7 @@ export const Listbox = <T extends { id: string; name: string }>({
         <ListboxButton
           disabled={disabled}
           aria-required={required}
-          className="bg-base-100 focus:outline-primary grid w-full cursor-default grid-cols-1 rounded-lg border px-2 py-1 text-sm focus:outline focus:outline-2"
+          className="focus:outline-primary input validator grid w-full cursor-default grid-cols-1 focus:outline-2"
         >
           <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
             {selectedItem ? (

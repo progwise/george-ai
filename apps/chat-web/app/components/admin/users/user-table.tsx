@@ -1,10 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
+import { dateString } from '@george-ai/web-utils'
+
 import { ManagedUserFragment, User } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
+import { UserAvatar } from '../../user-avatar'
 import { toggleAdminStatus } from './toggle-admin-status'
 
 export const UserTable = ({
@@ -16,7 +19,7 @@ export const UserTable = ({
   currentUser: User
   onChange: () => void
 }) => {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
 
   const { mutate: toggleAdminStatusMutation, isPending } = useMutation({
     mutationFn: async (userId: string) => {
@@ -56,10 +59,15 @@ export const UserTable = ({
                   {user.email}
                 </div>
               </td>
-              <td className="hidden p-2 sm:table-cell md:p-4">{user.name}</td>
-              <td className="hidden p-2 md:table-cell md:p-4">{user.createdAt?.slice(0, 10)}</td>
               <td className="hidden p-2 sm:table-cell md:p-4">
                 <div className="flex items-center gap-2">
+                  <UserAvatar user={user} className="size-8 flex-none" />
+                  <span className="truncate">{user.name}</span>
+                </div>
+              </td>
+              <td className="hidden p-2 md:table-cell md:p-4">{dateString(user.createdAt, language)}</td>
+              <td className="hidden p-2 sm:table-cell md:p-4">
+                <div className="gap-u2 flex items-center">
                   <div
                     className="tooltip tooltip-left"
                     data-tip={user?.confirmationDate ? t('labels.confirmed') : t('labels.unconfirmed')}

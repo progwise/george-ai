@@ -139,18 +139,32 @@ builder.mutationField('sendMessage', (t) =>
     resolve: async (_query, _source, { data }, context) => {
       const userId = context.session.user.id
       const participant = await prisma.aiConversationParticipant.findFirstOrThrow({
-        select: { id: true, user: true, assistant: true },
+        select: { id: true, user: { select: { name: true, avatarUrl: true } }, assistant: true },
         where: { conversationId: data.conversationId, userId },
       })
       const assistantsToAsk = await prisma.aiAssistant.findMany({
         select: {
           id: true,
           name: true,
+          iconUrl: true,
           conversationParticipations: {
             select: { id: true },
             where: { conversationId: data.conversationId },
           },
-          usages: { select: { library: true, usedFor: true } },
+          usages: {
+            select: {
+              library: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                  embeddingModelName: true,
+                  fileConverterOptions: true,
+                },
+              },
+              usedFor: true,
+            },
+          },
           languageModel: true,
           description: true,
           baseCases: true,
@@ -196,6 +210,7 @@ builder.mutationField('sendMessage', (t) =>
             name: participant.user?.name || 'Unknown',
             isBot: false,
             assistantId: undefined,
+            avatarUrl: participant.user?.avatarUrl || null,
           },
         },
       })
@@ -223,6 +238,7 @@ builder.mutationField('sendMessage', (t) =>
               name: assistant.name,
               isBot: true,
               assistantId: assistant.id,
+              avatarUrl: assistant.iconUrl,
             },
           },
         })
@@ -260,6 +276,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
+            embeddingModelName: usage.library.embeddingModelName || '',
           })),
         })) {
           const content = answerFromAssistant
@@ -276,6 +293,7 @@ builder.mutationField('sendMessage', (t) =>
                 name: assistant.name,
                 isBot: true,
                 assistantId: assistant.id,
+                avatarUrl: assistant.iconUrl,
               },
             },
           })
