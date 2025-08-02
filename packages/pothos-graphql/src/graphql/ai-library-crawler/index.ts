@@ -22,7 +22,6 @@ const AiLibraryCrawlerCredentialsInput = builder.inputType('AiLibraryCrawlerCred
 const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
   fields: (t) => ({
     uri: t.string({ required: true }),
-    //uriType: t.string({ required: true }),
     uriType: t.field({ type: AiLibraryCrawlerUriType }),
     maxDepth: t.int({ required: true }),
     maxPages: t.int({ required: true }),

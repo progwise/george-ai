@@ -51,7 +51,7 @@ export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOpt
 
         // Create metadata
         const metaData = JSON.stringify({
-          url: fileToProcess.uri,
+          uri: fileToProcess.uri,
           title: fileToProcess.name,
           size: fileToProcess.size,
           modifiedTime: fileToProcess.modifiedTime.toISOString(),
