@@ -13,4 +13,5 @@ build
 .postgres-data*
 CLAUDE.md
 .claude
+.smb-credentials
 .smb-mounts

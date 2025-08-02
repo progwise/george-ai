@@ -7,7 +7,7 @@ import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
-import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount } from './smb-mount-manager'
+import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount, updateCrawlerSmbMount } from './smb-mount-manager'
 
 console.log('Setting up: AiLibraryCrawler')
 
@@ -238,7 +238,8 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
         if (!credentials) {
           throw new GraphQLError('Must provide credentials for uri type SMB')
         }
-        await ensureCrawlerSmbShareMount({
+        // Update SMB mount with new credentials
+        await updateCrawlerSmbMount({
           crawlerId: id,
           uri: data.uri,
           username: credentials.username,

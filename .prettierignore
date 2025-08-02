@@ -10,3 +10,4 @@ apps/chat-web/app/routeTree.gen.ts
 .node_modules
 .venv
 .smb-mounts
+.smb-credentials

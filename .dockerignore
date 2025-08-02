@@ -7,3 +7,5 @@ node_modules
 .env
 .pb_data
 .typesense-data
+.smb-credentials
+.smb-mounts
