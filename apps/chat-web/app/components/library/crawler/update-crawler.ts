@@ -44,10 +44,13 @@ export const updateCrawlerFunction = createServerFn({ method: 'POST' })
           maxPages: data.maxPages,
           cronJob: data.cronJob,
         },
-        credentials: {
-          username: data.username,
-          password: data.password,
-        },
+        credentials:
+          data.uriType === 'smb'
+            ? {
+                username: data.username,
+                password: data.password,
+              }
+            : undefined,
       },
     )
   })
