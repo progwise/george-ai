@@ -4,10 +4,7 @@ import { useState } from 'react'
 import { z } from 'zod'
 
 import { getProfileQueryOptions } from '../../../../../auth/get-profile-query'
-import {
-  countUnprocessedFilesInQueue,
-  getUnprocessedFilesCount,
-} from '../../../../../components/library/files/fetch-unprocessed-file-count'
+import { countUnprocessedFilesInQueue } from '../../../../../components/library/files/fetch-unprocessed-file-count'
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
 import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
@@ -43,9 +40,7 @@ function RouteComponent() {
   const {
     data: { aiLibraryFiles },
   } = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take }))
-
-  const unprocessedCountQuery = useSuspenseQuery(getUnprocessedFilesCount({ libraryId }))
-  const { unprocessedFilesCount = 0 } = unprocessedCountQuery.data ?? {}
+  const unprocessedFilesCount = aiLibraryFiles.library?.unprocessedFilesCount ?? 0
 
   const queueCountQuery = useSuspenseQuery(countUnprocessedFilesInQueue())
   const { unprocessedFilesInQueueCount = 0 } = queueCountQuery.data ?? {}
@@ -74,9 +69,6 @@ function RouteComponent() {
         tableDataChanged={() => {
           queryClient.invalidateQueries({
             queryKey: aiLibraryFilesQueryOptions({ libraryId, skip, take }).queryKey,
-          })
-          queryClient.invalidateQueries({
-            queryKey: getUnprocessedFilesCount({ libraryId }).queryKey,
           })
           queryClient.invalidateQueries({
             queryKey: countUnprocessedFilesInQueue().queryKey,

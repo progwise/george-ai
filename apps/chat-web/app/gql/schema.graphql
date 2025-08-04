@@ -253,6 +253,7 @@ type AiLibrary {
   name: String!
   owner: User!
   ownerId: String!
+  unprocessedFilesCount: Int!
   updatedAt: DateTime!
   url: String
   users: [User!]!
@@ -610,7 +611,6 @@ type Query {
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   readFileMarkdown(fileId: String!, libraryId: String!): String!
-  unprocessedFilesCount(libraryId: String!): Int!
   unprocessedFilesInQueueCount: Int!
   user(email: String!): User
   userProfile: UserProfile

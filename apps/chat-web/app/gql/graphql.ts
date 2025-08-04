@@ -265,6 +265,7 @@ export type AiLibrary = {
   name: Scalars['String']['output']
   owner: User
   ownerId: Scalars['String']['output']
+  unprocessedFilesCount: Scalars['Int']['output']
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
   users: Array<User>
@@ -862,7 +863,6 @@ export type Query = {
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
-  unprocessedFilesCount: Scalars['Int']['output']
   unprocessedFilesInQueueCount: Scalars['Int']['output']
   user?: Maybe<User>
   userProfile?: Maybe<UserProfile>
@@ -946,10 +946,6 @@ export type QueryQueryAiLibraryFilesArgs = {
 
 export type QueryReadFileMarkdownArgs = {
   fileId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
-}
-
-export type QueryUnprocessedFilesCountArgs = {
   libraryId: Scalars['String']['input']
 }
 
@@ -2208,12 +2204,6 @@ export type UnprocessedFilesInQueueCountQueryVariables = Exact<{ [key: string]: 
 
 export type UnprocessedFilesInQueueCountQuery = { __typename?: 'Query'; unprocessedFilesInQueueCount: number }
 
-export type UnprocessedFilesCountQueryVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type UnprocessedFilesCountQuery = { __typename?: 'Query'; unprocessedFilesCount: number }
-
 export type AiLibraryFile_TableItemFragment = {
   __typename?: 'AiLibraryFile'
   id: string
@@ -2300,7 +2290,7 @@ export type EmbeddingsTableQuery = {
     take: number
     skip: number
     count: number
-    library: { __typename?: 'AiLibrary'; name: string }
+    library: { __typename?: 'AiLibrary'; name: string; unprocessedFilesCount: number }
     files: Array<{
       __typename?: 'AiLibraryFile'
       id: string
@@ -8662,39 +8652,6 @@ export const UnprocessedFilesInQueueCountDocument = {
     },
   ],
 } as unknown as DocumentNode<UnprocessedFilesInQueueCountQuery, UnprocessedFilesInQueueCountQueryVariables>
-export const UnprocessedFilesCountDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'unprocessedFilesCount' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'unprocessedFilesCount' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<UnprocessedFilesCountQuery, UnprocessedFilesCountQueryVariables>
 export const GetFileChunksDocument = {
   kind: 'Document',
   definitions: [
@@ -8942,7 +8899,10 @@ export const EmbeddingsTableDocument = {
                   name: { kind: 'Name', value: 'library' },
                   selectionSet: {
                     kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'unprocessedFilesCount' } },
+                    ],
                   },
                 },
                 { kind: 'Field', name: { kind: 'Name', value: 'take' } },
