@@ -10,6 +10,7 @@ export default {
     confirm: 'Confirm',
     create: 'Create',
     delete: 'Delete',
+    deleteSelected: 'Delete selected',
     details: 'Details',
     drop: 'Drop',
     dropAllFiles: 'Drop all',

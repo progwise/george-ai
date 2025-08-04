@@ -10,6 +10,7 @@ export default {
     confirm: 'Bestätigen',
     create: 'Erstellen',
     delete: 'Löschen',
+    deleteSelected: 'Ausgewählte löschen',
     details: 'Details',
     drop: 'Entfernen',
     dropAllFiles: 'Alle entfernen',
