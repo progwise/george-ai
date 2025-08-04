@@ -129,13 +129,13 @@ export const ConversationParticipants = ({
     <div className="flex w-full items-center justify-between gap-2 overflow-visible">
       <LoadingSpinner isLoading={removeParticipantIsPending} />
 
-      <div className="flex -space-x-2 overflow-visible px-2 py-1 transition-all duration-300 hover:space-x-1">
+      <div className="flex -space-x-2 overflow-visible transition-all duration-300 hover:space-x-1">
         {visibleParticipants.map((participant) => {
           const isParticipantOwner = participant.userId === conversation.ownerId
           const canRemove = participant.userId !== userId && isOwner
 
           return (
-            <div key={participant.id} className="relative transition-transform">
+            <div key={participant.id} className="relative content-center transition-transform">
               <span
                 className="tooltip tooltip-bottom cursor-pointer"
                 data-tip={`${participant.name || 'Unknown'}${isParticipantOwner ? ` (${t('conversations.owner')})` : ''}`}
@@ -227,7 +227,6 @@ export const ConversationParticipants = ({
           conversation={conversation}
           assistants={assistants}
           users={users}
-          dialogMode="add"
           userId={userId}
         />
       )}

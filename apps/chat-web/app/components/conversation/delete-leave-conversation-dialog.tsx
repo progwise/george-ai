@@ -85,17 +85,14 @@ export const DeleteLeaveConversationDialog = ({ conversation, userId }: DeleteLe
   const title = `${isOwner ? t('conversations.deleteConversation') : t('conversations.leave')} (${dateString(conversation.createdAt, language)})`
   const description = isOwner ? t('conversations.deleteConfirmation') : t('conversations.leaveConfirmation')
   const submitButtonText = isOwner ? t('actions.delete') : t('actions.leave')
-  const buttonTooltip = isOwner ? t('conversations.deleteConversation') : t('conversations.leave')
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-ghost btn-sm btn-square lg:tooltip lg:tooltip-left mx-1"
-        onClick={() => dialogRef.current?.showModal()}
-        data-tip={buttonTooltip}
-      >
-        <Icon className="size-6" />
+      <button type="button" className="btn btn-ghost btn-sm" onClick={() => dialogRef.current?.showModal()}>
+        <div className="flex items-center gap-2">
+          <Icon className="size-6" />
+          <span>{isOwner ? t('actions.delete') : t('actions.leave')}</span>
+        </div>
       </button>
 
       <LoadingSpinner isLoading={isPending} />
