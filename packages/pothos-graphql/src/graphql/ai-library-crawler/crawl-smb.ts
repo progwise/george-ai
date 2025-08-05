@@ -14,7 +14,7 @@ interface SmbFileToProcess {
   depth: number
 }
 
-export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOptions) {
+export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId, fileConverterOptions }: CrawlOptions) {
   console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using mount for crawler: ${crawlerId}`)
 
@@ -42,11 +42,12 @@ export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOpt
         // Determine MIME type from file extension
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
 
-        // Convert to markdown using file converter directly on mounted file
+        // Convert to markdown using file converter directly on mounted file with library options
         const markdown = await transformToMarkdown({
           name: fileToProcess.name,
           mimeType,
           path: mountedFilePath, // Direct access to mounted file - no copying!
+          fileConverterOptions,
         })
 
         // Create metadata

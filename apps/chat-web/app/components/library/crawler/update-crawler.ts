@@ -22,6 +22,9 @@ export const updateCrawlerFunction = createServerFn({ method: 'POST' })
     if (data.uriType === 'smb' && (!data.username || !data.password)) {
       throw new Error('For smb crawlers you need to provide username and password')
     }
+    if (data.uriType === 'sharepoint' && !data.sharepointAuth) {
+      throw new Error('For sharepoint crawlers you need to provide sharepointAuth')
+    }
 
     return backendRequest(
       graphql(`
@@ -50,7 +53,11 @@ export const updateCrawlerFunction = createServerFn({ method: 'POST' })
                 username: data.username,
                 password: data.password,
               }
-            : undefined,
+            : data.uriType === 'sharepoint'
+              ? {
+                  sharepointAuth: data.sharepointAuth,
+                }
+              : undefined,
       },
     )
   })

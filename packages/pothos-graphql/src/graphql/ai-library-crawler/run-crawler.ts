@@ -6,6 +6,7 @@ import { prisma } from '../../prisma'
 import { processFile } from '../ai-library-file/process-file'
 import { crawlHttp } from './crawl-http'
 import { crawlSmb } from './crawl-smb'
+import { crawlSharePoint } from './crawl-sharepoint'
 
 interface RunOptions {
   crawlerId: string
@@ -33,7 +34,16 @@ export const stopCrawler = async ({ crawlerId }: RunOptions) => {
 }
 
 export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions) => {
-  const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ where: { id: crawlerId } })
+  const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({ 
+    where: { id: crawlerId },
+    include: {
+      library: {
+        select: {
+          fileConverterOptions: true
+        }
+      }
+    }
+  })
 
   const ongoingRun = await prisma.aiLibraryCrawlerRun.findFirst({ where: { crawlerId, endedAt: null } })
 
@@ -66,7 +76,7 @@ export const runCrawler = async ({ crawlerId, userId, runByCronJob }: RunOptions
   return newRun
 }
 const startCrawling = async (
-  crawler: { id: string; uri: string; uriType: string; maxDepth: number; maxPages: number; libraryId: string },
+  crawler: { id: string; uri: string; uriType: string; maxDepth: number; maxPages: number; libraryId: string; library: { fileConverterOptions: string | null } },
   newRun: { id: string; startedAt: Date },
   userId?: string,
 ) => {
@@ -76,7 +86,11 @@ const startCrawling = async (
   console.log('Crawler library ID:', crawler.libraryId)
   console.log('Crawler run started at:', newRun.startedAt)
 
-  const crawl = crawler.uriType === 'http' ? crawlHttp : crawler.uriType === 'smb' ? crawlSmb : null
+  const crawl = 
+    crawler.uriType === 'http' ? crawlHttp 
+    : crawler.uriType === 'smb' ? crawlSmb 
+    : crawler.uriType === 'sharepoint' ? crawlSharePoint
+    : null
 
   if (!crawl) {
     throw new Error(`Crawler for type ${crawler.uriType} not implemented`)
@@ -95,6 +109,8 @@ const startCrawling = async (
       maxDepth: crawler.maxDepth,
       maxPages: crawler.maxPages,
       crawlerId: crawler.id,
+      libraryId: crawler.libraryId,
+      fileConverterOptions: crawler.library.fileConverterOptions || undefined,
     })) {
       const crawlerRun = await prisma.aiLibraryCrawlerRun.findFirstOrThrow({ where: { id: newRun.id } })
 

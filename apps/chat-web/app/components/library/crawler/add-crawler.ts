@@ -40,7 +40,11 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
                 username: data.username,
                 password: data.password,
               }
-            : undefined,
+            : data.uriType === 'sharepoint'
+              ? {
+                  sharepointAuth: data.sharepointAuth,
+                }
+              : undefined,
       },
     )
   })

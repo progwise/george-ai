@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SMB_URI_PATTERN, formatTime } from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SMB_URI_PATTERN, SHAREPOINT_URI_PATTERN, formatTime } from '@george-ai/web-utils'
 
 import { DialogForm } from '../../../../../../components/dialog-form'
 import { Input } from '../../../../../../components/form/input'
@@ -51,7 +51,7 @@ function RouteComponent() {
       ])
     },
   })
-  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb'>(crawler.uriType)
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler.uriType)
   const [crawlerActive, setCrawlerActive] = useState(!!crawler.cronJob?.active)
 
   const crawlerFormSchema = useMemo(() => {
@@ -63,7 +63,9 @@ function RouteComponent() {
       uri:
         selectedUriType === 'http'
           ? z.string().regex(HTTP_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
-          : z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
+          : selectedUriType === 'smb'
+            ? z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
+            : z.string().regex(SHAREPOINT_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
     })
   }, [language, selectedUriType])
 
@@ -74,8 +76,8 @@ function RouteComponent() {
     const formData = new FormData(event.currentTarget)
     const uriType = formData.get('uriType') as string
 
-    // If SMB type, prompt for credentials
-    if (uriType === 'smb') {
+    // If SMB or SharePoint type, prompt for credentials
+    if (uriType === 'smb' || uriType === 'sharepoint') {
       formCredentialsRef.current?.showModal()
       return
     }
@@ -89,9 +91,14 @@ function RouteComponent() {
     }
     const username = formDataCredentials.get('username')
     const password = formDataCredentials.get('password')
+    const sharepointAuth = formDataCredentials.get('sharepointAuth')
     const formDataCrawler = new FormData(formCrawlerRef.current)
-    formDataCrawler.append('username', username ? username.toString() : '')
-    formDataCrawler.append('password', password ? password.toString() : '')
+    
+    // Add credentials based on URI type
+    if (username) formDataCrawler.append('username', username.toString())
+    if (password) formDataCrawler.append('password', password.toString())
+    if (sharepointAuth) formDataCrawler.append('sharepointAuth', sharepointAuth.toString())
+    
     updateCrawlerMutation({ data: formDataCrawler })
     formCredentialsRef.current?.close()
   }
@@ -129,6 +136,17 @@ function RouteComponent() {
                       checked={selectedUriType === 'smb'}
                     />
                     <span>{t('crawlers.uriTypeSmb')}</span>
+                  </label>
+                  <label className="flex gap-2 text-xs">
+                    <input
+                      type="radio"
+                      name="uriType"
+                      value="sharepoint"
+                      className="radio radio-xs"
+                      onChange={() => setSelectedUriType('sharepoint')}
+                      checked={selectedUriType === 'sharepoint'}
+                    />
+                    <span>{t('crawlers.uriTypeSharepoint')}</span>
                   </label>
                 </div>
 
@@ -242,21 +260,48 @@ function RouteComponent() {
         title={t('crawlers.credentialsDialogTitle')}
         onSubmit={handleCredentialsDialogSubmit}
       >
-        <Input
-          name="username"
-          label={t('crawlers.credentialsUsername')}
-          placeholder={t('crawlers.placeholders.username')}
-          schema={credentialsSchema}
-          required
-        />
-        <Input
-          name="password"
-          type="password"
-          label={t('crawlers.credentialsPassword')}
-          placeholder={t('crawlers.placeholders.password')}
-          schema={credentialsSchema}
-          required
-        />
+        {selectedUriType === 'sharepoint' ? (
+          <div className="flex flex-col gap-2">
+            <div className="alert alert-info">
+              <div className="text-sm">
+                <strong>Authentication Required:</strong>
+                <ol className="list-decimal list-inside mt-2 space-y-1">
+                  <li>Open SharePoint site in your browser and log in</li>
+                  <li>Open Developer Tools (F12) → Network tab</li>
+                  <li>Refresh the page</li>
+                  <li>Find any request to the SharePoint site</li>
+                  <li>Copy the 'Cookie' header value</li>
+                  <li>Paste it in the field below</li>
+                </ol>
+              </div>
+            </div>
+            <Input
+              name="sharepointAuth"
+              label="SharePoint Authentication Cookies"
+              placeholder={t('crawlers.placeholders.sharepointAuth')}
+              schema={z.object({ sharepointAuth: z.string().min(10, 'Authentication cookies required') })}
+              required
+            />
+          </div>
+        ) : (
+          <>
+            <Input
+              name="username"
+              label={t('crawlers.credentialsUsername')}
+              placeholder={t('crawlers.placeholders.username')}
+              schema={credentialsSchema}
+              required
+            />
+            <Input
+              name="password"
+              type="password"
+              label={t('crawlers.credentialsPassword')}
+              placeholder={t('crawlers.placeholders.password')}
+              schema={credentialsSchema}
+              required
+            />
+          </>
+        )}
       </DialogForm>
     </>
   )

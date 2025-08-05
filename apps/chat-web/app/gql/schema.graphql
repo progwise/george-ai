@@ -276,8 +276,9 @@ type AiLibraryCrawler {
 }
 
 input AiLibraryCrawlerCredentialsInput {
-  password: String!
-  username: String!
+  password: String
+  sharepointAuth: String
+  username: String
 }
 
 type AiLibraryCrawlerCronJob {
@@ -334,6 +335,7 @@ type AiLibraryCrawlerRun {
 
 enum AiLibraryCrawlerUriType {
   http
+  sharepoint
   smb
 }
 

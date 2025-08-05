@@ -294,8 +294,9 @@ export type AiLibraryCrawlerRunsArgs = {
 }
 
 export type AiLibraryCrawlerCredentialsInput = {
-  password: Scalars['String']['input']
-  username: Scalars['String']['input']
+  password?: InputMaybe<Scalars['String']['input']>
+  sharepointAuth?: InputMaybe<Scalars['String']['input']>
+  username?: InputMaybe<Scalars['String']['input']>
 }
 
 export type AiLibraryCrawlerCronJob = {
@@ -359,6 +360,7 @@ export type AiLibraryCrawlerRunUpdatesArgs = {
 
 export enum AiLibraryCrawlerUriType {
   Http = 'http',
+  Sharepoint = 'sharepoint',
   Smb = 'smb',
 }
 
@@ -1939,8 +1941,6 @@ export type GetUserConversationsQuery = {
     assistants: Array<{ __typename?: 'AiAssistant'; id: string; name: string }>
   }>
 }
-
-export type NewConversationSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
 
 export type CreateContactRequestMutationVariables = Exact<{
   name: Scalars['String']['input']
@@ -5056,34 +5056,6 @@ export const ConversationDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationDetailFragment, unknown>
-export const NewConversationSelector_AssistantFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'NewConversationSelector_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<NewConversationSelector_AssistantFragment, unknown>
 export const RunCrawlerButton_CrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [

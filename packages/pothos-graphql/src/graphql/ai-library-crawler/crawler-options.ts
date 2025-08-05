@@ -3,4 +3,6 @@ export interface CrawlOptions {
   maxDepth: number
   maxPages: number
   crawlerId: string
+  libraryId: string
+  fileConverterOptions?: string
 }

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SMB_URI_PATTERN, SHAREPOINT_URI_PATTERN } from '@george-ai/web-utils'
 
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { Language, translate } from '../../../i18n'
@@ -21,12 +21,13 @@ export const getCrawlerFormBaseSchema = (language: Language) =>
     id: z.string().optional(),
     libraryId: z.string().optional(),
     uri: z.string().min(1),
-    uriType: z.union([z.literal('http'), z.literal('smb')]),
+    uriType: z.union([z.literal('http'), z.literal('smb'), z.literal('sharepoint')]),
     maxDepth: z.coerce.number().min(0, translate('crawlers.errors.maxDepth', language)),
     maxPages: z.coerce.number().min(1, translate('crawlers.errors.maxPages', language)),
     cronJob: AiLibraryCrawlerCronJobInputSchema().optional(),
     username: z.string().optional(),
     password: z.string().optional(),
+    sharepointAuth: z.string().optional(),
   })
 
 // Full schema with refinements for form submission validation
@@ -37,6 +38,8 @@ export const getCrawlerFormSchema = (language: Language) =>
         return HTTP_URI_PATTERN.test(data.uri)
       } else if (data.uriType === 'smb') {
         return SMB_URI_PATTERN.test(data.uri)
+      } else if (data.uriType === 'sharepoint') {
+        return SHAREPOINT_URI_PATTERN.test(data.uri)
       }
       return false
     },
@@ -59,6 +62,9 @@ export const getCrawlerFormData = (formData: FormData) => {
     'cronjob.friday': cronJobFriday,
     'cronjob.saturday': cronJobSaturday,
     'cronjob.sunday': cronJobSunday,
+    username,
+    password,
+    sharepointAuth,
     ...dataObject
   } = formDataObject
 
@@ -66,6 +72,9 @@ export const getCrawlerFormData = (formData: FormData) => {
 
   return {
     ...dataObject,
+    username: username?.toString(),
+    password: password?.toString(),
+    sharepointAuth: sharepointAuth?.toString(),
     cronJob: cronJobActive
       ? {
           active: cronJobActive === 'true',
@@ -110,7 +119,7 @@ interface CrawlerFormProps {
 export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(false)
-  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb'>('http')
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>('http')
 
   const cronWeekdayFields = useMemo(
     () => ({
@@ -132,7 +141,9 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
       uri:
         selectedUriType === 'http'
           ? z.string().regex(HTTP_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
-          : z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
+          : selectedUriType === 'smb'
+            ? z.string().regex(SMB_URI_PATTERN, translate('crawlers.errors.invalidUri', language))
+            : z.string().regex(SHAREPOINT_URI_PATTERN, translate('crawlers.errors.invalidUri', language)),
     })
   }, [language, selectedUriType])
 
@@ -164,6 +175,16 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
           />
           <span>{t('crawlers.uriTypeSmb')}</span>
         </label>
+        <label className="flex gap-2 text-xs">
+          <input
+            type="radio"
+            name="uriType"
+            value="sharepoint"
+            className="radio radio-sm"
+            onChange={() => setSelectedUriType('sharepoint')}
+          />
+          <span>{t('crawlers.uriTypeSharepoint')}</span>
+        </label>
       </div>
       <Input
         name="uri"
@@ -191,25 +212,53 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
           required={true}
         />
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <Input
-          disabled={selectedUriType !== 'smb'}
-          name="username"
-          label={t('crawlers.credentialsUsername')}
-          placeholder={t('crawlers.placeholders.username')}
-          schema={credentialsSchema}
-          required
-        />
-        <Input
-          disabled={selectedUriType !== 'smb'}
-          name="password"
-          type="password"
-          label={t('crawlers.credentialsPassword')}
-          placeholder={t('crawlers.placeholders.password')}
-          schema={credentialsSchema}
-          required
-        />
-      </div>
+{selectedUriType === 'sharepoint' ? (
+        <div className="flex flex-col gap-2">
+          <div className="alert alert-info">
+            <div className="text-sm">
+              <strong>SharePoint Authentication Required:</strong>
+              <ol className="list-decimal list-inside mt-2 space-y-1">
+                <li>Open your SharePoint site in browser and log in completely</li>
+                <li>Open Developer Tools (F12) → Network tab</li>
+                <li>Refresh the page or navigate to a document library</li>
+                <li>Find any request to your SharePoint site</li>
+                <li>Copy the complete 'Cookie' header value (must include FedAuth and rtFa cookies)</li>
+                <li>Paste it in the field below</li>
+              </ol>
+              <div className="mt-2 text-xs opacity-75">
+                Note: Cookies are session-based and will expire. You may need to refresh them periodically.
+              </div>
+            </div>
+          </div>
+          <Input
+            name="sharepointAuth"
+            label="SharePoint Authentication Cookies"
+            placeholder={t('crawlers.placeholders.sharepointAuth')}
+            schema={z.object({ sharepointAuth: z.string().min(10, 'Authentication cookies required') })}
+            required
+          />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <Input
+            disabled={selectedUriType !== 'smb'}
+            name="username"
+            label={t('crawlers.credentialsUsername')}
+            placeholder={t('crawlers.placeholders.username')}
+            schema={credentialsSchema}
+            required
+          />
+          <Input
+            disabled={selectedUriType !== 'smb'}
+            name="password"
+            type="password"
+            label={t('crawlers.credentialsPassword')}
+            placeholder={t('crawlers.placeholders.password')}
+            schema={credentialsSchema}
+            required
+          />
+        </div>
+      )}
       <div className="flex flex-col gap-2">
         <fieldset className="fieldset flex">
           <label className="label text-base-content mt-4 font-semibold">
