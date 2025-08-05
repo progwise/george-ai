@@ -69,3 +69,29 @@ export const dropAllFiles = createServerFn({ method: 'POST' })
     )
     return await Promise.all(clearEmbeddedFilesPromise)
   })
+
+export const processUnprocessedFiles = createServerFn({ method: 'POST' })
+  .validator((data: string[]) => z.array(z.string().nonempty()).parse(data))
+  .handler(async (ctx) => {
+    const results = await Promise.all(
+      ctx.data.map(async (libraryId) => {
+        try {
+          const processing = await backendRequest(
+            graphql(`
+              mutation processUnprocessedFiles($libraryId: String!) {
+                processUnprocessedFiles(libraryId: $libraryId)
+              }
+            `),
+            { libraryId },
+          )
+
+          const [totalProcessedCount = 0, successfulCount = 0] = processing?.processUnprocessedFiles ?? []
+          return { libraryId, totalProcessedCount, successfulCount, success: true }
+        } catch (error) {
+          console.error(`Failed to process files in library ${libraryId}:`, error)
+          return { libraryId, success: false }
+        }
+      }),
+    )
+    return results
+  })

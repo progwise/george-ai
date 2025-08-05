@@ -35,6 +35,17 @@ export const AiLibrary = builder.prismaObject('AiLibrary', {
         return count
       },
     }),
+    unprocessedFilesCount: t.int({
+      nullable: false,
+      resolve: async (_parent) => {
+        return prisma.aiLibraryFile.count({
+          where: {
+            libraryId: _parent.id,
+            processedAt: null,
+          },
+        })
+      },
+    }),
     crawlers: t.relation('crawlers', { nullable: false }),
     embeddingModelName: t.exposeString('embeddingModelName'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),

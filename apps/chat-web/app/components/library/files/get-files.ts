@@ -24,6 +24,7 @@ const getLibraryFiles = createServerFn({ method: 'GET' })
             libraryId
             library {
               name
+              unprocessedFilesCount
             }
             take
             skip

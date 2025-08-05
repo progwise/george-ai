@@ -6,6 +6,7 @@ import { embedFile } from '@george-ai/langchain-chat'
 import { convertUploadToMarkdown } from '../../file-upload'
 import { prisma } from '../../prisma'
 import { builder } from '../builder'
+import { addToQueue, removeIdFromQueue } from './processing-queue'
 
 export const processFile = async (fileId: string) => {
   const file = await prisma.aiLibraryFile.findUnique({
@@ -22,6 +23,7 @@ export const processFile = async (fileId: string) => {
   if (!file) {
     throw new Error(`File not found in database: ${fileId}`)
   }
+  addToQueue(file.libraryId, [file.id])
   try {
     if (!file.library.embeddingModelName) {
       throw new Error(`Embedding model not found for library: ${file.libraryId}`)
@@ -30,7 +32,10 @@ export const processFile = async (fileId: string) => {
     await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
+        processedAt: null,
         processingStartedAt: new Date(),
+        processingErrorAt: null,
+        processingErrorMessage: null,
       },
     })
 
@@ -54,7 +59,7 @@ export const processFile = async (fileId: string) => {
       path: markdownFilePath,
     })
 
-    return await prisma.aiLibraryFile.update({
+    const updatedFile = await prisma.aiLibraryFile.update({
       where: { id: fileId },
       data: {
         ...embeddedFile,
@@ -64,14 +69,18 @@ export const processFile = async (fileId: string) => {
         processingErrorMessage: null,
       },
     })
+    removeIdFromQueue(file.libraryId, [file.id])
+    return updatedFile
   } catch (error) {
-    return await prisma.aiLibraryFile.update({
-      where: { id: fileId },
+    const failedFile = await prisma.aiLibraryFile.update({
+      where: { id: file.id },
       data: {
         processingErrorAt: new Date(),
         processingErrorMessage: (error as Error).message,
       },
     })
+    removeIdFromQueue(file.libraryId, [file.id])
+    return failedFile
   }
 }
 
