@@ -67,10 +67,15 @@ const processUnprocessedFiles = async (libraryId: string) => {
           where: { id: file.id },
           data: {
             ...embeddedFile,
-            processedAt: new Date(),
             processingEndedAt: new Date(),
             processingErrorAt: null,
             processingErrorMessage: null,
+          },
+        })
+        await prisma.aiLibraryFile.update({
+          where: { id: file.id },
+          data: {
+            processedAt: new Date(),
           },
         })
         successfulCount++

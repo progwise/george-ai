@@ -63,10 +63,15 @@ export const processFile = async (fileId: string) => {
       where: { id: fileId },
       data: {
         ...embeddedFile,
-        processedAt: new Date(),
         processingEndedAt: new Date(),
         processingErrorAt: null,
         processingErrorMessage: null,
+      },
+    })
+    await prisma.aiLibraryFile.update({
+      where: { id: fileId },
+      data: {
+        processedAt: new Date(),
       },
     })
     removeIdFromQueue(file.libraryId, [file.id])
