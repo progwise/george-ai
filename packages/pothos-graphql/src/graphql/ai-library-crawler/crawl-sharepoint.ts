@@ -1,9 +1,10 @@
 import fs from 'node:fs'
-import os from 'node:os'
 import path from 'node:path'
 
-import { transformToMarkdown } from '@george-ai/file-converter'
+import { getUploadFilePath } from '@george-ai/file-management'
 
+import { prisma } from '../../prisma'
+import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 import { getSharePointCredentials } from './sharepoint-credentials-manager'
 import { discoverSharePointSiteContent } from './sharepoint-discovery'
@@ -22,7 +23,65 @@ interface SharePointListItem {
   }
 }
 
-export async function* crawlSharePoint({ uri, maxDepth, maxPages, crawlerId, fileConverterOptions }: CrawlOptions) {
+const saveSharepointCrawlerFile = async ({
+  fileName,
+  fileUri,
+  libraryId,
+  crawlerId,
+  siteUrl,
+  serverRelativeUrl,
+  authCookies,
+  mimeType,
+  fileSize,
+  fileModifiedTime,
+}: {
+  fileName: string
+  fileUri: string
+  libraryId: string
+  crawlerId: string
+  siteUrl: URL
+  serverRelativeUrl: string
+  authCookies: string
+  mimeType: string
+  fileSize: number
+  fileModifiedTime: Date
+}) => {
+  const fileUpdateData = {
+    name: `${fileName}`,
+    libraryId: libraryId,
+    mimeType,
+    size: parseInt(fileSize.toString()), // some sharepoint field is not a number
+    updatedAt: fileModifiedTime,
+  }
+
+  const file = await prisma.aiLibraryFile.upsert({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri: fileUri,
+      },
+    },
+    create: {
+      ...fileUpdateData,
+      originUri: fileUri,
+      crawledByCrawlerId: crawlerId,
+    },
+    update: fileUpdateData,
+  })
+
+  const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
+  await downloadSharePointFileToPath(siteUrl, serverRelativeUrl, authCookies, uploadedFilePath)
+
+  return file
+}
+
+export async function* crawlSharePoint({
+  uri,
+  maxDepth,
+  maxPages,
+  crawlerId,
+  libraryId,
+}: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SharePoint crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using credentials for crawler: ${crawlerId}`)
 
@@ -149,56 +208,38 @@ export async function* crawlSharePoint({ uri, maxDepth, maxPages, crawlerId, fil
           try {
             console.log(`Processing file (${itemsProcessedInCurrentBatch}/${TARGET_ITEMS_PER_BATCH}): ${fileName}`)
 
-            const size = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
-            const modifiedTime = new Date(item.Modified)
+            const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
+            const fileModifiedTime = new Date(item.Modified)
             const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
             const fileUri = `${apiUrl}${item.FileRef}`
 
             // Determine MIME type from file extension
             const mimeType = getMimeTypeFromExtension(fileName)
 
-            // Create temporary file for processing
-            const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'sharepoint-'))
-            const tempFilePath = path.join(tempDir, fileName)
-
-            let markdown: string
-            try {
-              // Download the file content to temporary file
-              await downloadSharePointFileToPath(siteUrl, serverRelativeUrl, authCookies, tempFilePath)
-
-              // Use transformToMarkdown with library's file converter options
-              markdown = await transformToMarkdown({
-                name: fileName,
-                mimeType,
-                path: tempFilePath,
-                fileConverterOptions,
-              })
-            } finally {
-              // Clean up temporary file and directory
-              try {
-                await fs.promises.rm(tempDir, { recursive: true, force: true })
-              } catch (cleanupError) {
-                console.warn(`Failed to cleanup temp file ${tempDir}:`, cleanupError)
-              }
-            }
-
-            // Create metadata
-            const metaData = JSON.stringify({
-              uri: fileUri,
-              title: fileName,
-              size,
-              modifiedTime: modifiedTime.toISOString(),
-              type: 'file',
-              source: 'sharepoint',
-              mimeType,
+            const fileInfo = await saveSharepointCrawlerFile({
+              siteUrl,
               serverRelativeUrl,
+              authCookies,
+              fileName,
+              fileUri,
+              libraryId,
+              crawlerId,
+              mimeType,
+              fileSize,
+              fileModifiedTime,
             })
 
-            yield { metaData, markdown }
+            yield {
+              id: fileInfo.id,
+              name: fileInfo.name,
+              originUri: fileInfo.originUri,
+              mimeType: fileInfo.mimeType,
+              hints: `Sharepoint crawler file success \n${JSON.stringify(fileInfo, null, 2)}`,
+            }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             console.error(`Error processing SharePoint file ${fileName}:`, errorMessage)
-            yield { uri: `${apiUrl}${item.FileRef}`, markdown: null, metaData: null, error: errorMessage }
+            yield { hints: `Sharepoint crawl error for ${apiUrl}${item.FileRef}`, errorMessage: errorMessage }
           }
         }
 
@@ -241,8 +282,9 @@ export async function* crawlSharePoint({ uri, maxDepth, maxPages, crawlerId, fil
     console.log(`Finished SharePoint crawling. Processed ${processedPages} files.`)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('Error in SharePoint crawler:', errorMessage)
-    yield { uri, markdown: null, metaData: null, error: errorMessage }
+    const hints = `Error in SharePoint crawler crawling ${crawlerId}`
+    console.error(hints, errorMessage)
+    yield { hints, errorMessage }
   }
 }
 

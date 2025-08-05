@@ -1,8 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { transformToMarkdown } from '@george-ai/file-converter'
+import { getUploadFilePath } from '@george-ai/file-management'
 
+import { prisma } from '../../prisma'
+import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 import { uriToMountedPath } from './smb-mount-manager'
 
@@ -14,7 +16,61 @@ interface SmbFileToProcess {
   depth: number
 }
 
-export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId, fileConverterOptions }: CrawlOptions) {
+const saveSmbCrawlerFile = async ({
+  fileName,
+  fileUri,
+  libraryId,
+  crawlerId,
+  mimeType,
+  fileSize,
+  fileModifiedTime,
+  mountedFilePath,
+}: {
+  fileName: string
+  fileUri: string
+  libraryId: string
+  crawlerId: string
+  mimeType: string
+  fileSize: number
+  fileModifiedTime: Date
+  mountedFilePath: string
+}) => {
+  const fileUpdateData = {
+    name: `${fileName}`,
+    libraryId: libraryId,
+    mimeType,
+    size: fileSize,
+    updatedAt: fileModifiedTime,
+  }
+
+  const file = await prisma.aiLibraryFile.upsert({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri: fileUri,
+      },
+    },
+    create: {
+      ...fileUpdateData,
+      originUri: fileUri,
+      crawledByCrawlerId: crawlerId,
+    },
+    update: fileUpdateData,
+  })
+
+  const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
+  await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
+
+  return file
+}
+
+export async function* crawlSmb({
+  uri,
+  maxDepth,
+  maxPages,
+  crawlerId,
+  libraryId,
+}: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using mount for crawler: ${crawlerId}`)
 
@@ -38,42 +94,35 @@ export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId, fileConver
 
         // Convert URI to mounted filesystem path
         const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
-
         // Determine MIME type from file extension
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
 
-        // Convert to markdown using file converter directly on mounted file with library options
-        const markdown = await transformToMarkdown({
-          name: fileToProcess.name,
+        const fileInfo = await saveSmbCrawlerFile({
+          fileName: fileToProcess.name,
+          crawlerId,
+          libraryId,
+          fileModifiedTime: fileToProcess.modifiedTime,
+          fileSize: fileToProcess.size,
           mimeType,
-          path: mountedFilePath, // Direct access to mounted file - no copying!
-          fileConverterOptions,
+          fileUri: fileToProcess.uri,
+          mountedFilePath,
         })
 
-        // Create metadata
-        const metaData = JSON.stringify({
-          uri: fileToProcess.uri,
-          title: fileToProcess.name,
-          size: fileToProcess.size,
-          modifiedTime: fileToProcess.modifiedTime.toISOString(),
-          type: 'file',
-          source: 'smb',
-          mimeType,
-        })
-
-        yield { metaData, markdown }
+        yield { ...fileInfo, hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}` }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error(`Error processing SMB file ${fileToProcess.uri}:`, errorMessage)
-        yield { uri: fileToProcess.uri, markdown: null, metaData: null, error: errorMessage }
+        const hints = `Error processing SMB file ${fileToProcess.uri} in crawler ${crawlerId}`
+        console.error(hints, errorMessage)
+        yield { errorMessage, hints }
       }
     }
 
     console.log(`Finished SMB crawling. Processed ${processedPages} files.`)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('Error in SMB crawler:', errorMessage)
-    yield { uri, markdown: null, metaData: null, error: errorMessage }
+    const hints = `Error in SMB crawler ${crawlerId}`
+    console.error(hints, errorMessage)
+    yield { errorMessage, hints }
   }
 }
 

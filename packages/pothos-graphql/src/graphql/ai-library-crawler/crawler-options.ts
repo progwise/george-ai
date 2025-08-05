@@ -4,5 +4,4 @@ export interface CrawlOptions {
   maxPages: number
   crawlerId: string
   libraryId: string
-  fileConverterOptions?: string
 }
