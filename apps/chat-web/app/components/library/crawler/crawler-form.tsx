@@ -17,6 +17,26 @@ export const getCrawlerCredentialsSchema = (language: Language) => {
     password: z.string().min(2, translate('crawlers.validationPasswordRequired', language)),
   })
 }
+
+export const getSharePointAuthSchema = (language: Language) => {
+  return z.object({
+    sharepointAuth: z
+      .string()
+      .min(100, translate('crawlers.validationSharePointAuthTooShort', language))
+      .refine(
+        (value) => value.includes('FedAuth=') && value.includes('rtFa='),
+        {
+          message: translate('crawlers.validationSharePointAuthMissingTokens', language),
+        }
+      )
+      .refine(
+        (value) => value.includes(';') && value.includes('='),
+        {
+          message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
+        }
+      ),
+  })
+}
 // Base schema for Input component validation
 export const getCrawlerFormBaseSchema = (language: Language) =>
   z.object({
@@ -96,11 +116,15 @@ export const getCrawlerFormData = (formData: FormData) => {
 
 export interface CrawlerFormData {
   id?: string
+  libraryId?: string
   uri: string
-  uriType: string
+  uriType: 'http' | 'smb' | 'sharepoint'
   maxDepth: number
   maxPages: number
-  cronJob: {
+  username?: string
+  password?: string
+  sharepointAuth?: string
+  cronJob?: {
     active: boolean
     hour: number
     minute: number
@@ -111,7 +135,7 @@ export interface CrawlerFormData {
     friday: boolean
     saturday: boolean
     sunday: boolean
-  } | null
+  }
 }
 
 graphql(`
@@ -166,6 +190,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   }, [language, selectedUriType])
 
   const credentialsSchema = useMemo(() => getCrawlerCredentialsSchema(language), [language])
+  const sharePointAuthSchema = useMemo(() => getSharePointAuthSchema(language), [language])
 
   return (
     <div>
@@ -258,7 +283,7 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             name="sharepointAuth"
             label="SharePoint Authentication Cookies"
             placeholder={t('crawlers.placeholders.sharepointAuth')}
-            schema={z.object({ sharepointAuth: z.string().min(10, 'Authentication cookies required') })}
+            schema={sharePointAuthSchema}
             required
           />
         </div>
