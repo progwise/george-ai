@@ -64,8 +64,9 @@ export function AiConversationMessageInputSchema(): z.ZodObject<Properties<AiCon
 
 export function AiLibraryCrawlerCredentialsInputSchema(): z.ZodObject<Properties<AiLibraryCrawlerCredentialsInput>> {
   return z.object({
-    password: z.string(),
-    username: z.string(),
+    password: z.string().nullish(),
+    sharepointAuth: z.string().nullish(),
+    username: z.string().nullish(),
   })
 }
 

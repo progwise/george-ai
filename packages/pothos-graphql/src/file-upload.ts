@@ -97,3 +97,8 @@ export const updateUserAvatarUrl = async ({ userId, avatarUrl }: { userId: strin
   })
   return user
 }
+
+export const getMimeTypeForFile = async (fileId: string) => {
+  const fileInfo = await prisma.aiLibraryFile.findFirstOrThrow({ where: { id: fileId } })
+  return fileInfo.mimeType
+}

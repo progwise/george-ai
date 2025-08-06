@@ -165,9 +165,9 @@ export default {
       'Der Crawler für {crawlerUrl} wird zusammen mit {filesCount} damit gecrawlten Dateien gelöscht.',
     details: 'Details',
     errors: {
+      invalidUri: 'Ungültiges URI-Format für den ausgewählten Typ',
       maxDepth: 'muss > 0 sein',
       maxPages: 'muss > 1 sein',
-      invalidUri: 'Ungültiges URI-Format für den ausgewählten Typ',
     },
     lastRun: 'Letzter Lauf',
     maxDepth: 'Tiefe',
@@ -180,9 +180,10 @@ export default {
     placeholders: {
       maxDepth: 'Tiefe eingeben, z.B. 5',
       maxPages: 'z.B. 1000 - kann groß sein',
-      uri: 'https://vwx.yz oder //smbhost.local/share',
-      username: 'Für Domänen-Auth: DOMÄNE\\Benutzer',
       password: 'Passwort für den Zugriff',
+      sharepointAuth: 'Authentifizierungs-Cookies aus Browser (siehe Hilfe)',
+      uri: 'https://vwx.yz oder //smbhost.local/share oder https://tenant.sharepoint.com/sitename',
+      username: 'Für Domänen-Auth: DOMÄNE\\Benutzer',
     },
     run: 'Crawler starten',
     runCount: '# Läufe',
@@ -210,10 +211,23 @@ export default {
     uri: 'URI',
     uriType: 'Type',
     uriTypeHtml: 'Http Server',
+    uriTypeSharepoint: 'SharePoint-Site',
     uriTypeSmb: 'Dateifreigabe',
     utcHint: 'UTC-Zeitzone',
-    validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
     validationPasswordRequired: 'Passwort braucht mindestens 2 Zeichen.',
+    validationSharePointAuthInvalidFormat: 'Ungültiges Cookie-Format - sollte "name=wert; name=wert; ..." sein.',
+    validationSharePointAuthMissingTokens:
+      'SharePoint-Cookies müssen gültige Authentifizierungs-Token enthalten (FedAuth, rtFa, SPOIDCRL oder benutzerdefinierte Authentifizierung).',
+    validationSharePointAuthTooShort: 'SharePoint-Cookies müssen mindestens 20 Zeichen lang sein.',
+    validationSharePointAuthenticationError:
+      'Authentifizierung fehlgeschlagen. Bitte aktualisieren Sie Ihre SharePoint-Cookies und versuchen Sie es erneut.',
+    validationSharePointLibraryNotFound: 'Die angegebene Dokumentbibliothek wurde nicht gefunden.',
+    validationSharePointNetworkError:
+      'Netzwerkfehler beim Verbinden mit SharePoint. Bitte überprüfen Sie Ihre Verbindung.',
+    validationSharePointNotFound: 'SharePoint-Site nicht gefunden. Bitte überprüfen Sie die URL.',
+    validationSharePointUnknownError:
+      'SharePoint-Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre URL und Cookies.',
+    validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
   },
   errors: {
     avatarDeleteFailed: 'Avatar-Löschung fehlgeschlagen',
@@ -238,6 +252,11 @@ export default {
     removeParticipantFailed: 'Fehler beim Entfernen des Teilnehmers: {error}',
     requiredField: 'Erforderlich',
     unexpectedError: 'Ein unerwarteter Fehler ist aufgetreten',
+  },
+  files: {
+    noContentAvailable: 'Kein Inhalt verfügbar',
+    noSourcesAvailable: 'Keine Quellen verfügbar',
+    sources: 'Quellen',
   },
   flowLocal: 'Ablauf: Nur Lokal',
   flowParallel: 'Ablauf: Parallel',
