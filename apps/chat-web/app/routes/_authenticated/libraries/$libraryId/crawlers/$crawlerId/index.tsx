@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SMB_URI_PATTERN, SHAREPOINT_URI_PATTERN, formatTime } from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN, formatTime } from '@george-ai/web-utils'
 
 import { DialogForm } from '../../../../../../components/dialog-form'
 import { Input } from '../../../../../../components/form/input'
@@ -93,12 +93,12 @@ function RouteComponent() {
     const password = formDataCredentials.get('password')
     const sharepointAuth = formDataCredentials.get('sharepointAuth')
     const formDataCrawler = new FormData(formCrawlerRef.current)
-    
+
     // Add credentials based on URI type
     if (username) formDataCrawler.append('username', username.toString())
     if (password) formDataCrawler.append('password', password.toString())
     if (sharepointAuth) formDataCrawler.append('sharepointAuth', sharepointAuth.toString())
-    
+
     updateCrawlerMutation({ data: formDataCrawler })
     formCredentialsRef.current?.close()
   }
@@ -265,7 +265,7 @@ function RouteComponent() {
             <div className="alert alert-info">
               <div className="text-sm">
                 <strong>Authentication Required:</strong>
-                <ol className="list-decimal list-inside mt-2 space-y-1">
+                <ol className="mt-2 list-inside list-decimal space-y-1">
                   <li>Open SharePoint site in your browser and log in</li>
                   <li>Open Developer Tools (F12) → Network tab</li>
                   <li>Refresh the page</li>

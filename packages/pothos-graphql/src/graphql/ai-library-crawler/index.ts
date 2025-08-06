@@ -7,12 +7,14 @@ import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
+import { removeSharePointCredentials, updateCrawlerSharePointCredentials } from './sharepoint-credentials-manager'
 import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount, updateCrawlerSmbMount } from './smb-mount-manager'
-import { updateCrawlerSharePointCredentials, removeSharePointCredentials } from './sharepoint-credentials-manager'
 
 console.log('Setting up: AiLibraryCrawler')
 
-const AiLibraryCrawlerUriType = builder.enumType('AiLibraryCrawlerUriType', { values: ['http', 'smb', 'sharepoint'] as const })
+const AiLibraryCrawlerUriType = builder.enumType('AiLibraryCrawlerUriType', {
+  values: ['http', 'smb', 'sharepoint'] as const,
+})
 
 const AiLibraryCrawlerCredentialsInput = builder.inputType('AiLibraryCrawlerCredentialsInput', {
   fields: (t) => ({

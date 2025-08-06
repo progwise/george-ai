@@ -105,6 +105,6 @@ export function getExtensionFromMimeType(mimeType: string): string {
   if (mimeType === 'text/markdown') return '.md'
   if (mimeType === 'text/html') return '.html'
   if (mimeType === 'application/x-yaml') return '.yaml'
-  
+
   return reverseMapping[mimeType] || ''
 }

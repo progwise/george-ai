@@ -18,17 +18,17 @@ function getCredentialsFile(crawlerId: string): string {
 export async function storeSharePointCredentials(crawlerId: string, authCookies: string): Promise<string> {
   await ensureDirectoryExists(CREDENTIALS_DIR, 0o700)
   const credFile = getCredentialsFile(crawlerId)
-  
+
   // Store the cookies in a simple text file
   await fs.promises.writeFile(credFile, authCookies, { mode: 0o600 })
   console.log(`SharePoint credentials stored for crawler ${crawlerId}`)
-  
+
   return credFile
 }
 
 export async function getSharePointCredentials(crawlerId: string): Promise<string | null> {
   const credFile = getCredentialsFile(crawlerId)
-  
+
   try {
     const authCookies = await fs.promises.readFile(credFile, 'utf-8')
     return authCookies.trim()
@@ -40,7 +40,7 @@ export async function getSharePointCredentials(crawlerId: string): Promise<strin
 
 export async function removeSharePointCredentials(crawlerId: string): Promise<void> {
   const credFile = getCredentialsFile(crawlerId)
-  
+
   try {
     await fs.promises.unlink(credFile)
     console.log(`SharePoint credentials removed for crawler ${crawlerId}`)
@@ -49,10 +49,7 @@ export async function removeSharePointCredentials(crawlerId: string): Promise<vo
   }
 }
 
-export async function updateCrawlerSharePointCredentials(
-  crawlerId: string,
-  authCookies: string | null
-): Promise<void> {
+export async function updateCrawlerSharePointCredentials(crawlerId: string, authCookies: string | null): Promise<void> {
   if (!authCookies) {
     await removeSharePointCredentials(crawlerId)
     return

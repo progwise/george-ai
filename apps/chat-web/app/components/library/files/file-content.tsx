@@ -20,6 +20,7 @@ export const FileContent = ({
           ))}
         </ul>
       </div>
+      <hr />
       <FormattedMarkdown markdown={markdown} className="text-sm font-semibold" />
     </div>
   )

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { HTTP_URI_PATTERN, SMB_URI_PATTERN, SHAREPOINT_URI_PATTERN } from '@george-ai/web-utils'
+import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
 
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { Language, translate } from '../../../i18n'
@@ -212,12 +212,12 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
           required={true}
         />
       </div>
-{selectedUriType === 'sharepoint' ? (
+      {selectedUriType === 'sharepoint' ? (
         <div className="flex flex-col gap-2">
           <div className="alert alert-info">
             <div className="text-sm">
               <strong>SharePoint Authentication Required:</strong>
-              <ol className="list-decimal list-inside mt-2 space-y-1">
+              <ol className="mt-2 list-inside list-decimal space-y-1">
                 <li>Open your SharePoint site in browser and log in completely</li>
                 <li>Open Developer Tools (F12) → Network tab</li>
                 <li>Refresh the page or navigate to a document library</li>

@@ -352,4 +352,3 @@ function parseSharePointUrl(uri: string) {
     throw error
   }
 }
-

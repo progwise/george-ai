@@ -28,6 +28,7 @@ export const libraryFiles = async (request: Request, response: Response) => {
   try {
     const libraryFilePath = getFileDir({ libraryId, fileId, errorIfNotExists: true })
     const fileNames = await fs.promises.readdir(libraryFilePath)
+    const mainMimeType = await getMimeTypeForFile(fileId)
 
     if (!fileName) {
       response.json(fileNames).end()
@@ -55,7 +56,7 @@ export const libraryFiles = async (request: Request, response: Response) => {
     const stats = await fs.promises.stat(fullFilePath)
     let mimeType = getMimeTypeFromExtension(fileName)
     if (fileName === 'upload') {
-      mimeType = await getMimeTypeForFile(fileId)
+      mimeType = mainMimeType
     }
 
     // Set appropriate headers

@@ -194,4 +194,3 @@ async function discoverMountedFilesAndDirectories(
     // Continue with other directories even if this one fails
   }
 }
-
