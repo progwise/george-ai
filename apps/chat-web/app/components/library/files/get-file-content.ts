@@ -31,6 +31,6 @@ const getFileContent = createServerFn({ method: 'GET' })
   })
 
 export const getFileContentQueryOptions = (params: { fileId: string; libraryId: string }) => ({
-  queryKey: ['fileContent', params.fileId, params],
+  queryKey: ['fileContent', params],
   queryFn: () => getFileContent({ data: { fileId: params.fileId, libraryId: params.libraryId } }),
 })

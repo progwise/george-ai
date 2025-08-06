@@ -8,9 +8,10 @@ import { createYoga } from 'graphql-yoga'
 import { schema } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistantIconMiddleware'
-import { authorizeGraphQlRequest } from './authorizeGraphQlRequest'
 import { avatarMiddleware } from './avatarMiddleware'
 import { conversationMessagesSSE } from './conversation-messages-sse'
+import { getUserContext } from './getUserContext'
+import { libraryFiles } from './library-files'
 import { dataUploadMiddleware } from './upload'
 
 console.log('Starting GeorgeAI GraphQL server...')
@@ -28,7 +29,7 @@ console.log(`
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
-  context: async ({ request }) => authorizeGraphQlRequest(request),
+  context: async ({ request }) => getUserContext((key) => request.headers.get(key)),
 })
 
 const app = express()
@@ -37,6 +38,7 @@ app.use(cors())
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', avatarMiddleware)
 app.use('/upload', dataUploadMiddleware)
+app.get('/library-files/:libraryId/:fileId', libraryFiles)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 
 // Only check API key or user JWT for /graphql POST requests

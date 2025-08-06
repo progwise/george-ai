@@ -189,6 +189,9 @@ importers:
       '@george-ai/pothos-graphql':
         specifier: workspace:*
         version: link:../../packages/pothos-graphql
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../../packages/web-utils
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -372,6 +375,9 @@ importers:
       '@george-ai/langchain-chat':
         specifier: workspace:*
         version: link:../langchain-chat
+      '@george-ai/web-utils':
+        specifier: workspace:*
+        version: link:../web-utils
       '@pothos/core':
         specifier: ^4.3.0
         version: 4.6.2(graphql@16.10.0)
@@ -430,27 +436,6 @@ importers:
       prisma:
         specifier: ^6.4.1
         version: 6.4.1(typescript@5.8.2)
-      typescript:
-        specifier: ^5.7.2
-        version: 5.8.2
-      typescript-eslint:
-        specifier: ^8.18.0
-        version: 8.25.0(eslint@9.21.0(jiti@2.4.2))(typescript@5.8.2)
-      vitest:
-        specifier: ^3.1.1
-        version: 3.1.1(@types/debug@4.1.12)(@types/node@22.13.8)(@vitest/ui@3.1.1)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3)(yaml@2.7.0)
-
-  packages/smb-client:
-    devDependencies:
-      '@eslint/js':
-        specifier: ^9.16.0
-        version: 9.21.0
-      '@types/node':
-        specifier: ^22.10.7
-        version: 22.13.8
-      eslint:
-        specifier: ^9.17.0
-        version: 9.21.0(jiti@2.4.2)
       typescript:
         specifier: ^5.7.2
         version: 5.8.2
@@ -13509,7 +13494,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.1))
+      retry-axios: 2.6.0(axios@1.7.9)
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -15189,7 +15174,7 @@ snapshots:
       onetime: 5.1.2
       signal-exit: 3.0.7
 
-  retry-axios@2.6.0(axios@1.7.9(debug@4.4.1)):
+  retry-axios@2.6.0(axios@1.7.9):
     dependencies:
       axios: 1.7.9(debug@4.4.1)
 

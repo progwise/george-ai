@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { getUploadFilePath } from '@george-ai/file-management'
+import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { prisma } from '../../prisma'
 import { CrawledFileInfo } from './crawled-file-info'
@@ -165,22 +166,18 @@ async function discoverMountedFilesAndDirectories(
       const entryPath = path.join(mountedPath, entry.name)
 
       if (entry.isFile() && !processedUris.has(entryUri)) {
-        // Only process text-like files
-        if (isTextFile(entry.name)) {
-          try {
-            const stats = await fs.promises.stat(entryPath)
-            queue.push({
-              uri: entryUri,
-              name: entry.name,
-              size: stats.size,
-              modifiedTime: stats.mtime,
-              depth: currentDepth,
-            })
-          } catch (error) {
-            console.warn(`Failed to stat file ${entryPath}:`, error)
-          }
-        } else {
-          console.log(`Skipping non-text file: ${entryUri}`)
+        // Process all files - let the processor decide what to do with them
+        try {
+          const stats = await fs.promises.stat(entryPath)
+          queue.push({
+            uri: entryUri,
+            name: entry.name,
+            size: stats.size,
+            modifiedTime: stats.mtime,
+            depth: currentDepth,
+          })
+        } catch (error) {
+          console.warn(`Failed to stat file ${entryPath}:`, error)
         }
       } else if (entry.isDirectory() && currentDepth < maxDepth) {
         // Recursively explore subdirectories
@@ -198,120 +195,3 @@ async function discoverMountedFilesAndDirectories(
   }
 }
 
-function isTextFile(filename: string): boolean {
-  const textExtensions = [
-    '.txt',
-    '.md',
-    '.markdown',
-    '.json',
-    '.xml',
-    '.html',
-    '.htm',
-    '.css',
-    '.js',
-    '.ts',
-    '.py',
-    '.java',
-    '.c',
-    '.cpp',
-    '.h',
-    '.hpp',
-    '.cs',
-    '.php',
-    '.rb',
-    '.go',
-    '.rs',
-    '.sql',
-    '.csv',
-    '.tsv',
-    '.log',
-    '.ini',
-    '.cfg',
-    '.conf',
-    '.yaml',
-    '.yml',
-    '.toml',
-    '.sh',
-    '.bat',
-    '.ps1',
-    '.dockerfile',
-    '.gitignore',
-    '.gitattributes',
-    '.editorconfig',
-    '.env',
-    '.properties',
-    '.gradle',
-    '.pom',
-    '.sbt',
-    '.build',
-    '.make',
-    '.cmake',
-    // Add file converter supported formats
-    '.pdf',
-    '.docx',
-    '.doc',
-    '.xlsx',
-    '.xls',
-  ]
-
-  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-  return textExtensions.includes(extension) || !filename.includes('.')
-}
-
-function getMimeTypeFromExtension(filename: string): string {
-  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-
-  const mimeTypeMap: Record<string, string> = {
-    // Text files
-    '.txt': 'text/plain',
-    '.md': 'text/markdown',
-    '.markdown': 'text/markdown',
-    '.html': 'text/html',
-    '.htm': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.ts': 'application/typescript',
-    '.json': 'application/json',
-    '.xml': 'application/xml',
-    '.yaml': 'application/x-yaml',
-    '.yml': 'application/x-yaml',
-    '.csv': 'text/csv',
-    '.tsv': 'text/tab-separated-values',
-
-    // Office documents
-    '.pdf': 'application/pdf',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.doc': 'application/msword',
-    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    '.xls': 'application/vnd.ms-excel',
-
-    // Code files
-    '.py': 'text/x-python',
-    '.java': 'text/x-java-source',
-    '.c': 'text/x-c',
-    '.cpp': 'text/x-c++',
-    '.h': 'text/x-c',
-    '.hpp': 'text/x-c++',
-    '.cs': 'text/x-csharp',
-    '.php': 'application/x-httpd-php',
-    '.rb': 'application/x-ruby',
-    '.go': 'text/x-go',
-    '.rs': 'text/x-rust',
-    '.sql': 'application/sql',
-
-    // Config files
-    '.ini': 'text/plain',
-    '.cfg': 'text/plain',
-    '.conf': 'text/plain',
-    '.env': 'text/plain',
-    '.properties': 'text/plain',
-    '.log': 'text/plain',
-
-    // Scripts
-    '.sh': 'application/x-sh',
-    '.bat': 'application/x-msdos-program',
-    '.ps1': 'application/x-powershell',
-  }
-
-  return mimeTypeMap[extension] || 'text/plain'
-}
