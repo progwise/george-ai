@@ -5,6 +5,7 @@ import { getUploadFilePath } from '@george-ai/file-management'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { prisma } from '../../prisma'
+import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 import { uriToMountedPath } from './smb-mount-manager'
@@ -26,6 +27,7 @@ const saveSmbCrawlerFile = async ({
   fileSize,
   fileModifiedTime,
   mountedFilePath,
+  processingError,
 }: {
   fileName: string
   fileUri: string
@@ -35,6 +37,7 @@ const saveSmbCrawlerFile = async ({
   fileSize: number
   fileModifiedTime: Date
   mountedFilePath: string
+  processingError?: string
 }) => {
   const fileUpdateData = {
     name: `${fileName}`,
@@ -42,6 +45,10 @@ const saveSmbCrawlerFile = async ({
     mimeType,
     size: fileSize,
     updatedAt: fileModifiedTime,
+    ...(processingError && {
+      processingErrorMessage: processingError,
+      processingErrorAt: new Date(),
+    }),
   }
 
   const file = await prisma.aiLibraryFile.upsert({
@@ -93,10 +100,39 @@ export async function* crawlSmb({
       try {
         console.log(`Processing SMB file: ${fileToProcess.uri}`)
 
-        // Convert URI to mounted filesystem path
+        // Check file size limits before processing
+        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
+
+        // Convert URI to mounted filesystem path and determine MIME type
         const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
-        // Determine MIME type from file extension
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
+
+        if (!sizeCheck.acceptable) {
+          console.warn(`SMB file too large ${fileToProcess.uri}: ${sizeCheck.reason}`)
+
+          // Still create file record but mark as failed due to size
+          const fileInfo = await saveSmbCrawlerFile({
+            fileName: fileToProcess.name,
+            crawlerId,
+            libraryId,
+            fileModifiedTime: fileToProcess.modifiedTime,
+            fileSize: fileToProcess.size,
+            mimeType,
+            fileUri: fileToProcess.uri,
+            mountedFilePath,
+            processingError: `File too large: ${sizeCheck.reason}`,
+          })
+
+          yield {
+            ...fileInfo,
+            hints: `SMB Crawler ${crawlerId} - file ${fileInfo.name} skipped due to size limit`,
+          }
+          continue
+        }
+
+        if (sizeCheck.shouldWarn) {
+          console.warn(`SMB file ${fileToProcess.uri}: ${sizeCheck.reason}`)
+        }
 
         const fileInfo = await saveSmbCrawlerFile({
           fileName: fileToProcess.name,

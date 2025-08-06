@@ -5,6 +5,7 @@ import { getUploadFilePath } from '@george-ai/file-management'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { prisma } from '../../prisma'
+import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
 import { parseSharePointUrl } from './sharepoint'
@@ -36,6 +37,7 @@ const saveSharepointCrawlerFile = async ({
   mimeType,
   fileSize,
   fileModifiedTime,
+  processingError,
 }: {
   fileName: string
   fileUri: string
@@ -47,6 +49,7 @@ const saveSharepointCrawlerFile = async ({
   mimeType: string
   fileSize: number
   fileModifiedTime: Date
+  processingError?: string
 }) => {
   const fileUpdateData = {
     name: `${fileName}`,
@@ -54,6 +57,10 @@ const saveSharepointCrawlerFile = async ({
     mimeType,
     size: parseInt(fileSize.toString()), // some sharepoint field is not a number
     updatedAt: fileModifiedTime,
+    ...(processingError && {
+      processingErrorMessage: processingError,
+      processingErrorAt: new Date(),
+    }),
   }
 
   const file = await prisma.aiLibraryFile.upsert({
@@ -196,12 +203,45 @@ export async function* crawlSharePoint({
             console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
 
             const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
+
+            // Check file size limits before processing
+            const sizeCheck = isFileSizeAcceptable(fileSize)
             const fileModifiedTime = new Date(item.Modified)
             const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
             const fileUri = `${apiUrl}${item.FileRef}`
-
-            // Determine MIME type from file extension
             const mimeType = getMimeTypeFromExtension(fileName)
+
+            if (!sizeCheck.acceptable) {
+              console.warn(`SharePoint file too large ${fileName}: ${sizeCheck.reason}`)
+
+              // Still create file record but mark as failed due to size
+              const fileInfo = await saveSharepointCrawlerFile({
+                siteUrl,
+                serverRelativeUrl,
+                authCookies,
+                fileName,
+                fileUri,
+                libraryId,
+                crawlerId,
+                mimeType,
+                fileSize,
+                fileModifiedTime,
+                processingError: `File too large: ${sizeCheck.reason}`,
+              })
+
+              yield {
+                id: fileInfo.id,
+                name: fileInfo.name,
+                originUri: fileInfo.originUri,
+                mimeType: fileInfo.mimeType,
+                hints: `SharePoint crawler - file ${fileInfo.name} skipped due to size limit`,
+              }
+              continue
+            }
+
+            if (sizeCheck.shouldWarn) {
+              console.warn(`SharePoint file ${fileName}: ${sizeCheck.reason}`)
+            }
 
             const fileInfo = await saveSharepointCrawlerFile({
               siteUrl,
