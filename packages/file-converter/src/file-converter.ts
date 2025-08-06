@@ -74,6 +74,9 @@ export async function transformToMarkdown(params: FileLoadParams): Promise<strin
       case 'text/html':
         return await transformHtmlToMarkdown(filePath)
 
+      case 'text/markdown':
+        return await fs.readFile(filePath, 'utf-8')
+
       case 'appliction/json': {
         const content = await fs.readFile(filePath, 'utf-8')
         return `\`\`\`json\n${content}\n\`\`\``
