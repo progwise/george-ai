@@ -7,6 +7,7 @@ import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 import { prisma } from '../../prisma'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
+import { parseSharePointUrl } from './sharepoint'
 import { getSharePointCredentials } from './sharepoint-credentials-manager'
 import { discoverSharePointSiteContent } from './sharepoint-discovery'
 
@@ -282,27 +283,4 @@ async function downloadSharePointFileToPath(
   await fs.promises.writeFile(filePath, Buffer.from(arrayBuffer))
 
   console.log(`Successfully downloaded file to: ${filePath}`)
-}
-
-function parseSharePointUrl(uri: string) {
-  console.log(`Parsing Sharepoint URI ${uri}`)
-  try {
-    const cleanUri = uri.endsWith('/') ? uri.slice(0, -1) : uri
-    const fullUrl = new URL(cleanUri)
-    const pathParts = fullUrl.pathname.split('/').filter((part) => part.length > 0)
-
-    // For downloading files, we need the base SharePoint site URL (without library path)
-    const siteUrl = new URL(`${fullUrl.protocol}//${fullUrl.host}`)
-    const apiUrl = new URL(`${fullUrl.protocol}//${fullUrl.host}/_api`)
-
-    const libName = pathParts[pathParts.length - 1]
-    const siteName = pathParts.slice(0, -1).join('/')
-
-    console.log(`Parsed - siteUrl: ${siteUrl}, apiUrl: ${apiUrl}, libName: ${libName}`)
-
-    return { siteUrl, apiUrl, siteName, libName }
-  } catch (error) {
-    console.error(`Error parsing sharepoint URL ${uri}`, error)
-    throw error
-  }
 }

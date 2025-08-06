@@ -7,6 +7,9 @@ import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
+
+import './sharepoint'
+
 import { removeSharePointCredentials, updateCrawlerSharePointCredentials } from './sharepoint-credentials-manager'
 import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount, updateCrawlerSmbMount } from './smb-mount-manager'
 

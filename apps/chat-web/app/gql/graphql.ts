@@ -617,6 +617,7 @@ export type Mutation = {
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
+  validateSharePointConnection: Scalars['Boolean']['output']
 }
 
 export type MutationActivateUserProfileArgs = {
@@ -848,6 +849,11 @@ export type MutationUpdateUserProfileArgs = {
 export type MutationUpsertAiBaseCasesArgs = {
   assistantId: Scalars['String']['input']
   baseCases: Array<AiBaseCaseInputType>
+}
+
+export type MutationValidateSharePointConnectionArgs = {
+  sharepointAuth: Scalars['String']['input']
+  uri: Scalars['String']['input']
 }
 
 export type Query = {
@@ -1953,6 +1959,13 @@ export type CreateContactRequestMutation = { __typename?: 'Mutation'; createCont
 export type VersionQueryVariables = Exact<{ [key: string]: never }>
 
 export type VersionQuery = { __typename?: 'Query'; version?: string | null }
+
+export type ValidateSharePointConnectionMutationVariables = Exact<{
+  uri: Scalars['String']['input']
+  sharepointAuth: Scalars['String']['input']
+}>
+
+export type ValidateSharePointConnectionMutation = { __typename?: 'Mutation'; validateSharePointConnection: boolean }
 
 export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -7863,6 +7876,49 @@ export const VersionDocument = {
     },
   ],
 } as unknown as DocumentNode<VersionQuery, VersionQueryVariables>
+export const ValidateSharePointConnectionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'validateSharePointConnection' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'uri' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sharepointAuth' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'validateSharePointConnection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'uri' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'uri' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sharepointAuth' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sharepointAuth' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ValidateSharePointConnectionMutation, ValidateSharePointConnectionMutationVariables>
 export const CreateAiLibraryCrawlerDocument = {
   kind: 'Document',
   definitions: [

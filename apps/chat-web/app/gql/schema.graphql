@@ -607,6 +607,7 @@ type Mutation {
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
+  validateSharePointConnection(sharepointAuth: String!, uri: String!): Boolean!
 }
 
 type Query {

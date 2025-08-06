@@ -23,20 +23,15 @@ export const getSharePointAuthSchema = (language: Language) => {
     sharepointAuth: z
       .string()
       .min(100, translate('crawlers.validationSharePointAuthTooShort', language))
-      .refine(
-        (value) => value.includes('FedAuth=') && value.includes('rtFa='),
-        {
-          message: translate('crawlers.validationSharePointAuthMissingTokens', language),
-        }
-      )
-      .refine(
-        (value) => value.includes(';') && value.includes('='),
-        {
-          message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
-        }
-      ),
+      .refine((value) => value.includes('FedAuth=') && value.includes('rtFa='), {
+        message: translate('crawlers.validationSharePointAuthMissingTokens', language),
+      })
+      .refine((value) => value.includes(';') && value.includes('='), {
+        message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
+      }),
   })
 }
+
 // Base schema for Input component validation
 export const getCrawlerFormBaseSchema = (language: Language) =>
   z.object({
@@ -73,7 +68,14 @@ export const getCrawlerFormSchema = (language: Language) =>
 
 export const getCrawlerFormData = (formData: FormData) => {
   const formDataObject = Object.fromEntries(formData)
-  console.log('formData', formDataObject)
+  // Log form data but redact sensitive information
+  const safeFormData = {
+    ...formDataObject,
+    username: formDataObject.username ? '***' : undefined,
+    password: formDataObject.password ? '***' : undefined,
+    sharepointAuth: formDataObject.sharepointAuth ? '***' : undefined,
+  }
+  console.log('formData', safeFormData)
   const {
     'cronjob.active': cronJobActive,
     'cronjob.time': cronJobTime,
@@ -171,7 +173,6 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
   const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
   const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler?.uriType || 'http')
-
 
   // Create dynamic schema based on selected URI type
   const crawlerFormSchema = useMemo(() => {
@@ -342,8 +343,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             <legend className="fieldset-legend">{t('crawlers.days')}</legend>
 
             <label className="label">
-              <input 
-                name="cronjob.monday" 
+              <input
+                name="cronjob.monday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.monday ?? true}
@@ -353,8 +354,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
 
             <label className="label">
-              <input 
-                name="cronjob.tuesday" 
+              <input
+                name="cronjob.tuesday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.tuesday ?? true}
@@ -364,8 +365,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
 
             <label className="label">
-              <input 
-                name="cronjob.wednesday" 
+              <input
+                name="cronjob.wednesday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.wednesday ?? true}
@@ -375,8 +376,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
 
             <label className="label">
-              <input 
-                name="cronjob.thursday" 
+              <input
+                name="cronjob.thursday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.thursday ?? true}
@@ -386,8 +387,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
 
             <label className="label">
-              <input 
-                name="cronjob.friday" 
+              <input
+                name="cronjob.friday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.friday ?? true}
@@ -397,8 +398,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
 
             <label className="label">
-              <input 
-                name="cronjob.saturday" 
+              <input
+                name="cronjob.saturday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.saturday ?? true}
@@ -408,8 +409,8 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
             </label>
 
             <label className="label">
-              <input 
-                name="cronjob.sunday" 
+              <input
+                name="cronjob.sunday"
                 type="checkbox"
                 className="checkbox checkbox-sm"
                 defaultChecked={crawler?.cronJob?.sunday ?? true}

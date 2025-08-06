@@ -9,10 +9,10 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
   .validator(async (data: FormData) => {
     const language = await getLanguage()
     const rawData = getCrawlerFormData(data)
-    
+
     // Parse and validate with Zod schema - this gives us proper typing
     const validatedData = getCrawlerFormSchema(language).parse(rawData)
-    
+
     // Additional validation for credentials
     if (validatedData.uriType === 'sharepoint' && !validatedData.sharepointAuth) {
       throw new Error('SharePoint crawlers require authentication cookies')
@@ -20,7 +20,28 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
     if (validatedData.uriType === 'smb' && (!validatedData.username || !validatedData.password)) {
       throw new Error('SMB crawlers require username and password')
     }
-    
+
+    // For SharePoint crawlers, validate the connection works using GraphQL mutation
+    if (validatedData.uriType === 'sharepoint' && validatedData.sharepointAuth) {
+      const validationResult = await backendRequest(
+        graphql(`
+          mutation validateSharePointConnection($uri: String!, $sharepointAuth: String!) {
+            validateSharePointConnection(uri: $uri, sharepointAuth: $sharepointAuth)
+          }
+        `),
+        {
+          uri: validatedData.uri,
+          sharepointAuth: validatedData.sharepointAuth,
+        },
+      )
+
+      if (!validationResult.validateSharePointConnection) {
+        throw new Error(
+          'Unable to connect to SharePoint with provided URL and cookies. Please check your URL and ensure cookies are valid.',
+        )
+      }
+    }
+
     return validatedData
   })
   .handler(async (ctx) => {
