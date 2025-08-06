@@ -84,27 +84,36 @@ const mimeTypes: Record<string, string> = {
   '.cmake': 'text/plain',
 }
 
+// Create reverse mapping once at module level
+const reverseMimeTypeMapping: Record<string, string> = {}
+for (const [ext, mime] of Object.entries(mimeTypes)) {
+  // Only add if not already in reverse mapping (prefer first match)
+  if (!reverseMimeTypeMapping[mime]) {
+    reverseMimeTypeMapping[mime] = ext
+  }
+}
+
+// Define preferred extensions for MIME types with multiple extensions
+const preferredExtensions: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'text/markdown': '.md', 
+  'text/html': '.html',
+  'application/x-yaml': '.yaml',
+  'text/plain': '.txt',
+  'application/xml': '.xml',
+}
+
 export function getMimeTypeFromExtension(filename: string): string {
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
   return mimeTypes[extension] || 'application/octet-stream'
 }
 
 export function getExtensionFromMimeType(mimeType: string): string {
-  // Create reverse mapping
-  const reverseMapping: Record<string, string> = {}
-  for (const [ext, mime] of Object.entries(mimeTypes)) {
-    // Only add if not already in reverse mapping (prefer first match)
-    if (!reverseMapping[mime]) {
-      reverseMapping[mime] = ext
-    }
+  // Check preferred extensions first
+  if (preferredExtensions[mimeType]) {
+    return preferredExtensions[mimeType]
   }
-
-  // Handle special cases where multiple extensions map to same MIME type
-  // Prefer more common extensions
-  if (mimeType === 'image/jpeg') return '.jpg'
-  if (mimeType === 'text/markdown') return '.md'
-  if (mimeType === 'text/html') return '.html'
-  if (mimeType === 'application/x-yaml') return '.yaml'
-
-  return reverseMapping[mimeType] || ''
+  
+  // Fall back to reverse mapping
+  return reverseMimeTypeMapping[mimeType] || ''
 }
