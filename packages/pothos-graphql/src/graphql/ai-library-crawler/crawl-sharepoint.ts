@@ -115,53 +115,42 @@ export async function* crawlSharePoint({
     )
   }
 
-  // For large libraries (>5000 items), iterate month by month backwards from now
-  // This keeps each query under the 5000 item threshold
-  const BATCH_SIZE = 100 // Small batch size per request
-  const TARGET_ITEMS_PER_BATCH = 5 // Process only 5 items at a time for fast response
+  // Iterate week by week backwards from now for 2 years (104 weeks)
+  const WEEKS_TO_SEARCH = 104 // 2 years worth of weeks
 
   const currentDate = new Date()
-  let monthsBack = 0
-  let itemsProcessedInCurrentBatch = 0
-  let consecutiveEmptyMonths = 0
-  const MAX_CONSECUTIVE_EMPTY_MONTHS = 3 // Stop after 3 consecutive months with no files
-  const MAX_MONTHS_TO_SEARCH = 24 // Don't go back more than 2 years
 
   const headers: Record<string, string> = {
     Accept: 'application/json;odata=verbose',
     Cookie: authCookies,
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   }
+
   try {
-    // Iterate month by month backwards from now until no more files or we hit maxPages
-    while (processedPages < maxPages) {
-      // Calculate month range (backwards from current date)
-      const monthStart = new Date(currentDate)
-      monthStart.setMonth(monthStart.getMonth() - monthsBack - 1) // Go to start of target month
-      monthStart.setDate(1) // First day of month
-      monthStart.setHours(0, 0, 0, 0)
+    // Iterate week by week backwards for 2 years
+    for (let weeksBack = 0; weeksBack < WEEKS_TO_SEARCH && processedPages < maxPages; weeksBack++) {
+      // Calculate week range (backwards from current date)
+      const weekStart = new Date(currentDate)
+      weekStart.setDate(weekStart.getDate() - (weeksBack + 1) * 7) // Go back N weeks
+      weekStart.setHours(0, 0, 0, 0)
 
-      const monthEnd = new Date(monthStart)
-      monthEnd.setMonth(monthEnd.getMonth() + 1) // Next month
-      monthEnd.setDate(0) // Last day of current month
-      monthEnd.setHours(23, 59, 59, 999)
+      const weekEnd = new Date(weekStart)
+      weekEnd.setDate(weekEnd.getDate() + 7) // Add 7 days
+      weekEnd.setHours(23, 59, 59, 999)
 
-      const startDateISO = monthStart.toISOString()
-      const endDateISO = monthEnd.toISOString()
+      const startDateISO = weekStart.toISOString()
+      const endDateISO = weekEnd.toISOString()
 
-      console.log(`📅 Processing month: ${monthStart.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}`)
+      console.log(
+        `📅 Processing week ${weeksBack + 1}/${WEEKS_TO_SEARCH}: ${weekStart.toLocaleDateString('en-US')} - ${weekEnd.toLocaleDateString('en-US')}`,
+      )
 
-      // Query this specific month range (should be well under 5000 items per month)
-      let currentUrl = `${apiUrl}/web/lists/getbytitle('${targetLibrary.title}')/items?$select=ID,Title,FileLeafRef,Modified,FileRef,File/ServerRelativeUrl,File/Length&$expand=File&$filter=FSObjType eq 0 and Modified ge datetime'${startDateISO}' and Modified le datetime'${endDateISO}'&$top=${BATCH_SIZE}&$orderby=Modified desc`
+      // Query this specific week range - fetch all items without $top limit
+      let currentUrl = `${apiUrl}/web/lists/getbytitle('${targetLibrary.title}')/items?$select=ID,Title,FileLeafRef,Modified,FileRef,File/ServerRelativeUrl,File/Length&$expand=File&$filter=FSObjType eq 0 and Modified ge datetime'${startDateISO}' and Modified le datetime'${endDateISO}'&$orderby=Modified desc`
 
-      let foundFilesInMonth = false
-      itemsProcessedInCurrentBatch = 0
-
-      // Process all pages for this month
-      while (currentUrl && processedPages < maxPages && itemsProcessedInCurrentBatch < TARGET_ITEMS_PER_BATCH) {
-        console.log(
-          `📦 Fetching files from ${monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}...`,
-        )
+      // Process all pages for this week
+      while (currentUrl && processedPages < maxPages) {
+        console.log(`📦 Fetching files from week ${weeksBack + 1}...`)
 
         const response = await fetch(currentUrl, {
           method: 'GET',
@@ -171,8 +160,8 @@ export async function* crawlSharePoint({
         if (!response.ok) {
           const errorText = await response.text()
           if (response.status === 500 && errorText.includes('SPQueryThrottledException')) {
-            console.error(`❌ SharePoint throttling error for month ${monthStart.toLocaleDateString()}`)
-            break // Skip this month and try the next one
+            console.error(`❌ SharePoint throttling error for week ${weeksBack + 1}`)
+            break // Skip this week and try the next one
           }
           throw new Error(`SharePoint API request failed: ${response.status} ${response.statusText}`)
         }
@@ -186,28 +175,24 @@ export async function* crawlSharePoint({
 
         const data = JSON.parse(responseText)
         const items: SharePointListItem[] = data.d?.results || []
-        console.log(
-          `📋 Found ${items.length} items in ${monthStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`,
-        )
+        console.log(`📋 Found ${items.length} items in week ${weeksBack + 1}`)
 
         if (items.length === 0) {
-          break // No more items in this month
+          console.log(`📊 No files found in week ${weeksBack + 1}`)
+          break // No more items in this week, move to next week
         }
 
-        foundFilesInMonth = true
-
-        // Process files from this month
+        // Process all files from this week
         for (const item of items) {
-          if (processedPages >= maxPages || itemsProcessedInCurrentBatch >= TARGET_ITEMS_PER_BATCH) break
+          if (processedPages >= maxPages) break
 
           const fileName = item.FileLeafRef || item.Title || `Item_${item.ID}`
           // Process all files - let the processor decide what to do with them
 
           processedPages++
-          itemsProcessedInCurrentBatch++
 
           try {
-            console.log(`Processing file (${itemsProcessedInCurrentBatch}/${TARGET_ITEMS_PER_BATCH}): ${fileName}`)
+            console.log(`Processing file ${processedPages}/${maxPages}: ${fileName}`)
 
             const fileSize = item.File?.Length || item.FileSizeDisplay || item.File_x0020_Size || 0
             const fileModifiedTime = new Date(item.Modified)
@@ -244,39 +229,8 @@ export async function* crawlSharePoint({
           }
         }
 
-        // Stop processing this batch if we've reached the target, but continue to next month if needed
-        if (itemsProcessedInCurrentBatch >= TARGET_ITEMS_PER_BATCH) {
-          console.log(`✅ Processed ${itemsProcessedInCurrentBatch} files in this batch`)
-          break // Break from the current month's processing, continue to next month
-        }
-
-        // Get next page for this month
+        // Get next page for this week
         currentUrl = data.d?.__next || null
-      }
-
-      // Track consecutive empty months
-      if (!foundFilesInMonth) {
-        consecutiveEmptyMonths++
-        console.log(
-          `📊 No files found in ${monthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} (${consecutiveEmptyMonths}/${MAX_CONSECUTIVE_EMPTY_MONTHS} consecutive empty months)`,
-        )
-
-        // Stop if we've had too many consecutive empty months
-        if (consecutiveEmptyMonths >= MAX_CONSECUTIVE_EMPTY_MONTHS) {
-          console.log(`📊 Stopping after ${MAX_CONSECUTIVE_EMPTY_MONTHS} consecutive months with no files`)
-          break
-        }
-      } else {
-        // Reset counter if we found files
-        consecutiveEmptyMonths = 0
-      }
-
-      monthsBack++
-
-      // Safety check - don't go back more than MAX_MONTHS_TO_SEARCH
-      if (monthsBack >= MAX_MONTHS_TO_SEARCH) {
-        console.log(`📊 Reached ${MAX_MONTHS_TO_SEARCH} month limit - stopping search`)
-        break
       }
     }
 

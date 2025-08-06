@@ -238,6 +238,11 @@ export default {
     requiredField: 'Required',
     unexpectedError: 'An unexpected error occurred',
   },
+  files: {
+    noContentAvailable: 'No content available',
+    noSourcesAvailable: 'No sources available',
+    sources: 'Sources:',
+  },
   flowLocal: 'Flow: Only Local',
   flowParallel: 'Flow: Parallel',
   flowSequential: 'Flow: Sequential',

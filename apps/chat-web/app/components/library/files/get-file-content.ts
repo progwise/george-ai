@@ -26,7 +26,7 @@ const getFileContent = createServerFn({ method: 'GET' })
       return result.readFileMarkdown || ''
     } catch (error) {
       console.error(`Error fetching file content for fileId ${data.fileId}:`, error)
-      return ''
+      return null
     }
   })
 

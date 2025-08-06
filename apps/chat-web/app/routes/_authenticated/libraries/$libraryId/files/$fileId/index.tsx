@@ -24,5 +24,5 @@ function RouteComponent() {
   const { data: fileContent } = useSuspenseQuery(getFileContentQueryOptions({ fileId, libraryId }))
   const { data: fileSources } = useSuspenseQuery(getFileSourcesQueryOptions({ fileId, libraryId }))
 
-  return <>{fileContent ? <FileContent sources={fileSources} markdown={fileContent} /> : <p>No content available</p>}</>
+  return <FileContent sources={fileSources} markdown={fileContent} />
 }

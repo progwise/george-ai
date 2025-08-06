@@ -96,7 +96,7 @@ for (const [ext, mime] of Object.entries(mimeTypes)) {
 // Define preferred extensions for MIME types with multiple extensions
 const preferredExtensions: Record<string, string> = {
   'image/jpeg': '.jpg',
-  'text/markdown': '.md', 
+  'text/markdown': '.md',
   'text/html': '.html',
   'application/x-yaml': '.yaml',
   'text/plain': '.txt',
@@ -113,7 +113,7 @@ export function getExtensionFromMimeType(mimeType: string): string {
   if (preferredExtensions[mimeType]) {
     return preferredExtensions[mimeType]
   }
-  
+
   // Fall back to reverse mapping
   return reverseMimeTypeMapping[mimeType] || ''
 }
