@@ -1,6 +1,7 @@
 /// <reference types="vite/types/importMeta.d.ts" />
 import 'dotenv/config'
 
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
@@ -29,12 +30,13 @@ console.log(`
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
-  context: async ({ request }) => getUserContext((key) => request.headers.get(key)),
+  context: async ({ request }) => getUserContext(() => request.headers.get('x-user-jwt')),
 })
 
 const app = express()
 
 app.use(cors())
+app.use(cookieParser())
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', avatarMiddleware)
 app.use('/upload', dataUploadMiddleware)

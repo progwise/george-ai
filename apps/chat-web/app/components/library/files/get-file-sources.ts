@@ -3,7 +3,7 @@ import { getCookie } from '@tanstack/react-start/server'
 import { z } from 'zod'
 
 import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../../../auth/auth'
-import { BACKEND_URL } from '../../../constants'
+import { BACKEND_PUBLIC_URL, BACKEND_URL } from '../../../constants'
 
 const getFileSources = createServerFn({ method: 'GET' })
   .validator((data: { fileId: string; libraryId: string }) =>
@@ -29,7 +29,11 @@ const getFileSources = createServerFn({ method: 'GET' })
       const responseText = await response.text()
       throw new Error(responseText)
     }
-    return (await response.json()) as string[]
+    const fileNames = (await response.json()) as string[]
+    return fileNames.map((fileName) => ({
+      fileName,
+      link: BACKEND_PUBLIC_URL + `/library-files/${data.libraryId}/${data.fileId}?filename=${fileName}`,
+    }))
   })
 
 export const getFileSourcesQueryOptions = (params: { fileId: string; libraryId: string }) => ({

@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { getFileDir } from '@george-ai/file-management'
+import { getMimeTypeForFile } from '@george-ai/pothos-graphql'
 import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 import { getUserContext } from './getUserContext'
@@ -11,7 +12,13 @@ export const libraryFiles = async (request: Request, response: Response) => {
   const { libraryId, fileId } = request.params
   const fileName = request.query['filename'] as string
 
-  const context = await getUserContext((key) => (request.headers[key] ? request.headers[key].toString() : null))
+  const context = await getUserContext(() => {
+    let token = request.headers['x-user-jwt'] ? request.headers['x-user-jwt'].toString() : null
+    if (!token) {
+      token = request.cookies['keycloak-token']
+    }
+    return token
+  })
 
   if (!context.session?.user) {
     response.status(401).end()
@@ -19,7 +26,7 @@ export const libraryFiles = async (request: Request, response: Response) => {
   }
 
   try {
-    const libraryFilePath = getFileDir({ libraryId, fileId, errorIfNotExists: true }) // Attention: Generates random directories. Need to check if libraryId/fileId pair exists, if not reject
+    const libraryFilePath = getFileDir({ libraryId, fileId, errorIfNotExists: true })
     const fileNames = await fs.promises.readdir(libraryFilePath)
 
     if (!fileName) {
@@ -46,7 +53,10 @@ export const libraryFiles = async (request: Request, response: Response) => {
 
     // Get file stats for size and content type determination
     const stats = await fs.promises.stat(fullFilePath)
-    const mimeType = getMimeTypeFromExtension(fileName)
+    let mimeType = getMimeTypeFromExtension(fileName)
+    if (fileName === 'upload') {
+      mimeType = await getMimeTypeForFile(fileId)
+    }
 
     // Set appropriate headers
     response.setHeader('Content-Type', mimeType)
