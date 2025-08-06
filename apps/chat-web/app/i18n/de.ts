@@ -219,11 +219,14 @@ export default {
     validationSharePointAuthMissingTokens:
       'SharePoint-Cookies müssen gültige Authentifizierungs-Token enthalten (FedAuth, rtFa, SPOIDCRL oder benutzerdefinierte Authentifizierung).',
     validationSharePointAuthTooShort: 'SharePoint-Cookies müssen mindestens 20 Zeichen lang sein.',
-    validationSharePointAuthenticationError: 'Authentifizierung fehlgeschlagen. Bitte aktualisieren Sie Ihre SharePoint-Cookies und versuchen Sie es erneut.',
+    validationSharePointAuthenticationError:
+      'Authentifizierung fehlgeschlagen. Bitte aktualisieren Sie Ihre SharePoint-Cookies und versuchen Sie es erneut.',
     validationSharePointLibraryNotFound: 'Die angegebene Dokumentbibliothek wurde nicht gefunden.',
-    validationSharePointNetworkError: 'Netzwerkfehler beim Verbinden mit SharePoint. Bitte überprüfen Sie Ihre Verbindung.',
+    validationSharePointNetworkError:
+      'Netzwerkfehler beim Verbinden mit SharePoint. Bitte überprüfen Sie Ihre Verbindung.',
     validationSharePointNotFound: 'SharePoint-Site nicht gefunden. Bitte überprüfen Sie die URL.',
-    validationSharePointUnknownError: 'SharePoint-Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre URL und Cookies.',
+    validationSharePointUnknownError:
+      'SharePoint-Validierung fehlgeschlagen. Bitte überprüfen Sie Ihre URL und Cookies.',
     validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
   },
   errors: {

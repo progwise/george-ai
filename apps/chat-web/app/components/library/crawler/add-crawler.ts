@@ -43,7 +43,7 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
       if (!result.success) {
         // Provide more specific error messages based on error type using translations
         let errorMessage: string
-        
+
         switch (result.errorType) {
           case 'AUTHENTICATION_ERROR':
             errorMessage = translate('crawlers.validationSharePointAuthenticationError', language)
@@ -64,7 +64,7 @@ export const addCrawlerFunction = createServerFn({ method: 'POST' })
             errorMessage = translate('crawlers.validationSharePointUnknownError', language)
             break
         }
-        
+
         throw new Error(errorMessage)
       }
     }
