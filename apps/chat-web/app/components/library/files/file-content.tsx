@@ -9,7 +9,6 @@ export const FileContent = ({
   sources: { fileName: string; link: string }[]
 }) => {
   const { t } = useTranslation()
-  console.log('FileContent', sources)
   return (
     <div className="card bg-base-100 shadow-sm">
       <div className="breadcrumbs text-sm">

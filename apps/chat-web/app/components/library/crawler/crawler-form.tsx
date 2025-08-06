@@ -4,6 +4,8 @@ import { z } from 'zod'
 
 import { HTTP_URI_PATTERN, SHAREPOINT_URI_PATTERN, SMB_URI_PATTERN } from '@george-ai/web-utils'
 
+import { graphql } from '../../../gql'
+import { CrawlerForm_CrawlerFragment } from '../../../gql/graphql'
 import { AiLibraryCrawlerCronJobInputSchema } from '../../../gql/validation'
 import { Language, translate } from '../../../i18n'
 import { useTranslation } from '../../../i18n/use-translation-hook'
@@ -112,24 +114,40 @@ export interface CrawlerFormData {
   } | null
 }
 
+graphql(`
+  fragment CrawlerForm_Crawler on AiLibraryCrawler {
+    id
+    libraryId
+    uri
+    uriType
+    maxDepth
+    maxPages
+    cronJob {
+      id
+      active
+      hour
+      minute
+      monday
+      tuesday
+      wednesday
+      thursday
+      friday
+      saturday
+      sunday
+    }
+  }
+`)
+
 interface CrawlerFormProps {
   libraryId: string
+  crawler?: CrawlerForm_CrawlerFragment
 }
 
-export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
+export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
   const { t, language } = useTranslation()
-  const [scheduleActive, setScheduleActive] = useState(false)
-  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>('http')
+  const [scheduleActive, setScheduleActive] = useState(!!crawler?.cronJob?.active)
+  const [selectedUriType, setSelectedUriType] = useState<'http' | 'smb' | 'sharepoint'>(crawler?.uriType || 'http')
 
-  const cronWeekdayFields = useMemo(
-    () => ({
-      type: 'checkbox',
-      className: 'checkbox checkbox-sm',
-      defaultChecked: true,
-      disabled: !scheduleActive,
-    }),
-    [scheduleActive],
-  )
 
   // Create dynamic schema based on selected URI type
   const crawlerFormSchema = useMemo(() => {
@@ -152,6 +170,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
   return (
     <div>
       <input type="hidden" name="libraryId" value={libraryId} />
+      {crawler?.id && <input type="hidden" name="id" value={crawler.id} />}
       <div className="flex justify-end gap-4">
         <label className="flex gap-2 text-xs">
           <input
@@ -159,7 +178,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
             name="uriType"
             value="http"
             className="radio radio-sm"
-            defaultChecked
+            checked={selectedUriType === 'http'}
             onChange={() => setSelectedUriType('http')}
             required
           />
@@ -171,6 +190,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
             name="uriType"
             value="smb"
             className="radio radio-sm"
+            checked={selectedUriType === 'smb'}
             onChange={() => setSelectedUriType('smb')}
           />
           <span>{t('crawlers.uriTypeSmb')}</span>
@@ -181,6 +201,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
             name="uriType"
             value="sharepoint"
             className="radio radio-sm"
+            checked={selectedUriType === 'sharepoint'}
             onChange={() => setSelectedUriType('sharepoint')}
           />
           <span>{t('crawlers.uriTypeSharepoint')}</span>
@@ -188,6 +209,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
       </div>
       <Input
         name="uri"
+        value={crawler?.uri || ''}
         placeholder={t('crawlers.placeholders.uri')}
         label={t('crawlers.uri')}
         schema={crawlerFormSchema}
@@ -198,6 +220,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
         <Input
           name="maxDepth"
           type="number"
+          value={crawler?.maxDepth ?? 2}
           placeholder={t('crawlers.placeholders.maxDepth')}
           label={t('crawlers.maxDepth')}
           schema={crawlerFormSchema}
@@ -206,6 +229,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
         <Input
           name="maxPages"
           type="number"
+          value={crawler?.maxPages ?? 10}
           placeholder={t('crawlers.placeholders.maxPages')}
           label={t('crawlers.maxPages')}
           schema={crawlerFormSchema}
@@ -264,7 +288,7 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
           <label className="label text-base-content mt-4 font-semibold">
             <input
               name="cronjob.active"
-              defaultChecked={false}
+              defaultChecked={scheduleActive}
               type="checkbox"
               className="checkbox checkbox-sm"
               onChange={(event) => setScheduleActive(event.currentTarget.checked)}
@@ -278,7 +302,11 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
               name="cronjob.time"
               className="input pr-10"
               required={scheduleActive}
-              defaultValue="00:00"
+              defaultValue={
+                crawler?.cronJob && crawler.cronJob.hour !== undefined && crawler.cronJob.minute !== undefined
+                  ? `${crawler.cronJob.hour.toString().padStart(2, '0')}:${crawler.cronJob.minute.toString().padStart(2, '0')}`
+                  : '00:00'
+              }
               disabled={!scheduleActive}
             />
             {t('crawlers.utcHint')}
@@ -289,37 +317,79 @@ export const CrawlerForm = ({ libraryId }: CrawlerFormProps) => {
             <legend className="fieldset-legend">{t('crawlers.days')}</legend>
 
             <label className="label">
-              <input name="cronjob.monday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.monday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.monday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.monday')}
             </label>
 
             <label className="label">
-              <input name="cronjob.tuesday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.tuesday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.tuesday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.tuesday')}
             </label>
 
             <label className="label">
-              <input name="cronjob.wednesday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.wednesday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.wednesday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.wednesday')}
             </label>
 
             <label className="label">
-              <input name="cronjob.thursday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.thursday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.thursday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.thursday')}
             </label>
 
             <label className="label">
-              <input name="cronjob.friday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.friday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.friday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.friday')}
             </label>
 
             <label className="label">
-              <input name="cronjob.saturday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.saturday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.saturday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.saturday')}
             </label>
 
             <label className="label">
-              <input name="cronjob.sunday" {...cronWeekdayFields} />
+              <input 
+                name="cronjob.sunday" 
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                defaultChecked={crawler?.cronJob?.sunday ?? true}
+                disabled={!scheduleActive}
+              />
               {t('labels.sunday')}
             </label>
           </fieldset>

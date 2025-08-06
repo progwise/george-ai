@@ -1965,6 +1965,30 @@ export type CreateAiLibraryCrawlerMutation = {
   createAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
 }
 
+export type CrawlerForm_CrawlerFragment = {
+  __typename?: 'AiLibraryCrawler'
+  id: string
+  libraryId: string
+  uri: string
+  uriType: AiLibraryCrawlerUriType
+  maxDepth: number
+  maxPages: number
+  cronJob?: {
+    __typename?: 'AiLibraryCrawlerCronJob'
+    id: string
+    active: boolean
+    hour: number
+    minute: number
+    monday: boolean
+    tuesday: boolean
+    wednesday: boolean
+    thursday: boolean
+    friday: boolean
+    saturday: boolean
+    sunday: boolean
+  } | null
+}
+
 export type CrawlerTable_LibraryCrawlerFragment = {
   __typename?: 'AiLibraryCrawler'
   id: string
@@ -5056,6 +5080,47 @@ export const ConversationDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationDetailFragment, unknown>
+export const CrawlerForm_CrawlerFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerForm_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CrawlerForm_CrawlerFragment, unknown>
 export const RunCrawlerButton_CrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8124,6 +8189,7 @@ export const GetCrawlerDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'CrawlerForm_Crawler' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
@@ -8167,6 +8233,42 @@ export const GetCrawlerDocument = {
                     ],
                   },
                 },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerForm_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
               ],
             },
           },
