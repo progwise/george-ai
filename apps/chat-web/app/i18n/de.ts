@@ -216,8 +216,9 @@ export default {
     utcHint: 'UTC-Zeitzone',
     validationPasswordRequired: 'Passwort braucht mindestens 2 Zeichen.',
     validationSharePointAuthInvalidFormat: 'Ungültiges Cookie-Format - sollte "name=wert; name=wert; ..." sein.',
-    validationSharePointAuthMissingTokens: 'SharePoint-Cookies müssen sowohl FedAuth- als auch rtFa-Token enthalten.',
-    validationSharePointAuthTooShort: 'SharePoint-Cookies müssen mindestens 100 Zeichen lang sein.',
+    validationSharePointAuthMissingTokens:
+      'SharePoint-Cookies müssen gültige Authentifizierungs-Token enthalten (FedAuth, rtFa, SPOIDCRL oder benutzerdefinierte Authentifizierung).',
+    validationSharePointAuthTooShort: 'SharePoint-Cookies müssen mindestens 20 Zeichen lang sein.',
     validationUsernameRequired: 'Benutzername braucht mindestens 2 Zeichen.',
   },
   errors: {

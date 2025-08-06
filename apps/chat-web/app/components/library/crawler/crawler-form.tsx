@@ -22,13 +22,37 @@ export const getSharePointAuthSchema = (language: Language) => {
   return z.object({
     sharepointAuth: z
       .string()
-      .min(100, translate('crawlers.validationSharePointAuthTooShort', language))
-      .refine((value) => value.includes('FedAuth=') && value.includes('rtFa='), {
-        message: translate('crawlers.validationSharePointAuthMissingTokens', language),
-      })
-      .refine((value) => value.includes(';') && value.includes('='), {
-        message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
-      }),
+      .min(20, translate('crawlers.validationSharePointAuthTooShort', language))
+      .refine(
+        (value) => {
+          // Check for valid cookie format (name=value pairs)
+          const cookiePattern = /^[^=;]+=.*/
+          if (!cookiePattern.test(value)) return false
+
+          // Must contain at least one SharePoint authentication cookie
+          const hasTraditionalAuth = value.includes('FedAuth=') || value.includes('rtFa=')
+          const hasModernAuth = value.includes('SPOIDCRL=') || value.includes('SPOCC=')
+          const hasCustomAuth =
+            value.includes('NTLM') ||
+            value.includes('Negotiate') ||
+            value.includes('SAML') ||
+            value.includes('WSFederation')
+
+          return hasTraditionalAuth || hasModernAuth || hasCustomAuth
+        },
+        {
+          message: translate('crawlers.validationSharePointAuthMissingTokens', language),
+        },
+      )
+      .refine(
+        (value) => {
+          // Basic cookie format validation - should have key=value structure
+          return value.includes('=') && !value.startsWith('=') && !value.endsWith('=')
+        },
+        {
+          message: translate('crawlers.validationSharePointAuthInvalidFormat', language),
+        },
+      ),
   })
 }
 
