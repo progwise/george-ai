@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 
 import { graphql } from '../../../gql'
-import { getLanguage } from '../../../i18n'
+import { getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 import { getCrawlerFormData, getCrawlerFormSchema } from './crawler-form'
 
@@ -25,7 +25,11 @@ export const updateCrawlerFunction = createServerFn({ method: 'POST' })
       const validationResult = await backendRequest(
         graphql(`
           mutation validateSharePointConnection($uri: String!, $sharepointAuth: String!) {
-            validateSharePointConnection(uri: $uri, sharepointAuth: $sharepointAuth)
+            validateSharePointConnection(uri: $uri, sharepointAuth: $sharepointAuth) {
+              success
+              errorMessage
+              errorType
+            }
           }
         `),
         {
@@ -34,10 +38,33 @@ export const updateCrawlerFunction = createServerFn({ method: 'POST' })
         },
       )
 
-      if (!validationResult.validateSharePointConnection) {
-        throw new Error(
-          'Unable to connect to SharePoint with provided URL and cookies. Please check your URL and ensure cookies are valid.',
-        )
+      const result = validationResult.validateSharePointConnection
+      if (!result.success) {
+        // Provide more specific error messages based on error type using translations
+        let errorMessage: string
+        
+        switch (result.errorType) {
+          case 'AUTHENTICATION_ERROR':
+            errorMessage = translate('crawlers.validationSharePointAuthenticationError', language)
+            break
+          case 'NOT_FOUND':
+            errorMessage = translate('crawlers.validationSharePointNotFound', language)
+            break
+          case 'NETWORK_ERROR':
+            errorMessage = translate('crawlers.validationSharePointNetworkError', language)
+            break
+          case 'LIBRARY_NOT_FOUND':
+            errorMessage = translate('crawlers.validationSharePointLibraryNotFound', language)
+            if (result.errorMessage) {
+              errorMessage += ` ${result.errorMessage}`
+            }
+            break
+          default:
+            errorMessage = translate('crawlers.validationSharePointUnknownError', language)
+            break
+        }
+        
+        throw new Error(errorMessage)
       }
     }
 

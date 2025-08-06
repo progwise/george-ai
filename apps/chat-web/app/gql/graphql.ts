@@ -617,7 +617,7 @@ export type Mutation = {
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
-  validateSharePointConnection: Scalars['Boolean']['output']
+  validateSharePointConnection: SharePointValidationResult
 }
 
 export type MutationActivateUserProfileArgs = {
@@ -966,6 +966,13 @@ export type QueryReadFileMarkdownArgs = {
 
 export type QueryUserArgs = {
   email: Scalars['String']['input']
+}
+
+export type SharePointValidationResult = {
+  __typename?: 'SharePointValidationResult'
+  errorMessage?: Maybe<Scalars['String']['output']>
+  errorType?: Maybe<Scalars['String']['output']>
+  success?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type User = {
@@ -1965,7 +1972,15 @@ export type ValidateSharePointConnectionMutationVariables = Exact<{
   sharepointAuth: Scalars['String']['input']
 }>
 
-export type ValidateSharePointConnectionMutation = { __typename?: 'Mutation'; validateSharePointConnection: boolean }
+export type ValidateSharePointConnectionMutation = {
+  __typename?: 'Mutation'
+  validateSharePointConnection: {
+    __typename?: 'SharePointValidationResult'
+    success?: boolean | null
+    errorMessage?: string | null
+    errorType?: string | null
+  }
+}
 
 export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -7913,6 +7928,14 @@ export const ValidateSharePointConnectionDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'sharepointAuth' } },
               },
             ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorType' } },
+              ],
+            },
           },
         ],
       },

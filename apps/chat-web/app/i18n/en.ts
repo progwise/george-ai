@@ -216,6 +216,11 @@ export default {
     validationSharePointAuthMissingTokens:
       'SharePoint cookies must include valid authentication tokens (FedAuth, rtFa, SPOIDCRL, or custom auth).',
     validationSharePointAuthTooShort: 'SharePoint cookies must be at least 20 characters long.',
+    validationSharePointAuthenticationError: 'Authentication failed. Please refresh your SharePoint cookies and try again.',
+    validationSharePointLibraryNotFound: 'The specified document library was not found.',
+    validationSharePointNetworkError: 'Network error connecting to SharePoint. Please check your connection.',
+    validationSharePointNotFound: 'SharePoint site not found. Please check the URL.',
+    validationSharePointUnknownError: 'SharePoint validation failed. Please check your URL and cookies.',
     validationUsernameRequired: 'Username must be > 2 characters.',
   },
   errors: {
