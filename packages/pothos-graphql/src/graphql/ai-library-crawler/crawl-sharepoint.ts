@@ -328,7 +328,7 @@ export async function* crawlSharePoint({
             const sizeCheck = isFileSizeAcceptable(fileSize)
             const fileModifiedTime = new Date(item.Modified)
             const serverRelativeUrl = item.File?.ServerRelativeUrl || item.FileRef
-            const fileUri = `${apiUrl}${item.FileRef}`
+            const fileUri = `${siteUrl.origin}${item.FileRef}`
             const mimeType = getMimeTypeFromExtension(fileName)
 
             if (!sizeCheck.acceptable) {
@@ -400,7 +400,7 @@ export async function* crawlSharePoint({
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error)
             console.error(`Error processing SharePoint file ${fileName}:`, errorMessage)
-            yield { hints: `Sharepoint crawl error for ${apiUrl}${item.FileRef}`, errorMessage: errorMessage }
+            yield { hints: `Sharepoint crawl error for ${siteUrl.origin}${item.FileRef}`, errorMessage: errorMessage }
           }
         }
 
