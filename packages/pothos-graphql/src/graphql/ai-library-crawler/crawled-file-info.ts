@@ -5,4 +5,5 @@ export interface CrawledFileInfo {
   errorMessage?: string | null
   originUri?: string | null
   name?: string | null
+  skipProcessing?: boolean
 }

@@ -102,6 +102,14 @@ function RouteComponent() {
           <span>
             {t('texts.fileProcessed')}: {dateTimeString(fileInfo.aiLibraryFile.processedAt, language)}
           </span>
+          {fileInfo.aiLibraryFile.originModificationDate && (
+            <>
+              <span className="mx-2">|</span>
+              <span>
+                {t('texts.originModified')}: {dateTimeString(fileInfo.aiLibraryFile.originModificationDate, language)}
+              </span>
+            </>
+          )}
           {fileInfo.aiLibraryFile.processingErrorMessage && (
             <>
               <span className="text-red-500">
@@ -110,6 +118,31 @@ function RouteComponent() {
             </>
           )}
         </div>
+        {fileInfo.aiLibraryFile.lastUpdate && (
+          <div className="mt-2 text-sm">
+            <span className="text-gray-600">{t('texts.lastUpdate')}:</span>
+            <span className="ml-2">
+              {/* Determine status based on message content and success */}
+              {(() => {
+                const isSkipped = fileInfo.aiLibraryFile.lastUpdate.message?.toLowerCase().includes('skip') || false
+                if (!fileInfo.aiLibraryFile.lastUpdate.success) {
+                  return <span className="badge badge-error">Error</span>
+                } else if (isSkipped) {
+                  return <span className="badge badge-warning">{t('updates.skipped')}</span>
+                } else {
+                  return <span className="badge badge-success">{t('updates.processed')}</span>
+                }
+              })()}
+            </span>
+            <span className="ml-2 text-gray-500">
+              {dateTimeString(fileInfo.aiLibraryFile.lastUpdate.createdAt, language)}
+            </span>
+            {/* Only show message if there was an error */}
+            {!fileInfo.aiLibraryFile.lastUpdate.success && (
+              <div className="mt-1 text-xs text-red-600">{fileInfo.aiLibraryFile.lastUpdate.message}</div>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex justify-end">
         <ul className="menu bg-base-200 menu-horizontal rounded-box gap-2">

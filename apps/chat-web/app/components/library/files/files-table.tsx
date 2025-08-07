@@ -27,6 +27,7 @@ graphql(`
     processedAt
     processingErrorMessage
     dropError
+    originModificationDate
   }
 `)
 interface FilesTableProps {
@@ -153,6 +154,12 @@ export const FilesTable = ({
                 <span>{file.chunks ?? '-'}</span>
                 <span className="">{t('labels.processed')}:</span>
                 <span>{dateTimeString(file.processedAt, language) || '-'}</span>
+                {file.originModificationDate && (
+                  <>
+                    <span className="">{t('labels.originModified')}:</span>
+                    <span>{dateTimeString(file.originModificationDate, language)}</span>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -177,6 +184,7 @@ export const FilesTable = ({
               <th>#{t('labels.size')}</th>
               <th>#{t('labels.chunks')}</th>
               <th>{t('labels.processed')}</th>
+              <th>{t('labels.originModified')}</th>
               <th>{t('labels.actions')}</th>
             </tr>
           </thead>
@@ -202,6 +210,7 @@ export const FilesTable = ({
                 <td>{file.size ?? '-'}</td>
                 <td>{file.chunks ?? '-'}</td>
                 <td>{dateTimeString(file.processedAt, language) || '-'}</td>
+                <td>{file.originModificationDate ? dateTimeString(file.originModificationDate, language) : '-'}</td>
                 <td className="flex items-center gap-2">
                   <Link
                     to="/libraries/$libraryId/files/$fileId"

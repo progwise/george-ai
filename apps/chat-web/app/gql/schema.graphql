@@ -345,9 +345,11 @@ type AiLibraryFile {
   docPath: String
   dropError: String
   id: ID!
+  lastUpdate: AiLibraryUpdate
   libraryId: String!
   mimeType: String!
   name: String!
+  originModificationDate: DateTime
   originUri: String
   processedAt: DateTime
   processingEndedAt: DateTime

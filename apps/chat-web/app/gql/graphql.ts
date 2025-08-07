@@ -371,9 +371,11 @@ export type AiLibraryFile = {
   docPath?: Maybe<Scalars['String']['output']>
   dropError?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  lastUpdate?: Maybe<AiLibraryUpdate>
   libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
+  originModificationDate?: Maybe<Scalars['DateTime']['output']>
   originUri?: Maybe<Scalars['String']['output']>
   processedAt?: Maybe<Scalars['DateTime']['output']>
   processingEndedAt?: Maybe<Scalars['DateTime']['output']>
@@ -2268,6 +2270,7 @@ export type AiLibraryFile_TableItemFragment = {
   processedAt?: string | null
   processingErrorMessage?: string | null
   dropError?: string | null
+  originModificationDate?: string | null
 }
 
 export type GetFileChunksQueryVariables = Exact<{
@@ -2324,6 +2327,14 @@ export type GetFileInfoQuery = {
     updatedAt?: string | null
     processedAt?: string | null
     processingErrorMessage?: string | null
+    originModificationDate?: string | null
+    lastUpdate?: {
+      __typename?: 'AiLibraryUpdate'
+      id: string
+      createdAt: string
+      message?: string | null
+      success: boolean
+    } | null
   }
 }
 
@@ -2355,6 +2366,7 @@ export type EmbeddingsTableQuery = {
       processedAt?: string | null
       processingErrorMessage?: string | null
       dropError?: string | null
+      originModificationDate?: string | null
     }>
   }
 }
@@ -5243,6 +5255,7 @@ export const AiLibraryFile_TableItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
         ],
       },
     },
@@ -8962,6 +8975,20 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastUpdate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -9066,6 +9093,7 @@ export const EmbeddingsTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
         ],
       },
     },

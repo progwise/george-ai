@@ -172,6 +172,8 @@ model AiLibraryFile {
   processingErrorMessage String?
   crawledByCrawlerId     String?
   crawledByCrawler       AiLibraryCrawler? @relation(fields: [crawledByCrawlerId], references: [id])
+  originFileHash         String?
+  originModificationDate DateTime?
   AiLibraryUpdate        AiLibraryUpdate[]
 
   @@unique([crawledByCrawlerId, originUri])
