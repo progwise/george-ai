@@ -3,6 +3,7 @@ import fs from 'fs'
 
 import { isProviderAvatar } from '@george-ai/pothos-graphql/src/avatar-provider'
 import { checkUser, getUserAvatarsPath, updateUserAvatarUrl } from '@george-ai/pothos-graphql/src/file-upload'
+import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 const allowedFileTypes = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']
 
@@ -31,11 +32,8 @@ export const avatarMiddleware = async (httpRequest: Request, httpResponse: Respo
       return
     }
     const avatar = fs.createReadStream(`${avatarsPath}/${userFiles[0]}`)
-    let fileType = userFiles[0].split('.').pop()
-    if (fileType?.endsWith('svg')) {
-      fileType = 'svg+xml'
-    }
-    httpResponse.contentType(`image/${fileType}`)
+    const mimeType = getMimeTypeFromExtension(userFiles[0])
+    httpResponse.contentType(mimeType)
     avatar.pipe(httpResponse)
     httpResponse.status(200)
     return

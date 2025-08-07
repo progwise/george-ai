@@ -179,7 +179,8 @@ model AiLibraryFile {
 
 model AiLibraryCrawler {
   id        String    @id @default(cuid())
-  url       String
+  uriType   String
+  uri       String
   libraryId String
   lastRun   DateTime?
   maxDepth  Int

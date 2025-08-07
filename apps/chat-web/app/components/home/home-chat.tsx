@@ -7,14 +7,14 @@ import { validateForm } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import { UserFragment } from '../../gql/graphql'
-import { getLanguage, translate } from '../../i18n'
+import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
 import { Input } from '../form/input'
 import { toastError, toastSuccess, toastWarning } from '../georgeToaster'
 import { LoadingSpinner } from '../loading-spinner'
 
-const getFormSchema = (language: 'en' | 'de') =>
+const getFormSchema = (language: Language) =>
   z.object({
     name: z.string().min(1, translate('contactForm.nameRequired', language)),
     message: z.string().min(1, translate('contactForm.messageRequired', language)),

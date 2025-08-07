@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { FileContent } from '../../../../../../components/library/files/file-content'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
+import { getFileSourcesQueryOptions } from '../../../../../../components/library/files/get-file-sources'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
   component: RouteComponent,
@@ -11,6 +12,9 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
       context.queryClient.ensureQueryData(
         getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
       ),
+      context.queryClient.ensureQueryData(
+        getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
+      ),
     ])
   },
 })
@@ -18,5 +22,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 function RouteComponent() {
   const { libraryId, fileId } = Route.useParams()
   const { data: fileContent } = useSuspenseQuery(getFileContentQueryOptions({ fileId, libraryId }))
-  return <>{fileContent ? <FileContent markdown={fileContent} /> : <p>No content available</p>}</>
+  const { data: fileSources } = useSuspenseQuery(getFileSourcesQueryOptions({ fileId, libraryId }))
+
+  return <FileContent sources={fileSources} markdown={fileContent} />
 }

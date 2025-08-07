@@ -26,11 +26,11 @@ const getFileContent = createServerFn({ method: 'GET' })
       return result.readFileMarkdown || ''
     } catch (error) {
       console.error(`Error fetching file content for fileId ${data.fileId}:`, error)
-      return ''
+      return null
     }
   })
 
 export const getFileContentQueryOptions = (params: { fileId: string; libraryId: string }) => ({
-  queryKey: ['fileContent', params.fileId, params],
+  queryKey: ['fileContent', params],
   queryFn: () => getFileContent({ data: { fileId: params.fileId, libraryId: params.libraryId } }),
 })

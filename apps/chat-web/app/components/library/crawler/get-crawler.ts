@@ -18,9 +18,11 @@ const getCrawler = createServerFn({ method: 'GET' })
       graphql(`
         query GetCrawler($libraryId: String!, $crawlerId: String!) {
           aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {
+            ...CrawlerForm_Crawler
             id
             libraryId
-            url
+            uri
+            uriType
             isRunning
             lastRun {
               id

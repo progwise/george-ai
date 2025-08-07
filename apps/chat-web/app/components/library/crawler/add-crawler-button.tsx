@@ -1,37 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createServerFn } from '@tanstack/react-start'
 import { useRef } from 'react'
-import { z } from 'zod'
 
-import { graphql } from '../../../gql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { backendRequest } from '../../../server-functions/backend'
 import { DialogForm } from '../../dialog-form'
-import { CrawlerForm, crawlerFormSchema, getCrawlerFormData } from './crawler-form'
+import { toastError, toastSuccess } from '../../georgeToaster'
+import { addCrawlerFunction } from './add-crawler'
+import { CrawlerForm } from './crawler-form'
 import { getCrawlersQueryOptions } from './get-crawlers'
-
-const addCrawlerFunction = createServerFn({ method: 'POST' })
-  .validator(({ libraryId, formData }: { libraryId: string; formData: FormData }) => {
-    return z
-      .object({
-        libraryId: z.string().nonempty(),
-        formData: crawlerFormSchema,
-      })
-      .parse({ libraryId, formData: getCrawlerFormData(formData) })
-  })
-  .handler((ctx) => {
-    const { libraryId, formData } = ctx.data
-    return backendRequest(
-      graphql(`
-        mutation createAiLibraryCrawler($libraryId: String!, $data: AiLibraryCrawlerInput!) {
-          createAiLibraryCrawler(libraryId: $libraryId, data: $data) {
-            id
-          }
-        }
-      `),
-      { libraryId, data: formData },
-    )
-  })
 
 interface AddCrawlerButtonProps {
   libraryId: string
@@ -44,15 +19,19 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
 
   const addCrawlerMutation = useMutation({
     mutationFn: addCrawlerFunction,
+    onError: (error) => {
+      toastError(`${t('crawlers.toastCreateError')}: ${error.message}`)
+    },
     onSuccess: async () => {
+      toastSuccess(t('crawlers.toastCreateSuccess'))
       await queryClient.invalidateQueries(getCrawlersQueryOptions(libraryId))
       dialogRef.current?.close()
     },
   })
   const isPending = addCrawlerMutation.isPending
 
-  const handleSubmit = (formData: FormData) => {
-    addCrawlerMutation.mutate({ data: { libraryId, formData } })
+  const handleSubmit = async (formData: FormData) => {
+    addCrawlerMutation.mutate({ data: formData })
   }
 
   return (
@@ -68,7 +47,9 @@ export const AddCrawlerButton = ({ libraryId }: AddCrawlerButtonProps) => {
         disabledSubmit={isPending}
         submitButtonText={t('actions.create')}
       >
-        <CrawlerForm isPending={isPending} />
+        <div className="mt-4">
+          <CrawlerForm libraryId={libraryId} />
+        </div>
       </DialogForm>
     </>
   )

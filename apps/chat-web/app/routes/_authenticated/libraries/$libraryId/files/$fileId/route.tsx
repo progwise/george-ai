@@ -8,6 +8,7 @@ import { reprocessFiles } from '../../../../../../components/library/files/chang
 import { getFileChunksQueryOptions } from '../../../../../../components/library/files/get-file-chunks'
 import { getFileContentQueryOptions } from '../../../../../../components/library/files/get-file-content'
 import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
+import { getFileSourcesQueryOptions } from '../../../../../../components/library/files/get-file-sources'
 import { LoadingSpinner } from '../../../../../../components/loading-spinner'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
@@ -74,6 +75,9 @@ function RouteComponent() {
       })
       queryClient.invalidateQueries({
         queryKey: getFileContentQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }).queryKey,
+      })
+      queryClient.invalidateQueries({
+        queryKey: getFileSourcesQueryOptions({ fileId: params.fileId, libraryId: params.libraryId }),
       })
     },
   })

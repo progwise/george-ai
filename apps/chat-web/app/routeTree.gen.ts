@@ -16,7 +16,6 @@ import { Route as ContactImport } from './routes/contact'
 import { Route as AboutImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated/route'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthenticatedConversationsRouteImport } from './routes/_authenticated/conversations/route'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedProfileIndexImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedLibrariesIndexImport } from './routes/_authenticated/libraries/index'
@@ -78,13 +77,6 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthenticatedConversationsRouteRoute =
-  AuthenticatedConversationsRouteImport.update({
-    id: '/conversations',
-    path: '/conversations',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -106,9 +98,9 @@ const AuthenticatedLibrariesIndexRoute =
 
 const AuthenticatedConversationsIndexRoute =
   AuthenticatedConversationsIndexImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedConversationsRouteRoute,
+    id: '/conversations/',
+    path: '/conversations/',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 const AuthenticatedAssistantsIndexRoute =
@@ -133,9 +125,9 @@ const AuthenticatedLibrariesAuthGoogleRoute =
 
 const AuthenticatedConversationsConversationIdRoute =
   AuthenticatedConversationsConversationIdImport.update({
-    id: '/$conversationId',
-    path: '/$conversationId',
-    getParentRoute: () => AuthenticatedConversationsRouteRoute,
+    id: '/conversations/$conversationId',
+    path: '/conversations/$conversationId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 const AuthenticatedAssistantsAssistantIdRoute =
@@ -225,9 +217,9 @@ const AuthenticatedLibrariesLibraryIdCrawlersIndexRoute =
 const AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute =
   AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport.update(
     {
-      id: '/$conversationId_/confirm-invitation/$invitationId',
-      path: '/$conversationId/confirm-invitation/$invitationId',
-      getParentRoute: () => AuthenticatedConversationsRouteRoute,
+      id: '/conversations/$conversationId_/confirm-invitation/$invitationId',
+      path: '/conversations/$conversationId/confirm-invitation/$invitationId',
+      getParentRoute: () => AuthenticatedRouteRoute,
     } as any,
   )
 
@@ -339,13 +331,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteImport
     }
-    '/_authenticated/conversations': {
-      id: '/_authenticated/conversations'
-      path: '/conversations'
-      fullPath: '/conversations'
-      preLoaderRoute: typeof AuthenticatedConversationsRouteImport
-      parentRoute: typeof AuthenticatedRouteImport
-    }
     '/_authenticated/libraries/$libraryId': {
       id: '/_authenticated/libraries/$libraryId'
       path: '/libraries/$libraryId'
@@ -362,10 +347,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/conversations/$conversationId': {
       id: '/_authenticated/conversations/$conversationId'
-      path: '/$conversationId'
+      path: '/conversations/$conversationId'
       fullPath: '/conversations/$conversationId'
       preLoaderRoute: typeof AuthenticatedConversationsConversationIdImport
-      parentRoute: typeof AuthenticatedConversationsRouteImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/libraries/auth-google': {
       id: '/_authenticated/libraries/auth-google'
@@ -390,10 +375,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/conversations/': {
       id: '/_authenticated/conversations/'
-      path: '/'
-      fullPath: '/conversations/'
+      path: '/conversations'
+      fullPath: '/conversations'
       preLoaderRoute: typeof AuthenticatedConversationsIndexImport
-      parentRoute: typeof AuthenticatedConversationsRouteImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/libraries/': {
       id: '/_authenticated/libraries/'
@@ -481,10 +466,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId': {
       id: '/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId'
-      path: '/$conversationId/confirm-invitation/$invitationId'
+      path: '/conversations/$conversationId/confirm-invitation/$invitationId'
       fullPath: '/conversations/$conversationId/confirm-invitation/$invitationId'
       preLoaderRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdImport
-      parentRoute: typeof AuthenticatedConversationsRouteImport
+      parentRoute: typeof AuthenticatedRouteImport
     }
     '/_authenticated/libraries/$libraryId/crawlers/': {
       id: '/_authenticated/libraries/$libraryId/crawlers/'
@@ -563,26 +548,6 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
 const AuthenticatedAdminRouteRouteWithChildren =
   AuthenticatedAdminRouteRoute._addFileChildren(
     AuthenticatedAdminRouteRouteChildren,
-  )
-
-interface AuthenticatedConversationsRouteRouteChildren {
-  AuthenticatedConversationsConversationIdRoute: typeof AuthenticatedConversationsConversationIdRoute
-  AuthenticatedConversationsIndexRoute: typeof AuthenticatedConversationsIndexRoute
-  AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
-}
-
-const AuthenticatedConversationsRouteRouteChildren: AuthenticatedConversationsRouteRouteChildren =
-  {
-    AuthenticatedConversationsConversationIdRoute:
-      AuthenticatedConversationsConversationIdRoute,
-    AuthenticatedConversationsIndexRoute: AuthenticatedConversationsIndexRoute,
-    AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute:
-      AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute,
-  }
-
-const AuthenticatedConversationsRouteRouteWithChildren =
-  AuthenticatedConversationsRouteRoute._addFileChildren(
-    AuthenticatedConversationsRouteRouteChildren,
   )
 
 interface AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdRunsRouteRouteChildren {
@@ -689,33 +654,38 @@ const AuthenticatedLibrariesLibraryIdRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
-  AuthenticatedConversationsRouteRoute: typeof AuthenticatedConversationsRouteRouteWithChildren
   AuthenticatedLibrariesLibraryIdRouteRoute: typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   AuthenticatedAssistantsAssistantIdRoute: typeof AuthenticatedAssistantsAssistantIdRoute
+  AuthenticatedConversationsConversationIdRoute: typeof AuthenticatedConversationsConversationIdRoute
   AuthenticatedLibrariesAuthGoogleRoute: typeof AuthenticatedLibrariesAuthGoogleRoute
   AuthenticatedAssistantsIndexRoute: typeof AuthenticatedAssistantsIndexRoute
+  AuthenticatedConversationsIndexRoute: typeof AuthenticatedConversationsIndexRoute
   AuthenticatedLibrariesIndexRoute: typeof AuthenticatedLibrariesIndexRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
   AuthenticatedProfileProfileIdAdminConfirmRoute: typeof AuthenticatedProfileProfileIdAdminConfirmRoute
   AuthenticatedProfileProfileIdConfirmRoute: typeof AuthenticatedProfileProfileIdConfirmRoute
+  AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute: typeof AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
-  AuthenticatedConversationsRouteRoute:
-    AuthenticatedConversationsRouteRouteWithChildren,
   AuthenticatedLibrariesLibraryIdRouteRoute:
     AuthenticatedLibrariesLibraryIdRouteRouteWithChildren,
   AuthenticatedAssistantsAssistantIdRoute:
     AuthenticatedAssistantsAssistantIdRoute,
+  AuthenticatedConversationsConversationIdRoute:
+    AuthenticatedConversationsConversationIdRoute,
   AuthenticatedLibrariesAuthGoogleRoute: AuthenticatedLibrariesAuthGoogleRoute,
   AuthenticatedAssistantsIndexRoute: AuthenticatedAssistantsIndexRoute,
+  AuthenticatedConversationsIndexRoute: AuthenticatedConversationsIndexRoute,
   AuthenticatedLibrariesIndexRoute: AuthenticatedLibrariesIndexRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
   AuthenticatedProfileProfileIdAdminConfirmRoute:
     AuthenticatedProfileProfileIdAdminConfirmRoute,
   AuthenticatedProfileProfileIdConfirmRoute:
     AuthenticatedProfileProfileIdConfirmRoute,
+  AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute:
+    AuthenticatedConversationsConversationIdConfirmInvitationInvitationIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -728,14 +698,13 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
   '/libraries/auth-google': typeof AuthenticatedLibrariesAuthGoogleRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/assistants': typeof AuthenticatedAssistantsIndexRoute
-  '/conversations/': typeof AuthenticatedConversationsIndexRoute
+  '/conversations': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
@@ -798,7 +767,6 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
-  '/_authenticated/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/assistants/$assistantId': typeof AuthenticatedAssistantsAssistantIdRoute
   '/_authenticated/conversations/$conversationId': typeof AuthenticatedConversationsConversationIdRoute
@@ -838,14 +806,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/login'
     | '/admin'
-    | '/conversations'
     | '/libraries/$libraryId'
     | '/assistants/$assistantId'
     | '/conversations/$conversationId'
     | '/libraries/auth-google'
     | '/admin/'
     | '/assistants'
-    | '/conversations/'
+    | '/conversations'
     | '/libraries'
     | '/profile'
     | '/libraries/$libraryId/crawlers'
@@ -905,7 +872,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/login'
     | '/_authenticated/admin'
-    | '/_authenticated/conversations'
     | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/assistants/$assistantId'
     | '/_authenticated/conversations/$conversationId'
@@ -977,15 +943,17 @@ export const routeTree = rootRoute
       "filePath": "_authenticated/route.tsx",
       "children": [
         "/_authenticated/admin",
-        "/_authenticated/conversations",
         "/_authenticated/libraries/$libraryId",
         "/_authenticated/assistants/$assistantId",
+        "/_authenticated/conversations/$conversationId",
         "/_authenticated/libraries/auth-google",
         "/_authenticated/assistants/",
+        "/_authenticated/conversations/",
         "/_authenticated/libraries/",
         "/_authenticated/profile/",
         "/_authenticated/profile/$profileId/admin-confirm",
-        "/_authenticated/profile/$profileId/confirm"
+        "/_authenticated/profile/$profileId/confirm",
+        "/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId"
       ]
     },
     "/about": {
@@ -1006,15 +974,6 @@ export const routeTree = rootRoute
         "/_authenticated/admin/users/"
       ]
     },
-    "/_authenticated/conversations": {
-      "filePath": "_authenticated/conversations/route.tsx",
-      "parent": "/_authenticated",
-      "children": [
-        "/_authenticated/conversations/$conversationId",
-        "/_authenticated/conversations/",
-        "/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId"
-      ]
-    },
     "/_authenticated/libraries/$libraryId": {
       "filePath": "_authenticated/libraries/$libraryId/route.tsx",
       "parent": "/_authenticated",
@@ -1033,7 +992,7 @@ export const routeTree = rootRoute
     },
     "/_authenticated/conversations/$conversationId": {
       "filePath": "_authenticated/conversations/$conversationId.tsx",
-      "parent": "/_authenticated/conversations"
+      "parent": "/_authenticated"
     },
     "/_authenticated/libraries/auth-google": {
       "filePath": "_authenticated/libraries/auth-google.tsx",
@@ -1049,7 +1008,7 @@ export const routeTree = rootRoute
     },
     "/_authenticated/conversations/": {
       "filePath": "_authenticated/conversations/index.tsx",
-      "parent": "/_authenticated/conversations"
+      "parent": "/_authenticated"
     },
     "/_authenticated/libraries/": {
       "filePath": "_authenticated/libraries/index.tsx",
@@ -1113,7 +1072,7 @@ export const routeTree = rootRoute
     },
     "/_authenticated/conversations/$conversationId_/confirm-invitation/$invitationId": {
       "filePath": "_authenticated/conversations/$conversationId_.confirm-invitation.$invitationId.tsx",
-      "parent": "/_authenticated/conversations"
+      "parent": "/_authenticated"
     },
     "/_authenticated/libraries/$libraryId/crawlers/": {
       "filePath": "_authenticated/libraries/$libraryId/crawlers/index.tsx",

@@ -271,7 +271,14 @@ type AiLibraryCrawler {
   runCount: Int!
   runs(skip: Int! = 0, take: Int! = 10): [AiLibraryCrawlerRun!]!
   updatedAt: DateTime!
-  url: String!
+  uri: String!
+  uriType: AiLibraryCrawlerUriType!
+}
+
+input AiLibraryCrawlerCredentialsInput {
+  password: String
+  sharepointAuth: String
+  username: String
 }
 
 type AiLibraryCrawlerCronJob {
@@ -308,7 +315,8 @@ input AiLibraryCrawlerInput {
   cronJob: AiLibraryCrawlerCronJobInput
   maxDepth: Int!
   maxPages: Int!
-  url: String!
+  uri: String!
+  uriType: AiLibraryCrawlerUriType!
 }
 
 type AiLibraryCrawlerRun {
@@ -323,6 +331,12 @@ type AiLibraryCrawlerRun {
   success: Boolean
   updates(skip: Int! = 0, take: Int! = 10): [AiLibraryUpdate!]!
   updatesCount: Int!
+}
+
+enum AiLibraryCrawlerUriType {
+  http
+  sharepoint
+  smb
 }
 
 type AiLibraryFile {
@@ -546,7 +560,11 @@ type Mutation {
   createAiAssistant(name: String!): AiAssistant
   createAiConversation(data: AiConversationCreateInput!): AiConversation
   createAiLibrary(data: AiLibraryInput!): AiLibrary
-  createAiLibraryCrawler(data: AiLibraryCrawlerInput!, libraryId: String!): AiLibraryCrawler
+  createAiLibraryCrawler(
+    credentials: AiLibraryCrawlerCredentialsInput
+    data: AiLibraryCrawlerInput!
+    libraryId: String!
+  ): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   deleteAiAssistant(assistantId: String!): AiAssistant
@@ -579,13 +597,18 @@ type Mutation {
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibrary(data: AiLibraryInput!, id: String!): AiLibrary
-  updateAiLibraryCrawler(data: AiLibraryCrawlerInput!, id: String!): AiLibraryCrawler
+  updateAiLibraryCrawler(
+    credentials: AiLibraryCrawlerCredentialsInput
+    data: AiLibraryCrawlerInput!
+    id: String!
+  ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
+  validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
 }
 
 type Query {
@@ -614,6 +637,12 @@ type Query {
   userProfile: UserProfile
   users: [User!]!
   version: String
+}
+
+type SharePointValidationResult {
+  errorMessage: String
+  errorType: String
+  success: Boolean
 }
 
 type User {

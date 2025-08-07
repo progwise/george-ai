@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import * as fs from 'fs'
 
 import { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from '@george-ai/pothos-graphql'
+import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
 const allowedFileTypes = ['png', 'svg', 'jpg', 'jpeg', 'gif', 'webp']
 
@@ -32,11 +33,8 @@ export const assistantIconMiddleware = async (httpRequest: Request, httpResponse
       return
     }
     const icon = fs.createReadStream(`${assistantIconsPath}/${assistantFiles[0]}`)
-    let fileType = assistantFiles[0].split('.').pop()
-    if (fileType?.endsWith('svg')) {
-      fileType = 'svg+xml'
-    }
-    httpResponse.contentType(`image/${fileType}`)
+    const mimeType = getMimeTypeFromExtension(assistantFiles[0])
+    httpResponse.contentType(mimeType)
     icon.pipe(httpResponse)
     httpResponse.status(200)
     return
