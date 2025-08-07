@@ -355,8 +355,10 @@ export default {
     notConfirmed: 'Nicht bestätigt',
     note: 'Notiz',
     position: 'Position',
+    postprocess: 'Nachbearbeitung',
     processed: 'Verarbeitet',
     originModified: 'Ursprung geändert',
+    prompt: 'Prompt',
     query: 'Abfrage',
     remainingStorage: 'Verbleibender Speicher',
     reset: 'Zurücksetzen',
@@ -446,6 +448,7 @@ export default {
     dropFilesDialogDescription:
       'Sie sind kurz davor, Dateien zu entfernen. Dieser Vorgang ist endgültig und kann nicht rückgängig gemacht werden.',
     dropFileFailure: 'Ablegen von Dateien fehlgeschlagen:',
+    enterNameAndPrompt: 'Geben Sie einen Namen und Prompt ein, um Ihr erstes Nachbearbeitungselement zu erstellen',
     failure: 'Fehler',
     fileCreated: 'erstellt',
     fileUpdated: 'aktualisiert',

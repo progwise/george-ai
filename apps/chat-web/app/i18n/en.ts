@@ -350,8 +350,10 @@ export default {
     notConfirmed: 'Not confirmed',
     note: 'Note',
     position: 'Position',
+    postprocess: 'Postprocess',
     processed: 'Processed',
     originModified: 'Origin Modified',
+    prompt: 'Prompt',
     query: 'Query',
     remainingStorage: 'Remaining Storage',
     reset: 'Reset',
@@ -441,6 +443,7 @@ export default {
     dropFilesDialogDescription:
       'You are about to drop files. This action cannot be reversed. Please confirm dropping the selected files.',
     dropFileFailure: 'Failed to drop files:',
+    enterNameAndPrompt: 'Enter a name and prompt to create your first postprocess item',
     failure: 'Failure',
     fileCreated: 'created',
     fileUpdated: 'updated',
