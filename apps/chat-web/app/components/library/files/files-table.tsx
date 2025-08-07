@@ -202,7 +202,12 @@ export const FilesTable = ({
                 <td>{index + (firstItemNumber ?? 1)}</td>
 
                 <td className="flex max-w-2xl flex-col truncate" title={file.name}>
-                  <span>{truncateFileName(file.name, 49, 45)}</span>
+                  <Link
+                    to="/libraries/$libraryId/files/$fileId"
+                    params={{ libraryId: file.libraryId, fileId: file.id }}
+                  >
+                    <span>{truncateFileName(file.name, 49, 45)}</span>
+                  </Link>
                   <a href={file.originUri || '#'} target="_blank" className="link text-xs" rel="noopener noreferrer">
                     {file.originUri || 'n/a'}
                   </a>
