@@ -1,4 +1,3 @@
-import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -9,6 +8,7 @@ import { prisma } from '../../prisma'
 import { isFileSizeAcceptable } from './constants'
 import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
+import { calculateFileHash } from './file-hash'
 import { uriToMountedPath } from './smb-mount-manager'
 
 interface SmbFileToProcess {
@@ -178,17 +178,6 @@ const saveSmbCrawlerFile = async ({
   })
 
   return { ...file, skipProcessing }
-}
-
-async function calculateFileHash(filePath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const hash = crypto.createHash('sha256')
-    const stream = fs.createReadStream(filePath)
-
-    stream.on('data', (data) => hash.update(data))
-    stream.on('end', () => resolve(hash.digest('hex')))
-    stream.on('error', reject)
-  })
 }
 
 export async function* crawlSmb({

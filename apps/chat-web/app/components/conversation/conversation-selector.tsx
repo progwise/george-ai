@@ -91,10 +91,10 @@ export const ConversationSelector = ({ conversations, onClick, selectedConversat
           selectedConversationId={selectedConversationId}
         />
       </div>
-      <ul className="">
+      <ul>
         {groupedConversations &&
           Object.entries(groupedConversations).map(([date, conversations]) => (
-            <li key={date} className="">
+            <li key={date}>
               <div className="center grid grid-cols-[1fr_8fr] py-1">
                 <label className="flex cursor-pointer items-center">
                   <Checkbox
@@ -125,7 +125,7 @@ export const ConversationSelector = ({ conversations, onClick, selectedConversat
                       to="/conversations/$conversationId"
                       params={{ conversationId: conversation.id }}
                     >
-                      <span className="">{conversation.owner.name}: </span>
+                      <span>{conversation.owner.name}: </span>
                       <span className="italic">
                         {conversation.assistants?.map((assistant) => assistant.name).join(', ') ||
                           t('texts.noAssistant')}

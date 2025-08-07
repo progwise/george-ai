@@ -67,7 +67,7 @@ function RouteComponent() {
               <li className="text-center text-sm text-gray-500">{t('crawlers.noRunsFound')}</li>
             ) : (
               crawlerRuns.map((run) => (
-                <li key={run.id} className="">
+                <li key={run.id}>
                   <div className="flex flex-col items-start gap-1">
                     <Link
                       to="/libraries/$libraryId/crawlers/$crawlerId/runs/$crawlerRunId"

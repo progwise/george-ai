@@ -148,15 +148,15 @@ export const FilesTable = ({
               </div>
 
               <div className="grid grid-cols-2 gap-1 text-sm">
-                <span className="">{t('labels.size')}:</span>
+                <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
-                <span className="">{t('labels.chunks')}:</span>
+                <span>{t('labels.chunks')}:</span>
                 <span>{file.chunks ?? '-'}</span>
-                <span className="">{t('labels.processed')}:</span>
+                <span>{t('labels.processed')}:</span>
                 <span>{dateTimeString(file.processedAt, language) || '-'}</span>
                 {file.originModificationDate && (
                   <>
-                    <span className="">{t('labels.originModified')}:</span>
+                    <span>{t('labels.originModified')}:</span>
                     <span>{dateTimeString(file.originModificationDate, language)}</span>
                   </>
                 )}
