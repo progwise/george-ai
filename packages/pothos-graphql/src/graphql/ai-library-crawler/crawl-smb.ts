@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -39,16 +40,126 @@ const saveSmbCrawlerFile = async ({
   mountedFilePath: string
   processingError?: string
 }) => {
+  // Check if file already exists
+  const existingFile = await prisma.aiLibraryFile.findUnique({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri: fileUri,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      originUri: true,
+      mimeType: true,
+      originFileHash: true,
+      originModificationDate: true,
+      processedAt: true,
+    },
+  })
+
+  let fileHash: string | undefined
+  let skipProcessing = false
+
+  // If no processing error, handle file hash calculation and skip logic
+  if (!processingError) {
+    // Check if existing file has a hash stored
+    if (existingFile && !existingFile.originFileHash) {
+      // Try to generate hash from existing uploaded file
+      const existingFilePath = getUploadFilePath({ fileId: existingFile.id, libraryId })
+      try {
+        await fs.promises.access(existingFilePath)
+        fileHash = await calculateFileHash(existingFilePath)
+        console.log(`Generated hash for existing SMB file ${fileName}: ${fileHash}`)
+
+        // Update the existing file with the hash
+        await prisma.aiLibraryFile.update({
+          where: { id: existingFile.id },
+          data: { originFileHash: fileHash },
+        })
+      } catch {
+        console.log(`Existing file not found on disk for ${fileName}, will copy from SMB`)
+      }
+    }
+
+    // If we don't have a hash yet, calculate it from the mounted file
+    if (!fileHash) {
+      fileHash = await calculateFileHash(mountedFilePath)
+
+      // Check if this file was already processed with the same hash
+      if (existingFile && existingFile.originFileHash === fileHash && existingFile.processedAt) {
+        console.log(`Skipping SMB file ${fileName} - already processed with same hash`)
+        skipProcessing = true
+
+        // Update modification date even if skipping
+        await prisma.aiLibraryFile.update({
+          where: { id: existingFile.id },
+          data: {
+            originModificationDate: fileModifiedTime,
+            updatedAt: new Date(),
+          },
+        })
+
+        return { ...existingFile, skipProcessing }
+      }
+
+      // Create/update file with hash
+      const file = await prisma.aiLibraryFile.upsert({
+        where: {
+          crawledByCrawlerId_originUri: {
+            crawledByCrawlerId: crawlerId,
+            originUri: fileUri,
+          },
+        },
+        create: {
+          name: `${fileName}`,
+          libraryId: libraryId,
+          mimeType,
+          size: fileSize,
+          updatedAt: fileModifiedTime,
+          originUri: fileUri,
+          crawledByCrawlerId: crawlerId,
+          originModificationDate: fileModifiedTime,
+          originFileHash: fileHash,
+        },
+        update: {
+          name: `${fileName}`,
+          libraryId: libraryId,
+          mimeType,
+          size: fileSize,
+          updatedAt: fileModifiedTime,
+          originModificationDate: fileModifiedTime,
+          originFileHash: fileHash,
+        },
+      })
+
+      // Copy file to final location
+      const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
+      await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
+      await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
+
+      return { ...file, skipProcessing }
+    } else if (existingFile) {
+      // We have a hash from the existing file, check if it needs reprocessing
+      if (existingFile.processedAt) {
+        console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
+        skipProcessing = true
+      }
+      return { ...existingFile, skipProcessing }
+    }
+  }
+
+  // For processing errors, just update database without copying
   const fileUpdateData = {
     name: `${fileName}`,
     libraryId: libraryId,
     mimeType,
     size: fileSize,
     updatedAt: fileModifiedTime,
-    ...(processingError && {
-      processingErrorMessage: processingError,
-      processingErrorAt: new Date(),
-    }),
+    originModificationDate: fileModifiedTime,
+    processingErrorMessage: processingError,
+    processingErrorAt: new Date(),
   }
 
   const file = await prisma.aiLibraryFile.upsert({
@@ -66,10 +177,18 @@ const saveSmbCrawlerFile = async ({
     update: fileUpdateData,
   })
 
-  const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
-  await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
+  return { ...file, skipProcessing }
+}
 
-  return file
+async function calculateFileHash(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256')
+    const stream = fs.createReadStream(filePath)
+
+    stream.on('data', (data) => hash.update(data))
+    stream.on('end', () => resolve(hash.digest('hex')))
+    stream.on('error', reject)
+  })
 }
 
 export async function* crawlSmb({
@@ -124,7 +243,11 @@ export async function* crawlSmb({
           })
 
           yield {
-            ...fileInfo,
+            id: fileInfo.id,
+            name: fileInfo.name,
+            originUri: fileInfo.originUri,
+            mimeType: fileInfo.mimeType,
+            skipProcessing: false,
             hints: `SMB Crawler ${crawlerId} - file ${fileInfo.name} skipped due to size limit`,
           }
           continue
@@ -145,7 +268,27 @@ export async function* crawlSmb({
           mountedFilePath,
         })
 
-        yield { ...fileInfo, hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}` }
+        // Check if we should skip processing
+        if (fileInfo.skipProcessing) {
+          console.log(`Skipping processing for SMB file ${fileToProcess.name} - file unchanged`)
+          yield {
+            id: fileInfo.id,
+            name: fileInfo.name,
+            originUri: fileInfo.originUri,
+            mimeType: fileInfo.mimeType,
+            skipProcessing: true,
+            hints: `SMB crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+          }
+        } else {
+          yield {
+            id: fileInfo.id,
+            name: fileInfo.name,
+            originUri: fileInfo.originUri,
+            mimeType: fileInfo.mimeType,
+            skipProcessing: false,
+            hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}`,
+          }
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         const hints = `Error processing SMB file ${fileToProcess.uri} in crawler ${crawlerId}`
