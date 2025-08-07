@@ -1,16 +1,16 @@
 {
   "base_model": "google/gemma-3-12b-it",
   "dataset_path": "jsonl/raw/qa-data.jsonl",
-  "train_ratio": 0.8,
-  "valid_ratio": 0.1,
-  "test_ratio": 0.1,
+  "train_ratio": 1.0,
+  "valid_ratio": 0.0,
+  "test_ratio": 0.0,
   "fine_tune_params": {
-    "num_layers": 4,
-    "learning_rate": 1e-5,
-    "iters": 100,
+    "num_layers": 8,
+    "learning_rate": 5e-4,
+    "iters": 500,
     "fine_tune_type": "lora"
   },
-  "ollama_model_name": "gemma-3-12b-verlag",
+  "ollama_model_name": "gemma-3-12b-verlag-v2",
   "keep_split_data": true,
   "keep_fused_model": true,
   "keep_gguf_files": true,
