@@ -1,0 +1,23 @@
+# Fine-tuning
+split_output
+adapters_*
+finetune-output/
+hf-to-gguf/
+
+# QA pairs
+jsonl/raw/qa-data.jsonl
+jsonl/george-ai/
+
+# Virtual environment
+venv
+.venv
+*.env
+
+# Node modules
+node_modules/
+
+# Model directories
+models/
+# adapters/
+fused_model/
+gguf_models/
