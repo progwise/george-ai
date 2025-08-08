@@ -134,18 +134,33 @@ const startCrawling = async (
           continue
         }
 
-        await processFile(crawledPage.id)
-        crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nCraweld paged was processed.` })
-        await prisma.aiLibraryUpdate.create({
-          data: {
-            libraryId: crawler.libraryId,
-            crawlerRunId: newRun.id,
-            fileId: crawledPage.id,
-            message: `Crawled page from ${crawledPage.originUri} with title "${crawledPage.name}"`,
-            success: true,
-          },
-        })
-        console.log('Successfully processed crawled page', crawledPage.name, 'from', crawledPage.originUri)
+        // Check if we should skip processing this file
+        if (crawledPage.skipProcessing) {
+          console.log(`Skipping processing for file ${crawledPage.name} - already processed with same content`)
+          crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nFile skipped - already processed.` })
+          await prisma.aiLibraryUpdate.create({
+            data: {
+              libraryId: crawler.libraryId,
+              crawlerRunId: newRun.id,
+              fileId: crawledPage.id,
+              message: `Skipped file from ${crawledPage.originUri} - already processed with same content`,
+              success: true,
+            },
+          })
+        } else {
+          await processFile(crawledPage.id)
+          crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nCrawled paged was processed.` })
+          await prisma.aiLibraryUpdate.create({
+            data: {
+              libraryId: crawler.libraryId,
+              crawlerRunId: newRun.id,
+              fileId: crawledPage.id,
+              message: `Crawled page from ${crawledPage.originUri} with title "${crawledPage.name}"`,
+              success: true,
+            },
+          })
+          console.log('Successfully processed crawled page', crawledPage.name, 'from', crawledPage.originUri)
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         console.error(

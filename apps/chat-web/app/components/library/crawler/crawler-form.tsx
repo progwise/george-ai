@@ -263,7 +263,6 @@ export const CrawlerForm = ({ libraryId, crawler }: CrawlerFormProps) => {
         placeholder={t('crawlers.placeholders.uri')}
         label={t('crawlers.uri')}
         schema={crawlerFormSchema}
-        className=""
         required={true}
       />
       <div className="grid grid-cols-2 gap-2">

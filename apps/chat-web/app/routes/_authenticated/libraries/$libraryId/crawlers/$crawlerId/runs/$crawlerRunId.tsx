@@ -180,46 +180,59 @@ function RouteComponent() {
               <div className="overflow-x-auto">
                 <table className="table-zebra table w-full table-fixed">
                   <colgroup>
-                    <col className="w-48" />
+                    <col className="w-40" />
+                    <col className="w-20" />
                     <col className="w-24" />
-                    <col className="w-72" />
+                    <col className="w-64" />
                     <col className="w-auto" />
                   </colgroup>
                   <thead>
                     <tr>
                       <th>{t('updates.date')}</th>
                       <th>{t('updates.success')}</th>
+                      <th>{t('updates.status')}</th>
                       <th>{t('updates.file')}</th>
                       <th>{t('updates.message')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {crawlerRun.updates.map((update) => (
-                      <tr key={update.id}>
-                        <td className="truncate">{dateTimeString(update.createdAt, language)}</td>
-                        <td>
-                          <span className={`badge ${update.success ? 'badge-success' : 'badge-error'}`}>
-                            {update.success ? t('updates.success') : t('updates.failed')}
-                          </span>
-                        </td>
-
-                        <td className="truncate">
-                          {update.file ? (
-                            <Link
-                              to="/libraries/$libraryId/files/$fileId"
-                              params={{ libraryId: params.libraryId, fileId: update.file.id }}
-                              className="link link-primary"
-                              title={update.file.name}
-                            >
-                              {update.file.name}
-                            </Link>
-                          ) : (
-                            'N/A'
-                          )}
-                        </td>
-                        <td className="break-words">{update.message}</td>
-                      </tr>
-                    ))}
+                    {crawlerRun.updates.map((update) => {
+                      // Determine if file was skipped based on message content
+                      const isSkipped = update.message?.toLowerCase().includes('skip') || false
+                      return (
+                        <tr key={update.id}>
+                          <td className="truncate">{dateTimeString(update.createdAt, language)}</td>
+                          <td>
+                            <span className={`badge ${update.success ? 'badge-success' : 'badge-error'}`}>
+                              {update.success ? t('updates.success') : t('updates.failed')}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`badge ${isSkipped ? 'badge-warning' : 'badge-info'}`}>
+                              {isSkipped ? t('updates.skipped') : t('updates.processed')}
+                            </span>
+                          </td>
+                          <td className="truncate">
+                            {update.file ? (
+                              <Link
+                                to="/libraries/$libraryId/files/$fileId"
+                                params={{ libraryId: params.libraryId, fileId: update.file.id }}
+                                className="link link-primary"
+                                title={update.file.name}
+                              >
+                                {update.file.name}
+                              </Link>
+                            ) : (
+                              'N/A'
+                            )}
+                          </td>
+                          <td className="break-words">
+                            {/* Only show message if there was an error (success = false) */}
+                            {!update.success ? update.message : ''}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
