@@ -100,6 +100,15 @@ type Documents = {
   '\n  mutation changeAiLibrary($id: String!, $data: AiLibraryInput!) {\n    updateAiLibrary(id: $id, data: $data) {\n      ...AiLibraryDetail\n    }\n  }\n': typeof types.ChangeAiLibraryDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
+  '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ': typeof types.CreateListDocument
+  '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ': typeof types.DeleteListDocument
+  '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
+  '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n          }\n        }\n      ': typeof types.GetListDocument
+  '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
+  '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ': typeof types.GetUserListsDocument
+  '\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n': typeof types.ListDeleteButton_ListFragmentDoc
+  '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n': typeof types.ListSelector_ListFragmentDoc
+  '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
   '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ': typeof types.AiChatModelsDocument
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ': typeof types.AiEmbeddingModelsDocument
   '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
@@ -300,6 +309,23 @@ const documents: Documents = {
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n':
     types.AiLibraryUpdate_TableItemFragmentDoc,
+  '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ':
+    types.CreateListDocument,
+  '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ':
+    types.DeleteListDocument,
+  '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
+    types.ListEditForm_ListFragmentDoc,
+  '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n          }\n        }\n      ':
+    types.GetListDocument,
+  '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
+    types.ListsBaseFragmentDoc,
+  '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ':
+    types.GetUserListsDocument,
+  '\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n': types.ListDeleteButton_ListFragmentDoc,
+  '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n':
+    types.ListSelector_ListFragmentDoc,
+  '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
+    types.UpdateListDocument,
   '\n      query aiChatModels {\n        aiChatModels {\n          name\n          model\n        }\n      }\n    ':
     types.AiChatModelsDocument,
   '\n      query aiEmbeddingModels {\n        aiEmbeddingModels {\n          name\n          model\n        }\n      }\n    ':
@@ -887,6 +913,60 @@ export function graphql(
 export function graphql(
   source: '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n',
 ): (typeof documents)['\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    success\n    message\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation createList($data: AiListInput!) {\n          createList(data: $data) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation deleteList($id: String!) {\n          deleteList(id: $id) {\n            name\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n          }\n        }\n      ',
+): (typeof documents)['\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ',
+): (typeof documents)['\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListSelector_List\n          ...ListDeleteButton_List\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment ListDeleteButton_List on AiList {\n    id\n    name\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  fragment ListSelector_List on AiList {\n    id\n    createdAt\n    updatedAt\n    name\n    owner {\n      id\n      name\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -11,6 +11,7 @@ import {
   AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
+  AiListInput,
   ConversationInvitationInput,
   UserInput,
   UserProfileInput,
@@ -112,6 +113,12 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiListInputSchema(): z.ZodObject<Properties<AiListInput>> {
+  return z.object({
+    name: z.string(),
   })
 }
 

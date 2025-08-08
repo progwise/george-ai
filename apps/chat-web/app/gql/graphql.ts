@@ -479,6 +479,50 @@ export type AiLibraryUsage = {
   usedFor?: Maybe<Scalars['String']['output']>
 }
 
+export type AiList = {
+  __typename?: 'AiList'
+  createdAt: Scalars['DateTime']['output']
+  fields?: Maybe<Array<AiListField>>
+  id: Scalars['ID']['output']
+  name: Scalars['String']['output']
+  owner: User
+  ownerId: Scalars['String']['output']
+  participants?: Maybe<Array<AiListParticipant>>
+  sources?: Maybe<Array<AiListSource>>
+  updatedAt?: Maybe<Scalars['DateTime']['output']>
+}
+
+export type AiListField = {
+  __typename?: 'AiListField'
+  id: Scalars['ID']['output']
+  languageModel?: Maybe<Scalars['String']['output']>
+  name: Scalars['String']['output']
+  prompt?: Maybe<Scalars['String']['output']>
+  type: Scalars['String']['output']
+}
+
+export type AiListInput = {
+  name: Scalars['String']['input']
+}
+
+export type AiListParticipant = {
+  __typename?: 'AiListParticipant'
+  id: Scalars['ID']['output']
+  list: AiList
+  listId: Scalars['String']['output']
+  user: AiList
+  userId: Scalars['String']['output']
+}
+
+export type AiListSource = {
+  __typename?: 'AiListSource'
+  createdAt: Scalars['DateTime']['output']
+  id: Scalars['ID']['output']
+  library?: Maybe<AiLibrary>
+  libraryId?: Maybe<Scalars['String']['output']>
+  listId: Scalars['String']['output']
+}
+
 export type AssistantParticipant = AiConversationParticipant & {
   __typename?: 'AssistantParticipant'
   assistant?: Maybe<AiAssistant>
@@ -583,11 +627,13 @@ export type Mutation = {
   createAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   createContactRequest: Scalars['Boolean']['output']
   createConversationInvitations?: Maybe<AiConversation>
+  createList: AiList
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
   deleteAiConversations: Scalars['Boolean']['output']
   deleteAiLibrary?: Maybe<Scalars['Boolean']['output']>
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
+  deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   dropFile: AiLibraryFile
   dropFiles: Array<AiLibraryFile>
@@ -615,6 +661,7 @@ export type Mutation = {
   updateAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibraryUsage?: Maybe<AiLibraryUsage>
+  updateList?: Maybe<AiList>
   updateMessage?: Maybe<AiConversationMessage>
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
@@ -694,6 +741,10 @@ export type MutationCreateConversationInvitationsArgs = {
   data: Array<ConversationInvitationInput>
 }
 
+export type MutationCreateListArgs = {
+  data: AiListInput
+}
+
 export type MutationDeleteAiAssistantArgs = {
   assistantId: Scalars['String']['input']
 }
@@ -711,6 +762,10 @@ export type MutationDeleteAiLibraryArgs = {
 }
 
 export type MutationDeleteAiLibraryCrawlerArgs = {
+  id: Scalars['String']['input']
+}
+
+export type MutationDeleteListArgs = {
   id: Scalars['String']['input']
 }
 
@@ -834,6 +889,11 @@ export type MutationUpdateLibraryUsageArgs = {
   usedFor?: InputMaybe<Scalars['String']['input']>
 }
 
+export type MutationUpdateListArgs = {
+  data: AiListInput
+  id: Scalars['String']['input']
+}
+
 export type MutationUpdateMessageArgs = {
   content: Scalars['String']['input']
   messageId: Scalars['String']['input']
@@ -878,6 +938,8 @@ export type Query = {
   aiLibraryFiles: AiLibraryFileQueryResult
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
+  aiList: AiList
+  aiLists: Array<AiList>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
   readFileMarkdown: Scalars['String']['output']
@@ -945,6 +1007,10 @@ export type QueryAiLibraryUpdatesArgs = {
 export type QueryAiLibraryUsageArgs = {
   assistantId?: InputMaybe<Scalars['String']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
+}
+
+export type QueryAiListArgs = {
+  id: Scalars['String']['input']
 }
 
 export type QueryManagedUsersArgs = {
@@ -2617,6 +2683,84 @@ export type AiLibraryUpdate_TableItemFragment = {
   } | null
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
+
+export type CreateListMutationVariables = Exact<{
+  data: AiListInput
+}>
+
+export type CreateListMutation = { __typename?: 'Mutation'; createList: { __typename?: 'AiList'; id: string } }
+
+export type DeleteListMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type DeleteListMutation = { __typename?: 'Mutation'; deleteList: { __typename?: 'AiList'; name: string } }
+
+export type ListEditForm_ListFragment = {
+  __typename?: 'AiList'
+  id: string
+  name: string
+  ownerId: string
+  createdAt: string
+  updatedAt?: string | null
+}
+
+export type GetListQueryVariables = Exact<{
+  listId: Scalars['String']['input']
+}>
+
+export type GetListQuery = {
+  __typename?: 'Query'
+  aiList: {
+    __typename?: 'AiList'
+    id: string
+    ownerId: string
+    createdAt: string
+    updatedAt?: string | null
+    name: string
+  }
+}
+
+export type ListsBaseFragment = {
+  __typename?: 'AiList'
+  id: string
+  ownerId: string
+  createdAt: string
+  updatedAt?: string | null
+}
+
+export type GetUserListsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetUserListsQuery = {
+  __typename?: 'Query'
+  aiLists: Array<{
+    __typename?: 'AiList'
+    id: string
+    ownerId: string
+    createdAt: string
+    updatedAt?: string | null
+    name: string
+    owner: { __typename?: 'User'; id: string; name?: string | null }
+  }>
+}
+
+export type ListDeleteButton_ListFragment = { __typename?: 'AiList'; id: string; name: string }
+
+export type ListSelector_ListFragment = {
+  __typename?: 'AiList'
+  id: string
+  createdAt: string
+  updatedAt?: string | null
+  name: string
+  owner: { __typename?: 'User'; id: string; name?: string | null }
+}
+
+export type UpdateListMutationVariables = Exact<{
+  id: Scalars['String']['input']
+  data: AiListInput
+}>
+
+export type UpdateListMutation = { __typename?: 'Mutation'; updateList?: { __typename?: 'AiList'; id: string } | null }
 
 export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -5463,6 +5607,92 @@ export const AiLibraryUpdate_TableItemFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryUpdate_TableItemFragment, unknown>
+export const ListEditForm_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListEditForm_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListEditForm_ListFragment, unknown>
+export const ListsBaseFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListsBase' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListsBaseFragment, unknown>
+export const ListDeleteButton_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListDeleteButton_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListDeleteButton_ListFragment, unknown>
+export const ListSelector_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListSelector_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'owner' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListSelector_ListFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -9866,6 +10096,274 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
+export const CreateListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'createList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'createList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CreateListMutation, CreateListMutationVariables>
+export const DeleteListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'deleteList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'deleteList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
+export const GetListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListsBase' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListEditForm_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetListQuery, GetListQueryVariables>
+export const GetUserListsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getUserLists' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiLists' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSelector_List' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListDeleteButton_List' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListsBase' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListSelector_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'owner' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListDeleteButton_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetUserListsQuery, GetUserListsQueryVariables>
+export const UpdateListDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'updateList' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'updateList' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
 export const AiChatModelsDocument = {
   kind: 'Document',
   definitions: [

@@ -450,6 +450,46 @@ type AiLibraryUsage {
   usedFor: String
 }
 
+type AiList {
+  createdAt: DateTime!
+  fields: [AiListField!]
+  id: ID!
+  name: String!
+  owner: User!
+  ownerId: String!
+  participants: [AiListParticipant!]
+  sources: [AiListSource!]
+  updatedAt: DateTime
+}
+
+type AiListField {
+  id: ID!
+  languageModel: String
+  name: String!
+  prompt: String
+  type: String!
+}
+
+input AiListInput {
+  name: String!
+}
+
+type AiListParticipant {
+  id: ID!
+  list: AiList!
+  listId: String!
+  user: AiList!
+  userId: String!
+}
+
+type AiListSource {
+  createdAt: DateTime!
+  id: ID!
+  library: AiLibrary
+  libraryId: String
+  listId: String!
+}
+
 type AssistantParticipant implements AiConversationParticipant {
   assistant: AiAssistant
   assistantId: ID
@@ -569,11 +609,13 @@ type Mutation {
   ): AiLibraryCrawler
   createContactRequest(emailOrPhone: String!, message: String!, name: String!): Boolean!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
+  createList(data: AiListInput!): AiList!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
   deleteAiConversations(conversationIds: [String!]!): Boolean!
   deleteAiLibrary(id: String!): Boolean
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
+  deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
   dropFile(fileId: String!): AiLibraryFile!
   dropFiles(libraryId: String!): [AiLibraryFile!]!
@@ -605,6 +647,7 @@ type Mutation {
   ): AiLibraryCrawler
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
+  updateList(data: AiListInput!, id: String!): AiList
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
@@ -631,6 +674,8 @@ type Query {
   aiLibraryFiles(libraryId: String!, skip: Int! = 0, take: Int! = 20): AiLibraryFileQueryResult!
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
+  aiList(id: String!): AiList!
+  aiLists: [AiList!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!
   readFileMarkdown(fileId: String!, libraryId: String!): String!

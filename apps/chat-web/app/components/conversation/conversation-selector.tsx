@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { dateString } from '@george-ai/web-utils'
@@ -25,14 +25,13 @@ graphql(`
 
 interface ConversationSelectorProps {
   conversations: ConversationSelector_ConversationFragment[]
-  selectedConversationId?: string
-  userId: string
   onClick?: () => void
 }
 
-export const ConversationSelector = ({ conversations, onClick, selectedConversationId }: ConversationSelectorProps) => {
+export const ConversationSelector = ({ conversations, onClick }: ConversationSelectorProps) => {
   const { t, language } = useTranslation()
   const [checkedConversationIds, setCheckedConversationIds] = useState<string[]>([])
+  const params = useParams({ strict: false })
 
   // Group conversations by date
   const groupedConversations = conversations?.reduce<Record<string, typeof conversations>>(
@@ -85,11 +84,13 @@ export const ConversationSelector = ({ conversations, onClick, selectedConversat
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="self-end">
-        <DeleteConversationsDialog
-          checkedConversationIds={checkedConversationIds}
-          resetCheckedConversationIds={() => setCheckedConversationIds([])}
-          selectedConversationId={selectedConversationId}
-        />
+        {params.conversationId && (
+          <DeleteConversationsDialog
+            checkedConversationIds={checkedConversationIds}
+            resetCheckedConversationIds={() => setCheckedConversationIds([])}
+            selectedConversationId={params.conversationId}
+          />
+        )}
       </div>
       <ul>
         {groupedConversations &&
