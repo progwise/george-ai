@@ -415,6 +415,7 @@ export default {
     createDialogTitle: 'New list',
     createDialogDescription: 'You can add sources and fields for this list after creation.',
     createListButtonText: 'Create List',
+    createSuccess: 'Successfully created list',
     delete: 'Delete',
     deleteDialogTitle: 'Delete list forever',
     deleteSuccess: 'Successfully deleted {name}.',
