@@ -7,16 +7,23 @@ import { AiLibraryCrawlerCronJobInput } from '../ai-library-crawler-cronjob'
 import { canAccessLibraryOrThrow } from '../ai-library/check-participation'
 import { builder } from '../builder'
 import { runCrawler, stopCrawler } from './run-crawler'
+
+import './sharepoint'
+
+import { removeSharePointCredentials, updateCrawlerSharePointCredentials } from './sharepoint-credentials-manager'
 import { ensureCrawlerSmbShareMount, ensureCrawlerSmbShareUnmount, updateCrawlerSmbMount } from './smb-mount-manager'
 
 console.log('Setting up: AiLibraryCrawler')
 
-const AiLibraryCrawlerUriType = builder.enumType('AiLibraryCrawlerUriType', { values: ['http', 'smb'] as const })
+const AiLibraryCrawlerUriType = builder.enumType('AiLibraryCrawlerUriType', {
+  values: ['http', 'smb', 'sharepoint'] as const,
+})
 
 const AiLibraryCrawlerCredentialsInput = builder.inputType('AiLibraryCrawlerCredentialsInput', {
   fields: (t) => ({
-    username: t.string({ required: true }),
-    password: t.string({ required: true }),
+    username: t.string({ required: false }),
+    password: t.string({ required: false }),
+    sharepointAuth: t.string({ required: false }),
   }),
 })
 const AiLibraryCrawlerInput = builder.inputType('AiLibraryCrawlerInput', {
@@ -77,6 +84,8 @@ builder.prismaObject('AiLibraryCrawler', {
             return 'http'
           case 'smb':
             return 'smb'
+          case 'sharepoint':
+            return 'sharepoint'
           default:
             throw new GraphQLError(`Unknown AiLibraryCrawlerUriType ${crawler.uriType}`)
         }
@@ -191,9 +200,10 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
 
       if (data.uriType === 'http') {
         await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
+        await removeSharePointCredentials(crawler.id)
       } else if (data.uriType === 'smb') {
-        if (!credentials) {
-          throw new GraphQLError('Must provide credentials for uri type SMB')
+        if (!credentials?.username || !credentials?.password) {
+          throw new GraphQLError('Must provide username and password for uri type SMB')
         }
         await ensureCrawlerSmbShareMount({
           crawlerId: crawler.id,
@@ -201,6 +211,13 @@ builder.mutationField('createAiLibraryCrawler', (t) =>
           username: credentials.username,
           password: credentials.password,
         })
+        await removeSharePointCredentials(crawler.id)
+      } else if (data.uriType === 'sharepoint') {
+        if (!credentials?.sharepointAuth) {
+          throw new GraphQLError('Must provide sharepointAuth for uri type SharePoint')
+        }
+        await updateCrawlerSharePointCredentials(crawler.id, credentials.sharepointAuth)
+        await ensureCrawlerSmbShareUnmount({ crawlerId: crawler.id })
       }
 
       if (crawler.cronJob) {
@@ -233,9 +250,10 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
 
       if (data.uriType === 'http') {
         await ensureCrawlerSmbShareUnmount({ crawlerId: id })
+        await removeSharePointCredentials(id)
       } else if (data.uriType === 'smb') {
-        if (!credentials) {
-          throw new GraphQLError('Must provide credentials for uri type SMB')
+        if (!credentials?.username || !credentials?.password) {
+          throw new GraphQLError('Must provide username and password for uri type SMB')
         }
         // Update SMB mount with new credentials
         await updateCrawlerSmbMount({
@@ -244,6 +262,13 @@ builder.mutationField('updateAiLibraryCrawler', (t) =>
           username: credentials.username,
           password: credentials.password,
         })
+        await removeSharePointCredentials(id)
+      } else if (data.uriType === 'sharepoint') {
+        if (!credentials?.sharepointAuth) {
+          throw new GraphQLError('Must provide sharepointAuth for uri type SharePoint')
+        }
+        await updateCrawlerSharePointCredentials(id, credentials.sharepointAuth)
+        await ensureCrawlerSmbShareUnmount({ crawlerId: id })
       }
 
       const crawler = await prisma.aiLibraryCrawler.update({
@@ -313,6 +338,7 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
       }
 
       await ensureCrawlerSmbShareUnmount({ crawlerId: id })
+      await removeSharePointCredentials(id)
 
       return crawler
     },

@@ -295,8 +295,9 @@ export type AiLibraryCrawlerRunsArgs = {
 }
 
 export type AiLibraryCrawlerCredentialsInput = {
-  password: Scalars['String']['input']
-  username: Scalars['String']['input']
+  password?: InputMaybe<Scalars['String']['input']>
+  sharepointAuth?: InputMaybe<Scalars['String']['input']>
+  username?: InputMaybe<Scalars['String']['input']>
 }
 
 export type AiLibraryCrawlerCronJob = {
@@ -360,6 +361,7 @@ export type AiLibraryCrawlerRunUpdatesArgs = {
 
 export enum AiLibraryCrawlerUriType {
   Http = 'http',
+  Sharepoint = 'sharepoint',
   Smb = 'smb',
 }
 
@@ -370,9 +372,11 @@ export type AiLibraryFile = {
   docPath?: Maybe<Scalars['String']['output']>
   dropError?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  lastUpdate?: Maybe<AiLibraryUpdate>
   libraryId: Scalars['String']['output']
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
+  originModificationDate?: Maybe<Scalars['DateTime']['output']>
   originUri?: Maybe<Scalars['String']['output']>
   processedAt?: Maybe<Scalars['DateTime']['output']>
   processingEndedAt?: Maybe<Scalars['DateTime']['output']>
@@ -617,6 +621,7 @@ export type Mutation = {
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
+  validateSharePointConnection: SharePointValidationResult
 }
 
 export type MutationActivateUserProfileArgs = {
@@ -854,6 +859,11 @@ export type MutationUpsertAiBaseCasesArgs = {
   baseCases: Array<AiBaseCaseInputType>
 }
 
+export type MutationValidateSharePointConnectionArgs = {
+  sharepointAuth: Scalars['String']['input']
+  uri: Scalars['String']['input']
+}
+
 export type Query = {
   __typename?: 'Query'
   aiActAssessment: AiActAssessment
@@ -965,6 +975,13 @@ export type QueryReadFileMarkdownArgs = {
 
 export type QueryUserArgs = {
   email: Scalars['String']['input']
+}
+
+export type SharePointValidationResult = {
+  __typename?: 'SharePointValidationResult'
+  errorMessage?: Maybe<Scalars['String']['output']>
+  errorType?: Maybe<Scalars['String']['output']>
+  success?: Maybe<Scalars['Boolean']['output']>
 }
 
 export type User = {
@@ -1947,8 +1964,6 @@ export type GetUserConversationsQuery = {
   }>
 }
 
-export type NewConversationSelector_AssistantFragment = { __typename?: 'AiAssistant'; id: string; name: string }
-
 export type CreateContactRequestMutationVariables = Exact<{
   name: Scalars['String']['input']
   emailOrPhone: Scalars['String']['input']
@@ -1961,6 +1976,21 @@ export type VersionQueryVariables = Exact<{ [key: string]: never }>
 
 export type VersionQuery = { __typename?: 'Query'; version?: string | null }
 
+export type ValidateSharePointConnectionMutationVariables = Exact<{
+  uri: Scalars['String']['input']
+  sharepointAuth: Scalars['String']['input']
+}>
+
+export type ValidateSharePointConnectionMutation = {
+  __typename?: 'Mutation'
+  validateSharePointConnection: {
+    __typename?: 'SharePointValidationResult'
+    success?: boolean | null
+    errorMessage?: string | null
+    errorType?: string | null
+  }
+}
+
 export type CreateAiLibraryCrawlerMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
   data: AiLibraryCrawlerInput
@@ -1970,6 +2000,30 @@ export type CreateAiLibraryCrawlerMutationVariables = Exact<{
 export type CreateAiLibraryCrawlerMutation = {
   __typename?: 'Mutation'
   createAiLibraryCrawler?: { __typename?: 'AiLibraryCrawler'; id: string } | null
+}
+
+export type CrawlerForm_CrawlerFragment = {
+  __typename?: 'AiLibraryCrawler'
+  id: string
+  libraryId: string
+  uri: string
+  uriType: AiLibraryCrawlerUriType
+  maxDepth: number
+  maxPages: number
+  cronJob?: {
+    __typename?: 'AiLibraryCrawlerCronJob'
+    id: string
+    active: boolean
+    hour: number
+    minute: number
+    monday: boolean
+    tuesday: boolean
+    wednesday: boolean
+    thursday: boolean
+    friday: boolean
+    saturday: boolean
+    sunday: boolean
+  } | null
 }
 
 export type CrawlerTable_LibraryCrawlerFragment = {
@@ -2236,6 +2290,7 @@ export type AiLibraryFile_TableItemFragment = {
   processedAt?: string | null
   processingErrorMessage?: string | null
   dropError?: string | null
+  originModificationDate?: string | null
 }
 
 export type GetFileChunksQueryVariables = Exact<{
@@ -2292,6 +2347,14 @@ export type GetFileInfoQuery = {
     updatedAt?: string | null
     processedAt?: string | null
     processingErrorMessage?: string | null
+    originModificationDate?: string | null
+    lastUpdate?: {
+      __typename?: 'AiLibraryUpdate'
+      id: string
+      createdAt: string
+      message?: string | null
+      success: boolean
+    } | null
   }
 }
 
@@ -2323,6 +2386,7 @@ export type EmbeddingsTableQuery = {
       processedAt?: string | null
       processingErrorMessage?: string | null
       dropError?: string | null
+      originModificationDate?: string | null
     }>
   }
 }
@@ -5076,34 +5140,47 @@ export const ConversationDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConversationDetailFragment, unknown>
-export const NewConversationSelector_AssistantFragmentDoc = {
+export const CrawlerForm_CrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'NewConversationSelector_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ConversationParticipantsDialogButton_Assistant' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
+      name: { kind: 'Name', value: 'CrawlerForm_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
+              ],
+            },
+          },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<NewConversationSelector_AssistantFragment, unknown>
+} as unknown as DocumentNode<CrawlerForm_CrawlerFragment, unknown>
 export const RunCrawlerButton_CrawlerFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -5198,6 +5275,7 @@ export const AiLibraryFile_TableItemFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
         ],
       },
     },
@@ -7846,6 +7924,57 @@ export const VersionDocument = {
     },
   ],
 } as unknown as DocumentNode<VersionQuery, VersionQueryVariables>
+export const ValidateSharePointConnectionDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'validateSharePointConnection' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'uri' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'sharepointAuth' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'validateSharePointConnection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'uri' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'uri' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'sharepointAuth' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'sharepointAuth' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'errorType' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ValidateSharePointConnectionMutation, ValidateSharePointConnectionMutationVariables>
 export const CreateAiLibraryCrawlerDocument = {
   kind: 'Document',
   definitions: [
@@ -8172,6 +8301,7 @@ export const GetCrawlerDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'CrawlerForm_Crawler' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
@@ -8215,6 +8345,42 @@ export const GetCrawlerDocument = {
                     ],
                   },
                 },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CrawlerForm_Crawler' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryCrawler' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'uriType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxDepth' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'maxPages' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'cronJob' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'active' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hour' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'minute' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'monday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tuesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'wednesday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'thursday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'friday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'saturday' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sunday' } },
               ],
             },
           },
@@ -8876,6 +9042,20 @@ export const GetFileInfoDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastUpdate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'success' } },
+                    ],
+                  },
+                },
               ],
             },
           },
@@ -8983,6 +9163,7 @@ export const EmbeddingsTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'processingErrorMessage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
         ],
       },
     },

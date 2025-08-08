@@ -11,3 +11,4 @@ apps/chat-web/app/routeTree.gen.ts
 .venv
 .smb-mounts
 .smb-credentials
+.sharepoint-credentials

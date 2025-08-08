@@ -1,9 +1,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { transformToMarkdown } from '@george-ai/file-converter'
+import { getUploadFilePath } from '@george-ai/file-management'
+import { getMimeTypeFromExtension } from '@george-ai/web-utils'
 
+import { prisma } from '../../prisma'
+import { isFileSizeAcceptable } from './constants'
+import { CrawledFileInfo } from './crawled-file-info'
 import { CrawlOptions } from './crawler-options'
+import { calculateFileHash } from './file-hash'
 import { uriToMountedPath } from './smb-mount-manager'
 
 interface SmbFileToProcess {
@@ -14,7 +19,174 @@ interface SmbFileToProcess {
   depth: number
 }
 
-export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOptions) {
+const saveSmbCrawlerFile = async ({
+  fileName,
+  fileUri,
+  libraryId,
+  crawlerId,
+  mimeType,
+  fileSize,
+  fileModifiedTime,
+  mountedFilePath,
+  processingError,
+}: {
+  fileName: string
+  fileUri: string
+  libraryId: string
+  crawlerId: string
+  mimeType: string
+  fileSize: number
+  fileModifiedTime: Date
+  mountedFilePath: string
+  processingError?: string
+}) => {
+  // Check if file already exists
+  const existingFile = await prisma.aiLibraryFile.findUnique({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri: fileUri,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      originUri: true,
+      mimeType: true,
+      originFileHash: true,
+      originModificationDate: true,
+      processedAt: true,
+    },
+  })
+
+  let fileHash: string | undefined
+  let skipProcessing = false
+
+  // If no processing error, handle file hash calculation and skip logic
+  if (!processingError) {
+    // Check if existing file has a hash stored
+    if (existingFile && !existingFile.originFileHash) {
+      // Try to generate hash from existing uploaded file
+      const existingFilePath = getUploadFilePath({ fileId: existingFile.id, libraryId })
+      try {
+        await fs.promises.access(existingFilePath)
+        fileHash = await calculateFileHash(existingFilePath)
+        console.log(`Generated hash for existing SMB file ${fileName}: ${fileHash}`)
+
+        // Update the existing file with the hash
+        await prisma.aiLibraryFile.update({
+          where: { id: existingFile.id },
+          data: { originFileHash: fileHash },
+        })
+      } catch {
+        console.log(`Existing file not found on disk for ${fileName}, will copy from SMB`)
+      }
+    }
+
+    // If we don't have a hash yet, calculate it from the mounted file
+    if (!fileHash) {
+      fileHash = await calculateFileHash(mountedFilePath)
+
+      // Check if this file was already processed with the same hash
+      if (existingFile && existingFile.originFileHash === fileHash && existingFile.processedAt) {
+        console.log(`Skipping SMB file ${fileName} - already processed with same hash`)
+        skipProcessing = true
+
+        // Update modification date even if skipping
+        await prisma.aiLibraryFile.update({
+          where: { id: existingFile.id },
+          data: {
+            originModificationDate: fileModifiedTime,
+            updatedAt: new Date(),
+          },
+        })
+
+        return { ...existingFile, skipProcessing }
+      }
+
+      // Create/update file with hash
+      const file = await prisma.aiLibraryFile.upsert({
+        where: {
+          crawledByCrawlerId_originUri: {
+            crawledByCrawlerId: crawlerId,
+            originUri: fileUri,
+          },
+        },
+        create: {
+          name: `${fileName}`,
+          libraryId: libraryId,
+          mimeType,
+          size: fileSize,
+          updatedAt: fileModifiedTime,
+          originUri: fileUri,
+          crawledByCrawlerId: crawlerId,
+          originModificationDate: fileModifiedTime,
+          originFileHash: fileHash,
+        },
+        update: {
+          name: `${fileName}`,
+          libraryId: libraryId,
+          mimeType,
+          size: fileSize,
+          updatedAt: fileModifiedTime,
+          originModificationDate: fileModifiedTime,
+          originFileHash: fileHash,
+        },
+      })
+
+      // Copy file to final location
+      const uploadedFilePath = getUploadFilePath({ fileId: file.id, libraryId })
+      await fs.promises.mkdir(path.dirname(uploadedFilePath), { recursive: true })
+      await fs.promises.copyFile(mountedFilePath, uploadedFilePath)
+
+      return { ...file, skipProcessing }
+    } else if (existingFile) {
+      // We have a hash from the existing file, check if it needs reprocessing
+      if (existingFile.processedAt) {
+        console.log(`SMB file ${fileName} already processed with hash ${fileHash}`)
+        skipProcessing = true
+      }
+      return { ...existingFile, skipProcessing }
+    }
+  }
+
+  // For processing errors, just update database without copying
+  const fileUpdateData = {
+    name: `${fileName}`,
+    libraryId: libraryId,
+    mimeType,
+    size: fileSize,
+    updatedAt: fileModifiedTime,
+    originModificationDate: fileModifiedTime,
+    processingErrorMessage: processingError,
+    processingErrorAt: new Date(),
+  }
+
+  const file = await prisma.aiLibraryFile.upsert({
+    where: {
+      crawledByCrawlerId_originUri: {
+        crawledByCrawlerId: crawlerId,
+        originUri: fileUri,
+      },
+    },
+    create: {
+      ...fileUpdateData,
+      originUri: fileUri,
+      crawledByCrawlerId: crawlerId,
+    },
+    update: fileUpdateData,
+  })
+
+  return { ...file, skipProcessing }
+}
+
+export async function* crawlSmb({
+  uri,
+  maxDepth,
+  maxPages,
+  crawlerId,
+  libraryId,
+}: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   console.log(`Start SMB crawling ${uri} with maxDepth: ${maxDepth} and maxPages: ${maxPages}`)
   console.log(`Using mount for crawler: ${crawlerId}`)
 
@@ -36,43 +208,90 @@ export async function* crawlSmb({ uri, maxDepth, maxPages, crawlerId }: CrawlOpt
       try {
         console.log(`Processing SMB file: ${fileToProcess.uri}`)
 
-        // Convert URI to mounted filesystem path
-        const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
+        // Check file size limits before processing
+        const sizeCheck = isFileSizeAcceptable(fileToProcess.size)
 
-        // Determine MIME type from file extension
+        // Convert URI to mounted filesystem path and determine MIME type
+        const mountedFilePath = uriToMountedPath(fileToProcess.uri, crawlerId)
         const mimeType = getMimeTypeFromExtension(fileToProcess.name)
 
-        // Convert to markdown using file converter directly on mounted file
-        const markdown = await transformToMarkdown({
-          name: fileToProcess.name,
+        if (!sizeCheck.acceptable) {
+          console.warn(`SMB file too large ${fileToProcess.uri}: ${sizeCheck.reason}`)
+
+          // Still create file record but mark as failed due to size
+          const fileInfo = await saveSmbCrawlerFile({
+            fileName: fileToProcess.name,
+            crawlerId,
+            libraryId,
+            fileModifiedTime: fileToProcess.modifiedTime,
+            fileSize: fileToProcess.size,
+            mimeType,
+            fileUri: fileToProcess.uri,
+            mountedFilePath,
+            processingError: `File too large: ${sizeCheck.reason}`,
+          })
+
+          yield {
+            id: fileInfo.id,
+            name: fileInfo.name,
+            originUri: fileInfo.originUri,
+            mimeType: fileInfo.mimeType,
+            skipProcessing: false,
+            hints: `SMB Crawler ${crawlerId} - file ${fileInfo.name} skipped due to size limit`,
+          }
+          continue
+        }
+
+        if (sizeCheck.shouldWarn) {
+          console.warn(`SMB file ${fileToProcess.uri}: ${sizeCheck.reason}`)
+        }
+
+        const fileInfo = await saveSmbCrawlerFile({
+          fileName: fileToProcess.name,
+          crawlerId,
+          libraryId,
+          fileModifiedTime: fileToProcess.modifiedTime,
+          fileSize: fileToProcess.size,
           mimeType,
-          path: mountedFilePath, // Direct access to mounted file - no copying!
+          fileUri: fileToProcess.uri,
+          mountedFilePath,
         })
 
-        // Create metadata
-        const metaData = JSON.stringify({
-          uri: fileToProcess.uri,
-          title: fileToProcess.name,
-          size: fileToProcess.size,
-          modifiedTime: fileToProcess.modifiedTime.toISOString(),
-          type: 'file',
-          source: 'smb',
-          mimeType,
-        })
-
-        yield { metaData, markdown }
+        // Check if we should skip processing
+        if (fileInfo.skipProcessing) {
+          console.log(`Skipping processing for SMB file ${fileToProcess.name} - file unchanged`)
+          yield {
+            id: fileInfo.id,
+            name: fileInfo.name,
+            originUri: fileInfo.originUri,
+            mimeType: fileInfo.mimeType,
+            skipProcessing: true,
+            hints: `SMB crawler - file ${fileInfo.name} skipped (already processed with same hash)`,
+          }
+        } else {
+          yield {
+            id: fileInfo.id,
+            name: fileInfo.name,
+            originUri: fileInfo.originUri,
+            mimeType: fileInfo.mimeType,
+            skipProcessing: false,
+            hints: `SMB Crawler ${crawlerId} for file ${fileInfo.name}`,
+          }
+        }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error(`Error processing SMB file ${fileToProcess.uri}:`, errorMessage)
-        yield { uri: fileToProcess.uri, markdown: null, metaData: null, error: errorMessage }
+        const hints = `Error processing SMB file ${fileToProcess.uri} in crawler ${crawlerId}`
+        console.error(hints, errorMessage)
+        yield { errorMessage, hints }
       }
     }
 
     console.log(`Finished SMB crawling. Processed ${processedPages} files.`)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error('Error in SMB crawler:', errorMessage)
-    yield { uri, markdown: null, metaData: null, error: errorMessage }
+    const hints = `Error in SMB crawler ${crawlerId}`
+    console.error(hints, errorMessage)
+    yield { errorMessage, hints }
   }
 }
 
@@ -115,22 +334,18 @@ async function discoverMountedFilesAndDirectories(
       const entryPath = path.join(mountedPath, entry.name)
 
       if (entry.isFile() && !processedUris.has(entryUri)) {
-        // Only process text-like files
-        if (isTextFile(entry.name)) {
-          try {
-            const stats = await fs.promises.stat(entryPath)
-            queue.push({
-              uri: entryUri,
-              name: entry.name,
-              size: stats.size,
-              modifiedTime: stats.mtime,
-              depth: currentDepth,
-            })
-          } catch (error) {
-            console.warn(`Failed to stat file ${entryPath}:`, error)
-          }
-        } else {
-          console.log(`Skipping non-text file: ${entryUri}`)
+        // Process all files - let the processor decide what to do with them
+        try {
+          const stats = await fs.promises.stat(entryPath)
+          queue.push({
+            uri: entryUri,
+            name: entry.name,
+            size: stats.size,
+            modifiedTime: stats.mtime,
+            depth: currentDepth,
+          })
+        } catch (error) {
+          console.warn(`Failed to stat file ${entryPath}:`, error)
         }
       } else if (entry.isDirectory() && currentDepth < maxDepth) {
         // Recursively explore subdirectories
@@ -146,122 +361,4 @@ async function discoverMountedFilesAndDirectories(
     console.error(`Error listing directory ${currentUri}:`, error)
     // Continue with other directories even if this one fails
   }
-}
-
-function isTextFile(filename: string): boolean {
-  const textExtensions = [
-    '.txt',
-    '.md',
-    '.markdown',
-    '.json',
-    '.xml',
-    '.html',
-    '.htm',
-    '.css',
-    '.js',
-    '.ts',
-    '.py',
-    '.java',
-    '.c',
-    '.cpp',
-    '.h',
-    '.hpp',
-    '.cs',
-    '.php',
-    '.rb',
-    '.go',
-    '.rs',
-    '.sql',
-    '.csv',
-    '.tsv',
-    '.log',
-    '.ini',
-    '.cfg',
-    '.conf',
-    '.yaml',
-    '.yml',
-    '.toml',
-    '.sh',
-    '.bat',
-    '.ps1',
-    '.dockerfile',
-    '.gitignore',
-    '.gitattributes',
-    '.editorconfig',
-    '.env',
-    '.properties',
-    '.gradle',
-    '.pom',
-    '.sbt',
-    '.build',
-    '.make',
-    '.cmake',
-    // Add file converter supported formats
-    '.pdf',
-    '.docx',
-    '.doc',
-    '.xlsx',
-    '.xls',
-  ]
-
-  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-  return textExtensions.includes(extension) || !filename.includes('.')
-}
-
-function getMimeTypeFromExtension(filename: string): string {
-  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-
-  const mimeTypeMap: Record<string, string> = {
-    // Text files
-    '.txt': 'text/plain',
-    '.md': 'text/markdown',
-    '.markdown': 'text/markdown',
-    '.html': 'text/html',
-    '.htm': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.ts': 'application/typescript',
-    '.json': 'application/json',
-    '.xml': 'application/xml',
-    '.yaml': 'application/x-yaml',
-    '.yml': 'application/x-yaml',
-    '.csv': 'text/csv',
-    '.tsv': 'text/tab-separated-values',
-
-    // Office documents
-    '.pdf': 'application/pdf',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.doc': 'application/msword',
-    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    '.xls': 'application/vnd.ms-excel',
-
-    // Code files
-    '.py': 'text/x-python',
-    '.java': 'text/x-java-source',
-    '.c': 'text/x-c',
-    '.cpp': 'text/x-c++',
-    '.h': 'text/x-c',
-    '.hpp': 'text/x-c++',
-    '.cs': 'text/x-csharp',
-    '.php': 'application/x-httpd-php',
-    '.rb': 'application/x-ruby',
-    '.go': 'text/x-go',
-    '.rs': 'text/x-rust',
-    '.sql': 'application/sql',
-
-    // Config files
-    '.ini': 'text/plain',
-    '.cfg': 'text/plain',
-    '.conf': 'text/plain',
-    '.env': 'text/plain',
-    '.properties': 'text/plain',
-    '.log': 'text/plain',
-
-    // Scripts
-    '.sh': 'application/x-sh',
-    '.bat': 'application/x-msdos-program',
-    '.ps1': 'application/x-powershell',
-  }
-
-  return mimeTypeMap[extension] || 'text/plain'
 }

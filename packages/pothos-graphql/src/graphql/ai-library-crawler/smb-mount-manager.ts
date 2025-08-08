@@ -99,7 +99,7 @@ export const ensureCrawlerSmbShareMount = async (params: {
   password: string
 }): Promise<string> => {
   const { crawlerId, uri, username, password } = params
-  console.log('ensureCrawlerSmbShare', { crawlerId, uri, username })
+  console.log('ensureCrawlerSmbShare', { crawlerId, uri, username: '***' })
 
   const mountPoint = getMountPoint(crawlerId)
 
@@ -175,7 +175,7 @@ export const updateCrawlerSmbMount = async (params: {
   password: string
 }): Promise<string> => {
   const { crawlerId, uri, username, password } = params
-  console.log('updateCrawlerSmbMount', { crawlerId, uri, username })
+  console.log('updateCrawlerSmbMount', { crawlerId, uri, username: '***' })
 
   const mountPoint = getMountPoint(crawlerId)
 
@@ -240,15 +240,24 @@ export const ensureCrawlerSmbShareUnmount = async (params: { crawlerId: string }
   try {
     // Check if mounted
     if (!(await isMounted(mountPoint))) {
-      console.log(`SMB share not mounted for crawler ${crawlerId}`)
+      console.log(`No SMB share mount to clean up for crawler ${crawlerId}`)
 
-      // Clean up mount point directory if it exists
-      try {
-        await fs.promises.rmdir(mountPoint)
-        console.log(`Cleaned up mount point directory ${mountPoint}`)
-      } catch (error) {
-        // Directory might not exist or might not be empty, that's okay
-        console.debug('Mount point cleanup not needed:', error)
+      // Clean up mount point directory if it exists and is empty
+      const dirExists = await fs.promises
+        .access(mountPoint, fs.constants.F_OK)
+        .then(() => true)
+        .catch(() => false)
+
+      if (dirExists) {
+        const files = await fs.promises.readdir(mountPoint)
+        if (files.length === 0) {
+          await fs.promises.rmdir(mountPoint)
+          console.log(`Cleaned up empty mount point directory ${mountPoint}`)
+        } else {
+          console.log(`Mount point directory ${mountPoint} is not empty, leaving it in place`)
+        }
+      } else {
+        console.log(`Mount point directory ${mountPoint} does not exist, nothing to clean up`)
       }
 
       return

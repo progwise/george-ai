@@ -44,7 +44,7 @@ function RouteComponent() {
             {`${dateString(crawler.lastRun?.startedAt, language)} ${timeString(crawler.lastRun?.startedAt, language)}-${timeString(crawler.lastRun?.endedAt, language)}`}
           </span>
           <span className="mx-2">|</span>
-          <span className="">
+          <span>
             {crawler.lastRun?.success && crawler.lastRun.endedAt ? (
               <span className="text-success flex items-center">
                 {t('texts.success')}

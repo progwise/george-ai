@@ -277,8 +277,9 @@ type AiLibraryCrawler {
 }
 
 input AiLibraryCrawlerCredentialsInput {
-  password: String!
-  username: String!
+  password: String
+  sharepointAuth: String
+  username: String
 }
 
 type AiLibraryCrawlerCronJob {
@@ -335,6 +336,7 @@ type AiLibraryCrawlerRun {
 
 enum AiLibraryCrawlerUriType {
   http
+  sharepoint
   smb
 }
 
@@ -344,9 +346,11 @@ type AiLibraryFile {
   docPath: String
   dropError: String
   id: ID!
+  lastUpdate: AiLibraryUpdate
   libraryId: String!
   mimeType: String!
   name: String!
+  originModificationDate: DateTime
   originUri: String
   processedAt: DateTime
   processingEndedAt: DateTime
@@ -607,6 +611,7 @@ type Mutation {
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
+  validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
 }
 
 type Query {
@@ -636,6 +641,12 @@ type Query {
   userProfile: UserProfile
   users: [User!]!
   version: String
+}
+
+type SharePointValidationResult {
+  errorMessage: String
+  errorType: String
+  success: Boolean
 }
 
 type User {
