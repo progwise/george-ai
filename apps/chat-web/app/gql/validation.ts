@@ -12,6 +12,7 @@ import {
   AiLibraryFileInput,
   AiLibraryInput,
   AiListInput,
+  AiListSourceInput,
   ConversationInvitationInput,
   UserInput,
   UserProfileInput,
@@ -119,6 +120,12 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
 export function AiListInputSchema(): z.ZodObject<Properties<AiListInput>> {
   return z.object({
     name: z.string(),
+  })
+}
+
+export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceInput>> {
+  return z.object({
+    libraryId: z.string(),
   })
 }
 

@@ -452,13 +452,13 @@ type AiLibraryUsage {
 
 type AiList {
   createdAt: DateTime!
-  fields: [AiListField!]
+  fields: [AiListField!]!
   id: ID!
   name: String!
   owner: User!
   ownerId: String!
-  participants: [AiListParticipant!]
-  sources: [AiListSource!]
+  participants: [AiListParticipant!]!
+  sources: [AiListSource!]!
   updatedAt: DateTime
 }
 
@@ -488,6 +488,10 @@ type AiListSource {
   library: AiLibrary
   libraryId: String
   listId: String!
+}
+
+input AiListSourceInput {
+  libraryId: String!
 }
 
 type AssistantParticipant implements AiConversationParticipant {
@@ -595,6 +599,7 @@ type Mutation {
   ): [AiConversationParticipant!]
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
+  addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
   clearEmbeddedFiles(libraryId: String!): Boolean
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
@@ -631,6 +636,7 @@ type Mutation {
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
+  removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean

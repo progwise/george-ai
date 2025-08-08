@@ -14,6 +14,7 @@ const getList = createServerFn({ method: 'GET' })
           aiList(id: $listId) {
             ...ListsBase
             ...ListEditForm_List
+            ...ListSourcesManager_List
           }
         }
       `),

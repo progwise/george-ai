@@ -73,3 +73,86 @@ builder.mutationField('deleteList', (t) =>
     },
   }),
 )
+
+const AiListSourceInput = builder.inputType('AiListSourceInput', {
+  fields: (t) => ({
+    libraryId: t.string({ required: true }),
+  }),
+})
+
+builder.mutationField('addListSource', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListSource',
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      data: t.arg({ type: AiListSourceInput, required: true }),
+    },
+    resolve: async (query, _source, { listId, data }, { session }) => {
+      const existingList = await prisma.aiList.findFirst({
+        include: { participants: true },
+        where: { id: listId },
+      })
+      if (!existingList) {
+        throw new Error(`List with id ${listId} not found`)
+      }
+      canAccessListOrThrow(existingList, session.user)
+
+      // Check if library exists and user has access
+      const library = await prisma.aiLibrary.findFirst({
+        where: { 
+          id: data.libraryId,
+          OR: [
+            { ownerId: session.user.id },
+            { isPublic: true },
+            { participants: { some: { userId: session.user.id } } }
+          ]
+        }
+      })
+      if (!library) {
+        throw new Error(`Library with id ${data.libraryId} not found or access denied`)
+      }
+
+      // Check if source already exists
+      const existingSource = await prisma.aiListSource.findFirst({
+        where: { listId, libraryId: data.libraryId }
+      })
+      if (existingSource) {
+        throw new Error(`Library is already added as a source to this list`)
+      }
+
+      const newSource = await prisma.aiListSource.create({
+        ...query,
+        data: {
+          listId,
+          libraryId: data.libraryId,
+        },
+      })
+      return newSource
+    },
+  }),
+)
+
+builder.mutationField('removeListSource', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListSource',
+    nullable: false,
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { id }, { session }) => {
+      const existingSource = await prisma.aiListSource.findFirst({
+        ...query,
+        where: { id },
+        include: { list: { include: { participants: true } } }
+      })
+      if (!existingSource) {
+        throw new Error(`List source with id ${id} not found`)
+      }
+      canAccessListOrThrow(existingSource.list, session.user)
+
+      await prisma.aiListSource.delete({ where: { id } })
+      return existingSource
+    },
+  }),
+)

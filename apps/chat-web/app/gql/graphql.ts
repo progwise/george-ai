@@ -482,13 +482,13 @@ export type AiLibraryUsage = {
 export type AiList = {
   __typename?: 'AiList'
   createdAt: Scalars['DateTime']['output']
-  fields?: Maybe<Array<AiListField>>
+  fields: Array<AiListField>
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
   owner: User
   ownerId: Scalars['String']['output']
-  participants?: Maybe<Array<AiListParticipant>>
-  sources?: Maybe<Array<AiListSource>>
+  participants: Array<AiListParticipant>
+  sources: Array<AiListSource>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
@@ -521,6 +521,10 @@ export type AiListSource = {
   library?: Maybe<AiLibrary>
   libraryId?: Maybe<Scalars['String']['output']>
   listId: Scalars['String']['output']
+}
+
+export type AiListSourceInput = {
+  libraryId: Scalars['String']['input']
 }
 
 export type AssistantParticipant = AiConversationParticipant & {
@@ -617,6 +621,7 @@ export type Mutation = {
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
+  addListSource: AiListSource
   cancelFileUpload: Scalars['Boolean']['output']
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
   confirmConversationInvitation?: Maybe<AiConversation>
@@ -649,6 +654,7 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
+  removeListSource: AiListSource
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
@@ -692,6 +698,11 @@ export type MutationAddLibraryParticipantsArgs = {
 export type MutationAddLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationAddListSourceArgs = {
+  data: AiListSourceInput
+  listId: Scalars['String']['input']
 }
 
 export type MutationCancelFileUploadArgs = {
@@ -830,6 +841,10 @@ export type MutationRemoveLibraryParticipantArgs = {
 export type MutationRemoveLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationRemoveListSourceArgs = {
+  id: Scalars['String']['input']
 }
 
 export type MutationResetAssessmentAnswersArgs = {
@@ -2684,6 +2699,26 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
+export type AddListSourceMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  data: AiListSourceInput
+}>
+
+export type AddListSourceMutation = {
+  __typename?: 'Mutation'
+  addListSource: {
+    __typename?: 'AiListSource'
+    id: string
+    libraryId?: string | null
+    library?: {
+      __typename?: 'AiLibrary'
+      id: string
+      name: string
+      owner: { __typename?: 'User'; name?: string | null }
+    } | null
+  }
+}
+
 export type CreateListMutationVariables = Exact<{
   data: AiListInput
 }>
@@ -2718,6 +2753,17 @@ export type GetListQuery = {
     createdAt: string
     updatedAt?: string | null
     name: string
+    sources: Array<{
+      __typename?: 'AiListSource'
+      id: string
+      libraryId?: string | null
+      library?: {
+        __typename?: 'AiLibrary'
+        id: string
+        name: string
+        owner: { __typename?: 'User'; name?: string | null }
+      } | null
+    }>
   }
 }
 
@@ -2753,6 +2799,32 @@ export type ListSelector_ListFragment = {
   updatedAt?: string | null
   name: string
   owner: { __typename?: 'User'; id: string; name?: string | null }
+}
+
+export type ListSourcesManager_ListFragment = {
+  __typename?: 'AiList'
+  id: string
+  name: string
+  sources: Array<{
+    __typename?: 'AiListSource'
+    id: string
+    libraryId?: string | null
+    library?: {
+      __typename?: 'AiLibrary'
+      id: string
+      name: string
+      owner: { __typename?: 'User'; name?: string | null }
+    } | null
+  }>
+}
+
+export type RemoveListSourceMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type RemoveListSourceMutation = {
+  __typename?: 'Mutation'
+  removeListSource: { __typename?: 'AiListSource'; id: string }
 }
 
 export type UpdateListMutationVariables = Exact<{
@@ -5693,6 +5765,53 @@ export const ListSelector_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListSelector_ListFragment, unknown>
+export const ListSourcesManager_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListSourcesManager_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sources' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'owner' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListSourcesManager_ListFragment, unknown>
 export const UserProfileForm_UserProfileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10096,6 +10215,78 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
+export const AddListSourceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'addListSource' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListSourceInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addListSource' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'owner' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AddListSourceMutation, AddListSourceMutationVariables>
 export const CreateListDocument = {
   kind: 'Document',
   definitions: [
@@ -10202,6 +10393,7 @@ export const GetListDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSourcesManager_List' } },
               ],
             },
           },
@@ -10234,6 +10426,48 @@ export const GetListDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListSourcesManager_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'sources' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'library' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'owner' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'name' } }],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
         ],
       },
     },
@@ -10317,6 +10551,43 @@ export const GetUserListsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetUserListsQuery, GetUserListsQueryVariables>
+export const RemoveListSourceDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeListSource' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeListSource' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveListSourceMutation, RemoveListSourceMutationVariables>
 export const UpdateListDocument = {
   kind: 'Document',
   definitions: [

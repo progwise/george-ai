@@ -47,8 +47,8 @@ builder.prismaObject('AiList', {
     ownerId: t.exposeString('ownerId', { nullable: false }),
     owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
-    participants: t.relation('participants'),
-    fields: t.relation('fields'),
-    sources: t.relation('sources'),
+    participants: t.relation('participants', { nullable: false }),
+    fields: t.relation('fields', { nullable: false }),
+    sources: t.relation('sources', { nullable: false }),
   }),
 })
