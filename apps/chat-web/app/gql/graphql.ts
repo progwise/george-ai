@@ -367,6 +367,7 @@ export enum AiLibraryCrawlerUriType {
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
   chunks?: Maybe<Scalars['Int']['output']>
+  crawledByCrawler?: Maybe<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   docPath?: Maybe<Scalars['String']['output']>
   dropError?: Maybe<Scalars['String']['output']>
@@ -499,6 +500,18 @@ export type AiListField = {
   name: Scalars['String']['output']
   prompt?: Maybe<Scalars['String']['output']>
   type: Scalars['String']['output']
+}
+
+/** Query result for AI list files from all source libraries */
+export type AiListFilesQueryResult = {
+  __typename?: 'AiListFilesQueryResult'
+  count: Scalars['Int']['output']
+  files: Array<AiLibraryFile>
+  listId: Scalars['String']['output']
+  orderBy?: Maybe<Scalars['String']['output']>
+  orderDirection?: Maybe<Scalars['String']['output']>
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
 }
 
 export type AiListInput = {
@@ -954,6 +967,7 @@ export type Query = {
   aiLibraryUpdates: AiLibraryUpdateQueryResult
   aiLibraryUsage: Array<AiLibraryUsage>
   aiList: AiList
+  aiListFiles: AiListFilesQueryResult
   aiLists: Array<AiList>
   managedUsers: ManagedUsersResponse
   queryAiLibraryFiles: AiLibraryQueryResult
@@ -1026,6 +1040,14 @@ export type QueryAiLibraryUsageArgs = {
 
 export type QueryAiListArgs = {
   id: Scalars['String']['input']
+}
+
+export type QueryAiListFilesArgs = {
+  listId: Scalars['String']['input']
+  orderBy?: InputMaybe<Scalars['String']['input']>
+  orderDirection?: InputMaybe<Scalars['String']['input']>
+  skip?: Scalars['Int']['input']
+  take?: Scalars['Int']['input']
 }
 
 export type QueryManagedUsersArgs = {
@@ -2740,6 +2762,39 @@ export type ListEditForm_ListFragment = {
   updatedAt?: string | null
 }
 
+export type AiListFilesQueryVariables = Exact<{
+  listId: Scalars['String']['input']
+  skip: Scalars['Int']['input']
+  take: Scalars['Int']['input']
+  orderBy?: InputMaybe<Scalars['String']['input']>
+  orderDirection?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type AiListFilesQuery = {
+  __typename?: 'Query'
+  aiListFiles: {
+    __typename?: 'AiListFilesQueryResult'
+    listId: string
+    count: number
+    take: number
+    skip: number
+    orderBy?: string | null
+    orderDirection?: string | null
+    files: Array<{
+      __typename?: 'AiLibraryFile'
+      id: string
+      name: string
+      originUri?: string | null
+      mimeType: string
+      size?: number | null
+      processedAt?: string | null
+      originModificationDate?: string | null
+      libraryId: string
+      crawledByCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string } | null
+    }>
+  }
+}
+
 export type GetListQueryVariables = Exact<{
   listId: Scalars['String']['input']
 }>
@@ -2791,6 +2846,28 @@ export type GetUserListsQuery = {
 }
 
 export type ListDeleteButton_ListFragment = { __typename?: 'AiList'; id: string; name: string }
+
+export type ListFilesTable_ListFilesFragment = {
+  __typename?: 'AiListFilesQueryResult'
+  listId: string
+  count: number
+  take: number
+  skip: number
+  orderBy?: string | null
+  orderDirection?: string | null
+  files: Array<{
+    __typename?: 'AiLibraryFile'
+    id: string
+    name: string
+    originUri?: string | null
+    mimeType: string
+    size?: number | null
+    processedAt?: string | null
+    originModificationDate?: string | null
+    libraryId: string
+    crawledByCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string } | null
+  }>
+}
 
 export type ListSelector_ListFragment = {
   __typename?: 'AiList'
@@ -5735,6 +5812,55 @@ export const ListDeleteButton_ListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListDeleteButton_ListFragment, unknown>
+export const ListFilesTable_ListFilesFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_ListFiles' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilesQueryResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'orderBy' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'orderDirection' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'files' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'crawledByCrawler' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFilesTable_ListFilesFragment, unknown>
 export const ListSelector_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10361,6 +10487,127 @@ export const DeleteListDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
+export const AiListFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiListFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orderBy' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'orderDirection' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiListFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'orderBy' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'orderBy' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'orderDirection' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'orderDirection' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFilesTable_ListFiles' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFilesTable_ListFiles' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFilesQueryResult' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'listId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'count' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'take' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'orderBy' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'orderDirection' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'files' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'crawledByCrawler' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiListFilesQuery, AiListFilesQueryVariables>
 export const GetListDocument = {
   kind: 'Document',
   definitions: [

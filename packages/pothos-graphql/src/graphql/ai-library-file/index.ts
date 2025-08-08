@@ -63,6 +63,7 @@ export const AiLibraryFile = builder.prismaObject('AiLibraryFile', {
     }),
     dropError: t.exposeString('dropError', { nullable: true }),
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
+    crawledByCrawler: t.relation('crawledByCrawler', { nullable: true }),
     lastUpdate: t.prismaField({
       type: 'AiLibraryUpdate',
       nullable: true,

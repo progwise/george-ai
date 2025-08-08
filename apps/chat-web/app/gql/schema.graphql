@@ -341,6 +341,7 @@ enum AiLibraryCrawlerUriType {
 
 type AiLibraryFile {
   chunks: Int
+  crawledByCrawler: AiLibraryCrawler
   createdAt: DateTime!
   docPath: String
   dropError: String
@@ -468,6 +469,19 @@ type AiListField {
   name: String!
   prompt: String
   type: String!
+}
+
+"""
+Query result for AI list files from all source libraries
+"""
+type AiListFilesQueryResult {
+  count: Int!
+  files: [AiLibraryFile!]!
+  listId: String!
+  orderBy: String
+  orderDirection: String
+  skip: Int!
+  take: Int!
 }
 
 input AiListInput {
@@ -681,6 +695,13 @@ type Query {
   aiLibraryUpdates(crawlerId: ID, libraryId: ID!, skip: Int = 0, take: Int = 10): AiLibraryUpdateQueryResult!
   aiLibraryUsage(assistantId: String, libraryId: String): [AiLibraryUsage!]!
   aiList(id: String!): AiList!
+  aiListFiles(
+    listId: String!
+    orderBy: String = "asc"
+    orderDirection: String
+    skip: Int! = 0
+    take: Int! = 20
+  ): AiListFilesQueryResult!
   aiLists: [AiList!]!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
   queryAiLibraryFiles(libraryId: String!, query: String!, skip: Int!, take: Int!): AiLibraryQueryResult!

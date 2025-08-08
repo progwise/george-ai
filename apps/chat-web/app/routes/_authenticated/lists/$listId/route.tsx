@@ -51,7 +51,7 @@ function RouteComponent() {
               className="btn btn-sm"
               activeProps={{ className: 'btn-active' }}
               params={{ listId: params.listId }}
-              activeOptions={{ exact: true }}
+              activeOptions={{ exact: true, includeSearch: false }}
             >
               <ListViewIcon className="size-6" />
               {t('lists.view')}

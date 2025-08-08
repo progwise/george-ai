@@ -9,7 +9,6 @@ import { getLibrariesQueryOptions } from '../library/get-libraries'
 import { LoadingSpinner } from '../loading-spinner'
 import { addListSource } from './add-list-source'
 import { getListQueryOptions } from './get-list'
-import { getListsQueryOptions } from './get-lists'
 import { removeListSource } from './remove-list-source'
 
 graphql(`
