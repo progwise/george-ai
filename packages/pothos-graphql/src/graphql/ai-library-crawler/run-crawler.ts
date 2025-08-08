@@ -149,7 +149,7 @@ const startCrawling = async (
           })
         } else {
           await processFile(crawledPage.id)
-          crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nCraweld paged was processed.` })
+          crawledPages.push({ ...crawledPage, hints: crawledPage.hints + `\nCrawled paged was processed.` })
           await prisma.aiLibraryUpdate.create({
             data: {
               libraryId: crawler.libraryId,

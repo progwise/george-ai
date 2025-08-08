@@ -130,7 +130,7 @@ function RouteComponent() {
                 } else if (isSkipped) {
                   return <span className="badge badge-warning">{t('updates.skipped')}</span>
                 } else {
-                  return <span className="badge badge-success">{t('updates.processed')}</span>
+                  return <span className="badge badge-info">{t('updates.processed')}</span>
                 }
               })()}
             </span>
