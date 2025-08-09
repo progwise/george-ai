@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { dateTimeString } from '@george-ai/web-utils'
 
@@ -58,17 +58,17 @@ interface ListFilesTableProps {
 
 export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps) => {
   const { t, language } = useTranslation()
-  
+
   // Extract state from fragment data (managed by URL/route)
   const currentPage = Math.floor(listFiles.skip / listFiles.take)
   const pageSize = listFiles.take
   const sortBy = listFiles.orderBy || 'name'
   const sortDirection = (listFiles.orderDirection as 'asc' | 'desc') || 'asc'
-  
+
   // Local UI state (not managed by URL)
   const [filters, setFilters] = useState<Record<string, string>>({})
-  const [visibleColumns, setVisibleColumns] = useState<Set<keyof FileRowData>>(() =>
-    new Set(['crawlerUrl', 'filename', 'filePath', 'originUri', 'lastUpdate', 'processedAt'])
+  const [visibleColumns, setVisibleColumns] = useState<Set<keyof FileRowData>>(
+    () => new Set(['crawlerUrl', 'filename', 'filePath', 'originUri', 'lastUpdate', 'processedAt']),
   )
 
   // Define columns
@@ -85,7 +85,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
   const transformedFiles: FileRowData[] = useMemo(() => {
     return listFiles.files.map((file) => {
       const filePath = file.originUri ? extractFilePath(file.originUri) : ''
-      
+
       return {
         id: file.id,
         libraryId: file.libraryId,
@@ -93,12 +93,8 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
         filename: file.name,
         filePath,
         originUri: file.originUri || null,
-        lastUpdate: file.originModificationDate 
-          ? dateTimeString(file.originModificationDate, language)
-          : null,
-        processedAt: file.processedAt
-          ? dateTimeString(file.processedAt, language)
-          : null,
+        lastUpdate: file.originModificationDate ? dateTimeString(file.originModificationDate, language) : null,
+        processedAt: file.processedAt ? dateTimeString(file.processedAt, language) : null,
       }
     })
   }, [listFiles.files, language])
@@ -122,7 +118,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
   }
 
   const handleFilter = (columnId: string, value: string) => {
-    setFilters(prev => ({ ...prev, [columnId]: value }))
+    setFilters((prev) => ({ ...prev, [columnId]: value }))
   }
 
   const toggleColumnVisibility = (columnId: keyof FileRowData) => {
@@ -135,12 +131,12 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
     setVisibleColumns(newVisible)
   }
 
-  const visibleColumnsArray = columns.filter(col => visibleColumns.has(col.id))
+  const visibleColumnsArray = columns.filter((col) => visibleColumns.has(col.id))
 
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-wrap gap-4 items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Column visibility toggles */}
         <div className="flex flex-wrap gap-2">
           <span className="text-sm font-medium">{t('lists.files.showColumns')}:</span>
@@ -158,12 +154,12 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
         </div>
 
         {/* Right side controls */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col">
           {/* Page size selector */}
+          <div className="text-xs">{t('lists.files.pageSize')}:</div>
           <div className="flex items-center gap-2">
-            <span className="text-sm">{t('lists.files.pageSize')}:</span>
             <select
-              className="select select-sm select-bordered"
+              className="select select-sm select-bordered h-full"
               value={pageSize}
               onChange={(e) => {
                 const newPageSize = Number(e.target.value)
@@ -175,22 +171,22 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
               <option value={50}>50</option>
               <option value={100}>100</option>
             </select>
-          </div>
 
-          {/* Pagination */}
-          <Pagination
-            totalItems={listFiles.count}
-            itemsPerPage={pageSize}
-            currentPage={currentPage + 1} // Convert from 0-based to 1-based
-            onPageChange={(page) => onPageChange?.(page - 1, pageSize, sortBy, sortDirection)} // Convert back to 0-based
-            className="flex-shrink-0"
-          />
+            {/* Pagination */}
+            <Pagination
+              totalItems={listFiles.count}
+              itemsPerPage={pageSize}
+              currentPage={currentPage + 1} // Convert from 0-based to 1-based
+              onPageChange={(page) => onPageChange?.(page - 1, pageSize, sortBy, sortDirection)} // Convert back to 0-based
+              className="flex-shrink-0"
+            />
+          </div>
         </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="table table-zebra w-full">
+        <table className="table-zebra table w-full">
           <thead>
             <tr>
               {visibleColumnsArray.map((column) => (
@@ -201,21 +197,19 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
                       {column.sortable ? (
                         <button
                           type="button"
-                          className="flex items-center gap-1 hover:text-primary"
+                          className="hover:text-primary flex items-center gap-1"
                           onClick={() => handleSort(column.id)}
                         >
                           {column.label}
                           {sortBy === column.id && (
-                            <span className="text-xs">
-                              {sortDirection === 'asc' ? '↑' : '↓'}
-                            </span>
+                            <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>
                           )}
                         </button>
                       ) : (
                         <span>{column.label}</span>
                       )}
                     </div>
-                    
+
                     {/* Filter input */}
                     {column.filterable && (
                       <input
@@ -234,7 +228,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
           <tbody>
             {filteredFiles.length === 0 ? (
               <tr>
-                <td colSpan={visibleColumnsArray.length} className="text-center py-8">
+                <td colSpan={visibleColumnsArray.length} className="py-8 text-center">
                   {t('lists.files.noFiles')}
                 </td>
               </tr>
@@ -248,9 +242,9 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
                           to="/libraries/$libraryId/files/$fileId"
                           params={{
                             libraryId: file.libraryId,
-                            fileId: file.id
+                            fileId: file.id,
                           }}
-                          className="link link-primary truncate block"
+                          className="link link-primary block truncate"
                           title={file[column.id] || undefined}
                         >
                           {file[column.id] || '-'}
@@ -260,7 +254,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
                           href={file.originUri}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="link link-primary truncate block"
+                          className="link link-primary block truncate"
                           title={file[column.id] || undefined}
                         >
                           {file[column.id] || '-'}
@@ -280,7 +274,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
       </div>
 
       {/* Summary */}
-      <div className="text-sm text-base-content/70">
+      <div className="text-base-content/70 text-sm">
         {t('lists.files.showing', {
           start: currentPage * pageSize + 1,
           end: Math.min((currentPage + 1) * pageSize, listFiles.count),

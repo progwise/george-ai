@@ -50,7 +50,7 @@ export const ListEditForm = ({ list }: ListEditFormProps) => {
     },
   }
   return (
-    <form ref={formRef} className="mx-auto max-w-4xl space-y-6">
+    <form ref={formRef} className="">
       <LoadingSpinner isLoading={isPending} />
       <input type="hidden" name="id" value={list.id} />
       <div className="card bg-base-100 grid grid-cols-2 gap-2 p-2 shadow-md">

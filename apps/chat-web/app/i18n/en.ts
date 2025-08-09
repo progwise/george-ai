@@ -451,7 +451,7 @@ export default {
     files: {
       title: 'Files',
       showColumns: 'Show columns',
-      pageSize: 'Items per page',
+      pageSize: 'Per page',
       filterPlaceholder: 'Filter...',
       noFiles: 'No files found',
       showing: 'Showing {start} to {end} of {total} files',

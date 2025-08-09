@@ -2,9 +2,9 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useCallback } from 'react'
 
-import { ListFilesTable } from '../../../../components/lists/list-files-table'
-import { getListFilesQueryOptions } from '../../../../components/lists/get-list-files'
 import { getListQueryOptions } from '../../../../components/lists/get-list'
+import { getListFilesQueryOptions } from '../../../../components/lists/get-list-files'
+import { ListFilesTable } from '../../../../components/lists/list-files-table'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 interface ListSearchParams {
@@ -26,13 +26,15 @@ export const Route = createFileRoute('/_authenticated/lists/$listId/')({
     // Load initial data - let the component handle search params
     await Promise.all([
       context.queryClient.ensureQueryData(getListQueryOptions(params.listId)),
-      context.queryClient.ensureQueryData(getListFilesQueryOptions({
-        listId: params.listId,
-        skip: 0,
-        take: 20,
-        orderBy: 'name',
-        orderDirection: 'asc',
-      })),
+      context.queryClient.ensureQueryData(
+        getListFilesQueryOptions({
+          listId: params.listId,
+          skip: 0,
+          take: 20,
+          orderBy: 'name',
+          orderDirection: 'asc',
+        }),
+      ),
     ])
   },
 })
@@ -42,7 +44,7 @@ function RouteComponent() {
   const { page = 0, pageSize = 20, orderBy = 'name', orderDirection = 'asc' } = Route.useSearch()
   const { t } = useTranslation()
   const navigate = Route.useNavigate()
-  
+
   const {
     data: { aiList },
   } = useSuspenseQuery(getListQueryOptions(listId))
@@ -56,35 +58,32 @@ function RouteComponent() {
       take: pageSize,
       orderBy,
       orderDirection,
-    })
+    }),
   )
 
-  const handlePageChange = useCallback((
-    newPage: number,
-    newPageSize: number,
-    newOrderBy?: string,
-    newOrderDirection?: 'asc' | 'desc'
-  ) => {
-    navigate({
-      search: {
-        page: newPage,
-        pageSize: newPageSize,
-        orderBy: newOrderBy || orderBy,
-        orderDirection: newOrderDirection || orderDirection,
-      },
-      replace: true,
-    })
-  }, [navigate, orderBy, orderDirection])
+  const handlePageChange = useCallback(
+    (newPage: number, newPageSize: number, newOrderBy?: string, newOrderDirection?: 'asc' | 'desc') => {
+      navigate({
+        search: {
+          page: newPage,
+          pageSize: newPageSize,
+          orderBy: newOrderBy || orderBy,
+          orderDirection: newOrderDirection || orderDirection,
+        },
+        replace: true,
+      })
+    },
+    [navigate, orderBy, orderDirection],
+  )
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">{aiList.name}</h2>
         <p className="text-base-content/70">
           {t('lists.files.title')} - {aiList.sources.length} {t('lists.sources.currentSources').toLowerCase()}
         </p>
       </div>
-      
+
       <ListFilesTable listFiles={aiListFiles} onPageChange={handlePageChange} />
     </div>
   )

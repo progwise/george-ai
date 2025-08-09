@@ -455,7 +455,7 @@ export default {
     files: {
       title: 'Dateien',
       showColumns: 'Spalten anzeigen',
-      pageSize: 'Einträge pro Seite',
+      pageSize: 'Pro Seite',
       filterPlaceholder: 'Filter...',
       noFiles: 'Keine Dateien gefunden',
       showing: 'Zeige {start} bis {end} von {total} Dateien',
