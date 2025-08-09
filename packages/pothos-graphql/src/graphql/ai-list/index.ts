@@ -30,6 +30,18 @@ builder.prismaObject('AiListField', {
   }),
 })
 
+builder.prismaObject('AiListItemCache', {
+  name: 'AiListItemCache',
+  fields: (t) => ({
+    id: t.exposeID('id', { nullable: false }),
+    fieldId: t.exposeString('fieldId', { nullable: false }),
+    valueString: t.exposeString('valueString'),
+    valueNumber: t.exposeFloat('valueNumber'),
+    valueDate: t.expose('valueDate', { type: 'DateTime' }),
+    valueBoolean: t.exposeBoolean('valueBoolean'),
+  }),
+})
+
 builder.prismaObject('AiListSource', {
   name: 'AiListSource',
   fields: (t) => ({

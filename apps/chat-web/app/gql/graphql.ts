@@ -366,6 +366,7 @@ export enum AiLibraryCrawlerUriType {
 
 export type AiLibraryFile = {
   __typename?: 'AiLibraryFile'
+  AiListItemCache: Array<AiListItemCache>
   chunks?: Maybe<Scalars['Int']['output']>
   crawledByCrawler?: Maybe<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
@@ -533,6 +534,16 @@ export type AiListInput = {
   name: Scalars['String']['input']
 }
 
+export type AiListItemCache = {
+  __typename?: 'AiListItemCache'
+  fieldId: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  valueBoolean?: Maybe<Scalars['Boolean']['output']>
+  valueDate?: Maybe<Scalars['DateTime']['output']>
+  valueNumber?: Maybe<Scalars['Float']['output']>
+  valueString?: Maybe<Scalars['String']['output']>
+}
+
 export type AiListParticipant = {
   __typename?: 'AiListParticipant'
   id: Scalars['ID']['output']
@@ -568,6 +579,13 @@ export type AssistantParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
+}
+
+export type ComputeFieldValueResult = {
+  __typename?: 'ComputeFieldValueResult'
+  error?: Maybe<Scalars['String']['output']>
+  success?: Maybe<Scalars['Boolean']['output']>
+  value?: Maybe<Scalars['String']['output']>
 }
 
 export type ConversationInvitationInput = {
@@ -653,6 +671,7 @@ export type Mutation = {
   addListSource: AiListSource
   cancelFileUpload: Scalars['Boolean']['output']
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
+  computeFieldValue?: Maybe<ComputeFieldValueResult>
   confirmConversationInvitation?: Maybe<AiConversation>
   confirmUserProfile?: Maybe<UserProfile>
   createAiAssistant?: Maybe<AiAssistant>
@@ -748,6 +767,11 @@ export type MutationCancelFileUploadArgs = {
 
 export type MutationClearEmbeddedFilesArgs = {
   libraryId: Scalars['String']['input']
+}
+
+export type MutationComputeFieldValueArgs = {
+  fieldId: Scalars['String']['input']
+  fileId: Scalars['String']['input']
 }
 
 export type MutationConfirmConversationInvitationArgs = {
@@ -2753,6 +2777,33 @@ export type AiLibraryUpdate_TableItemFragment = {
   file?: { __typename?: 'AiLibraryFile'; id: string; name: string } | null
 }
 
+export type AddListFieldMutationVariables = Exact<{
+  listId: Scalars['String']['input']
+  data: AiListFieldInput
+}>
+
+export type AddListFieldMutation = {
+  __typename?: 'Mutation'
+  addListField: {
+    __typename?: 'AiListField'
+    id: string
+    name: string
+    type: string
+    order: number
+    sourceType: string
+    fileProperty?: string | null
+    prompt?: string | null
+    languageModel?: string | null
+  }
+}
+
+export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
+
+export type AiChatModelsQuery = {
+  __typename?: 'Query'
+  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
+}
+
 export type AddListSourceMutationVariables = Exact<{
   listId: Scalars['String']['input']
   data: AiListSourceInput
@@ -2794,6 +2845,15 @@ export type ListEditForm_ListFragment = {
   updatedAt?: string | null
 }
 
+export type RemoveListFieldMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type RemoveListFieldMutation = {
+  __typename?: 'Mutation'
+  removeListField: { __typename?: 'AiListField'; id: string }
+}
+
 export type AiListFilesQueryVariables = Exact<{
   listId: Scalars['String']['input']
   skip: Scalars['Int']['input']
@@ -2823,6 +2883,15 @@ export type AiListFilesQuery = {
       originModificationDate?: string | null
       libraryId: string
       crawledByCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string } | null
+      AiListItemCache: Array<{
+        __typename?: 'AiListItemCache'
+        id: string
+        fieldId: string
+        valueString?: string | null
+        valueNumber?: number | null
+        valueDate?: string | null
+        valueBoolean?: boolean | null
+      }>
     }>
   }
 }
@@ -2909,6 +2978,15 @@ export type ListFilesTable_ListFilesFragment = {
     originModificationDate?: string | null
     libraryId: string
     crawledByCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string } | null
+    AiListItemCache: Array<{
+      __typename?: 'AiListItemCache'
+      id: string
+      fieldId: string
+      valueString?: string | null
+      valueNumber?: number | null
+      valueDate?: string | null
+      valueBoolean?: boolean | null
+    }>
   }>
 }
 
@@ -2969,13 +3047,6 @@ export type UpdateListMutationVariables = Exact<{
 }>
 
 export type UpdateListMutation = { __typename?: 'Mutation'; updateList?: { __typename?: 'AiList'; id: string } | null }
-
-export type AiChatModelsQueryVariables = Exact<{ [key: string]: never }>
-
-export type AiChatModelsQuery = {
-  __typename?: 'Query'
-  aiChatModels: Array<{ __typename?: 'AiChatModel'; name: string; model: string }>
-}
 
 export type AiEmbeddingModelsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -5909,6 +5980,21 @@ export const ListFilesTable_ListFilesFragmentDoc = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'AiListItemCache' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
                     ],
                   },
                 },
@@ -10433,6 +10519,88 @@ export const LibraryUpdatesListDocument = {
     },
   ],
 } as unknown as DocumentNode<LibraryUpdatesListQuery, LibraryUpdatesListQueryVariables>
+export const AddListFieldDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'addListField' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiListFieldInput' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'addListField' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'listId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'listId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'data' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AddListFieldMutation, AddListFieldMutationVariables>
+export const AiChatModelsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'aiChatModels' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'aiChatModels' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
 export const AddListSourceDocument = {
   kind: 'Document',
   definitions: [
@@ -10579,6 +10747,43 @@ export const DeleteListDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteListMutation, DeleteListMutationVariables>
+export const RemoveListFieldDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'removeListField' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'removeListField' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RemoveListFieldMutation, RemoveListFieldMutationVariables>
 export const AiListFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -10689,6 +10894,21 @@ export const AiListFilesDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'AiListItemCache' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueString' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueNumber' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'valueBoolean' } },
                     ],
                   },
                 },
@@ -11003,32 +11223,6 @@ export const UpdateListDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateListMutation, UpdateListMutationVariables>
-export const AiChatModelsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'aiChatModels' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'aiChatModels' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'model' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AiChatModelsQuery, AiChatModelsQueryVariables>
 export const AiEmbeddingModelsDocument = {
   kind: 'Document',
   definitions: [

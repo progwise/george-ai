@@ -7,6 +7,8 @@ import { graphql } from '../../gql'
 import { ListFilesTable_ListFilesFragment, ListFieldsTable_ListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Pagination } from '../table/pagination'
+import { AddFieldModal } from './add-field-modal'
+import { FieldHeaderDropdown } from './field-header-dropdown'
 
 graphql(`
   fragment ListFilesTable_ListFiles on AiListFilesQueryResult {
@@ -28,6 +30,14 @@ graphql(`
       crawledByCrawler {
         id
         uri
+      }
+      AiListItemCache {
+        id
+        fieldId
+        valueString
+        valueNumber
+        valueDate
+        valueBoolean
       }
     }
   }
@@ -142,6 +152,8 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
     }
   }, [sortedFields])
   const [isResizing, setIsResizing] = useState<string | null>(null)
+  const [isAddFieldModalOpen, setIsAddFieldModalOpen] = useState(false)
+  const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
 
   const startXRef = useRef<number>(0)
   const startWidthRef = useRef<number>(0)
@@ -342,34 +354,64 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
         <div
           className="border-base-300 grid"
           style={{
-            gridTemplateColumns: visibleFieldsArray.map((field) => `${columnWidths[field.id] || 150}px`).join(' '),
+            gridTemplateColumns: `${visibleFieldsArray.map((field) => `${columnWidths[field.id] || 150}px`).join(' ')} 60px`,
           }}
         >
           {/* Header Row */}
           {visibleFieldsArray.map((field) => (
             <div
               key={`header-${field.id}`}
-              className="border-base-300 bg-base-200 relative border-b border-r text-sm"
+              className="border-base-300 bg-base-200 relative border-b border-r text-sm group"
               style={{
                 minWidth: `${columnWidths[field.id] || 150}px`,
                 width: `${columnWidths[field.id] || 150}px`,
               }}
             >
               <div className="space-y-2 p-2">
-                {/* Field header with sorting */}
-                <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap text-nowrap hover:overflow-visible">
-                  {isSortable(field) ? (
+                {/* Field header with sorting and dropdown */}
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-1 overflow-hidden whitespace-nowrap text-nowrap hover:overflow-visible flex-1">
+                    {isSortable(field) ? (
+                      <button
+                        type="button"
+                        className="hover:text-primary flex items-center gap-1"
+                        onClick={() => handleSort(field.id)}
+                      >
+                        {field.name}
+                        {sortBy === field.fileProperty && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                      </button>
+                    ) : (
+                      <span>{field.name}</span>
+                    )}
+                  </div>
+                  
+                  {/* Field dropdown trigger */}
+                  <div className="relative">
                     <button
                       type="button"
-                      className="hover:text-primary flex items-center gap-1"
-                      onClick={() => handleSort(field.id)}
+                      className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)
+                      }}
                     >
-                      {field.name}
-                      {sortBy === field.fileProperty && <span className="text-xs">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                      </svg>
                     </button>
-                  ) : (
-                    <span>{field.name}</span>
-                  )}
+                    
+                    {/* Field dropdown */}
+                    <FieldHeaderDropdown
+                      field={field}
+                      listId={list.id}
+                      isOpen={fieldDropdownOpen === field.id}
+                      onClose={() => setFieldDropdownOpen(null)}
+                      onEdit={(editField) => {
+                        // TODO: Implement edit functionality
+                        console.log('Edit field:', editField)
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Filter input */}
@@ -396,11 +438,25 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
             </div>
           ))}
 
+          {/* Add Field Header */}
+          <div className="border-base-300 bg-base-200 relative border-b border-r text-sm flex items-center justify-center">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm w-full h-full rounded-none"
+              onClick={() => setIsAddFieldModalOpen(true)}
+              title="Add enrichment field"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
+
           {/* Data Rows */}
           {filteredRows.length === 0 ? (
             <div
               className="border-base-300 border-b border-r p-8 text-center"
-              style={{ gridColumn: `1 / ${visibleFieldsArray.length + 1}` }}
+              style={{ gridColumn: `1 / ${visibleFieldsArray.length + 2}` }}
             >
               {t('lists.files.noFiles')}
             </div>
@@ -449,7 +505,14 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
                     )}
                   </div>
                 )
-              })
+              }).concat(
+                // Add empty cell for "Add Field" column
+                <div
+                  key={`${row.fileId}-add-field`}
+                  className="border-base-300 border-b border-r"
+                  style={{ width: '60px', minWidth: '60px' }}
+                />
+              )
             )
           )}
         </div>
@@ -463,6 +526,14 @@ export const ListFieldsTable = ({ list, listFiles, onPageChange }: ListFieldsTab
           total: listFiles.count,
         })}
       </div>
+
+      {/* Add Field Modal */}
+      <AddFieldModal
+        listId={list.id}
+        isOpen={isAddFieldModalOpen}
+        onClose={() => setIsAddFieldModalOpen(false)}
+        maxOrder={Math.max(0, ...sortedFields.map(f => f.order))}
+      />
     </div>
   )
 }

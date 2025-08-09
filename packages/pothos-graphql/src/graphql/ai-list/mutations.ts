@@ -322,3 +322,111 @@ builder.mutationField('removeListField', (t) =>
     },
   }),
 )
+
+// Define the result type for computing field values
+const ComputeFieldValueResult = builder
+  .objectRef<{
+    success: boolean
+    value?: string | null
+    error?: string | null
+  }>('ComputeFieldValueResult')
+  .implement({
+    fields: (t) => ({
+      success: t.exposeBoolean('success'),
+      value: t.exposeString('value', { nullable: true }),
+      error: t.exposeString('error', { nullable: true }),
+    }),
+  })
+
+builder.mutationField('computeFieldValue', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: ComputeFieldValueResult,
+    args: {
+      fieldId: t.arg.string({ required: true }),
+      fileId: t.arg.string({ required: true }),
+    },
+    resolve: async (_source, { fieldId, fileId }, { session }) => {
+      try {
+        // Get the field
+        const field = await prisma.aiListField.findFirst({
+          where: { id: fieldId },
+          include: { list: { include: { participants: true } } },
+        })
+        if (!field) {
+          throw new Error(`Field with id ${fieldId} not found`)
+        }
+        canAccessListOrThrow(field.list, session.user)
+
+        // Only compute for LLM fields
+        if (field.sourceType !== 'llm_computed') {
+          throw new Error('Can only compute values for LLM computed fields')
+        }
+
+        // Get the file
+        const file = await prisma.aiLibraryFile.findFirst({
+          where: { id: fileId },
+          include: { library: true },
+        })
+        if (!file) {
+          throw new Error(`File with id ${fileId} not found`)
+        }
+
+        // Check access to the library
+        const hasAccess = await prisma.aiLibrary.findFirst({
+          where: {
+            id: file.libraryId,
+            OR: [
+              { ownerId: session.user.id },
+              { isPublic: true },
+              { participants: { some: { userId: session.user.id } } },
+            ],
+          },
+        })
+        if (!hasAccess) {
+          throw new Error('Access denied to file library')
+        }
+
+        // TODO: Read the converted.md file content and use LLM to compute the value
+        // For now, return a placeholder
+        const mockValue = `[${field.type}] Computed value for ${file.name}`
+
+        // Cache the computed value
+        await prisma.aiListItemCache.upsert({
+          where: {
+            fileId_fieldId: {
+              fileId: fileId,
+              fieldId: fieldId,
+            }
+          },
+          create: {
+            fileId: fileId,
+            fieldId: fieldId,
+            valueString: field.type === 'string' ? mockValue : null,
+            valueNumber: field.type === 'number' ? 42 : null,
+            valueBoolean: field.type === 'boolean' ? true : null,
+            valueDate: field.type === 'date' || field.type === 'datetime' ? new Date() : null,
+          },
+          update: {
+            valueString: field.type === 'string' ? mockValue : null,
+            valueNumber: field.type === 'number' ? 42 : null,
+            valueBoolean: field.type === 'boolean' ? true : null,
+            valueDate: field.type === 'date' || field.type === 'datetime' ? new Date() : null,
+          },
+        })
+
+        return {
+          success: true,
+          value: mockValue,
+          error: null,
+        }
+      } catch (error) {
+        console.error('Error computing field value:', error)
+        return {
+          success: false,
+          value: null,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        }
+      }
+    },
+  }),
+)

@@ -308,6 +308,7 @@ model AiListField {
   prompt        String?
 
   list AiList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  cachedValues AiListItemCache[]
 }
 
 model AiListItemCache {
@@ -315,11 +316,15 @@ model AiListItemCache {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   fileId       String
+  fieldId      String
   valueString  String?
   valueNumber  Float?
   valueDate    DateTime?
   valueBoolean Boolean?
   file         AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  field        AiListField   @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, fieldId])
 }
 
 model AiConversation {

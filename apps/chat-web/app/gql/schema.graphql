@@ -340,6 +340,7 @@ enum AiLibraryCrawlerUriType {
 }
 
 type AiLibraryFile {
+  AiListItemCache: [AiListItemCache!]!
   chunks: Int
   crawledByCrawler: AiLibraryCrawler
   createdAt: DateTime!
@@ -507,6 +508,15 @@ input AiListInput {
   name: String!
 }
 
+type AiListItemCache {
+  fieldId: String!
+  id: ID!
+  valueBoolean: Boolean
+  valueDate: DateTime
+  valueNumber: Float
+  valueString: String
+}
+
 type AiListParticipant {
   id: ID!
   list: AiList!
@@ -542,6 +552,12 @@ type AssistantParticipant implements AiConversationParticipant {
 }
 
 scalar BigInt
+
+type ComputeFieldValueResult {
+  error: String
+  success: Boolean
+  value: String
+}
 
 input ConversationInvitationInput {
   allowDifferentEmailAddress: Boolean!
@@ -636,6 +652,7 @@ type Mutation {
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
   clearEmbeddedFiles(libraryId: String!): Boolean
+  computeFieldValue(fieldId: String!, fileId: String!): ComputeFieldValueResult
   confirmConversationInvitation(conversationId: String!, invitationId: String!): AiConversation
   confirmUserProfile(profileId: String!): UserProfile
   createAiAssistant(name: String!): AiAssistant
