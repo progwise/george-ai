@@ -100,14 +100,14 @@ builder.mutationField('addListSource', (t) =>
 
       // Check if library exists and user has access
       const library = await prisma.aiLibrary.findFirst({
-        where: { 
+        where: {
           id: data.libraryId,
           OR: [
             { ownerId: session.user.id },
             { isPublic: true },
-            { participants: { some: { userId: session.user.id } } }
-          ]
-        }
+            { participants: { some: { userId: session.user.id } } },
+          ],
+        },
       })
       if (!library) {
         throw new Error(`Library with id ${data.libraryId} not found or access denied`)
@@ -115,7 +115,7 @@ builder.mutationField('addListSource', (t) =>
 
       // Check if source already exists
       const existingSource = await prisma.aiListSource.findFirst({
-        where: { listId, libraryId: data.libraryId }
+        where: { listId, libraryId: data.libraryId },
       })
       if (existingSource) {
         throw new Error(`Library is already added as a source to this list`)
@@ -144,7 +144,7 @@ builder.mutationField('removeListSource', (t) =>
       const existingSource = await prisma.aiListSource.findFirst({
         ...query,
         where: { id },
-        include: { list: { include: { participants: true } } }
+        include: { list: { include: { participants: true } } },
       })
       if (!existingSource) {
         throw new Error(`List source with id ${id} not found`)

@@ -83,7 +83,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
   // Load from localStorage after mount to avoid SSR mismatch
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined
-    
+
     try {
       const saved = localStorage.getItem('listFilesTable-columnWidths')
       if (saved) {
@@ -101,7 +101,7 @@ export const ListFilesTable = ({ listFiles, onPageChange }: ListFilesTableProps)
     } catch {
       // If localStorage fails, keep defaults
     }
-    
+
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId)

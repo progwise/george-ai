@@ -28,9 +28,9 @@ export const addListSource = createServerFn({ method: 'POST' })
           }
         }
       `),
-      { 
-        listId: ctx.data.listId, 
-        data: { libraryId: ctx.data.libraryId } 
+      {
+        listId: ctx.data.listId,
+        data: { libraryId: ctx.data.libraryId },
       },
     )
   })
