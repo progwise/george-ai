@@ -495,11 +495,26 @@ export type AiList = {
 
 export type AiListField = {
   __typename?: 'AiListField'
+  fileProperty?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   languageModel?: Maybe<Scalars['String']['output']>
   name: Scalars['String']['output']
+  order: Scalars['Int']['output']
   prompt?: Maybe<Scalars['String']['output']>
+  sourceType: Scalars['String']['output']
   type: Scalars['String']['output']
+}
+
+export type AiListFieldInput = {
+  fileProperty?: InputMaybe<Scalars['String']['input']>
+  languageModel?: InputMaybe<Scalars['String']['input']>
+  name: Scalars['String']['input']
+  order?: InputMaybe<Scalars['Int']['input']>
+  prompt?: InputMaybe<Scalars['String']['input']>
+  /** Source type: file_property or llm_computed */
+  sourceType: Scalars['String']['input']
+  /** Field type: string, number, date, datetime, boolean */
+  type: Scalars['String']['input']
 }
 
 /** Query result for AI list files from all source libraries */
@@ -634,6 +649,7 @@ export type Mutation = {
   addConversationParticipants?: Maybe<Array<AiConversationParticipant>>
   addLibraryParticipants: Array<User>
   addLibraryUsage?: Maybe<AiLibraryUsage>
+  addListField: AiListField
   addListSource: AiListSource
   cancelFileUpload: Scalars['Boolean']['output']
   clearEmbeddedFiles?: Maybe<Scalars['Boolean']['output']>
@@ -667,6 +683,7 @@ export type Mutation = {
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryParticipant: User
   removeLibraryUsage?: Maybe<AiLibraryUsage>
+  removeListField: AiListField
   removeListSource: AiListSource
   resetAssessmentAnswers: Scalars['DateTime']['output']
   runAiLibraryCrawler: Scalars['String']['output']
@@ -681,6 +698,7 @@ export type Mutation = {
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateList?: Maybe<AiList>
+  updateListField: AiListField
   updateMessage?: Maybe<AiConversationMessage>
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
@@ -711,6 +729,11 @@ export type MutationAddLibraryParticipantsArgs = {
 export type MutationAddLibraryUsageArgs = {
   assistantId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
+}
+
+export type MutationAddListFieldArgs = {
+  data: AiListFieldInput
+  listId: Scalars['String']['input']
 }
 
 export type MutationAddListSourceArgs = {
@@ -856,6 +879,10 @@ export type MutationRemoveLibraryUsageArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationRemoveListFieldArgs = {
+  id: Scalars['String']['input']
+}
+
 export type MutationRemoveListSourceArgs = {
   id: Scalars['String']['input']
 }
@@ -919,6 +946,11 @@ export type MutationUpdateLibraryUsageArgs = {
 
 export type MutationUpdateListArgs = {
   data: AiListInput
+  id: Scalars['String']['input']
+}
+
+export type MutationUpdateListFieldArgs = {
+  data: AiListFieldInput
   id: Scalars['String']['input']
 }
 
@@ -2819,6 +2851,17 @@ export type GetListQuery = {
         owner: { __typename?: 'User'; name?: string | null }
       } | null
     }>
+    fields: Array<{
+      __typename?: 'AiListField'
+      id: string
+      name: string
+      type: string
+      order: number
+      sourceType: string
+      fileProperty?: string | null
+      prompt?: string | null
+      languageModel?: string | null
+    }>
   }
 }
 
@@ -2866,6 +2909,22 @@ export type ListFilesTable_ListFilesFragment = {
     originModificationDate?: string | null
     libraryId: string
     crawledByCrawler?: { __typename?: 'AiLibraryCrawler'; id: string; uri: string } | null
+  }>
+}
+
+export type ListFieldsTable_ListFragment = {
+  __typename?: 'AiList'
+  id: string
+  fields: Array<{
+    __typename?: 'AiListField'
+    id: string
+    name: string
+    type: string
+    order: number
+    sourceType: string
+    fileProperty?: string | null
+    prompt?: string | null
+    languageModel?: string | null
   }>
 }
 
@@ -5861,6 +5920,39 @@ export const ListFilesTable_ListFilesFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListFilesTable_ListFilesFragment, unknown>
+export const ListFieldsTable_ListFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'fields' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListFieldsTable_ListFragment, unknown>
 export const ListSelector_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10641,6 +10733,7 @@ export const GetListDocument = {
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListEditForm_List' } },
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListSourcesManager_List' } },
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListFieldsTable_List' } },
               ],
             },
           },
@@ -10712,6 +10805,34 @@ export const GetListDocument = {
                     ],
                   },
                 },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'ListFieldsTable_List' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'fields' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'type' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'order' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileProperty' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'prompt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'languageModel' } },
               ],
             },
           },

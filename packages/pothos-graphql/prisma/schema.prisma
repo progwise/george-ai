@@ -294,7 +294,16 @@ model AiListField {
   createdAt     DateTime @default(now())
   listId        String
   name          String
-  type          String // 'string', 'number', 'date', 'datetime', 'boolean'
+  type          String   // 'string', 'number', 'date', 'datetime', 'boolean'
+  order         Int      @default(0) // Display order in table
+  
+  // Source configuration
+  sourceType    String   // 'file_property' or 'llm_computed'
+  
+  // For file_property source
+  fileProperty  String?  // 'name', 'originUri', 'processedAt', 'originModificationDate', 'size', 'mimeType', 'crawlerUrl'
+  
+  // For llm_computed source
   languageModel String?
   prompt        String?
 

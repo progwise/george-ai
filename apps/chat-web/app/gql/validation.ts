@@ -11,6 +11,7 @@ import {
   AiLibraryCrawlerUriType,
   AiLibraryFileInput,
   AiLibraryInput,
+  AiListFieldInput,
   AiListInput,
   AiListSourceInput,
   ConversationInvitationInput,
@@ -114,6 +115,18 @@ export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> 
     icon: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
+  })
+}
+
+export function AiListFieldInputSchema(): z.ZodObject<Properties<AiListFieldInput>> {
+  return z.object({
+    fileProperty: z.string().nullish(),
+    languageModel: z.string().nullish(),
+    name: z.string(),
+    order: z.number().nullish(),
+    prompt: z.string().nullish(),
+    sourceType: z.string(),
+    type: z.string(),
   })
 }
 

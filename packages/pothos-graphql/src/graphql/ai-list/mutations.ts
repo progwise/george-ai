@@ -128,6 +128,51 @@ builder.mutationField('addListSource', (t) =>
           libraryId: data.libraryId,
         },
       })
+      
+      // Auto-create file property fields for this list if they don't exist
+      const filePropertyFields = [
+        { property: 'name', name: 'Filename', type: 'string' },
+        { property: 'originUri', name: 'Origin URI', type: 'string' },
+        { property: 'crawlerUrl', name: 'Crawler URL', type: 'string' },
+        { property: 'processedAt', name: 'Processed At', type: 'datetime' },
+        { property: 'originModificationDate', name: 'Last Update', type: 'datetime' },
+        { property: 'size', name: 'File Size', type: 'number' },
+        { property: 'mimeType', name: 'MIME Type', type: 'string' },
+      ]
+      
+      // Check which fields already exist
+      const existingFields = await prisma.aiListField.findMany({
+        where: { 
+          listId,
+          sourceType: 'file_property'
+        }
+      })
+      
+      const existingProperties = new Set(existingFields.map(f => f.fileProperty))
+      
+      // Create missing file property fields
+      const fieldsToCreate = filePropertyFields.filter(f => !existingProperties.has(f.property))
+      
+      if (fieldsToCreate.length > 0) {
+        // Get max order to add new fields at the end
+        const maxOrderField = await prisma.aiListField.findFirst({
+          where: { listId },
+          orderBy: { order: 'desc' }
+        })
+        const startOrder = (maxOrderField?.order ?? -1) + 1
+        
+        await prisma.aiListField.createMany({
+          data: fieldsToCreate.map((field, index) => ({
+            listId,
+            name: field.name,
+            type: field.type,
+            order: startOrder + index,
+            sourceType: 'file_property',
+            fileProperty: field.property,
+          }))
+        })
+      }
+      
       return newSource
     },
   }),
@@ -153,6 +198,127 @@ builder.mutationField('removeListSource', (t) =>
 
       await prisma.aiListSource.delete({ where: { id } })
       return existingSource
+    },
+  }),
+)
+
+// List Field mutations
+const AiListFieldInput = builder.inputType('AiListFieldInput', {
+  fields: (t) => ({
+    name: t.string({ required: true }),
+    type: t.string({ required: true, description: 'Field type: string, number, date, datetime, boolean' }),
+    order: t.int({ required: false }),
+    sourceType: t.string({ required: true, description: 'Source type: file_property or llm_computed' }),
+    fileProperty: t.string({ required: false }),
+    prompt: t.string({ required: false }),
+    languageModel: t.string({ required: false }),
+  }),
+})
+
+builder.mutationField('addListField', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListField',
+    nullable: false,
+    args: {
+      listId: t.arg.string({ required: true }),
+      data: t.arg({ type: AiListFieldInput, required: true }),
+    },
+    resolve: async (query, _source, { listId, data }, { session }) => {
+      const existingList = await prisma.aiList.findFirst({
+        include: { participants: true },
+        where: { id: listId },
+      })
+      if (!existingList) {
+        throw new Error(`List with id ${listId} not found`)
+      }
+      canAccessListOrThrow(existingList, session.user)
+
+      // Validate field type
+      const validTypes = ['string', 'number', 'date', 'datetime', 'boolean']
+      if (!validTypes.includes(data.type)) {
+        throw new Error(`Invalid field type: ${data.type}. Must be one of: ${validTypes.join(', ')}`)
+      }
+
+      const newField = await prisma.aiListField.create({
+        ...query,
+        data: {
+          listId,
+          name: data.name,
+          type: data.type,
+          order: data.order || 0,
+          sourceType: data.sourceType,
+          fileProperty: data.fileProperty,
+          prompt: data.prompt,
+          languageModel: data.languageModel,
+        },
+      })
+      return newField
+    },
+  }),
+)
+
+builder.mutationField('updateListField', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListField',
+    nullable: false,
+    args: {
+      id: t.arg.string({ required: true }),
+      data: t.arg({ type: AiListFieldInput, required: true }),
+    },
+    resolve: async (query, _source, { id, data }, { session }) => {
+      const existingField = await prisma.aiListField.findFirst({
+        where: { id },
+        include: { list: { include: { participants: true } } },
+      })
+      if (!existingField) {
+        throw new Error(`List field with id ${id} not found`)
+      }
+      canAccessListOrThrow(existingField.list, session.user)
+
+      // Validate field type if changed
+      const validTypes = ['string', 'number', 'date', 'datetime', 'boolean']
+      if (!validTypes.includes(data.type)) {
+        throw new Error(`Invalid field type: ${data.type}. Must be one of: ${validTypes.join(', ')}`)
+      }
+
+      const updatedField = await prisma.aiListField.update({
+        ...query,
+        where: { id },
+        data: {
+          name: data.name,
+          type: data.type,
+          order: data.order ?? undefined,
+          sourceType: data.sourceType,
+          fileProperty: data.fileProperty,
+          prompt: data.prompt,
+          languageModel: data.languageModel,
+        },
+      })
+      return updatedField
+    },
+  }),
+)
+
+builder.mutationField('removeListField', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: 'AiListField',
+    nullable: false,
+    args: {
+      id: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _source, { id }, { session }) => {
+      const existingField = await prisma.aiListField.findFirst({
+        ...query,
+        where: { id },
+        include: { list: { include: { participants: true } } },
+      })
+      if (!existingField) {
+        throw new Error(`List field with id ${id} not found`)
+      }
+      canAccessListOrThrow(existingField.list, session.user)
+
+      await prisma.aiListField.delete({ where: { id } })
+      return existingField
     },
   }),
 )

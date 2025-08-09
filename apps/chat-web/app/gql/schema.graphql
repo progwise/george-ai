@@ -464,10 +464,29 @@ type AiList {
 }
 
 type AiListField {
+  fileProperty: String
   id: ID!
   languageModel: String
   name: String!
+  order: Int!
   prompt: String
+  sourceType: String!
+  type: String!
+}
+
+input AiListFieldInput {
+  fileProperty: String
+  languageModel: String
+  name: String!
+  order: Int
+  prompt: String
+  """
+  Source type: file_property or llm_computed
+  """
+  sourceType: String!
+  """
+  Field type: string, number, date, datetime, boolean
+  """
   type: String!
 }
 
@@ -613,6 +632,7 @@ type Mutation {
   ): [AiConversationParticipant!]
   addLibraryParticipants(libraryId: String!, userIds: [String!]!): [User!]!
   addLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
+  addListField(data: AiListFieldInput!, listId: String!): AiListField!
   addListSource(data: AiListSourceInput!, listId: String!): AiListSource!
   cancelFileUpload(fileId: String!, libraryId: String!): Boolean!
   clearEmbeddedFiles(libraryId: String!): Boolean
@@ -650,6 +670,7 @@ type Mutation {
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryParticipant(libraryId: String!, userId: String!): User!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
+  removeListField(id: String!): AiListField!
   removeListSource(id: String!): AiListSource!
   resetAssessmentAnswers(assistantId: String!): DateTime!
   runAiLibraryCrawler(crawlerId: String!): String!
@@ -668,6 +689,7 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
+  updateListField(data: AiListFieldInput!, id: String!): AiListField!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile

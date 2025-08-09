@@ -15,6 +15,7 @@ const getList = createServerFn({ method: 'GET' })
             ...ListsBase
             ...ListEditForm_List
             ...ListSourcesManager_List
+            ...ListFieldsTable_List
           }
         }
       `),

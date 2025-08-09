@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 
 import { getListQueryOptions } from '../../../../components/lists/get-list'
 import { getListFilesQueryOptions } from '../../../../components/lists/get-list-files'
-import { ListFilesTable } from '../../../../components/lists/list-files-table'
+import { ListFieldsTable } from '../../../../components/lists/list-fields-table'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 interface ListSearchParams {
@@ -84,7 +84,7 @@ function RouteComponent() {
         </p>
       </div>
 
-      <ListFilesTable listFiles={aiListFiles} onPageChange={handlePageChange} />
+      <ListFieldsTable list={aiList} listFiles={aiListFiles} onPageChange={handlePageChange} />
     </div>
   )
 }
